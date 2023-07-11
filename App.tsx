@@ -1,10 +1,5 @@
-import { TestHeader } from './src/components/LoginHeader';
-import { NavigationContainer } from '@react-navigation/native';
+import Routes from './src/routes';
 
 export default function App() {
-	return (
-		<NavigationContainer>
-			<TestHeader />
-		</NavigationContainer>
-	);
+	return <Routes />;
 }

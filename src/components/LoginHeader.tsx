@@ -12,7 +12,7 @@ export function TestHeader() {
 				component={Login}
 				options={{
 					headerTitle: () => (
-						<Image source={require('../assets/qodeless_logo.jpg')} />
+						<Image source={require('../assets/inquadra_logo.png')} />
 					),
 					headerTitleAlign: 'center',
 					headerStyle: {
