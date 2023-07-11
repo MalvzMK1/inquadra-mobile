@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native';
+import { TestHeader } from './src/components/LoginHeader';
+import { NavigationContainer } from '@react-navigation/native';
 
 export default function App() {
 	return (
-		<View className="bg-red-400 h-screen w-screen">
-			<Text>Open up App.tsx to start working on your app!</Text>
-		</View>
+		<NavigationContainer>
+			<TestHeader />
+		</NavigationContainer>
 	);
 }

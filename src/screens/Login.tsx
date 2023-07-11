@@ -1,13 +1,9 @@
-import { Button, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text } from 'react-native';
 
 export default function Login() {
 	return (
-		<View>
-			<Button
-				title="Go to register page"
-				// onPress={(_) => navigate()}
-			/>
+		<View className="flex-1 bg-green-500 h-screen w-screen ">
+			<Text className={'bg-red-400'}>Oi</Text>
 		</View>
 	);
 }
