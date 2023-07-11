@@ -4,7 +4,7 @@ module.exports = {
 	theme: {
 		extend: {
 			backgroundImage: {
-				'football-field': "url('/assets/football_field.jpg')",
+				'football-field': "url('/src/assets/football_field.jpg')",
 			},
 		},
 	},

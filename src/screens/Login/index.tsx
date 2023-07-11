@@ -1,18 +1,14 @@
 import { View, Text, Button } from 'react-native';
-
-// interface ILoginProps {
-// 	navigation: Navigation
-// }
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export default function Login() {
+	const navigation = useNavigation();
 	return (
 		<View className="flex-1 flex items-center justify-center h-screen w-screen bg-white">
-			<Button
-				title="Go to next page"
-				onPress={() => alert('Testando')}
-			>
+			<TouchableOpacity onPress={() => navigation.navigate('ChooseUserType')}>
 				<Text>Hello World!</Text>
-			</Button>
+			</TouchableOpacity>
 		</View>
 	);
 }

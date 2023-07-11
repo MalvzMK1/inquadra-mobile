@@ -10,7 +10,7 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="InQuadra"
+				name="Login"
 				component={Login}
 				options={{
 					headerTitle: () => (
@@ -24,7 +24,7 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="Choose User Type"
+				name="ChooseUserType"
 				component={ChooseUserType}
 				options={{
 					headerShown: false,
