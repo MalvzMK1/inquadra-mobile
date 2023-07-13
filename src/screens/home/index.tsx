@@ -6,6 +6,8 @@ import {
 	SchedulingEntity,
 	SchedulingEntityResponseCollection,
 } from '../../__generated__/graphql';
+import { Button } from 'react-native-paper';
+import { integrateWithPaymentAPI } from '../../utils/integrationWithPaymentAPI';
 
 const GET_SCHEDULINGS = gql`
 	query {
@@ -23,6 +25,7 @@ const GET_SCHEDULINGS = gql`
 					payedStatus
 					owner {
 						data {
+							id
 							attributes {
 								username
 								email
@@ -32,6 +35,7 @@ const GET_SCHEDULINGS = gql`
 					}
 					users {
 						data {
+							id
 							attributes {
 								username
 								email
@@ -59,7 +63,7 @@ export default function Home() {
 	const { data, loading, error } = useQuery(GET_SCHEDULINGS);
 
 	if (loading) return <Text>Loading...</Text>;
-	else console.log('Carregou');
+	else console.log('CARREGOU');
 	if (error) console.log(error);
 
 	useEffect(() => {
@@ -68,15 +72,18 @@ export default function Home() {
 
 	const schedulings = data.schedulings as SchedulingEntityResponseCollection;
 
-	schedulings.data.forEach((schedule) => {
-		schedule.attributes?.users?.data.forEach((user) => {
-			console.log(user.attributes?.username);
-		});
-	});
+	// schedulings.data.forEach((schedule) => {
+	// 	schedule.attributes?.users?.data.forEach((user) => {
+	// 		console.log(user.attributes?.username);
+	// 	});
+	// });
 
 	return (
 		<View className="flex-1 flex flex-col">
 			<View className="flex-1 bg-red-500"></View>
+			<Button onPress={() => integrateWithPaymentAPI(schedulings.data[0])}>
+				<Text>INTEGRA AI</Text>
+			</Button>
 			<BottomNavigationBar />
 		</View>
 	);
