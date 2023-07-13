@@ -1,17 +1,82 @@
-import { View, Image } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { View, Text } from 'react-native';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
-import {useEffect} from "react";
+import { useQuery, gql } from '@apollo/client';
+import { useEffect } from 'react';
+import {
+	SchedulingEntity,
+	SchedulingEntityResponseCollection,
+} from '../../__generated__/graphql';
+
+const GET_SCHEDULINGS = gql`
+	query {
+		schedulings(
+			filters: {
+				court_availability: { court: { establishment: { id: { eq: 1 } } } }
+				date: { eq: "2023-07-19" }
+			}
+		) {
+			data {
+				id
+				attributes {
+					date
+					valuePayed
+					payedStatus
+					owner {
+						data {
+							attributes {
+								username
+								email
+								cpf
+							}
+						}
+					}
+					users {
+						data {
+							attributes {
+								username
+								email
+								cpf
+							}
+						}
+					}
+					court_availability {
+						data {
+							attributes {
+								startsAt
+								endsAt
+								value
+								dayUseService
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+`;
 
 export default function Home() {
-	useEffect(() => {
-		async function getReservations() {
+	const { data, loading, error } = useQuery(GET_SCHEDULINGS);
 
-		}
-	})
+	if (loading) return <Text>Loading...</Text>;
+	else console.log('Carregou');
+	if (error) console.log(error);
+
+	useEffect(() => {
+		// console.log({ data: data.schedulings, loading, error });
+	}, [data, loading, error]);
+
+	const schedulings = data.schedulings as SchedulingEntityResponseCollection;
+
+	schedulings.data.forEach((schedule) => {
+		schedule.attributes?.users?.data.forEach((user) => {
+			console.log(user.attributes?.username);
+		});
+	});
+
 	return (
 		<View className="flex-1 flex flex-col">
-			<View className="flex-1"></View>
+			<View className="flex-1 bg-red-500"></View>
 			<BottomNavigationBar />
 		</View>
 	);
