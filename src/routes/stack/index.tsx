@@ -6,6 +6,7 @@ import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType';
 import Register from '../../screens/Register/Client';
 import Home from '../../screens/home';
+import ProfileSettings from '../../screens/ProfileSettings'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
 
@@ -14,6 +15,13 @@ const { Navigator, Screen } = createStackNavigator();
 export default function () {
 	return (
 		<Navigator>
+			<Screen
+				name="ProfileSettings"
+				component={ProfileSettings}
+				options={{
+					headerTitle: '',
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
