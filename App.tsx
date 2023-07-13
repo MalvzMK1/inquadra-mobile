@@ -1,11 +1,7 @@
 import { PaperProvider } from 'react-native-paper';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 import Routes from './src/routes';
-
-const client = new ApolloClient({
-	uri: 'http://localhost:1337/graphql',
-	cache: new InMemoryCache(),
-});
+import { client } from './src/lib/apolloClient';
 
 export default function App() {
 	return (
