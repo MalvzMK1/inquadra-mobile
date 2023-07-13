@@ -25,7 +25,7 @@ export function integrateWithPaymentAPI(scheduling: SchedulingEntity) {
 	const invoices: CreateInvoiceResponse[] = [];
 
 	users.forEach(async (user, index) => {
-		const invoice = await generateIuguApiBodyRequest(scheduling, user.id, value / users.length)
+		const invoice = await generateIuguApiBodyRequest(scheduling, user.id, Math.round((value/users.length) * 100))
     invoices[index] = await generateInvoice(invoice)
 	});
 }
@@ -36,8 +36,6 @@ async function generateIuguApiBodyRequest(
 	valueToBePayedPerUser: number
 ): Promise<CreateInvoiceRequestBody> {
   const GENERATED_UUID = uuid.v4().toString();
-  console.log(GENERATED_UUID);
-
 	if (scheduling.attributes?.users) {
 		const user = scheduling.attributes?.users.data.find(
 			(user) => user.id === userID
