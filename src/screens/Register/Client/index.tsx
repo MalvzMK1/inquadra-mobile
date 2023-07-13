@@ -7,8 +7,8 @@ export default function Register() {
 	return (
 		<View className="flex-1 bg-white">
 			<View className="h-[150px] w-full flex items-center justify-center flex-col">
-				<Text className="text-4xl font-bold text-[#4e4e4e] mb-6">Registro</Text>
-				<Text className="text-xl text-[#959595]">Subtitulo</Text>
+				<Text className="text-4xl font-bold text-[#4e4e4e] mb-6">Cadastro</Text>
+				<Text className="text-xl text-[#959595]">Vamos precisar de alguns dados seus...</Text>
 			</View>
 			<View className="flex-1 bg-orange-200 flex flex-col justify-start p-20">
 				<TouchableOpacity
