@@ -4,7 +4,7 @@ import { TextInput } from 'react-native-paper';
 
 import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType';
-import Register from '../../screens/Register';
+import Register from '../../screens/Register/Client';
 import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
