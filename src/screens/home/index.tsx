@@ -1,11 +1,7 @@
 import { View, Text } from 'react-native';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import { useQuery, gql } from '@apollo/client';
-import { useEffect } from 'react';
-import {
-	SchedulingEntity,
-	SchedulingEntityResponseCollection,
-} from '../../__generated__/graphql';
+import { SchedulingEntityResponseCollection } from '../../__generated__/graphql';
 import { Button } from 'react-native-paper';
 import { integrateWithPaymentAPI } from '../../utils/integrationWithPaymentAPI';
 
@@ -50,6 +46,20 @@ const GET_SCHEDULINGS = gql`
 								endsAt
 								value
 								dayUseService
+								court {
+									data {
+										attributes {
+											name
+											court_type {
+												data {
+													attributes {
+														name
+													}
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 					}
@@ -66,17 +76,7 @@ export default function Home() {
 	else console.log('CARREGOU');
 	if (error) console.log(error);
 
-	useEffect(() => {
-		// console.log({ data: data.schedulings, loading, error });
-	}, [data, loading, error]);
-
 	const schedulings = data.schedulings as SchedulingEntityResponseCollection;
-
-	// schedulings.data.forEach((schedule) => {
-	// 	schedule.attributes?.users?.data.forEach((user) => {
-	// 		console.log(user.attributes?.username);
-	// 	});
-	// });
 
 	return (
 		<View className="flex-1 flex flex-col">
