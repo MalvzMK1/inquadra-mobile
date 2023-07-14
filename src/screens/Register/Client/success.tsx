@@ -1,7 +1,9 @@
 import { View, Text, Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import {useNavigation} from "@react-navigation/native";
 
 export default function RegisterSuccess() {
+    const navigation = useNavigation();
     return (
         <View className="h-full flex justify-center items-center">
             <View className="h-2/5 w-full flex flex-col justify-between items-center bg-green-600">
