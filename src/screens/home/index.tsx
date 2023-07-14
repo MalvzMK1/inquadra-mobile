@@ -1,10 +1,19 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import Animated, {
+	useSharedValue,
+	useAnimatedStyle,
+	useAnimatedReaction,
+	withTiming,
+} from 'react-native-reanimated';
 import MapView from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import CourtCardHome from '../../components/CourtCardHome';
 import NavigationSports from '../../components/NavigationSports';
-
+// import React, { useState } from 'react';
+// import { TouchableOpacity, View, Text } from 'react-native';
+// } from 'react-native-reanimated';
 
 const arrayTesteIcons = [
 	{
@@ -61,44 +70,70 @@ const arrayTeste = [
 		distance: 3.3
 	}
 ]
-
 const userNameExample = "Artur"
-
 
 export default function Home() {
 
-	const [bar, setBar] = useState(false)
+	const [isDisabled, setIsDisabled] = useState(false);
+	const [expanded, setExpanded] = useState(false);
+	const height = useSharedValue('40%');
 
+	useAnimatedReaction(
+		() => expanded,
+		(value) => {
+			height.value = withTiming(value ? '100%' : '40%', { duration: 500 });
+		},
+		[expanded]
+	);
+
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			height: height.value,
+		};
+	});
 
 	return (
-		<View className="flex-1 flex flex-col bg-[#e7e5e0]">
-			<View className='w-full h-[8%] bg-[#EBEBEB] shadow-lg'>
-				<ScrollView horizontal={true} className='flex shadow-lg'>
+		<View className="flex-1 flex flex-col">
+			<View className={`flex w-full justify-center items-center h-[8%] ${isDisabled ? "hidden" : ""}`}>
+				<ScrollView horizontal={true}>
 					{
-						arrayTesteIcons.map((item) => (
-							<NavigationSports key={item.id} name={item.name} image={item.image} />
-						))
+						expanded ?
+							<Text className='mt-4 font-black text-lg'>
+								{`PRÓXIMO A VOCÊ: ${arrayTesteIcons[0].name.toLocaleUpperCase()}`}
+							</Text>
+							:
+							arrayTesteIcons.map((item) => (
+								<NavigationSports key={item.id} name={item.name} image={item.image} />
+							))
+
 					}
 				</ScrollView>
 			</View>
-			<View className="flex-1 w-full h-full ">
-				<MapView className='flex-1 w-full h-full absolute'
+			<View className='flex-1'>
+				<MapView
+					className='w-screen h-screen flex'
+					onPress={() => setIsDisabled(true)}
+					showsCompass={false}
 					initialRegion={{
-						latitude: 37.78825,
-						longitude: -122.4324,
-						latitudeDelta: 0.0922,
-						longitudeDelta: 0.0421,
-					}} />
+						latitude: -23.550520,
+						longitude: -46.633308,
+						latitudeDelta: 0.004,
+						longitudeDelta: 0.004,
+					}}
+				/>
+				<TouchableOpacity className={`absolute left-3 top-3 ${!isDisabled ? "hidden" : ""}`} onPress={() => setIsDisabled((prevState) => !prevState)}>
+					<AntDesign name="left" size={30} color="black" />
+				</TouchableOpacity>
 			</View>
-			<View
-			>
-				<View className='flex items-center'>
-					<TouchableOpacity className='w-full items-center' onPress={() => setBar((prevState) => !prevState)}>
+			<Animated.View className={`${isDisabled ? "hidden" : ""}`} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
+				<View
+					className='flex items-center'>
+					<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
 						<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
 					</TouchableOpacity>
 					<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
 				</View>
-				<ScrollView className='overflow-hidden'>
+				<ScrollView>
 					{arrayTeste.map((item) => (
 						<View className='p-5' key={item.id}>
 							<CourtCardHome
@@ -110,10 +145,8 @@ export default function Home() {
 						</View>
 					))}
 				</ScrollView>
-			</View>
-			<BottomNavigationBar />
+			</Animated.View>
+			<BottomNavigationBar isDisabled={isDisabled} />
 		</View>
 	);
-
-	
 }
