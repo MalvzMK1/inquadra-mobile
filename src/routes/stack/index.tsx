@@ -10,7 +10,7 @@ import RegisterSuccess from '../../screens/Register/Client/success';
 import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
-import Favorites from "../../screens/Favorites";
+import FavoriteCourts from "../../screens/FavoriteCourts";
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -123,7 +123,7 @@ export default function () {
 			/>
 			<Screen
 				name="FavoriteCourts"
-				component={Favorites}
+				component={FavoriteCourts}
 				options={({ route }) => ({
 					headerTitle: 'Favoritos',
 					headerTitleStyle: {
