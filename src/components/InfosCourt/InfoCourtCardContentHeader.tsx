@@ -3,7 +3,7 @@ import {ReactNode} from "react";
 
 interface InfoCourtCardContentHeaderProps {
 	courtName: string
-	children: ReactNode
+	children?: ReactNode
 }
 
 export function InfoCourtCardContentHeader({courtName, children}: InfoCourtCardContentHeaderProps) {

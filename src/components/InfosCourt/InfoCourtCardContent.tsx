@@ -3,6 +3,7 @@ import {ReactNode} from "react";
 
 interface InfoCourtCardContentProps {
 	lastScheduling?: Date
+	hasDisponibility?: boolean
 	children: ReactNode
 }
 
@@ -13,7 +14,7 @@ function formatHour(date: Date): string {
 	].join(':');
 }
 
-export function InfoCourtCardContent({children, lastScheduling}: InfoCourtCardContentProps) {
+export function InfoCourtCardContent({children, lastScheduling, hasDisponibility}: InfoCourtCardContentProps) {
 	let formatedDate = '';
 	let formatedHour = '';
 	if (lastScheduling) {
@@ -29,6 +30,10 @@ export function InfoCourtCardContent({children, lastScheduling}: InfoCourtCardCo
 			</View>
 			{lastScheduling ?
 				<Text className='text-white text-xs font-bold mt-2'>Última reserva {formatedDate} às {formatedHour}</Text> :
+				null
+			}
+			{hasDisponibility ?
+				<Text className='text-white text-xs font-bold mt-2'>Tem horários disponíveis</Text> :
 				null
 			}
 		</View>
