@@ -1,26 +1,43 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import MapView from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import CourtCardHome from '../../components/CourtCardHome';
 import NavigationSports from '../../components/NavigationSports';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-
 const arrayTesteIcons = [
 	{
+		id: 1,
 		name: "teste",
 		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
 	},
 	{
+		id: 2,
 		name: "teste2",
 		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
 	},
 	{
+		id: 3,
+		name: "teste3",
+		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
+	},
+	{
+		id: 4,
+		name: "teste",
+		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
+	},
+	{
+		id: 5,
+		name: "teste2",
+		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
+	},
+	{
+		id: 6,
 		name: "teste3",
 		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
 	},
 ]
-
 const arrayTeste = [
 	{
 		id: 1,
@@ -50,32 +67,31 @@ const userNameExample = "Artur"
 
 export default function Home() {
 
-	// const enteringKeyFrame = new Keyframe({
-	// 	0:{
-	// 		height: "40%"
-	// 	},
-	// 	100:{
-	// 		height: 100%
-	// 	}
-	// })
-
 	const [bar, setBar] = useState(false)
 	const AnimatedView = Animated.createAnimatedComponent(View);
 
 	return (
-		<View className="flex-1 flex flex-col">
-			<View className='w-full h-[8%] bg-[#EBEBEB]'>
-				<ScrollView horizontal={true} className='flex'>
+		<View className="flex-1 flex flex-col bg-[#e7e5e0]">
+			<View className='w-full h-[8%] bg-[#EBEBEB] shadow-lg'>
+				<ScrollView horizontal={true} className='flex shadow-lg'>
 					{
 						arrayTesteIcons.map((item) => (
-							<NavigationSports name={item.name} image={item.image} />
+							<NavigationSports key={item.id} name={item.name} image={item.image} />
 						))
 					}
 				</ScrollView>
 			</View>
-			<View className="flex-1"></View>
+			<View className="flex-1 w-full h-full ">
+				<MapView className='flex-1 w-full h-full absolute'
+					initialRegion={{
+						latitude: 37.78825,
+						longitude: -122.4324,
+						latitudeDelta: 0.0922,
+						longitudeDelta: 0.0421,
+					}} />
+			</View>
 			<AnimatedView
-				className={`w-full h-${bar ? "full" : "2/5"} bg-[#292929] rounded-t-3xl flex flex-col`}
+				className={`w-full ${bar ? "h-full" : "max-h-[40%]"} bg-[#292929] rounded-t-3xl flex flex-col`}
 				entering={FadeInDown.duration(600)}
 			>
 				<View className='flex items-center'>
@@ -84,23 +100,22 @@ export default function Home() {
 					</TouchableOpacity>
 					<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
 				</View>
-				<ScrollView className='px-5'>
-					{
-						arrayTeste.map((item) => (
-							<View className='flex p-5' key={item.id}>
-								<CourtCardHome
-									image={item.image}
-									name={item.name}
-									distance={item.distance}
-									type={item.type}
-								/>
-							</View>
-						))
-					}
+				<ScrollView className='overflow-hidden'>
+					{arrayTeste.map((item) => (
+						<View className='p-5' key={item.id}>
+							<CourtCardHome
+								image={item.image}
+								name={item.name}
+								distance={item.distance}
+								type={item.type}
+							/>
+						</View>
+					))}
 				</ScrollView>
 			</AnimatedView>
-
 			<BottomNavigationBar />
 		</View>
 	);
+
+	
 }
