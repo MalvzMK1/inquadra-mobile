@@ -1,12 +1,8 @@
 import React, { useState } from 'react'
-import { View, Text, Button, Image } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-
-
-
-
 
 export default function Login() {
 	const [userEmail, setUserEmail] = useState<string>("");
@@ -17,7 +13,6 @@ export default function Login() {
 		setShowPassword(!showPassword);
 	}
 
-
 	const navigation = useNavigation();
 	return (
 		<ScrollView className='flex-1 h-max w-max bg-white'>
@@ -25,10 +20,10 @@ export default function Login() {
 			<View className="flex-1 flex items-center justify-center h-max w-max bg-white px-7 ">
 				<TouchableOpacity onPress={() => navigation.navigate('InfoReserva')}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
-				</TouchableOpacity>			
+				</TouchableOpacity>
 
 				<View className="w-full">
-				
+
 				<View className="h-14">
 					<TextInput className= "h-14 text-base"
 						value={userEmail}
@@ -37,8 +32,8 @@ export default function Login() {
 						mode='outlined'
 						label={<Text style={{ color: '#DCDCDC' }}>Email</Text>}
 						left = {
-						<TextInput.Icon 
-							icon={'account-outline'} 
+						<TextInput.Icon
+							icon={'account-outline'}
 							color="#DCDCDC"
 							style={{marginTop: 15}}
 						/>}
@@ -53,9 +48,6 @@ export default function Login() {
 					/>
 				</View>
 
-
-				
-
 				<View className='h-14 pt-4'>
 					<TextInput className="h-14 text-base"
 						secureTextEntry = {!showPassword}
@@ -65,33 +57,33 @@ export default function Login() {
 						outlineColor='#DCDCDC'
 						label={<Text style={{ color: '#DCDCDC' }}>******</Text>}
 						left = {
-							<TextInput.Icon 
-								icon={'lock-outline'} 
+							<TextInput.Icon
+								icon={'lock-outline'}
 								color="#DCDCDC"
 								style={{marginTop: 15}}
 							/>}
 						right = {
-							<TextInput.Icon 
-								icon={!showPassword ? 'eye-off-outline' : 'eye-outline'} 
+							<TextInput.Icon
+								icon={!showPassword ? 'eye-off-outline' : 'eye-outline'}
 								color="#DCDCDC"
 								style={{marginTop: 15}}
 								onPress={handleShowPassword}
 							/>}
-							
+
 
 						theme={{
 							colors: {
 								placeholder: '#DCDCDC',
 								primary: '#DCDCDC',
 								text: '#DCDCDC',
-								background: 'white'				
+								background: 'white'
 							}
 						}}
-						
+
 					/>
 				</View>
 
-				
+
 				<View className='flex items-end pt-8'>
 					<TouchableOpacity>
 						<Text className='text-gray-400 text-base'>esqueceu a senha?</Text>
