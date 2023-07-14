@@ -6,6 +6,7 @@ import {InfoCourtCardContent} from "./InfoCourtCardContent";
 import {InfoCourtCardContentCourtType} from "./InfoCourtCardContentCourtType";
 import {InfoCourtCardContentDistance} from "./InfoCourtCardContentDistance";
 import {InfoCourtCardContentRating} from "./InfoCourtCardContentRating";
+import {InfoCourtCardContentPaymentProgressBar} from "./InfoCourtCardContentPaymentProgressBar";
 
 export const InfosCourt = {
 	Root: InfosCourtContainer,
@@ -15,5 +16,6 @@ export const InfosCourt = {
 	ContentHeader: InfoCourtCardContentHeader,
 	ContentCourtType: InfoCourtCardContentCourtType,
 	ContentDistance: InfoCourtCardContentDistance,
-	ContentRating: InfoCourtCardContentRating
+	ContentRating: InfoCourtCardContentRating,
+	ContentPaymentProgress: InfoCourtCardContentPaymentProgressBar
 }
