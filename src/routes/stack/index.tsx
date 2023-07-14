@@ -10,6 +10,7 @@ import RegisterSuccess from '../../screens/Register/Client/success';
 import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
+import infoReserva from '../../screens/infoReserva';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -30,6 +31,7 @@ export default function () {
 					},
 				}}
 			/>
+
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
@@ -107,6 +109,13 @@ export default function () {
 			<Screen
 				name="RegisterPassword"
 				component={Password}
+			/>
+			<Screen
+				name="InfoReserva"
+				component={infoReserva}
+				options={{
+					headerShown: false
+				}}
 			/>
 			<Screen
 				name="RegisterSuccess"
