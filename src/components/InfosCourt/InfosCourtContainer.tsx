@@ -9,7 +9,7 @@ interface InfosCourtContainerProps {
 export function InfosCourtContainer({category, children}: InfosCourtContainerProps) {
 	return(
 		<View className='w-full h-fit rounded-xl bg-zinc-800 pt-1 pb-6 px-2 mb-4'>
-			<Text className='font-bold text-3xl text-white mb-2'>{category}</Text>
+			<Text className='font-bold text-lg text-white mb-2'>{category}</Text>
 			{children}
 		</View>
 	)
