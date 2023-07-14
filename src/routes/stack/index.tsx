@@ -16,7 +16,7 @@ const { Navigator, Screen } = createStackNavigator();
 export default function () {
 	return (
 		<Navigator>
-			<Screen
+			<Screen 
 				name="Login"
 				component={Login}
 				options={{
