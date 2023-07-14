@@ -10,8 +10,6 @@
 	"dependencies": {
 		"@apollo/client": "^3.7.17",
 		"@expo/vector-icons": "^13.0.0",
-		"@expo/webpack-config": "^18.0.1",
-		"@react-native-picker/picker": "^2.4.10",
 		"@react-navigation/native": "^6.1.7",
 		"@react-navigation/stack": "^6.3.17",
 		"axios": "^1.4.0",
