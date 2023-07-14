@@ -12,7 +12,7 @@ export default function RegisterSuccess() {
                     <Image source={require('../../../assets/inquadra_unnamed_logo.png')} className="w-20 h-20"></Image>
                 </View>
 
-                <TouchableOpacity className='h-14 w-10/12 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('RegisterPassword')}>
+                <TouchableOpacity className='h-14 w-10/12 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('FavoriteCourts')}>
                     <Text className='text-gray-50'>Continuar</Text>
                 </TouchableOpacity>
             </View>
