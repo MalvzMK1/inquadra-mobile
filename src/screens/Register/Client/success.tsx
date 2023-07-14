@@ -13,7 +13,7 @@ export default function RegisterSuccess() {
                 </View>
 
                 <TouchableOpacity className='h-14 w-10/12 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('RegisterPassword')}>
-                    	<Text className='text-gray-50'>Continuar</Text>
+                    <Text className='text-gray-50'>Continuar</Text>
                 </TouchableOpacity>
             </View>
         </View>
