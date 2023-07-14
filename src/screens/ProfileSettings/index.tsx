@@ -54,13 +54,13 @@ export default function ProfileSettings() {
         </View>
 
         <View style={{ padding: 5, justifyContent: 'center', alignItems: 'center' }}>
-          <TouchableOpacity style={{ margin: 6, height: 45, width: 280, borderRadius: 5, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.navigate('RegisterPassword')}>
+          <TouchableOpacity style={{ margin: 6, height: 45, width: 280, borderRadius: 5, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: 'white' }}>Excluir essa conta</Text>
           </TouchableOpacity>
         </View>
 
         <View style={{ padding: 2, justifyContent: 'center', alignItems: 'center' }}>
-          <TouchableOpacity style={{ height: 45, width: 280, borderRadius: 5, backgroundColor: '#FF4715', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.navigate('RegisterPassword')}>
+          <TouchableOpacity style={{ height: 45, width: 280, borderRadius: 5, backgroundColor: '#FF4715', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: 'white' }}>Sair do App</Text>
           </TouchableOpacity>
         </View>
