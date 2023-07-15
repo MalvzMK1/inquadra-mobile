@@ -11,19 +11,14 @@ import Home from '../../screens/home';
 import ProfileSettings from '../../screens/ProfileSettings'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
+import infoReserva from '../../screens/infoReserva';
+import FavoriteCourts from "../../screens/FavoriteCourts";
 
 const { Navigator, Screen } = createStackNavigator();
 
 export default function () {
 	return (
 		<Navigator>
-			<Screen
-				name="ProfileSettings"
-				component={ProfileSettings}
-				options={{
-					headerTitle: '',
-				}}
-			/>
 			<Screen
 				name="Login"
 				component={Login}
@@ -38,6 +33,7 @@ export default function () {
 					},
 				}}
 			/>
+
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
@@ -93,6 +89,9 @@ export default function () {
 				component={Home}
 				options={({ route }) => ({
 					// headerTitle: route.params.name,
+					headerTitleStyle: {
+						fontSize: 26
+					},
 					headerTitleAlign: 'center',
 					headerTintColor: 'white',
 					headerStyle: {
@@ -117,6 +116,13 @@ export default function () {
 				component={Password}
 			/>
 			<Screen
+				name="InfoReserva"
+				component={infoReserva}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
 				name="RegisterSuccess"
 				component={RegisterSuccess}
 				options={{
@@ -124,6 +130,33 @@ export default function () {
 					headerTransparent: true,
 					headerShown: false
 				}}
+			/>
+			<Screen
+				name="FavoriteCourts"
+				component={FavoriteCourts}
+				options={({ route }) => ({
+					headerTitle: 'Favoritos',
+					headerTitleStyle: {
+						fontSize: 26
+					},
+					headerTitleAlign: 'center',
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 125,
+						backgroundColor: '#292929',
+					},
+					headerLeftContainerStyle: {
+						marginLeft: 12,
+					},
+					headerRight: () => (
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+							<Image
+								source={require('../../assets/qodeless_logo.jpg')}
+								className="w-full h-full"
+							/>
+						</TouchableOpacity>
+					),
+				})}
 			/>
 		</Navigator>
 	);
