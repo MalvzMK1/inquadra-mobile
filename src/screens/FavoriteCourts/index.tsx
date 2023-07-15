@@ -1,6 +1,6 @@
 import {ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
-import SvgUri from "react-native-svg-uri";
+// import SvgUri from "react-native-svg-uri";
 
 export default function FavoriteCourts() {
 	return(
@@ -29,11 +29,11 @@ export default function FavoriteCourts() {
 				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
 					<InfosCourt.Content lastScheduling={new Date()}>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer'>
-							<SvgUri
+							{/* <SvgUri
 								height={18}
 								width={18}
 								source={require('../../assets/filled-heart.svg')}
-							/>
+							/> */}
 						</InfosCourt.ContentHeader>
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />
 						<InfosCourt.ContentDistance distance={'2,5Km'} />
@@ -45,11 +45,11 @@ export default function FavoriteCourts() {
 						<InfosCourt.ContentHeader courtName='Fenix Soccer'>
 							<View className='flex flex-row items-center gap-1'>
 								<Text className='text-xs text-orange-600'>Editar</Text>
-								<SvgUri
+								{/* <SvgUri
 									height={10}
 									width={10}
 									source={require('../../assets/edit_pencil.svg')}
-								/>
+								/> */}
 							</View>
 						</InfosCourt.ContentHeader>
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />
@@ -60,11 +60,11 @@ export default function FavoriteCourts() {
 				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
 					<InfosCourt.Content>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer'>
-							<SvgUri
+							{/* <SvgUri
 								height={18}
 								width={18}
 								source={require('../../assets/filled-heart.svg')}
-							/>
+							/> */}
 						</InfosCourt.ContentHeader>
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />
 						<InfosCourt.ContentDistance distance='2,5Km' />
