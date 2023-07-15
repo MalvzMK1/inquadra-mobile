@@ -4,7 +4,7 @@ import MapView from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import CourtCardHome from '../../components/CourtCardHome';
 import NavigationSports from '../../components/NavigationSports';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+
 
 const arrayTesteIcons = [
 	{
@@ -68,7 +68,7 @@ const userNameExample = "Artur"
 export default function Home() {
 
 	const [bar, setBar] = useState(false)
-	const AnimatedView = Animated.createAnimatedComponent(View);
+
 
 	return (
 		<View className="flex-1 flex flex-col bg-[#e7e5e0]">
@@ -90,9 +90,7 @@ export default function Home() {
 						longitudeDelta: 0.0421,
 					}} />
 			</View>
-			<AnimatedView
-				className={`w-full ${bar ? "h-full" : "max-h-[40%]"} bg-[#292929] rounded-t-3xl flex flex-col`}
-				entering={FadeInDown.duration(600)}
+			<View
 			>
 				<View className='flex items-center'>
 					<TouchableOpacity className='w-full items-center' onPress={() => setBar((prevState) => !prevState)}>
@@ -112,7 +110,7 @@ export default function Home() {
 						</View>
 					))}
 				</ScrollView>
-			</AnimatedView>
+			</View>
 			<BottomNavigationBar />
 		</View>
 	);

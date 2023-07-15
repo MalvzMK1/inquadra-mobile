@@ -5,6 +5,8 @@ import { TextInput } from 'react-native-paper';
 import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType';
 import Register from '../../screens/Register/Client';
+import Password from '../../screens/Register/Client/password';
+import RegisterSuccess from '../../screens/Register/Client/success';
 import Home from '../../screens/home';
 import ProfileSettings from '../../screens/ProfileSettings'
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -90,7 +92,7 @@ export default function () {
 				name="HomeVariant"
 				component={Home}
 				options={({ route }) => ({
-					headerTitle: route.params.name,
+					// headerTitle: route.params.name,
 					headerTitleAlign: 'center',
 					headerTintColor: 'white',
 					headerStyle: {
@@ -109,6 +111,19 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
+			/>
+			<Screen
+				name="RegisterPassword"
+				component={Password}
+			/>
+			<Screen
+				name="RegisterSuccess"
+				component={RegisterSuccess}
+				options={{
+					title: '',
+					headerTransparent: true,
+					headerShown: false
+				}}
 			/>
 		</Navigator>
 	);

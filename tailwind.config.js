@@ -6,7 +6,7 @@ module.exports = {
 			backgroundImage: {
 				'football-field': "url('/src/assets/football_field.jpg')",
 			},
-		},
+		}
 	},
 	plugins: [],
 };
