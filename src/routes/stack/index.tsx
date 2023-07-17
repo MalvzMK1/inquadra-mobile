@@ -8,6 +8,7 @@ import Register from '../../screens/Register/Client';
 import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
 import Home from '../../screens/home';
+import ProfileSettings from '../../screens/ProfileSettings'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
 import infoReserva from '../../screens/infoReserva';
@@ -18,7 +19,7 @@ const { Navigator, Screen } = createStackNavigator();
 export default function () {
 	return (
 		<Navigator>
-			<Screen 
+			<Screen
 				name="Login"
 				component={Login}
 				options={{
