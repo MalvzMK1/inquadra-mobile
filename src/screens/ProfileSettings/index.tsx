@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Picker, Modal, StyleSheet, Ale } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Picker, Modal, StyleSheet } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +24,7 @@ export default function ProfileSettings() {
   };
 
 
-  const handleCardDataChange = (key, value) => {
+  const handleCardDataChange = (key: string, value: string) => {
     setCardData(prevState => ({
       ...prevState,
       [key]: value
@@ -68,7 +68,7 @@ export default function ProfileSettings() {
     { name: 'Reino Unido'}
   ];
 
-  const getCountryCode = (countryName) => {
+  const getCountryCode = (countryName: string) => {
     const country = countries.find(item => item.name === countryName);
     return country ? country.code : '';
   };
