@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Picker, Modal, StyleSheet, Ale } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +24,7 @@ export default function ProfileSettings() {
   };
 
 
-  const handleCardDataChange = (key, value) => {
+  const handleCardDataChange = (key: string, value: string) => {
     setCardData(prevState => ({
       ...prevState,
       [key]: value
@@ -67,11 +67,6 @@ export default function ProfileSettings() {
     { name: 'Canadá' },
     { name: 'Reino Unido'}
   ];
-
-  const getCountryCode = (countryName) => {
-    const country = countries.find(item => item.name === countryName);
-    return country ? country.code : '';
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', height: '100%' }}>
@@ -146,15 +141,7 @@ export default function ProfileSettings() {
               </View>
               <View style={{ marginLeft: 5 }}>
                 <Text style={{ fontSize: 17, color: "#FF4715" }}>País</Text>
-                <Picker
-                  selectedValue={cardData.country}
-                  onValueChange={value => handleCardDataChange('country', value)}
-                  style={{ height: 40, borderWidth: 1, borderColor: 'gray', borderRadius: 5 }}
-                >
-                  {countries.map((country, index) => (
-                    <Picker.Item key={index} label={country.name} value={country.name} />
-                  ))}
-                </Picker>
+               
               </View>
               <View style={{ padding: 2, justifyContent: 'center', alignItems: 'center' }}>
                 <TouchableOpacity onPress={handleSaveCard} style={{ height: 40, width: 280, borderRadius: 5, backgroundColor: '#FF4715', alignItems: 'center', justifyContent: 'center', margin: 20 }}>

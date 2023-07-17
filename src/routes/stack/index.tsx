@@ -1,5 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import { Image } from 'react-native';
+import { Image, View, Text } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
 import Login from '../../screens/Login';
@@ -8,17 +8,45 @@ import Register from '../../screens/Register/Client';
 import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
 import Home from '../../screens/home';
-import ProfileSettings from '../../screens/ProfileSettings'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
 import infoReserva from '../../screens/infoReserva';
 import FavoriteCourts from "../../screens/FavoriteCourts";
+import { Icon } from 'react-native-elements';
+import ProfileSettings from '../../screens/ProfileSettings';
 
 const { Navigator, Screen } = createStackNavigator();
 
 export default function () {
 	return (
 		<Navigator>
+			<Screen
+				name="ProfileSettings"
+				component={ProfileSettings}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 60,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
