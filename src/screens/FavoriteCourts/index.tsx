@@ -1,8 +1,9 @@
 import {ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
-// import SvgUri from "react-native-svg-uri";
+import {useNavigation} from "@react-navigation/native";
 
 export default function FavoriteCourts() {
+	const navigation = useNavigation()
 	return(
 		<ScrollView className='flex-1 py-4 bg-zinc-600'>
 			<InfosCourt.Root category='Quadras'>
@@ -10,7 +11,7 @@ export default function FavoriteCourts() {
 					TODO: FAZER UM ONCLICK NO COMPONENTE DO CARD DA QUADRA QUE LEVA
 								À PÁGINA DE RESERVA DA QUADRA
 				*/}
-				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
+				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={1} onPress={_ => navigation.navigate('Login')}>
 					<InfosCourt.Content>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer' />
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />
@@ -18,7 +19,7 @@ export default function FavoriteCourts() {
 					</InfosCourt.Content>
 				</InfosCourt.Court>
 				<InfosCourt.Spacer />
-				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
+				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={2}>
 					<InfosCourt.Content hasDisponibility>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer' />
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />
@@ -26,7 +27,7 @@ export default function FavoriteCourts() {
 					</InfosCourt.Content>
 				</InfosCourt.Court>
 				<InfosCourt.Spacer />
-				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
+				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={3}>
 					<InfosCourt.Content lastScheduling={new Date()}>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer'>
 							{/* <SvgUri
@@ -40,7 +41,7 @@ export default function FavoriteCourts() {
 					</InfosCourt.Content>
 				</InfosCourt.Court>
 				<InfosCourt.Spacer />
-				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
+				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={4}>
 					<InfosCourt.Content lastScheduling={new Date()}>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer'>
 							<View className='flex flex-row items-center gap-1'>
@@ -57,7 +58,7 @@ export default function FavoriteCourts() {
 				</InfosCourt.Court>
 			</InfosCourt.Root>
 			<InfosCourt.Root category='Vôlei'>
-				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
+				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={5}>
 					<InfosCourt.Content>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer'>
 							{/* <SvgUri
@@ -71,7 +72,7 @@ export default function FavoriteCourts() {
 					</InfosCourt.Content>
 				</InfosCourt.Court>
 				<InfosCourt.Spacer />
-				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')}>
+				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={6}>
 					<InfosCourt.Content>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer' />
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />

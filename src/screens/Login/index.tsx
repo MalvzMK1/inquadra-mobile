@@ -18,7 +18,7 @@ export default function Login() {
 		<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>
 			<View className="flex-1 flex items-center justify-center h-max w-max bg-white px-7 ">
-				<TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts')}>
+				<TouchableOpacity onPress={() => navigation.navigate('Home')}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
 				</TouchableOpacity>
 
@@ -104,7 +104,7 @@ export default function Login() {
 
 				<View className='flex-row  items-center justify-center pt-11'>
 					<Text className='text-base text-gray-400'>Ainda não tem uma conta?</Text>
-					<TouchableOpacity>
+					<TouchableOpacity onPress={() => navigation.navigate('Register')}>
 						<Text className='text-orange-500 text-base'> Clique aqui</Text>
 					</TouchableOpacity>
 				</View>

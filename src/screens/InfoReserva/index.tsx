@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
-import { View, Text, Button, Image } from 'react-native';
+import React from 'react'
+import { View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 
 
-export default function infoReserva() {
+export default function InfoReserva() {
     const navigation = useNavigation()
     return(
         <View className='h-max w-max'>

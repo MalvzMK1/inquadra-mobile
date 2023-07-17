@@ -11,10 +11,10 @@ import Home from '../../screens/home';
 import ProfileSettings from '../../screens/ProfileSettings'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo } from '@expo/vector-icons';
-import infoReserva from '../../screens/infoReserva';
+import InfoReserva from '../../screens/InfoReserva';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 
-const { Navigator, Screen } = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 	return (
@@ -117,7 +117,7 @@ export default function () {
 			/>
 			<Screen
 				name="InfoReserva"
-				component={infoReserva}
+				component={InfoReserva}
 				options={{
 					headerShown: false
 				}}

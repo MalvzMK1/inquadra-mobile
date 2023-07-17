@@ -8,7 +8,7 @@ export function BottomNavigationBar(props: {isDisabled: boolean}) {
 		<View className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex items-center justify-center`}>
 			<TouchableOpacity
 				className="flex items-center justify-center w-16 h-16 rounded-full overflow-hidden bg-slate-100"
-				onPress={() => navigation.navigate('Home')}
+				onPress={() => navigation.navigate('FavoriteCourts')}
 			>
 				<Image source={require('../../assets/inquadra_unnamed_logo.png')}/>
 			</TouchableOpacity>
