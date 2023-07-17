@@ -1,16 +1,17 @@
-import {Image, ImageSourcePropType, Text, View} from "react-native";
+import {Button, GestureResponderEvent, Image, ImageSourcePropType, Text, TouchableOpacity, View} from "react-native";
 import {ReactNode} from "react";
 
 interface InfosCourtProps {
 	imageUrl: ImageSourcePropType
 	children: ReactNode
+	onPress?: (event: GestureResponderEvent) => void
 }
 
-export function InfosCourtCard({imageUrl, children}: InfosCourtProps) {
+export function InfosCourtCard({imageUrl, children, onPress}: InfosCourtProps) {
 	return(
-		<View className='w-full min-h-28 flex flex-row items-center justify-between overflow-hidden'>
-			<Image source={imageUrl} className='h-max w-34 rounded-md mr-2' />
-			{children}
-		</View>
+		<TouchableOpacity className='w-full min-h-28 flex flex-row items-center justify-between overflow-hidden' onPress={onPress}>
+				<Image source={imageUrl} className='h-max w-34 rounded-md mr-2' />
+				{children}
+		</TouchableOpacity>
 	)
 }
