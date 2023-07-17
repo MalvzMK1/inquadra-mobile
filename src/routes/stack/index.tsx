@@ -119,7 +119,7 @@ export default function () {
 				name="InfoReserva"
 				component={InfoReserva}
 				options={{
-					headerShown: false
+					headerShown: false,
 				}}
 			/>
 			<Screen
