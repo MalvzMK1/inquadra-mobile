@@ -8,4 +8,5 @@ type RootStackParamList = {
 	RegisterSuccess: undefined;
 	InfoReserva: undefined;
 	FavoriteCourts: undefined;
+	ProfileSettings: undefined;
 }
