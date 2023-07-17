@@ -118,7 +118,7 @@ export default function () {
 				name="InfoReserva"
 				component={infoReserva}
 				options={{
-					headerShown: false
+					headerShown: false,
 				}}
 			/>
 			<Screen
