@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Picker, Modal, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Picker, Modal, StyleSheet, Ale } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileSettings() {
+  const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
   const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
   const [cardData, setCardData] = useState({
@@ -22,6 +23,7 @@ export default function ProfileSettings() {
     setShowCameraIcon(false);
   };
 
+
   const handleCardDataChange = (key, value) => {
     setCardData(prevState => ({
       ...prevState,
@@ -38,7 +40,7 @@ export default function ProfileSettings() {
   };
 
   const handleConfirmDelete = () => {
-    // Lógica para excluir a conta aqui
+    // excluir conta
     setShowDeleteConfirmation(false);
   };
 
@@ -51,7 +53,7 @@ export default function ProfileSettings() {
   };
 
   const handleConfirmExit = () => {
-    // Lógica para sair do aplicativo aqui
+    // sair do app
     setShowExitConfirmation(false);
   };
 
@@ -59,7 +61,17 @@ export default function ProfileSettings() {
     setShowExitConfirmation(false);
   };
 
-  const countries = ['Brasil', 'Estados Unidos', 'Canadá', 'Reino Unido'];
+  const countries = [
+    { name: 'Brasil'},
+    { name: 'Estados Unidos' },
+    { name: 'Canadá' },
+    { name: 'Reino Unido'}
+  ];
+
+  const getCountryCode = (countryName) => {
+    const country = countries.find(item => item.name === countryName);
+    return country ? country.code : '';
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', height: '100%' }}>
@@ -100,12 +112,12 @@ export default function ProfileSettings() {
                 <IconButton
                   icon={showCameraIcon ? 'camera' : 'credit-card-plus'}
                   size={25}
-                  style={{ marginRight: 5, alignItems: 'center' }}
+                  style={{ alignItems: 'flex-end' }}
                 />
-                <Text style={{ flex: 1, fontSize: 17, textAlign: 'right', marginBottom: 5 }}>
-                  {showCard ? <Icon name="camera" size={25} color="orange" /> : 'Adicionar Cartão'}
+                <Text style={{ flex: 1, fontSize: 17, textAlign:'right', marginBottom: 5 }}>
+                  {showCard ? <Icon name="camera" size={25} color="#FF4715" /> : 'Adicionar Cartão'}
                 </Text>
-                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="orange" style={{ marginLeft: 'auto' }} />
+                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" style={{ marginLeft: 'auto' }} />
               </View>
             </View>
           </TouchableOpacity>
@@ -140,7 +152,7 @@ export default function ProfileSettings() {
                   style={{ height: 40, borderWidth: 1, borderColor: 'gray', borderRadius: 5 }}
                 >
                   {countries.map((country, index) => (
-                    <Picker.Item key={index} label={country} value={country} />
+                    <Picker.Item key={index} label={country.name} value={country.name} />
                   ))}
                 </Picker>
               </View>
@@ -152,52 +164,50 @@ export default function ProfileSettings() {
             </View>
           )}
 
-          <View style={{ padding: 5, justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity onPress={handleDeleteAccount} style={{ margin: 6, height: 40, width: 280, borderRadius: 5, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ paddingTop: 15, justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity onPress={handleDeleteAccount} style={{ height: 40, width: 280, borderRadius: 5, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: 'white' }}>Excluir essa conta</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={{ padding: 2, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             <TouchableOpacity onPress={handleExitApp} style={{ height: 40, width: 280, borderRadius: 5, backgroundColor: '#FF4715', alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: 'white' }}>Sair do App</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Modal de confirmação de exclusão */}
         <Modal visible={showDeleteConfirmation} animationType="fade" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Deseja realmente excluir essa conta?</Text>
-              <View style={styles.modalButtonsContainer}>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'red' }]} onPress={handleConfirmDelete}>
-                  <Text style={styles.modalButtonText}>Sim</Text>
+              <Text style={styles.modalText}>Confirmar exclusão da conta?</Text>
+              <View style={[styles.modalButtonsContainer, { flexDirection: 'column' }]}>
+              <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'black',marginBottom: 6, width: 250 }]} onPress={handleCancelDelete}>
+                  <Text style={styles.modalButtonText}>Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'gray' }]} onPress={handleCancelDelete}>
-                  <Text style={styles.modalButtonText}>Não</Text>
+                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'red', width: 250 }]} onPress={handleConfirmDelete}>
+                  <Text style={styles.modalButtonText}>Confirmar</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
         </Modal>
 
-        {/* Modal de confirmação de saída */}
         <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>Deseja realmente sair do aplicativo?</Text>
-              <View style={styles.modalButtonsContainer}>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'red' }]} onPress={handleConfirmExit}>
-                  <Text style={styles.modalButtonText}>Sim</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'gray' }]} onPress={handleCancelExit}>
+              <View style={[styles.modalButtonsContainer, { flexDirection: 'column' }]}>
+                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'black', width: 250, marginBottom: 6, }]} onPress={handleCancelExit}>
                   <Text style={styles.modalButtonText}>Não</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'red', width: 250 }]} onPress={handleConfirmExit}>
+                  <Text style={styles.modalButtonText}>Sim</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
-        </Modal>
+        </Modal>    
       </ScrollView>
     </View>
   );
