@@ -1,5 +1,3 @@
-import {IPhotoData} from "../models/Photo";
-
 type User = {
 	id: string
 	username: string
@@ -10,5 +8,4 @@ type User = {
 	latitude: string
 	longitude: string
 	streetName: string
-	photo: IPhotoData
 }

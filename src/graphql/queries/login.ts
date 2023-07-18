@@ -1,14 +1,11 @@
-import type { User } from "../../types/User";
 import {gql} from "@apollo/client";
 
 export interface ILoginResponse {
 	usersPermissionsUsers: {
-		data: {
-			attributes: {
+		data: Array<{
 				username: User['username'];
 				email: User['email'];
-			};
-		};
+			}>;
 		__typename: string;
 	};
 }
