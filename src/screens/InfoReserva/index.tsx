@@ -56,70 +56,73 @@ export default function InfoReserva() {
                         {/* Div para inserção dos cards*/}
                         <View className='w-max h-max px-3'>
 
+
                             {/* Div para criação dos cards de reservas ativas*/}
-                            <View className='flex-row items-start justify-start w-max h-max pt-2'>
-
-                                <View>
-                                    <Image
-                                        source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
-                                        style={{ width: 138, height: 90 }}
-                                        borderRadius={5}
-                                    />
-                                </View>
-
-                                <View className='flex justify-start items-start h-max w-max pl-1'>
+                            <TouchableOpacity>
+                                <View className='flex-row items-start justify-start w-max h-max pt-2'>
 
                                     <View>
-                                        <Text className='font-black text-base text-orange-600'>Court Name</Text>
+                                        <Image
+                                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                                            style={{ width: 138, height: 90 }}
+                                            borderRadius={5}
+                                        />
                                     </View>
 
-                                    <View>
-                                        <Text className='font-normal text-xs text-white'>Type Court</Text>
-                                    </View>
+                                    <View className='flex justify-start items-start h-max w-max pl-1'>
 
-                                    <View className='w-max h-5 flex-row'>
+                                        <View>
+                                            <Text className='font-black text-base text-orange-600'>Court Name</Text>
+                                        </View>
 
-                                        <View className='w-44 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>R$170.00</Text>
+                                        <View>
+                                            <Text className='font-normal text-xs text-white'>Type Court</Text>
+                                        </View>
+
+                                        <View className='w-max h-5 flex-row'>
+
+                                            <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
+                                                <View>
+                                                    <Text className='font-black text-xs text-white'>R$170.00</Text>
+                                                </View>
+                                                <View>
+                                                    <Text className='font-black text-xs text-white'> / </Text>
+                                                </View>
+                                                <View>
+                                                    <Text className='font-black text-xs text-white'>R$200.00</Text>
+                                                </View>
                                             </View>
+
                                             <View>
-                                                <Text className='font-black text-xs text-white'> / </Text>
+                                                <Text className='font-black text-xs text-white'> 80%</Text>
                                             </View>
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>R$200.00</Text>
-                                            </View>
+
                                         </View>
 
-                                        <View>
-                                            <Text className='font-black text-xs text-white'> 80%</Text>
+                                        <View className='flex-row'>
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>Reserva feita em </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>00/00/00 </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>as </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>12:00 </Text>
+                                            </View>
+
                                         </View>
+
 
                                     </View>
-
-                                    <View className='flex-row'>
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>Reserva feita em </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>00/00/00 </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>as </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>12:00 </Text>
-                                        </View>
-
-                                    </View>
-
 
                                 </View>
-
-                            </View>
+                            </TouchableOpacity>
 
 
                             {/* View de texto indicando das reservas finalizadas*/}
@@ -128,67 +131,69 @@ export default function InfoReserva() {
                             </View>
 
                             {/* Div para criação dos cards de reservas FINALIZADAS*/}
-                            <View className='flex-row items-start justify-start w-max h-max pt-2'>
-
-                                <View>
-                                    <Image
-                                        source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
-                                        style={{ width: 138, height: 90 }}
-                                        borderRadius={5}
-                                    />
-                                </View>
-
-                                <View className='h-max w-max pl-1'>
+                            <TouchableOpacity>
+                                <View className='flex-row items-start justify-start w-max h-max pt-2'>
 
                                     <View>
-                                        <Text className='font-black text-base text-orange-600'>Court Name</Text>
+                                        <Image
+                                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                                            style={{ width: 138, height: 90 }}
+                                            borderRadius={5}
+                                        />
                                     </View>
 
-                                    <View>
-                                        <Text className='font-normal text-xs text-white'>Type Court</Text>
+                                    <View className='h-max w-max pl-1'>
+
+                                        <View>
+                                            <Text className='font-black text-base text-orange-600'>Court Name</Text>
+                                        </View>
+
+                                        <View>
+                                            <Text className='font-normal text-xs text-white'>Type Court</Text>
+                                        </View>
+
+                                        <View className='w-max h-5 flex-row'>
+
+                                            <View>
+                                                <Text className='font-normal text-xs text-white'>Status: </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-normal text-xs text-white'>Finalizado </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>R$180.00</Text>
+                                            </View>
+
+                                        </View>
+
+                                        <View className='flex-row'>
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>Ultima Reserva </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>00/00/00 </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>as </Text>
+                                            </View>
+
+                                            <View>
+                                                <Text className='font-black text-xs text-white'>12:00 </Text>
+                                            </View>
+
+                                        </View>
+
+
                                     </View>
 
-                                    <View className='w-max h-5 flex-row'>
-
-                                        <View>
-                                            <Text className='font-normal text-xs text-white'>Status: </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-normal text-xs text-white'>Finalizado </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>R$180.00</Text>
-                                        </View>
-
-                                    </View>
-
-                                    <View className='flex-row'>
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>Ultima Reserva </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>00/00/00 </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>as </Text>
-                                        </View>
-
-                                        <View>
-                                            <Text className='font-black text-xs text-white'>12:00 </Text>
-                                        </View>
-
-                                    </View>
-
+                                    
 
                                 </View>
-
-                                
-
-                            </View>
+                            </TouchableOpacity>
 
 
                         </View>
