@@ -3,4 +3,5 @@ type CourtCardInfos = {
     name: string
     type: string
     distance: number
+    pageNavigation: string
 }
