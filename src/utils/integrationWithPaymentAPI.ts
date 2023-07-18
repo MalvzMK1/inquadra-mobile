@@ -3,17 +3,6 @@ import { SchedulingEntity, UsersPermissionsUserEntity } from "../__generated__/g
 import { generateInvoice } from "../services/iugu";
 import uuid from 'react-native-uuid'
 
-type FindAddressByCepResponse = {
-  uf: string
-  cidade: string
-  bairro: string
-  logradouro: string
-  cep: string
-  complemento: string
-  nome: string
-  status: string
-}
-
 export function integrateWithPaymentAPI(scheduling: SchedulingEntity) {
 	const users = scheduling.attributes?.users?.data;
 	const value =
@@ -41,9 +30,9 @@ async function generateIuguApiBodyRequest(
 			(user) => user.id === userID
 		) as UsersPermissionsUserEntity;
 
-    let {data: userAddress} = await axios.get<FindAddressByCepResponse>(`https://example.api.findcep.com/v1/cep/01234000.json`)
-      
-		if (user !== undefined && user.attributes) {
+    let {data: userAddress} = await axios.get<FindAddressByCepResponse>(`https://example.api.findcep.com/v1/cep/${user.attributes?.address?.cep}.json`)
+      console.log(userAddress)
+		if (user.attributes) {
 			return {
 				email: user.attributes.email,
 				due_date: '2023-12-31',

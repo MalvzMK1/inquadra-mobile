@@ -1,8 +1,7 @@
 import axios from 'axios'
 
 export async function generateInvoice(invoice: CreateInvoiceRequestBody): Promise<CreateInvoiceResponse> {
-  // const {data} = await axios.post<CreateInvoiceResponse>('http://192.168.0.10:5055/iugu', invoice); 
-  const {data} = await axios.post<CreateInvoiceResponse>('https://api.iugu.com/v1/invoices?api_token=9FA9FCA3E948266BDAE1F8E90B3574487122F3E4495792C9BD2E40D56F9EFC0F', invoice); 
+  const {data} = await axios.post<CreateInvoiceResponse>('https://a99a-2804-14d-3280-54ef-9095-8ad3-200d-607e.ngrok-free.app/iugu', invoice);
   console.log({ID_DA_FATURA: data.id})
   return data
 }
