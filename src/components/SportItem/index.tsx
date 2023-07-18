@@ -1,6 +1,6 @@
 import { View, Image, Text} from 'react-native';
 
-export default function NavigationSports(props: SportsCard) {
+export default function SportItem(props: SportsCard) {
     return(
         <View className='flex flex-col items-center justify-center px-7'>
             <Image className='w-[30px] h-[30px]' source={{uri: props.image}}></Image>
