@@ -13,7 +13,7 @@ type UserTypeCardType = {
 export function UserTypeCard(props: UserTypeCardType) {
     const navigation = useNavigation()
     return (
-        <View className="h-80 w-80 bg-white rounded-lg shadow-xl flex flex-col justify-around items-center">
+        <View className="h-2/5 w-4/5 bg-white rounded-lg shadow-xl flex flex-col justify-evenly items-center">
             <Image source={props.image}></Image>
             <Text className="text-3xl font-semibold">{props.title}</Text>
             <Text className="text-lg w-4/6 flex text-center">{props.subtitle}</Text>
