@@ -1,4 +1,4 @@
-import {ScrollView, Text, TouchableOpacity, View} from "react-native";
+import {ScrollView, Text, View} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
 import {useNavigation} from "@react-navigation/native";
 
