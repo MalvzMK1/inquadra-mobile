@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import { View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
+import useUserLogin from "../../hooks/useUserLogin";
 
 export default function Login() {
+	const { data, loading: isLoading, error } = useUserLogin('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjg5Njc1NjAxLCJleHAiOjE2OTIyNjc2MDF9.SUGj4hjWgsQ6bmga7cA9in2uCue3wP1CkmiAJ6F55WQ');
+
 	const [userEmail, setUserEmail] = useState<string>("");
 	const [userPassWord, setUserPassword] = useState<string>("")
 	const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -14,6 +17,19 @@ export default function Login() {
 	}
 
 	const navigation = useNavigation();
+
+	if (isLoading) return (
+		<View>
+			<Text>CARREGANDO</Text>
+		</View>
+	)
+
+	if (error) return (
+		<View>
+			<Text>ERROR</Text>
+		</View>
+	)
+
 	return (
 		<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>
@@ -23,6 +39,8 @@ export default function Login() {
 				</TouchableOpacity>
 
 				<View className="w-full">
+
+					{data?.usersPermissionsUsers.data.map((userLogin) => <Text>{userLogin.attributes.username}</Text>)}
 
 				<View className="h-14">
 					<TextInput className= "h-14 text-base"
