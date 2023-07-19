@@ -141,7 +141,7 @@ export default function Home() {
 								name={item.name}
 								distance={item.distance}
 								type={item.type}
-								pageNavigation=''
+								pageNavigation='EstablishmentInfo'
 							/>
 						</View>
 					))}
