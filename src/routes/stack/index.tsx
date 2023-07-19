@@ -14,6 +14,7 @@ import { Entypo } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
+import {NavigationProp} from "@react-navigation/native";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -89,7 +90,6 @@ export default function () {
 				name="HomeVariant"
 				component={Home}
 				options={({ route }) => ({
-					// headerTitle: route.params.name,
 					headerTitleStyle: {
 						fontSize: 26
 					},

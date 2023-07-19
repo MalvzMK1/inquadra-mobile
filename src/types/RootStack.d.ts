@@ -4,7 +4,12 @@ type RootStackParamList = {
 	Register: undefined;
 	Home: undefined;
 	HomeVariant: undefined;
-	RegisterPassword: undefined;
+	RegisterPassword: {
+		name: string
+		email: string
+		cpf: string
+		phoneNumber: string
+	};
 	RegisterSuccess: undefined;
 	InfoReserva: undefined;
 	FavoriteCourts: undefined;
