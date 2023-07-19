@@ -69,7 +69,7 @@ export default function Password() {
                         checked={isChecked}
                         onPress={() => setIsChecked(!isChecked)}
                     />
-                    <Text className="text-base flex-wrap">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap">Termo de Uso e Política de Privacidade</Text> </Text>
+                    <Text className="text-base flex-wrap flex-1">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap">Termo de Uso e Política de Privacidade</Text> </Text>
                 </View>
 
                 <View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">
