@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import { View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
@@ -14,6 +14,7 @@ export default function Login() {
 	}
 
 	const navigation = useNavigation();
+
 	return (
 		<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>

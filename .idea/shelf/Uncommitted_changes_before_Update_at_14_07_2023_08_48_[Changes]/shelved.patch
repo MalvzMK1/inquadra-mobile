@@ -1,0 +1,126 @@
+Index: src/routes/stack/index.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import { createStackNavigator } from '@react-navigation/stack';\r\nimport { Image } from 'react-native';\r\nimport { TextInput } from 'react-native-paper';\r\n\r\nimport Login from '../../screens/Login';\r\nimport ChooseUserType from '../../screens/ChooseUserType';\r\nimport Register from '../../screens/Register/Client';\r\nimport Password from '../../screens/Register/Client/password';\r\nimport RegisterSuccess from '../../screens/Register/Client/success';\r\nimport Home from '../../screens/home';\r\nimport { TouchableOpacity } from 'react-native-gesture-handler';\r\nimport { Entypo } from '@expo/vector-icons';\r\n\r\nconst { Navigator, Screen } = createStackNavigator();\r\n\r\nexport default function () {\r\n\treturn (\r\n\t\t<Navigator>\r\n\t\t\t<Screen\r\n\t\t\t\tname=\"Login\"\r\n\t\t\t\tcomponent={Login}\r\n\t\t\t\toptions={{\r\n\t\t\t\t\theaderTitle: () => (\r\n\t\t\t\t\t\t<Image source={require('../../assets/inquadra_logo.png')} />\r\n\t\t\t\t\t),\r\n\t\t\t\t\theaderTitleAlign: 'center',\r\n\t\t\t\t\theaderStyle: {\r\n\t\t\t\t\t\theight: 200,\r\n\t\t\t\t\t\tbackgroundColor: '#292929',\r\n\t\t\t\t\t},\r\n\t\t\t\t}}\r\n\t\t\t/>\r\n\t\t\t<Screen\r\n\t\t\t\tname=\"ChooseUserType\"\r\n\t\t\t\tcomponent={ChooseUserType}\r\n\t\t\t\toptions={{\r\n\t\t\t\t\theaderShown: false,\r\n\t\t\t\t}}\r\n\t\t\t/>\r\n\t\t\t<Screen\r\n\t\t\t\tname=\"Register\"\r\n\t\t\t\tcomponent={Register}\r\n\t\t\t\toptions={{\r\n\t\t\t\t\theaderTitle: '',\r\n\t\t\t\t}}\r\n\t\t\t/>\r\n\t\t\t<Screen\r\n\t\t\t\tname=\"Home\"\r\n\t\t\t\tcomponent={Home}\r\n\t\t\t\toptions={{\r\n\t\t\t\t\theaderTintColor: 'white',\r\n\t\t\t\t\theaderStyle: {\r\n\t\t\t\t\t\theight: 125,\r\n\t\t\t\t\t\tbackgroundColor: '#292929',\r\n\t\t\t\t\t},\r\n\t\t\t\t\theaderTitle: () => (\r\n\t\t\t\t\t\t<TextInput\r\n\t\t\t\t\t\t\ttheme={{ colors: { placeholder: '#e9e9e9' } }}\r\n\t\t\t\t\t\t\tplaceholder=\"O que você está procurando?\"\r\n\t\t\t\t\t\t\tclassName=\"bg-white rounded-2xl w-full flex items-center justify-center placeholder:text-[#e9e9e9] text-sm outline-none\"\r\n\t\t\t\t\t\t\tright={<TextInput.Icon icon={'magnify'} />}\r\n\t\t\t\t\t\t/>\r\n\t\t\t\t\t),\r\n\t\t\t\t\theaderRight: () => (\r\n\t\t\t\t\t\t<TouchableOpacity className=\"w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden\">\r\n\t\t\t\t\t\t\t<Image\r\n\t\t\t\t\t\t\t\tsource={require('../../assets/qodeless_logo.jpg')}\r\n\t\t\t\t\t\t\t\tclassName=\"w-full h-full\"\r\n\t\t\t\t\t\t\t/>\r\n\t\t\t\t\t\t</TouchableOpacity>\r\n\t\t\t\t\t),\r\n\t\t\t\t\theaderLeft: () => (\r\n\t\t\t\t\t\t<TouchableOpacity className=\"ml-3\">\r\n\t\t\t\t\t\t\t<Entypo\r\n\t\t\t\t\t\t\t\tname=\"menu\"\r\n\t\t\t\t\t\t\t\tsize={48}\r\n\t\t\t\t\t\t\t\tcolor={'white'}\r\n\t\t\t\t\t\t\t/>\r\n\t\t\t\t\t\t</TouchableOpacity>\r\n\t\t\t\t\t),\r\n\t\t\t\t}}\r\n\t\t\t/>\r\n\t\t\t<Screen\r\n\t\t\t\tname=\"HomeVariant\"\r\n\t\t\t\tcomponent={Home}\r\n\t\t\t\toptions={({ route }) => ({\r\n\t\t\t\t\t// headerTitle: route.params.name,\r\n\t\t\t\t\theaderTitleAlign: 'center',\r\n\t\t\t\t\theaderTintColor: 'white',\r\n\t\t\t\t\theaderStyle: {\r\n\t\t\t\t\t\theight: 125,\r\n\t\t\t\t\t\tbackgroundColor: '#292929',\r\n\t\t\t\t\t},\r\n\t\t\t\t\theaderLeftContainerStyle: {\r\n\t\t\t\t\t\tmarginLeft: 12,\r\n\t\t\t\t\t},\r\n\t\t\t\t\theaderRight: () => (\r\n\t\t\t\t\t\t<TouchableOpacity className=\"w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden\">\r\n\t\t\t\t\t\t\t<Image\r\n\t\t\t\t\t\t\t\tsource={require('../../assets/qodeless_logo.jpg')}\r\n\t\t\t\t\t\t\t\tclassName=\"w-full h-full\"\r\n\t\t\t\t\t\t\t/>\r\n\t\t\t\t\t\t</TouchableOpacity>\r\n\t\t\t\t\t),\r\n\t\t\t\t})}\r\n\t\t\t/>\r\n\t\t\t<Screen\r\n\t\t\t\tname=\"RegisterPassword\"\r\n\t\t\t\tcomponent={Password}\r\n\t\t\t/>\r\n\t\t\t<Screen\r\n\t\t\t\tname=\"RegisterSuccess\"\r\n\t\t\t\tcomponent={RegisterSuccess}\r\n\t\t\t\toptions={{\r\n\t\t\t\t\ttitle: '',\r\n\t\t\t\t\theaderTransparent: true,\r\n\t\t\t\t\theaderShown: false\r\n\t\t\t\t}}\r\n\t\t\t/>\r\n\t\t</Navigator>\r\n\t);\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/routes/stack/index.tsx b/src/routes/stack/index.tsx
+--- a/src/routes/stack/index.tsx	(revision 609d5168fc5d045b53e220f5c686745c78c0bc53)
++++ b/src/routes/stack/index.tsx	(date 1689331196249)
+@@ -10,6 +10,7 @@
+ import Home from '../../screens/home';
+ import { TouchableOpacity } from 'react-native-gesture-handler';
+ import { Entypo } from '@expo/vector-icons';
++import Favorites from "../../screens/Favorites";
+ 
+ const { Navigator, Screen } = createStackNavigator();
+ 
+@@ -85,6 +86,9 @@
+ 				component={Home}
+ 				options={({ route }) => ({
+ 					// headerTitle: route.params.name,
++					headerTitleStyle: {
++						fontSize: 26
++					},
+ 					headerTitleAlign: 'center',
+ 					headerTintColor: 'white',
+ 					headerStyle: {
+@@ -117,6 +121,33 @@
+ 					headerShown: false
+ 				}}
+ 			/>
++			<Screen
++				name="FavoriteCourts"
++				component={Favorites}
++				options={({ route }) => ({
++					headerTitle: 'Favoritos',
++					headerTitleStyle: {
++						fontSize: 26
++					},
++					headerTitleAlign: 'center',
++					headerTintColor: 'white',
++					headerStyle: {
++						height: 125,
++						backgroundColor: '#292929',
++					},
++					headerLeftContainerStyle: {
++						marginLeft: 12,
++					},
++					headerRight: () => (
++						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
++							<Image
++								source={require('../../assets/qodeless_logo.jpg')}
++								className="w-full h-full"
++							/>
++						</TouchableOpacity>
++					),
++				})}
++			/>
+ 		</Navigator>
+ 	);
+ }
+Index: src/screens/Login/index.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import React, { useState } from 'react'\r\nimport { View, Text, Button, Image } from 'react-native';\r\nimport { useNavigation } from '@react-navigation/native';\r\nimport { TouchableOpacity } from 'react-native-gesture-handler';\r\nimport { TextInput } from 'react-native-paper';\r\nimport { orange300, transparent } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';\r\nimport { Colors } from 'react-native/Libraries/NewAppScreen';\r\n\r\n\r\n\r\nexport default function Login() {\r\n\tconst [userEmail, setUserEmail] = useState<string>(\"\");\r\n\tconst [userPassWord, setUserPassword] = useState<string>(\"\")\r\n\r\n\r\n\tconst navigation = useNavigation();\r\n\treturn (\r\n\t\t<View className=\"flex-1 flex items-center justify-center h-max w-max bg-white px-7\">\r\n\t\t\t<TouchableOpacity onPress={() => navigation.navigate('ChooseUserType')}>\r\n\t\t\t\t<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>\r\n\t\t\t</TouchableOpacity>\t\t\t\r\n\r\n\t\t\t<View className=\"w-full\">\r\n\t\t\t\r\n\t\t\t<View className=\"h-14\">\r\n\t\t\t\t<TextInput className= \"h-14\"\r\n\t\t\t\t\tvalue={userEmail}\r\n\t\t\t\t\tonChangeText={setUserEmail}\r\n\t\t\t\t\tmode='outlined'\r\n\t\t\t\t\tlabel=\"Email\"\r\n\t\t\t\t\ttheme={{\r\n\t\t\t\t\t\tcolors: {\r\n\t\t\t\t\t\t\tplaceholder: 'gray',\r\n\t\t\t\t\t\t\tprimary: 'gray',\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}}\r\n\t\t\t\t/>\r\n\t\t\t</View>\r\n\r\n\r\n\t\t\t<View className='h-14 pt-4'>\r\n\t\t\t\t<TextInput className=\"h-14\"\r\n\t\t\t\t\tsecureTextEntry\r\n\t\t\t\t\tvalue={userPassWord}\r\n\t\t\t\t\tonChangeText={setUserPassword}\r\n\t\t\t\t\tmode='outlined'\r\n\t\t\t\t\tlabel=\"******\"\r\n\t\t\t\t\ttheme={{\r\n\t\t\t\t\t\tcolors: {\r\n\t\t\t\t\t\t\tplaceholder: 'gray',\r\n\t\t\t\t\t\t\tprimary: 'gray',\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}}\r\n\t\t\t\t/>\r\n\t\t\t</View>\r\n\r\n\t\t\t\r\n\t\t\t<View className='flex items-end pt-8'>\r\n\t\t\t\t<TouchableOpacity>\r\n\t\t\t\t\t<Text className='text-gray-400 text-base'>esqueceu a senha?</Text>\r\n\t\t\t\t</TouchableOpacity>\r\n\t\t\t</View>\r\n\r\n\t\t\t<View className='h-11 pt-4'>\r\n\t\t\t\t<TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center'>\r\n\t\t\t\t\t<Text className='text-gray-50'>Entrar</Text>\r\n\t\t\t\t</TouchableOpacity>\r\n\t\t\t</View>\r\n\r\n\t\t\t<View className='flex items-center justify-center pt-12'>\r\n\t\t\t\t<TouchableOpacity className=''>\r\n\t\t\t\t\t<Image source={require('../../assets/google.png')} className=''></Image>\r\n\t\t\t\t</TouchableOpacity>\r\n\t\t\t</View>\r\n\r\n\t\t\t<View className='flex-row  items-center justify-center pt-11'>\r\n\t\t\t\t<Text className='text-base text-gray-400'>Ainda não tem uma conta?</Text>\r\n\t\t\t\t<TouchableOpacity>\r\n\t\t\t\t\t<Text className='text-orange-500 text-base'> Clique aqui</Text>\r\n\t\t\t\t</TouchableOpacity>\r\n\t\t\t</View>\r\n\r\n\t\t\t</View>\r\n\t\t</View>\r\n\t\t\t\r\n\t);\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/screens/Login/index.tsx b/src/screens/Login/index.tsx
+--- a/src/screens/Login/index.tsx	(revision 609d5168fc5d045b53e220f5c686745c78c0bc53)
++++ b/src/screens/Login/index.tsx	(date 1689330634623)
+@@ -16,7 +16,7 @@
+ 	const navigation = useNavigation();
+ 	return (
+ 		<View className="flex-1 flex items-center justify-center h-max w-max bg-white px-7">
+-			<TouchableOpacity onPress={() => navigation.navigate('ChooseUserType')}>
++			<TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts')}>
+ 				<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
+ 			</TouchableOpacity>			
+ 
+Index: src/screens/Register/Client/success.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import { View, Text, Image } from \"react-native\";\r\nimport { TouchableOpacity } from \"react-native-gesture-handler\";\r\nimport {useNavigation} from \"@react-navigation/native\";\r\n\r\nexport default function RegisterSuccess() {\r\n    const navigation = useNavigation();\r\n    return (\r\n        <View className=\"h-full flex justify-center items-center\">\r\n            <View className=\"h-2/5 w-full flex flex-col justify-between items-center bg-green-600\">\r\n                <View className=\"w-3/5 flex flex-col justify-center items-center\">\r\n                    <Text className=\"text-4xl \">Cadastro feito com sucesso</Text>\r\n                    <Image source={require('../../../assets/inquadra_unnamed_logo.png')} className=\"w-20 h-20\"></Image>\r\n                </View>\r\n\r\n                <TouchableOpacity className='h-14 w-10/12 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('RegisterPassword')}>\r\n                    \t<Text className='text-gray-50'>Continuar</Text>\r\n                </TouchableOpacity>\r\n            </View>\r\n        </View>\r\n    )\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/screens/Register/Client/success.tsx b/src/screens/Register/Client/success.tsx
+--- a/src/screens/Register/Client/success.tsx	(revision 609d5168fc5d045b53e220f5c686745c78c0bc53)
++++ b/src/screens/Register/Client/success.tsx	(date 1689330628195)
+@@ -13,7 +13,7 @@
+                 </View>
+ 
+                 <TouchableOpacity className='h-14 w-10/12 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('RegisterPassword')}>
+-                    	<Text className='text-gray-50'>Continuar</Text>
++                    <Text className='text-gray-50'>Continuar</Text>
+                 </TouchableOpacity>
+             </View>
+         </View>
+Index: src/components/InfosCourt/InfosCourtContainer.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/components/InfosCourt/InfosCourtContainer.tsx b/src/components/InfosCourt/InfosCourtContainer.tsx
+new file mode 100644
+--- /dev/null	(date 1689334271602)
++++ b/src/components/InfosCourt/InfosCourtContainer.tsx	(date 1689334271602)
+@@ -0,0 +1,16 @@
++import {Image, ImageSourcePropType, Text, View} from "react-native";
++import {ReactNode} from "react";
++
++interface InfosCourtContainerProps {
++	category: string
++	children: ReactNode
++}
++
++export function InfosCourtContainer({category, children}: InfosCourtContainerProps) {
++	return(
++		<View className='w-full h-fit rounded-xl bg-zinc-800 pt-1 pb-6 px-2 mb-4'>
++			<Text className='font-bold text-3xl text-white mb-2'>{category}</Text>
++			{children}
++		</View>
++	)
++}
