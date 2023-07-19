@@ -1,86 +1,54 @@
-import { View, Text, ScrollView } from 'react-native';
-import { useState } from 'react';
-import { Dropdown } from 'react-native-element-dropdown';
-import { Button, Checkbox } from "react-native-paper";
+import { useState } from 'react'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import FilterDropdown from '../FilterDropdown'
+import Animated, {
+    FadeOut,
+    FadeIn
+} from 'react-native-reanimated'
+import { Button, Checkbox } from "react-native-paper"
+import DateTimePicker from "@react-native-community/datetimepicker"
+import FilterDate from '../FilterDate'
 
-const data = [
-    { label: 'Vestuários', value: '1' },
-    { label: 'Estacionamento', value: '2' },
-    { label: 'Lanchonete', value: '3' },
-    { label: 'Área de estar', value: '4' },
-    { label: 'Loja de artigos esportivos', value: '5' },
-    { label: 'Área de recreação infantil', value: '6' },
-    { label: 'Sala de estar', value: '7' },
-    { label: 'Quadras cobertas', value: '8' },
-];
 
 export default function FilterComponent() {
 
-    const [date, setDate] = useState(new Date());
-    const [timeInit, setTimeInit] = useState(new Date())
-    const [amenities, setAmenities] = useState("Amenidades")
-    const [timeFinal, setTimeFinal] = useState(new Date())
+    const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
+    const [amenities, setAmenities] = useState(null)
     const [dayUseYes, setDayUseYes] = useState(false)
     const [dayUseNot, setDayUseNot] = useState(false)
-    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [timeFinal, setTimeFinal] = useState(new Date())
+    const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
+    const [timeInit, setTimeInit] = useState(new Date())
+    const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
 
-    const handleDropdownChange = (item: { label: string, value: string }) => {
-        setAmenities(item.label);
-    };
+    const handleTimeInitPicker = () => {
+        setShowTimeInitPicker(true)
+    }
+    const handleTimeInitChange = (event: object, selectedTime) => {
+        setShowTimeInitPicker(false)
+        if (selectedTime) {
+            setTimeInit(selectedTime)
+        }
+    }
+    const handleTimeFinalPicker = () => {
+        setShowTimeFinalPicker(true)
+    }
+    const handleTimeFinalChange = (event: object, selectedTime) => {
+        setShowTimeFinalPicker(false)
+        if (selectedTime) {
+            setTimeFinal(selectedTime)
+        }
+    }
+
+
 
     return (
         <>
-            <View className='bg-[#292929E5] absolute z-10 opacity-90 w-screen h-screen'></View>
-            <View className=' absolute z-10 justify-center items-center w-full h-full'>
+            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 absolute z-10 w-screen h-screen'></Animated.View>
+            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-full'>
                 <ScrollView className='w-2/3 pt-3'>
-                    <Dropdown
-                        iconColor='#FFFFFF'
-                        iconStyle={{
-                            height: 30,
-                        }}
-                        labelField={'label'}
-                        valueField={'label'}
-                        selectedTextStyle={{color: "white", textAlign: "center", fontWeight: "600", paddingLeft: 25}}
-                        style={{
-                            backgroundColor: "#FF6112",
-                            borderRadius: 5,
-                            height: 35,
-                            paddingRight: 12
-                        }}
-                        placeholderStyle={{
-                            color: "#FFFFFF",
-                            textAlign: 'center',
-                            fontWeight: "600",
-                            fontSize: 15,
-                            paddingLeft: 25
-                        }}
-                        data={data}
-                        placeholder={amenities}
-                        onChange={handleDropdownChange}
-                    />
-                    <View className='flex flex-row items-center mt-6 justify-between pb-3'>
-                        <Text className='font-semibold text-white text-base'>
-                            Data
-                        </Text>
-                        <Button
-                            className='rounded'
-                            onPress={() => setShowDatePicker(true)}
-                            buttonColor='#FFFFFF'
-                            textColor='black'
-                            style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
-                        >
-                            <Text className='text-sm'>
-                                {`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`}
-                            </Text>
-                        </Button>
-                        {/* <DateTimePicker
-                            value={date}
-                            mode="date"
-                            onChange={() => (
-                                onChange
-                            )}
-                        /> */}
-                    </View>
+                    <FilterDropdown amenities={amenities} setAmenities={setAmenities} />
+                    <FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector}/>
                     <View className='flex flex-row justify-between'>
                         <View className='w-[41%]'>
                             <Text className='font-semibold text-white text-base'>
@@ -88,20 +56,23 @@ export default function FilterComponent() {
                             </Text>
                             <Button
                                 className='rounded'
-                                onPress={() => setShowDatePicker(true)}
+                                onPress={handleTimeInitPicker}
                                 buttonColor='#FFFFFF'
                                 textColor='black'
                                 style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
                             >
                                 <Text className='text-sm'>
-                                    {`${timeInit.getHours()}:${timeInit.getMinutes()}`}
+                                    {`${String(timeInit.getHours()).padStart(2, '0')}:${String(timeInit.getMinutes()).padStart(2, '0')}`}
                                 </Text>
                             </Button>
-                            {/* <DateTimePicker
-                                value={timeInit}
-                                mode="date"
-                                onChange={() => (onChange)}
-                            /> */}
+                            {showTimeInitPicker && (
+                                <DateTimePicker
+                                    value={timeInit}
+                                    mode="time"
+                                    onChange={handleTimeInitChange}
+                                />
+                            )}
+
                         </View>
                         <View className='w-[41%]'>
                             <Text className='font-semibold text-white text-base'>
@@ -109,20 +80,22 @@ export default function FilterComponent() {
                             </Text>
                             <Button
                                 className='rounded w-full'
-                                onPress={() => setShowDatePicker(true)}
+                                onPress={handleTimeFinalPicker}
                                 buttonColor='#FFFFFF'
                                 textColor='black'
                                 style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
                             >
                                 <Text className='text-sm'>
-                                    {`${timeFinal.getHours()}:${timeFinal.getMinutes()}`}
+                                    {`${String(timeFinal.getHours()).padStart(2, '0')}:${String(timeFinal.getMinutes()).padStart(2, '0')}`}
                                 </Text>
                             </Button>
-                            {/* <DateTimePicker
-                                value={timeFinal}
-                                mode="date"
-                                onChange={() => (onChange)}
-                            /> */}
+                            {showTimeFinalPicker && ( 
+                                <DateTimePicker
+                                    value={timeFinal}
+                                    mode="time"
+                                    onChange={handleTimeFinalChange}
+                                />
+                            )}
                         </View>
                     </View>
                     <View className='items-center pt-3'>
@@ -152,8 +125,25 @@ export default function FilterComponent() {
                             Filtrar
                         </Text>
                     </Button>
+                    <TouchableOpacity className='flex flex-row self-center gap-x-3'
+                        onPress={() => {
+                            setTimeInit(new Date)
+                            setTimeFinal(new Date)
+                            setDayUseYes(false)
+                            setDayUseNot(false)
+                            setAmenities(null)
+                            setDateSelector(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
+                        }}
+                    >
+                        <Text className=' font-semibold mb-5 text-white border-white border-b-[0.5px] mt border-solid'>
+                            Limpar Filtros
+                        </Text>
+                        <Text className='text-white font-semibold'>
+                            X
+                        </Text>
+                    </TouchableOpacity>
                 </ScrollView>
-            </View>
+            </Animated.View>
         </>
     )
 }

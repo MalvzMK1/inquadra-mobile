@@ -5,8 +5,8 @@ import Animated, {
 	useAnimatedStyle,
 	useAnimatedReaction,
 	withTiming,
-    FadeOut,
-    FadeIn
+	FadeOut,
+	FadeIn
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
 
@@ -38,7 +38,7 @@ const userNameExample = "Artur"
 
 export default function BarHome() {
 
-    const [expanded, setExpanded] = useState(false);
+	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
 	useAnimatedReaction(
@@ -55,29 +55,27 @@ export default function BarHome() {
 		};
 	});
 
-    return(
-        // className={`${isDisabled ? "hidden" : ""}`}
-        <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
-        <View
-            className='flex items-center'>
-            <TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
-                <View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
-            </TouchableOpacity>
-            <Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
-        </View>
-        <ScrollView>
-            {arrayTeste.map((item) => (
-                <View className='p-5' key={item.id}>
-                    <CourtCardHome
-                        image={item.image}
-                        name={item.name}
-                        distance={item.distance}
-                        type={item.type}
-                    />
-                </View>
-            ))}
-        </ScrollView>
-    </Animated.View>
-    )
-
+	return (
+		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
+			<View
+				className='flex items-center'>
+				<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
+					<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
+				</TouchableOpacity>
+				<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
+			</View>
+			<ScrollView>
+				{arrayTeste.map((item) => (
+					<View className='p-5' key={item.id}>
+						<CourtCardHome
+							image={item.image}
+							name={item.name}
+							distance={item.distance}
+							type={item.type}
+						/>
+					</View>
+				))}
+			</ScrollView>
+		</Animated.View>
+	)
 }
