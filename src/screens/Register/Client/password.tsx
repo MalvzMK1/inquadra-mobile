@@ -5,8 +5,6 @@ import { TouchableOpacity } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { CheckBox } from 'react-native-elements'
 
-// import CheckBox from "@react-native-community/checkbox"
-
 export default function Password() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmedPassword, setShowConfirmedPassword] = useState(false)
