@@ -1,9 +1,9 @@
 import {ScrollView, Text, View} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
-import {useNavigation} from "@react-navigation/native";
+import {NavigationProp, useNavigation} from "@react-navigation/native";
 
 export default function FavoriteCourts() {
-	const navigation = useNavigation()
+	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return(
 		<ScrollView className='flex-1 py-4 bg-zinc-600'>
 			<InfosCourt.Root category='Quadras'>

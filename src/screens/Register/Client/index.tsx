@@ -2,12 +2,12 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {View, Text, TextInput} from 'react-native';
 import { RegisterHeader } from '../../../components/RegisterHeader';
-import {Controller, FieldValues, useForm} from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import {TouchableOpacity} from "react-native-gesture-handler";
 
 
 
-interface IFormInput extends FieldValues {
+interface IFormDatas {
 	name: string
 	email: string
 	phoneNumber: string
@@ -17,9 +17,9 @@ interface IFormInput extends FieldValues {
 
 export default function Register() {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-	const { control, handleSubmit } = useForm();
+	const { control, handleSubmit, formState: {errors}, getValues } = useForm<IFormDatas>();
 
-	function handleGoToNextRegisterPage(data: IFormInput): void {
+	function handleGoToNextRegisterPage(data: IFormDatas): void {
 
 		navigation.navigate('RegisterPassword', {
 			...data
@@ -38,14 +38,18 @@ export default function Register() {
 						<Controller
 							name='name'
 							control={control}
+							rules={{
+								required: true
+							}}
 							render={({field: {onChange}}) => (
 								<TextInput
 									onChangeText={onChange}
-									className='p-4 border border-neutral-400 rounded'
+									className={errors.name ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='Ex.: João'
 								/>
 							)}
 						/>
+						{errors.name?.type === 'required' ? <Text className='text-red-400 text-sm'>O nome é obrigatório!</Text> : undefined}
 					</View>
 
 					<View>
@@ -53,29 +57,40 @@ export default function Register() {
 						<Controller
 							name='email'
 							control={control}
+							rules={{
+								required: true,
+								maxLength: 254
+							}}
 							render={({field: {onChange}}) => (
 								<TextInput
 									onChangeText={onChange}
-									className='p-4 border border-neutral-400 rounded'
+									className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='exemplo@mail.com.br'
 								/>
 							)}
 						/>
+						{errors.email?.type === 'required' ? <Text className='text-red-400 text-sm'>O e-mail é obrigatório!</Text> : undefined}
 					</View>
 
 					<View>
 						<Text className='text-xl'>Qual é o número do seu celular?</Text>
 						<Controller
+							name={'phoneNumber'}
+							control={control}
+							rules={{
+								required: true,
+								minLength: 11,
+								maxLength: 11
+							}}
 							render={({field: {onChange}}) => (
 								<TextInput
 									onChangeText={onChange}
-									className='p-4 border border-neutral-400 rounded'
+									className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='(00) 00000-0000'
 								/>
 							)}
-							name={'phoneNumber'}
-							control={control}
 						/>
+						{errors.phoneNumber?.type === 'required' ? <Text className='text-red-400 text-sm'>O número de telefone é obrigatório!</Text> : undefined}
 					</View>
 
 					<View>
@@ -83,14 +98,20 @@ export default function Register() {
 						<Controller
 							name='cpf'
 							control={control}
+							rules={{
+								required: true,
+								minLength: 11,
+								maxLength: 11
+							}}
 							render={({field: {onChange}}) => (
 								<TextInput
 									onChangeText={onChange}
-									className='p-4 border border-neutral-400 rounded'
+									className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='000.000.000-00'
 								/>
 							)}
 						/>
+						{errors.cpf?.type === 'required' ? <Text className='text-red-400 text-sm'>O CPF é obrigatório!</Text> : undefined}
 					</View>
 
 				</View>

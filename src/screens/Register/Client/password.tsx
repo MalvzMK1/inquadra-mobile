@@ -4,17 +4,18 @@ import { RegisterHeader } from "../../../components/RegisterHeader"
 import { TouchableOpacity } from "react-native"
 import { CheckBox } from 'react-native-elements'
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {Controller, useForm} from "react-hook-form";
+import {Controller, useForm, get} from "react-hook-form";
+// import getFieldValue from "react-hook-form/dist/logic/getFieldValue";
 
 type RegisterPasswordProps = NativeStackScreenProps<RootStackParamList, 'RegisterPassword'>
 
-interface IFormValues {
+interface IFormData {
 	password: string
 	confirmPassword: string
 }
 
 export default function Password({route, navigation}: RegisterPasswordProps) {
-	const {control, handleSubmit} = useForm()
+	const {control, handleSubmit, getValues, formState: {errors}} = useForm<IFormData>()
 
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmedPassword, setShowConfirmedPassword] = useState(false)
@@ -29,13 +30,19 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 
 	const [isChecked, setIsChecked] = useState(false)
 	const [captchaChecked, setCaptchaChecked] = useState(false)
+	const [isCheckedError, setIsCheckedError] = useState<boolean>(false)
+	const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
 
-	function handleSignup(data: IFormValues): void {
-		const userDatas = {
-			...route.params,
-			...data
-		}
-		console.log(userDatas)
+	function handleSignup(data: IFormData): void {
+		if (isCheckedError) {
+			if (isCaptchaCheckedError) {
+				const userDatas = {
+					...route.params,
+					...data
+				}
+				alert('Sucesso')
+			} setIsCaptchaCheckedError(true)
+		} setIsCheckedError(true)
 	}
 
 	return (
@@ -52,6 +59,10 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						<Controller
 							name='password'
 							control={control}
+							rules={{
+								required: true,
+								minLength: 6
+							}}
 							render={({field: {onChange}}) => (
 								<TextInput
 									secureTextEntry={!showPassword}
@@ -73,6 +84,10 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						<Controller
 							name='confirmPassword'
 							control={control}
+							rules={{
+								required: true,
+								minLength: 6
+							}}
 							render={({field: {onChange}}) => (
 								<TextInput
 									secureTextEntry={!showConfirmedPassword}
@@ -101,8 +116,8 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						<CheckBox
 							checked={captchaChecked}
 							onPress={() => setCaptchaChecked(!captchaChecked)}
+							className={isCaptchaCheckedError ? 'bg-red-300' : undefined}
 						/>
-
 						<Text className="text-[#959595] text-base">Não sou um robô</Text>
 					</View>
 
