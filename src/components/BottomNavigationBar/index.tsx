@@ -22,21 +22,25 @@ export function BottomNavigationBar(props: { isDisabled: boolean }) {
 	});
 
 	return (
-		<View className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292928]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
+		<View className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
 
 			{showButtons && (
 				<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
-						<Text>Botão 1</Text>
+						<Image
+							source={require('../../assets/settings_black_icon.png')}
+						/>
 					</TouchableOpacity >
 					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
-						<Text>Botão 2</Text>
+						<Image
+							source={require('../../assets/black_heart.png')}
+						/>
 					</TouchableOpacity>
 				</Animated.View>
 			)}
 
 			<TouchableOpacity
-				className="flex flex-row items-center justify-center w-[60px] h-[60px] rounded-full overflow-hidden bg-slate-100"
+				className="flex flex-row items-center justify-center w-[60px] h-[60px] rounded-full overflow-hidden bg-slate-100 ml-[5px] mr-[5px]"
 				onPress={toogleButton}
 			>
 				<Image source={require('../../assets/inquadra_unnamed_logo.png')} />
@@ -44,11 +48,15 @@ export function BottomNavigationBar(props: { isDisabled: boolean }) {
 
 			{showButtons && (
 				<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
-					<TouchableOpacity className="flex flex-row items-center justify-centerw-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
-						<Text>Botão 3</Text>
+					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
+						<Image
+							source={require('../../assets/house_black_icon.png')}
+						/>
 					</TouchableOpacity >
-					<TouchableOpacity className="flex flex-row items-center justify-centerw-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
-						<Text>Botão 4</Text>
+					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
+						<Image
+							source={require('../../assets/calendar_black_icon.png')}
+						/>
 					</TouchableOpacity>
 				</Animated.View>
 			)}
