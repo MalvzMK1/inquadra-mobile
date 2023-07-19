@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal } from 'react-native-wind';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import Picker from 'react-native-picker'
+import Picker from 'react-native-picker-select';
 
 export default function ProfileSettings() {
   const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
@@ -23,7 +23,6 @@ export default function ProfileSettings() {
     setShowCard(!showCard);
     setShowCameraIcon(false);
   };
-
 
   const handleCardDataChange = (key: string, value: string) => {
     setCardData(prevState => ({
@@ -63,131 +62,127 @@ export default function ProfileSettings() {
   };
 
   const countries = [
-    { name: 'Brasil'},
+    { name: 'Brasil' },
     { name: 'Estados Unidos' },
     { name: 'Canadá' },
-    { name: 'Reino Unido'}
+    { name: 'Reino Unido' }
   ];
 
-  const getCountryCode = (countryName: string) => {
-    const country = countries.find(item => item.name === countryName);
-    return country ? country : '';
-  };
-
   return (
-    <View style={{ flex: 1, backgroundColor: 'white', height: '100%' }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 }}>
+    <View className="flex-1 bg-white h-full">
+      <View className="flex-row justify-between items-center p-4">
+        {/* Content here */}
       </View>
 
-      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 10 }}>
-        <TouchableOpacity style={{ alignItems: 'center', marginTop: 20 }}>
-          <Image source={require('../../assets/picture.png')} style={{ width: 100, height: 100, borderRadius: 50 }} />
-          <Text style={{ marginTop: 10, fontSize: 16, color: 'gray' }}>Trocar foto de perfil</Text>
+      <ScrollView className="flex-grow p-4">
+        <TouchableOpacity className="items-center mt-20">
+          <Image source={require('../../assets/picture.png')} className="w-100 h-100 rounded-full" />
+          <Text className="mt-10 text-gray-500 text-base">Trocar foto de perfil</Text>
         </TouchableOpacity>
 
-        <View style={{ padding: 6, gap: 10 }}>
+        <View className="p-6 space-y-10">
           <View>
-            <Text style={{ fontSize: 17 }}>Nome</Text>
-            <TextInput style={{ padding: 4, borderWidth: 1, borderColor: 'gray', borderRadius: 5, height: 45 }} placeholder='Larissa' placeholderTextColor="#d3d3d3" />
+            <Text className="text-base">Nome</Text>
+            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='Larissa' placeholderTextColor="#d3d3d3" />
           </View>
 
           <View>
-            <Text style={{ fontSize: 17 }}>E-mail</Text>
-            <TextInput style={{ padding: 4, borderWidth: 1, borderColor: 'gray', borderRadius: 5, height: 45 }} placeholder='larissa@mail.com.br' placeholderTextColor="#d3d3d3" />
+            <Text className="text-base">E-mail</Text>
+            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='larissa@mail.com.br' placeholderTextColor="#d3d3d3" />
           </View>
 
           <View>
-            <Text style={{ fontSize: 17 }}>Telefone</Text>
-            <TextInput style={{ padding: 4, borderWidth: 1, borderColor: 'gray', borderRadius: 5, height: 45 }} placeholder='(00) 00000-0000' placeholderTextColor="#d3d3d3" />
+            <Text className="text-base">Telefone</Text>
+            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='(00) 00000-0000' placeholderTextColor="#d3d3d3" />
           </View>
 
           <View>
-            <Text style={{ fontSize: 17 }}>CPF</Text>
-            <TextInput style={{ padding: 4, borderWidth: 1, borderColor: 'gray', borderRadius: 5, height: 45 }} placeholder='000.000000-00' placeholderTextColor="#d3d3d3" />
+            <Text className="text-base">CPF</Text>
+            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='000.000000-00' placeholderTextColor="#d3d3d3" />
           </View>
 
           <TouchableOpacity onPress={handleCardClick}>
-            <Text style={{ fontSize: 17 }}>Dados Cartão</Text>
-            <View style={{ height: 45, borderWidth: 1, borderColor: 'gray', borderRadius: 5 }}>
-              <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+            <Text className="text-base">Dados Cartão</Text>
+            <View className="h-45 border border-gray-500 rounded-md">
+              <View className="flex-row justify-center items-center">
                 <IconButton
                   icon={showCameraIcon ? 'camera' : 'credit-card-plus'}
                   size={25}
-                  style={{ alignItems: 'flex-end' }}
+                  className="items-flex-end"
                 />
-                <Text style={{ flex: 1, fontSize: 17, textAlign:'right', marginBottom: 5 }}>
+                <Text className="flex-1 text-base text-right mb-5">
                   {showCard ? <Icon name="camera" size={25} color="#FF4715" /> : 'Adicionar Cartão'}
                 </Text>
-                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" style={{ marginLeft: 'auto' }} />
+                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" className="ml-auto" />
               </View>
             </View>
           </TouchableOpacity>
 
           {showCard && (
-            <View style={{ borderWidth: 1, borderColor: 'gray', borderRadius: 5, padding: 10, marginTop: 10 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ flex: 1, marginRight: 5 }}>
-                  <Text style={{ fontSize: 17, color: '#FF4715' }}>Data venc.</Text>
+            <View className="border border-gray-500 rounded-md p-4 mt-10">
+              <View className="flex-row justify-between">
+                <View className="flex-1 mr-5">
+                  <Text className="text-base text-red-500">Data venc.</Text>
                   <TextInput
-                    style={{ padding: 4, borderWidth: 1, borderColor: 'gray', borderRadius: 5, height: 40 }}
+                    className="p-4 border border-gray-500 rounded-md h-40"
                     placeholderTextColor="#d3d3d3"
                     value={cardData.expirationDate}
                     onChangeText={text => handleCardDataChange('expirationDate', text)}
                   />
                 </View>
-                <View style={{ flex: 1, marginLeft: 5 }}>
-                  <Text style={{ fontSize: 17, color: "#FF4715" }}>CVV</Text>
+                <View className="flex-1 ml-5">
+                  <Text className="text-base text-red-500">CVV</Text>
                   <TextInput
-                    style={{ padding: 4, borderWidth: 1, borderColor: 'gray', borderRadius: 5, height: 40 }}
+                    className="p-4 border border-gray-500 rounded-md h-40"
                     placeholderTextColor="#d3d3d3"
                     value={cardData.cvv}
                     onChangeText={text => handleCardDataChange('cvv', text)}
                   />
                 </View>
               </View>
-              <View style={{ marginLeft: 5 }}>
-                <Text style={{ fontSize: 17, color: "#FF4715" }}>País</Text>
-                {/*<Picker*/}
-                {/*  // selectedValue={cardData.country}*/}
-                {/*  // onValueChange={value => handleCardDataChange('country', value)}*/}
-                {/*  // style={{ height: 40, borderWidth: 1, borderColor: 'gray', borderRadius: 5 }}*/}
-                {/*>*/}
-                {/*  {countries.map((country, index) => (*/}
-                {/*    <Picker.Item key={index} label={country.name} value={country.name} />*/}
-                {/*  ))}*/}
-                {/*</Picker>*/}
+              <View className="ml-5">
+                <Text className="text-base text-red-500">País</Text>
+                <Picker
+                  selectedValue={cardData.country}
+                  onValueChange={value => handleCardDataChange('country', value)}
+                  className="h-40 border border-gray-500 rounded-md"
+                >
+                  {countries.map((country, index) => (
+                    <Picker.Item key={index} label={country.name} value={country.name} />
+                  ))}
+                </Picker>
               </View>
-              <View style={{ padding: 2, justifyContent: 'center', alignItems: 'center' }}>
-                <TouchableOpacity onPress={handleSaveCard} style={{ height: 40, width: 280, borderRadius: 5, backgroundColor: '#FF4715', alignItems: 'center', justifyContent: 'center', margin: 20 }}>
-                  <Text style={{ color: 'white' }}>Salvar</Text>
+              <View className="p-2 justify-center items-center">
+                <TouchableOpacity onPress={handleSaveCard} className="h-40 w-280 rounded-md bg-red-500 items-center justify-center m-20">
+                  <Text className="text-white">Salvar</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
 
-          <View style={{ paddingTop: 15, justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity onPress={handleDeleteAccount} style={{ height: 40, width: 280, borderRadius: 5, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: 'white' }}>Excluir essa conta</Text>
+          <View className="pt-15 justify-center items-center">
+            <TouchableOpacity onPress={handleDeleteAccount} className="h-40 w-280 rounded-md bg-red-500 items-center justify-center">
+              <Text className="text-white">Excluir essa conta</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity onPress={handleExitApp} style={{ height: 40, width: 280, borderRadius: 5, backgroundColor: '#FF4715', alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: 'white' }}>Sair do App</Text>
+          <View className="justify-center items-center">
+            <TouchableOpacity onPress={handleExitApp} className="h-40 w-280 rounded-md bg-red-500 items-center justify-center">
+              <Text className="text-white">Sair do App</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <Modal visible={showDeleteConfirmation} animationType="fade" transparent={true}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Confirmar exclusão da conta?</Text>
-              <View style={[styles.modalButtonsContainer, { flexDirection: 'column' }]}>
-              <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'black',marginBottom: 6, width: 250 }]} onPress={handleCancelDelete}>
-                  <Text style={styles.modalButtonText}>Cancelar</Text>
+          <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+            <View className="bg-white rounded-md p-20 items-center">
+              <Text className="mb-10">Confirmar exclusão da conta?</Text>
+              <View className="flex-col">
+                <TouchableOpacity className="bg-black mb-6 w-250 rounded-md" onPress={handleCancelDelete}>
+                  <Text className="text-white">Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'red', width: 250 }]} onPress={handleConfirmDelete}>
-                  <Text style={styles.modalButtonText}>Confirmar</Text>
+                <TouchableOpacity className="bg-red-500 w-250 rounded-md" onPress={handleConfirmDelete}>
+                  <Text className="text-white">Confirmar</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -195,52 +190,21 @@ export default function ProfileSettings() {
         </Modal>
 
         <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Deseja realmente sair do aplicativo?</Text>
-              <View style={[styles.modalButtonsContainer, { flexDirection: 'column' }]}>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'black', width: 250, marginBottom: 6, }]} onPress={handleCancelExit}>
-                  <Text style={styles.modalButtonText}>Não</Text>
+          <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+            <View className="bg-white rounded-md p-20 items-center">
+              <Text className="mb-10">Deseja realmente sair do aplicativo?</Text>
+              <View className="flex-col">
+                <TouchableOpacity className="bg-black mb-6 w-250 rounded-md" onPress={handleCancelExit}>
+                  <Text className="text-white">Não</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: 'red', width: 250 }]} onPress={handleConfirmExit}>
-                  <Text style={styles.modalButtonText}>Sim</Text>
+                <TouchableOpacity className="bg-red-500 w-250 rounded-md" onPress={handleConfirmExit}>
+                  <Text className="text-white">Sim</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
-        </Modal>    
+        </Modal>
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 5,
-    padding: 20,
-    alignItems: 'center',
-  },
-  modalText: {
-    marginBottom: 10,
-  },
-  modalButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  modalButton: {
-    borderRadius: 5,
-    padding: 10,
-    width: 100,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: 'white',
-  },
-});

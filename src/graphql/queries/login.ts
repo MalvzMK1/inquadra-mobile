@@ -1,5 +1,7 @@
 import {gql} from "@apollo/client";
 
+import { User } from "../../types/User";
+
 export interface ILoginResponse {
 	usersPermissionsUsers: {
 		data: Array<{

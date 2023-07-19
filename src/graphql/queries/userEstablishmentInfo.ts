@@ -1,4 +1,10 @@
 import {gql} from "@apollo/client";
+import { User } from "../../types/User";
+import { Establishment } from "../../types/EstablishmentInfos";
+import { PixKey } from "../../types/PixKey";
+import { Court } from "../../types/Court";
+import { Address } from "../../types/Address";
+import { Amenitie } from "../../types/Amenitie";
 
 export interface IUserEstablishmentResponse {
 	usersPermissionsUser: {
