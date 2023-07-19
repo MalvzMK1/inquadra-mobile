@@ -14,6 +14,9 @@ import { Entypo } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
+import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
+import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
+import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -123,6 +126,21 @@ export default function () {
 					headerShown: false
 				}}
 			/>
+			<Screen
+				name="DescriptionReserve"
+				component={DescriptionReserve}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="DescriptionInvited"
+				component={DescriptionInvited}
+				options={{
+					headerShown: false
+				}}
+			/>
+			
 			<Screen
 				name="RegisterSuccess"
 				component={RegisterSuccess}
