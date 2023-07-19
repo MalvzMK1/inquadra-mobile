@@ -147,7 +147,13 @@ export default function Home() {
 					))}
 				</ScrollView>
 			</Animated.View>
-			<BottomNavigationBar isDisabled={isDisabled} />
+			<BottomNavigationBar 
+			isDisabled={isDisabled} 
+			buttonOneNavigation='ProfileSettings'
+			buttonTwoNavigation='FavoriteCourts'
+			buttonThreeNavigation=''
+			buttonFourNavigation=''
+			/>
 		</View>
 	);
 }

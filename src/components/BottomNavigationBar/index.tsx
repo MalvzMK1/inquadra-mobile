@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { BottomNavigationType } from '../../types/BottomNavigationProps';
 
-export function BottomNavigationBar(props: { isDisabled: boolean }) {
+export function BottomNavigationBar(props: BottomNavigationType) {
 	const navigation = useNavigation()
 
 	const [showButtons, setShowButtons] = useState(false)
@@ -26,12 +27,16 @@ export function BottomNavigationBar(props: { isDisabled: boolean }) {
 
 			{showButtons && (
 				<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
-					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
+					<TouchableOpacity
+						className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
+						onPress={() => navigation.navigate(`${props.buttonOneNavigation}`)}>
 						<Image
 							source={require('../../assets/settings_black_icon.png')}
 						/>
 					</TouchableOpacity >
-					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
+					<TouchableOpacity
+						className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
+						onPress={() => navigation.navigate(`${props.buttonTwoNavigation}`)}>
 						<Image
 							source={require('../../assets/black_heart.png')}
 						/>
@@ -48,12 +53,16 @@ export function BottomNavigationBar(props: { isDisabled: boolean }) {
 
 			{showButtons && (
 				<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
-					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
+					<TouchableOpacity
+						className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
+						onPress={() => navigation.navigate(`${props.buttonThreeNavigation}`)}>
 						<Image
 							source={require('../../assets/house_black_icon.png')}
 						/>
 					</TouchableOpacity >
-					<TouchableOpacity className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100">
+					<TouchableOpacity
+						className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
+						onPress={() => navigation.navigate(`${props.buttonFourNavigation}`)}>
 						<Image
 							source={require('../../assets/calendar_black_icon.png')}
 						/>
