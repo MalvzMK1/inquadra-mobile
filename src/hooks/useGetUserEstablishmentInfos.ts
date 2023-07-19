@@ -1,4 +1,4 @@
-import {QueryResult, useQuery} from "@apollo/client";
+import { QueryResult, useQuery } from "@apollo/client";
 import {
 	IUserEstablishmentResponse,
 	IUserEstablishmentVariables,
@@ -10,5 +10,5 @@ export default function useGetUserEstablishmentInfos(id: string): QueryResult<IU
 		variables: {
 			id
 		}
-	})
+	});
 }
