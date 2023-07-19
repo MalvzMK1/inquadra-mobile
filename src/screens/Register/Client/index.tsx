@@ -2,12 +2,12 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {View, Text, TextInput} from 'react-native';
 import { RegisterHeader } from '../../../components/RegisterHeader';
-import {Controller, useForm} from "react-hook-form";
+import {Controller, FieldValues, useForm} from "react-hook-form";
 import {TouchableOpacity} from "react-native-gesture-handler";
 
 
 
-interface IFormInput {
+interface IFormInput extends FieldValues {
 	name: string
 	email: string
 	phoneNumber: string
@@ -20,6 +20,7 @@ export default function Register() {
 	const { control, handleSubmit } = useForm();
 
 	function handleGoToNextRegisterPage(data: IFormInput): void {
+
 		navigation.navigate('RegisterPassword', {
 			...data
 		})
