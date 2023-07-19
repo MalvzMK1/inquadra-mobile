@@ -29,7 +29,7 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-						height: 60,
+						height: 100,
 						backgroundColor: '#292929',
 					},
 					headerTitleAlign: 'center',
@@ -44,7 +44,7 @@ export default function () {
 						</TouchableOpacity>
 					),
 					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),

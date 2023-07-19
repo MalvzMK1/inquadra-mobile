@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import Picker from 'react-native-picker';
+import { Input } from 'react-native-elements';
 
 export default function ProfileSettings() {
   const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
@@ -70,12 +71,9 @@ export default function ProfileSettings() {
 
   return (
     <View className="flex-1 bg-white h-full">
-      <View className="flex-row justify-between items-center p-4">
-        {/* Content here */}
-      </View>
-
-      <ScrollView className="flex-grow p-4">
-        <TouchableOpacity className="items-center mt-20">
+      
+      <ScrollView className="flex-grow p-1">
+        <TouchableOpacity className="items-center mt-8">
           <Image source={require('../../assets/picture.png')} className="w-100 h-100 rounded-full" />
           <Text className="mt-10 text-gray-500 text-base">Trocar foto de perfil</Text>
         </TouchableOpacity>
@@ -103,7 +101,7 @@ export default function ProfileSettings() {
 
           <TouchableOpacity onPress={handleCardClick}>
             <Text className="text-base">Dados Cartão</Text>
-            <View className="h-45 border border-gray-500 rounded-md">
+            <View className="h-30 border border-gray-500 rounded-md">
               <View className="flex-row justify-center items-center">
                 <IconButton
                   icon={showCameraIcon ? 'camera' : 'credit-card-plus'}
@@ -113,7 +111,7 @@ export default function ProfileSettings() {
                 <Text className="flex-1 text-base text-right mb-5">
                   {showCard ? <Icon name="camera" size={25} color="#FF4715" /> : 'Adicionar Cartão'}
                 </Text>
-                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" className="ml-auto" />
+                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
               </View>
             </View>
           </TouchableOpacity>
@@ -124,7 +122,7 @@ export default function ProfileSettings() {
                 <View className="flex-1 mr-5">
                   <Text className="text-base text-red-500">Data venc.</Text>
                   <TextInput
-                    className="p-4 border border-gray-500 rounded-md h-40"
+                    className="p-3 border border-gray-500 rounded-md h-18"
                     placeholderTextColor="#d3d3d3"
                     value={cardData.expirationDate}
                     onChangeText={text => handleCardDataChange('expirationDate', text)}
@@ -133,75 +131,64 @@ export default function ProfileSettings() {
                 <View className="flex-1 ml-5">
                   <Text className="text-base text-red-500">CVV</Text>
                   <TextInput
-                    className="p-4 border border-gray-500 rounded-md h-40"
+                    className="p-3 border border-gray-500 rounded-md h-18"
                     placeholderTextColor="#d3d3d3"
                     value={cardData.cvv}
                     onChangeText={text => handleCardDataChange('cvv', text)}
                   />
                 </View>
               </View>
-              <View className="ml-5">
+              <View className="relative">
                 <Text className="text-base text-red-500">País</Text>
-                {/* <Picker
-                  selectedValue={cardData.country}
-                  onValueChange={value => handleCardDataChange('country', value)}
-                  className="h-40 border border-gray-500 rounded-md"
-                >
-                  {countries.map((country, index) => (
-                    <Picker.Item key={index} label={country.name} value={country.name} />
-                  ))}
-                </Picker> */}
+                
               </View>
               <View className="p-2 justify-center items-center">
-                <TouchableOpacity onPress={handleSaveCard} className="h-40 w-280 rounded-md bg-red-500 items-center justify-center m-20">
+                <TouchableOpacity onPress={handleSaveCard} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
                   <Text className="text-white">Salvar</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
-
-          <View className="pt-15 justify-center items-center">
-            <TouchableOpacity onPress={handleDeleteAccount} className="h-40 w-280 rounded-md bg-red-500 items-center justify-center">
-              <Text className="text-white">Excluir essa conta</Text>
+          <View>
+          <View className='p-2'>
+					  <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
+            	<Text className='text-gray-50'>Excluir essa conta</Text>
             </TouchableOpacity>
-          </View>
+				  </View>
 
-          <View className="justify-center items-center">
-            <TouchableOpacity onPress={handleExitApp} className="h-40 w-280 rounded-md bg-red-500 items-center justify-center">
-              <Text className="text-white">Sair do App</Text>
-            </TouchableOpacity>
+          <View className='p-2'>
+					  <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
+             	<Text className='text-gray-50'>Sair do App</Text>
+          	</TouchableOpacity>
+				</View>
           </View>
         </View>
 
         <Modal visible={showDeleteConfirmation} animationType="fade" transparent={true}>
-          <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
             <View className="bg-white rounded-md p-20 items-center">
-              <Text className="mb-10">Confirmar exclusão da conta?</Text>
-              <View className="flex-col">
-                <TouchableOpacity className="bg-black mb-6 w-250 rounded-md" onPress={handleCancelDelete}>
+              <Text className=" font-bold text-lg mb-8">Confirmar exclusão da conta?</Text>
+                <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
                   <Text className="text-white">Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="bg-red-500 w-250 rounded-md" onPress={handleConfirmDelete}>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
                   <Text className="text-white">Confirmar</Text>
                 </TouchableOpacity>
               </View>
-            </View>
           </View>
         </Modal>
-
+                
         <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
-          <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
             <View className="bg-white rounded-md p-20 items-center">
-              <Text className="mb-10">Deseja realmente sair do aplicativo?</Text>
-              <View className="flex-col">
-                <TouchableOpacity className="bg-black mb-6 w-250 rounded-md" onPress={handleCancelExit}>
-                  <Text className="text-white">Não</Text>
+              <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
+                <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+                  <Text className="text-white">Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="bg-red-500 w-250 rounded-md" onPress={handleConfirmExit}>
-                  <Text className="text-white">Sim</Text>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit}>
+                  <Text className="text-white">Confirmar</Text>
                 </TouchableOpacity>
               </View>
-            </View>
           </View>
         </Modal>
       </ScrollView>
