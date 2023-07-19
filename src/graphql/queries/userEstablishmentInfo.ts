@@ -107,5 +107,6 @@ export const userEstablishmentQuery = gql`
             }
         }
     }
-
 `;
+
+console.log(userEstablishmentQuery)

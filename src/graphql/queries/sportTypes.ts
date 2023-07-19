@@ -1,9 +1,9 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
 import { SportType } from "../../types/SportTypes";
 
 
-interface ICourtType {
+export interface ICourtType {
 	data: {
 		id: SportType['id']
 		attributes: {
