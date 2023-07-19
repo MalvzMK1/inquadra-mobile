@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal } from 'react-native-wind';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import Picker from 'react-native-picker-select';
+import Picker from 'react-native-picker';
 
 export default function ProfileSettings() {
   const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
@@ -24,7 +24,7 @@ export default function ProfileSettings() {
     setShowCameraIcon(false);
   };
 
-  const handleCardDataChange = (key: string, value: string) => {
+  const handleCardDataChange = (key, value) => {
     setCardData(prevState => ({
       ...prevState,
       [key]: value
@@ -142,7 +142,7 @@ export default function ProfileSettings() {
               </View>
               <View className="ml-5">
                 <Text className="text-base text-red-500">País</Text>
-                <Picker
+                {/* <Picker
                   selectedValue={cardData.country}
                   onValueChange={value => handleCardDataChange('country', value)}
                   className="h-40 border border-gray-500 rounded-md"
@@ -150,7 +150,7 @@ export default function ProfileSettings() {
                   {countries.map((country, index) => (
                     <Picker.Item key={index} label={country.name} value={country.name} />
                   ))}
-                </Picker>
+                </Picker> */}
               </View>
               <View className="p-2 justify-center items-center">
                 <TouchableOpacity onPress={handleSaveCard} className="h-40 w-280 rounded-md bg-red-500 items-center justify-center m-20">
