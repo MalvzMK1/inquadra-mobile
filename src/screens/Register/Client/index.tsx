@@ -4,8 +4,8 @@ import {View, Text, TextInput} from 'react-native';
 import { RegisterHeader } from '../../../components/RegisterHeader';
 import {Controller, useForm} from "react-hook-form";
 import {TouchableOpacity} from "react-native-gesture-handler";
-
-
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod'
 
 interface IFormDatas {
 	name: string
@@ -14,10 +14,28 @@ interface IFormDatas {
 	cpf: string
 }
 
+const createFormSchema = z.object({
+	name: z.string()
+		.nonempty('O nome não pode estar vazio!'),
+	email: z.string()
+		.nonempty('O E-mail não pode estar vazio!')
+		.includes('@', {
+			message: 'O E-mail passado não é válido',
+		})
+		.max(254, 'O E-mail passado não é válido'),
+	phoneNumber: z.string()
+		.nonempty('O número de telefone não pode estar vazio!')
+		.max(15, 'O número passado não é válido'),
+	cpf: z.string()
+		.nonempty('O CPF não pode estar vazio!')
+		.max(15, 'O CPF passado não é válido'),
+})
 
 export default function Register() {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-	const { control, handleSubmit, formState: {errors}, getValues } = useForm<IFormDatas>();
+	const { control, handleSubmit, formState: {errors}, getValues } = useForm<IFormDatas>({
+		resolver: zodResolver(createFormSchema)
+	});
 
 	function handleGoToNextRegisterPage(data: IFormDatas): void {
 
@@ -49,7 +67,7 @@ export default function Register() {
 								/>
 							)}
 						/>
-						{errors.name?.type === 'required' ? <Text className='text-red-400 text-sm'>O nome é obrigatório!</Text> : undefined}
+						{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
 					</View>
 
 					<View>
@@ -63,13 +81,16 @@ export default function Register() {
 							}}
 							render={({field: {onChange}}) => (
 								<TextInput
+									textContentType='emailAddress'
+									keyboardType='email-address'
+									maxLength={254}
 									onChangeText={onChange}
 									className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='exemplo@mail.com.br'
 								/>
 							)}
 						/>
-						{errors.email?.type === 'required' ? <Text className='text-red-400 text-sm'>O e-mail é obrigatório!</Text> : undefined}
+						{errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
 					</View>
 
 					<View>
@@ -84,13 +105,16 @@ export default function Register() {
 							}}
 							render={({field: {onChange}}) => (
 								<TextInput
+									textContentType='telephoneNumber'
+									keyboardType='phone-pad'
+									maxLength={15}
 									onChangeText={onChange}
-									className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+									className={errors.phoneNumber ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='(00) 00000-0000'
 								/>
 							)}
 						/>
-						{errors.phoneNumber?.type === 'required' ? <Text className='text-red-400 text-sm'>O número de telefone é obrigatório!</Text> : undefined}
+						{errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
 					</View>
 
 					<View>
@@ -105,13 +129,15 @@ export default function Register() {
 							}}
 							render={({field: {onChange}}) => (
 								<TextInput
+									keyboardType='numeric'
+									maxLength={15}
 									onChangeText={onChange}
-									className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+									className={errors.cpf ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='000.000.000-00'
 								/>
 							)}
 						/>
-						{errors.cpf?.type === 'required' ? <Text className='text-red-400 text-sm'>O CPF é obrigatório!</Text> : undefined}
+						{errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
 					</View>
 
 				</View>
