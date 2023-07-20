@@ -1,4 +1,4 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 import { User } from "../../types/User";
 import { Establishment } from "../../types/EstablishmentInfos";
 import { PixKey } from "../../types/PixKey";
@@ -109,4 +109,3 @@ export const userEstablishmentQuery = gql`
     }
 `;
 
-console.log(userEstablishmentQuery)
