@@ -10,6 +10,8 @@ import useGetMenuUser from '../../hooks/useMenuUser';
 import useGetNextToCourtsById from '../../hooks/useNextToCourtById';
 import useGetUserById from '../../hooks/useUserById';
 import useSchedule from '../../hooks/useSchedule';
+import useScheduleById from '../../hooks/useScheduleById';
+import useUserLogin from '../../hooks/useUserLogin';
 
 export default function ProfileSettings() {
   const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
@@ -67,7 +69,7 @@ export default function ProfileSettings() {
     setShowExitConfirmation(false);
   };
 
-  const { loading, error, data } = useSchedule();
+  const { loading, error, data } = useScheduleById('1');
 
   if (loading) return <Text>Loading ...</Text>;
   return <Text>Hello {JSON.stringify(data)}!</Text>;
