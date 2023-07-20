@@ -16,5 +16,14 @@ export interface IDeleteCourtVariables{
 }
 
 export const deleteCourtMutation = gql`
-
+mutation deleteCourt($court_id: ID!) {
+  deleteCourt(id: $court_id) {
+    data {
+      id
+      attributes {
+        name
+      }
+    }
+  }
+}
 `
