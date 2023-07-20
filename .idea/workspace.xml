@@ -6,8 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/apolloClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/apolloClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -38,6 +40,10 @@
             <RecentBranchesForRepo>
               <option name="branches">
                 <list>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T621" />
+                    <option name="lastUsedInstant" value="1689859488" />
+                  </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="payment-api-integration" />
                     <option name="lastUsedInstant" value="1689244873" />
