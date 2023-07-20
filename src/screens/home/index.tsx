@@ -9,17 +9,16 @@ import Animated, {
 	useAnimatedReaction,
 	withTiming,
 } from 'react-native-reanimated';
-import MapView from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import CourtCardHome from '../../components/CourtCardHome';
 import NavigationSports from '../../components/NavigationSports';
-// import React, { useState } from 'react';
-// import { TouchableOpacity, View, Text } from 'react-native';
-// } from 'react-native-reanimated';
 import BarHome from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
-import pointerMap from '../../assets/pointerMap.png';
+import PointerMap from '../../assets/pointerMap.png';
+// import React, { useState } from 'react';
+// import { TouchableOpacity, View, Text } from 'react-native';
+// } from 'react-native-reanimated';
 
 const arrayTesteIcons = [
 	{
@@ -77,9 +76,32 @@ const ArrayLocations = [
 	}
 ]
 
+const arrayTeste = [
+	{
+		id: 1,
+		name: 'Name',
+		image: '',
+		distance: 2.5,
+		type: ''
+	},
+	{
+		id: 2,
+		name: 'Name',
+		image: '',
+		distance: 2.5,
+		type: ''
+	},
+	{
+		id: 3,
+		name: 'Name',
+		image: '',
+		distance: 5,
+		type: ''
+	},
+]
+
 export default function Home({ menuBurguer }: Props) {
 
-	const [isDisabled, setIsDisabled] = useState(true);
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
@@ -121,7 +143,6 @@ export default function Home({ menuBurguer }: Props) {
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
 					className='w-screen h-screen flex'
-					onPress={() => setIsDisabled(false)}
 					onPress={() => setIsDisabled(true)}
 					showsCompass={false}
 					initialRegion={{
@@ -141,27 +162,33 @@ export default function Home({ menuBurguer }: Props) {
 					<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
 						<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
 					</TouchableOpacity>
-					<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
+					<Text className='text-white text-lg font-black mt-3'>Olá, !</Text>
 				</View>
+			</Animated.View>
+				{/* FECHAR O SCROLLVIEW */}
 				<ScrollView>
-					{arrayTeste.map((item) => (
-						<View className='p-5' key={item.id}>
-							<CourtCardHome
-								image={item.image}
-								name={item.name}
-								distance={item.distance}
-								type={item.type}
-				>
-								pageNavigation='EstablishmentInfo'
-								/>
-												{
+					{
+						arrayTeste.map((item) => (
+							<View className='p-5' key={item.id}>
+								<CourtCardHome
+									image={item.image}
+									name={item.name}
+									distance={item.distance}
+									type={item.type}
+					      />
+									{/*pageNavigation='EstablishmentInfo'*/}
+							</View>)
+						)
+					}
+					<MapView>
+					{
 						ArrayLocations.map((item) => (
 							<Marker
 								coordinate={{
 									latitude: item.latitude,
 									longitude: item.longitude,
 								}}
-								icon={pointerMap}
+								icon={PointerMap}
 								title='test'
 								description='test'
 							>
@@ -169,11 +196,13 @@ export default function Home({ menuBurguer }: Props) {
 									name={item.nome}
 									distance={item.distance}
 									image={item.Image}
-				
+									type={item.type}
+								/>
 							</Marker>
 						))
 					}
-				</MapView>
+					</MapView>
+				</ScrollView>
 				{!isDisabled && (
 					<TouchableOpacity className={`absolute left-3 top-3`} onPress={() => setIsDisabled((prevState) => !prevState)}>
 						<AntDesign name="left" size={30} color="black" />
@@ -181,14 +210,14 @@ export default function Home({ menuBurguer }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <BarHome />}
-			<BottomNavigationBar 
-			isDisabled={isDisabled} 
-			buttonOneNavigation='ProfileSettings'
-			buttonTwoNavigation='FavoriteCourts'
-			buttonThreeNavigation=''
-			buttonFourNavigation=''
-			/>
-		</View >
+			// {isDisabled && <BarHome />}
+			// <BottomNavigationBar
+			// isDisabled={isDisabled}
+			// buttonOneNavigation='ProfileSettings'
+			// buttonTwoNavigation='FavoriteCourts'
+			// buttonThreeNavigation=''
+			// buttonFourNavigation=''
+			// />
+		// </View>
 	);
 }
