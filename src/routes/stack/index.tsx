@@ -1,16 +1,16 @@
+import { useState } from 'react';
+import Home from '../../screens/home';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Image } from 'react-native';
+import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
-import { View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType/';
 import Register from '../../screens/Register/Client';
 import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
-import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
@@ -19,6 +19,9 @@ import {NavigationProp} from "@react-navigation/native";
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
+
+	const [menuBurguer, setMenuBurguer] = useState(false)
+
 	return (
 		<Navigator>
 			<Screen
@@ -35,7 +38,6 @@ export default function () {
 					},
 				}}
 			/>
-
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
@@ -52,7 +54,6 @@ export default function () {
 			/>
 			<Screen
 				name="Home"
-				component={Home}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
@@ -76,19 +77,37 @@ export default function () {
 						</TouchableOpacity>
 					),
 					headerLeft: () => (
-						<TouchableOpacity className="ml-3">
-							<Entypo
-								name="menu"
-								size={48}
-								color={'white'}
-							/>
+						<TouchableOpacity className="ml-3" onPress={() => {
+							setMenuBurguer((prevState) => !prevState)
+						}}>
+							{
+								!menuBurguer ?
+									<Entypo
+										name="menu"
+										size={48}
+										color={'white'}
+									/>
+									:
+									<MaterialCommunityIcons
+										name="window-close"
+										size={48}
+										color="white"
+									/>
+
+							}
 						</TouchableOpacity>
 					),
 				}}
-			/>
+			>
+				{props => (
+					<Home
+						{...props}
+						menuBurguer={menuBurguer}
+					/>
+				)}
+			</Screen>
 			<Screen
 				name="HomeVariant"
-				component={Home}
 				options={({ route }) => ({
 					headerTitleStyle: {
 						fontSize: 26
@@ -111,7 +130,14 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
-			/>
+			>
+				{props => (
+					<Home
+						{...props}
+						menuBurguer={menuBurguer}
+					/>
+				)}
+			</Screen>
 			<Screen
 				name="RegisterPassword"
 				component={Password}
