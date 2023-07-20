@@ -27,7 +27,7 @@ export interface IMenuUserVariables {
 }
 
 export const menuUserQuery = gql`
-    getInfoUserMenu($id: ID){
+    query getInfoUserMenu($id: ID){
         usersPermissionsUser(id: $id){
             data{
                 attributes{

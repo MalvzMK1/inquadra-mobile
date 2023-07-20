@@ -51,39 +51,47 @@ export interface INextToCourtBiIdVariables {
 }
 
 export const useNextToCourtByIdQuery = gql`
-    query nextToCourtById($id: ID){
-        courts(id: $id){
-            data{
-                id
-                attributes{
-                    name
-                    court_type{
-                        data{
-                            attributes{
-                            name
-                            }
-                        }
-                    }
-                    photo{
-                        data{
-                            attributes{
-                                url
-                            }
-                        }
-                    }
-                    establishment{
-                        data{
-                            id
-                            attributes{
-                                address{
-                                    latitude
-                                    longitude
-                                }
-                            }
-                        } 
-                    }
-                }
+    query nextToCourtById($id: ID) {
+  court(id: $id) {
+    data {
+      id
+      attributes {
+        court_type {
+          data {
+            attributes {
+              name
             }
+          }
         }
+        name
+        photo {
+          data {
+            attributes {
+              url
+            }
+          }
+        }
+        establishment {
+          data {
+            id
+            attributes {
+              corporateName
+              address {
+                latitude
+                longitude
+              }
+            }
+          }
+        }
+        court_type {
+          data {
+            attributes {
+              name
+            }
+          }
+        }
+      }
     }
+  }
+}
 `;

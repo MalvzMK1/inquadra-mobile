@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import Picker from 'react-native-picker';
-import { Input } from 'react-native-elements';
+import useGetNextToCourts from '../../hooks/useNextToCourts';
+import { userEstablishmentQuery } from '../../graphql/queries/userEstablishmentInfo';
+import useGetUserEstablishmentInfos from '../../hooks/useGetUserEstablishmentInfos';
+import useGetMenuUser from '../../hooks/useMenuUser';
+import useGetNextToCourtsById from '../../hooks/useNextToCourtById';
+import useGetUserById from '../../hooks/useUserById';
+import useSchedule from '../../hooks/useSchedule';
 
 export default function ProfileSettings() {
   const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
@@ -62,12 +67,13 @@ export default function ProfileSettings() {
     setShowExitConfirmation(false);
   };
 
-  const countries = [
-    { name: 'Brasil' },
-    { name: 'Estados Unidos' },
-    { name: 'Canadá' },
-    { name: 'Reino Unido' }
-  ];
+  const { loading, error, data } = useSchedule();
+
+  if (loading) return <Text>Loading ...</Text>;
+  return <Text>Hello {JSON.stringify(data)}!</Text>;
+
+  // if (loading) return <Text>Loading ...</Text>;
+  // return <Text>Hello {JSON.stringify(data?.usersPermissionsUser.data.attributes.photo)}!</Text>;
 
   return (
     <View className="flex-1 bg-white h-full">
