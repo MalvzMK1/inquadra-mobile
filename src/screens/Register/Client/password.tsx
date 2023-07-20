@@ -7,6 +7,7 @@ import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {Controller, useForm} from "react-hook-form";
 import {z} from "zod";
 import { zodResolver } from '@hookform/resolvers/zod'
+import useRegisterUser from "../../../hooks/useRegisterUser";
 
 type RegisterPasswordProps = NativeStackScreenProps<RootStackParamList, 'RegisterPassword'>
 
@@ -26,6 +27,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 	const {control, handleSubmit, formState: {errors}} = useForm<IFormData>({
 		resolver: zodResolver(formSchema)
 	})
+	const [registerUser, {data, error, loading}] = useRegisterUser()
 
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmedPassword, setShowConfirmedPassword] = useState(false)
@@ -53,6 +55,16 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						...data,
 					}
 					alert('Sucesso')
+					registerUser({
+						variables: {
+							password: userDatas.password,
+							cpf: userDatas.cpf,
+							email: userDatas.email,
+							role: '3',
+							phone_number: userDatas.phoneNumber,
+							username: userDatas.name,
+						}
+					}).then(value => alert(value.data?.createUsersPermissionsUser.data.attributes.email))
 					navigation.navigate('RegisterSuccess')
 				}
 			} setIsCaptchaCheckedError(true)
