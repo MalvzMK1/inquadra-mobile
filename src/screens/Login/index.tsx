@@ -3,6 +3,7 @@ import { View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
+import useGetNextToCourts from '../../hooks/useNextToCourts';
 
 export default function Login() {
 	const [userEmail, setUserEmail] = useState<string>("");
@@ -14,8 +15,14 @@ export default function Login() {
 	}
 
 	const navigation = useNavigation();
+	
+		const { loading, error, data } = useGetNextToCourts('2');
+	  
+		console.log("Query Data:", data);
+	  
 
 	return (
+
 		<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>
 			<View className="flex-1 flex items-center justify-center h-max w-max bg-white px-7 ">
