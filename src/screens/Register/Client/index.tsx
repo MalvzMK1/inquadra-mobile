@@ -15,7 +15,7 @@ interface IFormDatas {
 	cpf: string
 }
 
-const createFormSchema = z.object({
+const formSchema = z.object({
 	name: z.string()
 		.nonempty('O nome não pode estar vazio!'),
 	email: z.string()
@@ -35,10 +35,11 @@ const createFormSchema = z.object({
 export default function Register() {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const { control, handleSubmit, formState: {errors}, getValues } = useForm<IFormDatas>({
-		resolver: zodResolver(createFormSchema)
+		resolver: zodResolver(formSchema)
 	});
 
 	function handleGoToNextRegisterPage(data: IFormDatas): void {
+		console.log(data)
 		navigation.navigate('RegisterPassword', {
 			...data
 		})
@@ -111,7 +112,7 @@ export default function Register() {
 									textContentType='telephoneNumber'
 									keyboardType='phone-pad'
 									maxLength={15}
-									onChangeText={onChange}
+									onChangeText={(masked, unmasked, obfuscated) => onChange(unmasked)}
 									className={errors.phoneNumber ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='(00) 00000-0000'
 								/>
@@ -137,7 +138,7 @@ export default function Register() {
 									value={getValues('cpf')}
 									keyboardType='numeric'
 									maxLength={14}
-									onChangeText={onChange}
+									onChangeText={(masked, unmasked, obfuscated) => onChange(unmasked)}
 									className={errors.cpf ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='000.000.000-00'
 								/>

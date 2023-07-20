@@ -1,11 +1,12 @@
 import { View, Text, TextInput, Image } from "react-native"
-import { useState } from "react"
+import React, { useState } from "react"
 import { RegisterHeader } from "../../../components/RegisterHeader"
 import { TouchableOpacity } from "react-native"
 import { CheckBox } from 'react-native-elements'
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {Controller, useForm, get} from "react-hook-form";
-// import getFieldValue from "react-hook-form/dist/logic/getFieldValue";
+import {Controller, useForm} from "react-hook-form";
+import {z} from "zod";
+import { zodResolver } from '@hookform/resolvers/zod'
 
 type RegisterPasswordProps = NativeStackScreenProps<RootStackParamList, 'RegisterPassword'>
 
@@ -14,8 +15,17 @@ interface IFormData {
 	confirmPassword: string
 }
 
+const formSchema = z.object({
+	password: z.string()
+		.nonempty('O campo não pode estar vazio'),
+	confirmPassword: z.string()
+		.nonempty('O campo não pode estar vazio'),
+})
+
 export default function Password({route, navigation}: RegisterPasswordProps) {
-	const {control, handleSubmit, getValues, formState: {errors}} = useForm<IFormData>()
+	const {control, handleSubmit, formState: {errors}} = useForm<IFormData>({
+		resolver: zodResolver(formSchema)
+	})
 
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmedPassword, setShowConfirmedPassword] = useState(false)
@@ -28,21 +38,25 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 	}
 	const checked: string = "checked"
 
-	const [isChecked, setIsChecked] = useState(false)
-	const [captchaChecked, setCaptchaChecked] = useState(false)
-	const [isCheckedError, setIsCheckedError] = useState<boolean>(false)
+	const [isTermChecked, setIsTermChecked] = useState(false)
+	const [isCaptchaChecked, setIsCaptchaChecked] = useState(false)
+	const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false)
 	const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
 
 	function handleSignup(data: IFormData): void {
-		if (isCheckedError) {
-			if (isCaptchaCheckedError) {
-				const userDatas = {
-					...route.params,
-					...data
+		if (isTermChecked) {
+			if (isCaptchaChecked) {
+				console.log(data)
+				if (data.password === data.confirmPassword) {
+					const userDatas = {
+						...route.params,
+						...data,
+					}
+					alert('Sucesso')
+					navigation.navigate('RegisterSuccess')
 				}
-				alert('Sucesso')
 			} setIsCaptchaCheckedError(true)
-		} setIsCheckedError(true)
+		} setIsTermCheckedError(true)
 	}
 
 	return (
@@ -55,7 +69,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 			<View className='gap-2 flex flex-col justify-between items-center w-full'>
 				<View className="w-full">
 					<Text className='text-xl'>Escolha uma senha</Text>
-					<View className="flex flex-row border border-neutral-400 rounded items-center justify-between">
+					<View className={errors.password ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
 						<Controller
 							name='password'
 							control={control}
@@ -65,6 +79,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 							}}
 							render={({field: {onChange}}) => (
 								<TextInput
+									textContentType='password'
 									secureTextEntry={!showPassword}
 									onChangeText={onChange}
 									className='p-4 flex-1'
@@ -76,11 +91,12 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 							<Image className="h-4 w-4 m-4" source={!showPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
 						</TouchableOpacity>
 					</View>
+					{errors.password && <Text className='text-red-400 text-sm'>{errors.password.message}</Text>}
 				</View>
 
 				<View className="w-full">
 					<Text className='text-xl'>Repita a senha escolhida</Text>
-					<View className="flex flex-row border border-neutral-400 rounded items-center justify-between">
+					<View className={errors.confirmPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
 						<Controller
 							name='confirmPassword'
 							control={control}
@@ -90,6 +106,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 							}}
 							render={({field: {onChange}}) => (
 								<TextInput
+									textContentType='password'
 									secureTextEntry={!showConfirmedPassword}
 									onChangeText={onChange}
 									className='p-4 flex-1'
@@ -101,28 +118,32 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 							<Image className="h-4 w-4 m-4" source={!showConfirmedPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
 						</TouchableOpacity>
 					</View>
+					{errors.confirmPassword && <Text className='text-red-400 text-sm'>{errors.confirmPassword.message}</Text>}
 				</View>
 
 				<View className="flex flex-row justify-start items-center w-full">
 					<CheckBox
-						checked={isChecked}
-						onPress={() => setIsChecked(!isChecked)}
+						checked={isTermChecked}
+						onPress={() => setIsTermChecked(!isTermChecked)}
 					/>
 					<Text className="text-base flex-wrap flex-1">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap">Termo de Uso e Política de Privacidade</Text> </Text>
 				</View>
+				{isTermCheckedError && <Text className='text-red-400 text-sm'>Leia os termos</Text>}
 
 				<View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">
 					<View className="flex flex-row items-center">
 						<CheckBox
-							checked={captchaChecked}
-							onPress={() => setCaptchaChecked(!captchaChecked)}
-							className={isCaptchaCheckedError ? 'bg-red-300' : undefined}
+							checked={isCaptchaChecked}
+							onPress={() => setIsCaptchaChecked(!isCaptchaChecked)}
+							containerStyle={{
+								borderColor: isCaptchaCheckedError ? 'rgb(248 113 113)' : undefined
+							}}
 						/>
 						<Text className="text-[#959595] text-base">Não sou um robô</Text>
 					</View>
-
 					<Image source={require('../../../assets/captcha.png')}></Image>
 				</View>
+				{isCaptchaCheckedError && <Text className='text-red-400 text-sm'>Verifique se você é um humano</Text>}
 			</View>
 			<View className='flex-1 flex w-full items-center justify-center'>
 				<TouchableOpacity
