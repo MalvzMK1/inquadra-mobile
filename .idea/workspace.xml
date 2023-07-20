@@ -7,8 +7,6 @@
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/@types/FindCepAPIResponse.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/FindCepAPIResponse.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/@types/iuguAPI.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/iuguAPI.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
@@ -123,7 +121,7 @@
       <workItem from="1689282366590" duration="193000" />
       <workItem from="1689760085361" duration="8583000" />
       <workItem from="1689772056258" duration="7758000" />
-      <workItem from="1689843994811" duration="1556000" />
+      <workItem from="1689843994811" duration="4426000" />
     </task>
     <servers />
   </component>

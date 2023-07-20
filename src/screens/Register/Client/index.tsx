@@ -6,6 +6,7 @@ import {Controller, useForm} from "react-hook-form";
 import {TouchableOpacity} from "react-native-gesture-handler";
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
+import MaskInput, {Masks} from 'react-native-mask-input'
 
 interface IFormDatas {
 	name: string
@@ -28,7 +29,7 @@ const createFormSchema = z.object({
 		.max(15, 'O número passado não é válido'),
 	cpf: z.string()
 		.nonempty('O CPF não pode estar vazio!')
-		.max(15, 'O CPF passado não é válido'),
+		.max(14, 'O CPF passado não é válido')
 })
 
 export default function Register() {
@@ -38,7 +39,6 @@ export default function Register() {
 	});
 
 	function handleGoToNextRegisterPage(data: IFormDatas): void {
-
 		navigation.navigate('RegisterPassword', {
 			...data
 		})
@@ -104,7 +104,10 @@ export default function Register() {
 								maxLength: 11
 							}}
 							render={({field: {onChange}}) => (
-								<TextInput
+								<MaskInput
+									mask={Masks.BRL_PHONE}
+									maskAutoComplete={true}
+									value={getValues('phoneNumber')}
 									textContentType='telephoneNumber'
 									keyboardType='phone-pad'
 									maxLength={15}
@@ -128,9 +131,12 @@ export default function Register() {
 								maxLength: 11
 							}}
 							render={({field: {onChange}}) => (
-								<TextInput
+								<MaskInput
+									mask={Masks.BRL_CPF}
+									maskAutoComplete={true}
+									value={getValues('cpf')}
 									keyboardType='numeric'
-									maxLength={15}
+									maxLength={14}
 									onChangeText={onChange}
 									className={errors.cpf ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
 									placeholder='000.000.000-00'
