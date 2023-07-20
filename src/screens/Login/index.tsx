@@ -82,11 +82,11 @@ export default function Login() {
 	return (
 		<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>
-			<TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPress={handleTeste} disabled={updateCourtLoading}>
+			{/* <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPress={handleTeste} disabled={updateCourtLoading}>
 				<Text className='text-gray-50'>DEUS ABENÇOE</Text>
-			</TouchableOpacity>
+			</TouchableOpacity> */}
 
-			<View className="flex-1 flex items-center justify-center px-7 bg-violet-500">
+			<View className="flex-1 flex items-center justify-center px-7">
 				<TouchableOpacity onPress={() => navigation.navigate('Home')}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
 				</TouchableOpacity>
