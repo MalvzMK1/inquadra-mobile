@@ -3,44 +3,12 @@ import { View, Text, Image, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-import useRegisterUser from '../../hooks/useRegisterUser';
-import useUpdateUser from '../../hooks/useUpdateUser';
-import useDeleteUser from '../../hooks/useDeleteUser';
-import useRegisterEstablishment from '../../hooks/useRegisterEstablishment';
-import useUpdateEstablishment from '../../hooks/useUpdateEstablishment';
-import useDeleteEstablishment from '../../hooks/useDeleteEstablishment';
-import useRegisterCourt from '../../hooks/useRegisterCourt';
-import useUpdateCourt from '../../hooks/useUpdateCourt';
+
 
 export default function Login() {
 	const [userEmail, setUserEmail] = useState<string>("");
 	const [userPassWord, setUserPassword] = useState<string>("")
 	const [showPassword, setShowPassword] = useState<boolean>(false)
-
-	const [teste, { data, loading, error }] = useUpdateCourt()
-
-	const handleTeste = async () => {
-		try {
-		  // Perform the mutation
-		  const response = await teste({
-			variables: {
-				court_id: 3,
-				court_name: "Quadra do RAPAZ",
-				courtType: 1,
-				fantasyName: "Quadra",
-				photos: ['3'],
-				court_availabilities: ['1'],
-				minimum_value: 20.00
-
-			},
-		  });		  
-		  console.log("Mutation Response:", response);
-		} catch (error) {
-		  console.error("Error while registering establishment:", error);
-		}
-	  };
-
-	
 
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
@@ -52,10 +20,6 @@ export default function Login() {
 		
 			<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>
-			<TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPress={handleTeste} disabled={loading}>
-				<Text className='text-gray-50'>DEUS ABENÇOE</Text>
-			</TouchableOpacity>
-
 			<View className="flex-1 flex items-center justify-center h-max w-max bg-white px-7 ">
 				<TouchableOpacity onPress={() => navigation.navigate('Home')}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
