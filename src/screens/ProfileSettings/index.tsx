@@ -1,19 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import useGetNextToCourts from '../../hooks/useNextToCourts';
-import { userEstablishmentQuery } from '../../graphql/queries/userEstablishmentInfo';
-import useGetUserEstablishmentInfos from '../../hooks/useGetUserEstablishmentInfos';
-import useGetMenuUser from '../../hooks/useMenuUser';
-import useGetNextToCourtsById from '../../hooks/useNextToCourtById';
-import useGetUserById from '../../hooks/useUserById';
-import useSchedule from '../../hooks/useSchedule';
-import useScheduleById from '../../hooks/useScheduleById';
-import useUserLogin from '../../hooks/useUserLogin';
+import { SelectList } from 'react-native-dropdown-select-list'
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
+import deleteAccount from './deleteAccount';
+
+
 
 export default function ProfileSettings() {
+  // console.log(useReserveDisponible(''))
+
+  // const { loading, error, data } = useReserveDisponible("Wednesday");
+
+  // if (loading) return <Text>Loading ...</Text>;
+  // return <Text>Hello {JSON.stringify(data)}!</Text>;
+  const [selected, setSelected] = React.useState("");
+  const data = [
+    {key:'1', value:'Brasil'},
+    {key:'2', value:'França'},
+    {key:'3', value:'Portugal'},
+    {key:'4', value:'Estados Unidos'},
+    {key:'5', value:'Canadá'},
+    {key:'6', value:'Itália'},
+    {key:'7', value:'Reino Unido'},
+] 
+const [profilePicture, setProfilePicture] = useState(null);
+
+  const handleProfilePictureUpload = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== 'granted') {
+        alert('Desculpe, precisamos da permissão para acessar a galeria!');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setProfilePicture(result.uri);
+      }
+    } catch (error) {
+      console.log('Erro ao carregar a imagem: ', error);
+    }
+  };
+
+
   const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
   const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
@@ -48,7 +88,7 @@ export default function ProfileSettings() {
   };
 
   const handleConfirmDelete = () => {
-    // excluir conta
+    
     setShowDeleteConfirmation(false);
   };
 
@@ -69,10 +109,7 @@ export default function ProfileSettings() {
     setShowExitConfirmation(false);
   };
 
-  const { loading, error, data } = useScheduleById('1');
 
-  if (loading) return <Text>Loading ...</Text>;
-  return <Text>Hello {JSON.stringify(data)}!</Text>;
 
   // if (loading) return <Text>Loading ...</Text>;
   // return <Text>Hello {JSON.stringify(data?.usersPermissionsUser.data.attributes.photo)}!</Text>;
@@ -81,9 +118,21 @@ export default function ProfileSettings() {
     <View className="flex-1 bg-white h-full">
       
       <ScrollView className="flex-grow p-1">
-        <TouchableOpacity className="items-center mt-8">
-          <Image source={require('../../assets/picture.png')} className="w-100 h-100 rounded-full" />
-          <Text className="mt-10 text-gray-500 text-base">Trocar foto de perfil</Text>
+      <TouchableOpacity className="items-center mt-8">
+        <View style={styles.container}>
+      {profilePicture ? (
+        <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+      ) : (
+        <Ionicons name="person-circle-outline" size={100} color="#bbb" />
+      )}
+      <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
+        {profilePicture ? (
+          <Ionicons name="pencil-outline" size={30} color="#fff" />
+        ) : (
+          <Ionicons name="camera-outline" size={30} color="#fff" />
+        )}
+      </TouchableOpacity>
+    </View>
         </TouchableOpacity>
 
         <View className="p-6 space-y-10">
@@ -117,7 +166,7 @@ export default function ProfileSettings() {
                   className="items-flex-end"
                 />
                 <Text className="flex-1 text-base text-right mb-5">
-                  {showCard ? <Icon name="camera" size={25} color="#FF4715" /> : 'Adicionar Cartão'}
+                  {showCard ? <Icon name="camera" size={20} color="#FF4715"  /> : 'Adicionar Cartão'}
                 </Text>
                 <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
               </View>
@@ -148,7 +197,11 @@ export default function ProfileSettings() {
               </View>
               <View className="relative">
                 <Text className="text-base text-red-500">País</Text>
-                
+                <SelectList 
+                  setSelected={(val) => setSelected(val)} 
+                  data={data} 
+                  save="value"
+              />
               </View>
               <View className="p-2 justify-center items-center">
                 <TouchableOpacity onPress={handleSaveCard} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
@@ -190,12 +243,16 @@ export default function ProfileSettings() {
           <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
             <View className="bg-white rounded-md p-20 items-center">
               <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
+              <View>
                 <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
                   <Text className="text-white">Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit}>
+                </View>
+                <View>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={() => navigation.navigate('deleteAccount')}>
                   <Text className="text-white">Confirmar</Text>
                 </TouchableOpacity>
+                </View>
               </View>
           </View>
         </Modal>
@@ -203,3 +260,22 @@ export default function ProfileSettings() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+  },
+  profilePicture: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  uploadButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#FF6112',
+    borderRadius: 15,
+    padding: 8,
+  },
+});

@@ -15,6 +15,7 @@ import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import useUserLogin from '../../hooks/useUserLogin';
+import deleteAccount from '../../screens/ProfileSettings/deleteAccount';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -170,6 +171,10 @@ export default function () {
 			<Screen
 				name="RegisterPassword"
 				component={Password}
+			/>
+			<Screen
+				name="deleteAccount"
+				component={deleteAccount}
 			/>
 			<Screen
 				name="InfoReserva"
