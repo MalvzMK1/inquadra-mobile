@@ -1,17 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import {View, TouchableOpacity, Image, Text, ImageBackground, PermissionsAndroid} from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
+import {View, TouchableOpacity} from 'react-native';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import BarHome from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
-import * as Location from 'expo-location'
-import storage from "../../utils/storage";
-import {NavigationProp} from "@react-navigation/native";
-import {NativeStackNavigatorProps} from "react-native-screens/lib/typescript/native-stack/types";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
@@ -63,7 +59,7 @@ const ArrayLocations = [
 ]
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
-	const [userGeolocation, setUserGeolocation] = useState<{longitude: number, latitude: number}>(route.params.userGeolocation);
+	const userGeolocation = route.params.userGeolocation
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	return (
