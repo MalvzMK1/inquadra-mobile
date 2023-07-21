@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import {useEffect, useRef, useState} from 'react';
+import {View, Text, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native';
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -9,6 +9,7 @@ import Animated, {
 	FadeIn
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
+import useGetNextToCourts from "../../hooks/useNextToCourts";
 
 const arrayTeste = [
 	{
@@ -36,7 +37,45 @@ const arrayTeste = [
 
 const userNameExample = "Artur"
 
+// const prevCourts = useRef<Array<{
+// 	id: string,
+// 	latitude: number,
+// 	longitude: number,
+// 	name: string,
+// 	type: string,
+// 	image: string,
+// 	distance: number,
+// }>>()
+
 export default function BarHome() {
+	const {data, loading, error} = useGetNextToCourts('')
+	const [courts, setCourts] = useState<Array<{
+		id: string,
+		latitude: number,
+		longitude: number,
+		name: string,
+		type: string,
+		image: string,
+		distance: number,
+	}>>([])
+
+	useEffect(() => {
+		if (!error && !loading) {
+			const newCourts = data?.courts.data.map((court) => ({
+				id: court.id,
+				latitude: Number(court.attributes.establishment.data.attributes.address.latitude),
+				longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
+				name: court.attributes.name,
+				type: court.attributes.court_type.data.attributes.name,
+				image: 'http://192.168.0.10:1337' + court.attributes.photo.data[0].attributes.url,
+				distance: 666, // Substitua pelos valores reais
+			}));
+
+			if (newCourts) {
+				setCourts((prevCourts) => [...prevCourts, ...newCourts]); // Adicione os novos elementos ao array existente
+			}
+		}
+	}, [data, loading]);
 
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
@@ -65,7 +104,7 @@ export default function BarHome() {
 				<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
 			</View>
 			<ScrollView>
-				{arrayTeste.map((item) => (
+				{!loading && courts !== undefined ? courts.map((item) => (
 					<View className='p-5' key={item.id}>
 						<CourtCardHome
 							image={item.image}
@@ -74,7 +113,7 @@ export default function BarHome() {
 							type={item.type}
 						/>
 					</View>
-				))}
+				)) : <ActivityIndicator size='small' color='#fff' />}
 			</ScrollView>
 		</Animated.View>
 	)
