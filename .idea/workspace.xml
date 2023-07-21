@@ -5,24 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e61ef1f0-261f-4edd-9425-22e4df35fa4e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_07_2023_08_48_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_07_2023_08_48__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/favoriteById.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/favoriteById.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/Address.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Address.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/Amenitie.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Amenitie.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/Country.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Country.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/Court.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Court.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2SsjYjfHJn0ldTh8kxWSYlVhx03" />
   <component name="ProjectLevelVcsManager">
@@ -37,6 +28,8 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "yarn",
     "ts.external.directory.path": "D:\\Development\\work\\inquadra\\inquadra-mobile\\node_modules\\typescript\\lib",
@@ -51,7 +44,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1689942235069</updated>
-      <workItem from="1689942236966" duration="193000" />
+      <workItem from="1689942236966" duration="798000" />
     </task>
     <servers />
   </component>
