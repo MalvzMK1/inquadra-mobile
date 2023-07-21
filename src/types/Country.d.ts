@@ -1,10 +1,10 @@
-export type Country = {
+type Country = {
     id: string
     name: string
     ISOCode: string
 }
 
-export type Flag = {
+type Flag = {
     name: string
     alternativeText: string
     url: string

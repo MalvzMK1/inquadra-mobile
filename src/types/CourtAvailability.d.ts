@@ -1,4 +1,4 @@
-export type CourtAvailability = {
+type CourtAvailability = {
     id: string
     status: string
     dayUseService: string

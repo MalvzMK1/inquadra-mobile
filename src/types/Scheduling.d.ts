@@ -1,4 +1,4 @@
-export type Scheduling = {
+type Scheduling = {
     id: string
     schedulingTitle: string
     date: Date

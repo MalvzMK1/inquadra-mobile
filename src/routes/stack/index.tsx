@@ -15,7 +15,6 @@ import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
-import {NavigationProp} from "@react-navigation/native";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 

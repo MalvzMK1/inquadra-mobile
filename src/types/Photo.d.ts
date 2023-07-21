@@ -1,4 +1,4 @@
-export type Photo = {
+type Photo = {
 	id: string
 	name: string
 	alternativeText: string
