@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, Image, Text, ImageBackground } from 'react-native';
+import {View, TouchableOpacity, Image, Text, ImageBackground, PermissionsAndroid} from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import BarHome from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
+import * as Location from 'expo-location'
 
 type Props = {
 	menuBurguer: boolean;
@@ -58,21 +59,31 @@ const ArrayLocations = [
 ]
 
 export default function Home({ menuBurguer }: Props) {
-	const [userGeolocation, setUserGeolocation] = useState<{longitude: string, latitude: string}>()
 
-	const [isDisabled, setIsDisabled] = useState(true);
+	const [userGeolocation, setUserGeolocation] = useState<{longitude: number, latitude: number}>({latitude: 37.78825, longitude: -122.4324,});
+	const [isDisabled, setIsDisabled] = useState<boolean>(true);
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 
-	navigator.geolocation.getCurrentPosition((data) => {
-		setUserGeolocation({
-			latitude: data.coords.latitude.toString(),
-			longitude: data.coords.longitude.toString()
-		})
-	})
+	useEffect(() => {
+		async function getPermissions(): Promise<void> {
+			const { status } = await Location.requestForegroundPermissionsAsync();
+			if (status === 'granted') {
+				const {coords} = await Location.getCurrentPositionAsync();
+				console.log({coords})
+				setUserGeolocation({
+					longitude: coords.longitude,
+					latitude: coords.latitude
+				});
+			}
+		}
+		getPermissions().finally(() => console.log(userGeolocation))
+	}, [])
 
 	return (
 		<View className="flex-1 flex flex-col">
 			{isDisabled && !menuBurguer && <SportsMenu />}
 			<View className='flex-1'>
+
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
@@ -80,32 +91,32 @@ export default function Home({ menuBurguer }: Props) {
 					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
-						latitude: 37.78825,
-						longitude: -122.4324,
+						latitude: userGeolocation.latitude,
+						longitude: userGeolocation.longitude,
 						latitudeDelta: 0.004,
 						longitudeDelta: 0.004,
 					}}
 				>
-					{
-						ArrayLocations.map((item) => (
-							<Marker
-								coordinate={{
-									latitude: item.latitude,
-									longitude: item.longitude,
-								}}
-								icon={pointerMap}
-								title='test'
-								description='test'
-							>
-								<CourtBallon
-									name={item.nome}
-									distance={item.distance}
-									image={item.Image}
-									type={item.type}
-								/>
-							</Marker>
-						))
-					}
+					{/*{*/}
+					{/*	ArrayLocations.map((item) => (*/}
+					{/*		<Marker*/}
+					{/*			coordinate={{*/}
+					{/*				latitude: item.latitude,*/}
+					{/*				longitude: item.longitude,*/}
+					{/*			}}*/}
+					{/*			icon={pointerMap}*/}
+					{/*			title='test'*/}
+					{/*			description='test'*/}
+					{/*		>*/}
+					{/*			<CourtBallon*/}
+					{/*				name={item.nome}*/}
+					{/*				distance={item.distance}*/}
+					{/*				image={item.Image}*/}
+					{/*				type={item.type}*/}
+					{/*			/>*/}
+					{/*		</Marker>*/}
+					{/*	))*/}
+					{/*}*/}
 				</MapView>
 				{!isDisabled && (
 					<TouchableOpacity className={`absolute left-3 top-3`} onPress={() => setIsDisabled((prevState) => !prevState)}>
