@@ -1,7 +1,4 @@
 import { gql } from "@apollo/client";
-import { Court } from "../../types/Court";
-import { Establishment } from "../../types/EstablishmentInfos";
-import { CourtAvailability } from "../../types/CourtAvailability";
 
 export interface IReserveDisponibleResponse {
 	courts: {

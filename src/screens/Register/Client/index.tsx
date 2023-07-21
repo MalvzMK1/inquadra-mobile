@@ -6,6 +6,7 @@ import { RegisterHeader } from '../../../components/RegisterHeader';
 
 export default function Register() {
 	const navigation = useNavigation();
+
 	return (
 		<View className="flex-1 bg-white h-screen">
 
