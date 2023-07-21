@@ -9,7 +9,6 @@ import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
 
-
 type Props = {
 	menuBurguer: boolean;
 };
@@ -59,8 +58,16 @@ const ArrayLocations = [
 ]
 
 export default function Home({ menuBurguer }: Props) {
+	const [userGeolocation, setUserGeolocation] = useState<{longitude: string, latitude: string}>()
 
 	const [isDisabled, setIsDisabled] = useState(true);
+
+	navigator.geolocation.getCurrentPosition((data) => {
+		setUserGeolocation({
+			latitude: data.coords.latitude.toString(),
+			longitude: data.coords.longitude.toString()
+		})
+	})
 
 	return (
 		<View className="flex-1 flex flex-col">
