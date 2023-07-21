@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { View, Text, Image } from 'react-native';
+import {View, Text, Image, ActivityIndicator} from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
@@ -30,6 +30,7 @@ export default function Login() {
 	})
 
 	const [showPassword, setShowPassword] = useState<boolean>(false)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	const [teste, { data: updateCourtData, loading: updateCourtLoading, error: updateCourtError }] = useUpdateCourt()
 
@@ -59,13 +60,13 @@ export default function Login() {
 	}
 
 	function handleLogin(data: IFormData): void {
+		setIsLoading(true)
 		authUser({
 			variables: {
 				identifier: data.identifier.trim(),
 				password: data.password.trim()
 			}
 		}).then(data => {
-			console.log(data.data?.login.jwt)
 			if (data.data) storage.save({
 				key: 'userJWTToken',
 				data: {
@@ -75,8 +76,12 @@ export default function Login() {
 			})
 			storage.load({
 				key: 'userJWTToken',
-			}).then(value => console.log({value}))
+			}).finally(() => {
+				setIsLoading(false)
+				navigation.navigate('Home')
+			})
 		}).catch(err => console.error(err))
+			.finally(() => setIsLoading(false))
 	}
 
 	return (
@@ -167,7 +172,7 @@ export default function Login() {
 					<TouchableOpacity
 						className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center'
 						onPress={handleSubmit(handleLogin)}>
-						<Text className='text-gray-50'>Entrar</Text>
+						<Text className='text-gray-50'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Entrar'}</Text>
 					</TouchableOpacity>
 				</View>
 
@@ -179,7 +184,7 @@ export default function Login() {
 				<View className='flex-row  items-center justify-center pt-11'>
 					<Text className='text-base text-gray-400'>Ainda não tem uma conta?</Text>
 					<TouchableOpacity onPress={() => navigation.navigate('Register')}>
-						<Text className='text-orange-500 text-base'> Clique aqui</Text>
+						<Text className='text-orange-500 text-base'>Clique aqui</Text>
 					</TouchableOpacity>
 				</View>
 				</View>
