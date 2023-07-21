@@ -9,14 +9,19 @@ import MaskInput, { Masks } from 'react-native-mask-input';
 import { SelectList } from 'react-native-dropdown-select-list'
 
 const countriesData = [
-    { key: '1', value: 'Brasil' },
-    { key: '2', value: 'França' },
-    { key: '3', value: 'Portugal' },
-    { key: '4', value: 'Estados Unidos' },
-    { key: '5', value: 'Canadá' },
-    { key: '6', value: 'Itália' },
-    { key: '7', value: 'Reino Unido' },
+    { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
+    { key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
+    { key: '3', value: 'Portugal', img: 'https://static.mundoeducacao.uol.com.br/mundoeducacao/2022/03/bandeira-portugal.jpg' },
+    { key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/conteudo/images/estados-unidos.jpg' },
+    { key: '5', value: 'Canadá', img: 'https://s5.static.brasilescola.uol.com.br/be/2021/04/bandeira-do-canada.jpg' },
+    { key: '6', value: 'Itália', img: 'https://s5.static.brasilescola.uol.com.br/be/2021/12/bandeira-da-italia.jpg' },
+    { key: '7', value: 'Reino Unido', img: 'https://s4.static.brasilescola.uol.com.br/be/2021/10/bandeira-do-reino-unido.jpg' },
 ]
+
+const getCountryImage = (countryName: string) => {
+    const countryImg = countriesData.find(item => item.value === countryName)?.img
+    return countryImg
+}
 
 export default function DescriptionReserve() {
 
@@ -49,6 +54,16 @@ export default function DescriptionReserve() {
     const [maturityDate, setMaturityDate] = useState("")
     const [creditCardCvv, setCreditCardCvv] = useState("")
     const [selected, setSelected] = useState("")
+
+    const [showPixPaymentModal, setShowPixPaymentModal] = useState(true)
+
+    const handleOpenPixPaymentModal = () => {
+        setShowPixPaymentModal(true)
+    }
+
+    const handleExitPixPaymentModal = () => {
+        setShowPixPaymentModal(false)
+    }
 
     const navigation = useNavigation()
     return (
@@ -191,7 +206,7 @@ export default function DescriptionReserve() {
                                 </View>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity className='pb-2'>
+                        <TouchableOpacity className='pb-2' onPress={handleOpenPixPaymentModal}>
                             <View className='h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center'>
                                 <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
                             </View>
@@ -221,7 +236,7 @@ export default function DescriptionReserve() {
 
             <Modal visible={showCardPaymentModal} animationType="fade" transparent={true}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
-                    <View className='bg-[#292929] h-4/6 w-11/12 p-6 justify-center'>
+                    <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
 
                         <View className='flex gap-y-[10px]'>
 
@@ -229,7 +244,7 @@ export default function DescriptionReserve() {
                                 <Text className='text-sm text-[#FF6112]'>Nome</Text>
                                 <TextInput
                                     className='p-3 border border-neutral-400 rounded bg-white'
-                                    placeholder='Ex: 000.000.000-00'
+                                    placeholder='Ex: nome'
                                     value={name}
                                     onChangeText={setName}>
                                 </TextInput>
@@ -242,7 +257,8 @@ export default function DescriptionReserve() {
                                     placeholder='Ex: 000.000.000-00'
                                     value={cpf}
                                     onChangeText={setCpf}
-                                    mask={Masks.BRL_CPF}>
+                                    mask={Masks.BRL_CPF}
+                                    keyboardType='numeric'>
                                 </MaskInput>
                             </View>
 
@@ -253,7 +269,8 @@ export default function DescriptionReserve() {
                                     placeholder='Ex: R$ 30,00'
                                     value={value}
                                     onChangeText={setValue}
-                                    mask={Masks.BRL_CURRENCY}>
+                                    mask={Masks.BRL_CURRENCY}
+                                    keyboardType='numeric'>
                                 </MaskInput>
                             </View>
 
@@ -272,7 +289,8 @@ export default function DescriptionReserve() {
                                         placeholder=''
                                         value={creditCard}
                                         onChangeText={setCreditCard}
-                                        mask={Masks.CREDIT_CARD}>
+                                        mask={Masks.CREDIT_CARD}
+                                        keyboardType='numeric'>
                                     </MaskInput>
                                 </View>
                                 <TouchableOpacity onPress={() => navigation.navigate('')}>
@@ -294,30 +312,36 @@ export default function DescriptionReserve() {
 
                                 <View className='flex-1 ml-[20px]'>
                                     <Text className='text-sm text-[#FF6112]'>CVV</Text>
-                                    <MaskInput
+                                    <TextInput
                                         className='p-3 border border-neutral-400 rounded bg-white'
                                         placeholder='123'
                                         value={creditCardCvv}
                                         onChangeText={setCreditCardCvv}
-                                        mask={Masks.CREDIT_CARD}>
-                                    </MaskInput>
+                                        keyboardType='numeric'
+                                        maxLength={3}>
+                                    </TextInput>
                                 </View>
                             </View>
 
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>País</Text>
-                                <SelectList
-                                    setSelected={(val: string) => setSelected(val)}
-                                    data={countriesData}
-                                    save="value"
-                                    placeholder='Selecione um país'
-                                    searchPlaceholder='Pesquisar...'
-                                />
+                                <View className='flex flex-row items-center p-3 border border-neutral-400 rounded bg-white'>
+                                    <Image className='h-[21px] w-[30px] mr-[15px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
+                                    <SelectList
+                                        setSelected={(val: string) => {
+                                            setSelected(val)
+                                        }}
+                                        data={countriesData}
+                                        save="value"
+                                        placeholder='Selecione um país'
+                                        searchPlaceholder='Pesquisar...'
+                                    />
+                                </View>
                             </View>
 
                         </View>
 
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mt-[20px]'
                             onPress={handleExitPaymentModal}>
                             <Text className='text-base text-white'>Efetuar pagamento</Text>
@@ -327,8 +351,56 @@ export default function DescriptionReserve() {
                 </View>
             </Modal>
 
-            <Modal>
-                
+            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>
+                <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
+                    <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
+
+                        <View className='flex gap-y-[10px]'>
+
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Nome</Text>
+                                <TextInput
+                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                    placeholder='Ex: nome'
+                                    value={name}
+                                    onChangeText={setName}>
+                                </TextInput>
+                            </View>
+
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>CPF</Text>
+                                <MaskInput
+                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                    placeholder='Ex: 000.000.000-00'
+                                    value={cpf}
+                                    onChangeText={setCpf}
+                                    mask={Masks.BRL_CPF}
+                                    keyboardType='numeric'>
+                                </MaskInput>
+                            </View>
+
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Valor da contribuição</Text>
+                                <MaskInput
+                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                    placeholder='Ex: R$ 30,00'
+                                    value={value}
+                                    onChangeText={setValue}
+                                    mask={Masks.BRL_CURRENCY}
+                                    keyboardType='numeric'>
+                                </MaskInput>
+                            </View>
+
+                        </View>
+
+                        <TouchableOpacity
+                            className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mt-[20px]'
+                            onPress={handleExitPixPaymentModal}>
+                            <Text className='text-base text-white'>Efetuar pagamento</Text>
+                        </TouchableOpacity>
+
+                    </View>
+                </View>
             </Modal>
         </View>
     )
