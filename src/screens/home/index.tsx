@@ -9,10 +9,14 @@ import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
 import * as Location from 'expo-location'
+import storage from "../../utils/storage";
+import {NavigationProp} from "@react-navigation/native";
+import {NativeStackNavigatorProps} from "react-native-screens/lib/typescript/native-stack/types";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
-type Props = {
+interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
-};
+}
 
 const ArrayLocations = [
 	{
@@ -58,26 +62,9 @@ const ArrayLocations = [
 	}
 ]
 
-export default function Home({ menuBurguer }: Props) {
-
-	const [userGeolocation, setUserGeolocation] = useState<{longitude: number, latitude: number}>({latitude: 37.78825, longitude: -122.4324,});
+export default function Home({ menuBurguer, route, navigation }: Props) {
+	const [userGeolocation, setUserGeolocation] = useState<{longitude: number, latitude: number}>(route.params.userGeolocation);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
-	const [isLoading, setIsLoading] = useState<boolean>(false)
-
-	useEffect(() => {
-		async function getPermissions(): Promise<void> {
-			const { status } = await Location.requestForegroundPermissionsAsync();
-			if (status === 'granted') {
-				const {coords} = await Location.getCurrentPositionAsync();
-				console.log({coords})
-				setUserGeolocation({
-					longitude: coords.longitude,
-					latitude: coords.latitude
-				});
-			}
-		}
-		getPermissions().finally(() => console.log(userGeolocation))
-	}, [])
 
 	return (
 		<View className="flex-1 flex flex-col">

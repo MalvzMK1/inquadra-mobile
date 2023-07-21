@@ -2,7 +2,12 @@ type RootStackParamList = {
 	Login: undefined;
 	ChooseUserType: undefined;
 	Register: undefined;
-	Home: undefined;
+	Home: {
+		userGeolocation: {
+			latitude: number,
+			longitude: number,
+		}
+	};
 	HomeVariant: undefined;
 	RegisterPassword: {
 		name: string

@@ -23,11 +23,16 @@ const formSchema = z.object({
 })
 
 export default function Login() {
+	const [userGeolocation, setUserGeolocation] = useState<{latitude: number, longitude: number}>()
 	const [authUser, {data, loading, error}] = useLoginUser()
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const { control, handleSubmit, formState: {errors} } = useForm<IFormData>({
 		resolver: zodResolver(formSchema)
 	})
+
+	storage.load<{latitude: number, longitude: number}>({
+		key: 'userGeolocation'
+	}).then(data => setUserGeolocation(data))
 
 	const [showPassword, setShowPassword] = useState<boolean>(false)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -78,7 +83,9 @@ export default function Login() {
 				key: 'userJWTToken',
 			}).finally(() => {
 				setIsLoading(false)
-				navigation.navigate('Home')
+				navigation.navigate('Home', {
+					userGeolocation: userGeolocation ? userGeolocation : {latitude: 78.23570781291714, longitude: 15.491400000982967}
+				})
 			})
 		}).catch(err => console.error(err))
 			.finally(() => setIsLoading(false))
@@ -92,7 +99,9 @@ export default function Login() {
 			</TouchableOpacity> */}
 
 			<View className="flex-1 flex items-center justify-center px-7">
-				<TouchableOpacity onPress={() => navigation.navigate('Home')}>
+				<TouchableOpacity onPress={() => navigation.navigate('Home', {
+					userGeolocation: userGeolocation ? userGeolocation : {latitude: 78.23570781291714, longitude: 15.491400000982967}
+				})}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
 				</TouchableOpacity>
 
