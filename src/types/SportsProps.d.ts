@@ -1,4 +1,4 @@
-type SportsCard = {
+export type SportsCard = {
     id: number
     image: ImageSourcePropType
     name: string

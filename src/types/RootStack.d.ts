@@ -1,4 +1,4 @@
-type RootStackParamList = {
+export type RootStackParamList = {
 	Login: undefined;
 	ChooseUserType: undefined;
 	Register: undefined;

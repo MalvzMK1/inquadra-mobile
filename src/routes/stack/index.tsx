@@ -14,6 +14,7 @@ import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
+import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import {NavigationProp} from "@react-navigation/native";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -22,8 +23,36 @@ export default function () {
 
 	const [menuBurguer, setMenuBurguer] = useState(false)
 
+
 	return (
 		<Navigator>
+			<Screen
+				name="ProfileSettings"
+				component={ProfileSettings}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
@@ -141,6 +170,23 @@ export default function () {
 			<Screen
 				name="RegisterPassword"
 				component={Password}
+			/>
+			<Screen
+				name="DeleteAccountSuccess"
+				component={DeleteAccountSuccess}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+				}}
 			/>
 			<Screen
 				name="InfoReserva"
