@@ -6,7 +6,11 @@ import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import deleteAccount from './deleteAccount';
+import { FontAwesome } from '@expo/vector-icons'; 
+import deleteAccount from './client/deleteAccount';
+import { color } from 'react-native-reanimated';
+import { orange400 } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
+import MaskInput from 'react-native-mask-input';
 
 
 
@@ -88,7 +92,6 @@ const [profilePicture, setProfilePicture] = useState(null);
   };
 
   const handleConfirmDelete = () => {
-    
     setShowDeleteConfirmation(false);
   };
 
@@ -107,8 +110,9 @@ const [profilePicture, setProfilePicture] = useState(null);
 
   const handleCancelExit = () => {
     setShowExitConfirmation(false);
-  };
 
+  };
+  const [phone, setPhone] = React.useState('');
 
 
   // if (loading) return <Text>Loading ...</Text>;
@@ -147,8 +151,13 @@ const [profilePicture, setProfilePicture] = useState(null);
           </View>
 
           <View>
-            <Text className="text-base">Telefone</Text>
-            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='(00) 00000-0000' placeholderTextColor="#d3d3d3" />
+          <MaskInput
+            value={phone}
+            onChangeText={(masked) => {
+              setPhone(masked); 
+            }}
+            mask={['(', /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+          />
           </View>
 
           <View>
@@ -159,14 +168,10 @@ const [profilePicture, setProfilePicture] = useState(null);
           <TouchableOpacity onPress={handleCardClick}>
             <Text className="text-base">Dados Cartão</Text>
             <View className="h-30 border border-gray-500 rounded-md">
-              <View className="flex-row justify-center items-center">
-                <IconButton
-                  icon={showCameraIcon ? 'camera' : 'credit-card-plus'}
-                  size={25}
-                  className="items-flex-end"
-                />
-                <Text className="flex-1 text-base text-right mb-5">
-                  {showCard ? <Icon name="camera" size={20} color="#FF4715"  /> : 'Adicionar Cartão'}
+              <View className="flex-row justify-center items-center m-2">
+              <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                <Text className="flex-1 text-base text-right mb-0">
+                  {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
                 </Text>
                 <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
               </View>
@@ -197,11 +202,13 @@ const [profilePicture, setProfilePicture] = useState(null);
               </View>
               <View className="relative">
                 <Text className="text-base text-red-500">País</Text>
-                <SelectList 
+                <SelectList
                   setSelected={(val) => setSelected(val)} 
                   data={data} 
                   save="value"
-              />
+                  placeholder='Selecione um país'
+                  searchPlaceholder='Pesquisar...'
+                />
               </View>
               <View className="p-2 justify-center items-center">
                 <TouchableOpacity onPress={handleSaveCard} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
@@ -232,7 +239,7 @@ const [profilePicture, setProfilePicture] = useState(null);
                 <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
                   <Text className="text-white">Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}  onPressIn={() => navigation.navigate('DeleteAccountSuccess')}>
                   <Text className="text-white">Confirmar</Text>
                 </TouchableOpacity>
               </View>
@@ -243,16 +250,12 @@ const [profilePicture, setProfilePicture] = useState(null);
           <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
             <View className="bg-white rounded-md p-20 items-center">
               <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
-              <View>
                 <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
                   <Text className="text-white">Cancelar</Text>
                 </TouchableOpacity>
-                </View>
-                <View>
-                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={() => navigation.navigate('deleteAccount')}>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit} onPressIn={() => navigation.navigate('Login')}>
                   <Text className="text-white">Confirmar</Text>
                 </TouchableOpacity>
-                </View>
               </View>
           </View>
         </Modal>
