@@ -8,6 +8,7 @@ export default function Login() {
 	const [userEmail, setUserEmail] = useState<string>("");
 	const [userPassWord, setUserPassword] = useState<string>("")
 	const [showPassword, setShowPassword] = useState<boolean>(false)
+	const navigation = useNavigation()
 
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
@@ -18,7 +19,7 @@ export default function Login() {
 		<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>
 			<View className="flex-1 flex items-center justify-center h-max w-max bg-white px-7 ">
-				<TouchableOpacity onPress={() => navigation.navigate('Home')}>
+				<TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts')}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
 				</TouchableOpacity>
 
