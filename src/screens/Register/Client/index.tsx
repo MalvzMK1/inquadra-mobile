@@ -36,7 +36,8 @@ export default function Register() {
 							className='p-4 border border-neutral-400 rounded' 
 							placeholder='Ex.: João'
 							value={email}
-							onChangeText={setEmail}>
+							onChangeText={setEmail}
+							keyboardType='email-address'>
 						</TextInput>
 					</View>
 
