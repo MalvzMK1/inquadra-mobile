@@ -9,6 +9,7 @@ import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
+import useGetUserById from "../../hooks/useUserById";
 
 interface IFormData {
 	identifier: string
@@ -72,15 +73,18 @@ export default function Login() {
 				password: data.password.trim()
 			}
 		}).then(data => {
-			if (data.data) storage.save({
-				key: 'userJWTToken',
-				data: {
-					token: data.data.login.jwt
-				},
-				expires: 1000 * 3600
-			})
+			if (data.data) {
+				storage.save({
+					key: 'userInfos',
+					data: {
+						token: data.data.login.jwt,
+						userId: data.data.login.user.id
+					},
+					expires: 1000 * 3600
+				})
+			}
 			storage.load({
-				key: 'userJWTToken',
+				key: 'userInfos',
 			}).finally(() => {
 				setIsLoading(false)
 				navigation.navigate('Home', {
