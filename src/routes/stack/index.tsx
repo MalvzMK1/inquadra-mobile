@@ -19,13 +19,13 @@ import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAcc
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
+import {NavigationProp, useNavigation} from "@react-navigation/native";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
- 
 	const [menuBurguer, setMenuBurguer] = useState(false)
-
+	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
 	return (
 		<Navigator>
@@ -101,7 +101,9 @@ export default function () {
 						/>
 					),
 					headerRight: () => (
-						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+							navigation.navigate('ProfileSettings')
+						}}>
 							<Image
 								source={require('../../assets/qodeless_logo.jpg')}
 								className="w-full h-full"
@@ -154,7 +156,9 @@ export default function () {
 						marginLeft: 12,
 					},
 					headerRight: () => (
-						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+							navigation.navigate('ProfileSettings')
+						}}>
 							<Image
 								source={require('../../assets/qodeless_logo.jpg')}
 								className="w-full h-full"
@@ -240,7 +244,9 @@ export default function () {
 						marginLeft: 12,
 					},
 					headerRight: () => (
-						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+							navigation.navigate('ProfileSettings')
+						}}>
 							<Image
 								source={require('../../assets/qodeless_logo.jpg')}
 								className="w-full h-full"
