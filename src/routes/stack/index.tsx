@@ -15,11 +15,14 @@ import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
+import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
+import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
+import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
-
+ 
 	const [menuBurguer, setMenuBurguer] = useState(false)
 
 	return (
@@ -54,6 +57,7 @@ export default function () {
 			/>
 			<Screen
 				name="Home"
+				component={Home}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
@@ -108,6 +112,7 @@ export default function () {
 			</Screen>
 			<Screen
 				name="HomeVariant"
+				component={Home}
 				options={({ route }) => ({
 					// headerTitle: route.params.name,
 					headerTitleStyle: {
@@ -147,9 +152,24 @@ export default function () {
 				name="InfoReserva"
 				component={InfoReserva}
 				options={{
-					headerShown: false,
+					headerShown: false
 				}}
 			/>
+			<Screen
+				name="DescriptionReserve"
+				component={DescriptionReserve}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="DescriptionInvited"
+				component={DescriptionInvited}
+				options={{
+					headerShown: false
+				}}
+			/>
+			
 			<Screen
 				name="RegisterSuccess"
 				component={RegisterSuccess}
