@@ -1,7 +1,7 @@
 import ProgressBar from 'react-native-progress/Bar'
 import React, { useState } from 'react'
 import { View, Text, Image, Modal, TextInput, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -55,7 +55,7 @@ export default function DescriptionReserve() {
     const [creditCardCvv, setCreditCardCvv] = useState("")
     const [selected, setSelected] = useState("")
 
-    const [showPixPaymentModal, setShowPixPaymentModal] = useState(true)
+    const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
 
     const handleOpenPixPaymentModal = () => {
         setShowPixPaymentModal(true)
@@ -65,7 +65,7 @@ export default function DescriptionReserve() {
         setShowPixPaymentModal(false)
     }
 
-    const navigation = useNavigation()
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     return (
         <View className='flex-1 bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
