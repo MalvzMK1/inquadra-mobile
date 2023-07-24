@@ -1,9 +1,14 @@
-import { View, Text, TextInput, Image } from "react-native"
-import { useState } from "react"
+import { View, Text, TextInput, Image, Button } from "react-native"
+import React, { useState, useRef } from "react"
 import { RegisterHeader } from "../../../components/RegisterHeader"
 import { TouchableOpacity } from "react-native"
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { CheckBox } from 'react-native-elements'
+import GoogleRecaptcha, {
+    GoogleRecaptchaToken,
+    GoogleRecaptchaRefAttributes,
+    GoogleRecaptchaProps
+} from 'react-native-google-recaptcha'
 
 // import CheckBox from "@react-native-community/checkbox"
 
@@ -23,7 +28,18 @@ export default function Password() {
     const [isChecked, setIsChecked] = useState(false)
     const [captchaChecked, setCaptchaChecked] = useState(false)
 
-    const navigation = useNavigation()
+    const recaptchaRef = useRef<GoogleRecaptchaRefAttributes>(null)
+    const handleSend = () => {
+        recaptchaRef.current?.open()
+    }
+    const handleVerify = (token: GoogleRecaptchaToken) => {
+        console.log('Recaptcha Token:', token)
+    }
+    const handleError = (error: unknown) => {
+        console.error('Recaptcha Error:', error)
+    }
+
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     return (
         <View className=" flex flex-col bg-white h-screen items-center p-5">
 
@@ -74,9 +90,20 @@ export default function Password() {
 
                 <View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">
                     <View className="flex flex-row items-center">
+                        <GoogleRecaptcha
+                            ref={recaptchaRef}
+                            baseUrl="https://teste.com"
+                            onError={handleError}
+                            onVerify={handleVerify}
+                            siteKey="6LfbV00nAAAAAEeTSUoLPQIfoNPaw52C2QEh3WF8"
+                        />
                         <CheckBox
                             checked={captchaChecked}
-                            onPress={() => setCaptchaChecked(!captchaChecked)}
+                            onPress={() => {
+                                setCaptchaChecked(!captchaChecked)
+                                if(!captchaChecked)
+                                    handleSend()
+                            }}
                         />
 
                         <Text className="text-[#959595] text-base">Não sou um robô</Text>
