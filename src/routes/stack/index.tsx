@@ -18,12 +18,20 @@ import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
+import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 	return (
 		<Navigator>
+			<Screen
+				name="CourtAvailibilityInfo"
+				component={CourtAvailibilityInfo}
+				options={{
+					headerShown: false,
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
@@ -141,7 +149,7 @@ export default function () {
 					headerShown: false
 				}}
 			/>
-			
+
 			<Screen
 				name="RegisterSuccess"
 				component={RegisterSuccess}
