@@ -1,8 +1,4 @@
 import { gql } from "@apollo/client";
-import { User } from "../../types/User";
-import { PaymentCardInformations } from '../../types/PaymentCardInformations';
-import { Country, Flag } from '../../types/Country';
-import { Photo } from '../../types/Photo';
 
 
 export interface IUserByIdResponse{

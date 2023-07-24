@@ -1,36 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet } from 'react-native';
-import { IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons'; 
-import deleteAccount from './client/deleteAccount';
-import { color } from 'react-native-reanimated';
-import { orange400 } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
-import MaskInput from 'react-native-mask-input';
-
+import { FontAwesome } from '@expo/vector-icons';
+import MaskInput, { Masks } from 'react-native-mask-input'; 
+import { TextInputMask } from 'react-native-masked-text';
 
 
 export default function ProfileSettings() {
-  // console.log(useReserveDisponible(''))
 
-  // const { loading, error, data } = useReserveDisponible("Wednesday");
+  // const { loading, error, data } = useGetFavoriteById("1");
 
   // if (loading) return <Text>Loading ...</Text>;
   // return <Text>Hello {JSON.stringify(data)}!</Text>;
+
+  const [expiryDate, setExpiryDate] = useState('');
+
+  const handleExpiryDateChange = (formatted: string) => {
+    setExpiryDate(formatted); 
+  };
+
+  const [cvv, setCVV] = useState('');
+
+
   const [selected, setSelected] = React.useState("");
-  const data = [
-    {key:'1', value:'Brasil'},
-    {key:'2', value:'França'},
-    {key:'3', value:'Portugal'},
-    {key:'4', value:'Estados Unidos'},
-    {key:'5', value:'Canadá'},
-    {key:'6', value:'Itália'},
-    {key:'7', value:'Reino Unido'},
-] 
+  const countriesData = [
+    { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
+    { key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
+    { key: '3', value: 'Portugal', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
+    { key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
+    { key: '5', value: 'Canadá', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
+    { key: '6', value: 'Itália', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
+    { key: '7', value: 'Reino Unido', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
+  ]
 const [profilePicture, setProfilePicture] = useState(null);
 
   const handleProfilePictureUpload = async () => {
@@ -58,7 +63,6 @@ const [profilePicture, setProfilePicture] = useState(null);
   };
 
 
-  const [profileImage, setProfileImage] = useState(require('../../assets/picture.png'));
   const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
   const [cardData, setCardData] = useState({
@@ -76,12 +80,6 @@ const [profilePicture, setProfilePicture] = useState(null);
     setShowCameraIcon(false);
   };
 
-  const handleCardDataChange = (key, value) => {
-    setCardData(prevState => ({
-      ...prevState,
-      [key]: value
-    }));
-  };
 
   const handleSaveCard = () => {
     setShowCard(false);
@@ -112,7 +110,22 @@ const [profilePicture, setProfilePicture] = useState(null);
     setShowExitConfirmation(false);
 
   };
-  const [phone, setPhone] = React.useState('');
+
+  const handleCVVChange = (input: any) => {
+    const numericInput = input.replace(/\D/g, '');
+
+    const truncatedCVV = numericInput.slice(0, 3);
+
+    setCVV(truncatedCVV);
+  };
+
+  const [ phoneNumber, setPhoneNumber ] = useState("")
+  const [ cpf, setCpf ] = useState("")
+
+  const getCountryImage = (countryName: string) => {
+    const countryImg = countriesData.find(item => item.value === countryName)?.img
+    return countryImg
+  }
 
 
   // if (loading) return <Text>Loading ...</Text>;
@@ -140,31 +153,37 @@ const [profilePicture, setProfilePicture] = useState(null);
         </TouchableOpacity>
 
         <View className="p-6 space-y-10">
-          <View>
-            <Text className="text-base">Nome</Text>
-            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='Larissa' placeholderTextColor="#d3d3d3" />
+        <View>
+          <Text className="text-base">Nome</Text>
+          <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='Larissa' placeholderTextColor="#d3d3d3" />
           </View>
 
           <View>
             <Text className="text-base">E-mail</Text>
             <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='larissa@mail.com.br' placeholderTextColor="#d3d3d3" />
           </View>
-
           <View>
+          <Text className="text-base">Telefone</Text>
           <MaskInput
-            value={phone}
-            onChangeText={(masked) => {
-              setPhone(masked); 
-            }}
-            mask={['(', /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
-          />
+              className='p-4 border border-gray-500 rounded-md h-45'
+              placeholder='Ex: 000.000.000-00'
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              mask={Masks.BRL_PHONE}>
+          </MaskInput>
           </View>
-
+          
           <View>
-            <Text className="text-base">CPF</Text>
-            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='000.000000-00' placeholderTextColor="#d3d3d3" />
+          <Text className="text-base">CPF</Text>
+          <MaskInput
+              className='p-4 border border-gray-500 rounded-md h-45'
+              placeholder='Ex: 000.000.000-00'
+              value={cpf}
+              onChangeText={setCpf}
+              mask={Masks.BRL_CPF}>
+          </MaskInput>
           </View>
-
+          
           <TouchableOpacity onPress={handleCardClick}>
             <Text className="text-base">Dados Cartão</Text>
             <View className="h-30 border border-gray-500 rounded-md">
@@ -179,37 +198,54 @@ const [profilePicture, setProfilePicture] = useState(null);
           </TouchableOpacity>
 
           {showCard && (
-            <View className="border border-gray-500 rounded-md p-4 mt-10">
+            <View className="border border-gray-500 p-4 mt-10">
               <View className="flex-row justify-between">
                 <View className="flex-1 mr-5">
-                  <Text className="text-base text-red-500">Data venc.</Text>
-                  <TextInput
-                    className="p-3 border border-gray-500 rounded-md h-18"
-                    placeholderTextColor="#d3d3d3"
-                    value={cardData.expirationDate}
-                    onChangeText={text => handleCardDataChange('expirationDate', text)}
+                  <Text className="text-base text-[#FF6112]">Data venc.</Text>
+                  
+                  <TextInputMask className='p-3 border border-gray-500 rounded-md h-18'
+                    type={'datetime'}
+                    options={{
+                      format: 'MM/YY',
+                    }}
+                    value={expiryDate}
+                    onChangeText={handleExpiryDateChange}
+                    placeholder="MM/YY"
+                    keyboardType="numeric"
                   />
                 </View>
                 <View className="flex-1 ml-5">
-                  <Text className="text-base text-red-500">CVV</Text>
-                  <TextInput
-                    className="p-3 border border-gray-500 rounded-md h-18"
-                    placeholderTextColor="#d3d3d3"
-                    value={cardData.cvv}
-                    onChangeText={text => handleCardDataChange('cvv', text)}
-                  />
+                  <Text className="text-base text-[#FF6112]">CVV</Text>
+                  <View>
+                    <TextInput className='p-3 border border-gray-500 rounded-md h-18'
+                      value={cvv}
+                      onChangeText={handleCVVChange}
+                      placeholder="CVV"
+                      keyboardType="numeric"
+                      maxLength={4} 
+                      secureTextEntry 
+                    />
+                  </View>
                 </View>
               </View>
-              <View className="relative">
-                <Text className="text-base text-red-500">País</Text>
+              <View>
+                <Text className='text-base text-[#FF6112]'>País</Text>
+                <View className='flex flex-row items-center' >
+                
+                <View style={{ width: '100%' }}>
                 <SelectList
-                  setSelected={(val) => setSelected(val)} 
-                  data={data} 
-                  save="value"
-                  placeholder='Selecione um país'
+                  setSelected={(val: string) => {
+                    setSelected(val)
+                  }}
+                  data={countriesData}
+                  save='value'
+                  placeholder='Selecione um país...'
                   searchPlaceholder='Pesquisar...'
                 />
+                </View>
+                </View>
               </View>
+              
               <View className="p-2 justify-center items-center">
                 <TouchableOpacity onPress={handleSaveCard} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
                   <Text className="text-white">Salvar</Text>
@@ -281,4 +317,23 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 8,
   },
+  wrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white'
+  },
+  label: {
+    color: 'black',
+    paddingBottom: 20,
+    fontSize: 20
+  },
+  maskedInput: {
+    borderWidth: 2,
+    borderRadius: 6,
+    width: '80%',
+    padding: 12,
+    color: 'black',
+    fontSize: 20
+  }
 });
