@@ -1,30 +1,19 @@
 import { gql } from "@apollo/client";
+import { ICourtType } from "./sportTypes";
 
-import { SportType } from "../../types/SportTypes";
 
-
-export interface ICourtType {
-	data: {
-		id: SportType['id']
-		attributes: {
-			name: SportType['name']
-		}
-	}
+export interface IScheduleResponse{
+   courts: {
+    data: Array<{
+        attributes: {
+            court_type: ICourtType
+        }
+    }>
+   }
 }
 
-export interface ISportTypesResponse {
-	courts: {
-		data: Array<{
-			attributes: {
-				court_type: ICourtType
-			}
-		}>
-		__typename: string
-	}
-}
-
-export const availablesSportTypesQuery = gql`
-    query typeSports {
+export const scheduleQuery = gql`
+    query schedule {
         courts {
             data {
                 attributes {

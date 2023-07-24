@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import {useEffect, useRef, useState} from 'react';
+import {View, Text, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native';
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -9,35 +9,23 @@ import Animated, {
 	FadeIn
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
+import useGetNextToCourts from "../../hooks/useNextToCourts";
 
-const arrayTeste = [
-	{
-		id: 1,
-		image: "https://www.elasta.com.br/wp-content/uploads/2020/11/Quadras-Poliesportivas-1024x526.jpg",
-		type: "Quadra de Basquete Profissional",
-		name: "Quadra daora",
-		distance: 5.3
-	},
-	{
-		id: 2,
-		image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "Quadra amadora de Basquete",
-		name: "Quadra legal",
-		distance: 3.3
-	},
-	{
-		id: 3,
-		image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "Quadra amadora de Basquete",
-		name: "Quadra legal",
-		distance: 3.3
-	}
-]
+interface HomeBarProps {
+	courts: Array<{
+		id: string,
+		latitude: number,
+		longitude: number,
+		name: string,
+		type: string,
+		image: string,
+		distance: number,
+	}>
+}
 
 const userNameExample = "Artur"
 
-export default function BarHome() {
-
+export default function HomeBar({courts}: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
@@ -65,7 +53,7 @@ export default function BarHome() {
 				<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
 			</View>
 			<ScrollView>
-				{arrayTeste.map((item) => (
+				{courts !== undefined ? courts.map((item) => (
 					<View className='p-5' key={item.id}>
 						<CourtCardHome
 							image={item.image}
@@ -74,7 +62,7 @@ export default function BarHome() {
 							type={item.type}
 						/>
 					</View>
-				))}
+				)) : <ActivityIndicator size='small' color='#fff' />}
 			</ScrollView>
 		</Animated.View>
 	)

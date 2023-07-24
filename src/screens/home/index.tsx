@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import {useEffect, useState} from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
@@ -11,26 +11,21 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import CourtCardHome from '../../components/CourtCardHome';
+import HomeBar from '../../components/BarHome';
 import NavigationSports from '../../components/NavigationSports';
 import BarHome from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import PointerMap from '../../assets/pointerMap.png';
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import useGetNextToCourts from "../../hooks/useNextToCourts";
 // import React, { useState } from 'react';
 // import { TouchableOpacity, View, Text } from 'react-native';
 // } from 'react-native-reanimated';
 
-const arrayTesteIcons = [
-	{
-		id: 1,
-		name: "teste",
-		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
-	},
-]
-
-type Props = {
+interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
-};
+}
 
 const ArrayLocations = [
 	{
@@ -76,31 +71,17 @@ const ArrayLocations = [
 	}
 ]
 
-const arrayTeste = [
-	{
-		id: 1,
-		name: 'Name',
-		image: '',
-		distance: 2.5,
-		type: ''
-	},
-	{
-		id: 2,
-		name: 'Name',
-		image: '',
-		distance: 2.5,
-		type: ''
-	},
-	{
-		id: 3,
-		name: 'Name',
-		image: '',
-		distance: 5,
-		type: ''
-	},
-]
-
-export default function Home({ menuBurguer }: Props) {
+export default function Home({ menuBurguer, route, navigation }: Props) {
+	const {data, loading, error} = useGetNextToCourts('')
+	const [courts, setCourts] = useState<Array<{
+		id: string,
+		latitude: number,
+		longitude: number,
+		name: string,
+		type: string,
+		image: string,
+		distance: number,
+	}>>([])
 
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [expanded, setExpanded] = useState(false);
@@ -119,6 +100,28 @@ export default function Home({ menuBurguer }: Props) {
 			height: height.value,
 		};
 	});
+	useEffect(() => {
+		if (!error && !loading) {
+			const newCourts = data?.courts.data.map((court) => {
+				return {
+					id: court.id,
+					latitude: Number(court.attributes.establishment.data.attributes.address.latitude),
+					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
+					name: court.attributes.name,
+					type: court.attributes.court_type.data.attributes.name,
+					image: 'http://192.168.0.10:1337' + court.attributes.photo.data[0].attributes.url,
+					distance: 666, // Substitua pelos valores reais
+				}
+			});
+
+			if (newCourts) {
+				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
+			}
+		}
+	}, [data, loading]);
+	const [isDisabled, setIsDisabled] = useState<boolean>(true);
+
+	const userGeolocation = route.params.userGeolocation
 
 	return (
 		<View className="flex-1 flex flex-col">
@@ -139,6 +142,7 @@ export default function Home({ menuBurguer }: Props) {
 				</ScrollView>
 			</View>
 			<View className='flex-1'>
+
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
@@ -146,8 +150,8 @@ export default function Home({ menuBurguer }: Props) {
 					onPress={() => setIsDisabled(true)}
 					showsCompass={false}
 					initialRegion={{
-						latitude: -23.550520,
-						longitude: -46.633308,
+						latitude: userGeolocation.latitude,
+						longitude: userGeolocation.longitude,
 						latitudeDelta: 0.004,
 						longitudeDelta: 0.004,
 					}}
@@ -182,7 +186,7 @@ export default function Home({ menuBurguer }: Props) {
 					}
 					<MapView>
 					{
-						ArrayLocations.map((item) => (
+						courts.map((item) => (
 							<Marker
 								coordinate={{
 									latitude: item.latitude,
@@ -193,9 +197,10 @@ export default function Home({ menuBurguer }: Props) {
 								description='test'
 							>
 								<CourtBallon
-									name={item.nome}
+									key={item.id}
+									name={item.name}
 									distance={item.distance}
-									image={item.Image}
+									image={item.image}
 									type={item.type}
 								/>
 							</Marker>
@@ -210,7 +215,9 @@ export default function Home({ menuBurguer }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			// {isDisabled && <BarHome />}
+			{isDisabled && <HomeBar courts={courts}/>}
+			<BottomNavigationBar isDisabled={isDisabled} />
+		</View >
 			// <BottomNavigationBar
 			// isDisabled={isDisabled}
 			// buttonOneNavigation='ProfileSettings'

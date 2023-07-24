@@ -15,6 +15,7 @@ import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
+import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
@@ -24,6 +25,7 @@ const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 export default function () {
  
 	const [menuBurguer, setMenuBurguer] = useState(false)
+
 
 	return (
 		<Navigator>
@@ -114,7 +116,6 @@ export default function () {
 				name="HomeVariant"
 				component={Home}
 				options={({ route }) => ({
-					// headerTitle: route.params.name,
 					headerTitleStyle: {
 						fontSize: 26
 					},
@@ -147,6 +148,23 @@ export default function () {
 			<Screen
 				name="RegisterPassword"
 				component={Password}
+			/>
+			<Screen
+				name="DeleteAccountSuccess"
+				component={DeleteAccountSuccess}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+				}}
 			/>
 			<Screen
 				name="InfoReserva"
@@ -254,7 +272,7 @@ export default function () {
 						</TouchableOpacity>
 					),
 					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
