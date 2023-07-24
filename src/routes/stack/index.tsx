@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import Home from '../../screens/home';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
-import { View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType/';
@@ -88,7 +86,6 @@ export default function () {
 			/>
 			<Screen
 				name="Home"
-				component={Home}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
@@ -143,7 +140,6 @@ export default function () {
 			</Screen>
 			<Screen
 				name="HomeVariant"
-				component={Home}
 				options={({ route }) => ({
 					headerTitleStyle: {
 						fontSize: 26
@@ -252,33 +248,6 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
-			/>
-			<Screen
-				name="ProfileSettings"
-				component={ProfileSettings}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 60,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
-						</TouchableOpacity>
-					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
 			/>
 			<Screen
 				name="EstablishmentInfo"

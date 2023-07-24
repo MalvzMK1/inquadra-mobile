@@ -119,7 +119,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			}
 		}
 	}, [data, loading]);
-	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	const userGeolocation = route.params.userGeolocation
 
@@ -129,14 +128,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			<View className={`flex w-full justify-center items-center h-[8%] ${isDisabled ? "hidden" : ""}`}>
 				<ScrollView horizontal={true}>
 					{
-						expanded ?
-							<Text className='mt-4 font-black text-lg'>
-								{`PRÓXIMO A VOCÊ: ${arrayTesteIcons[0].name.toLocaleUpperCase()}`}
-							</Text>
-							:
-							arrayTesteIcons.map((item) => (
-								<NavigationSports key={item.id} name={item.name} image={item.image} />
-							))
+						// expanded ?
+						// 	<Text className='mt-4 font-black text-lg'>
+						// 		{`PRÓXIMO A VOCÊ: ${arrayTesteIcons[0].name.toLocaleUpperCase()}`}
+						// 	</Text>
+						// 	:
+						// 	arrayTesteIcons.map((item) => (
+						// 		<NavigationSports key={item.id} name={item.name} image={item.image} />
+						// 	))
 
 					}
 				</ScrollView>
@@ -172,17 +171,17 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				{/* FECHAR O SCROLLVIEW */}
 				<ScrollView>
 					{
-						arrayTeste.map((item) => (
-							<View className='p-5' key={item.id}>
-								<CourtCardHome
-									image={item.image}
-									name={item.name}
-									distance={item.distance}
-									type={item.type}
-					      />
-									{/*pageNavigation='EstablishmentInfo'*/}
-							</View>)
-						)
+						// arrayTeste.map((item) => (
+						// 	<View className='p-5' key={item.id}>
+						// 		<CourtCardHome
+						// 			image={item.image}
+						// 			name={item.name}
+						// 			distance={item.distance}
+						// 			type={item.type}
+					  //     />
+						// 			{/*pageNavigation='EstablishmentInfo'*/}
+						// 	</View>)
+						// )
 					}
 					<MapView>
 					{
@@ -215,9 +214,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <HomeBar courts={courts}/>}
-			<BottomNavigationBar isDisabled={isDisabled} />
-		</View >
 			// <BottomNavigationBar
 			// isDisabled={isDisabled}
 			// buttonOneNavigation='ProfileSettings'

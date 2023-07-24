@@ -35,7 +35,6 @@ export default function Login() {
 	}).then(data => setUserGeolocation(data))
 
 	const [showPassword, setShowPassword] = useState<boolean>(false)
-	const navigation = useNavigation()
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	const [teste, { data: updateCourtData, loading: updateCourtLoading, error: updateCourtError }] = useUpdateCourt()
