@@ -1,10 +1,10 @@
 import { useMutation } from "@apollo/client";
 import {
     IUpdateScheduleResponse,
-    IUpdateSchedulingVariables,
-    updateSchedulingMutation
+    IUpdateScheduleVariables,
+    updateScheduleMutation
 } from "../graphql/mutations/updateSchedule"
 
 export default function useUpdateSchedule(){
-    return useMutation<IUpdateScheduleResponse, IUpdateSchedulingVariables>(updateSchedulingMutation)
+    return useMutation<IUpdateScheduleResponse, IUpdateScheduleVariables>(updateScheduleMutation)
 }

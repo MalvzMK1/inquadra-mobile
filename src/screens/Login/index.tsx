@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
+
 
 export default function Login() {
 	const [userEmail, setUserEmail] = useState<string>("");
@@ -16,7 +17,8 @@ export default function Login() {
 	const navigation = useNavigation();
 
 	return (
-		<ScrollView className='flex-1 h-max w-max bg-white'>
+		
+			<ScrollView className='flex-1 h-max w-max bg-white'>
 			<View className='h-16 W-max'></View>
 			<View className="flex-1 flex items-center justify-center h-max w-max bg-white px-7 ">
 				<TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
@@ -48,7 +50,6 @@ export default function Login() {
 						}}
 					/>
 				</View>
-
 				<View className='h-14 pt-4'>
 					<TextInput className="h-14 text-base"
 						secureTextEntry = {!showPassword}
@@ -109,7 +110,6 @@ export default function Login() {
 						<Text className='text-orange-500 text-base'> Clique aqui</Text>
 					</TouchableOpacity>
 				</View>
-
 				</View>
 			</View>
 		</ScrollView>

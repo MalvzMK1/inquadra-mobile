@@ -1,11 +1,10 @@
 import { useMutation } from "@apollo/client";
 import {
-    IRegisterSchedulingResponse,
-    IRegisterSchedulingVariables,
-    registerSchedulingMutation
-} from "../graphql/mutations/registerScheduling"
+    IRegisterScheduleResponse,
+    IRegisterScheduleVariables,
+    registerScheduleMutation
+} from "../graphql/mutations/registerSchedule"
 
 export default function useRegisterSchedule(){
-    return useMutation<IRegisterSchedulingResponse, IRegisterSchedulingVariables>(registerSchedulingMutation)
+    return useMutation<IRegisterScheduleResponse, IRegisterScheduleVariables>(registerScheduleMutation)
 }
-

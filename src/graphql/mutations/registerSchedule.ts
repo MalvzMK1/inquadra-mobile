@@ -1,7 +1,7 @@
 import {gql} from "@apollo/client";
 
-export interface IUpdateScheduleResponse{
-    updateScheduling: {
+export interface IRegisterScheduleResponse{
+    createScheduling: {
       data: {
         id: Schedule['id']
         attributes: {
@@ -11,8 +11,7 @@ export interface IUpdateScheduleResponse{
     }
 }
 
-export interface IUpdateScheduleVariables{
-    scheduling_id: number
+export interface IRegisterScheduleVariables{
     title: string
     court_availability: number
     users: Array<number>
@@ -20,11 +19,10 @@ export interface IUpdateScheduleVariables{
     date: string
     pay_day: string
     value_payed: number
-    payed_status: boolean
 }
 
-export const updateScheduleMutation = gql`
-mutation updateSchedule(
+export const registerScheduleMutation = gql`
+mutation newSchedule(
   $title: String
   $court_availability: ID
   $users: [ID]
@@ -32,11 +30,8 @@ mutation updateSchedule(
   $date: Date
   $pay_day: Date
   $value_payed: Float
-  $scheduling_id: ID!
-  $payed_status: Boolean
 ) {
-  updateScheduling(
-    id: $scheduling_id
+  createScheduling(
     data: {
       schedulingTitle: $title
       court_availability: $court_availability
@@ -45,7 +40,6 @@ mutation updateSchedule(
       date: $date
       payDay: $pay_day
       valuePayed: $value_payed
-      payedStatus: $payed_status
     }
   ) {
     data {
