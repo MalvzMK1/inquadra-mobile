@@ -9,4 +9,5 @@ type Court = {
 	id: string
 	name: string
 	rating: number
+	fantasy_name: string
 }
