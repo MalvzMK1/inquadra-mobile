@@ -2,6 +2,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {View, Text, TextInput} from 'react-native';
 import { RegisterHeader } from '../../../components/RegisterHeader';
+import MaskInput, { Masks } from 'react-native-mask-input';
 import {Controller, useForm} from "react-hook-form";
 import {TouchableOpacity} from "react-native-gesture-handler";
 import { z } from 'zod';
@@ -38,6 +39,12 @@ export default function Register() {
 		resolver: zodResolver(formSchema)
 	});
 
+	const [ name, setName ] = useState("")
+	const [ email, setEmail ] = useState("")
+	const [ phoneNumber, setPhoneNumber ] = useState("")
+	const [ cpf, setCpf ] = useState("")
+
+	
 	function handleGoToNextRegisterPage(data: IFormDatas): void {
 		console.log(data)
 		navigation.navigate('RegisterPassword', {

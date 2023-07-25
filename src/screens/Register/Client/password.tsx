@@ -1,7 +1,8 @@
-import { View, Text, TextInput, Image } from "react-native"
-import React, { useState } from "react"
+import { View, Text, TextInput, Image, Button } from "react-native"
+import React, { useState, useRef } from "react"
 import { RegisterHeader } from "../../../components/RegisterHeader"
 import { TouchableOpacity } from "react-native"
+import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { CheckBox } from 'react-native-elements'
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {Controller, useForm} from "react-hook-form";
@@ -71,6 +72,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 		} setIsTermCheckedError(true)
 	}
 
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return (
 		<View className=" flex flex-col bg-white h-screen items-center p-5">
 

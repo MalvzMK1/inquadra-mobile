@@ -87,6 +87,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
+								pageNavigation='EstablishmentInfo'
 								/>
 							</Marker>
 						))
@@ -100,7 +101,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				{menuBurguer && <FilterComponent />}
 			</View>
 			{isDisabled && <HomeBar courts={courts}/>}
-			<BottomNavigationBar isDisabled={isDisabled} />
+			<BottomNavigationBar 
+			isDisabled={isDisabled} 
+			buttonOneNavigation='ProfileSettings'
+			buttonTwoNavigation='FavoriteCourts'
+			buttonThreeNavigation=''
+			buttonFourNavigation=''
+			/>
 		</View >
 	);
 }
