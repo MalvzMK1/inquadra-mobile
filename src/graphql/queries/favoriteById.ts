@@ -20,21 +20,6 @@ export interface IFavoriteByIdResponse {
                           data:Array<{
                             id: string
                             attributes: {
-                              court_availabilities:{
-                                data: Array<{
-                                  id: string
-                                  attributes: {
-                                    schedulings: {
-                                      data: Array<{
-                                        id: string
-                                        attributes: {
-                                          date: Date
-                                        }
-                                      }>
-                                    }
-                                  }
-                                }>
-                              }
                               name: string
                               fantasy_name: string
                               photo: {
@@ -51,9 +36,23 @@ export interface IFavoriteByIdResponse {
                                     address: {
                                       latitude: string
                                       longitude: string
+                                      cep: string
                                     }
                                   }
                                 }
+                              }
+                              court_availabilities:{
+                                data: Array<{
+                                  attributes: {
+                                    schedulings: {
+                                      data: Array<{
+                                        attributes: {
+                                          date: Date
+                                        }
+                                      }>
+                                    }
+                                  }
+                                }>
                               }
                             }
                           }>
@@ -71,10 +70,11 @@ export interface IFavoriteByIdResponse {
 
 export interface IFavoriteByIdVariables {
     id: string
+    userId: string
 }
 
 export const favoriteByIdQuery = gql`
-  query getFavoriteById($id: ID) {
+ query getFavoriteById($id: ID, $userId: ID) {
   usersPermissionsUser(id: $id) {
     data {
       attributes {
@@ -87,23 +87,7 @@ export const favoriteByIdQuery = gql`
                     name
                     courts {
                       data {
-                        id
                         attributes {
-                          court_availabilities {
-                            data {
-                              id
-                              attributes {
-                                schedulings {
-                                  data {
-                                    id
-                                    attributes {
-                                      date
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
                           name
                           fantasy_name
                           photo {
@@ -120,6 +104,22 @@ export const favoriteByIdQuery = gql`
                                 address {
                                   latitude
                                   longitude
+                                  cep
+                                }
+                              }
+                            }
+                          }
+                           court_availabilities {
+                            data {
+                              attributes {
+                                schedulings(
+                                  filters: { owner: { id: { eq: $userId } } }
+                                ) {
+                                  data {
+                                    attributes {
+                                      date
+                                    }
+                                  }
                                 }
                               }
                             }
