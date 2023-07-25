@@ -19,6 +19,7 @@ import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAcc
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
+import {RootStackParamList} from "../../types/RootStack";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -213,7 +214,7 @@ export default function () {
 					headerShown: false
 				}}
 			/>
-			
+
 			<Screen
 				name="RegisterSuccess"
 				component={RegisterSuccess}
@@ -248,10 +249,6 @@ export default function () {
 							/>
 						</TouchableOpacity>
 					),
-				})}
-			/>
-						</View>
-					),
 					headerRight: () => (
 						<TouchableOpacity style={{ paddingRight: 10 }}>
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
@@ -262,7 +259,7 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
-				}}
+				})}
 			/>
 			<Screen
 				name="EstablishmentInfo"
@@ -277,6 +274,9 @@ export default function () {
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>ESTABELECIMENTO</Text>
+						</View>
+						)}}
+				/>
 		</Navigator>
 	);
 }
