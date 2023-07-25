@@ -4,11 +4,6 @@ import { RegisterHeader } from "../../../components/RegisterHeader"
 import { TouchableOpacity } from "react-native"
 import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { CheckBox } from 'react-native-elements'
-import GoogleRecaptcha, {
-    GoogleRecaptchaToken,
-    GoogleRecaptchaRefAttributes,
-    GoogleRecaptchaProps
-} from 'react-native-google-recaptcha'
 
 // import CheckBox from "@react-native-community/checkbox"
 
@@ -27,17 +22,6 @@ export default function Password() {
 
     const [isChecked, setIsChecked] = useState(false)
     const [captchaChecked, setCaptchaChecked] = useState(false)
-
-    const recaptchaRef = useRef<GoogleRecaptchaRefAttributes>(null)
-    const handleSend = () => {
-        recaptchaRef.current?.open()
-    }
-    const handleVerify = (token: GoogleRecaptchaToken) => {
-        console.log('Recaptcha Token:', token)
-    }
-    const handleError = (error: unknown) => {
-        console.error('Recaptcha Error:', error)
-    }
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     return (
@@ -90,19 +74,10 @@ export default function Password() {
 
                 <View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">
                     <View className="flex flex-row items-center">
-                        <GoogleRecaptcha
-                            ref={recaptchaRef}
-                            baseUrl="https://teste.com"
-                            onError={handleError}
-                            onVerify={handleVerify}
-                            siteKey="6LfbV00nAAAAAEeTSUoLPQIfoNPaw52C2QEh3WF8"
-                        />
                         <CheckBox
                             checked={captchaChecked}
                             onPress={() => {
                                 setCaptchaChecked(!captchaChecked)
-                                if(!captchaChecked)
-                                    handleSend()
                             }}
                         />
 
