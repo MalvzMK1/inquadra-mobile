@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, ActivityIndicator} from 'react-native';
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
@@ -11,6 +11,7 @@ import pointerMap from '../../assets/pointerMap.png';
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import useGetNextToCourts from "../../hooks/useNextToCourts";
 import useGetUserById from "../../hooks/useUserById";
+import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -28,6 +29,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		image: string,
 		distance: number,
 	}>>([])
+	const {data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError} = useAvailableSportTypes()
 
 	useEffect(() => {
 		if (!error && !loading) {
@@ -38,7 +40,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
 					name: court.attributes.name,
 					type: court.attributes.court_type.data.attributes.name,
-					image: process.env.HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					// image: process.env.HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					image: 'http://192.168.0.10' + (court.attributes.photo.data.length === 0 ? '' : court.attributes.photo.data[0].attributes.url),
 					distance: 666, // Substitua pelos valores reais
 				}
 			});
@@ -54,7 +57,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
 	return (
 		<View className="flex-1 flex flex-col">
-			{isDisabled && !menuBurguer && <SportsMenu />}
+			{
+				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
+				isDisabled && !menuBurguer && <SportsMenu sports={availableSportTypes?.courts.data.map(sportType => ({
+						id: sportType.attributes.court_type.data.id,
+						name: sportType.attributes.court_type.data.attributes.name
+					})) ?? []} />
+			}
 			<View className='flex-1'>
 
 				<MapView

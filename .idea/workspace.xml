@@ -6,16 +6,40 @@
   <component name="ChangeListManager">
     <list default="true" id="e61ef1f0-261f-4edd-9425-22e4df35fa4e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BarHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BarHome/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BottomNavigationBar/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomNavigationBar/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/nextToCourts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/nextToCourts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SportsMenu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SportsMenu/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/apolloClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/apolloClient.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/home/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/SportsProps.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/SportsProps.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T623" />
+                    <option name="lastUsedInstant" value="1690299430" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T624" />
+                    <option name="lastUsedInstant" value="1690299429" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -33,6 +57,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "WI564T623",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
