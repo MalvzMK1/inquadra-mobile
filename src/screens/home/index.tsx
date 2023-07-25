@@ -10,57 +10,15 @@ import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import useGetNextToCourts from "../../hooks/useNextToCourts";
+import useGetUserById from "../../hooks/useUserById";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
 }
 
-const ArrayLocations = [
-	{
-		latitude: 37.78825,
-		longitude: -122.4324,
-		nome: "quadra Legal",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "quadra amadora",
-		distance: 4.5
-	},
-	{
-		latitude: -29.1354,
-		longitude: 69.0102,
-		nome: "quadra daora",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	},
-	{
-		latitude: 66.2539,
-		longitude:  -167.8774,
-		nome: "quadra Legal",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	},
-	{
-		latitude: -44.9763,
-		longitude: -102.6039,
-		nome: "quadra daora",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-
-	},
-	{
-		latitude: -76.5344,
-		longitude: -46.7475,
-		nome: "quadra Legal",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	}
-]
-
 export default function Home({ menuBurguer, route, navigation }: Props) {
 	const {data, loading, error} = useGetNextToCourts('')
+	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
 	const [courts, setCourts] = useState<Array<{
 		id: string,
 		latitude: number,
@@ -80,7 +38,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
 					name: court.attributes.name,
 					type: court.attributes.court_type.data.attributes.name,
-					image: 'http://192.168.0.10:1337' + court.attributes.photo.data[0].attributes.url,
+					image: process.env.HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
 					distance: 666, // Substitua pelos valores reais
 				}
 			});
