@@ -1,7 +1,4 @@
 import { gql } from "@apollo/client";
-import { ICourtType } from "./sportTypes";
-import { Court } from "../../types/Court";
-import { CourtAvailability } from "../../types/CourtAvailability";
 
 
 

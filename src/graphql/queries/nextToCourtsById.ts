@@ -1,9 +1,4 @@
 import { gql } from "@apollo/client";
-import { Court } from "../../types/Court";
-import { SportType } from "../../types/SportTypes";
-import { Photo } from "../../types/Photo";
-import { Establishment } from "../../types/EstablishmentInfos";
-import { Address } from "../../types/Address";
 
 
 export interface INextToCourtByIdResponse{
