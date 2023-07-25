@@ -1,14 +1,73 @@
-import { View, Text, TextInput, ImageBackground } from "react-native"
+import { View, Text, TextInput, ImageBackground, SafeAreaView, Image, ScrollView } from "react-native"
+import { TouchableOpacity } from "react-native-gesture-handler"
 import { ImageSourcePropType } from "react-native/Libraries/Image/Image"
+import { useNavigation, NavigationProp } from "@react-navigation/native"
+import React, { useState } from 'react'
+import WeekDays from "../../components/WeekDays"
+import CourtAvailibility from "../../components/CourtAvailibility"
+import BottomBlackMenu from "../../components/BottomBlackMenu"
 
-const courtImage: ImageSourcePropType = require('../../assets/black_heart.png')
+const courtImage: ImageSourcePropType = require('../../assets/quadra.png')
 
 export default function CourtAvailibilityInfo() {
+    const [showCalendar, setShowCalendar] = useState(false)
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     return (
-        <View>
-            <View className="h-80 w-full">
-                <ImageBackground className="flex-1 flex flex-col items-center justify-center" source={courtImage}/>
+        <SafeAreaView className="flex flex-col justify-between h-full">
+            <View className="h-[215px] w-full">
+                <ImageBackground className="flex-1 flex flex-col" source={courtImage}>
+                    <TouchableOpacity className="mt-[50px] ml-[20px]" onPress={() => navigation.goBack()}>
+                        <Image source={require('../../assets/back_arrow.png')}></Image>
+                    </TouchableOpacity>
+                </ImageBackground>
             </View>
-        </View>
+
+            <View className="h-fit items-center mt-[10px]">
+                <Text className="text-[20px] font-black">Quadra Municipal Itaquera</Text>
+
+                <View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
+                    <WeekDays dayInitial="D" day={23}></WeekDays>
+
+                    <WeekDays dayInitial="S" day={24}></WeekDays>
+
+                    <WeekDays dayInitial="T" day={25}></WeekDays>
+
+                    <WeekDays dayInitial="Q" day={26}></WeekDays>
+
+                    <WeekDays dayInitial="Q" day={27}></WeekDays>
+
+                    <WeekDays dayInitial="S" day={28}></WeekDays>
+
+                    <WeekDays dayInitial="S" day={29}></WeekDays>
+                </View>
+
+                {/* <TouchableOpacity className="bg-[#959595] h-[4px] w-[30px] mt-[5px] rounded-[5px]"></TouchableOpacity> */}
+            </View>
+
+            <ScrollView className="max-h-[390px] w-full pl-[10px] pr-[10px] mt-[30px]">
+                <CourtAvailibility startsAt="16:00" endsAt="17:00" price={190.90} busy={true}/>
+
+                <CourtAvailibility startsAt="17:00" endsAt="18:00" price={190.90} busy={false}/>
+
+                <CourtAvailibility startsAt="19:00" endsAt="20:00" price={190.90} busy={false}/>
+
+                <CourtAvailibility startsAt="20:00" endsAt="21:00" price={190.90} busy={false}/>
+
+                <CourtAvailibility startsAt="21:00" endsAt="22:00" price={190.90} busy={true}/>
+
+                <CourtAvailibility startsAt="22:00" endsAt="23:00" price={190.90} busy={false}/>
+
+                <CourtAvailibility startsAt="23:00" endsAt="00:00" price={190.90} busy={false}/>
+            </ScrollView>
+
+            <View className="h-fit w-full p-[15px] mt-[30px]">
+                <TouchableOpacity className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'>
+                    <Text className='text-white'>RESERVAR</Text>
+                </TouchableOpacity> 
+            </View>
+
+            <BottomBlackMenu/>
+
+        </SafeAreaView>
     )
 }
