@@ -1,5 +1,4 @@
 type PaymentCardInformations = {
-    id: string
-    cvv: number
+    cvv: number,
     dueDate: Date
-}
+  }

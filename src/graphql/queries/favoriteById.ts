@@ -1,9 +1,4 @@
 import { gql } from "@apollo/client";
-import { Photo } from "../../types/Photo"
-import { Court } from "../../types/Court"
-import { Address } from "../../types/Address";
-import { Establishment } from "../../types/EstablishmentInfos";
-import { CourtCardInfos } from "../../types/Court";
 
 export interface IFavoriteByIdResponse {
     usersPermissionsUser: {

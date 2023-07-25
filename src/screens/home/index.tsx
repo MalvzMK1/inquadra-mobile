@@ -1,71 +1,62 @@
-import { useState, useEffect } from 'react';
+import {useEffect, useState} from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, Image, Text, ImageBackground } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
+import {View, TouchableOpacity} from 'react-native';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
-import BarHome from '../../components/BarHome';
+import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import useGetNextToCourts from "../../hooks/useNextToCourts";
+import useGetUserById from "../../hooks/useUserById";
 
-
-type Props = {
+interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
-};
+}
 
-const ArrayLocations = [
-	{
-		latitude: 37.78825,
-		longitude: -122.4324,
-		nome: "quadra Legal",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "quadra amadora",
-		distance: 4.5
-	},
-	{
-		latitude: -29.1354,
-		longitude: 69.0102,
-		nome: "quadra daora",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	},
-	{
-		latitude: 66.2539,
-		longitude:  -167.8774,
-		nome: "quadra Legal",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	},
-	{
-		latitude: -44.9763,
-		longitude: -102.6039,
-		nome: "quadra daora",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
+export default function Home({ menuBurguer, route, navigation }: Props) {
+	const {data, loading, error} = useGetNextToCourts('')
+	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
+	const [courts, setCourts] = useState<Array<{
+		id: string,
+		latitude: number,
+		longitude: number,
+		name: string,
+		type: string,
+		image: string,
+		distance: number,
+	}>>([])
 
-	},
-	{
-		latitude: -76.5344,
-		longitude: -46.7475,
-		nome: "quadra Legal",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	}
-]
+	useEffect(() => {
+		if (!error && !loading) {
+			const newCourts = data?.courts.data.map((court) => {
+				return {
+					id: court.id,
+					latitude: Number(court.attributes.establishment.data.attributes.address.latitude),
+					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
+					name: court.attributes.name,
+					type: court.attributes.court_type.data.attributes.name,
+					image: process.env.HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					distance: 666, // Substitua pelos valores reais
+				}
+			});
 
-export default function Home({ menuBurguer }: Props) {
+			if (newCourts) {
+				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
+			}
+		}
+	}, [data, loading]);
+	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
-	const [isDisabled, setIsDisabled] = useState(true);
+	const userGeolocation = route.params.userGeolocation
 
 	return (
 		<View className="flex-1 flex flex-col">
 			{isDisabled && !menuBurguer && <SportsMenu />}
 			<View className='flex-1'>
+
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
@@ -73,14 +64,14 @@ export default function Home({ menuBurguer }: Props) {
 					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
-						latitude: 37.78825,
-						longitude: -122.4324,
+						latitude: userGeolocation.latitude,
+						longitude: userGeolocation.longitude,
 						latitudeDelta: 0.004,
 						longitudeDelta: 0.004,
 					}}
 				>
 					{
-						ArrayLocations.map((item) => (
+						courts.map((item) => (
 							<Marker
 								coordinate={{
 									latitude: item.latitude,
@@ -91,9 +82,10 @@ export default function Home({ menuBurguer }: Props) {
 								description='test'
 							>
 								<CourtBallon
-									name={item.nome}
+									key={item.id}
+									name={item.name}
 									distance={item.distance}
-									image={item.Image}
+									image={item.image}
 									type={item.type}
 								/>
 							</Marker>
@@ -107,7 +99,7 @@ export default function Home({ menuBurguer }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <BarHome />}
+			{isDisabled && <HomeBar courts={courts}/>}
 			<BottomNavigationBar isDisabled={isDisabled} />
 		</View >
 	);

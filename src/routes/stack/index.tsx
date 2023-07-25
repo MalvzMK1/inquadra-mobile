@@ -40,30 +40,6 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="ProfileSettings"
-				component={ProfileSettings}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 100,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
-						</TouchableOpacity>
-					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
 				}}
 			/>
 			<Screen
@@ -137,7 +113,6 @@ export default function () {
 			<Screen
 				name="HomeVariant"
 				options={({ route }) => ({
-					// headerTitle: route.params.name,
 					headerTitleStyle: {
 						fontSize: 26
 					},
@@ -230,6 +205,33 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
+			/>
+			<Screen
+				name="ProfileSettings"
+				component={ProfileSettings}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
 			/>
 		</Navigator>
 	);

@@ -1,4 +1,4 @@
-export type Amenitie = {
+type Amenitie = {
 	id: string
 	name: string
 }

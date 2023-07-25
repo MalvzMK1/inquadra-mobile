@@ -1,6 +1,6 @@
 import {ScrollView, Text, View} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
-import {useNavigation} from "@react-navigation/native";
+import {NavigationProp, useNavigation} from "@react-navigation/native";
 import { useGetFavoriteById } from "../../hooks/useFavoriteById"
 
 /*  */
@@ -8,7 +8,6 @@ export default function FavoriteCourts() {
 
 	const USER_ID = 2; //LEGÍVEL
 	const {data, error, loading} = useGetFavoriteById(USER_ID) 
-	const navigation = useNavigation()
 
 	return(
 		<ScrollView className='flex-1 py-4 bg-zinc-600'>
