@@ -12,6 +12,8 @@ export default function Login() {
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
 	}
+
+	const navigation = useNavigation()
 	  
 	return (
 

@@ -5,22 +5,22 @@ export interface IFavoriteByIdResponse {
         data: {
             attributes: {
                 favorite_courts: {
-                    data: {
+                    data: Array<{
                         attributes: {
                             court_type: {
                                 data: {
                                     attributes: {
                                         name: CourtCardInfos['type']
                                         courts: {
-                                            data: {
+                                            data: Array<{
                                                 id: Court['id']
                                                 attributes: {
                                                     photo: {
-                                                        data: {
+                                                        data: Array<{
                                                             attributes: {
                                                                 url: Photo['url']
                                                             }
-                                                        }
+                                                        }>
                                                     }
                                                     establishment: {
                                                         data: {
@@ -34,13 +34,13 @@ export interface IFavoriteByIdResponse {
                                                         }
                                                     }
                                                 }
-                                            }
+                                            }>
                                         }
                                     }
                                 }
                             }
                         }
-                    }
+                    }>
                 }
             }
         }
@@ -52,7 +52,7 @@ export interface IFavoriteByIdVariables {
 }
 
 export const favoriteByIdQuery = gql`
-    query getFavoriteById($id: ID) {
+query getFavoriteById($id: ID) {
   usersPermissionsUser(id: $id) {
     data {
       attributes {

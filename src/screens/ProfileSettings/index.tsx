@@ -9,12 +9,15 @@ import { FontAwesome } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input'; 
 import { TextInputMask } from 'react-native-masked-text';
 
-
 export default function ProfileSettings() {
-
-  // const { loading, error, data } = useGetFavoriteById("1");
-
-  // if (loading) return <Text>Loading ...</Text>;
+  
+  // const myDate = new Date("2023-07-24");
+  // const { loading, error, data } = useSchedulingById("1");
+  // console.log(data);
+  // if (loading) return <Text>Loading...</Text>;
+  // if (error) {
+  //   return <Text>Error: {error.message}</Text>;
+  // }
   // return <Text>Hello {JSON.stringify(data)}!</Text>;
 
   const [expiryDate, setExpiryDate] = useState('');
@@ -128,8 +131,7 @@ const [profilePicture, setProfilePicture] = useState(null);
   }
 
 
-  // if (loading) return <Text>Loading ...</Text>;
-  // return <Text>Hello {JSON.stringify(data?.usersPermissionsUser.data.attributes.photo)}!</Text>;
+
 
   return (
     <View className="flex-1 bg-white h-full">
@@ -337,3 +339,4 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
+

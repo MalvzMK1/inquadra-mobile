@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 
 export interface INextToCourtByIdResponse{
     courts: {
-        data: Array<{
+        data:{
             id: Court ['id'];
             attributes: {
                 name: Court ['name']
@@ -15,11 +15,11 @@ export interface INextToCourtByIdResponse{
                     }
                 } & {
                     photo: {
-                        data: {
+                        data: Array <{
                             attributes:{
                                 url: Photo['url']
                             }
-                        }
+                        }>
                     } 
                 } & {
                     establishment:{
@@ -37,7 +37,7 @@ export interface INextToCourtByIdResponse{
                     }
                 }     
             }
-        }>
+        }
     }
 }
 
@@ -46,7 +46,7 @@ export interface INextToCourtBiIdVariables {
 }
 
 export const useNextToCourtByIdQuery = gql`
-    query nextToCourtById($id: ID) {
+  query nextToCourtById($id: ID) {
   court(id: $id) {
     data {
       id

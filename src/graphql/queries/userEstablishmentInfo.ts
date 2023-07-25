@@ -1,4 +1,4 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
 export interface IUserEstablishmentResponse {
 	usersPermissionsUser: {
@@ -102,5 +102,3 @@ export const userEstablishmentQuery = gql`
         }
     }
 `;
-
-console.log(userEstablishmentQuery)

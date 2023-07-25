@@ -14,10 +14,10 @@ export interface IUserByIdResponse{
                     paymentCardInformations: PaymentCardInformations
                 } & {
                     country: {
-                        data: Array<{
+                        data: {
                             id: Country['id']
                             attributes: Omit<Country, 'id'>
-                        }> & {
+                        } & {
                             flag:{
                                 data:{
                                     attributes:{
@@ -45,7 +45,7 @@ export interface IUserByIdVariables {
 	id: string
 }
 
-export const userByIdQuery = gql `
+export const userByIdQuery = gql`
 query getUserById($id: ID){
     usersPermissionsUser(id: $id){
       data{

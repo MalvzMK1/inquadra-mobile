@@ -15,6 +15,8 @@ import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
+import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
+
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -22,9 +24,35 @@ export default function () {
 
 	const [menuBurguer, setMenuBurguer] = useState(false)
 
-
 	return (
 		<Navigator>
+			<Screen
+				name="ReservationPaymentSign"
+				component={ReservationPaymentSign}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>SINAL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="ProfileSettings"
 				component={ProfileSettings}

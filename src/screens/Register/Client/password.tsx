@@ -86,7 +86,7 @@ export default function Password() {
                 </View>
 
                 <View className='p-6 w-full'>
-                    <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('RegisterSuccess')}>
+                    <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('Home')}>
                         <Text className='text-gray-50'>Continuar</Text>
                     </TouchableOpacity>
                 </View>

@@ -3,11 +3,12 @@ import { IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables, 
 
 
 
-export default function useEstablishmentSchedulings(id: string, date: String): QueryResult<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables> {
+export function useEstablishmentSchedulings(id: string, date: Date): QueryResult<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables> {
     return useQuery<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables>(establishmentSchedulingQuery, {
 		variables: {
 			id,
-            date
+      date
 		}
     })
 }
+

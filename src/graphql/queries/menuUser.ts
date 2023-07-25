@@ -1,8 +1,5 @@
 import { gql } from "@apollo/client";
 
-import { User } from "../../types/User";
-import { Photo } from "../../types/Photo";
-
 export interface IMenuUserResponse {
     usersPermissionsUser:{
         data: {

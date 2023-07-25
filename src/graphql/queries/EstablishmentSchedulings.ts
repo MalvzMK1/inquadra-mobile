@@ -1,8 +1,9 @@
+import { DateFilterInput } from './../../__generated__/graphql';
 import { gql } from "@apollo/client";
 
 export interface IEstablishmentSchedulingsResponse {
 	schedulings:{
-            data: {
+            data: Array< {
                 id: Scheduling['id']  
                 attributes: {
                     date: Scheduling['date']
@@ -18,13 +19,13 @@ export interface IEstablishmentSchedulingsResponse {
                         }
                     }
                 users: {
-                    data: {
+                    data: Array<{
                         attributes: {
                             username: User['username']
                             email: User['email']
                             cpf: User['cpf']
                         }
-                    }
+                    }>
                 }
                 court_availability: {
                     data: {
@@ -37,7 +38,7 @@ export interface IEstablishmentSchedulingsResponse {
                     }
                 }
             }
-        }
+        }>
     }
 }
 
@@ -47,7 +48,7 @@ export interface IEstablishmentSchedulingsVariables {
 }
 
 export const establishmentSchedulingQuery = gql`
-    query GetEstablishmentsSchedulings($id: ID, $date: String!) {
+    query GetEstablishmentsSchedulings($id: ID, $date: Date!) {
     schedulings(
         filters: {
         court_availability: { court: { establishment: { id: { eq: $id } } } }
