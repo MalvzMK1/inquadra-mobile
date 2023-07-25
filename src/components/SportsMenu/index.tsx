@@ -1,4 +1,4 @@
-import { ScrollView, TouchableOpacity } from 'react-native';
+import { ScrollView, TouchableOpacity, Text } from 'react-native';
 import SportItem from '../SportItem';
 import { useState } from 'react';
 const iconFutebol = require('./icons/iconFutebol.png');
@@ -63,25 +63,35 @@ const arrayIcons = [
 	},
 ]
 
-export default function SportsMenu() {
+export default function SportsMenu(props: { value: boolean }) {
 
-	const [selected, setSelected] = useState(0)
-	
+	const [selected, setSelected] = useState(1)
+
+	const selectedIcon = arrayIcons.find(value => value.id === selected);
+
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className={`flex w-full justify-center items-center h-[8%] `}>
-			<ScrollView horizontal={true}>
-				{
-					arrayIcons.map((item) => (
-						<TouchableOpacity className='justify-center' onPress={() => setSelected(item.id)}>
-							{selected !== item.id ? (
-								<SportItem key={item.id} id={item.id} name={item.name} image={item.image} />
-							) : (
-								<SportItem key={item.id} id={item.id} name={item.name} image={item.activeImage} />
-							)}
-						</TouchableOpacity>
-					))
-				}
-			</ScrollView>
-		</Animated.View>
+			{
+				props.value ? (
+					<Text className='font-black text-[18px] text-center'>
+						PRÓXIMO A VOCÊ: {selectedIcon?.name.toUpperCase()}
+					</Text>
+				)
+					:
+					<ScrollView horizontal={true}>
+						{
+							arrayIcons.map((item) => (
+								<TouchableOpacity key={item.id} className='justify-center' onPress={() => setSelected(item.id)}>
+									{selected !== item.id ? (
+										<SportItem id={item.id} name={item.name} image={item.image} />
+									) : (
+										<SportItem id={item.id} name={item.name} image={item.activeImage} />
+									)}
+								</TouchableOpacity>
+							))
+						}
+					</ScrollView>
+			}
+		</Animated.View >
 	)
 }

@@ -30,7 +30,7 @@ export default function FilterDate( props: {dateSelector: string, setDateSelecto
     const today = startOfDay(new Date())
     const endDate = endOfYear(new Date())
 
-    const generateYearDates = (start: any, end: any) => {
+    const generateYearDates = (start: number | Date, end: number | Date) => {
         const yearDates = eachDayOfInterval({ start, end })
         return yearDates.map(date => ({
             date: format(date, 'dd/MM/yyyy'),

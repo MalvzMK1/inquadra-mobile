@@ -36,7 +36,7 @@ const arrayTeste = [
 
 const userNameExample = "Artur"
 
-export default function BarHome() {
+export default function BarHome(props: { handleMessage: Function }) {
 
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
@@ -44,7 +44,7 @@ export default function BarHome() {
 	useAnimatedReaction(
 		() => expanded,
 		(value) => {
-			height.value = withTiming(value ? '100%' : '40%', { duration: 500 });
+			height.value = withTiming(value ? '80%' : '40%', { duration: 500 });
 		},
 		[expanded]
 	);
@@ -59,7 +59,14 @@ export default function BarHome() {
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
 			<View
 				className='flex items-center'>
-				<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
+				<TouchableOpacity className='w-full items-center' onPress={() => {
+					setExpanded(
+						(prevState) => {
+							const newExpanded = !prevState;
+							props.handleMessage(newExpanded);
+							return newExpanded;
+						});
+				}}>
 					<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
 				</TouchableOpacity>
 				<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
