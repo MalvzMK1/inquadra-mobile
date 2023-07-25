@@ -1,0 +1,1 @@
+import { QueryResult, useQuery } from "@apollo/client";
