@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Home from '../../screens/home';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
@@ -9,6 +8,7 @@ import ChooseUserType from '../../screens/ChooseUserType/';
 import Register from '../../screens/Register/Client';
 import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
+import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
@@ -19,14 +19,13 @@ import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAcc
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
-import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
+import {NavigationProp, useNavigation} from "@react-navigation/native";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
-
 	const [menuBurguer, setMenuBurguer] = useState(false)
-
+	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
 	return (
 		<Navigator>
@@ -85,7 +84,9 @@ export default function () {
 						/>
 					),
 					headerRight: () => (
-						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+							navigation.navigate('ProfileSettings')
+						}}>
 							<Image
 								source={require('../../assets/qodeless_logo.jpg')}
 								className="w-full h-full"
@@ -138,7 +139,9 @@ export default function () {
 						marginLeft: 12,
 					},
 					headerRight: () => (
-						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+							navigation.navigate('ProfileSettings')
+						}}>
 							<Image
 								source={require('../../assets/qodeless_logo.jpg')}
 								className="w-full h-full"
@@ -224,7 +227,9 @@ export default function () {
 						marginLeft: 12,
 					},
 					headerRight: () => (
-						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+							navigation.navigate('ProfileSettings')
+						}}>
 							<Image
 								source={require('../../assets/qodeless_logo.jpg')}
 								className="w-full h-full"
@@ -232,33 +237,6 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
-			/>
-			<Screen
-				name="ProfileSettings"
-				component={ProfileSettings}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 100,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
-						</TouchableOpacity>
-					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
 			/>
 			<Screen
 				name="EstablishmentInfo"

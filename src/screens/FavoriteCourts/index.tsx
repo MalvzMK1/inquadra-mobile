@@ -5,10 +5,9 @@ import { useGetFavoriteById } from "../../hooks/useFavoriteById"
 
 /*  */
 export default function FavoriteCourts() {
-
+	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	const USER_ID = 2; //LEGÍVEL
 	const {data, error, loading} = useGetFavoriteById(USER_ID) 
-
 	return(
 		<ScrollView className='flex-1 py-4 bg-zinc-600'>
 			{
@@ -43,6 +42,9 @@ export default function FavoriteCourts() {
 			
 			<InfosCourt.Root category='Quadras'>
 				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={1} onPress={_ => navigation.navigate('InfoReserva')}>
+					TODO: FAZER UM ONCLICK NO COMPONENTE DO CARD DA QUADRA QUE LEVA
+								À PÁGINA DE RESERVA DA QUADRA
+				*/}
 					<InfosCourt.Content>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer' />
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />

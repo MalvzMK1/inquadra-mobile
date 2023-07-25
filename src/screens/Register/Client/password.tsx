@@ -55,7 +55,6 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						...route.params,
 						...data,
 					}
-					alert('Sucesso')
 					registerUser({
 						variables: {
 							password: userDatas.password,
@@ -65,8 +64,12 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 							phone_number: userDatas.phoneNumber,
 							username: userDatas.name,
 						}
-					}).then(value => alert(value.data?.createUsersPermissionsUser.data.attributes.email))
-					navigation.navigate('RegisterSuccess')
+					})
+						.then(value => navigation.navigate('RegisterSuccess'))
+						.catch(error => {
+							console.log(error)
+							alert(error)
+						})
 				}
 			} setIsCaptchaCheckedError(true)
 		} setIsTermCheckedError(true)
