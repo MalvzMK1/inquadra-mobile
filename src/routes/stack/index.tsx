@@ -1,20 +1,21 @@
+import { useState } from 'react';
+import Home from '../../screens/home';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Image } from 'react-native';
+import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
-import { View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType/';
 import Register from '../../screens/Register/Client';
 import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
-import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
+import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
@@ -22,6 +23,10 @@ import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
+
+	const [menuBurguer, setMenuBurguer] = useState(false)
+
+
 	return (
 		<Navigator>
 			<Screen
@@ -38,7 +43,33 @@ export default function () {
 					},
 				}}
 			/>
-
+			<Screen
+				name="ProfileSettings"
+				component={ProfileSettings}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
@@ -55,7 +86,6 @@ export default function () {
 			/>
 			<Screen
 				name="Home"
-				component={Home}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
@@ -79,19 +109,37 @@ export default function () {
 						</TouchableOpacity>
 					),
 					headerLeft: () => (
-						<TouchableOpacity className="ml-3">
-							<Entypo
-								name="menu"
-								size={48}
-								color={'white'}
-							/>
+						<TouchableOpacity className="ml-3" onPress={() => {
+							setMenuBurguer((prevState) => !prevState)
+						}}>
+							{
+								!menuBurguer ?
+									<Entypo
+										name="menu"
+										size={48}
+										color={'white'}
+									/>
+									:
+									<MaterialCommunityIcons
+										name="window-close"
+										size={48}
+										color="white"
+									/>
+
+							}
 						</TouchableOpacity>
 					),
 				}}
-			/>
+			>
+				{props => (
+					<Home
+						{...props}
+						menuBurguer={menuBurguer}
+					/>
+				)}
+			</Screen>
 			<Screen
 				name="HomeVariant"
-				component={Home}
 				options={({ route }) => ({
 					// headerTitle: route.params.name,
 					headerTitleStyle: {
@@ -115,10 +163,34 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
-			/>
+			>
+				{props => (
+					<Home
+						{...props}
+						menuBurguer={menuBurguer}
+					/>
+				)}
+			</Screen>
 			<Screen
 				name="RegisterPassword"
 				component={Password}
+			/>
+			<Screen
+				name="DeleteAccountSuccess"
+				component={DeleteAccountSuccess}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+				}}
 			/>
 			<Screen
 				name="InfoReserva"
@@ -178,19 +250,6 @@ export default function () {
 					),
 				})}
 			/>
-			<Screen
-				name="ProfileSettings"
-				component={ProfileSettings}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 60,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
 						</View>
 					),
 					headerRight: () => (
@@ -218,20 +277,6 @@ export default function () {
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>ESTABELECIMENTO</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
-						</TouchableOpacity>
-					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
-			/>
 		</Navigator>
 	);
 }
