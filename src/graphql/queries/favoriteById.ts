@@ -10,11 +10,63 @@ export interface IFavoriteByIdResponse {
         data: {
           attributes: {
             favorite_courts: {
-              data: <>
+              data: Array<{
+                attributes: {
+                  court_type: {
+                    data: {
+                      attributes: {
+                        name: string
+                        courts: {
+                          data:Array<{
+                            id: string
+                            attributes: {
+                              court_availabilities:{
+                                data: Array<{
+                                  id: string
+                                  attributes: {
+                                    schedulings: {
+                                      data: Array<{
+                                        id: string
+                                        attributes: {
+                                          date: Date
+                                        }
+                                      }>
+                                    }
+                                  }
+                                }>
+                              }
+                              name: string
+                              fantasy_name: string
+                              photo: {
+                                data: Array<{
+                                  attributes: {
+                                    url: string
+                                  }
+                                }>
+                              }
+                              establishment: {
+                                data: {
+                                  id: string
+                                  attributes: {
+                                    address: {
+                                      latitude: string
+                                      longitude: string
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }>
+                        }
+                      }
+                    }
+                  }
+                }
+              }>
             }
           }
         }
-    }
+      }
 }
 
 export interface IFavoriteByIdVariables {
