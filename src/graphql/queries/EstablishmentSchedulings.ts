@@ -1,4 +1,3 @@
-import { DateFilterInput } from './../../__generated__/graphql';
 import { gql } from "@apollo/client";
 
 export interface IEstablishmentSchedulingsResponse {

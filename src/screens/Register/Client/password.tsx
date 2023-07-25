@@ -5,7 +5,6 @@ import { TouchableOpacity } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { CheckBox } from 'react-native-elements'
 
-// import CheckBox from "@react-native-community/checkbox"
 
 export default function Password() {
     const [showPassword, setShowPassword] = useState(false)
@@ -18,7 +17,6 @@ export default function Password() {
     const handleConfirmShowPassword = () => {
         setShowConfirmedPassword(!showConfirmedPassword)
     }
-    const checked: string = "checked"
 
     const [isChecked, setIsChecked] = useState(false)
     const [captchaChecked, setCaptchaChecked] = useState(false)
@@ -81,7 +79,6 @@ export default function Password() {
 
                         <Text className="text-[#959595] text-base">Não sou um robô</Text>
                     </View>
-
                     <Image source={require('../../../assets/captcha.png')}></Image>
                 </View>
 
@@ -90,10 +87,7 @@ export default function Password() {
                         <Text className='text-gray-50'>Continuar</Text>
                     </TouchableOpacity>
                 </View>
-
-
             </View>
-
         </View>
     )
 }

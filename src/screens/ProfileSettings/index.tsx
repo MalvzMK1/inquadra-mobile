@@ -8,17 +8,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input'; 
 import { TextInputMask } from 'react-native-masked-text';
+import { useGetMenuUser } from '../../hooks/useMenuUser';
+import { useEstablishmentSchedulings } from '../../hooks/useEstablishmentSchedulings';
 
 export default function ProfileSettings() {
   
-  // const myDate = new Date("2023-07-24");
-  // const { loading, error, data } = useSchedulingById("1");
-  // console.log(data);
-  // if (loading) return <Text>Loading...</Text>;
-  // if (error) {
-  //   return <Text>Error: {error.message}</Text>;
-  // }
-  // return <Text>Hello {JSON.stringify(data)}!</Text>;
+  
 
   const [expiryDate, setExpiryDate] = useState('');
 
@@ -339,4 +334,8 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
+
+function newDate(arg0: string) {
+  throw new Error('Function not implemented.');
+}
 

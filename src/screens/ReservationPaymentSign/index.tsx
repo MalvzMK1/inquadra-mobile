@@ -9,14 +9,18 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 
+
 export default function ReservationPaymentSign() {
+
+//     const { loading, error, data } = useEstablishmentSchedulings("1", "");
+//   console.log(data);
+//   if (loading) return <Text>Loading...</Text>;
+//   if (error) {
+//     return <Text>Error: {error.message}</Text>;
+//   }
+//   return <Text>Hello {JSON.stringify(data)}!</Text>;
+
     const [showCard, setShowCard] = useState(false);
-    const [cardData, setCardData] = useState({
-      cardNumber: '',
-      expirationDate: '',
-      cvv: '',
-      country: ''
-    });
     const [showCameraIcon, setShowCameraIcon] = useState(false);
     const handleCardClick = () => {
       setShowCard(!showCard);
@@ -102,7 +106,7 @@ export default function ReservationPaymentSign() {
                     <View className="h-30 border border-gray-500 rounded-md">
                     <View className="flex-row justify-center items-center m-2">
                     <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                        <Text className="flex-1 text-base text-right mb-0">
+                        <Text className="flex-1 text-base text-center mb-0">
                         {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Selecionar Cartão'}
                         </Text>
                         <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
@@ -172,7 +176,7 @@ export default function ReservationPaymentSign() {
                 </View>
                 </View>
                 <View className="bg-gray-300 flex flex-row">
-                    <View className="m-8">
+                    <View className="m-6">
                         <Text className="text-base">Quadra de Futsal</Text>
                         <Text className="text-base">4,3 Km de distância</Text>
                         <View className="flex flex-row">
@@ -222,7 +226,7 @@ export default function ReservationPaymentSign() {
                 <View className="justify-center items-center pt-6">
                     <View className="flex flex-row gap-10">
                         <Text className="font-bold text-xl text-right text-[#717171]">Total: </Text>
-                        <Text className="flex flex-row font-bold text-xl text-right text-[#717171]">470.00</Text>
+                        <Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ 470.00</Text>
                     </View>
                 </View>
                 <Modal visible={showRateInformation} animationType="fade" transparent={true}>
