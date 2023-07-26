@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 
 type WeekDay = {
     dayInitial: string
-    day: number
+    day: string
 }
 
 export default function WeekDays(props: WeekDay) {
