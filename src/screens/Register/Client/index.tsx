@@ -1,6 +1,6 @@
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {View, Text, TextInput} from 'react-native';
+import {View, Text, TextInput, ScrollView} from 'react-native';
 import { RegisterHeader } from '../../../components/RegisterHeader';
 import {Controller, useForm} from "react-hook-form";
 import {TouchableOpacity} from "react-native-gesture-handler";
@@ -46,7 +46,7 @@ export default function Register() {
 	}
 
 	return (
-		<View className="flex-1 bg-white h-screen">
+		<ScrollView className="flex-1 bg-white">
 
 			<View className='h-screen'>
 				<RegisterHeader title='Cadastro' subtitle='Vamos precisar de alguns dados seus...'></RegisterHeader>
@@ -150,14 +150,14 @@ export default function Register() {
 				</View>
 
 				<TouchableOpacity
-					className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center'
+					className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6'
 					onPress={handleSubmit(handleGoToNextRegisterPage)}>
 					<Text className='text-gray-50'>Continuar</Text>
 				</TouchableOpacity>
 
 			</View>
 
-		</View>
+		</ScrollView>
 	);
 }
 
