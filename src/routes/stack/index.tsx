@@ -17,6 +17,7 @@ import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import ProfileEstablishmentRegistration from '../../screens/ProfileEstablishmentRegistration';
+import RegisterEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/RegisterEstablishment';
 
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -27,6 +28,27 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="RegisterEstablishment"
+				component={RegisterEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View>
+							
+						</View>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="ProfileEstablishmentRegistration"
 				component={ProfileEstablishmentRegistration}

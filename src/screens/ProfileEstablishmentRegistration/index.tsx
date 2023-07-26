@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
 import { CheckBox } from 'react-native-elements'
-
+import { useNavigation } from "@react-navigation/native";
 
 
 export default function ProfileEstablishmentRegistration() {
@@ -14,6 +14,7 @@ export default function ProfileEstablishmentRegistration() {
     const [password, setPassword] = useState('');
     const [isChecked, setIsChecked] = useState(false)
     const [captchaChecked, setCaptchaChecked] = useState(false)
+    const navigation = useNavigation()
 
     return (
 		<View className="flex-1 bg-white h-screen">
@@ -86,7 +87,7 @@ export default function ProfileEstablishmentRegistration() {
                     </View>
                     </View>
                     <View className='p-6'>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center'>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPressIn={() => navigation.navigate('ReservationPaymentSign')}>
                                 <Text className='text-gray-50'>Continuar</Text>
                             </TouchableOpacity>
                     </View>

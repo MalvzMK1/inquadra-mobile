@@ -8,11 +8,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
 
 
 export default function ReservationPaymentSign() {
 
-//     const { loading, error, data } = useEstablishmentSchedulings("1", "");
+//   const { loading, error, data } = useEstablishmentSchedulings("1", "");
 //   console.log(data);
 //   if (loading) return <Text>Loading...</Text>;
 //   if (error) {
@@ -73,6 +74,8 @@ export default function ReservationPaymentSign() {
         setShowPaymentInformation(false);
         setShowRateInformation(false);
     };
+
+    const navigation = useNavigation()
     
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -96,7 +99,7 @@ export default function ReservationPaymentSign() {
                     </Text>
                 </View>
                 <View className='px-10 py-5'>
-					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'>
+					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center' onPressIn={() => navigation.navigate('Login')}>
                         <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
                     </TouchableOpacity>
 				</View>

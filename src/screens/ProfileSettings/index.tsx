@@ -8,8 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input'; 
 import { TextInputMask } from 'react-native-masked-text';
-import { useGetMenuUser } from '../../hooks/useMenuUser';
-import { useEstablishmentSchedulings } from '../../hooks/useEstablishmentSchedulings';
 
 export default function ProfileSettings() {
   
