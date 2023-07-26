@@ -2,6 +2,7 @@ type RootStackParamList = {
 	Login: undefined;
 	ChooseUserType: undefined;
 	Register: undefined;
+	EstablishmentRegister: undefined;
 	Home: {
 		userGeolocation: {
 			latitude: number,
@@ -19,4 +20,8 @@ type RootStackParamList = {
 	InfoReserva: undefined;
 	FavoriteCourts: undefined;
 	ProfileSettings: undefined;
+	DeleteAccountSuccess: undefined
+	DescriptionReserve: undefined;
+	DescriptionInvited: undefined;
+	EstablishmentInfo: undefined;
 }

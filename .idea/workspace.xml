@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e61ef1f0-261f-4edd-9425-22e4df35fa4e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,7 +26,11 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="WI564T670" />
-                    <option name="lastUsedInstant" value="1690365260" />
+                    <option name="lastUsedInstant" value="1690368724" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1690368499" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI564T623" />
