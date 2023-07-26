@@ -105,10 +105,12 @@ export default function RegisterNewCourt() {
                                 save="value"
                                 placeholder="Selecione aqui..."
                                 label="Modalidades escolhidas:"
-                                boxStyles={{ borderRadius: 4, minHeight: 55 }}
-                                searchPlaceholder="Procurar"
+                                boxStyles={{borderRadius: 4, minHeight: 55}}
                                 inputStyles={{color: "#FF6112", alignSelf: "center"}}
+                                searchPlaceholder="Procurar"
                                 badgeStyles={{ backgroundColor: "#FF6112"}}
+                                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                                searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
                                 arrowicon={<AntDesign name="down" size={13} color="#FF6112" style={{marginEnd: 2, alignSelf: "center"}} />}
                             />
                             </View>
