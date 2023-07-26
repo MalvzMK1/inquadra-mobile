@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType/';
 import Register from '../../screens/Register/Client';
+import EstablishmentRegister from '../../screens/Register/Establishment';
 import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -17,7 +18,6 @@ import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
-import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -53,6 +53,13 @@ export default function () {
 			<Screen
 				name="Register"
 				component={Register}
+				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name="EstablishmentRegister"
+				component={EstablishmentRegister}
 				options={{
 					headerTitle: '',
 				}}
