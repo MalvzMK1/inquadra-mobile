@@ -15,6 +15,10 @@ import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
+import EstablishmentInfo from '../../screens/EstablishmentInfo';
+import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
+import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
+import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -164,9 +168,24 @@ export default function () {
 				name="InfoReserva"
 				component={InfoReserva}
 				options={{
-					headerShown: false,
+					headerShown: false
 				}}
 			/>
+			<Screen
+				name="DescriptionReserve"
+				component={DescriptionReserve}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="DescriptionInvited"
+				component={DescriptionInvited}
+				options={{
+					headerShown: false
+				}}
+			/>
+			
 			<Screen
 				name="RegisterSuccess"
 				component={RegisterSuccess}
@@ -216,6 +235,33 @@ export default function () {
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name="EstablishmentInfo"
+				component={EstablishmentInfo}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 80,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>ESTABELECIMENTO</Text>
 						</View>
 					),
 					headerRight: () => (

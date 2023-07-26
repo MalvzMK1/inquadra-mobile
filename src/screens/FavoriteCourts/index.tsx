@@ -11,7 +11,7 @@ export default function FavoriteCourts() {
 					TODO: FAZER UM ONCLICK NO COMPONENTE DO CARD DA QUADRA QUE LEVA
 								À PÁGINA DE RESERVA DA QUADRA
 				*/}
-				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={1} onPress={_ => navigation.navigate('Login')}>
+				<InfosCourt.Court imageUrl={require('../../assets/quadra.png')} key={1} onPress={_ => navigation.navigate('InfoReserva')}>
 					<InfosCourt.Content>
 						<InfosCourt.ContentHeader courtName='Fenix Soccer' />
 						<InfosCourt.ContentCourtType courtType='Quadra de Futsal' />
