@@ -12,6 +12,7 @@ import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import useGetNextToCourts from "../../hooks/useNextToCourts";
 import useGetUserById from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
+import storage from "../../utils/storage";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -50,7 +51,17 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
 			}
 		}
-	}, [data, loading]);
+
+		if (!userHookLoading && !userHookError) {
+			console.log(userHookData?.usersPermissionsUser.data)
+			storage.save({
+				key: 'userInfos',
+				data: {
+					...userHookData?.usersPermissionsUser.data
+				}
+			}).then(data => console.log(data))
+		}
+	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	const userGeolocation = route.params.userGeolocation
@@ -96,7 +107,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
-								pageNavigation='EstablishmentInfo'
+									// pageNavigation='EstablishmentInfo'
 								/>
 							</Marker>
 						))
@@ -109,7 +120,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <HomeBar courts={courts}/>}
+			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.attributes.username}/>}
 			<BottomNavigationBar
 				isDisabled={isDisabled}
 				buttonOneNavigation='ProfileSettings'

@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
 import useGetNextToCourts from "../../hooks/useNextToCourts";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
 interface HomeBarProps {
 	courts: Array<{
@@ -20,12 +21,13 @@ interface HomeBarProps {
 		type: string,
 		image: string,
 		distance: number,
-	}>
+	}>,
+	userName: string | undefined
 }
 
 const userNameExample = "Artur"
 
-export default function HomeBar({courts}: HomeBarProps) {
+export default function HomeBar({courts, userName}: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
@@ -50,7 +52,7 @@ export default function HomeBar({courts}: HomeBarProps) {
 				<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
 					<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
 				</TouchableOpacity>
-				<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
+				<Text className='text-white text-lg font-black mt-3'>Olá{userName ? `, ${userName}` : null}!</Text>
 			</View>
 			<ScrollView>
 				{courts !== undefined ? courts.map((item) => (
