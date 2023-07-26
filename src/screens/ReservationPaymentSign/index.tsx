@@ -8,8 +8,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
 
 export default function ReservationPaymentSign() {
+
+    const navigation = useNavigation()
+
     const [showCard, setShowCard] = useState(false);
     const [cardData, setCardData] = useState({
       cardNumber: '',
@@ -92,7 +96,9 @@ export default function ReservationPaymentSign() {
                     </Text>
                 </View>
                 <View className='px-10 py-5'>
-					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'>
+					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+                        onPress={() => navigation.navigate("PaymentQRCode")}
+                    >
                         <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
                     </TouchableOpacity>
 				</View>

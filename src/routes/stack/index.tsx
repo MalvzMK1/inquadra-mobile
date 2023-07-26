@@ -16,6 +16,8 @@ import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
+import PaymentQRCode from '../../screens/PaymentQRCode';
+import PaymentLoad from '../../screens/PaymentLoad';
 
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -259,6 +261,57 @@ export default function () {
 					),
 				})}
 			/>
+			<Screen
+				name="PaymentQRCode"
+				component={PaymentQRCode}
+				options={({ route }) => ({
+					headerTitle: 'SINAL/PIX',
+					headerTitleStyle: {
+						fontSize: 26
+					},
+					headerTitleAlign: 'center',
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 125,
+						backgroundColor: '#292929',
+					},
+					headerLeftContainerStyle: {
+						marginLeft: 12,
+					},
+					headerRight: () => (
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+							<Image
+								source={require('../../assets/qodeless_logo.jpg')}
+								className="w-full h-full"
+							/>
+						</TouchableOpacity>
+					),
+				})}
+			/>
+			<Screen
+				name="PaymentLoad"
+				component={PaymentLoad}
+				options={({ route }) => ({
+					headerTitle: "",
+					headerStyle: {
+						height: 125,
+						backgroundColor: '#292929',
+					},
+					headerTintColor: 'white',
+					headerLeftContainerStyle: {
+						marginLeft: 12,
+					},
+					headerRight: () => (
+						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+							<Image
+								source={require('../../assets/qodeless_logo.jpg')}
+								className="w-full h-full"
+							/>
+						</TouchableOpacity>
+					),
+				})}
+			/>
+
 		</Navigator>
 	);
 }
