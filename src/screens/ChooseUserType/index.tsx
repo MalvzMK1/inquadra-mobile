@@ -14,14 +14,14 @@ export default function ChooseUserType() {
 					subtitle='Jogue seus esportes favoritos em quadras por todo o Brasil'
 					pageNavigation='Register'
 					image={require('../../assets/player_inquadra.png')}
-				></UserTypeCard>
+				/>
 
 				<UserTypeCard
 					title='Parceiro InQuadra'
 					subtitle='Anuncie seu estabelecimento e facilite a gestão do seu negócio'
 					pageNavigation='EstablishmentRegister'
 					image={require('../../assets/partner_inquadra.png')}
-				></UserTypeCard>
+				/>
 
 			</View>
 

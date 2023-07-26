@@ -18,7 +18,7 @@ interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 }
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
-	const {data, loading, error} = useGetNextToCourts('')
+	const {data, loading, error} = useGetNextToCourts()
 	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
 	const [courts, setCourts] = useState<Array<{
 		id: string,
@@ -110,12 +110,12 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				{menuBurguer && <FilterComponent />}
 			</View>
 			{isDisabled && <HomeBar courts={courts}/>}
-			<BottomNavigationBar 
-			isDisabled={isDisabled} 
-			buttonOneNavigation='ProfileSettings'
-			buttonTwoNavigation='FavoriteCourts'
-			buttonThreeNavigation=''
-			buttonFourNavigation=''
+			<BottomNavigationBar
+				isDisabled={isDisabled}
+				buttonOneNavigation='ProfileSettings'
+				buttonTwoNavigation='FavoriteCourts'
+				buttonThreeNavigation='Home'
+				buttonFourNavigation='InfoReserva'
 			/>
 		</View >
 	);
