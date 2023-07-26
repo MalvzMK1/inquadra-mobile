@@ -5,7 +5,7 @@ import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 
 
@@ -122,10 +122,15 @@ export default function RegisterEstablishment() {
                                 setSelected={(val: React.SetStateAction<never[]>) => setSelected(val)} 
                                 data={data} 
                                 save="value"
+                                placeholder="Selecione aqui..."
                                 label="Amenidades escolhidas:"
-                                boxStyles={{borderRadius:5}} 
+                                boxStyles={{borderRadius: 4, minHeight: 55}}
+                                inputStyles={{color: "#FF6112", alignSelf: "center"}}
                                 searchPlaceholder="Procurar"
                                 badgeStyles={{ backgroundColor: "#FF6112"}}
+                                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                                searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+                                arrowicon={<AntDesign name="down" size={13} color="#FF6112" style={{marginEnd: 2, alignSelf: "center"}} />}
                             />
                             </View>
                         <View>
@@ -153,7 +158,7 @@ export default function RegisterEstablishment() {
                         </View>
                         </View>
                         <View>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center' onPressIn={() => navigation.navigate('ReservationPaymentSign')}>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center' onPressIn={() => navigation.navigate('RegisterCourt')}>
                                 <Text className='text-gray-50'>Continuar</Text>
                             </TouchableOpacity>
                         </View>

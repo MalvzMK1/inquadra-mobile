@@ -82,12 +82,12 @@ export default function ProfileEstablishmentRegistration() {
                             />
                             <Text className="text-[#959595] text-base">Não sou um robô</Text>
                         </View>
-                        <Image className="w-8 h-8" source={require('../../../assets/captcha.png')}></Image>
+                        <Image className="w-8 h-8 mr-5" source={require('../../../assets/captcha.png')}></Image>
                     </View>
                     </View>
                     </View>
                     <View className='p-6'>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPressIn={() => navigation.navigate('ReservationPaymentSign')}>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPressIn={() => navigation.navigate('RegisterEstablishment')}>
                                 <Text className='text-gray-50'>Continuar</Text>
                             </TouchableOpacity>
                     </View>

@@ -31,29 +31,8 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="RegisterCourt"
-				component={RegisterCourt}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 100,
-						backgroundColor: '#292929',
-					},headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View>
-							
-						</View>
-					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
-			/>
-			<Screen
-				name="RegisterNewCourt"
-				component={RegisterNewCourt}
+				name="ProfileEstablishmentRegistration"
+				component={ProfileEstablishmentRegistration}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
@@ -94,8 +73,29 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="ProfileEstablishmentRegistration"
-				component={ProfileEstablishmentRegistration}
+				name="RegisterCourt"
+				component={RegisterCourt}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View>
+							
+						</View>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name="RegisterNewCourt"
+				component={RegisterNewCourt}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
