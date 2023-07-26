@@ -7,7 +7,7 @@ import { CheckBox } from 'react-native-elements'
 import { useNavigation } from "@react-navigation/native";
 import Select from 'react-select'
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import DropDownSelect, { MultipleSelectList } from 'react-native-dropdown-select-list';
 
 
@@ -121,13 +121,18 @@ export default function RegisterEstablishment() {
                         <View>
                             <Text className="text-xl p-1">Amenidades do Local</Text>
                             <MultipleSelectList 
-                                setSelected={(val) => setSelected(val)} 
+                                setSelected={(val: React.SetStateAction<never[]>) => setSelected(val)} 
                                 data={data} 
                                 save="value"
+                                placeholder="Selecione aqui..."
                                 label="Amenidades escolhidas:"
-                                boxStyles={{borderRadius:5}} 
+                                boxStyles={{borderRadius: 4, minHeight: 55}}
+                                inputStyles={{color: "#FF6112", alignSelf: "center"}}
                                 searchPlaceholder="Procurar"
                                 badgeStyles={{ backgroundColor: "#FF6112"}}
+                                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                                searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+                                arrowicon={<AntDesign name="down" size={13} color="#FF6112" style={{marginEnd: 2, alignSelf: "center"}} />}
                             />
                             </View>
                         <View>
