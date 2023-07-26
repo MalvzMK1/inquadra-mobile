@@ -123,9 +123,6 @@ const [profilePicture, setProfilePicture] = useState(null);
     return countryImg
   }
 
-
-
-
   return (
     <View className="flex-1 bg-white h-full">
       

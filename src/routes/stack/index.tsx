@@ -18,6 +18,8 @@ import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAcc
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import ProfileEstablishmentRegistration from '../../screens/ProfileEstablishmentRegistration';
 import RegisterEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/RegisterEstablishment';
+import RegisterCourt from '../../screens/RegisterCourt';
+import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -28,6 +30,48 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="RegisterCourt"
+				component={RegisterCourt}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View>
+							
+						</View>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name="RegisterNewCourt"
+				component={RegisterNewCourt}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View>
+							
+						</View>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="RegisterEstablishment"
 				component={RegisterEstablishment}
