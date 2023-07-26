@@ -7,7 +7,7 @@ import { CheckBox } from 'react-native-elements'
 
 
 
-export default function ProfileEstablishmentRegistration() {
+export default function EstablishmentPersonalProfile() {
 
     const [cpf, setCpf] = useState("");
     const [phone, setPhone] = useState("");
@@ -68,8 +68,8 @@ export default function ProfileEstablishmentRegistration() {
                             checked={isChecked}
                             onPress={() => setIsChecked(!isChecked)}
                         />
-                        <View className="flex ">
-                        <Text className="text-base flex-wrap">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap">Termo de Uso e Política de Privacidade</Text> </Text>
+                        <View className="flex pr-3">
+                        <Text className="text-base flex-wrap">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap">Termo de Uso e Política de Privacidade</Text></Text>
                         </View>
                     </View>
                     <View className="flex items-center pt-3">

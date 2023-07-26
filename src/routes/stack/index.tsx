@@ -16,7 +16,7 @@ import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
-import ProfileEstablishmentRegistration from '../../screens/ProfileEstablishmentRegistration';
+import EstablishmentPersonalProfile from '../../screens/EstablishmentPersonalProfile';
 
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -28,8 +28,8 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="ProfileEstablishmentRegistration"
-				component={ProfileEstablishmentRegistration}
+				name="EstablishmentPersonalProfile"
+				component={EstablishmentPersonalProfile}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
@@ -37,9 +37,7 @@ export default function () {
 						backgroundColor: '#292929',
 					},headerTitleAlign: 'center',
 					headerTitle: () => (
-						<View>
-							
-						</View>
+						<View></View>
 					),
 					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
