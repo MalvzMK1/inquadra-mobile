@@ -23,6 +23,8 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
 import useGetUserById from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
+import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface IFormData {
 	name: string
@@ -62,9 +64,14 @@ const countriesData = [
 	{ key: '7', value: 'Reino Unido', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
 ]
 
+type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}}
+
 export default function ProfileSettings() {
+	const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
+
 	const { loading, error, data } = useGetUserById("2");
 	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
+	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
 
 	const {
 		control,
@@ -81,8 +88,22 @@ export default function ProfileSettings() {
 		setShowCameraIcon(false);
 	};
 
-	const handleSaveCard = () => {
-		setShowCard(false);
+	const updateCardInfos = (data: IFormData) => {
+		const { paymentCardInfos } = data
+
+		if (userInfos && paymentCardInfos)
+			updatePaymentCardInformations({
+				variables: {
+					user_id: userInfos.id,
+					card_cvv: Number(paymentCardInfos.cvv),
+					card_due_date: paymentCardInfos.dueDate,
+					country_flag_id: '1'
+				}
+			}).then(data => {
+				console.log(data.data)
+				setShowCard(false)
+			}).catch(error => console.error(error))
+		// setShowCard(false);
 	};
 
 	const handleDeleteAccount = () => {
@@ -153,7 +174,6 @@ export default function ProfileSettings() {
 		console.log({data})
 	}
 
-	const [userInfos, setUserInfos] = useState<Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined>()
 
 	async function loadInformations() {
 		let newUserInfos = userInfos;
@@ -193,11 +213,6 @@ export default function ProfileSettings() {
 		console.log({FUNCAO: loadInformations(), DADOS: data})
 		loadInformations().then(defineDefaultFieldValues);
 	}, [loading])
-
-	// useEffect(() => {
-	// 	console.log({FUNCAO: loadInformations(), DADOS: data})
-	// 	loadInformations().then(defineDefaultFieldValues);
-	// }, []) //Once
 
 	return (
 				<View className="flex-1 bg-white h-full">
@@ -307,6 +322,12 @@ export default function ProfileSettings() {
 														name='paymentCardInfos.dueDate'
 														control={control}
 														render={({field: {onChange}}) => (
+															// <DateTimePicker
+															// 	value={new Date(getValues('paymentCardInfos.dueDate'))}
+															// 	minimumDate={new Date()}
+															// 	placeholderText='MM/YY'
+															// 	className='p-3 border border-gray-500 rounded-md h-18'
+															// />
 															<TextInputMask
 																value={getValues('paymentCardInfos.dueDate')}
 																className='p-3 border border-gray-500 rounded-md h-18'
@@ -365,7 +386,7 @@ export default function ProfileSettings() {
 											</View>
 
 											<View className="p-2 justify-center items-center">
-												<TouchableOpacity onPress={handleSaveCard} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+												<TouchableOpacity onPress={handleSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
 													<Text className="text-white">Salvar</Text>
 												</TouchableOpacity>
 											</View>
@@ -373,7 +394,7 @@ export default function ProfileSettings() {
 									)}
 									<View>
 										<View className='p-2'>
-											<TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
+											<TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
 												<Text className='text-gray-50'>Salvar</Text>
 											</TouchableOpacity>
 										</View>
