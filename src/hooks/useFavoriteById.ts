@@ -9,3 +9,4 @@ export function useGetFavoriteById(id: string, userId: string): QueryResult<IFav
         }
     })
 }
+

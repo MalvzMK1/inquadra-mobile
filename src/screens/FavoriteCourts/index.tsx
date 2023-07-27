@@ -15,7 +15,7 @@ export default function FavoriteCourts() {
 		<ScrollView className='flex-1 py-4 bg-zinc-600'>
 			{
 				!error && !loading ? data?.usersPermissionsUser?.data?.attributes?.favorite_courts?.data?.map((courtType) => 
-				<InfosCourt.Root category={courtType.attributes.court_type.data.attributes.name}>
+				<InfosCourt.Root category={courtType.attributes.court_type.data.attributes.name}>?
 					{courtType?.attributes?.court_type?.data?.attributes?.courts?.data?.map((courtInfo) => 
 						<InfosCourt.Court imageUrl={{uri:`http://192.168.0.229:1337${courtInfo.attributes.photo.data[0].attributes.url}`,  height: 90,
 						width: 138}} key={5}>

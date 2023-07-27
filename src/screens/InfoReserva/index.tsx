@@ -3,9 +3,19 @@ import { View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
+import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
+import useGetUserById from '../../hooks/useUserById';
+import { useHistoricReserveOff } from '../../hooks/useHistoricReserveOff';
+
 
 export default function InfoReserva() {
     const navigation = useNavigation()
+    const user_id = '1'
+   
+    const {data, error, loading} = useGetHistoricReserveOn(user_id)
+
+    console.log(data)
+        
     return (
         <View className='h-full w-max bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
@@ -40,66 +50,56 @@ export default function InfoReserva() {
                         {/* Div para inserção dos cards*/}
                         <View className='w-max h-max px-3'>
                             {/* Div para criação dos cards de reservas ativas*/}
-                            <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
+                            {
+                            !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo) =>  
+                                courtInfo.attributes.status ?
+                                <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                                     <View>
                                         <Image
-                                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                                            source={{ uri: `http://192.168.0.229:1337${courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url}` }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />
                                     </View>
                                     <View className='flex justify-start items-start h-max w-max pl-1'>
                                         <View>
-                                            <Text className='font-black text-base text-orange-600'>Court Name</Text>
+                                            <Text className='font-black text-base text-orange-600'>{courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name}</Text>
                                         </View>
                                         <View>
-                                            <Text className='font-normal text-xs text-white'>Type Court</Text>
+                                            <Text className='font-normal text-xs text-white'>{courtInfo?.attributes.court_availability?.data.attributes.court.data.attributes.name}</Text>
                                         </View>
-                                        <View className='w-max h-5 flex-row'>
-                                            <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
-                                                <View>
-                                                    <Text className='font-black text-xs text-white'>R$170.00</Text>
-                                                </View>
-                                                <View>
-                                                    <Text className='font-black text-xs text-white'> / </Text>
-                                                </View>
-                                                <View>
-                                                    <Text className='font-black text-xs text-white'>R$200.00</Text>
-                                                </View>
+                                        <View className='w-max h-5 flex-row pt-1'>
+                                            <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>                                               
+                                                    <Text className='font-black text-xs text-white'>R${courtInfo.attributes.valuePayed}</Text>                                                              
+                                                    <Text className='font-black text-xs text-white'> / </Text>                                 
+                                                    <Text className='font-black text-xs text-white'>R${courtInfo.attributes.court_availability.data.attributes.value}</Text>
                                             </View>
-                                            <View>
-                                                <Text className='font-black text-xs text-white'> 80%</Text>
-                                            </View>
+                                                <Text className='font-black text-xs text-white pl-1'>%{Math.floor((courtInfo.attributes.valuePayed / courtInfo.attributes.court_availability.data.attributes.value) * 100)}</Text>                       
                                         </View>
-                                        <View className='flex-row'>
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>Reserva feita em </Text>
-                                            </View>
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>00/00/00 </Text>
-                                            </View>
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>as </Text>
-                                            </View>
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>12:00 </Text>
-                                            </View>
-                                        </View>
+                                            <Text className='font-black text-xs text-white pt-1'>Reserva feita em {new Date(courtInfo.attributes.createdAt).toDateString()}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
+                            : null
+                            ): null
+                            }
+
+                            {}
                             {/* View de texto indicando das reservas finalizadas*/}
                             <View className='flex items-start w-max pt-14'>
                                 <Text className='text-lg font-black text-white'>RESERVAS FINALIZADAS</Text>
                             </View>
                             {/* Div para criação dos cards de reservas FINALIZADAS*/}
+                            {
+                                !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo)=>
+                                    !courtInfo.attributes.status ?
                             <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
 
                                     <View>
                                         <Image
-                                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                                            source={{ uri: `http://192.168.0.229:1337${courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url}` }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />
@@ -108,11 +108,11 @@ export default function InfoReserva() {
                                     <View className='h-max w-max pl-1'>
 
                                         <View>
-                                            <Text className='font-black text-base text-orange-600'>Court Name</Text>
+                                            <Text className='font-black text-base text-orange-600'>{courtInfo.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name}</Text>
                                         </View>
 
                                         <View>
-                                            <Text className='font-normal text-xs text-white'>Type Court</Text>
+                                            <Text className='font-normal text-xs text-white'>{courtInfo.attributes.court_availability.data.attributes.court.data.attributes.name}</Text>
                                         </View>
 
                                         <View className='w-max h-5 flex-row'>
@@ -122,41 +122,30 @@ export default function InfoReserva() {
                                             </View>
 
                                             <View>
+                                                {courtInfo.attributes.payedStatus ?
                                                 <Text className='font-normal text-xs text-white'>Finalizado </Text>
+                                                : <Text className='font-normal text-xs text-white'>Em aberto </Text>
+                                                }
                                             </View>
 
                                             <View>
-                                                <Text className='font-black text-xs text-white'>R$180.00</Text>
+                                                <Text className='font-black text-xs text-white'>R${courtInfo.attributes.court_availability.data.attributes.value}</Text>
                                             </View>
 
                                         </View>
 
-                                        <View className='flex-row'>
                                             <View>
-                                                <Text className='font-black text-xs text-white'>Ultima Reserva </Text>
+                                                <Text className='font-black text-xs text-white'>Ultima Reserva {new Date(courtInfo.attributes.createdAt).toDateString()}</Text>
                                             </View>
-
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>00/00/00 </Text>
-                                            </View>
-
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>as </Text>
-                                            </View>
-
-                                            <View>
-                                                <Text className='font-black text-xs text-white'>12:00 </Text>
-                                            </View>
-
-                                        </View>
-
-
                                     </View>
 
                                     
 
                                 </View>
                             </TouchableOpacity>
+                            : null
+                            ): null
+                            }
                         </View>              
                     </View>                            
                 </ScrollView>

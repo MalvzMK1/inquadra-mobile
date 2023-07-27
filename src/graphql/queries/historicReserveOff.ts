@@ -1,20 +1,18 @@
 import { gql } from "@apollo/client";
 
-export interface IgetHistoricOfReserveOnResponse{
+export interface IHistoricReserveOffResponse{
     usersPermissionsUser: {
         data: {
             attributes: {
                 schedulings_owner: {
                     data: Array<{
                         attributes: {
-                            status: boolean
                             createdAt: Date
-                            valuePayed: Number
-                            payedStatus: boolean
-                            court_availability: {
-                                data: {
+                            status: boolean
+                            valuePayed: number
+                            court_availability:{
+                                data:{
                                     attributes: {
-                                        value: Number
                                         court: {
                                             data: {
                                                 id: string
@@ -22,11 +20,11 @@ export interface IgetHistoricOfReserveOnResponse{
                                                     name: string
                                                     fantasy_name: string
                                                     photo: {
-                                                      data: Array<{
-                                                        attributes: {
-                                                          url: string
-                                                        }
-                                                      }>
+                                                        data: Array<{
+                                                            attributes: {
+                                                                url: string
+                                                            }
+                                                        }>
                                                     }
                                                 }
                                             }
@@ -42,33 +40,31 @@ export interface IgetHistoricOfReserveOnResponse{
     }
 }
 
-export interface IHistoricReserveOnVariables{
+export interface IHistoricReserveOffVariables{
     id: string
 }
 
-export const historicReserveOnQuery = gql`
-query getHistoricOfReserveOn($id: ID) {
+export const historicReserveOff = gql`
+query getHistoricOfReserveOFF($id: ID) {
   usersPermissionsUser(id: $id) {
     data {
       attributes {
-        schedulings_owner {
+        schedulings_owner(filters: { status: { eq: false } }) {
           data {
             attributes {
-              status
               createdAt
+              status
               valuePayed
-              payedStatus
               court_availability {
                 data {
                   attributes {
-                    value
                     court {
                       data {
                         id
                         attributes {
                           name
                           fantasy_name
-                          photo {
+                           photo {
                             data {
                               attributes {
                                 url

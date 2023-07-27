@@ -1,12 +1,12 @@
 import ProgressBar from 'react-native-progress/Bar'
 import React, { useState } from 'react'
-import { View, Text, Image, Modal, TextInput, ScrollView } from 'react-native';
+import { View, Text, Image, Modal, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { IconButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { TextInput, IconButton } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { SelectList } from 'react-native-dropdown-select-list'
+import { useInfoSchedule } from '../../hooks/useInfoSchedule';
 
 const countriesData = [
     { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
@@ -66,7 +66,14 @@ export default function DescriptionReserve() {
     }
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+
+    const user_id = '1'
+    const schedule_id = '1'
+   
+    const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
+    console.log(data?.scheduling?.data?.attributes?.owner?.data?.id === user_id)
     return (
+
         <View className='flex-1 bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
@@ -99,7 +106,7 @@ export default function DescriptionReserve() {
 
                     <View>
                         <Image
-                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                            source={{ uri: `http://192.168.0.229:1337${data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url}` }}
                             style={{ width: 138, height: 90 }}
                             borderRadius={5}
                         />
@@ -111,7 +118,7 @@ export default function DescriptionReserve() {
 
                             <View className='flex-row justify-between items-center w-48'>
                                 <View className='flex items-center justify-center'>
-                                    <Text className='font-black text-base text-orange-600'>Court Name</Text>
+                                    <Text className='font-black text-base text-orange-600'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name}</Text>
                                 </View>
 
                                 <View className='flex-row items-center'>
@@ -129,26 +136,15 @@ export default function DescriptionReserve() {
                             </View>
 
                             <View>
-                                <Text className='font-normal text-xs text-white'>Type Court</Text>
+                                <Text className='font-normal text-xs text-white'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.name}</Text>
                             </View>
 
 
                             <View className='flex-row pt-2'>
                                 <View>
-                                    <Text className='font-black text-xs text-white'>Reserva feita em </Text>
+                                    <Text className='font-black text-xs text-white'>Reserva feita em {new Date(data?.scheduling.data.attributes.createdAt).toDateString()}</Text>
                                 </View>
 
-                                <View>
-                                    <Text className='font-black text-xs text-white'>00/00/00 </Text>
-                                </View>
-
-                                <View>
-                                    <Text className='font-black text-xs text-white'>as </Text>
-                                </View>
-
-                                <View>
-                                    <Text className='font-black text-xs text-white'>12:00 </Text>
-                                </View>
 
                             </View>
 
@@ -170,8 +166,10 @@ export default function DescriptionReserve() {
                 </View>
                 <View className='w-full'>
                     <View className='relative w-full justify-center'>
-                        <Text className='absolute z-10 self-center text-white font-bold'>R$ 170.00 / R$ 200.00</Text>
-                        <ProgressBar progress={80 / 100} width={null} height={30} borderRadius={5} color={'#0FA958'} unfilledColor={'#0FA95866'} />
+                        <Text className='absolute z-10 self-center text-white font-bold'>R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value}</Text>
+                        <ProgressBar progress={ 
+                           Math.floor(100)
+                        } width={null} height={30} borderRadius={5} color={'#0FA958'} unfilledColor={'#0FA95866'} />
                     </View>
                 </View>
                 <View className=' h-18 w-full flex items-center'>
@@ -179,53 +177,95 @@ export default function DescriptionReserve() {
                         <Text className='font-black text-xs text-center text-white'>Tempo restante para pagamento 4 dias, 3 horas e 20 minutos</Text>
                     </View>
                 </View>
-                <View className='h-28 w-60 flex-row  pr-5'>
+                        
+                
 
-                    <View className='h-max w-max  justify-center items-start'>
-                        <View className='flex-row item-center justify-center'>
-                            <TouchableOpacity onPress={() => navigation.navigate('DescriptionInvited')} className='flex-row'>
-                                <View className='h-5 w-5 items-center justify-center'>
-                                    {/* <TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} /> */}
+                {
+                    data?.scheduling?.data?.attributes?.owner?.data?.id !== user_id ? (
+                    <View className='h-max w-full flex justify-center items-center pl-2'>
+                            <TouchableOpacity className='pt-2 pb-5'>
+                                <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
+                                    <View className='w-1'></View>                       
+                                    <View className='h-5 w-5 items-center justify-center'>
+                                        <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'}  />
+                                    </View>
+                                    <View className='item-center justify-center'>
+                                        <Text className='font-black text-xs text-center text-gray-400 pl-1'>Adicionar Pagamento</Text>
+                                    </View>
                                 </View>
-                                <View className='item-center justify-center'>
-                                    <Text className='font-black text-xs text-center text-white pl-1'>Compartilhar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity className='pb-2'>
+                                <View className='h-10 w-64 rounded-md bg-orange-500 flex items-center justify-center'>
+                                        <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>                 
+                                </View>
+                            </TouchableOpacity>
+                        </View>)
+                        : (
+                    <View className='h-28 w-60 flex-row  pr-5'>
+                        <View className='h-max w-max  justify-center items-start'>
+                            <View className='flex-row item-center justify-center'>
+                                <TouchableOpacity onPress={() => navigation.navigate('DescriptionInvited')} className='flex-row'>
+                                    <View className='h-5 w-5 items-center justify-center'>
+                                        {/* <TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} /> */}
+                                    </View>
+                                    <View className='item-center justify-center'>
+                                        <Text className='font-black text-xs text-center text-white pl-1'>Compartilhar</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <View className='h-max w-full flex justify-between pl-2'>
+                            <TouchableOpacity className='pt-2' onPress={handleOpenPaymentModal}>
+                                <View className='w-30 h-10 bg-white rounded-sm flex-row items-center'>
+                                    <View className='w-1'></View>
+                                    <View className='h-5 w-5 items-center justify-center'>
+                                        {/* <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} /> */}
+                                    </View>
+                                    <View className='item-center justify-center'>
+                                        <Text className='font-black text-xs text-center text-gray-400 pl-1'>Adicionar Pagamento</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity className='pb-2' onPress={handleOpenPixPaymentModal}>
+                                <View className='h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center'>
+                                    <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
-                    </View>
-
-                    <View className='h-max w-full flex justify-between pl-2'>
-                        <TouchableOpacity className='pt-2' onPress={handleOpenPaymentModal}>
-                            <View className='w-30 h-10 bg-white rounded-sm flex-row items-center'>
-                                <View className='w-1'></View>
-                                <View className='h-5 w-5 items-center justify-center'>
-                                    {/* <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} /> */}
-                                </View>
-                                <View className='item-center justify-center'>
-                                    <Text className='font-black text-xs text-center text-gray-400 pl-1'>Adicionar Pagamento</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity className='pb-2' onPress={handleOpenPixPaymentModal}>
-                            <View className='h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center'>
-                                <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
                 </View>
+                )
+                }
+
+
+
+
+
+
+              
+
+
             </View>
             <View className='h-screen w-full  px-5 items-center justify-start pt-4'>
-                <View>
-                    <Text className='text-gray-50 font-black'>MEUS PAGAMENTOS:</Text>
-                </View>
 
-                <View className='w-full pt-5'>
-                    <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
-                        <Text className='text-black font-normal pl-4'>Jhon Silva</Text>
-                        <Text className='text-black font-normal'>00/00/2023</Text>
-                        <Text className='text-black font-normal pr-4'>R$35.00</Text>
-                    </View>
-                </View>
+                {
+                    data?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && data?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
+                    ?
+                    <>
+                        <View>
+                            <Text className='text-gray-50 font-black'>MEUS PAGAMENTOS:</Text>
+                        </View>
+
+                        <View className='w-full pt-5'>
+                            <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
+                                <Text className='text-black font-normal pl-4'>{data?.scheduling.data.attributes.user_payments.data[0].attributes.users_permissions_user.data.attributes.username}</Text>
+                                <Text className='text-black font-normal'>{new Date(data?.scheduling.data.attributes.user_payments.data[0].attributes.createdAt).toDateString()}</Text>
+                                <Text className='text-black font-normal pr-4'>R${data?.scheduling.data.attributes.user_payments.data[0].attributes.value}</Text>
+                            </View>
+                        </View>
+                    </>
+                    : null
+                }
                 <View className='pt-6'>
                     <Text className='text-gray-50 font-black'>HISTÓRICO DE PAGAMENTOS :</Text>
                 </View>
