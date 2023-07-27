@@ -41,7 +41,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					name: court.attributes.name,
 					type: court.attributes.court_type.data.attributes.name,
 					// image: process.env.HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
-					image: 'http://192.168.0.10' + (court.attributes.photo.data.length === 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					image: 'http://192.168.15.5:1337' + (court.attributes.photo.data.length === 0 ? '' : court.attributes.photo.data[0].attributes.url),
 					distance: 666, // Substitua pelos valores reais
 				}
 			});

@@ -1,5 +1,5 @@
-import {useEffect, useRef, useState} from 'react';
-import {View, Text, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
 import useGetNextToCourts from "../../hooks/useNextToCourts";
+import { useNavigation } from '@react-navigation/native';
 
 interface HomeBarProps {
 	courts: Array<{
@@ -25,9 +26,12 @@ interface HomeBarProps {
 
 const userNameExample = "Artur"
 
-export default function HomeBar({courts}: HomeBarProps) {
+export default function HomeBar({ courts }: HomeBarProps) {
+
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
+
+	const navigation = useNavigation()
 
 	useAnimatedReaction(
 		() => expanded,
@@ -54,14 +58,16 @@ export default function HomeBar({courts}: HomeBarProps) {
 			</View>
 			<ScrollView>
 				{courts !== undefined ? courts.map((item) => (
-					<View className='p-5' key={item.id}>
-						<CourtCardHome
-							image={item.image}
-							name={item.name}
-							distance={item.distance}
-							type={item.type}
-						/>
-					</View>
+					<TouchableOpacity key={item.id} onPress={(value) => navigation.navigate("EstablishmentInfo", {establishmentInfo: value})}>
+						<View className='p-5'>
+							<CourtCardHome
+								image={item.image}
+								name={item.name}
+								distance={item.distance}
+								type={item.type}
+							/>
+						</View>
+					</TouchableOpacity>
 				)) : <ActivityIndicator size='small' color='#fff' />}
 			</ScrollView>
 		</Animated.View>

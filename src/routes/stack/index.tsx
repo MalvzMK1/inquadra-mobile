@@ -15,12 +15,17 @@ import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
+import EstablishmentInfo from '../../screens/EstablishmentInfo';
+import { useNavigation } from '@react-navigation/native';
+
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 
 	const [menuBurguer, setMenuBurguer] = useState(false)
+
+	const navigation = useNavigation()
 
 
 	return (
@@ -99,38 +104,6 @@ export default function () {
 						</TouchableOpacity>
 					),
 				}}
-			>
-				{props => (
-					<Home
-						{...props}
-						menuBurguer={menuBurguer}
-					/>
-				)}
-			</Screen>
-			<Screen
-				name="HomeVariant"
-				options={({ route }) => ({
-					headerTitleStyle: {
-						fontSize: 26
-					},
-					headerTitleAlign: 'center',
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 125,
-						backgroundColor: '#292929',
-					},
-					headerLeftContainerStyle: {
-						marginLeft: 12,
-					},
-					headerRight: () => (
-						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
-							<Image
-								source={require('../../assets/qodeless_logo.jpg')}
-								className="w-full h-full"
-							/>
-						</TouchableOpacity>
-					),
-				})}
 			>
 				{props => (
 					<Home
@@ -225,6 +198,33 @@ export default function () {
 					),
 					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name="EstablishmentInfo"
+				component={EstablishmentInfo}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>ESTABELECIMENTO</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
