@@ -24,7 +24,7 @@ import {z} from "zod";
 import useGetUserById from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
 
 interface IFormData {
 	name: string
@@ -91,12 +91,12 @@ export default function ProfileSettings() {
 	const updateCardInfos = (data: IFormData) => {
 		const { paymentCardInfos } = data
 
-		if (userInfos && paymentCardInfos)
+		if (userInfos && paymentCardInfos) {}
 			updatePaymentCardInformations({
 				variables: {
 					user_id: userInfos.id,
 					card_cvv: Number(paymentCardInfos.cvv),
-					card_due_date: paymentCardInfos.dueDate,
+					card_due_date: transformCardDueDateToParsedString(paymentCardInfos.dueDate),
 					country_flag_id: '1'
 				}
 			}).then(data => {
@@ -132,7 +132,7 @@ export default function ProfileSettings() {
 
 	};
 
-	const [profilePicture, setProfilePicture] = useState(null);
+	const [profilePicture, setProfilePicture] = useState<string>();
 
 	const handleProfilePictureUpload = async () => {
 		try {
@@ -151,7 +151,10 @@ export default function ProfileSettings() {
 			});
 
 			if (!result.canceled) {
-				setProfilePicture(result.uri);
+				result.assets.map(asset => {
+					setProfilePicture(asset.uri)
+				})
+				// setProfilePicture(result.uri);
 			}
 		} catch (error) {
 			console.log('Erro ao carregar a imagem: ', error);
@@ -171,15 +174,25 @@ export default function ProfileSettings() {
 	const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 
 	function updateUserInfos(data: IFormData): void {
-		console.log({data})
+		if (userInfos)
+			updateUser({
+				variables: {
+					user_id: userInfos.id,
+					email: data.email,
+					cpf: data.cpf,
+					phone_number: data.phoneNumber,
+					username: data.name
+				}
+			}).then(console.log)
+				.catch(console.error)
 	}
-
 
 	async function loadInformations() {
 		let newUserInfos = userInfos;
 
 		if (!loading) {
 			newUserInfos = {
+				id: data.usersPermissionsUser.data.id,
 				username: data.usersPermissionsUser.data.attributes.username,
 				cpf: data.usersPermissionsUser.data.attributes.cpf,
 				email: data.usersPermissionsUser.data.attributes.email,
@@ -197,7 +210,7 @@ export default function ProfileSettings() {
 	}
 
 	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined): void {
-		console.log(userData)
+		// console.log(userData)
 
 		if(userData) {
 			setValue('name', userData!.username)
@@ -210,7 +223,7 @@ export default function ProfileSettings() {
 	}
 
 	useEffect(() => {
-		console.log({FUNCAO: loadInformations(), DADOS: data})
+		// console.log({FUNCAO: loadInformations(), DADOS: data})
 		loadInformations().then(defineDefaultFieldValues);
 	}, [loading])
 

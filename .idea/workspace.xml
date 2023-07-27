@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="e61ef1f0-261f-4edd-9425-22e4df35fa4e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/updateUser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/updateUser.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,7 +36,7 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="WI564T628" />
-                    <option name="lastUsedInstant" value="1690374404" />
+                    <option name="lastUsedInstant" value="1690453319" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="develop" />
@@ -97,7 +100,8 @@
       <workItem from="1689942236966" duration="9838000" />
       <workItem from="1690363823541" duration="1001000" />
       <workItem from="1690377674651" duration="2371000" />
-      <workItem from="1690380489065" duration="13950000" />
+      <workItem from="1690380489065" duration="14597000" />
+      <workItem from="1690448687455" duration="2483000" />
     </task>
     <servers />
   </component>
