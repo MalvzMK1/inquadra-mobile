@@ -22,6 +22,7 @@ import RegisterCourt from '../../screens/RegisterCourt';
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
+import HomeEstablishment from '../../screens/HomeEstablishment';
 
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -32,6 +33,28 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="HomeEstablishment"
+				component={HomeEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>Olá, Jhon!</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="TudoCerto"
 				component={AllVeryWell}
