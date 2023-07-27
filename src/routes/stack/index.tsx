@@ -26,13 +26,6 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="CourtAvailibilityInfo"
-				component={CourtAvailibilityInfo}
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<Screen
 				name="Login"
 				component={Login}
 				options={{
@@ -238,6 +231,13 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
+				}}
+			/>
+			<Screen
+				name="CourtAvailibilityInfo"
+				component={CourtAvailibilityInfo}
+				options={{
+					headerShown: false,
 				}}
 			/>
 		</Navigator>
