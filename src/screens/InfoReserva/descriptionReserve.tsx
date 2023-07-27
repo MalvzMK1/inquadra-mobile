@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { View, Text, Image, Modal, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { TextInput, IconButton } from 'react-native-paper';
+import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { useInfoSchedule } from '../../hooks/useInfoSchedule';
@@ -46,7 +46,7 @@ export default function DescriptionReserve() {
     const handleExitPaymentModal = () => {
         setShowCardPaymentModal(false)
     }
-
+    
     const [name, setName] = useState("")
     const [cpf, setCpf] = useState("")
     const [value, setValue] = useState("")
@@ -69,27 +69,20 @@ export default function DescriptionReserve() {
 
     const user_id = '1'
     const schedule_id = '1'
-   
-    const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
-    console.log(data?.scheduling?.data?.attributes?.owner?.data?.id === user_id)
-    return (
 
+    const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
+    return (
         <View className='flex-1 bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
-
                 <View className='flex item-center justify-center'>
                     <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva')}>
                         {/* <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} /> */}
                     </TouchableOpacity>
                 </View>
-
-
                 <View className='flex item-center justify-center'>
                     <Text className='text-lg font-bold text-white'>RESERVA</Text>
                 </View>
-
-
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
@@ -103,7 +96,6 @@ export default function DescriptionReserve() {
             <View className='h-6'></View>
             <View className='flex w-max h-80 bg-zinc-900  px-5'>
                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
-
                     <View>
                         <Image
                             source={{ uri: `http://192.168.0.229:1337${data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url}` }}
@@ -111,54 +103,34 @@ export default function DescriptionReserve() {
                             borderRadius={5}
                         />
                     </View>
-
                     <View className='flex item-start h-24 w-max'>
-
                         <View className='flex justify-start items-start h-max w-max pl-1'>
-
                             <View className='flex-row justify-between items-center w-48'>
                                 <View className='flex items-center justify-center'>
                                     <Text className='font-black text-base text-orange-600'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name}</Text>
                                 </View>
-
                                 <View className='flex-row items-center'>
                                     <View>
                                         <Text className='font-normal text-xs text-orange-600'>Editar</Text>
                                     </View>
-
                                     <View className='flex items-center justify-center pl-4'>
                                         {/* <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} /> */}
                                     </View>
-
-
                                 </View>
-
                             </View>
-
                             <View>
                                 <Text className='font-normal text-xs text-white'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.name}</Text>
                             </View>
-
-
                             <View className='flex-row pt-2'>
                                 <View>
                                     <Text className='font-black text-xs text-white'>Reserva feita em {new Date(data?.scheduling.data.attributes.createdAt).toDateString()}</Text>
                                 </View>
-
-
                             </View>
-
-
                             <View className='pt-2'>
                                 <Text className='font-black text-xs text-red-500'>CANCELAR</Text>
                             </View>
-
-
                         </View>
-
                     </View>
-
-
                 </View>
                 <View className='h-2'></View>
                 <View>
@@ -177,9 +149,6 @@ export default function DescriptionReserve() {
                         <Text className='font-black text-xs text-center text-white'>Tempo restante para pagamento 4 dias, 3 horas e 20 minutos</Text>
                     </View>
                 </View>
-                        
-                
-
                 {
                     data?.scheduling?.data?.attributes?.owner?.data?.id !== user_id ? (
                     <View className='h-max w-full flex justify-center items-center pl-2'>
@@ -214,9 +183,8 @@ export default function DescriptionReserve() {
                                 </TouchableOpacity>
                             </View>
                         </View>
-
                         <View className='h-max w-full flex justify-between pl-2'>
-                            <TouchableOpacity className='pt-2' onPress={handleOpenPaymentModal}>
+                            <TouchableOpacity className='pt-2' onPress={() => setShowCardPaymentModal(true)  }>
                                 <View className='w-30 h-10 bg-white rounded-sm flex-row items-center'>
                                     <View className='w-1'></View>
                                     <View className='h-5 w-5 items-center justify-center'>
@@ -236,18 +204,8 @@ export default function DescriptionReserve() {
                 </View>
                 )
                 }
-
-
-
-
-
-
-              
-
-
             </View>
             <View className='h-screen w-full  px-5 items-center justify-start pt-4'>
-
                 {
                     data?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && data?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
                     ?
@@ -273,13 +231,10 @@ export default function DescriptionReserve() {
                     <Text className='text-gray-50 font-semibold text-center'>Compartilhe essa página ! Informações serão mostradas aqui uma vez que outros realisem pagamentos </Text>
                 </View>
             </View>
-
             <Modal visible={showCardPaymentModal} animationType="fade" transparent={true}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
-
                         <View className='flex gap-y-[10px]'>
-
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Nome</Text>
                                 <TextInput
@@ -289,7 +244,6 @@ export default function DescriptionReserve() {
                                     onChangeText={setName}>
                                 </TextInput>
                             </View>
-
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>CPF</Text>
                                 <MaskInput
@@ -301,7 +255,6 @@ export default function DescriptionReserve() {
                                     keyboardType='numeric'>
                                 </MaskInput>
                             </View>
-
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Valor da contribuição</Text>
                                 <MaskInput
@@ -313,11 +266,8 @@ export default function DescriptionReserve() {
                                     keyboardType='numeric'>
                                 </MaskInput>
                             </View>
-
                         </View>
-
                         <View className='h-[1px] w-full mt-[20px] mb-[20px] border border-[#4B4B4B] border-dashed'></View>
-
                         <View className='flex gap-y-[10px]'>
                             <View className=' w-full flex flex-row p-3 border border-neutral-400 rounded bg-white items-center justify-between'>
                                 <View className='flex flex-row items-center'>
@@ -337,7 +287,6 @@ export default function DescriptionReserve() {
                                     <Image source={require('../../assets/camera.png')}></Image>
                                 </TouchableOpacity>
                             </View>
-
                             <View className='flex flex-row'>
                                 <View className='flex-1 mr-[20px]'>
                                     <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
@@ -349,7 +298,6 @@ export default function DescriptionReserve() {
                                         mask={Masks.DATE_DDMMYYYY}>
                                     </MaskInput>
                                 </View>
-
                                 <View className='flex-1 ml-[20px]'>
                                     <Text className='text-sm text-[#FF6112]'>CVV</Text>
                                     <TextInput
@@ -362,7 +310,6 @@ export default function DescriptionReserve() {
                                     </TextInput>
                                 </View>
                             </View>
-
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>País</Text>
                                 <View className='flex flex-row items-center p-3 border border-neutral-400 rounded bg-white'>
@@ -378,25 +325,20 @@ export default function DescriptionReserve() {
                                     />
                                 </View>
                             </View>
-
-                        </View>
-
-                        <TouchableOpacity
-                            className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mt-[20px]'
-                            onPress={handleExitPaymentModal}>
-                            <Text className='text-base text-white'>Efetuar pagamento</Text>
-                        </TouchableOpacity>
-
+                                <View>
+                                    <Button mode="contained" style={{height: 50, width: '100%',backgroundColor: '#FF6112',borderRadius: 8,justifyContent: 'center',alignItems: 'center', marginTop: 20}}
+                                        onPress={() => setShowCardPaymentModal(false)}>
+                                        <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
+                                    </Button>
+                                </View>
+                        </View>                  
                     </View>
                 </View>
             </Modal>
-
             <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
-
                         <View className='flex gap-y-[10px]'>
-
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Nome</Text>
                                 <TextInput
@@ -406,7 +348,6 @@ export default function DescriptionReserve() {
                                     onChangeText={setName}>
                                 </TextInput>
                             </View>
-
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>CPF</Text>
                                 <MaskInput
@@ -418,7 +359,6 @@ export default function DescriptionReserve() {
                                     keyboardType='numeric'>
                                 </MaskInput>
                             </View>
-
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Valor da contribuição</Text>
                                 <MaskInput
@@ -430,19 +370,16 @@ export default function DescriptionReserve() {
                                     keyboardType='numeric'>
                                 </MaskInput>
                             </View>
-
                         </View>
-
-                        <TouchableOpacity
-                            className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mt-[20px]'
-                            onPress={handleExitPixPaymentModal}>
-                            <Text className='text-base text-white'>Efetuar pagamento</Text>
-                        </TouchableOpacity>
-
+                        <View>
+                            <Button mode="contained" style={{height: 50, width: '100%',backgroundColor: '#FF6112',borderRadius: 8,justifyContent: 'center',alignItems: 'center', marginTop: 20}}
+                                onPress={() => setShowPixPaymentModal(false)}>
+                                <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
+                            </Button>
+                        </View>
                     </View>
                 </View>
             </Modal>
         </View>
     )
 }
-
