@@ -149,10 +149,8 @@ export default function Home() {
 			</Animated.View>
 			<BottomNavigationBar 
 			isDisabled={isDisabled} 
-			buttonOneNavigation='ProfileSettings'
-			buttonTwoNavigation='FavoriteCourts'
-			buttonThreeNavigation=''
-			buttonFourNavigation=''
+			playerScreen={false}
+			establishmentScreen={true}
 			/>
 		</View>
 	);
