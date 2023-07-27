@@ -1,6 +1,24 @@
 import {gql} from "@apollo/client";
 
-const mutation = gql`
+export interface IUploadImageResponse {
+	upload: {
+		data: {
+			id: string,
+			attributes: {
+				url: string
+			}
+		}
+	}
+}
+
+export interface IUploadImageVariables {
+	ref_id: string,
+	ref: string,
+	field: string,
+	file: MediaStream | Buffer
+}
+
+export const uploadImageMutation = gql`
     mutation uploadPhoto(
         $ref_id: ID!
         $ref: String
@@ -17,4 +35,3 @@ const mutation = gql`
         }
     }
 `
-

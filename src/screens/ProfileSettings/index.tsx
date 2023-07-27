@@ -25,6 +25,7 @@ import useGetUserById from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
+import {useGetFavoriteById} from "../../hooks/useFavoriteById";
 
 interface IFormData {
 	name: string
