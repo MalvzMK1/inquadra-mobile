@@ -1,4 +1,4 @@
-export function transformCardDueDateToString(inputText: string): Date {
+export function transformCardDueDateToParsedString(inputText: string): string {
 	const [month, year] = inputText.split('/').map((part) => parseInt(part, 10));
 
 	if (isNaN(month) || isNaN(year)) {
@@ -13,5 +13,5 @@ export function transformCardDueDateToString(inputText: string): Date {
 		throw new Error("Invalid date.");
 	}
 
-	return transformedDate;
+	return transformedDate.toISOString().split('T')[0]
 }
