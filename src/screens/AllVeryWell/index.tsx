@@ -1,14 +1,7 @@
-import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 
-import React, { useState } from "react";
-import MaskInput, { Masks } from 'react-native-mask-input';
+import React from "react";
 import { ScrollView } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
-import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from "@expo/vector-icons";
-import { MultipleSelectList } from 'react-native-dropdown-select-list';
-import { MaterialIcons } from '@expo/vector-icons'; 
-import { AntDesign } from '@expo/vector-icons';
 
 export default function AllVeryWell() {
     return (

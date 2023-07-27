@@ -21,6 +21,7 @@ import RegisterEstablishment from '../../screens/ProfileEstablishmentRegistratio
 import RegisterCourt from '../../screens/RegisterCourt';
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import AllVeryWell from '../../screens/AllVeryWell';
+import CompletedEstablishmentRegistration from '../../screens/CompletedEstablishmentRegistration';
 
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -31,6 +32,15 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="CompletedEstablishmentResgistration"
+				component={CompletedEstablishmentRegistration}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+					},headerTitleAlign: 'center',
+				}}
+			/>
 			<Screen
 				name="TudoCerto"
 				component={AllVeryWell}
