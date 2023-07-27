@@ -7,6 +7,9 @@ import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { useInfoSchedule } from '../../hooks/useInfoSchedule';
+import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
+import { z } from "zod";
+
 
 const countriesData = [
     { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
@@ -70,7 +73,89 @@ export default function DescriptionReserve() {
     const user_id = '1'
     const schedule_id = '1'
 
+
+    const convertToAmericanDate = (dateString: string) => {
+        const parts = dateString.split('/');
+        const day = parts[0];
+        const month = parts[1];
+        const year = parts[2];
+        const americanDate = `${year}-${month}-${day}`;
+        return americanDate;
+      };
+
+      interface iFormCardPayment {
+        value: number
+        schedulingId: string
+        userId: string
+        name: string
+        cpf: string
+        cvv: number
+        date: string
+        countryID: string
+      }
+
+
+      const isValidCPF = (cpf: string): boolean => {
+        const cleanedCPF = cpf.replace(/[^\d]/g, '');
+      
+        // Verificar se o CPF tem 11 dígitos
+        if (cleanedCPF.length !== 11) {
+          return false;
+        }
+      
+        if (/^(\d)\1+$/.test(cleanedCPF)) {
+          return false;
+        }
+      
+        let sum = 0;
+        for (let i = 0; i < 9; i++) {
+          sum += parseInt(cleanedCPF.charAt(i)) * (10 - i);
+        }
+        let remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) {
+          remainder = 0;
+        }
+        if (remainder !== parseInt(cleanedCPF.charAt(9))) {
+          return false;
+        }
+      
+        sum = 0;
+        for (let i = 0; i < 10; i++) {
+          sum += parseInt(cleanedCPF.charAt(i)) * (11 - i);
+        }
+        remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) {
+          remainder = 0;
+        }
+        if (remainder !== parseInt(cleanedCPF.charAt(10))) {
+          return false;
+        }
+      
+        return true;
+      };
+      
+      const currentDate = new Date();
+      const formSchema = z.object({
+        value: z.number({required_error: "É necessário inserir um valor"}).min(1),
+        schedulingId: z.string({required_error: "É necessário inserir o id de uma quadra"}),
+        userId: z.string({required_error: "É necessário inserir o id do usuario"}),
+        name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
+        cpf: z.string({required_error: "É necessário inserir o id do usuario"}).max(15, {message: "CPF invalido"}).refine(isValidCPF, { message: "CPF inválido" }),
+        cvv: z.number({required_error: "É necessário inserir um CVV"}).max(3, {message: "Só é possivel digitar até 3 caracteres"}).min(3, {message: "O minimo são 3 caracteres"}),
+        date: z.date().refine((value) => {
+            return value.getTime() > currentDate.getTime()
+        }, {message: "A data é invalida"}),
+        countryID: z.string({required_error: "É necessário escolher a nacionalidade"})
+      })
+
+    const {control, handleSubmit, formState: {errors}, getValues} = useForm<iFormCardPayment>({
+        resolver: zodResolver(formSchema)
+    })
+        
+    
     const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
+    const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
+
     return (
         <View className='flex-1 bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
@@ -327,7 +412,19 @@ export default function DescriptionReserve() {
                             </View>
                                 <View>
                                     <Button mode="contained" style={{height: 50, width: '100%',backgroundColor: '#FF6112',borderRadius: 8,justifyContent: 'center',alignItems: 'center', marginTop: 20}}
-                                        onPress={() => setShowCardPaymentModal(false)}>
+                                        onPress={() => userPaymentCard({
+                                            variables: {
+                                                value: parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.')),
+                                                schedulingId: schedule_id,
+                                                userId: user_id, 
+                                                name: name,
+                                                cpf: cpf,
+                                                cvv: parseInt(creditCardCvv),
+                                                date: convertToAmericanDate(maturityDate),
+                                                countryID: '1',
+                                            }
+                                        }).then( (result) => { setShowCardPaymentModal(false)}).catch(console.error)
+                                        }>
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
@@ -335,7 +432,7 @@ export default function DescriptionReserve() {
                     </View>
                 </View>
             </Modal>
-            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>
+            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>z
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                         <View className='flex gap-y-[10px]'>
