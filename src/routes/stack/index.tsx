@@ -20,6 +20,7 @@ import ProfileEstablishmentRegistration from '../../screens/ProfileEstablishment
 import RegisterEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/RegisterEstablishment';
 import RegisterCourt from '../../screens/RegisterCourt';
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
+import AllVeryWell from '../../screens/AllVeryWell';
 
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -30,6 +31,27 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="TudoCerto"
+				component={AllVeryWell}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: 'white',
+					},headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View>
+							<Text className='text-4xl font-extrabold'>Tudo Certo?</Text>
+						</View>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="black" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="ProfileEstablishmentRegistration"
 				component={ProfileEstablishmentRegistration}
