@@ -4,6 +4,8 @@ import React, { useState } from "react"
 import PriceHour from '../../components/CourtPriceHour';
 import CourtAvailibilityDay from '../../components/CourtAvailibilityDay';
 
+let test: string
+
 export default function CourtPriceHour() {
     const [componentInstances, setComponentInstances] = useState([PriceHour])
     const [mondayView, setMondayView] = useState(true)
