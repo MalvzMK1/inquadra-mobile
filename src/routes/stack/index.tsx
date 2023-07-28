@@ -19,12 +19,25 @@ import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
+import CourtPriceHour from '../../screens/CourtPriceHour';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 	return (
 		<Navigator>
+			<Screen
+				name='CourtPriceHour'
+				component={CourtPriceHour}
+				options={{
+					headerTitle: 'Definir hora/valor',
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="black" />
+						</TouchableOpacity>
+					)
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
