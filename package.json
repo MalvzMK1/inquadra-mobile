@@ -37,6 +37,7 @@
     "react-hook-form": "^7.45.2",
     "react-input-mask": "^2.0.4",
     "react-native": "0.71.8",
+    "react-native-calendars": "^1.1300.0",
     "react-native-dropdown-select-list": "^2.0.4",
     "react-native-element-dropdown": "^2.9.0",
     "react-native-elements": "^3.4.3",
