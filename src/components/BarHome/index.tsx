@@ -25,8 +25,6 @@ interface HomeBarProps {
 	userName: string | undefined
 }
 
-const userNameExample = "Artur"
-
 export default function HomeBar({courts, userName}: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
@@ -54,16 +52,17 @@ export default function HomeBar({courts, userName}: HomeBarProps) {
 				</TouchableOpacity>
 				<Text className='text-white text-lg font-black mt-3'>Olá{userName ? `, ${userName}` : null}!</Text>
 			</View>
-			<ScrollView>
+			<ScrollView className='p-5'>
 				{courts !== undefined ? courts.map((item) => (
-					<View className='p-5' key={item.id}>
+					// <View className='p-5' key={item.id}>
 						<CourtCardHome
+							id={item.id}
 							image={item.image}
 							name={item.name}
 							distance={item.distance}
 							type={item.type}
 						/>
-					</View>
+					// </View>
 				)) : <ActivityIndicator size='small' color='#fff' />}
 			</ScrollView>
 		</Animated.View>
