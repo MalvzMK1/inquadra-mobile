@@ -1,28 +1,99 @@
-import { View, Text, TouchableOpacity, SafeAreaView} from "react-native";
-import React from "react";
-import { ScrollView } from "react-native-gesture-handler";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, SafeAreaView, FlatList, StyleSheet, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
-import { Agenda } from 'react-native-calendars';
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 export default function HomeEstablishment() {
+    const navigation = useNavigation();
+    const [selected, setSelected] = useState('');
+
+    const [selectedDate, setSelectedDate] = useState('');
+
+    const CustomTimeView = ({ text }) => {
+        return (
+        <View className="flex flex-row h-10 items-center w-20 border-r-2 border-gray-400">
+            <View>
+            <View>
+                <Text className="text-base font-extrabold text-gray-400 text-center mr-2">{text}</Text>
+            </View>
+            </View>
+        </View>
+        );
+    }   
+      const currentDate = new Date();
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const formattedData = `${day}/${month}`;
+
+
+    const dataCourts = [
+        { 
+          key: '1', value: 'Quadra coberta 1', date: formattedData, 
+          info: [ { time: '14:00hs', status: 'Livre' },
+           { time: '14:30hs', status: 'Livre' },
+            { time: '15:00hs', status: 'Livre' },
+            { time: '15:30hs', status: 'Livre' },
+            { time: '16:00hs', status: 'Livre' }, 
+            { time: '16:30hs', status: 'Livre' },
+            { time: '17:00hs', status: 'Livre' },
+            { time: '17:30hs', status: 'Livre' },
+            { time: '18:00hs', status: 'Livre' },
+            { time: '18:30hs', status: 'Livre' },
+            { time: '19:00hs', status: 'Livre' },
+            { time: '19:30hs', status: 'Livre' },
+          ] 
+        },
+        { 
+          key: '2', 
+          value: 'Quadra Aberta', 
+          date: formattedData, 
+          info: [
+            { time: '08:00hs', status: { 
+              name: 'Jhon Lopes', 
+              status: 'Pago', 
+              sport: 'Basquete', 
+              time: '8:00h - 9:00h' 
+            }},
+            { time: '08:30hs', status: 'Livre' },
+            { time: '09:00hs', status: 'Livre' },
+            { time: '09:30hs', status: 'Livre' },
+            { time: '10:00hs', status: 'Livre' },
+            { time: '10:30hs', status: 'Livre' },
+            { time: '11:00hs', status: 'Livre' },
+            { time: '11:30hs', status: 'Livre' },
+            { time: '12:00hs', status: 'Livre' },
+          ]
+        },
+        { 
+          key: '3', 
+          value: 'Quadra do Zequinha', 
+          date: formattedData, 
+          info: [
+            { time: '08:00hs', status: { 
+              name: 'João Lopes', 
+              status: 'Pago', 
+              sport: 'Basquete', 
+              time: '14:00h - 15:00h' 
+            }},
+            { time: '08:30hs', status: 'Livre' },
+            { time: '09:00hs', status: 'Livre' },
+            { time: '09:30hs', status: 'Livre' },
+            { time: '10:00hs', status: 'Livre' },
+            { time: '10:30hs', status: 'Livre' },
+            { time: '11:00hs', status: 'Livre' },
+            { time: '11:30hs', status: 'Livre' },
+            { time: '12:00hs', status: 'Livre' },
+          ]
+        },
+        { key: '4', value: 'Quadra do Eliel', date: formattedData, info: 'Informações do Item 4' },
+        { key: '5', value: 'Quadra da Mari', date: formattedData, info: 'Informações do Item 5' },
+        { key: '6', value: 'Quadra da Larissa', date: formattedData, info: 'Informações do Item 6' },
+        { key: '7', value: 'Quadra 7', date: formattedData, info: 'Informações do Item 7' },
+      ];
+      
 
     
-
-    const navigation = useNavigation()
-
-      const [selected, setSelected] = React.useState();
-      const dataCourts = [
-        { key: '1', value: 'Quadra coberta 1', info: 'Informações do Item 1'},
-        { key: '2', value: 'Quadra Aberta', info: 'Informações do Item 2'},
-        { key: '3', value: 'Quadra do Zequinha', info: 'Informações do Item 3'},
-        { key: '4', value: 'Quadra do Eliel', info: 'Informações do Item 4'},
-        { key: '5', value: 'Quadra da Mari', info: 'Informações do Item 5'},
-        { key: '6', value: 'Quadra da Larissa', info: 'Informações do Item 6'},
-        { key: '7', value: 'Quadra 7', info: 'Informações do Item 7'},
-    ]
-
     return (
         <View className="flex-1">
             <ScrollView>
@@ -46,9 +117,9 @@ export default function HomeEstablishment() {
                     <View className="bg-[#292929] border rounded-md p-5 ">
                         <Text className="text-[#FF6112] text-base font-bold">Reservas hoje</Text>
                         <View className="pt-5 gap-2">
-                                 <Text className="text-white font-bold">19:30 - 20:30 pagamento finalizado</Text>
-                                 <Text className="text-white font-bold">19:30 - 20:30 pagamento finalizado</Text>
-                                 <Text className="text-white font-bold">19:30 - 20:30 pagamento finalizado</Text>
+                            <Text className="text-white font-bold">19:30 - 20:30 pagamento finalizado</Text>
+                            <Text className="text-white font-bold">19:30 - 20:30 pagamento finalizado</Text>
+                            <Text className="text-white font-bold">19:30 - 20:30 pagamento finalizado</Text>
                         </View> 
                     </View>
                     <View className="bg-[#FF6112] h-7 rounded flex items-center justify-center">
@@ -56,44 +127,95 @@ export default function HomeEstablishment() {
                     </View>
                     <View className="pt-10">
                         <View className="flex flex-row">
-                            <Text className="font-extrabold text-xl">
-                                Por quadra
-                            </Text>
+                            <Text className="font-extrabold text-xl">Por quadra</Text>
                             <View className="ml-auto flex flex-col items-start">
-                            <SelectList
-                            setSelected={(val: string) => {
-                                setSelected(val)
-                            }}
-                            data={dataCourts}
-                            save='value'
-                            searchPlaceholder='Pesquisar...'
-                            defaultOption={dataCourts.length > 0 ? dataCourts[0] : undefined}
-                            boxStyles={{borderColor: "#FF6112", borderRadius: 4, height: 43, width: 160}}
-                            dropdownTextStyles={{color: "#FF6112"}}
-                            inputStyles={{color: "#FF6112", alignSelf: "center"}}
-                            dropdownStyles={{borderColor: "#FF6112", width: 160,  position: "absolute", marginTop: 44}}
-                            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-                            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
-                            arrowicon={<AntDesign name="down" size={13} color="#FF6112" style={{marginEnd: 2, alignSelf: "center", marginLeft: 5}} />}
-                            />
-                           
-                        </View>
-                       
+                                <SelectList
+                                    setSelected={(val) => setSelected(val)}
+                                    data={dataCourts}
+                                    save="value"
+                                    searchPlaceholder="Pesquisar..."
+                                    defaultOption={dataCourts.length > 0 ? dataCourts[0] : undefined}
+                                    boxStyles={{ borderColor: "#FF6112", borderRadius: 4, height: 43, width: 160 }}
+                                    dropdownTextStyles={{ color: "#FF6112" }}
+                                    inputStyles={{ color: "#FF6112", alignSelf: "center" }}
+                                    dropdownStyles={{ borderColor: "#FF6112", width: 160 }}
+                                    closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                                    searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+                                    arrowicon={<AntDesign name="down" size={13} color="#FF6112" style={{ marginEnd: 2, alignSelf: "center", marginLeft: 5 }} />}
+                                />
+                            </View>
                         </View>
                     </View>
-                    <View className="fixed">
-                        <Text className="text-base -mt-4">{selected}</Text>
-                        {dataCourts.map(item => {
-                            if (item.value === selected) {
-                            return <Text key={item.value}>{item.info}</Text>;
-                            }
-                            return null;
-                        })}
+                    <View>
+                    <View className="-mt-2">
+                    {dataCourts.map(item => {
+                    if (item.value === selected) {
+                    return (
+                        <View key={item.key}>
+                        <Text className="font-bold text-gray-500 text-base pb-3">{item.value}</Text>
+                        <Text className="text-base font-bold">{item.date}</Text>
+                        {Array.isArray(item.info) ? (
+                            item.info.map((infoData, index) => (
+                            <View key={index} className="flex flex-row">
+                                <View>
+                                <CustomTimeView text={infoData.time} />
+                                </View>
+                                <View className="mt-3.5 ml-2">
+                                {typeof infoData.status === 'string' ? ( 
+                                    <Text className="">{infoData.status}</Text>
+                                ) : (
+                                    <View className="flex flex-row h-20 rounded bg-gray-400 ">
+                                    <Text className="">{infoData.status.name}</Text>
+                                    <Text>{infoData.status.status}</Text>
+                                    <Text>{infoData.status.sport}</Text>
+                                    <Text>{infoData.status.time}</Text>
+                                    </View>
+                                )}
+                                </View>
+                            </View>
+                            ))
+                        ) : (
+                            <CustomTimeView text={item.info} />
+                        )}
+                        </View>
+                    );
+                    }
+                    return null;
+                })}
+                    </View>
                     </View>
                 </View>
-                
                 </View>
             </ScrollView>
         </View>
-    )
+    );
 }
+
+const styles = StyleSheet.create({
+    timeSlotContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: '#ccc',
+    },
+    timeSlot: {
+      fontSize: 18,
+    },
+    available: {
+      fontSize: 18,
+      color: 'green',
+    },
+    booked: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    bookingInfo: {
+      fontSize: 18,
+      color: 'red',
+    },
+  });
+  
+  
