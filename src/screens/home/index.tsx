@@ -12,7 +12,7 @@ import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import useGetNextToCourts from "../../hooks/useNextToCourts";
 import useGetUserById from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
-import storage from "../../utils/storage";
+import {HOST_API} from '@env';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -41,8 +41,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
 					name: court.attributes.name,
 					type: court.attributes.court_type.data.attributes.name,
-					// image: process.env.HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
-					image: 'http://192.168.0.10' + (court.attributes.photo.data.length === 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					image: HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					// image: 'http://192.168.0.10' + (court.attributes.photo.data.length === 0 ? '' : court.attributes.photo.data[0].attributes.url),
 					distance: 666, // Substitua pelos valores reais
 				}
 			});
