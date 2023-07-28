@@ -52,19 +52,32 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			}
 		}
 
-		if (!userHookLoading && !userHookError) {
-			console.log(userHookData?.usersPermissionsUser.data)
-			storage.save({
-				key: 'userInfos',
-				data: {
-					...userHookData?.usersPermissionsUser.data
-				}
-			}).then(data => console.log(data))
-		}
+		// if (!userHookLoading && !userHookError) {
+		// 	console.warn({data: userHookData?.usersPermissionsUser.data
+		// 	})
+		// 	navigation.setParams({
+		// 		userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data.attributes.url
+		// 	})
+		// 	storage.save({
+		// 		key: 'userInfos',
+		// 		data: {
+		// 			...userHookData?.usersPermissionsUser.data
+		// 		}
+		// 	}).then(data => console.log(data))
+		// }
 	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	const userGeolocation = route.params.userGeolocation
+
+	if (!userHookLoading && !userHookError) {
+		// TODO: IMPLEMENTAR A FOTO DO USUÁRIO A PARTIR DO ID
+		//  FIX: MAXIMUM UPDATE DEPTH EXCEEDED. THIS CAN HAPPEN WHEN A COMPONENT REPATEDLY CALLS SETSTATE INSIDE COMPONENT WILL UPDATE OR COMPONENT DID UPDATE
+		// if (!!userHookData?.usersPermissionsUser.data.attributes.photo.data)
+		// 	navigation.setParams({
+		// 		userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+		// 	})
+	}
 
 	return (
 		<View className="flex-1 flex flex-col">
@@ -120,7 +133,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.attributes.username}/>}
+			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.username}/>}
 			<BottomNavigationBar
 				isDisabled={isDisabled}
 				buttonOneNavigation='ProfileSettings'

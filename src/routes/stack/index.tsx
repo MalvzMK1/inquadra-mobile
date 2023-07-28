@@ -67,7 +67,7 @@ export default function () {
 			/>
 			<Screen
 				name="Home"
-				options={{
+				options={({route: {params}}) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 125,
@@ -86,7 +86,7 @@ export default function () {
 							navigation.navigate('ProfileSettings')
 						}}>
 							<Image
-								source={require('../../assets/qodeless_logo.jpg')}
+								source={params.userPhoto ? {uri: `http://192.168.0.10:1337${params.userPhoto}`} : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -112,7 +112,7 @@ export default function () {
 							}
 						</TouchableOpacity>
 					),
-				}}
+				})}
 			>
 				{props => (
 					<Home
@@ -123,7 +123,7 @@ export default function () {
 			</Screen>
 			<Screen
 				name="HomeVariant"
-				options={({ route }) => ({
+				options={({ route: {params} }) => ({
 					headerTitleStyle: {
 						fontSize: 26
 					},
@@ -141,7 +141,7 @@ export default function () {
 							navigation.navigate('ProfileSettings')
 						}}>
 							<Image
-								source={require('../../assets/qodeless_logo.jpg')}
+								source={params.userPhoto ? {uri: `http://192.168.0.10:1337${params.userPhoto}`} : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -210,7 +210,7 @@ export default function () {
 			<Screen
 				name="FavoriteCourts"
 				component={FavoriteCourts}
-				options={({ route }) => ({
+				options={({ route: {params} }) => ({
 					headerTitle: 'Favoritos',
 					headerTitleStyle: {
 						fontSize: 26
@@ -226,10 +226,12 @@ export default function () {
 					},
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							navigation.navigate('ProfileSettings')
+							navigation.navigate('ProfileSettings', {
+								userPhoto: params.userPhoto
+							})
 						}}>
 							<Image
-								source={require('../../assets/qodeless_logo.jpg')}
+								source={params.userPhoto ? {uri: `http://192.168.0.10:1337${params.userPhoto}`} : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -239,7 +241,7 @@ export default function () {
 			<Screen
 				name="ProfileSettings"
 				component={ProfileSettings}
-				options={{
+				options={({route: {params}}) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
@@ -252,16 +254,19 @@ export default function () {
 						</View>
 					),
 					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
+							<Image
+								source={params?.userPhoto ? {uri: `http://192.168.0.10:1337${params.userPhoto}`} : require('../../assets/default-user-image.png')}
+								className='w-full h-full'
+							/>
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
+					// headerLeft: ({ navigation }) => (
+					// 	<TouchableOpacity onPress={() => navigation.goBack()}>
+					// 		<Icon name="arrow-back" size={25} color="white" />
+					// 	</TouchableOpacity>
+					// ),
+				})}
 			/>
 			<Screen
 				name="EstablishmentInfo"
@@ -279,8 +284,11 @@ export default function () {
 						</View>
 					),
 					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
+							<Image
+								source={require('../../assets/picture.png')}
+								className='w-full h-full'
+							/>
 						</TouchableOpacity>
 					),
 					headerLeft: ({ navigation }) => (

@@ -27,22 +27,22 @@ export interface IUserByIdResponse{
                             }
                         }
                     }
-                }
-            } & {
-                photo: {
-                    data:{
-                        attributes: {
-                            url: Photo['url']
+                } & {
+                    photo: {
+                        data:{
+                            attributes: {
+                                url: Photo['url']
+                            }
                         }
                     }
                 }
-            } 
+            }
         }
     }
 }
 
 export interface IUserByIdVariables {
-	id: string
+  id: string
 }
 
 export const userByIdQuery = gql `
