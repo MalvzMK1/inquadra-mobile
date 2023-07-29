@@ -58,7 +58,10 @@ export default function HomeBar({ courts }: HomeBarProps) {
 			</View>
 			<ScrollView>
 				{courts !== undefined ? courts.map((item) => (
-					<TouchableOpacity key={item.id} onPress={(value) => navigation.navigate("EstablishmentInfo", {establishmentInfo: value})}>
+					<TouchableOpacity key={item.id} onPress={(event) => {
+						event.persist()
+						navigation.navigate("EstablishmentInfo", {establishmentInfo: item.id})
+					}}>
 						<View className='p-5'>
 							<CourtCardHome
 								image={item.image}

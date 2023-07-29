@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
-import { User } from "../../types/User";
-import { Scheduling } from "../../types/Scheduling";
-import { CourtAvailability } from "../../types/CourtAvailability";
+// import { User } from "../../types/User";
+// import { Scheduling } from "../../types/Scheduling";
+// import { CourtAvailability } from "../../types/CourtAvailability";
 
 export interface IEstablishmentSchedulingsResponse {
 	schedulings:{

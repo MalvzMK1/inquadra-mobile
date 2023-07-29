@@ -19,7 +19,7 @@ interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
 	const {data, loading, error} = useGetNextToCourts('')
-	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
+	
 	const [courts, setCourts] = useState<Array<{
 		id: string,
 		latitude: number,
