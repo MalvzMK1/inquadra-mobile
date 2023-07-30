@@ -2,43 +2,40 @@ import { gql } from "@apollo/client";
 
 
 export interface INextToCourtByIdResponse{
-    courts: {
-        data:{
-            id: Court ['id'];
+  court: {
+    data: {
+      id: Court['id']
+      attributes: {
+        court_type: {
+          data: {
             attributes: {
-                name: Court ['name']
-                court_type:{
-                    data:{
-                        attributes:{
-                            name: SportType['name']
-                        }
-                    }
-                } & {
-                    photo: {
-                        data: Array <{
-                            attributes:{
-                                url: Photo['url']
-                            }
-                        }>
-                    } 
-                } & {
-                    establishment:{
-                        data:{
-                            id: Establishment['id']
-                            attributes: Omit<Establishment, 'id'> & {
-                                address: {
-                                    data: {
-                                        latitude: Address['latitude']
-                                        longitude: Address['longitude']    
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }     
+              name: SportType['name']
             }
+          }
         }
+        name: Court['name']
+        photo:{
+          data: Array<{
+            attributes:{
+              url: Photo['url']
+            }
+          }>
+        }
+        establishment:{
+          data:{
+            id: Establishment['id']
+            attributes: {
+              corporateName: Establishment['corporateName']
+              address: {
+                latitude: Address['latitude']
+                longitude: Address['longitude']
+              }
+            }
+          }
+        }
+      }
     }
+  }
 }
 
 export interface INextToCourtBiIdVariables {
@@ -75,13 +72,6 @@ export const useNextToCourtByIdQuery = gql`
                 latitude
                 longitude
               }
-            }
-          }
-        }
-        court_type {
-          data {
-            attributes {
-              name
             }
           }
         }

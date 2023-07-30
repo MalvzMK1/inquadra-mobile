@@ -1,15 +1,21 @@
 import { gql } from "@apollo/client";
-import { ICourtType } from "./sportTypes";
 
 
 export interface IScheduleResponse{
-   courts: {
-        data: Array<{
-            attributes: {
-                court_type: ICourtType
+  courts: {
+    data: Array<{
+      attributes: {
+        court_type: {
+          data:{
+            id: SportType['id']
+            attributes:{
+              name: SportType['name']
             }
-        }>
-    }
+          }
+        }
+      }
+    }>
+  }
 }
 
 export const scheduleQuery = gql`

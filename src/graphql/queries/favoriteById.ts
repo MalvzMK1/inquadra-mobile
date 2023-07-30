@@ -15,7 +15,7 @@ export interface IFavoriteByIdResponse {
                                             data: Array<{
                                                 id: Court['id']
                                                 attributes: {
-                                                    photo: {
+                                                    photo?: {
                                                         data: Array<{
                                                             attributes: {
                                                                 url: Photo['url']

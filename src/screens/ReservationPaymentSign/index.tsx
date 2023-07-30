@@ -13,13 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function ReservationPaymentSign() {
 
-//   const { loading, error, data } = useEstablishmentSchedulings("1", "");
-//   console.log(data);
-//   if (loading) return <Text>Loading...</Text>;
-//   if (error) {
-//     return <Text>Error: {error.message}</Text>;
-//   }
-//   return <Text>Hello {JSON.stringify(data)}!</Text>;
+// 
 
     const [showCard, setShowCard] = useState(false);
     const [showCameraIcon, setShowCameraIcon] = useState(false);

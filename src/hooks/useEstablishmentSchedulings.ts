@@ -3,7 +3,7 @@ import { IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables, 
 
 
 
-export function useEstablishmentSchedulings(id: string, date: Date): QueryResult<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables> {
+export function useEstablishmentSchedulings(id: string, date: string): QueryResult<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables> {
     return useQuery<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables>(establishmentSchedulingQuery, {
 		variables: {
 			id,

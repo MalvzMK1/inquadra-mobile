@@ -2,79 +2,89 @@ import { gql } from "@apollo/client";
 
 
 export interface INextToCourtResponse{
-    courts: {
-        data: Array<{
-            id: Court ['id'];
-            attributes: {
-                name: Court ['name']
-                court_type:{
-                    data:{
-                        attributes:{
-                            name: SportType['name']
-                        }
-                    }
-                } & {
-                    photo: {
-                        data: Array< {
-                            attributes:{
-                                url: Photo['url']
-                            }
-                        }>
-                    } 
-                } & {
-                    establishment:{
-                        data:{
-                            id: Establishment['id']
-                            attributes: Omit<Establishment, 'id'> & {
-                                address: {
-                                    data: {
-                                        latitude: Address['latitude']
-                                        longitude: Address['longitude']    
-                                    }
-                                }
+    schedulings: {
+            data: Array<{
+                id: Scheduling['id']
+                attributes:{
+                    date: Scheduling['date']
+                    valuePayed: Scheduling['valuePayed']
+                    payedStatus: Scheduling['payedStatus']
+                    owner:{
+                        data: {
+                            attributes: {
+                                username: User['username']
+                                email: User['email']
+                                cpf: User['cpf']
                             }
                         }
                     }
-                }     
+                users: {
+                    data: Array<{
+                        attributes: {
+                            username: User['username']
+                            email: User['email']
+                            cpf: User['cpf']
+                        }
+                    }>
+                }
+                court_availability: {
+                    data: {
+                        attributes: {
+                            startsAt: CourtAvailability['startsAt']
+                            endsAt: CourtAvailability['endsAt']
+                            value:CourtAvailability['value']
+                            dayUseService: CourtAvailability['dayUseService']
+                        }
+                    }
+                }
             }
         }>
     }
 }
 
 export const useNextToCourtQuery = gql`
-    query nextToCourt{
-        courts{
-            data{
-                id
-                attributes{
-                    name
-                    court_type{
-                        data{
-                            attributes{
-                            name
+    query GetEstablishmentsSchedulings ($id: ID, $weekDay: String!){
+    schedulings(
+        filters: {
+        court_availability: { court: { establishment: { id: { eq: $id } } } }
+        date: { eq: $weekDay }
+        }
+        ) {
+            data {
+                id  
+                attributes {
+                    date
+                    valuePayed
+                    payedStatus
+                    owner {
+                        data {
+                            attributes {
+                                username
+                                email
+                                cpf
                             }
                         }
                     }
-                    photo{
-                        data{
-                            attributes{
-                                url
-                            }
+                users {
+                    data {
+                        attributes {
+                            username
+                            email
+                            cpf
                         }
                     }
-                    establishment{
-                        data{
-                            id
-                            attributes{
-                                address{
-                                    latitude
-                                    longitude
-                                }
-                            }
-                        } 
+                }
+                court_availability {
+                    data {
+                        attributes {
+                            startsAt
+                            endsAt
+                            value
+                            dayUseService
+                        }
                     }
                 }
             }
         }
     }
-`;
+}`

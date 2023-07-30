@@ -6,4 +6,5 @@ type CourtAvailability = {
     endsAt: Date
     weekDay: string
     value: number
+    title: string
 }

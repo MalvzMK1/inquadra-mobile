@@ -2,9 +2,32 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, SafeAreaView, FlatList, StyleSheet, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useReserveDisponible } from "../../hooks/useReserveDisponible";
+import { useNextToCourtByIdQuery } from "../../graphql/queries/nextToCourtsById";
+import { useGetNextToCourtsById } from "../../hooks/useNextToCourtById";
+import { useEstablishmentSchedulings } from "../../hooks/useEstablishmentSchedulings";
+import { useSchedulingById } from "../../hooks/useSchedulingById";
+import { useGetUserById } from "../../hooks/useUserById";
+import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
+import { useSchedule } from "../../hooks/useSchedule";
+import { useGetNextToCourts } from "../../hooks/useNextToCourts";
+import { useGetMenuUser } from "../../hooks/useMenuUser";
+import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
+import { useGetFavoriteById } from "../../hooks/useFavoriteById";
+import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 
-export default function HomeEstablishment() {
+export default function HomeEstablishmenttt() {
+
+
+    // const { loading, error, data } = useGetUserById("2");
+    //   console.log(data);
+    //   if (loading) return <Text>Loading...</Text>;
+    //   if (error) {
+    //     return <Text>Error: {JSON.stringify(error)}</Text>;
+    //   }
+    //   return <Text>Hello {JSON.stringify(data)}!</Text>;
+
     const navigation = useNavigation();
     const [selected, setSelected] = useState('');
 
@@ -12,7 +35,7 @@ export default function HomeEstablishment() {
 
     const CustomTimeView = ({ text }) => {
         return (
-        <View className="flex flex-row h-10 items-center w-20 border-r-2 border-gray-400">
+        <View className="flex flex-row h-10 items-center w-20 border-r-2 border-gray-300">
             <View>
             <View>
                 <Text className="text-base font-extrabold text-gray-400 text-center mr-2">{text}</Text>
@@ -28,68 +51,11 @@ export default function HomeEstablishment() {
 
 
     const dataCourts = [
-        { 
-          key: '1', value: 'Quadra coberta 1', date: formattedData, 
-          info: [ { time: '14:00hs', status: 'Livre' },
-           { time: '14:30hs', status: 'Livre' },
-            { time: '15:00hs', status: 'Livre' },
-            { time: '15:30hs', status: 'Livre' },
-            { time: '16:00hs', status: 'Livre' }, 
-            { time: '16:30hs', status: 'Livre' },
-            { time: '17:00hs', status: 'Livre' },
-            { time: '17:30hs', status: 'Livre' },
-            { time: '18:00hs', status: 'Livre' },
-            { time: '18:30hs', status: 'Livre' },
-            { time: '19:00hs', status: 'Livre' },
-            { time: '19:30hs', status: 'Livre' },
-          ] 
+        {key: '1', value: 'Quadra coberta 1', date: formattedData},
+        {key: '2', value: 'Quadra Aberta', date: formattedData
         },
-        { 
-          key: '2', 
-          value: 'Quadra Aberta', 
-          date: formattedData, 
-          info: [
-            { time: '08:00hs', status: { 
-              name: 'Jhon Lopes', 
-              status: 'Pago', 
-              sport: 'Basquete', 
-              time: '8:00h - 9:00h' 
-            }},
-            { time: '08:30hs', status: 'Livre' },
-            { time: '09:00hs', status: 'Livre' },
-            { time: '09:30hs', status: 'Livre' },
-            { time: '10:00hs', status: 'Livre' },
-            { time: '10:30hs', status: 'Livre' },
-            { time: '11:00hs', status: 'Livre' },
-            { time: '11:30hs', status: 'Livre' },
-            { time: '12:00hs', status: 'Livre' },
-          ]
+        { key: '3', value: 'Quadra do Zequinha', date: formattedData, time: ['00:00hs','00:00hs','00:00hs','00:00hs','00:00hs','00:00hs','00:00hs','00:00hs','00:00hs',]
         },
-        { 
-          key: '3', 
-          value: 'Quadra do Zequinha', 
-          date: formattedData, 
-          info: [
-            { time: '08:00hs', status: { 
-              name: 'João Lopes', 
-              status: 'Pago', 
-              sport: 'Basquete', 
-              time: '14:00h - 15:00h' 
-            }},
-            { time: '08:30hs', status: 'Livre' },
-            { time: '09:00hs', status: 'Livre' },
-            { time: '09:30hs', status: 'Livre' },
-            { time: '10:00hs', status: 'Livre' },
-            { time: '10:30hs', status: 'Livre' },
-            { time: '11:00hs', status: 'Livre' },
-            { time: '11:30hs', status: 'Livre' },
-            { time: '12:00hs', status: 'Livre' },
-          ]
-        },
-        { key: '4', value: 'Quadra do Eliel', date: formattedData, info: 'Informações do Item 4' },
-        { key: '5', value: 'Quadra da Mari', date: formattedData, info: 'Informações do Item 5' },
-        { key: '6', value: 'Quadra da Larissa', date: formattedData, info: 'Informações do Item 6' },
-        { key: '7', value: 'Quadra 7', date: formattedData, info: 'Informações do Item 7' },
       ];
       
 
@@ -154,35 +120,125 @@ export default function HomeEstablishment() {
                         <View key={item.key}>
                         <Text className="font-bold text-gray-500 text-base pb-3">{item.value}</Text>
                         <Text className="text-base font-bold">{item.date}</Text>
-                        {Array.isArray(item.info) ? (
-                            item.info.map((infoData, index) => (
-                            <View key={index} className="flex flex-row">
-                                <View>
-                                <CustomTimeView text={infoData.time} />
-                                </View>
-                                <View className="mt-3.5 ml-2">
-                                {typeof infoData.status === 'string' ? ( 
-                                    <Text className="">{infoData.status}</Text>
-                                ) : (
-                                    <View className="flex flex-row h-20 rounded bg-gray-400 ">
-                                    <Text className="">{infoData.status.name}</Text>
-                                    <Text>{infoData.status.status}</Text>
-                                    <Text>{infoData.status.sport}</Text>
-                                    <Text>{infoData.status.time}</Text>
-                                    </View>
-                                )}
-                                </View>
-                            </View>
-                            ))
-                        ) : (
-                            <CustomTimeView text={item.info} />
-                        )}
                         </View>
                     );
                     }
                     return null;
                 })}
                     </View>
+                    </View>
+                    <View className="flex flex-row">
+                        <View className="gap-4 pt-3">
+                        <Text className="text-base text-gray-400">14:00hs</Text>
+                        <Text className="text-base text-gray-400">15:00hs</Text>
+                        <Text className="text-base text-gray-400">16:00hs</Text>
+                        <Text className="text-base text-gray-400">17:00hs</Text>
+                        <Text className="text-base text-gray-400">18:00hs</Text>
+                        <Text className="text-base text-gray-400">19:00hs</Text>
+                        <Text className="text-base text-gray-400">20:00hs</Text>
+                        <Text className="text-base text-gray-400">21:00hs</Text>
+                        <Text className="text-base text-gray-400">22:00hs</Text>
+                        <Text className="text-base text-gray-400">23:00hs</Text>
+                        <Text className="text-base text-gray-400">00:00hs</Text>
+                        </View>
+                        <View className="border border-gray-300 ml-2 mr-2"></View>
+                        <View className="p-1">
+                        <View className="h-17 bg-[#B6B6B633] rounded-2xl">
+                        <Text className="pl-10 pt-1 text-gray-400 text-xs">Info reserva:</Text>
+                           <View className="flex flex-row p-2">   
+                           <View className="h-12 -mt-4 border-2 rounded border-orange-500"></View>
+                               <View className="flex">
+                                <View className="flex flex-row">
+                                <View className="flex flex-row ml-5">
+                                    <Ionicons name="person-outline" size={16} color="#FF6112"  style={{ marginRight: 6 }}  />
+                                    <Text> Lucas Santos</Text>
+                               </View>
+                               <View className="flex flex-row ml-6">
+                                    <Ionicons name="time-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
+                                    <Text>14:00h - 15:00h</Text>
+                               </View>
+                                </View>
+                               <View className="flex flex-row">
+                               <View className="flex flex-row ml-5">
+                                    <MaterialIcons name="attach-money" size={16} color="#FF6112" />
+                                    <Text className="pl-2">Pago</Text>
+                               </View>
+                               <View className="flex flex-row ml-6 pl-12">
+                                    <Ionicons name="basketball-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
+                                    <Text>Basquete</Text>
+                               </View>
+                               </View>
+                               </View>
+                            </View> 
+                        </View>
+                        <View className="pt-4">
+                            <Text className="text-gray-400">Livre</Text>
+                        </View>
+                        <View className="pt-6">
+                            <Text className="text-gray-400">Livre</Text>
+                        </View>
+                        <View className="pt-6">
+                            <Text className="text-gray-400">Livre</Text>
+                        </View>
+                        <View className="pt-5">
+                            <Text className="text-gray-400">Livre</Text>
+                        </View>
+                        <View className="pt-6">
+                            <Text className="text-gray-400">Livre</Text>
+                        </View>
+                        <View className="pt-7">
+                        <View className="h-20 bg-[#B6B6B633] rounded-2xl">
+                        <Text className="pl-10 pt-1 text-gray-400 text-xs">Info reserva:</Text>
+                           <View className="flex flex-row p-2">   
+                           <View className="h-14 -mt-4 border-2 rounded border-orange-500"></View>
+                               <View className="flex">
+                                <View className="flex flex-row">
+                                <View className="flex flex-row ml-5">
+                                    <Ionicons name="person-outline" size={16} color="#FF6112"  style={{ marginRight: 6 }}  />
+                                    <Text> Lucas Santos</Text>
+                               </View>
+                               <View className="flex flex-row ml-6">
+                                    <Ionicons name="time-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
+                                    <Text>21:00h - 23:00h</Text>
+                               </View>
+                                </View>
+                               <View className="flex flex-row">
+                               <View className="flex flex-row ml-5">
+                                    <MaterialIcons name="attach-money" size={16} color="#FF6112" />
+                                    <Text className="pl-2">Pago</Text>
+                               </View>
+                               <View className="flex flex-row ml-6 pl-12">
+                                    <Ionicons name="basketball-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
+                                    <Text>Basquete</Text>
+                               </View>
+                               </View>
+                               <View className="pt-12">
+                                    <Text className="text-gray-400">Livre</Text>
+                                </View>
+                               </View>
+                            </View> 
+                        </View>
+                        
+                        </View>
+                        </View>
+                    </View>
+                    
+                </View>
+                <View className="p-5 flex flex-col justify-between">
+                    <View className="bg-[#292929] border rounded-md p-5 h-40">
+                        <Text className="text-[#FF6112] text-base font-bold">Valor disponível</Text>
+                        <View className="items-center pt-5">
+                            <View className="items-center justify-center">
+                                <Text className="text-3xl text-white font-extrabold">2.650,95</Text>
+                            </View>     
+                        </View> 
+                    </View>
+                    <View className="bg-[#FF6112] h-7 rounded -mt-5">
+                    </View>
+                    <View className="items-center">
+                        <TouchableOpacity className='-mt-11 w-1/2 h-10 rounded-md bg-[#FF6112] flex items-center justify-center '>
+                            <Text className='text-xl font-bold text-gray-50'>Retirar</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
                 </View>
