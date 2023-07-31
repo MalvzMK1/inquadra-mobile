@@ -7,21 +7,33 @@ import BottomBlackMenu from "../../components/BottomBlackMenu"
 import { Calendar } from 'react-native-calendars'
 import useCourtById from "../../hooks/useCourtById";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {addDays, format, getDaysInMonth} from 'date-fns'
+import {addDays, addWeeks, format, startOfWeek} from 'date-fns'
+import {ptBR} from 'date-fns/locale'
+import useReserveDisponible from "../../hooks/useReserveDisponible";
 
 type FormatedWeekDates = {
 	dayName: string,
 	day: string
 }
 
-function getWeekDays(date: Date): Array<FormatedWeekDates> {
+function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDates> {
 	const daysOfWeek: Array<FormatedWeekDates> = []
+
+	const sundayIndex = date.getDay()
 
 	for (let i = 0; i < 7; i++) {
 		const weekDate = addDays(date, i);
-		const dayName = format(weekDate, 'eee').toLowerCase()[0];
-		// console.log({date, dayName, daysOfWeek})
-		daysOfWeek[i] = {
+		const dayName = format(
+			weekDate,
+			'eee',
+			{
+				locale: ptBR,
+			}).toUpperCase()[0];
+		// console.log({daysOfWeek})
+
+		const currentIndex = (sundayIndex + i) % 7
+
+		daysOfWeek[currentIndex] = {
 			dayName,
 			day: format(weekDate, 'dd')
 		};
@@ -73,6 +85,11 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 	const [dateSelected, setDateSelected] = useState(new Date())
 
 	const {data, loading, error} = useCourtById(route.params.courtId)
+	const {
+		data: disponibleReservation,
+		loading: isDisponibleReservationLoading,
+		error: isDisponibleReservationError
+	} = useReserveDisponible('monday')
 
 	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
@@ -89,15 +106,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 					<View className="h-[215px] w-full">
 						<ImageBackground className="flex-1 flex flex-col" source={{
 							uri: route.params.courtImage
-							// uri: route.params.courtImage
-						}}>
-							{/*<TouchableOpacity className="mt-[50px] ml-[20px]" onPress={() => navigation.goBack()}>*/}
-							{/*	<Image source={{*/}
-							{/*		uri: HOST_API + data?.court.data*/}
-							{/*	}}*/}
-							{/*	/>*/}
-							{/*</TouchableOpacity>*/}
-						</ImageBackground>
+						}} />
 					</View>
 
 					<View className="h-fit mt-[10px]">
@@ -105,13 +114,26 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 							<Text className="text-[20px] font-black">{route.params.courtName}</Text>
 							{!showCalendar && (
 								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
-									<WeekDays dayInitial={dayInitial[0]} day={weekDates[6].dateItem}></WeekDays>
-									<WeekDays dayInitial={dayInitial[1]} day={weekDates[0].dateItem}></WeekDays>
-									<WeekDays dayInitial={dayInitial[2]} day={weekDates[1].dateItem}></WeekDays>
-									<WeekDays dayInitial={dayInitial[3]} day={weekDates[2].dateItem}></WeekDays>
-									<WeekDays dayInitial={dayInitial[4]} day={weekDates[3].dateItem}></WeekDays>
-									<WeekDays dayInitial={dayInitial[5]} day={weekDates[4].dateItem}></WeekDays>
-									<WeekDays dayInitial={dayInitial[6]} day={weekDates[5].dateItem}></WeekDays>
+									{/*<WeekDays dayInitial={dayInitial[0]} day={weekDates[6].dayName}></WeekDays>*/}
+									{/*<WeekDays dayInitial={dayInitial[1]} day={weekDates[0].dayName}></WeekDays>*/}
+									{/*<WeekDays dayInitial={dayInitial[2]} day={weekDates[1].dayName}></WeekDays>*/}
+									{/*<WeekDays dayInitial={dayInitial[3]} day={weekDates[2].dayName}></WeekDays>*/}
+									{/*<WeekDays dayInitial={dayInitial[4]} day={weekDates[3].dayName}></WeekDays>*/}
+									{/*<WeekDays dayInitial={dayInitial[5]} day={weekDates[4].dayName}></WeekDays>*/}
+									{/*<WeekDays dayInitial={dayInitial[6]} day={weekDates[5].dayName}></WeekDays>*/}
+									{/*--------------------------------------------------------------------------------*/}
+									{/*<WeekDays dayInitial={weekDates[6].dayName} day={weekDates[6].day}></WeekDays>*/}
+									{/*<WeekDays dayInitial={weekDates[0].dayName} day={weekDates[0].day}></WeekDays>*/}
+									{/*<WeekDays dayInitial={weekDates[1].dayName} day={weekDates[1].day}></WeekDays>*/}
+									{/*<WeekDays dayInitial={weekDates[2].dayName} day={weekDates[2].day}></WeekDays>*/}
+									{/*<WeekDays dayInitial={weekDates[3].dayName} day={weekDates[3].day}></WeekDays>*/}
+									{/*<WeekDays dayInitial={weekDates[4].dayName} day={weekDates[4].day}></WeekDays>*/}
+									{/*<WeekDays dayInitial={weekDates[5].dayName} day={weekDates[5].day}></WeekDays>*/}
+									{
+										weekDates.map(date => (
+											<WeekDays dayInitial={date.dayName} day={date.day}></WeekDays>
+										))
+									}
 								</View>
 							)}
 							{showCalendar && (
