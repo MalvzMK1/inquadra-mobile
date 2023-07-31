@@ -1,5 +1,5 @@
 import { QueryResult, useQuery } from "@apollo/client";
-import { IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables, establishmentSchedulingQuery } from "../graphql/queries/EstablishmentSchedulings";
+import { IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables, establishmentSchedulingQuery } from "../graphql/queries/establishmentSchedulings";
 
 
 

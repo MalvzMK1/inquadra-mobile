@@ -9,7 +9,7 @@ import useCourtById from "../../hooks/useCourtById";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {addDays, addWeeks, format, startOfWeek} from 'date-fns'
 import {ptBR} from 'date-fns/locale'
-import useReserveDisponible from "../../hooks/useReserveDisponible";
+import useCourtAvailability from "../../hooks/useCourtAvailability";
 
 type FormatedWeekDates = {
 	dayName: string,
@@ -42,42 +42,6 @@ function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDat
 	return daysOfWeek
 }
 
-const dayInitial = [
-	"D",
-	"S",
-	"T",
-	"Q",
-	"Q",
-	"S",
-	"S",
-]
-
-// const getWeekDates = (date: Date) => {
-// 	const selectedDate = new Date(date);
-// 	const dayOfWeek = selectedDate.getDay();
-// 	const startDate = new Date(selectedDate);
-// 	startDate.setDate(selectedDate.getDate() - dayOfWeek);
-// 	const weekDates: Date[] = [startDate];
-//
-// 	for (let i = 1; i < 7; i++) {
-// 		const nextDay = new Date(startDate);
-// 		nextDay.setDate(startDate.getDate() + i);
-// 		weekDates.push(nextDay);
-// 	}
-//
-// 	let formatedWeekDates: FormatedWeekDates[] = []
-//
-// 	weekDates.forEach(item => {
-// 		let dateItem: string = item.toISOString().split("-")[2].split("T")[0].toString()
-//
-// 		formatedWeekDates.push({
-// 			dateItem
-// 		})
-// 	})
-//
-// 	return formatedWeekDates;
-// };
-
 interface ICourtAvailibilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailibilityInfo'> {}
 
 export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailibilityInfoProps) {
@@ -86,13 +50,18 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 
 	const {data, loading, error} = useCourtById(route.params.courtId)
 	const {
-		data: disponibleReservation,
-		loading: isDisponibleReservationLoading,
-		error: isDisponibleReservationError
-	} = useReserveDisponible('monday')
+		data: courtAvailability,
+		loading: isCourtAvailabilityLoading,
+		error: isCourtAvailabilityError
+	} = useCourtAvailability('2')
 
 	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
+	if (!isCourtAvailabilityLoading)
+		console.log({
+			dado_graphql: courtAvailability?.courts.data[0].attributes.court_availabilities.data.map(availability => availability.id)
+		})
+	// if (isCourtAvailabilityError) console.log(isCourtAvailabilityError)
 	// if (!loading)
 	// 	console.log({
 	// 		dado_rota: route.params.courtImage,
@@ -114,21 +83,6 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 							<Text className="text-[20px] font-black">{route.params.courtName}</Text>
 							{!showCalendar && (
 								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
-									{/*<WeekDays dayInitial={dayInitial[0]} day={weekDates[6].dayName}></WeekDays>*/}
-									{/*<WeekDays dayInitial={dayInitial[1]} day={weekDates[0].dayName}></WeekDays>*/}
-									{/*<WeekDays dayInitial={dayInitial[2]} day={weekDates[1].dayName}></WeekDays>*/}
-									{/*<WeekDays dayInitial={dayInitial[3]} day={weekDates[2].dayName}></WeekDays>*/}
-									{/*<WeekDays dayInitial={dayInitial[4]} day={weekDates[3].dayName}></WeekDays>*/}
-									{/*<WeekDays dayInitial={dayInitial[5]} day={weekDates[4].dayName}></WeekDays>*/}
-									{/*<WeekDays dayInitial={dayInitial[6]} day={weekDates[5].dayName}></WeekDays>*/}
-									{/*--------------------------------------------------------------------------------*/}
-									{/*<WeekDays dayInitial={weekDates[6].dayName} day={weekDates[6].day}></WeekDays>*/}
-									{/*<WeekDays dayInitial={weekDates[0].dayName} day={weekDates[0].day}></WeekDays>*/}
-									{/*<WeekDays dayInitial={weekDates[1].dayName} day={weekDates[1].day}></WeekDays>*/}
-									{/*<WeekDays dayInitial={weekDates[2].dayName} day={weekDates[2].day}></WeekDays>*/}
-									{/*<WeekDays dayInitial={weekDates[3].dayName} day={weekDates[3].day}></WeekDays>*/}
-									{/*<WeekDays dayInitial={weekDates[4].dayName} day={weekDates[4].day}></WeekDays>*/}
-									{/*<WeekDays dayInitial={weekDates[5].dayName} day={weekDates[5].day}></WeekDays>*/}
 									{
 										weekDates.map(date => (
 											<WeekDays dayInitial={date.dayName} day={date.day}></WeekDays>
@@ -152,6 +106,20 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 						</View>
 					</View>
 					<ScrollView className="max-h-[390px] w-full pl-[10px] pr-[10px] mt-[30px]">
+						{
+							(!isCourtAvailabilityLoading && !isCourtAvailabilityError && courtAvailability?.courts.data) && courtAvailability.courts.data.map(court => {
+								if (court.attributes.court_availabilities.data.length !== 0)
+									return court.attributes.court_availabilities.data.map(availability => (
+											<CourtAvailibility
+												startsAt={`${availability.attributes.startsAt}:${availability.attributes.startsAt}`}
+												endsAt={`${availability.attributes.endsAt}:${availability.attributes.endsAt}`}
+												price={availability.attributes.value}
+												busy={Boolean(availability.attributes.status)}
+											/>
+										))
+								}
+							)
+						}
 						<CourtAvailibility startsAt="16:00" endsAt="17:00" price={190.90} busy={true} />
 						<CourtAvailibility startsAt="17:00" endsAt="18:00" price={190.90} busy={false} />
 						<CourtAvailibility startsAt="19:00" endsAt="20:00" price={190.90} busy={false} />
