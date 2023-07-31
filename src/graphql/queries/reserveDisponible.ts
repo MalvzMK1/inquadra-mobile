@@ -15,8 +15,8 @@ export interface IReserveDisponibleResponse {
           data: Array<{
             id: CourtAvailability['id']
             attributes:{
-              startsAt: CourtAvailability['startsAt']
-              endsAt:  CourtAvailability['endsAt']
+              startsAt: string
+              endsAt:  string
               status:  CourtAvailability['status']
               title:  CourtAvailability ['title']
               value: CourtAvailability['value']

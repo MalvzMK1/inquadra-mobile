@@ -13,8 +13,8 @@ export interface ISchedulingByIdResponse{
                   id: CourtAvailability['id']
                   attributes:{
                     dayUseService: CourtAvailability['dayUseService']
-                    startsAt: CourtAvailability ['startsAt']
-                    endsAt: CourtAvailability['endsAt']
+                    startsAt: string
+                    endsAt: string
                     weekDay: CourtAvailability['weekDay']
                   }
                 }>

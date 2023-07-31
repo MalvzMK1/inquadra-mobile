@@ -11,7 +11,11 @@ export interface IUserByIdResponse {
                   email: User['email'];
                   phoneNumber: User['phoneNumber'];
                   cpf: User['cpf'];
-                  paymentCardInformations: PaymentCardInformations;
+                  paymentCardInformations:{
+                    id: PaymentCardInformations['id']
+                    cvv: PaymentCardInformations['cvv']
+                    dueDate: string
+                  }
               };
               country: {
                   data: {

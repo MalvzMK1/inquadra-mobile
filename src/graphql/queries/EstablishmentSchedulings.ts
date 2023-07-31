@@ -29,8 +29,8 @@ export interface IEstablishmentSchedulingsResponse {
                 court_availability: {
                     data: {
                         attributes: {
-                            startsAt: CourtAvailability['startsAt']
-                            endsAt: CourtAvailability['endsAt']
+                            startsAt: string
+                            endsAt: string
                             value: CourtAvailability['value']
                             dayUseService: CourtAvailability['dayUseService']
                         }

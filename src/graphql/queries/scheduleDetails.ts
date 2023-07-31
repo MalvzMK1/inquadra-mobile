@@ -30,8 +30,8 @@ export interface ISchedulingDetailsResponse {
                                     }
                                 }
                             }
-                            startsAt: CourtAvailability['startsAt']
-                            endsAt: CourtAvailability['endsAt']
+                            startsAt: string
+                            endsAt: string
                         }
                     }
                 }
