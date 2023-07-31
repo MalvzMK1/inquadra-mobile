@@ -12,6 +12,7 @@ import useCourtAvailability from "../../hooks/useCourtAvailability";
 
 type FormatedWeekDates = {
 	dayName: string,
+	localeDayInitial: string,
 	day: string
 }
 
@@ -22,18 +23,23 @@ function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDat
 
 	for (let i = 0; i < 7; i++) {
 		const weekDate = addDays(date, i);
-		const dayName = format(
+		const localeDayInitial = format(
 			weekDate,
 			'eee',
 			{
 				locale: ptBR,
 			}).toUpperCase()[0];
+		const dayName = format(
+			weekDate,
+			'eeee'
+		).toLowerCase()
 		// console.log({daysOfWeek})
 
 		const currentIndex = (sundayIndex + i) % 7
 
 		daysOfWeek[currentIndex] = {
 			dayName,
+			localeDayInitial,
 			day: format(weekDate, 'dd')
 		};
 	}
@@ -53,18 +59,21 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 		error: isCourtAvailabilityError
 	} = useCourtAvailability(route.params.courtId)
 
+	const [activeStates, setActiveStates] = useState(Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false));
+
 	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
-	// if (!isCourtAvailabilityLoading)
-	// 	console.log({
-	// 		dado_graphql: courtAvailability?.courts.data[0].attributes.court_availabilities.data.map(availability => availability.id)
-	// 	})
-	// if (isCourtAvailabilityError) console.log(isCourtAvailabilityError)
-	// if (!loading)
-	// 	console.log({
-	// 		dado_rota: route.params.courtImage,
-	// 		dado_graphql: data?.court.data.attributes.photo.data[0].attributes.url
-	// 	})
+	function handleWeekDayClick(index: number) {
+		// Atualiza o estado apenas para o WeekDays clicado (true) e desativa os outros (false)
+		const newActiveStates = Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false);
+		newActiveStates[index] = true;
+		setActiveStates(newActiveStates);
+
+		console.log(newActiveStates)
+
+		// Chamada à função para renderizar itens na página principal usando a informação do WeekDays clicado
+		// renderItemsOnMainScreen(weekdaysData[index]);
+	}
 
 	return (
 		<SafeAreaView className="flex flex-col justify-between h-full">
@@ -82,8 +91,15 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 							{!showCalendar && (
 								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
 									{
-										weekDates.map(date => (
-											<WeekDays dayInitial={date.dayName} day={date.day}></WeekDays>
+										weekDates.map((date, index) => (
+											<WeekDays
+												localeDayInitial={date.localeDayInitial}
+												day={date.day}
+												onClick={(isClicked) => {
+													handleWeekDayClick(index)
+												}}
+												active={activeStates[index]}
+											/>
 										))
 									}
 								</View>
@@ -105,30 +121,31 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 					</View>
 					<ScrollView className="max-h-[390px] w-full pl-[10px] pr-[10px] mt-[30px]">
 						{
-							(!isCourtAvailabilityLoading && !isCourtAvailabilityError && courtAvailability?.courts.data) && courtAvailability.courts.data.map(court => {
-								if (court.attributes.court_availabilities.data.length !== 0)
-									return court.attributes.court_availabilities.data.map(availability => {
-										const startsAt = availability.attributes.startsAt.split(':');
-										const endsAt = availability.attributes.startsAt.split(':');
-										return (
-											<CourtAvailibility
-												startsAt={`${startsAt[0]}:${startsAt[1]}`}
-												endsAt={`${endsAt[0]}:${endsAt[1]}`}
-												price={availability.attributes.value}
-												busy={Boolean(!availability.attributes.status)}
-											/>
-										)
-									})
-								}
-							)
+							(
+								!isCourtAvailabilityLoading &&
+								!isCourtAvailabilityError &&
+								courtAvailability?.court.data &&
+								courtAvailability?.court.data.attributes.court_availabilities.data.length !== 0
+							) && courtAvailability.court.data.attributes.court_availabilities.data.map(availability => {
+								const startsAt = availability.attributes.startsAt.split(':');
+								const endsAt = availability.attributes.endsAt.split(':');
+								return (
+									<CourtAvailibility
+										startsAt={`${startsAt[0]}:${startsAt[1]}`}
+										endsAt={`${endsAt[0]}:${endsAt[1]}`}
+										price={availability.attributes.value}
+										busy={Boolean(!availability.attributes.status)}
+									/>
+								)
+							})
 						}
-						<CourtAvailibility startsAt="16:00" endsAt="17:00" price={190.90} busy={true} />
-						<CourtAvailibility startsAt="17:00" endsAt="18:00" price={190.90} busy={false} />
-						<CourtAvailibility startsAt="19:00" endsAt="20:00" price={190.90} busy={false} />
-						<CourtAvailibility startsAt="20:00" endsAt="21:00" price={190.90} busy={false} />
-						<CourtAvailibility startsAt="21:00" endsAt="22:00" price={190.90} busy={true} />
-						<CourtAvailibility startsAt="22:00" endsAt="23:00" price={190.90} busy={false} />
-						<CourtAvailibility startsAt="23:00" endsAt="00:00" price={190.90} busy={false} />
+						{/*<CourtAvailibility startsAt="16:00" endsAt="17:00" price={190.90} busy={true} />*/}
+						{/*<CourtAvailibility startsAt="17:00" endsAt="18:00" price={190.90} busy={false} />*/}
+						{/*<CourtAvailibility startsAt="19:00" endsAt="20:00" price={190.90} busy={false} />*/}
+						{/*<CourtAvailibility startsAt="20:00" endsAt="21:00" price={190.90} busy={false} />*/}
+						{/*<CourtAvailibility startsAt="21:00" endsAt="22:00" price={190.90} busy={true} />*/}
+						{/*<CourtAvailibility startsAt="22:00" endsAt="23:00" price={190.90} busy={false} />*/}
+						{/*<CourtAvailibility startsAt="23:00" endsAt="00:00" price={190.90} busy={false} />*/}
 					</ScrollView>
 					<View className="h-fit w-full p-[15px] mt-[30px]">
 						<TouchableOpacity className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'>
