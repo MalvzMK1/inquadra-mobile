@@ -9,7 +9,21 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { useInfoSchedule } from '../../hooks/useInfoSchedule';
 import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
 import { z } from "zod";
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { QrCodePix } from 'qrcode-pix';
 
+const qrCodePix = QrCodePix({
+    version: '01',
+    key: '11990216755', //or any PIX key
+    name: 'Enzo Diogenes do Prado',
+    city: 'OSASCO',
+    transactionId: 'BA1544D64E68276A1010329', //max 25 characters
+    message: '700 CONTO NUMA POLO?',
+    cep: '06130090',
+    value: 700,
+    
+});
 
 const countriesData = [
     { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
@@ -73,7 +87,6 @@ export default function DescriptionReserve() {
     const user_id = '1'
     const schedule_id = '1'
 
-
     const convertToAmericanDate = (dateString: string) => {
         const parts = dateString.split('/');
         const day = parts[0];
@@ -84,16 +97,13 @@ export default function DescriptionReserve() {
       };
 
       interface iFormCardPayment {
-        value: number
-        schedulingId: string
-        userId: string
+        value: string
         name: string
         cpf: string
-        cvv: number
+        cvv: string
         date: string
-        countryID: string
+        // countryID: string
       }
-
 
       const isValidCPF = (cpf: string): boolean => {
         const cleanedCPF = cpf.replace(/[^\d]/g, '');
@@ -133,31 +143,55 @@ export default function DescriptionReserve() {
       
         return true;
       };
+
+      function pay(data: iFormCardPayment){
+        userPaymentCard({ 
+                variables: {
+                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
+                    schedulingId: schedule_id,
+                    userId: user_id, 
+                    name: data.name,
+                    cpf: data.cpf,
+                    cvv: parseInt(data.cvv),
+                    date: convertToAmericanDate(data.date),
+                    countryID: '1',
+                }
+            })
+            setShowCardPaymentModal(false)
+            
+      }
       
-      const currentDate = new Date();
       const formSchema = z.object({
-        value: z.number({required_error: "É necessário inserir um valor"}).min(1),
-        schedulingId: z.string({required_error: "É necessário inserir o id de uma quadra"}),
-        userId: z.string({required_error: "É necessário inserir o id do usuario"}),
+        value: z.string({required_error: "É necessário inserir um valor"}).min(1),
         name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
-        cpf: z.string({required_error: "É necessário inserir o id do usuario"}).max(15, {message: "CPF invalido"}).refine(isValidCPF, { message: "CPF inválido" }),
-        cvv: z.number({required_error: "É necessário inserir um CVV"}).max(3, {message: "Só é possivel digitar até 3 caracteres"}).min(3, {message: "O minimo são 3 caracteres"}),
-        date: z.date().refine((value) => {
-            return value.getTime() > currentDate.getTime()
-        }, {message: "A data é invalida"}),
-        countryID: z.string({required_error: "É necessário escolher a nacionalidade"})
+        cpf: z.string({required_error: "É necessário inserir o CPF"}).max(15, {message: "CPF invalido"}).refine(isValidCPF, { message: "CPF inválido" }),
+        cvv: z.string({required_error: "É necessário inserir um CVV"}).max(3, {message: "Só é possivel digitar até 3 caracteres"}).min(3, {message: "O minimo são 3 caracteres"}),
+        date: z.string().refine((value) => {
+            const currentDate = new Date();
+            const [day, month, year] = value.split('/'); 
+            const inputDate = new Date(`${year}-${month}-${day}`); 
+        
+            if (isNaN(inputDate.getTime())) {
+              return false;
+            }
+        
+            if (inputDate.getTime() <= currentDate.getTime()) {
+              return false;
+            }
+        
+            return true;
+          }, { message: "A data de vencimento é inválida" }),
       })
 
     const {control, handleSubmit, formState: {errors}, getValues} = useForm<iFormCardPayment>({
         resolver: zodResolver(formSchema)
     })
         
-    
     const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
     const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
 
     return (
-        <View className='flex-1 bg-zinc-600'>
+        <View className='flex-1 bg-zinc-600'>      
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
@@ -280,7 +314,7 @@ export default function DescriptionReserve() {
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity className='pb-2' onPress={handleOpenPixPaymentModal}>
+                            <TouchableOpacity className='pb-2' onPress={() => navigation.navigate('PixScreen')}>
                                 <View className='h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center'>
                                     <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
                                 </View>
@@ -317,39 +351,60 @@ export default function DescriptionReserve() {
                 </View>
             </View>
             <Modal visible={showCardPaymentModal} animationType="fade" transparent={true}>
-                <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
+                <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>      
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
+                    <ScrollView>
                         <View className='flex gap-y-[10px]'>
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Nome</Text>
-                                <TextInput
-                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                    placeholder='Ex: nome'
-                                    value={name}
-                                    onChangeText={setName}>
-                                </TextInput>
+                                    <Controller 
+                                        name='name'
+                                        control={control}
+                                        render={({field: {onChange}}) => (  
+                                            <TextInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: nome'
+                                                onChangeText={onChange}>
+                                            </TextInput> 
+                                        )}
+                                    ></Controller>
+                                    {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
                             </View>
                             <View>
-                                <Text className='text-sm text-[#FF6112]'>CPF</Text>
-                                <MaskInput
-                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                    placeholder='Ex: 000.000.000-00'
-                                    value={cpf}
-                                    onChangeText={setCpf}
-                                    mask={Masks.BRL_CPF}
-                                    keyboardType='numeric'>
-                                </MaskInput>
+                                <Text className='text-sm text-[#FF6112]'>CPF</Text>                              
+                                <Controller
+                                    name='cpf'
+                                    control = {control}
+                                    render={({field: {onChange}}) => (
+                                        <MaskInput
+                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                            placeholder='Ex: 000.000.000-00'
+                                            value= {getValues('cpf')}
+                                            onChangeText={onChange}
+                                            mask={Masks.BRL_CPF}
+                                            keyboardType='numeric'>
+                                        </MaskInput>
+                                    )}                         
+                                ></Controller>
+                                {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
                             </View>
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Valor da contribuição</Text>
-                                <MaskInput
-                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                    placeholder='Ex: R$ 30,00'
-                                    value={value}
-                                    onChangeText={setValue}
-                                    mask={Masks.BRL_CURRENCY}
-                                    keyboardType='numeric'>
-                                </MaskInput>
+                                <Controller
+                                    name='value'
+                                    control={control}
+                                    render={({field: {onChange}}) => (
+                                        <MaskInput
+                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                            placeholder='Ex: R$ 30,00'
+                                            value={getValues('value')}
+                                            onChangeText={onChange}
+                                            mask={Masks.BRL_CURRENCY}
+                                            keyboardType='numeric'>
+                                        </MaskInput>
+                                    )}
+                                ></Controller>
+                                {errors.value && <Text className='text-red-400 text-sm'>{errors.value.message}</Text>}
                             </View>
                         </View>
                         <View className='h-[1px] w-full mt-[20px] mb-[20px] border border-[#4B4B4B] border-dashed'></View>
@@ -375,24 +430,38 @@ export default function DescriptionReserve() {
                             <View className='flex flex-row'>
                                 <View className='flex-1 mr-[20px]'>
                                     <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
-                                    <MaskInput
-                                        className='p-3 border border-neutral-400 rounded bg-white'
-                                        placeholder='MM/AA'
-                                        value={maturityDate}
-                                        onChangeText={setMaturityDate}
-                                        mask={Masks.DATE_DDMMYYYY}>
-                                    </MaskInput>
+                                    
+                                    <Controller
+                                        name='date'
+                                        control= {control}
+                                        render={({field: {onChange}}) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='MM/AA'
+                                                value={getValues('date')}
+                                                onChangeText={onChange}
+                                                mask={Masks.DATE_DDMMYYYY}>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
                                 </View>
                                 <View className='flex-1 ml-[20px]'>
                                     <Text className='text-sm text-[#FF6112]'>CVV</Text>
-                                    <TextInput
-                                        className='p-3 border border-neutral-400 rounded bg-white'
-                                        placeholder='123'
-                                        value={creditCardCvv}
-                                        onChangeText={setCreditCardCvv}
-                                        keyboardType='numeric'
-                                        maxLength={3}>
-                                    </TextInput>
+                                    <Controller
+                                        name='cvv'
+                                        control={control}
+                                        render={({field: {onChange}}) => (
+                                            <TextInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='123'
+                                                onChangeText={onChange}
+                                                keyboardType='numeric'
+                                                maxLength={3}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}                                 
                                 </View>
                             </View>
                             <View>
@@ -412,24 +481,16 @@ export default function DescriptionReserve() {
                             </View>
                                 <View>
                                     <Button mode="contained" style={{height: 50, width: '100%',backgroundColor: '#FF6112',borderRadius: 8,justifyContent: 'center',alignItems: 'center', marginTop: 20}}
-                                        onPress={() => userPaymentCard({
-                                            variables: {
-                                                value: parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.')),
-                                                schedulingId: schedule_id,
-                                                userId: user_id, 
-                                                name: name,
-                                                cpf: cpf,
-                                                cvv: parseInt(creditCardCvv),
-                                                date: convertToAmericanDate(maturityDate),
-                                                countryID: '1',
-                                            }
-                                        }).then( (result) => { setShowCardPaymentModal(false)}).catch(console.error)
-                                        }>
+                                            onPress={handleSubmit(pay, console.log)}
+                                        >
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
-                        </View>                  
+                                
+                        </View>    
+                        </ScrollView>     
                     </View>
+                     
                 </View>
             </Modal>
             <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>z

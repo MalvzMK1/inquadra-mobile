@@ -20,6 +20,7 @@ import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import {RootStackParamList} from "../../types/RootStack";
+import PixScreen from '../../screens/Pix';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -74,6 +75,13 @@ export default function () {
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<Screen
+				name="PixScreen"
+				component={PixScreen}
 				options={{
 					headerShown: false,
 				}}
