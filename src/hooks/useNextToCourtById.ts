@@ -1,8 +1,8 @@
 import { QueryResult, useQuery } from "@apollo/client";
-import { INextToCourtBiIdVariables, useNextToCourtByIdQuery, INextToCourtByIdResponse } from "../graphql/queries/nextToCourtsById";
+import { ICourtByIdVariables, courtByIdQuery, ICourtByIdResponse } from "../graphql/queries/nextToCourtsById";
 
-export default function useGetNextToCourtsById(id: string): QueryResult<INextToCourtByIdResponse, INextToCourtBiIdVariables> {
-	return useQuery<INextToCourtByIdResponse, INextToCourtBiIdVariables>(useNextToCourtByIdQuery, {
+export default function useGetNextToCourtsById(id: string): QueryResult<ICourtByIdResponse, ICourtByIdVariables> {
+	return useQuery<ICourtByIdResponse, ICourtByIdVariables>(courtByIdQuery, {
 		variables: {
 			id
 		}

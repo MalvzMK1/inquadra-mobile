@@ -9,8 +9,8 @@ import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import useGetNextToCourts from "../../hooks/useNextToCourts";
-import useGetUserById from "../../hooks/useUserById";
+import {useGetNextToCourts} from "../../hooks/useNextToCourts";
+import {useGetUserById} from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import {HOST_API} from '@env';
 
@@ -42,7 +42,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					name: court.attributes.name,
 					type: court.attributes.court_type.data.attributes.name,
 					image: HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
-					// image: 'http://192.168.0.10' + (court.attributes.photo.data.length === 0 ? '' : court.attributes.photo.data[0].attributes.url),
 					distance: 666, // Substitua pelos valores reais
 				}
 			});
@@ -51,20 +50,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
 			}
 		}
-
-		// if (!userHookLoading && !userHookError) {
-		// 	console.warn({data: userHookData?.usersPermissionsUser.data
-		// 	})
-		// 	navigation.setParams({
-		// 		userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data.attributes.url
-		// 	})
-		// 	storage.save({
-		// 		key: 'userInfos',
-		// 		data: {
-		// 			...userHookData?.usersPermissionsUser.data
-		// 		}
-		// 	}).then(data => console.log(data))
-		// }
 	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
@@ -115,6 +100,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 								description='test'
 							>
 								<CourtBallon
+									id={item.id}
 									key={item.id}
 									name={item.name}
 									distance={item.distance}
@@ -133,7 +119,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.username}/>}
+			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.username} />}
 			<BottomNavigationBar
 				isDisabled={isDisabled}
 				buttonOneNavigation='ProfileSettings'

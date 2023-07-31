@@ -54,15 +54,13 @@ export default function HomeBar({courts, userName}: HomeBarProps) {
 			</View>
 			<ScrollView className='p-5'>
 				{courts !== undefined ? courts.map((item) => (
-					// <View className='p-5' key={item.id}>
-						<CourtCardHome
-							id={item.id}
-							image={item.image}
-							name={item.name}
-							distance={item.distance}
-							type={item.type}
-						/>
-					// </View>
+					<CourtCardHome
+						id={item.id}
+						image={item.image}
+						name={item.name}
+						distance={item.distance}
+						type={item.type}
+					/>
 				)) : <ActivityIndicator size='small' color='#fff' />}
 			</ScrollView>
 		</Animated.View>

@@ -9,7 +9,9 @@ export default function CourtCardHome(props: CourtCardInfos) {
 
 	const [color, setColor] = useState("white")
 
-	console.error(props.image)
+	// console.error(props.image)
+
+	console.log(props)
 
 	return (
 		<TouchableOpacity onPress={() => navigation.navigate('CourtAvailibilityInfo', {

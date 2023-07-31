@@ -57,10 +57,10 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 
 	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
-	if (!isCourtAvailabilityLoading)
-		console.log({
-			dado_graphql: courtAvailability?.courts.data[0].attributes.court_availabilities.data.map(availability => availability.id)
-		})
+	// if (!isCourtAvailabilityLoading)
+	// 	console.log({
+	// 		dado_graphql: courtAvailability?.courts.data[0].attributes.court_availabilities.data.map(availability => availability.id)
+	// 	})
 	// if (isCourtAvailabilityError) console.log(isCourtAvailabilityError)
 	// if (!loading)
 	// 	console.log({
@@ -70,7 +70,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 
 	return (
 		<SafeAreaView className="flex flex-col justify-between h-full">
-			{loading ? <ActivityIndicator size='large' color='#F5620F' /> :
+			{isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
 				<View>
 					<View className="h-[215px] w-full">
 						<ImageBackground className="flex-1 flex flex-col" source={{
@@ -111,7 +111,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 								if (court.attributes.court_availabilities.data.length !== 0)
 									return court.attributes.court_availabilities.data.map(availability => (
 											<CourtAvailibility
-												startsAt={`${availability.attributes.startsAt}:${availability.attributes.startsAt}`}
+												startsAt={`${new Date(availability.attributes.startsAt).getHours()}:${availability.attributes.startsAt}`}
 												endsAt={`${availability.attributes.endsAt}:${availability.attributes.endsAt}`}
 												price={availability.attributes.value}
 												busy={Boolean(availability.attributes.status)}

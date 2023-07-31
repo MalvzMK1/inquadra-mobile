@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 
-export interface INextToCourtByIdResponse{
+export interface ICourtByIdResponse {
   court: {
     data: {
       id: Court['id']
@@ -38,12 +38,12 @@ export interface INextToCourtByIdResponse{
   }
 }
 
-export interface INextToCourtBiIdVariables {
+export interface ICourtByIdVariables {
 	id: string
 }
 
-export const useNextToCourtByIdQuery = gql`
-  query nextToCourtById($id: ID) {
+export const courtByIdQuery = gql`
+  query courtById($id: ID) {
   court(id: $id) {
     data {
       id
