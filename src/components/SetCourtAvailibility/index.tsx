@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import { CheckBox } from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PriceHour from '../CourtPriceHour';
@@ -7,6 +7,17 @@ import PriceHour from '../CourtPriceHour';
 export default function SetCourtAvailibility() {
     const [dayUseYes, setDayUseYes] = useState(false)
     const [dayUseNo, setDayUseNo] = useState(false)
+    const [addedComponents, setAddedComponents] = useState<JSX.Element[]>()
+    const nextIdRef = useRef(1)
+
+    const handleButtonPress = () => {
+        const newComponent = <PriceHour key={nextIdRef.current++} />
+
+        if (addedComponents && addedComponents.length > 0)
+            setAddedComponents((prevState) => [...prevState, newComponent])
+        else
+            setAddedComponents([newComponent])
+    };
 
     return (
         <View className='flex-2'>
@@ -43,16 +54,22 @@ export default function SetCourtAvailibility() {
                 </View>
 
                 <View className='h-fit w-full flex'>
-                    <PriceHour />
+                    <PriceHour key={1} />
+                    {
+                        addedComponents && addedComponents.map(component => {
+                            console.log(component.key)
+                            return component
+                        })
+                    }
                 </View>
 
             </View>
 
-            <TouchableOpacity className='h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]'>
+            <TouchableOpacity onPress={handleButtonPress} className='h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]'>
                 <Text className='text-white text-[10px]'>Adicionar horário</Text>
             </TouchableOpacity>
 
-            <View className='flex-row items-center justify-between mt-[35px] mb-[30px] border-b border-white'>
+            <View className='flex-row items-center justify-between mt-[35px] mb-[30px]'>
                 <Text className='text-white text-[16px]'>Copiar horário e valores?</Text>
 
                 <TouchableOpacity className='h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center'>
