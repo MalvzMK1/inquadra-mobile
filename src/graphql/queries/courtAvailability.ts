@@ -19,6 +19,7 @@ export interface ICourtAvailabilityResponse {
                             endsAt: CourtAvailability['endsAt']
                             status: CourtAvailability['status']
                             value: CourtAvailability['value']
+                            weekDay: WeekDays
                         }
                     }>
                 }
@@ -51,6 +52,7 @@ export const courtAvailabilityQuery = gql`
                                 endsAt
                                 status
                                 value
+                                weekDay
                             }
                         }
                     }

@@ -4,16 +4,18 @@ import React, { useState } from 'react'
 import WeekDays from "../../components/WeekDays"
 import CourtAvailibility from "../../components/CourtAvailibility"
 import BottomBlackMenu from "../../components/BottomBlackMenu"
-import { Calendar } from 'react-native-calendars'
+import {Calendar, DateData} from 'react-native-calendars'
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {addDays, format} from 'date-fns'
 import {ptBR} from 'date-fns/locale'
 import useCourtAvailability from "../../hooks/useCourtAvailability";
+import {CourtAvailabilityEntity} from "../../__generated__/graphql";
 
 type FormatedWeekDates = {
 	dayName: string,
 	localeDayInitial: string,
-	day: string
+	day: string,
+	date: Date
 }
 
 function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDates> {
@@ -40,7 +42,8 @@ function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDat
 		daysOfWeek[currentIndex] = {
 			dayName,
 			localeDayInitial,
-			day: format(weekDate, 'dd')
+			day: format(weekDate, 'dd'),
+			date: weekDate
 		};
 	}
 
@@ -50,29 +53,37 @@ function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDat
 interface ICourtAvailibilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailibilityInfo'> {}
 
 export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailibilityInfoProps) {
-	const [showCalendar, setShowCalendar] = useState(false)
-	const [dateSelected, setDateSelected] = useState(new Date())
-
 	const {
 		data: courtAvailability,
 		loading: isCourtAvailabilityLoading,
 		error: isCourtAvailabilityError
 	} = useCourtAvailability(route.params.courtId)
 
-	const [activeStates, setActiveStates] = useState(Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false));
+	const [activeStates, setActiveStates] = useState(Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false))
+	const [showCalendar, setShowCalendar] = useState(false)
+	const [dateSelected, setDateSelected] = useState(new Date())
+	const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
+	const [shownAvailabilities, setShownAvailabilities] = useState<CourtAvailabilityEntity[]>([])
 
 	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
 	function handleWeekDayClick(index: number) {
-		// Atualiza o estado apenas para o WeekDays clicado (true) e desativa os outros (false)
+		const availabilities = courtAvailability?.court.data.attributes.court_availabilities.data
+
 		const newActiveStates = Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false);
 		newActiveStates[index] = true;
 		setActiveStates(newActiveStates);
 
-		console.log(newActiveStates)
-
-		// Chamada à função para renderizar itens na página principal usando a informação do WeekDays clicado
-		// renderItemsOnMainScreen(weekdaysData[index]);
+		// setDateSelected(weekDates[index].date)
+		setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
+		if (availabilities)
+			setShownAvailabilities(availabilities.filter(availabilitie =>
+				availabilitie.attributes.weekDay.toLowerCase() === weekDates[index].dayName.toLowerCase() as unknown as WeekDays
+			))
+			// console.log(availabilities.find(availabilitie => availabilitie.attributes.weekDay === weekDates[index].dayName as unknown as WeekDays))
+			// availabilities.forEach(availability => {
+			// 	console.log(availability.attributes.weekDay, weekDates[index].dayName.toLowerCase() as unknown as WeekDays)
+			// })
 	}
 
 	return (
@@ -124,19 +135,22 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 							(
 								!isCourtAvailabilityLoading &&
 								!isCourtAvailabilityError &&
-								courtAvailability?.court.data &&
-								courtAvailability?.court.data.attributes.court_availabilities.data.length !== 0
-							) && courtAvailability.court.data.attributes.court_availabilities.data.map(availability => {
+								shownAvailabilities
+							) && shownAvailabilities.map(availability => {
+								if (!availability.attributes) return null
+
 								const startsAt = availability.attributes.startsAt.split(':');
 								const endsAt = availability.attributes.endsAt.split(':');
-								return (
-									<CourtAvailibility
-										startsAt={`${startsAt[0]}:${startsAt[1]}`}
-										endsAt={`${endsAt[0]}:${endsAt[1]}`}
-										price={availability.attributes.value}
-										busy={Boolean(!availability.attributes.status)}
-									/>
-								)
+
+								if (shownAvailabilities.length > 0)
+									return (
+										<CourtAvailibility
+											startsAt={`${startsAt[0]}:${startsAt[1]}`}
+											endsAt={`${endsAt[0]}:${endsAt[1]}`}
+											price={availability.attributes.value}
+											busy={Boolean(!availability.attributes.status)}
+										/>
+									)
 							})
 						}
 						{/*<CourtAvailibility startsAt="16:00" endsAt="17:00" price={190.90} busy={true} />*/}
