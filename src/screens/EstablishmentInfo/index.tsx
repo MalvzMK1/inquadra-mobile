@@ -1,29 +1,28 @@
 import { useState, useEffect, Key } from 'react'
 import { View, Text, Image, Dimensions, ScrollView } from "react-native"
 import { AntDesign, Ionicons } from '@expo/vector-icons'
-import { MaterialIcons } from '@expo/vector-icons'
 import { TouchableOpacity } from "react-native-gesture-handler"
-import Carousel, { ParallaxImage } from "react-native-snap-carousel"
+import Carousel from "react-native-snap-carousel"
 import { CourtCard } from "../../components/CourtCardInfo"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import useGetEstablishmentByCourtId from "../../hooks/useGetEstablishmentByCourtId"
+import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import storage from '../../utils/storage'
 import getDistanceFromLatLonInKm from '../../utils/distanceCalculator'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 
-export default function EstablishmentInfo({ route }: { route: { params: { establishmentInfo: number } } }) {
+export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
 
     let distance
-    const { data, loading, error } = useGetEstablishmentByCourtId(route.params.establishmentInfo.toString())
+    
+    const { data, loading, error } = useGetEstablishmentByCourtId(route.params?.courtId.toString())
     const infosEstablishment = data?.court.data.attributes.establishment.data.attributes
     const [userLocation, setUserLocation] = useState({
         latitude: 0,
         longitude: 0
     })
-
     const [Establishment, setEstablishment] = useState<{
         corporateName: string,
         streetName: string,
@@ -33,7 +32,6 @@ export default function EstablishmentInfo({ route }: { route: { params: { establ
         photosAmenitie: Array<string>,
         type: string
     }>()
-
     const [rating, setRating] = useState<number>()
     const [heart, setHeart] = useState(true)
     const [footerHeartColor, setFooterHeartColor] = useState("white")
@@ -108,16 +106,12 @@ export default function EstablishmentInfo({ route }: { route: { params: { establ
                 const sum = generalRating.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
                 setRating(sum / generalRating.length);
             } else {
-                // Defina um valor padrão caso não haja avaliações
                 setRating(0);
             }
         }
 
         calculateRating();
     }, [Court]);
-
-
-
 
     return (
         <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">

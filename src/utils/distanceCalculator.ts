@@ -8,7 +8,7 @@ export default function getDistanceFromLatLonInKm(
     destinationLatitude: number,
     destinationLongitude: number
 ) {
-    const earthRadiusKm = 6371; // Earth's radius in kilometers
+    const earthRadiusKm = 6371;
     const dLat = degreesToRadians(destinationLatitude - sourceLatitude);
     const dLon = degreesToRadians(destinationLongitude - sourceLongitude);
     const a =
