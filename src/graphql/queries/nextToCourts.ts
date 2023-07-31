@@ -2,89 +2,74 @@ import { gql } from "@apollo/client";
 
 
 export interface INextToCourtResponse{
-    schedulings: {
-            data: Array<{
-                id: Scheduling['id']
+    courts:{
+        data: Array<{
+          id: Court['id']
+          attributes:{
+            court_type:{
+              data:{
                 attributes:{
-                    date: Scheduling['date']
-                    valuePayed: Scheduling['valuePayed']
-                    payedStatus: Scheduling['payedStatus']
-                    owner:{
-                        data: {
-                            attributes: {
-                                username: User['username']
-                                email: User['email']
-                                cpf: User['cpf']
-                            }
-                        }
-                    }
-                users: {
-                    data: Array<{
-                        attributes: {
-                            username: User['username']
-                            email: User['email']
-                            cpf: User['cpf']
-                        }
-                    }>
+                  name: SportType['name']
                 }
-                court_availability: {
-                    data: {
-                        attributes: {
-                            startsAt: CourtAvailability['startsAt']
-                            endsAt: CourtAvailability['endsAt']
-                            value:CourtAvailability['value']
-                            dayUseService: CourtAvailability['dayUseService']
-                        }
-                    }
-                }
+              }
             }
+            name: Court['name']
+            photo:{
+              data: Array<{
+                attributes:{
+                  url: Photo['url']
+                }
+              }>
+            }
+            establishment: {
+              data: {
+                id: Establishment['id']
+                attributes:{
+                  address:{
+                    latitude: Address['latitude']
+                    longitude: Address['longitude']
+                  }
+                }
+              }
+            }
+          }
         }>
-    }
+      }
 }
 
 export const useNextToCourtQuery = gql`
-    query GetEstablishmentsSchedulings ($id: ID, $weekDay: String!){
-    schedulings(
-        filters: {
-        court_availability: { court: { establishment: { id: { eq: $id } } } }
-        date: { eq: $weekDay }
-        }
-        ) {
-            data {
-                id  
-                attributes {
-                    date
-                    valuePayed
-                    payedStatus
-                    owner {
-                        data {
-                            attributes {
-                                username
-                                email
-                                cpf
-                            }
-                        }
-                    }
-                users {
-                    data {
-                        attributes {
-                            username
-                            email
-                            cpf
-                        }
-                    }
-                }
-                court_availability {
-                    data {
-                        attributes {
-                            startsAt
-                            endsAt
-                            value
-                            dayUseService
-                        }
-                    }
-                }
+query nextToCourts {
+  courts {
+    data {
+      id
+      attributes {
+        court_type {
+          data {
+            attributes {
+              name
             }
+          }
         }
+        name
+        photo {
+          data {
+            attributes {
+              url
+            }
+          }
+        }
+        establishment {
+          data {
+            id
+            attributes {
+              address {
+                latitude
+                longitude
+              }
+            }
+          }
+        }
+      }
     }
+  }
 }`

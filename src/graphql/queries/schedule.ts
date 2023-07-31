@@ -8,7 +8,7 @@ export interface IScheduleResponse{
         court_type: {
           data:{
             id: SportType['id']
-            attributes:{
+            attributes: {
               name: SportType['name']
             }
           }
