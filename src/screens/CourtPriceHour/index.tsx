@@ -1,13 +1,9 @@
 import { View, Text } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import React, { useState } from "react"
-import PriceHour from '../../components/CourtPriceHour';
 import CourtAvailibilityDay from '../../components/CourtAvailibilityDay';
 
-let test: string
-
 export default function CourtPriceHour() {
-    const [componentInstances, setComponentInstances] = useState([PriceHour])
     const [mondayView, setMondayView] = useState(true)
     const [tuesdayView, setTuesdayView] = useState(false)
     const [wednesdayView, setWednesdayView] = useState(false)
@@ -111,13 +107,13 @@ export default function CourtPriceHour() {
             </View>
 
             <View className='w-full h-full mt-[15px]'>
-                <CourtAvailibilityDay key={1} day='Segunda-feira' buttonBoolean={mondayView} setter={setMondayView} />
-                <CourtAvailibilityDay key={2} day='Terça-feira' buttonBoolean={tuesdayView} setter={setTuesdayView} />
-                <CourtAvailibilityDay key={3} day='Quarta-feira' buttonBoolean={wednesdayView} setter={setWednesdayView} />
-                <CourtAvailibilityDay key={4} day='Quinta-feira' buttonBoolean={thursdayView} setter={setThursdayView} />
-                <CourtAvailibilityDay key={5} day='Sexta-feira' buttonBoolean={fridayView} setter={setFridayView} />
-                <CourtAvailibilityDay key={6} day='Sábado' buttonBoolean={saturdayView} setter={setSaturdayView} />
-                <CourtAvailibilityDay key={7} day='Domingo' buttonBoolean={sundayView} setter={setSundayView} />
+                <CourtAvailibilityDay key={1} day='Segunda-feira' buttonBoolean={mondayView} setter={setMondayView} setAllFalse={setAllFalse}/>
+                <CourtAvailibilityDay key={2} day='Terça-feira' buttonBoolean={tuesdayView} setter={setTuesdayView} setAllFalse={setAllFalse}/>
+                <CourtAvailibilityDay key={3} day='Quarta-feira' buttonBoolean={wednesdayView} setter={setWednesdayView} setAllFalse={setAllFalse}/>
+                <CourtAvailibilityDay key={4} day='Quinta-feira' buttonBoolean={thursdayView} setter={setThursdayView} setAllFalse={setAllFalse}/>
+                <CourtAvailibilityDay key={5} day='Sexta-feira' buttonBoolean={fridayView} setter={setFridayView} setAllFalse={setAllFalse}/>
+                <CourtAvailibilityDay key={6} day='Sábado' buttonBoolean={saturdayView} setter={setSaturdayView} setAllFalse={setAllFalse}/>
+                <CourtAvailibilityDay key={7} day='Domingo' buttonBoolean={sundayView} setter={setSundayView} setAllFalse={setAllFalse}/>
             </View>
         </View>
     )
