@@ -1,9 +1,10 @@
 type CourtAvailability = {
     id: string
-    status: string
-    dayUseService: string
-    startsAt: Date
-    endsAt: Date
+    status: Boolean
+    dayUseService: Boolean
+    startsAt: DateTime
+    endsAt: DateTime
     weekDay: string
     value: number
+    title: string
 }

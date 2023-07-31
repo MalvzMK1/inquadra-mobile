@@ -22,16 +22,23 @@ import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import {NavigationProp, useNavigation} from "@react-navigation/native";
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
+import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
+import ProfileEstablishmentRegistration from '../../screens/ProfileEstablishmentRegistration';
+import RegisterEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/RegisterEstablishment';
+import RegisterCourt from '../../screens/RegisterCourt';
+import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
+import AllVeryWell from '../../screens/AllVeryWell';
+import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
+import HomeEstablishment from '../../screens/HomeEstablishment';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 	const [menuBurguer, setMenuBurguer] = useState(false)
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
-
 	return (
 		<Navigator>
-						<Screen
+			<Screen
 				name="Login"
 				component={Login}
 				options={{
