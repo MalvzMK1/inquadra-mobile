@@ -19,7 +19,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 			courtImage: props.image,
 			courtName: props.name
 		})}>
-			<View className='flex flex-row flex-1 bg-red-500 gap-x-[14px] mb-5'>
+			<View className='flex flex-row flex-1 gap-x-[14px] mb-5'>
 				{/*<TouchableOpacity className='w-12 h-22 rounded-[10px] bg-red-500' onPress={() => navigation.navigate('CourtAvailibilityInfo', {*/}
 				{/*	courtId: props.id*/}
 				{/*})}>*/}
