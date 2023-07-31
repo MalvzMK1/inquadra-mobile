@@ -5,9 +5,8 @@ import WeekDays from "../../components/WeekDays"
 import CourtAvailibility from "../../components/CourtAvailibility"
 import BottomBlackMenu from "../../components/BottomBlackMenu"
 import { Calendar } from 'react-native-calendars'
-import useCourtById from "../../hooks/useCourtById";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {addDays, addWeeks, format, startOfWeek} from 'date-fns'
+import {addDays, format} from 'date-fns'
 import {ptBR} from 'date-fns/locale'
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 
@@ -48,12 +47,11 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 	const [showCalendar, setShowCalendar] = useState(false)
 	const [dateSelected, setDateSelected] = useState(new Date())
 
-	const {data, loading, error} = useCourtById(route.params.courtId)
 	const {
 		data: courtAvailability,
 		loading: isCourtAvailabilityLoading,
 		error: isCourtAvailabilityError
-	} = useCourtAvailability('2')
+	} = useCourtAvailability(route.params.courtId)
 
 	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
@@ -71,7 +69,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 	return (
 		<SafeAreaView className="flex flex-col justify-between h-full">
 			{isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
-				<View>
+				<ScrollView>
 					<View className="h-[215px] w-full">
 						<ImageBackground className="flex-1 flex flex-col" source={{
 							uri: route.params.courtImage
@@ -109,14 +107,18 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 						{
 							(!isCourtAvailabilityLoading && !isCourtAvailabilityError && courtAvailability?.courts.data) && courtAvailability.courts.data.map(court => {
 								if (court.attributes.court_availabilities.data.length !== 0)
-									return court.attributes.court_availabilities.data.map(availability => (
+									return court.attributes.court_availabilities.data.map(availability => {
+										const startsAt = availability.attributes.startsAt.split(':');
+										const endsAt = availability.attributes.startsAt.split(':');
+										return (
 											<CourtAvailibility
-												startsAt={`${new Date(availability.attributes.startsAt).getHours()}:${availability.attributes.startsAt}`}
-												endsAt={`${availability.attributes.endsAt}:${availability.attributes.endsAt}`}
+												startsAt={`${startsAt[0]}:${startsAt[1]}`}
+												endsAt={`${endsAt[0]}:${endsAt[1]}`}
 												price={availability.attributes.value}
-												busy={Boolean(availability.attributes.status)}
+												busy={Boolean(!availability.attributes.status)}
 											/>
-										))
+										)
+									})
 								}
 							)
 						}
@@ -134,7 +136,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 						</TouchableOpacity>
 					</View>
 					<BottomBlackMenu />
-				</View>
+				</ScrollView>
 			}
 		</SafeAreaView>
 	)
