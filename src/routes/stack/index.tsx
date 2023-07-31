@@ -22,7 +22,7 @@ import RegisterCourt from '../../screens/RegisterCourt';
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
-import HomeEstablishmenttt from '../../screens/HomeEstablishment';
+import HomeEstablishment from '../../screens/HomeEstablishment';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -34,7 +34,7 @@ export default function () {
 		<Navigator>
 			<Screen
 				name="HomeEstablishment"
-				component={HomeEstablishmenttt}
+				component={HomeEstablishment}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
