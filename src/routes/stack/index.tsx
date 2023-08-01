@@ -91,7 +91,9 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							navigation.navigate('ProfileSettings')
+							navigation.navigate('ProfileSettings', {
+								userPhoto: params.userPhoto
+							})
 						}}>
 							<Image
 								source={params.userPhoto ? {uri: `http://192.168.0.10:1337${params.userPhoto}`} : require('../../assets/default-user-image.png')}
@@ -146,7 +148,9 @@ export default function () {
 					},
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							navigation.navigate('ProfileSettings')
+							navigation.navigate('ProfileSettings', {
+								userPhoto: params.userPhoto
+							})
 						}}>
 							<Image
 								source={params.userPhoto ? {uri: `http://192.168.0.10:1337${params.userPhoto}`} : require('../../assets/default-user-image.png')}
@@ -269,11 +273,6 @@ export default function () {
 							/>
 						</TouchableOpacity>
 					),
-					// headerLeft: ({ navigation }) => (
-					// 	<TouchableOpacity onPress={() => navigation.goBack()}>
-					// 		<Icon name="arrow-back" size={25} color="white" />
-					// 	</TouchableOpacity>
-					// ),
 				})}
 			/>
 			<Screen
@@ -311,6 +310,13 @@ export default function () {
 				component={CourtAvailibilityInfo}
 				options={{
 					headerShown: false,
+				}}
+			/>
+			<Screen
+				name='ReservationPaymentSign'
+				component={ReservationPaymentSign}
+				options={{
+					headerShown: false
 				}}
 			/>
 		</Navigator>

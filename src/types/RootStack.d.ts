@@ -36,5 +36,10 @@ type RootStackParamList = {
 		courtId: string,
 		courtImage: string,
 		courtName: string
+	};
+	ReservationPaymentSign: {
+		courtId: string,
+		courtImage: string,
+		courtName: string
 	}
 }

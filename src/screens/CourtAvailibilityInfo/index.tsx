@@ -156,7 +156,14 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 						}
 					</ScrollView>
 					<View className="h-fit w-full p-[15px] mt-[30px]">
-						<TouchableOpacity className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'>
+						<TouchableOpacity
+							className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
+							onPress={() => navigation.navigate('ReservationPaymentSign', {
+								courtName: route.params.courtName,
+								courtImage: route.params.courtImage,
+								courtId: route.params.courtId
+							})}
+						>
 							<Text className='text-white'>RESERVAR</Text>
 						</TouchableOpacity>
 					</View>
