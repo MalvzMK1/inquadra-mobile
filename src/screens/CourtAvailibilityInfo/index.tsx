@@ -90,16 +90,14 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 	return (
 		<SafeAreaView className="flex flex-col justify-between h-full">
 			{isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
-				<ScrollView>
-					<View className="h-[215px] w-full">
-						<ImageBackground className="flex-1 flex flex-col" source={{
-							uri: route.params.courtImage
-						}} />
-					</View>
+				<ScrollView className='h-screen flex flex-col flex-1 bg-violet-950'>
+					<ImageBackground className="h-[215px] w-full" source={{
+						uri: route.params.courtImage
+					}} />
 
-					<View className="h-fit mt-[10px]">
+					<View className="h-fit mt-2.5">
 						<View className="h-fit items-center">
-							<Text className="text-[20px] font-black">{route.params.courtName}</Text>
+							<Text className="text-xl font-black">{route.params.courtName}</Text>
 							{!showCalendar && (
 								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
 									{
@@ -127,10 +125,13 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 									}}
 								/>
 							)}
-							<TouchableOpacity onPress={() => setShowCalendar(!showCalendar)} className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px]"></TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => setShowCalendar(!showCalendar)}
+								className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px]"
+							/>
 						</View>
 					</View>
-					<ScrollView className="max-h-[390px] w-full pl-[10px] pr-[10px] mt-[30px]">
+					<ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[30px] flex">
 						{
 							(
 								!isCourtAvailabilityLoading &&
