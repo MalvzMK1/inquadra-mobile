@@ -6,11 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="e61ef1f0-261f-4edd-9425-22e4df35fa4e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/uploadImage.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/Country.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Country.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -38,7 +35,7 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="WI564T628" />
-                    <option name="lastUsedInstant" value="1690453319" />
+                    <option name="lastUsedInstant" value="1690887704" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="develop" />
@@ -76,22 +73,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI564T628",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "D:/Development/work/inquadra/inquadra-mobile/node_modules/jest",
-    "nodejs_package_manager_path": "yarn",
-    "settings.editor.selected.configurable": "preferences.sourceCode.TypeScript",
-    "ts.external.directory.path": "D:\\Development\\work\\inquadra\\inquadra-mobile\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;WI564T628&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;D:/Development/work/inquadra/inquadra-mobile/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.TypeScript&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;D:\\Development\\work\\inquadra\\inquadra-mobile\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Should upload an image" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
