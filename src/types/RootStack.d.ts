@@ -42,4 +42,9 @@ type RootStackParamList = {
 		courtImage: string,
 		courtName: string
 	}
+	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
+		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
+	} & {
+		photos: string[]
+	}
 }

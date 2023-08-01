@@ -71,9 +71,16 @@ export default function () {
 			/>
 			<Screen
 				name="EstablishmentRegister"
-				component={EstablishmentRegister}
+				component={RegisterEstablishment}
 				options={{
 					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name='RegisterCourts'
+				component={RegisterCourt}
+				options={{
+					headerShown: false
 				}}
 			/>
 			<Screen
