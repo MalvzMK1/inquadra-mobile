@@ -30,14 +30,14 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
+							onPress={() => navigation.navigate('ProfileSettings')}>
 							<Image
 								source={require('../../assets/settings_black_icon.png')}
 							/>
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
+							onPress={() => navigation.navigate('FavoriteCourts')}>
 							<Image
 								source={require('../../assets/black_heart.png')}
 							/>

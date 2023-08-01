@@ -149,8 +149,8 @@ export default function Home() {
 			</Animated.View>
 			<BottomNavigationBar 
 			isDisabled={isDisabled} 
-			playerScreen={false}
-			establishmentScreen={true}
+			playerScreen={true}
+			establishmentScreen={false}
 			/>
 		</View>
 	);
