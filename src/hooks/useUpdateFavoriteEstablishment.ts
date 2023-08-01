@@ -2,14 +2,11 @@ import { useMutation } from "@apollo/client";
 
 import {
     IUpdateFavoriteEstablishment,
-    updateFavoriteEstablishmentsMutation
+    IUpdateFavoriteEstablishmentVariables,
+    updateFavoriteEstablishmentsMutation,
 } from "../graphql/mutations/updateFavoriteEstablishments"
 
-export default function useUpdateFavoriteEstablishment(id: string, favorite_establishments: [string]){
-    return useMutation<IUpdateFavoriteEstablishment>(updateFavoriteEstablishmentsMutation, {
-        variables:{
-            id,
-            favorite_establishments
-        }
-    })
+
+export default function useUpdateFavoriteEstablishment(){    
+    return useMutation<IUpdateFavoriteEstablishment, IUpdateFavoriteEstablishmentVariables>(updateFavoriteEstablishmentsMutation)
 }

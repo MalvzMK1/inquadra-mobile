@@ -17,8 +17,13 @@ export interface IUpdateFavoriteEstablishment {
     }
 }
 
+export interface IUpdateFavoriteEstablishmentVariables {
+  user_id: string,
+  favorite_establishments: string[]
+}
+
 export const updateFavoriteEstablishmentsMutation = gql`
-mutation updateFavoriteEstablishment($user_id: ID, $favorite_establishments: [ID]){
+mutation updateFavoriteEstablishment($user_id: ID!, $favorite_establishments: [ID]){
 	updateUsersPermissionsUser(
         id: $user_id, 
         data:{

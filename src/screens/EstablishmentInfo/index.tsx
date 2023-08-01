@@ -1,29 +1,31 @@
-import { useState, useEffect, Key } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, Image, Dimensions, ScrollView } from "react-native"
-import { AntDesign, Ionicons } from '@expo/vector-icons'
+import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import Carousel from "react-native-snap-carousel"
 import { CourtCard } from "../../components/CourtCardInfo"
 import useGetEstablishmentByCourtId from "../../hooks/useGetEstablishmentByCourtId"
-import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import getDistanceFromLatLonInKm from '../../utils/distanceCalculator'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
+import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
-
     let distance
-    
-    const { data, loading, error } = useGetEstablishmentByCourtId(route.params?.courtId.toString())
-    const infosEstablishment = data?.court.data.attributes.establishment.data.attributes
+    const EstablishmentInfos = useGetEstablishmentByCourtId(route.params?.courtID.toString())
+    const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(route.params.userID)
+    const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
+
     const [userLocation, setUserLocation] = useState({
         latitude: 0,
         longitude: 0
     })
     const [Establishment, setEstablishment] = useState<{
+        id: number
         corporateName: string,
         streetName: string,
         photo: string,
@@ -32,17 +34,70 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         photosAmenitie: Array<string>,
         type: string
     }>()
+
+    const [arrayfavoriteEstablishment, setArrayFavoriteEstablishment] = useState<Array<{ id: any }>>([])
+
     const [rating, setRating] = useState<number>()
-    const [heart, setHeart] = useState(true)
+    const [heart, setHeart] = useState<boolean>(false)
     const [footerHeartColor, setFooterHeartColor] = useState("white")
 
     const [Court, setCourt] = useState<Array<{
+        id: number,
         name: string,
         rating: number,
         court_type: string,
         court_availabilities: boolean | undefined
         photo: string,
     }>>([])
+
+    useEffect(() => {
+        const infosEstablishment = EstablishmentInfos.data?.court.data.attributes.establishment.data
+        if (!EstablishmentInfos.error && !EstablishmentInfos.loading) {
+            const courts = infosEstablishment.attributes.courts.data.map((court: any) => {
+                return {
+                    id: court.id,
+                    name: court.attributes.name,
+                    rating: court.attributes.rating,
+                    court_type: court.attributes.court_type.data.attributes.name,
+                    photo: 'http://192.168.15.5:1337' + court.attributes.photo.data[0].attributes.url,
+                }
+            })
+            const establishment = {
+                id: infosEstablishment.id,
+                corporateName: infosEstablishment.attributes.corporateName,
+                type: infosEstablishment.attributes.type,
+                streetName: infosEstablishment.attributes.address.streetName,
+                latitude: infosEstablishment.attributes.address.latitude,
+                longitude: infosEstablishment.attributes.address.longitude,
+                photo: 'http://192.168.15.5:1337' + infosEstablishment.attributes.photos.data[0].attributes.url,
+                photosAmenitie: infosEstablishment.attributes.photosAmenitie.data.map((photo: { attributes: { url: string } }) => "http://192.168.15.5:1337" + photo.attributes.url)
+            }
+            setEstablishment(establishment)
+            if (courts) {
+                setCourt((prevCourts) => [...prevCourts, ...courts])
+            }
+        }
+    }, [EstablishmentInfos.data, EstablishmentInfos.loading])
+
+    useEffect(() => {
+
+        if (!FavoriteEstablishment.error && !FavoriteEstablishment.loading) {
+            const favoriteEstablishmentId = FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+                (establishment) => {
+                    return { id: establishment.id }
+                }
+            )
+            if (favoriteEstablishmentId) {
+                setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
+            }
+        }
+
+    }, [FavoriteEstablishment.error, FavoriteEstablishment.loading]);
+
+    useEffect(() => {
+        const isFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
+        setHeart(isFavorite);
+    }, [arrayfavoriteEstablishment, Establishment?.id]);
 
     useEffect(() => {
         async function fetchData() {
@@ -60,31 +115,43 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         }
         fetchData()
     }, [])
-    useEffect(() => {
-        if (!error && !loading) {
-            const courts = infosEstablishment.courts.data.map((court: any) => {
-                return {
-                    name: court.attributes.name,
-                    rating: court.attributes.rating,
-                    court_type: court.attributes.court_type.data.attributes.name,
-                    photo: 'http://192.168.15.5:1337' + court.attributes.photo.data[0].attributes.url,
-                }
+
+    const handlePressFavoriteEstablishment = () => {
+
+        let newArrayfavoriteEstablishment = [""]
+        if (!heart) {
+            newArrayfavoriteEstablishment = arrayfavoriteEstablishment.map((item) => {
+                return item.id
             })
-            const establishment = {
-                corporateName: infosEstablishment.corporateName,
-                type: infosEstablishment.type,
-                streetName: infosEstablishment.address.streetName,
-                latitude: infosEstablishment.address.latitude,
-                longitude: infosEstablishment.address.longitude,
-                photo: 'http://192.168.15.5:1337' + infosEstablishment.photos.data[0].attributes.url,
-                photosAmenitie: infosEstablishment.photosAmenitie.data.map((photo: { attributes: { url: string } }) => "http://192.168.15.5:1337" + photo.attributes.url)
+            if (Establishment) {
+                newArrayfavoriteEstablishment.push(Establishment?.id.toString())
             }
-            setEstablishment(establishment)
-            if (courts) {
-                setCourt((prevCourts) => [...prevCourts, ...courts])
-            }
+
+            console.log("caso:", true);
+            
+        } else {
+            const filteredArray = arrayfavoriteEstablishment.filter((item) =>
+                item.id !== Establishment?.id
+            );
+            newArrayfavoriteEstablishment = filteredArray.map((item) => {
+                return item.id
+            })
+
+            console.log("caso:", false);
+            
+
         }
-    }, [data, loading])
+
+        setHeart((prevState) => !prevState);
+
+        updateFavoriteEstablishment({
+            variables: {
+                user_id: route.params.userID,
+                favorite_establishments: newArrayfavoriteEstablishment
+            }
+        })
+
+    };
 
     if (Establishment) {
         distance = getDistanceFromLatLonInKm(Establishment?.latitude, Establishment?.longitude, userLocation.latitude, userLocation.longitude)
@@ -119,19 +186,20 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 <View className="flex flex-row justify-between items-center">
                     <Text className="font-black text-lg">{Establishment?.corporateName.toUpperCase()}</Text>
                     <View className='flex flex-row items-center gap-x-8'>
-                        <TouchableOpacity className='flex justify-center items-center h-12 w-8' onPress={() => setHeart((prevState) => !prevState)}>
+                        <TouchableOpacity className='flex justify-center items-center h-12 w-8'
+                            onPress={handlePressFavoriteEstablishment}>
                             {
-                                heart ?
+                                !heart ?
                                     < AntDesign name="hearto" size={26} color="black" />
                                     :
                                     < AntDesign name="heart" size={24} color="red" />
                             }
                         </TouchableOpacity>
                         <TouchableOpacity>
-                            <Image source={require('../../assets/share_icon.png')}></Image>
+                            <Ionicons name="share-social" size={30} color="black" />
                         </TouchableOpacity>
                         <TouchableOpacity>
-                            <Image source={require('../../assets/phone_icon.png')}></Image>
+                            <FontAwesome name="phone" size={30} color="black" />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -174,6 +242,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                         <Text className="text-[18px] leading-[24px] font-black">{type.toUpperCase()}</Text>
                         {Court.filter((court) => court.court_type === type).map((court) => (
                             <CourtCard
+                                key={court.id}
                                 image={court.photo}
                                 name={court.name}
                                 type={court.court_type}

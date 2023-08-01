@@ -8,6 +8,7 @@ export interface IEstablishmentByCourtId {
         attributes: {
           establishment: {
             data: {
+              id: string,
               attributes: {
                 type: string,
                 corporateName: Establishment["corporateName"],
@@ -73,14 +74,14 @@ export interface IEstablishmentByCourtId {
   }
 }
 
-export const establishmentSchedulingQuery = gql`
-
+export const EstablishmentByCourtIdQuery = gql`
 query getEstablishmentbyCourtId($id: ID) {
   court(id: $id) {
     data{
       attributes{
         establishment{
           data{
+            id
             attributes{
               type
               corporateName

@@ -24,13 +24,13 @@ interface HomeBarProps {
 		distance: number,
 	}>,
 	userName: string | undefined
+	userID: string
+	photoUser: string | undefined
 }
 
-export default function HomeBar({courts, userName}: HomeBarProps) {
+export default function HomeBar({courts, userName, userID, photoUser}: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
-
-	const navigation = useNavigation()
 
 	useAnimatedReaction(
 		() => expanded,
@@ -58,7 +58,10 @@ export default function HomeBar({courts, userName}: HomeBarProps) {
 			<ScrollView className='p-5'>
 				{courts !== undefined ? courts.map((item) => (
 					<CourtCardHome
+						key={item.id}
 						id={item.id}
+						userID={userID}
+						photoUser={photoUser}
 						image={item.image}
 						name={item.name}
 						distance={item.distance}

@@ -31,7 +31,11 @@ type RootStackParamList = {
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: undefined;
 	DescriptionInvited: undefined;
-	EstablishmentInfo: undefined;
+	EstablishmentInfo: {
+		courtID:string,
+		userID: string,
+		userPhoto: string | undefined,
+	};
 	CourtAvailibilityInfo: {
 		courtId: string,
 		courtImage: string,
