@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, SafeAreaView, Image, ScrollView, ActivityIndicator} from "react-native"
+import {View, Text, ImageBackground, SafeAreaView, ScrollView, ActivityIndicator} from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import React, { useState } from 'react'
 import WeekDayButton from "../../components/WeekDays"
@@ -9,8 +9,6 @@ import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {addDays, format} from 'date-fns'
 import {ptBR} from 'date-fns/locale'
 import useCourtAvailability from "../../hooks/useCourtAvailability";
-import {CourtAvailabilityEntity} from "../../__generated__/graphql";
-import {ICourtAvailabilityResponse} from "../../graphql/queries/courtAvailability";
 
 type FormatedWeekDates = {
 	dayName: string,
@@ -61,11 +59,11 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 
 	const [activeStates, setActiveStates] = useState(Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false))
 	const [showCalendar, setShowCalendar] = useState(false)
-	const [dateSelected, setDateSelected] = useState(new Date())
+	const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 	const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
 	const [shownAvailabilities, setShownAvailabilities] = useState<GraphQLCourtAvailability[]>([])
 
-	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
+	const weekDates: FormatedWeekDates[] = getWeekDays(selectedDate)
 
 	function handleWeekDayClick(index: number) {
 		const availabilities = courtAvailability?.court.data.attributes.court_availabilities.data
@@ -74,17 +72,19 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 		newActiveStates[index] = true;
 		setActiveStates(newActiveStates);
 
-		console.log(availabilities[0].attributes.weekDay, weekDates[index].dayName)
-
 		setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
 		if (availabilities)
 			setShownAvailabilities(availabilities.filter(availabilitie =>
 				availabilitie.attributes.weekDay === weekDates[index].dayName as unknown as WeekDays
 			))
-			// console.log(availabilities.find(availabilitie => availabilitie.attributes.weekDay === weekDates[index].dayName as unknown as WeekDays))
-			// availabilities.forEach(availability => {
-			// 	console.log(availability.attributes.weekDay, weekDates[index].dayName.toLowerCase() as unknown as WeekDays)
-			// })
+	}
+
+	function handleCalendarClick(data: DateData) {
+		const date = new Date(data.dateString)
+		const weekDay = format(addDays(date, 1), 'eeee')
+
+		setSelectedDate(date)
+		setSelectedWeekDate(weekDay as WeekDays)
 	}
 
 	return (
@@ -119,12 +119,11 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 							{showCalendar && (
 								<Calendar
 									className="h-fit w-96"
-									onDayPress={day => {
-										// let dayItem: Date = new Date(day.dateString)
-										// setDateSelected(day.dateString)
-										}}
+									current={new Date().toDateString()}
+									onDayPress={handleCalendarClick}
 									markedDates={{
-										// [dateSelected]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
+										[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
+										// '2023-08-02': { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
 									}}
 								/>
 							)}
@@ -154,13 +153,6 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 									)
 							})
 						}
-						{/*<CourtAvailibility startsAt="16:00" endsAt="17:00" price={190.90} busy={true} />*/}
-						{/*<CourtAvailibility startsAt="17:00" endsAt="18:00" price={190.90} busy={false} />*/}
-						{/*<CourtAvailibility startsAt="19:00" endsAt="20:00" price={190.90} busy={false} />*/}
-						{/*<CourtAvailibility startsAt="20:00" endsAt="21:00" price={190.90} busy={false} />*/}
-						{/*<CourtAvailibility startsAt="21:00" endsAt="22:00" price={190.90} busy={true} />*/}
-						{/*<CourtAvailibility startsAt="22:00" endsAt="23:00" price={190.90} busy={false} />*/}
-						{/*<CourtAvailibility startsAt="23:00" endsAt="00:00" price={190.90} busy={false} />*/}
 					</ScrollView>
 					<View className="h-fit w-full p-[15px] mt-[30px]">
 						<TouchableOpacity className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'>
