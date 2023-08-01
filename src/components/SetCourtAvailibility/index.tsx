@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import React, { useState, useRef } from "react"
 import { CheckBox } from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -7,10 +7,10 @@ import PriceHour from '../CourtPriceHour';
 export default function SetCourtAvailibility() {
     const [dayUseYes, setDayUseYes] = useState(false)
     const [dayUseNo, setDayUseNo] = useState(false)
-    const [addedComponents, setAddedComponents] = useState<JSX.Element[]>()
+    const [addedComponents, setAddedComponents] = useState<JSX.Element[]>([])
     const nextIdRef = useRef(1)
 
-    const handleButtonPress = () => {
+    const handleAddNewComponentButton = () => {
         const newComponent = <PriceHour key={nextIdRef.current++} />
 
         if (addedComponents && addedComponents.length > 0)
@@ -19,8 +19,52 @@ export default function SetCourtAvailibility() {
             setAddedComponents([newComponent])
     };
 
+    const [copyButtonClick, setCopyButtonClick] = useState(false)
+    const [pasteButtonClick, setPasteButtonClick] = useState(false)
+    const [copiedComponents, setCopiedComponents] = useState<JSX.Element[]>([])
+
+    const handleCopyButton = () => {
+        if (addedComponents && addedComponents.length > 0) {
+            addedComponents.map(item => {
+                setCopyButtonClick(!copyButtonClick)
+                setPasteButtonClick(!pasteButtonClick)
+                setCopiedComponents((prevState) => [...prevState, item])
+            })
+        } else {
+            Alert.alert(
+                'ERRO!',
+                'Adicione um horário para que seja possível copiar',
+                [
+                  {
+                    text: 'VOLTAR',
+                    style: 'cancel'
+                  },
+                ],
+                {
+                  cancelable: true
+                }
+              );
+        }
+    }
+
+    const handlePasteButton = () => {
+        setAddedComponents(copiedComponents)
+    }
+
     return (
-        <View className='flex-2'>
+        <View className='mt-[10px]'>
+            {pasteButtonClick && (
+                <View className='flex-row items-center justify-between mt-[25px] mb-[25px]'>
+                    <Text className='text-white text-[16px]'>Colar horário e valores?</Text>
+
+                    <TouchableOpacity onPress={() => {
+                        handlePasteButton()
+                    }} className='h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center'>
+                        <Text className='text-[11px]'>Colar</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
             <Text className='text-white text-[16px]'>A quadra possui serviço de Day-Use?</Text>
 
             <View className='flex-row'>
@@ -54,10 +98,8 @@ export default function SetCourtAvailibility() {
                 </View>
 
                 <View className='h-fit w-full flex'>
-                    <PriceHour key={1} />
                     {
                         addedComponents && addedComponents.map(component => {
-                            console.log(component.key)
                             return component
                         })
                     }
@@ -65,17 +107,20 @@ export default function SetCourtAvailibility() {
 
             </View>
 
-            <TouchableOpacity onPress={handleButtonPress} className='h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]'>
+            <TouchableOpacity onPress={handleAddNewComponentButton} className='h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]'>
                 <Text className='text-white text-[10px]'>Adicionar horário</Text>
             </TouchableOpacity>
 
-            <View className='flex-row items-center justify-between mt-[35px] mb-[30px]'>
-                <Text className='text-white text-[16px]'>Copiar horário e valores?</Text>
+            {!copyButtonClick && (
+                <View className='flex-row items-center justify-between mt-[35px] mb-[30px]'>
+                    <Text className='text-white text-[16px]'>Copiar horário e valores?</Text>
 
-                <TouchableOpacity className='h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center'>
-                    <Text className='text-[11px]'>Copiar</Text>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity onPress={handleCopyButton} className='h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center'>
+                        <Text className='text-[11px]'>Copiar</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
         </View>
     )
 }
