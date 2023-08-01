@@ -20,13 +20,13 @@ import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 export default function HomeEstablishment() {
 
 
-    const { loading, error, data } = useGetFavoriteById("1");
-      console.log(data);
-      if (loading) return <Text>Loading...</Text>;
-      if (error) {
-        return <Text>Error: {JSON.stringify(error)}</Text>;
-      }
-      return <Text>Hello {JSON.stringify(data)}!</Text>;
+    // const { loading, error, data } = useGetFavoriteById("1");
+    //   console.log(data);
+    //   if (loading) return <Text>Loading...</Text>;
+    //   if (error) {
+    //     return <Text>Error: {JSON.stringify(error)}</Text>;
+    //   }
+    //   return <Text>Hello {JSON.stringify(data)}!</Text>;
 
     const navigation = useNavigation();
     const [selected, setSelected] = useState('');

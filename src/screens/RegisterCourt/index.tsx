@@ -12,12 +12,8 @@ import { AntDesign } from '@expo/vector-icons';
 
 export default function RegisterCourt() {
 
-    const [cpf, setCpf] = useState("");
-    const [phone, setPhone] = useState("");
-    const [cep, setCep] = useState("")
-    const [isChecked, setIsChecked] = useState(false)
+   
     const navigation = useNavigation()
-    const [profilePicture, setProfilePicture] = useState(null);
 
     const [photos, setPhotos] = useState([]);
 

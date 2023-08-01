@@ -23,6 +23,7 @@ import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import HomeEstablishment from '../../screens/HomeEstablishment';
+import InfoProfileEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -32,6 +33,33 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="InfoProfileEstablishment"
+				component={InfoProfileEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="HomeEstablishment"
 				component={HomeEstablishment}

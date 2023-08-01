@@ -2,15 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input'; 
-import { TextInputMask } from 'react-native-masked-text';
+import { SelectList } from 'react-native-dropdown-select-list';
+import { red700 } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
 
-export default function ProfileSettings() {
-  
+export default function InfoProfileEstablishment() {
   
 
   const [expiryDate, setExpiryDate] = useState('');
@@ -21,17 +19,29 @@ export default function ProfileSettings() {
 
   const [cvv, setCVV] = useState('');
 
+  const dataEstablishment = [
+    {key:'1', value:'Razão Social'},
+    {key:'2', value:'Nome Fantasia'},
+    {key:'3', value:'Endereço'},
+    {key:'4', value:'CNPJ'},
+    {key:'5', value:'Alterar Senha'},
+    ]
+
+    const dataAmenities = [
+        {key:'1', value:'Estacionamento'},
+        {key:'2', value:'Bar & Restaurante'},
+        {key:'3', value:'Vestiário'},
+        {key:'4', value:'Espaço Kids'},
+    ]
+
+    const dataCourts = [
+        {key:'1', value:'Quadra 1'},
+        {key:'2', value:'Campo 1'},
+        {key:'3', value:'Quadra 2'},
+        {key:'4', value:'Campo 2'},
+    ]
 
   const [selected, setSelected] = React.useState("");
-  const countriesData = [
-    { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    { key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
-    { key: '3', value: 'Portugal', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    { key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    { key: '5', value: 'Canadá', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    { key: '6', value: 'Itália', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    { key: '7', value: 'Reino Unido', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-  ]
 const [profilePicture, setProfilePicture] = useState(null);
 
   const handleProfilePictureUpload = async () => {
@@ -61,12 +71,7 @@ const [profilePicture, setProfilePicture] = useState(null);
 
   const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
-  const [cardData, setCardData] = useState({
-    cardNumber: '',
-    expirationDate: '',
-    cvv: '',
-    country: ''
-  });
+
   const [showCameraIcon, setShowCameraIcon] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
@@ -76,6 +81,8 @@ const [profilePicture, setProfilePicture] = useState(null);
     setShowCameraIcon(false);
   };
 
+
+  const [selectedValue, setSelectedValue] = useState('');
 
   const handleSaveCard = () => {
     setShowCard(false);
@@ -118,11 +125,6 @@ const [profilePicture, setProfilePicture] = useState(null);
   const [ phoneNumber, setPhoneNumber ] = useState("")
   const [ cpf, setCpf ] = useState("")
 
-  const getCountryImage = (countryName: string) => {
-    const countryImg = countriesData.find(item => item.value === countryName)?.img
-    return countryImg
-  }
-
   return (
     <View className="flex-1 bg-white h-full">
       
@@ -147,18 +149,18 @@ const [profilePicture, setProfilePicture] = useState(null);
         <View className="p-6 space-y-10">
         <View>
           <Text className="text-base">Nome</Text>
-          <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='Larissa' placeholderTextColor="#d3d3d3" />
+          <TextInput className="p-4 border border-gray-500 rounded-lg h-45" placeholder='Jhon' placeholderTextColor="#B8B8B8" />
           </View>
 
           <View>
             <Text className="text-base">E-mail</Text>
-            <TextInput className="p-4 border border-gray-500 rounded-md h-45" placeholder='larissa@mail.com.br' placeholderTextColor="#d3d3d3" />
+            <TextInput className="p-4 border border-gray-500 rounded-lg h-45" placeholder='Jhon@mail.com.br' placeholderTextColor="#B8B8B8" />
           </View>
           <View>
           <Text className="text-base">Telefone</Text>
           <MaskInput
-              className='p-4 border border-gray-500 rounded-md h-45'
-              placeholder='Ex: 000.000.000-00'
+              className='p-4 border border-gray-500 rounded-lg h-45'
+              placeholder='Ex: (00) 0000-0000'
               value={phoneNumber}
               onChangeText={setPhoneNumber}
               mask={Masks.BRL_PHONE}>
@@ -168,7 +170,7 @@ const [profilePicture, setProfilePicture] = useState(null);
           <View>
           <Text className="text-base">CPF</Text>
           <MaskInput
-              className='p-4 border border-gray-500 rounded-md h-45'
+              className='p-4 border border-gray-500 rounded-lg h-45'
               placeholder='Ex: 000.000.000-00'
               value={cpf}
               onChangeText={setCpf}
@@ -177,74 +179,88 @@ const [profilePicture, setProfilePicture] = useState(null);
           </View>
           
           <TouchableOpacity onPress={handleCardClick}>
-            <Text className="text-base">Dados Cartão</Text>
-            <View className="h-30 border border-gray-500 rounded-md">
+            <Text className="text-base">Chave PIX</Text>
+            <View className="h-12 border border-gray-500 rounded-lg">
               <View className="flex-row justify-center items-center m-2">
-              <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                <Text className="flex-1 text-base text-right mb-0">
-                  {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
+                <Text className="flex-1 text-base text-[#B8B8B8]"> Chaves Cadastradas
                 </Text>
-                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+                
+                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" style={{marginRight: 8}} />
               </View>
             </View>
           </TouchableOpacity>
 
           {showCard && (
-            <View className="border border-gray-500 p-4 mt-10">
+            <View className="border border-gray-500 p-4 ">
               <View className="flex-row justify-between">
-                <View className="flex-1 mr-5">
-                  <Text className="text-base text-[#FF6112]">Data venc.</Text>
-                  
-                  <TextInputMask className='p-3 border border-gray-500 rounded-md h-18'
-                    type={'datetime'}
-                    options={{
-                      format: 'MM/YY',
-                    }}
-                    value={expiryDate}
-                    onChangeText={handleExpiryDateChange}
-                    placeholder="MM/YY"
-                    keyboardType="numeric"
-                  />
-                </View>
-                <View className="flex-1 ml-5">
-                  <Text className="text-base text-[#FF6112]">CVV</Text>
-                  <View>
-                    <TextInput className='p-3 border border-gray-500 rounded-md h-18'
-                      value={cvv}
-                      onChangeText={handleCVVChange}
-                      placeholder="CVV"
-                      keyboardType="numeric"
-                      maxLength={4} 
-                      secureTextEntry 
-                    />
-                  </View>
-                </View>
-              </View>
-              <View>
-                <Text className='text-base text-[#FF6112]'>País</Text>
-                <View className='flex flex-row items-center' >
-                
-                <View style={{ width: '100%' }}>
-                <SelectList
-                  setSelected={(val: string) => {
-                    setSelected(val)
-                  }}
-                  data={countriesData}
-                  save='value'
-                  placeholder='Selecione um país...'
-                  searchPlaceholder='Pesquisar...'
-                />
+                <View className="flex-1">
+                  <Text className="text-base text-[#FF6112] mb-3">Chave PIX</Text>
+                <View>
+                    <TextInput className="p-4 border border-gray-500 rounded-md" placeholder='Coloque sua chave PIX' placeholderTextColor="#B8B8B8" />
                 </View>
                 </View>
               </View>
               
               <View className="p-2 justify-center items-center">
-                <TouchableOpacity onPress={handleSaveCard} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+                <TouchableOpacity onPress={handleSaveCard} className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
                   <Text className="text-white">Salvar</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
+        <View>
+        <View className="">
+            <Text className='text-base mb-1'>Dados Estabelecimento</Text>
+        <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={dataEstablishment}
+            save="value"
+            placeholder='Selecione um dado'
+            searchPlaceholder="Pesquisar..."
+            dropdownTextStyles={{ color: "#FF6112" }}
+            inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8"}}
+            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+            arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+            
+            />
+        </View>
+        
+    </View>
+    <View className="">
+            <Text className='text-base mb-1'>Amenidades do Local</Text>
+        <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={dataAmenities}
+            save="value"
+            placeholder='Selecione um dado'
+            searchPlaceholder="Pesquisar..."
+            dropdownTextStyles={{ color: "#FF6112" }}
+            inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8"}}
+            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+            arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+            
+            />
+    </View>
+
+        <View className="">
+            <Text className='text-base mb-1'>Editar Quadra/Campo</Text>
+        <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={dataCourts}
+            save="value"
+            placeholder='Selecione um dado'
+            searchPlaceholder="Pesquisar..."
+            dropdownTextStyles={{ color: "#FF6112" }}
+            inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8"}}
+            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+            arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+            
+            />
+        </View>
+            
           <View>
           <View className='p-2'>
 					  <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
