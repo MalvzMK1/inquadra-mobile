@@ -1,9 +1,9 @@
 import { QueryResult, useQuery } from "@apollo/client";
-import { IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables, establishmentSchedulingQuery } from "../graphql/queries/EstablishmentSchedulings";
+import { IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables, establishmentSchedulingQuery } from "../graphql/queries/establishmentSchedulings";
 
 
 
-export function useEstablishmentSchedulings(id: string, date: Date): QueryResult<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables> {
+export function useEstablishmentSchedulings(id: string, date: string): QueryResult<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables> {
     return useQuery<IEstablishmentSchedulingsResponse, IEstablishmentSchedulingsVariables>(establishmentSchedulingQuery, {
 		variables: {
 			id,

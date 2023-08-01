@@ -13,13 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function ReservationPaymentSign() {
 
-//   const { loading, error, data } = useEstablishmentSchedulings("1", "");
-//   console.log(data);
-//   if (loading) return <Text>Loading...</Text>;
-//   if (error) {
-//     return <Text>Error: {error.message}</Text>;
-//   }
-//   return <Text>Hello {JSON.stringify(data)}!</Text>;
+// 
 
     const [showCard, setShowCard] = useState(false);
     const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -183,7 +177,7 @@ export default function ReservationPaymentSign() {
                         <Text className="text-base">Quadra de Futsal</Text>
                         <Text className="text-base">4,3 Km de distância</Text>
                         <View className="flex flex-row">
-                        <Text className="text-base">Avaliação: 4,4 </Text>
+                        <Text className="text-base">Avaliação: 4,5 </Text>
                         <View className="pt-1">
                             <FontAwesome name="star" color="#FF4715" size={11} /></View>
                         </View>

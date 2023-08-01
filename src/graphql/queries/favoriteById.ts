@@ -15,6 +15,23 @@ export interface IFavoriteByIdResponse {
                                             data: Array<{
                                                 id: Court['id']
                                                 attributes: {
+                                                    court_availabilities: {
+                                                      data : Array<{
+                                                        id: number
+                                                        attributes: {
+                                                          schedulings: {
+                                                            data: Array<{
+                                                              id: number
+                                                              attributes: {
+                                                                date: Date
+                                                              }
+                                                            }>
+                                                          }
+                                                        }
+                                                      }>
+                                                    }
+                                                    name: Court['name']
+                                                    fantasy_name: Court['fantasy_name']
                                                     photo: {
                                                         data: Array<{
                                                             attributes: {
@@ -67,6 +84,23 @@ query getFavoriteById($id: ID) {
                       data {
                         id
                         attributes {
+                          court_availabilities {
+                            data {
+                              id
+                              attributes {
+                                schedulings {
+                                  data {
+                                    id
+                                    attributes {
+                                      date
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          name
+                          fantasy_name
                           photo {
                             data {
                               attributes {

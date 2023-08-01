@@ -5,7 +5,7 @@ export interface IMenuUserResponse {
         data: {
             id: User['id']
             attributes:{
-                photo:{
+                photo?:{
                     data:{
                         id: Photo['id']
                         attributes:{

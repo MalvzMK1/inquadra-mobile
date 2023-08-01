@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export interface IschedulingByIdResponse{
+export interface ISchedulingByIdResponse{
   establishment:{
     data:{
       attributes:{
@@ -12,9 +12,9 @@ export interface IschedulingByIdResponse{
                 data: Array<{
                   id: CourtAvailability['id']
                   attributes:{
-                    dayUseService: CourtAvailability['dayUseService'],
-                    startsAt: CourtAvailability['startsAt'],
-                    endsAt: CourtAvailability['endsAt'],
+                    dayUseService: CourtAvailability['dayUseService']
+                    startsAt: CourtAvailability ['startsAt']
+                    endsAt: CourtAvailability['endsAt']
                     weekDay: CourtAvailability['weekDay']
                   }
                 }>
@@ -32,7 +32,7 @@ export interface ISchedulingByIdVariables {
 }
 
 export const schedulingByIdQuery = gql`
-query typeScheduleById ($id : ID){
+query typeSchedulingById ($id : ID){
   establishment(id: $id) {
     data {
       attributes {

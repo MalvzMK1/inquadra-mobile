@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 export interface IReserveDisponibleResponse {
 	courts: {
-        data: Array<{
+        data: {
             id: Court['id']
             attributes: {
                 name:Court['name']
@@ -10,20 +10,19 @@ export interface IReserveDisponibleResponse {
                     data: {
                         id: Establishment['id']
                     }
-                } & {
-                    court_availabilities: {
-                        data: Array<{
-                            id: CourtAvailability['id']
-                            attributes: {
-                              startsAt: CourtAvailability ['startsAt']
-                              endsAt: CourtAvailability ['endsAt']
-                              status:CourtAvailability ['status']
-                            }
-                        }>
-                    }
+                }
+                court_availabilities: {
+                    data: Array< {
+                        id: CourtAvailability['id']
+                        attributes: {
+                            startsAt: CourtAvailability ['startsAt']
+                            endsAt: CourtAvailability ['endsAt']
+                            status:CourtAvailability ['status']
+                        }
+                    }>
                 }
             }
-        }>
+        }
     }
 }
 
@@ -32,28 +31,28 @@ export interface IReserveDisponibleVariables {
 }
 
 export const reserveDisponibleQuery = gql`
-query reserveDisponible ($weekDay: String!){
-  courts(filters: { court_availabilities: { weekDay: { eq: $weekDay } } }) {
-    data {
-      id
-      attributes {
-        name
-        establishment {
-          data {
-            id
-          }
-        }
-        court_availabilities {
-          data {
+    query reserveDisponible ($weekDay: String!) {
+    courts(filters: { court_availabilities: { weekDay: { eq: $weekDay } } }) {
+        data {
             id
             attributes {
-              startsAt
-              endsAt
-              status
+                name
+                establishment {
+                    data {
+                        id
+                    }
+                }
+                court_availabilities {
+                    data {
+                        id
+                        attributes {
+                        startsAt
+                        endsAt
+                        status
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
-  }
-}`
+}`;
