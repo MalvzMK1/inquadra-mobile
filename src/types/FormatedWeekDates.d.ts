@@ -1,0 +1,3 @@
+type FormatedWeekDates = {
+    dateItem: string
+}
