@@ -6,6 +6,9 @@ module.exports = {
 			backgroundImage: {
 				'football-field': "url('/src/assets/football_field.jpg')",
 			},
+			colors: {
+				'dull-gray-color': 'rgba(182, 182, 182, 0.2)'
+			}
 		}
 	},
 	plugins: [],
