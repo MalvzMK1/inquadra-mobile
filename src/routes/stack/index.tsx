@@ -27,18 +27,6 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name='CourtPriceHour'
-				component={CourtPriceHour}
-				options={{
-					headerTitle: 'Definir hora/valor',
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="black" />
-						</TouchableOpacity>
-					)
-				}}
-			/>
-			<Screen
 				name="Login"
 				component={Login}
 				options={{
@@ -251,6 +239,18 @@ export default function () {
 				component={CourtAvailibilityInfo}
 				options={{
 					headerShown: false,
+				}}
+			/>
+			<Screen
+				name='CourtPriceHour'
+				component={CourtPriceHour}
+				options={{
+					headerTitle: 'Definir hora/valor',
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="black" />
+						</TouchableOpacity>
+					)
 				}}
 			/>
 		</Navigator>
