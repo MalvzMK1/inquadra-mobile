@@ -1,7 +1,7 @@
 import {View, Text, ImageBackground, SafeAreaView, Image, ScrollView, ActivityIndicator} from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import React, { useState } from 'react'
-import WeekDays from "../../components/WeekDays"
+import WeekDayButton from "../../components/WeekDays"
 import CourtAvailibility from "../../components/CourtAvailibility"
 import BottomBlackMenu from "../../components/BottomBlackMenu"
 import {Calendar, DateData} from 'react-native-calendars'
@@ -10,6 +10,7 @@ import {addDays, format} from 'date-fns'
 import {ptBR} from 'date-fns/locale'
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import {CourtAvailabilityEntity} from "../../__generated__/graphql";
+import {ICourtAvailabilityResponse} from "../../graphql/queries/courtAvailability";
 
 type FormatedWeekDates = {
 	dayName: string,
@@ -34,13 +35,12 @@ function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDat
 		const dayName = format(
 			weekDate,
 			'eeee'
-		).toLowerCase()
-		// console.log({daysOfWeek})
+		)
 
 		const currentIndex = (sundayIndex + i) % 7
 
 		daysOfWeek[currentIndex] = {
-			dayName,
+			dayName: dayName.charAt(0).toUpperCase() + dayName.slice(1),
 			localeDayInitial,
 			day: format(weekDate, 'dd'),
 			date: weekDate
@@ -63,7 +63,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 	const [showCalendar, setShowCalendar] = useState(false)
 	const [dateSelected, setDateSelected] = useState(new Date())
 	const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
-	const [shownAvailabilities, setShownAvailabilities] = useState<CourtAvailabilityEntity[]>([])
+	const [shownAvailabilities, setShownAvailabilities] = useState<GraphQLCourtAvailability[]>([])
 
 	const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
@@ -74,11 +74,12 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 		newActiveStates[index] = true;
 		setActiveStates(newActiveStates);
 
-		// setDateSelected(weekDates[index].date)
+		console.log(availabilities[0].attributes.weekDay, weekDates[index].dayName)
+
 		setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
 		if (availabilities)
 			setShownAvailabilities(availabilities.filter(availabilitie =>
-				availabilitie.attributes.weekDay.toLowerCase() === weekDates[index].dayName.toLowerCase() as unknown as WeekDays
+				availabilitie.attributes.weekDay === weekDates[index].dayName as unknown as WeekDays
 			))
 			// console.log(availabilities.find(availabilitie => availabilitie.attributes.weekDay === weekDates[index].dayName as unknown as WeekDays))
 			// availabilities.forEach(availability => {
@@ -103,7 +104,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
 									{
 										weekDates.map((date, index) => (
-											<WeekDays
+											<WeekDayButton
 												localeDayInitial={date.localeDayInitial}
 												day={date.day}
 												onClick={(isClicked) => {

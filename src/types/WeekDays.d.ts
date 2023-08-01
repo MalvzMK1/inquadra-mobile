@@ -8,6 +8,4 @@ enum WeekDaysEnum {
 	Sunday = 'sunday'
 }
 
-type WeekDays = typeof WeekDaysEnum
-
-const teste: WeekDays = ''
+type WeekDays = keyof typeof WeekDaysEnum

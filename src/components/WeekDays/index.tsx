@@ -9,7 +9,7 @@ interface IWeekDay {
   active: boolean
 }
 
-export default function WeekDays({localeDayInitial, day, onClick, active}: IWeekDay) {
+export default function WeekDayButton({localeDayInitial, day, onClick, active}: IWeekDay) {
   const [isClicked, setIsClicked] = useState(false)
   const handleClick = () => {
     setIsClicked(!isClicked)
