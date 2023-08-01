@@ -6,7 +6,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input'; 
 import { SelectList } from 'react-native-dropdown-select-list';
-import { red700 } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
 
 export default function InfoProfileEstablishment() {
   
