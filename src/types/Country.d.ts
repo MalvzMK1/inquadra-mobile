@@ -6,7 +6,9 @@ type Country = {
 }
 
 type Flag = {
+    id: string
     name: string
     alternativeText: string
     url: string
+    hash?: string
 }
