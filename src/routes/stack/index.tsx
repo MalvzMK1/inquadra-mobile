@@ -24,6 +24,7 @@ import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import HomeEstablishment from '../../screens/HomeEstablishment';
 import InfoProfileEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment';
+import DeleteAccountEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/deleteAccount';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -33,6 +34,23 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="DeleteAccountEstablishment"
+				component={DeleteAccountEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+				}}
+			/>
 			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}

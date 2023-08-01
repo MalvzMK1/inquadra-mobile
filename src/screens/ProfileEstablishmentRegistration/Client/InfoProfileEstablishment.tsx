@@ -283,7 +283,7 @@ const [profilePicture, setProfilePicture] = useState(null);
                 <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
                   <Text className="text-white">Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}  onPressIn={() => navigation.navigate('DeleteAccountSuccess')}>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}  onPressIn={() => navigation.navigate('DeleteAccountEstablishment')}>
                   <Text className="text-white">Confirmar</Text>
                 </TouchableOpacity>
               </View>
