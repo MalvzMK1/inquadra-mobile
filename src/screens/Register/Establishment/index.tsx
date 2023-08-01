@@ -15,7 +15,7 @@ interface IFormSchema {
 	cnpj: string,
 	phone: string,
 	address: Omit<Address, 'id' | 'latitude' | 'longitude'>,
-	amenities: Amenitie[]
+	amenities?: Amenitie[]
 }
 
 const formSchema = z.object({
@@ -24,7 +24,7 @@ const formSchema = z.object({
 		.min(14, 'Deve ser informado um CNPJ válido!'),
 	phone: z.string()
 		.nonempty('Esse campo não pode estar vazio!')
-		.min(15, 'Deve ser informado um número de telefone válido!'),
+		.min(11, 'Deve ser informado um número de telefone válido!'),
 	address: z.object({
 		cep: z.string()
 			.nonempty('Esse campo não pode estar vazio!')
@@ -34,10 +34,10 @@ const formSchema = z.object({
 		street: z.string()
 			.nonempty('Esse campo não pode estar vazio!'),
 	}),
-	amenities: z.array(z.object({
+	amenities: z.optional(z.array(z.object({
 		id: z.string(),
 		name: z.string()
-	}))
+	})))
 })
 
 export default function RegisterEstablishment() {
@@ -62,13 +62,13 @@ export default function RegisterEstablishment() {
 	const [selected, setSelected] = React.useState([]);
 
 	const data = [
-		{key:'1', value:'Estacionamento'},
-		{key:'2', value:'Vestiário'},
-		{key:'3', value:'Restaurante'},
-		{key:'4', value:'Opção 4'},
-		{key:'5', value:'Opção 5'},
-		{key:'6', value:'Opção 6'},
-		{key:'7', value:'Opção 7'},
+		{id:'1', value:'Estacionamento'},
+		{id:'2', value:'Vestiário'},
+		{id:'3', value:'Restaurante'},
+		{id:'4', value:'Opção 4'},
+		{id:'5', value:'Opção 5'},
+		{id:'6', value:'Opção 6'},
+		{id:'7', value:'Opção 7'},
 	]
 
 	const [selectedItems, setSelectedItems] = useState([]);
@@ -104,8 +104,13 @@ export default function RegisterEstablishment() {
 		setPhotos(newPhotos);
 	};
 
+	function submitForm(data: IFormSchema) {
+		console.log({data, amenities: selected})
+	}
+
 	return (
 		<ScrollView className="h-fit bg-white flex-1">
+			{errors && <Text>{JSON.stringify(errors)}</Text>}
 			<View className="items-center mt-9 p-4">
 				<Text className="text-3xl text-center font-extrabold text-gray-700">Cadastro{'\n'}Estabelecimento</Text>
 			</View>
@@ -132,6 +137,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
+						{errors.address?.cnpj && <Text className='text-red-400 text-sm'>{errors.address?.cnpj.message}</Text>}
 					</View>
 					<View>
 						<Text className="text-xl p-1">Telefone para Contato</Text>
@@ -150,6 +156,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
+						{errors.address?.phone && <Text className='text-red-400 text-sm'>{errors.address?.phone.message}</Text>}
 					</View>
 					<View>
 						<Text className='text-xl p-1'>Endereço</Text>
@@ -164,6 +171,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
+						{errors.address?.street && <Text className='text-red-400 text-sm'>{errors.address?.street.message}</Text>}
 					</View>
 					<View className="flex flex-row justify-between">
 						<View>
@@ -180,6 +188,7 @@ export default function RegisterEstablishment() {
 									/>
 								)}
 							/>
+							{errors.address?.number && <Text className='text-red-400 text-sm'>{errors.address?.number.message}</Text>}
 						</View>
 						<View>
 							<Text className='text-xl p-1'>CEP</Text>
@@ -198,6 +207,7 @@ export default function RegisterEstablishment() {
 									/>
 								)}
 							/>
+							{errors.address?.cep && <Text className='text-red-400 text-sm'>{errors.address?.cep.message}</Text>}
 						</View>
 					</View>
 				</View>
@@ -208,9 +218,9 @@ export default function RegisterEstablishment() {
 						control={control}
 						render={({field: {onChange}}) => (
 							<MultipleSelectList
-								setSelected={(val) => onChange(val)}
+								setSelected={(val) => setSelected(val)}
 								data={data}
-								save="value"
+								save={'id'}
 								placeholder="Selecione aqui..."
 								label="Amenidades escolhidas:"
 								boxStyles={{borderRadius: 4, minHeight: 55}}
@@ -223,6 +233,7 @@ export default function RegisterEstablishment() {
 							/>
 						)}
 					/>
+					{errors.amenities && <Text className='text-red-400 text-sm'>{errors.amenities.message}</Text>}
 				</View>
 				<View>
 					<Text className="text-xl p-1">Fotos do estabelecimento</Text>
@@ -250,7 +261,7 @@ export default function RegisterEstablishment() {
 					</View>
 				</View>
 				<View>
-					<TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center' onPressIn={() => navigation.navigate('RegisterCourt')}>
+					<TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center' onPressIn={handleSubmit(submitForm)}>
 						<Text className='text-gray-50'>Continuar</Text>
 					</TouchableOpacity>
 				</View>
