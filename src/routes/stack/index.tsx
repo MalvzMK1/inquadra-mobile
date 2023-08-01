@@ -20,6 +20,7 @@ import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
 import CourtPriceHour from '../../screens/CourtPriceHour';
+import EditCourt from '../../screens/EditCourt';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -251,6 +252,33 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="black" />
 						</TouchableOpacity>
 					)
+				}}
+			/>
+			<Screen
+				name="EditCourt"
+				component={EditCourt}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 80,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>QUADRAS</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]'/>
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
 				}}
 			/>
 		</Navigator>
