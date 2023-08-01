@@ -11,6 +11,13 @@ import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from 'zod'
 
+interface IFormSchema {
+	cnpj: string,
+	phone: string,
+	address: Omit<Address, 'id' | 'latitude' | 'longitude'>,
+	amenities: Amenitie[]
+}
+
 const formSchema = z.object({
 	cnpj: z.string()
 		.nonempty('Esse campo não pode estar vazio!')
@@ -26,11 +33,20 @@ const formSchema = z.object({
 			.nonempty('Esse campo não pode estar vazio!'),
 		street: z.string()
 			.nonempty('Esse campo não pode estar vazio!'),
-	})
+	}),
+	amenities: z.array(z.object({
+		id: z.string(),
+		name: z.string()
+	}))
 })
 
 export default function RegisterEstablishment() {
-	const {control, handleSubmit, formState: {errors}} = useForm({
+	const {
+		control,
+		handleSubmit,
+		formState: {errors},
+		getValues
+	} = useForm<IFormSchema>({
 		resolver: zodResolver(formSchema)
 	})
 
@@ -101,13 +117,21 @@ export default function RegisterEstablishment() {
 					</View>
 					<View>
 						<Text className="text-xl p-1">CNPJ</Text>
-						<MaskInput
-							className='p-5 border border-neutral-400 rounded'
-							placeholder='00. 000. 000/0001-00.'
-							value={cpf}
-							onChangeText={setCpf}
-							mask={Masks.BRL_CNPJ}>
-						</MaskInput>
+						<Controller
+							name='cnpj'
+							control={control}
+							render={({field: {onChange}}) => (
+								<MaskInput
+									className='p-5 border border-neutral-400 rounded'
+									placeholder='00.000.000/0001-00.'
+									value={getValues('cnpj')}
+									maxLength={18}
+									keyboardType={'numeric'}
+									onChangeText={(masked, unmasked) => onChange(unmasked)}
+									mask={Masks.BRL_CNPJ}
+								/>
+							)}
+						/>
 					</View>
 					<View>
 						<Text className="text-xl p-1">Telefone para Contato</Text>
@@ -118,6 +142,9 @@ export default function RegisterEstablishment() {
 								<MaskInput
 									className='p-5 border border-neutral-400 rounded'
 									placeholder='(00) 0000-0000'
+									value={getValues('phone')}
+									maxLength={15}
+									keyboardType={'numeric'}
 									onChangeText={(masked, unmasked) => onChange(unmasked)}
 									mask={Masks.BRL_PHONE}
 								/>
@@ -126,22 +153,52 @@ export default function RegisterEstablishment() {
 					</View>
 					<View>
 						<Text className='text-xl p-1'>Endereço</Text>
-						<TextInput className='p-5 border border-neutral-400 rounded' placeholder='Rua Rufus'></TextInput>
+						<Controller
+							name='address.street'
+							control={control}
+							render={({field: {onChange}}) => (
+								<TextInput
+									className='p-5 border border-neutral-400 rounded'
+									placeholder='Rua Rufus'
+									onChangeText={onChange}
+								/>
+							)}
+						/>
 					</View>
 					<View className="flex flex-row justify-between">
 						<View>
 							<Text className='text-xl p-1'>Número</Text>
-							<TextInput className='p-5 border border-neutral-400 rounded w-44' placeholder='123'></TextInput>
+							<Controller
+								name='address.number'
+								control={control}
+								render={({field: {onChange}}) => (
+									<TextInput
+										className='p-5 border border-neutral-400 rounded'
+										placeholder='123'
+										onChangeText={onChange}
+										keyboardType={'numbers-and-punctuation'}
+									/>
+								)}
+							/>
 						</View>
 						<View>
 							<Text className='text-xl p-1'>CEP</Text>
-							<MaskInput
-								className='p-5 border border-neutral-400 rounded w-44'
-								placeholder='(00) 0000-0000'
-								value={cep}
-							onChangeText={setCep}
-							mask={Masks.ZIP_CODE}>
-						</MaskInput>
+							<Controller
+								name='address.cep'
+								control={control}
+								render={({field: {onChange}}) => (
+									<MaskInput
+										className='p-5 border border-neutral-400 rounded w-44'
+										placeholder='(00) 0000-0000'
+										value={getValues('address.cep')}
+										onChangeText={onChange}
+										maxLength={9}
+										keyboardType={'numeric'}
+										mask={Masks.ZIP_CODE}
+									/>
+								)}
+							/>
+						</View>
 					</View>
 				</View>
 				<View>
@@ -198,7 +255,8 @@ export default function RegisterEstablishment() {
 					</TouchableOpacity>
 				</View>
 			</View>
-		</View>
-</ScrollView>
+		</ScrollView>
+// 		</View>
+// </ScrollView>
 );
 }
