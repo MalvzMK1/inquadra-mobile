@@ -90,7 +90,7 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 	return (
 		<SafeAreaView className="flex flex-col justify-between h-full">
 			{isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
-				<ScrollView className='h-screen flex flex-col flex-1 bg-violet-950'>
+				<ScrollView className='h-screen flex flex-col flex-1'>
 					<ImageBackground className="h-[215px] w-full" source={{
 						uri: route.params.courtImage
 					}} />
