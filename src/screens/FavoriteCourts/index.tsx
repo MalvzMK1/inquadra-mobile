@@ -2,12 +2,10 @@ import {ScrollView, Text, View} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
 import {NavigationProp, useNavigation} from "@react-navigation/native";
 import { useGetFavoriteById } from "../../hooks/useFavoriteById"
-import {RootStackParamList} from "../../types/RootStack";
+// import {RootStackParamList} from "../../types/RootStack";
 
 /*  */
 export default function FavoriteCourts() {
-	const {data, error, loading} = useGetFavoriteById("1") 
-
 	const USER_ID = '2'; //LEGÍVEL
 	const {data, error, loading} = useGetFavoriteById(USER_ID, USER_ID) 
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
