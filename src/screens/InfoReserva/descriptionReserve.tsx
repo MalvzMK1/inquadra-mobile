@@ -15,11 +15,6 @@ import { format, parseISO, differenceInSeconds, formatDuration, intervalToDurati
 import Countdown from '../../components/countdown/Countdown';
 import useCountries from '../../hooks/useCountries';
 
-
-
-
-
-
 export default function DescriptionReserve() {
 
     const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -52,8 +47,6 @@ export default function DescriptionReserve() {
 
     const user_id = '1'
     const schedule_id = '1'
-
-  
 
       interface iFormCardPayment {
         value: string
@@ -108,8 +101,6 @@ export default function DescriptionReserve() {
         return true;
       };
 
-      
-      
       const formSchema = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
         name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
@@ -164,7 +155,6 @@ export default function DescriptionReserve() {
           }
       }
 
-
       const getCountryImage = (countryISOCode: string | null): string | undefined => {
         if (countryISOCode && dataCountry) {
           const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
@@ -188,9 +178,6 @@ export default function DescriptionReserve() {
         return "";
       };
 
-      
-      
-
        const formSchemaPixPayment = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
         name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
@@ -208,9 +195,6 @@ export default function DescriptionReserve() {
     const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
     const {data:dataCountry, error:errorCountry, loading:loadingCountry} = useCountries()
     const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
-
-
-    
 
     const closeCardPayment = () => {
         setShowPixPaymentModal(false);
@@ -238,8 +222,6 @@ export default function DescriptionReserve() {
             setShowCardPaymentModal(false)
       }
 
-
-
     function payPix(info: iFormPixPayment){
         navigation.navigate('PixScreen', {courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))})
         setShowPixPaymentModal(false)
@@ -252,7 +234,7 @@ export default function DescriptionReserve() {
       })) || [];
 
     return (
-        <View className='flex-1 bg-zinc-600'>      
+        <View className='flex-1 bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
@@ -504,7 +486,6 @@ export default function DescriptionReserve() {
                             <View className='flex flex-row'>
                                 <View className='flex-1 mr-[20px]'>
                                     <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
-                                    
                                     <Controller
                                         name='date'
                                         control= {control}
