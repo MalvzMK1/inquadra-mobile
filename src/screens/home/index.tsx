@@ -49,6 +49,10 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			if (newCourts) {
 				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
 			}
+
+			navigation.setParams({
+				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+			})
 		}
 	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
@@ -59,9 +63,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		// TODO: IMPLEMENTAR A FOTO DO USUÁRIO A PARTIR DO ID
 		//  FIX: MAXIMUM UPDATE DEPTH EXCEEDED. THIS CAN HAPPEN WHEN A COMPONENT REPATEDLY CALLS SETSTATE INSIDE COMPONENT WILL UPDATE OR COMPONENT DID UPDATE
 		// if (!!userHookData?.usersPermissionsUser.data.attributes.photo.data)
-		// 	navigation.setParams({
-		// 		userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
-		// 	})
+			
 	}
 
 	return (
@@ -119,7 +121,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.username} />}
+			{
+				isDisabled && <HomeBar 
+						courts={courts} 
+						userName={userHookData?.usersPermissionsUser.data.attributes.username}
+						photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
+					/>
+			}
 			<BottomNavigationBar 
 				isDisabled={isDisabled} 
 				playerScreen={true}

@@ -106,9 +106,10 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							navigation.navigate('ProfileSettings', {
-								userPhoto: params.userPhoto
-							})
+							console.log(params)
+							// navigation.navigate('ProfileSettings', {
+							// 	userPhoto: params.userPhoto
+							// })
 						}}>
 							<Image
 								source={params.userPhoto ? { uri: `http://192.168.0.10:1337${params.userPhoto}` } : require('../../assets/default-user-image.png')}
