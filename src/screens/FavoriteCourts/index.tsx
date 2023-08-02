@@ -6,9 +6,9 @@ import { useGetFavoriteById } from "../../hooks/useFavoriteById"
 
 /*  */
 export default function FavoriteCourts() {
+	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	const USER_ID = '2'; //LEGÍVEL
 	const {data, error, loading} = useGetFavoriteById(USER_ID, USER_ID) 
-	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return(
 		<ScrollView className='flex-1 py-4 bg-zinc-600'>
 			{
