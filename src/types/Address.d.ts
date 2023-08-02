@@ -1,4 +1,4 @@
-export type Address = {
+type Address = {
 	id: string
 	streetName: string
 	cep: string

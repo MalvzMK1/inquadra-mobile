@@ -1,4 +1,4 @@
-export type PaymentCardInformations = {
+type PaymentCardInformations = {
     id: string
     cvv: number
     dueDate: Date

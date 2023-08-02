@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import {useEffect, useRef, useState} from 'react';
+import {View, Text, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native';
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -9,35 +9,23 @@ import Animated, {
 	FadeIn
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
+import useGetNextToCourts from "../../hooks/useNextToCourts";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
-const arrayTeste = [
-	{
-		id: 1,
-		image: "https://www.elasta.com.br/wp-content/uploads/2020/11/Quadras-Poliesportivas-1024x526.jpg",
-		type: "Quadra de Basquete Profissional",
-		name: "Quadra daora",
-		distance: 5.3
-	},
-	{
-		id: 2,
-		image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "Quadra amadora de Basquete",
-		name: "Quadra legal",
-		distance: 3.3
-	},
-	{
-		id: 3,
-		image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "Quadra amadora de Basquete",
-		name: "Quadra legal",
-		distance: 3.3
-	}
-]
+interface HomeBarProps {
+	courts: Array<{
+		id: string,
+		latitude: number,
+		longitude: number,
+		name: string,
+		type: string,
+		image: string,
+		distance: number,
+	}>,
+	userName: string | undefined
+}
 
-const userNameExample = "Artur"
-
-export default function BarHome() {
-
+export default function HomeBar({courts, userName}: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
@@ -62,19 +50,18 @@ export default function BarHome() {
 				<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
 					<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
 				</TouchableOpacity>
-				<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
+				<Text className='text-white text-lg font-black mt-3'>Olá{userName ? `, ${userName}` : null}!</Text>
 			</View>
-			<ScrollView>
-				{arrayTeste.map((item) => (
-					<View className='p-5' key={item.id}>
-						<CourtCardHome
-							image={item.image}
-							name={item.name}
-							distance={item.distance}
-							type={item.type}
-						/>
-					</View>
-				))}
+			<ScrollView className='p-5'>
+				{courts !== undefined ? courts.map((item) => (
+					<CourtCardHome
+						id={item.id}
+						image={item.image}
+						name={item.name}
+						distance={item.distance}
+						type={item.type}
+					/>
+				)) : <ActivityIndicator size='small' color='#fff' />}
 			</ScrollView>
 		</Animated.View>
 	)

@@ -1,6 +1,5 @@
 import { gql } from "@apollo/client";
 
-import { SportType } from "../../types/SportTypes";
 
 
 export interface ICourtType {

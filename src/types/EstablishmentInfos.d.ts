@@ -1,4 +1,4 @@
-export type Establishment = {
+type Establishment = {
 	id: string
 	corporateName: string
 	fantasyName: string

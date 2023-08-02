@@ -44,7 +44,7 @@ export default function InfoReserva() {
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('Login')}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -54,7 +54,7 @@ export default function InfoReserva() {
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-max w-max'>
                         <Image
-                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                            source={{ uri: 'https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg' }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -80,7 +80,7 @@ export default function InfoReserva() {
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                                     <View>
                                         <Image
-                                            source={{ uri: `http://192.168.0.229:1337${courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url}` }}
+                                            source={{ uri: 'https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg' }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />
@@ -120,7 +120,7 @@ export default function InfoReserva() {
 
                                     <View>
                                         <Image
-                                            source={{ uri: `http://192.168.0.229:1337${courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url}` }}
+                                            source={{ uri: 'https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg' }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />

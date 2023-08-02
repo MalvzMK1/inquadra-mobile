@@ -1,4 +1,5 @@
 import {gql} from "@apollo/client";
+<<<<<<< HEAD
 import { Country } from "../../types/Country";
 
 export interface ICountriesResponse {
@@ -17,6 +18,23 @@ export interface ICountriesResponse {
             }
         }>
     }
+=======
+
+export interface ICountriesResponse {
+	countries: {
+		data: Array<{
+			id: Country['id']
+			attributes: Omit<Country, 'id' | 'flag'> & {
+				flag: {
+					data: {
+						id: Country['flag']['id'],
+						attributes: Omit<Country['flag'], 'id'>
+					}
+				}
+			}
+		}>
+	}
+>>>>>>> c0e5801257af601f89511f7d4cbbc4208ce740f8
 }
 
 export const countriesQuery = gql`
@@ -42,4 +60,8 @@ export const countriesQuery = gql`
             }
         }
     }
+<<<<<<< HEAD
 `
+=======
+`
+>>>>>>> c0e5801257af601f89511f7d4cbbc4208ce740f8

@@ -1,11 +1,12 @@
-export type CourtCardInfos = {
+type CourtCardInfos = {
+	id: string
 	image: string
 	name: string
 	type: string
 	distance: number
 }
 
-export type Court = {
+type Court = {
 	id: string
 	name: string
 	rating: number
