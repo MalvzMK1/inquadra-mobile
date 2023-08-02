@@ -1,157 +1,132 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { AntDesign } from '@expo/vector-icons';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import Animated, {
-	useSharedValue,
-	useAnimatedStyle,
-	useAnimatedReaction,
-	withTiming,
-} from 'react-native-reanimated';
-import MapView from 'react-native-maps';
+import FilterComponent from '../../components/FilterComponent';
+import {View, TouchableOpacity, ActivityIndicator} from 'react-native';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
-import CourtCardHome from '../../components/CourtCardHome';
-import NavigationSports from '../../components/NavigationSports';
-// import React, { useState } from 'react';
-// import { TouchableOpacity, View, Text } from 'react-native';
-// } from 'react-native-reanimated';
+import HomeBar from '../../components/BarHome';
+import SportsMenu from '../../components/SportsMenu';
+import CourtBallon from '../../components/CourtBalloon';
+import pointerMap from '../../assets/pointerMap.png';
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {useGetNextToCourts} from "../../hooks/useNextToCourts";
+import {useGetUserById} from "../../hooks/useUserById";
+import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
+import {HOST_API} from '@env';
 
-const arrayTesteIcons = [
-	{
-		id: 1,
-		name: "teste",
-		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
-	},
-	{
-		id: 2,
-		name: "teste2",
-		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
-	},
-	{
-		id: 3,
-		name: "teste3",
-		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
-	},
-	{
-		id: 4,
-		name: "teste",
-		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
-	},
-	{
-		id: 5,
-		name: "teste2",
-		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
-	},
-	{
-		id: 6,
-		name: "teste3",
-		image: "https://images.vexels.com/media/users/3/309754/isolated/preview/2e7b26647fefc85ca7dcd042d9592f2a-cone-de-esporte-de-bola-de-futebol.png"
-	},
-]
-const arrayTeste = [
-	{
-		id: 1,
-		image: "https://www.elasta.com.br/wp-content/uploads/2020/11/Quadras-Poliesportivas-1024x526.jpg",
-		type: "Quadra de Basquete Profissional",
-		name: "Quadra daora",
-		distance: 5.3
-	},
-	{
-		id: 2,
-		image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "Quadra amadora de Basquete",
-		name: "Quadra legal",
-		distance: 3.3
-	},
-	{
-		id: 3,
-		image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "Quadra amadora de Basquete",
-		name: "Quadra legal",
-		distance: 3.3
+interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
+	menuBurguer: boolean;
+}
+
+export default function Home({ menuBurguer, route, navigation }: Props) {
+	const {data, loading, error} = useGetNextToCourts()
+	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
+	const [courts, setCourts] = useState<Array<{
+		id: string,
+		latitude: number,
+		longitude: number,
+		name: string,
+		type: string,
+		image: string,
+		distance: number,
+	}>>([])
+	const {data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError} = useAvailableSportTypes()
+
+	useEffect(() => {
+		if (!error && !loading) {
+			const newCourts = data?.courts.data.map((court) => {
+				return {
+					id: court.id,
+					latitude: Number(court.attributes.establishment.data.attributes.address.latitude),
+					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
+					name: court.attributes.name,
+					type: court.attributes.court_type.data.attributes.name,
+					image: HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					distance: 666, // Substitua pelos valores reais
+				}
+			});
+
+			if (newCourts) {
+				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
+			}
+		}
+	}, [data, loading, userHookLoading]);
+	const [isDisabled, setIsDisabled] = useState<boolean>(true);
+
+	const userGeolocation = route.params.userGeolocation
+
+	if (!userHookLoading && !userHookError) {
+		// TODO: IMPLEMENTAR A FOTO DO USUÁRIO A PARTIR DO ID
+		//  FIX: MAXIMUM UPDATE DEPTH EXCEEDED. THIS CAN HAPPEN WHEN A COMPONENT REPATEDLY CALLS SETSTATE INSIDE COMPONENT WILL UPDATE OR COMPONENT DID UPDATE
+		// if (!!userHookData?.usersPermissionsUser.data.attributes.photo.data)
+		// 	navigation.setParams({
+		// 		userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+		// 	})
 	}
-]
-const userNameExample = "Artur"
-
-export default function Home() {
-
-	const [isDisabled, setIsDisabled] = useState(false);
-	const [expanded, setExpanded] = useState(false);
-	const height = useSharedValue('40%');
-
-	useAnimatedReaction(
-		() => expanded,
-		(value) => {
-			height.value = withTiming(value ? '100%' : '40%', { duration: 500 });
-		},
-		[expanded]
-	);
-
-	const animatedStyle = useAnimatedStyle(() => {
-		return {
-			height: height.value,
-		};
-	});
 
 	return (
 		<View className="flex-1 flex flex-col">
-			<View className={`flex w-full justify-center items-center h-[8%] ${isDisabled ? "hidden" : ""}`}>
-				<ScrollView horizontal={true}>
-					{
-						expanded ?
-							<Text className='mt-4 font-black text-lg'>
-								{`PRÓXIMO A VOCÊ: ${arrayTesteIcons[0].name.toLocaleUpperCase()}`}
-							</Text>
-							:
-							arrayTesteIcons.map((item) => (
-								<NavigationSports key={item.id} name={item.name} image={item.image} />
-							))
-
-					}
-				</ScrollView>
-			</View>
+			{
+				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
+				isDisabled && !menuBurguer && <SportsMenu sports={availableSportTypes?.courts.data.map(sportType => ({
+						id: sportType.attributes.court_type.data.id,
+						name: sportType.attributes.court_type.data.attributes.name
+					})) ?? []} />
+			}
 			<View className='flex-1'>
+
 				<MapView
+					provider={PROVIDER_GOOGLE}
+					loadingEnabled
 					className='w-screen h-screen flex'
-					onPress={() => setIsDisabled(true)}
+					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
-						latitude: -23.550520,
-						longitude: -46.633308,
+						latitude: userGeolocation.latitude,
+						longitude: userGeolocation.longitude,
 						latitudeDelta: 0.004,
 						longitudeDelta: 0.004,
 					}}
-				/>
-				<TouchableOpacity className={`absolute left-3 top-3 ${!isDisabled ? "hidden" : ""}`} onPress={() => setIsDisabled((prevState) => !prevState)}>
-					<AntDesign name="left" size={30} color="black" />
-				</TouchableOpacity>
-			</View>
-			<Animated.View className={`${isDisabled ? "hidden" : ""}`} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
-				<View
-					className='flex items-center'>
-					<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
-						<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
+				>
+					{
+						courts.map((item) => (
+							<Marker
+								coordinate={{
+									latitude: item.latitude,
+									longitude: item.longitude,
+								}}
+								icon={pointerMap}
+								title='test'
+								description='test'
+							>
+								<CourtBallon
+									id={item.id}
+									key={item.id}
+									name={item.name}
+									distance={item.distance}
+									image={item.image}
+									type={item.type}
+									// pageNavigation='EstablishmentInfo'
+								/>
+							</Marker>
+						))
+					}
+				</MapView>
+				{!isDisabled && (
+					<TouchableOpacity className={`absolute left-3 top-3`} onPress={() => setIsDisabled((prevState) => !prevState)}>
+						<AntDesign name="left" size={30} color="black" />
 					</TouchableOpacity>
-					<Text className='text-white text-lg font-black mt-3'>Olá, {userNameExample.toLocaleUpperCase()} !</Text>
-				</View>
-				<ScrollView>
-					{arrayTeste.map((item) => (
-						<View className='p-5' key={item.id}>
-							<CourtCardHome
-								image={item.image}
-								name={item.name}
-								distance={item.distance}
-								type={item.type}
-								pageNavigation='EstablishmentInfo'
-							/>
-						</View>
-					))}
-				</ScrollView>
-			</Animated.View>
-			<BottomNavigationBar 
-			isDisabled={isDisabled} 
-			playerScreen={true}
-			establishmentScreen={false}
+				)}
+				{menuBurguer && <FilterComponent />}
+			</View>
+			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.username} />}
+			<BottomNavigationBar
+				isDisabled={isDisabled}
+				buttonOneNavigation='ProfileSettings'
+				buttonTwoNavigation='FavoriteCourts'
+				buttonThreeNavigation='Home'
+				buttonFourNavigation='InfoReserva'
 			/>
-		</View>
+		</View >
 	);
 }
