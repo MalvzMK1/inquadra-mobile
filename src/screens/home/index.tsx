@@ -120,12 +120,10 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				{menuBurguer && <FilterComponent />}
 			</View>
 			{isDisabled && <HomeBar courts={courts} userName={userHookData?.usersPermissionsUser.data.attributes.username} />}
-			<BottomNavigationBar
-				isDisabled={isDisabled}
-				buttonOneNavigation='ProfileSettings'
-				buttonTwoNavigation='FavoriteCourts'
-				buttonThreeNavigation='Home'
-				buttonFourNavigation='InfoReserva'
+			<BottomNavigationBar 
+				isDisabled={isDisabled} 
+				playerScreen={true}
+				establishmentScreen={false}
 			/>
 		</View >
 	);
