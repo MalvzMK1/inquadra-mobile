@@ -16,10 +16,6 @@ import Countdown from '../../components/countdown/Countdown';
 import useCountries from '../../hooks/useCountries';
 
 
-
-
-
-
 export default function DescriptionReserve() {
 
     const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -50,7 +46,7 @@ export default function DescriptionReserve() {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
-    const user_id = '1'
+    const user_id = '2'
     const schedule_id = '1'
 
   
@@ -72,7 +68,7 @@ export default function DescriptionReserve() {
       const isValidCPF = (cpf: string): boolean => {
         const cleanedCPF = cpf.replace(/[^\d]/g, '');
       
-        // Verificar se o CPF tem 11 dígitos
+
         if (cleanedCPF.length !== 11) {
           return false;
         }
@@ -213,11 +209,11 @@ export default function DescriptionReserve() {
     
 
     const closeCardPayment = () => {
-        setShowPixPaymentModal(false);
+        setShowCardPaymentModal(false);
       };
     
       const closePixPayment = () => {
-        setShowCardPaymentModal(false);
+        setShowPixPaymentModal(false);
       };
 
 
@@ -237,7 +233,6 @@ export default function DescriptionReserve() {
             })
             setShowCardPaymentModal(false)
       }
-
 
 
     function payPix(info: iFormPixPayment){
@@ -295,7 +290,7 @@ export default function DescriptionReserve() {
                                         <Text className='font-normal text-xs text-orange-600'>Editar</Text>
                                     </View>
                                     <View className='flex items-center justify-center pl-4'>
-                                        {/* <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} /> */}
+                                        <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} />
                                     </View>
                                 </View>
                             </View>
@@ -321,7 +316,6 @@ export default function DescriptionReserve() {
                 <Text className='absolute z-10 self-center text-white font-bold'>
                     R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value}
                     </Text>
-                    {/* Verificando se os valores de valuePayed e valueCort estão definidos antes de calcular o progresso */}
                     {data?.scheduling.data.attributes.valuePayed && data?.scheduling.data.attributes.court_availability.data.attributes.value && (
                         <ProgressBar
                         progress={Math.floor((data.scheduling.data.attributes.valuePayed / data.scheduling.data.attributes.court_availability.data.attributes.value) * 100)}
@@ -341,7 +335,7 @@ export default function DescriptionReserve() {
                 {
                     data?.scheduling?.data?.attributes?.owner?.data?.id !== user_id ? (
                     <View className='h-max w-full flex justify-center items-center pl-2'>
-                            <TouchableOpacity className='pt-2 pb-5'>
+                            <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
                                 <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
                                     <View className='w-1'></View>                       
                                     <View className='h-5 w-5 items-center justify-center'>
@@ -352,7 +346,7 @@ export default function DescriptionReserve() {
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity className='pb-2'>
+                            <TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
                                 <View className='h-10 w-64 rounded-md bg-orange-500 flex items-center justify-center'>
                                         <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>                 
                                 </View>
@@ -364,7 +358,7 @@ export default function DescriptionReserve() {
                             <View className='flex-row item-center justify-center'>
                                 <TouchableOpacity onPress={() => navigation.navigate('DescriptionInvited')} className='flex-row'>
                                     <View className='h-5 w-5 items-center justify-center'>
-                                        {/* <TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} /> */}
+                                        <TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} />
                                     </View>
                                     <View className='item-center justify-center'>
                                         <Text className='font-black text-xs text-center text-white pl-1'>Compartilhar</Text>
@@ -377,7 +371,7 @@ export default function DescriptionReserve() {
                                 <View className='w-30 h-10 bg-white rounded-sm flex-row items-center'>
                                     <View className='w-1'></View>
                                     <View className='h-5 w-5 items-center justify-center'>
-                                        {/* <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} /> */}
+                                        <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} />
                                     </View>
                                     <View className='item-center justify-center'>
                                         <Text className='font-black text-xs text-center text-gray-400 pl-1'>Adicionar Pagamento</Text>
