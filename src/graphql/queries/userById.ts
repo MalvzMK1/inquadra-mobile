@@ -3,14 +3,14 @@ import { gql } from "@apollo/client";
 
 export interface IUserByIdResponse {
   usersPermissionsUser: {
-      data: {
-          attributes: {
-              id: User['id'];
-              attributes: {
-                  username: User['username'];
-                  email: User['email'];
-                  phoneNumber: User['phoneNumber'];
-                  cpf: User['cpf'];
+    data: {
+      attributes: {
+        id: User['id'];
+        attributes: {
+          username: User['username'];
+          email: User['email'];
+          phoneNumber: User['phoneNumber'];
+          cpf: User['cpf'];
                   paymentCardInformations:{
                     id: PaymentCardInformations['id']
                     cvv: PaymentCardInformations['cvv']
@@ -42,9 +42,8 @@ export interface IUserByIdResponse {
   };
 }
 
-
 export interface IUserByIdVariables {
-	id: string
+  id: string
 }
 
 export const userByIdQuery = gql`

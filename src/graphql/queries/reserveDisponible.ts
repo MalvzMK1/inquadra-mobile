@@ -2,19 +2,19 @@ import { gql } from "@apollo/client";
 
 export interface IReserveDisponibleResponse {
 	courts: {
-    data: Array<{
-      id: Court['id']
-      attributes:{
-        name: Court['name']
-        establishment: {
-          data: {
-            id: Establishment['id']
-          }
-        }
-        court_availabilities: {
-          data: Array<{
-            id: CourtAvailability['id']
-            attributes:{
+        data: {
+            id: Court['id']
+            attributes: {
+                name:Court['name']
+                establishment: {
+                    data: {
+                        id: Establishment['id']
+                    }
+                }
+                court_availabilities: {
+                    data: Array< {
+                        id: CourtAvailability['id']
+                        attributes: {
               startsAt: string
               endsAt:  string
               status:  CourtAvailability['status']

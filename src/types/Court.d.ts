@@ -1,4 +1,5 @@
 type CourtCardInfos = {
+	id: string
 	image: string
 	name: string
 	type: string
@@ -9,4 +10,5 @@ type Court = {
 	id: string
 	name: string
 	rating: number
+	fantasy_name: string
 }

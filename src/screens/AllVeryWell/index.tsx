@@ -1,11 +1,10 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { ScrollView } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
 
 export default function AllVeryWell() {
 
-    const navigation = useNavigation()
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
     return (
         <View className="flex-1">

@@ -1,8 +1,11 @@
 type Scheduling = {
     id: string
     schedulingTitle: string
-    date: String
+    court_availability: string
+    date: Date
+    users: Array<string>
     valuePayed: number
     payedStatus: boolean
+    owner: string
     payDay: Date
 }
