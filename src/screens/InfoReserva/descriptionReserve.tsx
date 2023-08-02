@@ -13,6 +13,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
 import Countdown from '../../components/countdown/Countdown';
+import {HOST_API} from '@env'
 
 
 const countriesData = [
@@ -252,7 +253,7 @@ export default function DescriptionReserve() {
                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                     <View>
                         <Image
-                            source={{ uri: `http://192.168.0.229:1337${data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url}` }}
+                            source={{ uri: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url }}
                             style={{ width: 138, height: 90 }}
                             borderRadius={5}
                         />
