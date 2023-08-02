@@ -23,6 +23,7 @@ const formSchema = z.object({
 		.nonempty('O campo não pode estar vazio')
 })
 
+
 export default function Login() {
 	const [userGeolocation, setUserGeolocation] = useState<{latitude: number, longitude: number}>()
 	const [authUser, {data, loading, error}] = useLoginUser()
