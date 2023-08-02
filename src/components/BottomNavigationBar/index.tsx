@@ -23,7 +23,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 	});
 
 	return (
-		<View className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px] bg-[#292929]`}>
+		<View className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
 
 			{showButtons && (
 				<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>

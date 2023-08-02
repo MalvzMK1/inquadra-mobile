@@ -20,6 +20,8 @@ import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAcc
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
+import {RootStackParamList} from "../../types/RootStack";
+import PixScreen from '../../screens/Pix';
 import {NavigationProp, useNavigation} from "@react-navigation/native";
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
@@ -56,6 +58,13 @@ export default function () {
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<Screen
+				name="PixScreen"
+				component={PixScreen}
 				options={{
 					headerShown: false,
 				}}
@@ -301,6 +310,7 @@ export default function () {
 					),
 					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+				/>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
