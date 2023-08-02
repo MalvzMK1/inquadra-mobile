@@ -3,17 +3,21 @@ import { View, Image, Text } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
-import storage from '../../utils/storage';
 
-export default function CourtCardHome(props: CourtCardInfos & {photoUser: string | undefined}) {
+export default function CourtCardHome(props: CourtCardInfos) {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
 	const [color, setColor] = useState("white")
 
+	// console.error(props.image)
+
+	console.log(props)
+
 	return (
-		<TouchableOpacity onPress={() => navigation.navigate('EstablishmentInfo', {
-			courtID: props.id,
-			userPhoto: props.photoUser
+		<TouchableOpacity onPress={() => navigation.navigate('CourtAvailibilityInfo', {
+			courtId: props.id,
+			courtImage: props.image,
+			courtName: props.name
 		})}>
 			<View className='flex flex-row flex-1 gap-x-[14px] mb-5'>
 				{/*<TouchableOpacity className='w-12 h-22 rounded-[10px] bg-red-500' onPress={() => navigation.navigate('CourtAvailibilityInfo', {*/}
