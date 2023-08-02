@@ -11,32 +11,35 @@ export interface IUserByIdResponse {
           email: User['email'];
           phoneNumber: User['phoneNumber'];
           cpf: User['cpf'];
-          paymentCardInformations: PaymentCardInformations;
-        };
-        country: {
-          data: {
-            id: Country['id'];
-            attributes: Omit<Country, 'id'>;
-          }
-          flag: {
-            data: {
-              attributes: {
-                url: Flag['url'];
+          paymentCardInformations:{
+                    id: PaymentCardInformations['id']
+                    cvv: PaymentCardInformations['cvv']
+                    dueDate: string
+                  }
               };
-            };
+              country: {
+                  data: {
+                      id: Country['id'];
+                      attributes: Omit<Country, 'id'>;
+                  }
+                  flag: {
+                       data: {
+                          attributes: {
+                              url: Flag['url'];
+                          };
+                      };
+                  };
+              };
           };
-        };
+          photo?: {
+              data: {
+                  attributes: {
+                      url: Photo['url'];
+                  };
+              };
+          };
       };
-    } & {
-      photo: {
-        data:{
-          attributes: {
-            url: Photo['url']
-          }
-        }
-      }
-    }
-  }
+  };
 }
 
 export interface IUserByIdVariables {

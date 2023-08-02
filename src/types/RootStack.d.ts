@@ -39,5 +39,15 @@ type RootStackParamList = {
 		courtId: string,
 		courtImage: string,
 		courtName: string
+	};
+	ReservationPaymentSign: {
+		courtId: string,
+		courtImage: string,
+		courtName: string
+	}
+	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
+		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
+	} & {
+		photos: string[]
 	}
 }

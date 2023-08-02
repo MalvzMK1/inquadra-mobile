@@ -1,7 +1,5 @@
-export type BottomNavigationType = {
+type BottomNavigationType = {
 	isDisabled: boolean
-	buttonOneNavigation: string
-	buttonTwoNavigation: string
-	buttonThreeNavigation: string
-	buttonFourNavigation: string
+	establishmentScreen: boolean
+	playerScreen: boolean
 }

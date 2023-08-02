@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export interface ICourtAvailabilityResponse {
-    courts: {
-        data: Array<{
+    court: {
+        data: {
             id: Court['id']
             attributes: {
                 name:Court['name']
@@ -19,11 +19,12 @@ export interface ICourtAvailabilityResponse {
                             endsAt: CourtAvailability['endsAt']
                             status: CourtAvailability['status']
                             value: CourtAvailability['value']
+                            weekDay: WeekDays
                         }
                     }>
                 }
             }
-        }>
+        }
     }
 }
 
@@ -33,7 +34,7 @@ export interface ICourtAvailabilityVariable {
 
 export const courtAvailabilityQuery = gql`
     query reserveDisponible($id: ID!) {
-        courts(filters: { id: { eq: $id } }) {
+        court(id: $id) {
             data {
                 id
                 attributes {
@@ -51,6 +52,7 @@ export const courtAvailabilityQuery = gql`
                                 endsAt
                                 status
                                 value
+                                weekDay
                             }
                         }
                     }

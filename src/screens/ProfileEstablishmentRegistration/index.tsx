@@ -11,7 +11,6 @@ export default function ProfileEstablishmentRegistration() {
 
     const [cpf, setCpf] = useState("");
     const [phone, setPhone] = useState("");
-    const [password, setPassword] = useState('');
     const [isChecked, setIsChecked] = useState(false)
     const [captchaChecked, setCaptchaChecked] = useState(false)
     const navigation = useNavigation()
