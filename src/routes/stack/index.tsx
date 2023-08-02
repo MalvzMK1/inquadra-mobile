@@ -20,7 +20,6 @@ import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAcc
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
-import {RootStackParamList} from "../../types/RootStack";
 import PixScreen from '../../screens/Pix';
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
@@ -30,6 +29,8 @@ import CompletedEstablishmentRegistration from '../../screens/CompletedEstablish
 import InfoProfileEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment';
 import DeleteAccountEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/deleteAccount';
 import FinancialEstablishment from '../../screens/FinancialEstablishment';
+import RegisterCourt from '../../screens/RegisterCourt';
+import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
