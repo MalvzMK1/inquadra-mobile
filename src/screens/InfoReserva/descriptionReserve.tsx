@@ -13,22 +13,12 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
 import Countdown from '../../components/countdown/Countdown';
+import useCountries from '../../hooks/useCountries';
 
 
-const countriesData = [
-    { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    { key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
-    { key: '3', value: 'Portugal', img: 'https://static.mundoeducacao.uol.com.br/mundoeducacao/2022/03/bandeira-portugal.jpg' },
-    { key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/conteudo/images/estados-unidos.jpg' },
-    { key: '5', value: 'Canadá', img: 'https://s5.static.brasilescola.uol.com.br/be/2021/04/bandeira-do-canada.jpg' },
-    { key: '6', value: 'Itália', img: 'https://s5.static.brasilescola.uol.com.br/be/2021/12/bandeira-da-italia.jpg' },
-    { key: '7', value: 'Reino Unido', img: 'https://s4.static.brasilescola.uol.com.br/be/2021/10/bandeira-do-reino-unido.jpg' },
-]
 
-const getCountryImage = (countryName: string) => {
-    const countryImg = countriesData.find(item => item.value === countryName)?.img
-    return countryImg
-}
+
+
 
 export default function DescriptionReserve() {
 
@@ -45,14 +35,6 @@ export default function DescriptionReserve() {
     }
 
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
-
-    const handleOpenPaymentModal = () => {
-        setShowCardPaymentModal(true)
-    }
-
-    const handleExitPaymentModal = () => {
-        setShowCardPaymentModal(false)
-    }
     
     const [name, setName] = useState("")
     const [cpf, setCpf] = useState("")
@@ -61,16 +43,10 @@ export default function DescriptionReserve() {
     const [maturityDate, setMaturityDate] = useState("")
     const [creditCardCvv, setCreditCardCvv] = useState("")
     const [selected, setSelected] = useState("")
+    const [countriesData, setCountriesData] = useState<CountryAPI[]>([]);
+    const [countryId, setCountryId] = useState<string | null>(null);
 
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
-
-    const handleOpenPixPaymentModal = () => {
-        setShowPixPaymentModal(true)
-    }
-
-    const handleExitPixPaymentModal = () => {
-        setShowPixPaymentModal(false)
-    }
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
@@ -132,21 +108,7 @@ export default function DescriptionReserve() {
         return true;
       };
 
-      function pay(data: iFormCardPayment){
-        userPaymentCard({ 
-                variables: {
-                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
-                    schedulingId: schedule_id,
-                    userId: user_id, 
-                    name: data.name,
-                    cpf: data.cpf,
-                    cvv: parseInt(data.cvv),
-                    date: convertToAmericanDate(data.date),
-                    countryID: '1',
-                }
-            })
-            setShowCardPaymentModal(false)
-      }
+      
       
       const formSchema = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
@@ -202,6 +164,33 @@ export default function DescriptionReserve() {
           }
       }
 
+
+      const getCountryImage = (countryISOCode: string | null): string | undefined => {
+        if (countryISOCode && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        
+          if (selectedCountry) {
+            return `http://192.168.0.229:1337${selectedCountry.attributes.flag.data.attributes.url}`;
+          }
+        }
+        return undefined;
+      };
+
+
+      const getCountryIdByISOCode = (countryISOCode: string | null): string => {
+        if (countryISOCode && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        
+          if (selectedCountry) {
+            return selectedCountry.id;
+          }
+        }
+        return "";
+      };
+
+      
+      
+
        const formSchemaPixPayment = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
         name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
@@ -217,12 +206,50 @@ export default function DescriptionReserve() {
     })
         
     const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
+    const {data:dataCountry, error:errorCountry, loading:loadingCountry} = useCountries()
     const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
+
+
+    
+
+    const closeCardPayment = () => {
+        setShowPixPaymentModal(false);
+      };
+    
+      const closePixPayment = () => {
+        setShowCardPaymentModal(false);
+      };
+
+
+      function pay(data: iFormCardPayment){
+        const countryId = getCountryIdByISOCode(selected)
+        userPaymentCard({ 
+                variables: {
+                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
+                    schedulingId: schedule_id,
+                    userId: user_id, 
+                    name: data.name,
+                    cpf: data.cpf,
+                    cvv: parseInt(data.cvv),
+                    date: convertToAmericanDate(data.date),
+                    countryID: countryId,
+                }
+            })
+            setShowCardPaymentModal(false)
+      }
+
+
 
     function payPix(info: iFormPixPayment){
         navigation.navigate('PixScreen', {courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))})
         setShowPixPaymentModal(false)
       }
+
+      const countryOptions = dataCountry?.countries?.data.map(country => ({
+        value: country?.id,
+        label: country?.attributes?.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
+        img: `http://192.168.0.229:1337${country?.attributes?.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+      })) || [];
 
     return (
         <View className='flex-1 bg-zinc-600'>      
@@ -230,7 +257,7 @@ export default function DescriptionReserve() {
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
                     <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva')}>
-                        {/* <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} /> */}
+                        <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
                 <View className='flex item-center justify-center'>
@@ -397,7 +424,7 @@ export default function DescriptionReserve() {
                 </View>
             </View>
             </ScrollView>
-            <Modal visible={showCardPaymentModal} animationType="fade" transparent={true}>
+            <Modal visible={showCardPaymentModal} animationType="fade" transparent={true} onRequestClose={closeCardPayment}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>      
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                     <ScrollView>
@@ -517,15 +544,20 @@ export default function DescriptionReserve() {
                                     <Image className='h-[21px] w-[30px] mr-[15px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
                                     <SelectList
                                         setSelected={(val: string) => {
-                                            setSelected(val)
+                                            setSelected(val);
+                                            
                                         }}
-                                        data={countriesData}
+                                        data={dataCountry?.countries?.data.map(country => ({
+                                            value: country?.attributes.ISOCode,
+                                            label: country?.attributes.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
+                                            img: `http://192.168.0.229:1337${country?.attributes.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+                                        })) || []}
                                         save="value"
                                         placeholder='Selecione um país'
                                         searchPlaceholder='Pesquisar...'
-                                    />
+                                        />
                                 </View>
-                            </View>
+                            </View> 
                                 <View>
                                     <Button mode="contained" style={{height: 50, width: '100%',backgroundColor: '#FF6112',borderRadius: 8,justifyContent: 'center',alignItems: 'center', marginTop: 20}}
                                             onPress={handleSubmit(pay, console.log)}
@@ -540,7 +572,7 @@ export default function DescriptionReserve() {
                      
                 </View>
             </Modal>
-            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>
+            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true} onRequestClose={closePixPayment} >
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                         <View className='flex gap-y-[10px]'>
