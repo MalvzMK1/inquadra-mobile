@@ -3,18 +3,17 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { ImageSourcePropType } from "react-native/Libraries/Image/Image"
 import { useNavigation, NavigationProp } from "@react-navigation/native"
 import React, { useState } from 'react'
-import WeekDays from "../../components/WeekDays"
+import WeekDayButton from "../../components/WeekDays"
 import CourtAvailibility from "../../components/CourtAvailibility"
 import BottomBlackMenu from "../../components/BottomBlackMenu"
 import { Calendar } from 'react-native-calendars'
+import { getWeekDates } from "../../utils/getWeekDates"
+import { DateData } from "react-native-calendars"
+import { addDays, format } from 'date-fns'
 
 const courtImage: ImageSourcePropType = require('../../assets/quadra.png')
 
-type FormatedWeekDates = {
-    dateItem: string
-}
-
-const dayInitial = [
+export const dayInitial = [
     "D",
     "S",
     "T",
@@ -24,37 +23,36 @@ const dayInitial = [
     "S",
 ]
 
-const getWeekDates = (date: Date) => {
-    const selectedDate = new Date(date);
-    const dayOfWeek = selectedDate.getDay();
-    const startDate = new Date(selectedDate);
-    startDate.setDate(selectedDate.getDate() - dayOfWeek);
-    const weekDates: Date[] = [startDate];
-
-    for (let i = 1; i < 7; i++) {
-        const nextDay = new Date(startDate);
-        nextDay.setDate(startDate.getDate() + i);
-        weekDates.push(nextDay);
-    }
-
-    let formatedWeekDates: FormatedWeekDates[] = []
-
-    weekDates.forEach(item => {
-        let dateItem: string = item.toISOString().split("-")[2].split("T")[0].toString()
-
-        formatedWeekDates.push({
-            dateItem
-        })
-    })
-
-    return formatedWeekDates;
-};
-
 export default function CourtAvailibilityInfo() {
     const [showCalendar, setShowCalendar] = useState(false)
     const [dateSelected, setDateSelected] = useState(new Date())
+    const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
 
     const weekDates: FormatedWeekDates[] = getWeekDates(dateSelected)
+
+    // function handleWeekDayClick(index: number) {
+    //     const availabilities = courtAvailability?.court.data.attributes.court_availabilities.data
+
+    //     const newActiveStates = Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false);
+    //     newActiveStates[index] = true;
+    //     setActiveStates(newActiveStates);
+
+    //     setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
+    //     if (availabilities)
+    //         setShownAvailabilities(availabilities.filter(availabilitie =>
+    //             availabilitie.attributes.weekDay === weekDates[index].dayName as unknown as WeekDays
+    //         ))
+    // }
+
+    function handleCalendarClick(data: DateData) {
+        const date = new Date(data.dateString)
+        const weekDay = format(addDays(date, 1), 'eeee')
+
+        setDateSelected(date)
+        setSelectedWeekDate(weekDay as WeekDays)
+    }
+
+    const [activeStates, setActiveStates] = useState([])
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     return (
@@ -73,31 +71,29 @@ export default function CourtAvailibilityInfo() {
 
                     {!showCalendar && (
                         <View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
-                            <WeekDays dayInitial={dayInitial[0]} day={weekDates[6].dateItem}></WeekDays>
-
-                            <WeekDays dayInitial={dayInitial[1]} day={weekDates[0].dateItem}></WeekDays>
-
-                            <WeekDays dayInitial={dayInitial[2]} day={weekDates[1].dateItem}></WeekDays>
-
-                            <WeekDays dayInitial={dayInitial[3]} day={weekDates[2].dateItem}></WeekDays>
-
-                            <WeekDays dayInitial={dayInitial[4]} day={weekDates[3].dateItem}></WeekDays>
-
-                            <WeekDays dayInitial={dayInitial[5]} day={weekDates[4].dateItem}></WeekDays>
-
-                            <WeekDays dayInitial={dayInitial[6]} day={weekDates[5].dateItem}></WeekDays>
+                            {/* {
+                                weekDates.map((date, index) => (
+                                    <WeekDayButton
+                                        localeDayInitial={date.localeDayInitial}
+                                        day={date.day}
+                                        onClick={(isClicked) => {
+                                            handleWeekDayClick(index)
+                                        }}
+                                        active={activeStates[index]}
+                                    />
+                                ))
+                            } */}
                         </View>
                     )}
 
                     {showCalendar && (
                         <Calendar
                             className="h-fit w-96"
-                            onDayPress={day => {
-                                // let dayItem: Date = new Date(day.dateString)
-                                setDateSelected(day.dateString)
-                            }}
+                            current={new Date().toDateString()}
+                            onDayPress={handleCalendarClick}
                             markedDates={{
-                                [dateSelected]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
+                                [dateSelected.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
+                                // '2023-08-02': { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
                             }}
                         />
                     )}
