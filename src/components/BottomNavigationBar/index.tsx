@@ -69,7 +69,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('DescriptionReserve')}>
+							onPress={() => navigation.navigate('InfoReserva')}>
 							<Image
 								source={require('../../assets/calendar_black_icon.png')}
 							/>

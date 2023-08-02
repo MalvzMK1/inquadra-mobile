@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
 import Countdown from '../../components/countdown/Countdown';
 import {HOST_API} from '@env'
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 
 const countriesData = [
@@ -31,7 +32,7 @@ const getCountryImage = (countryName: string) => {
     return countryImg
 }
 
-export default function DescriptionReserve() {
+export default function DescriptionReserve({navigation, route}: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
 
     const [showCameraIcon, setShowCameraIcon] = useState(false);
     const [showCard, setShowCard] = useState(false);
@@ -73,12 +74,8 @@ export default function DescriptionReserve() {
         setShowPixPaymentModal(false)
     }
 
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
-
-    const user_id = '1'
-    const schedule_id = '1'
-
-  
+    const user_id = route.params.userId
+    const schedule_id = route.params.courtId
 
       interface iFormCardPayment {
         value: string
@@ -221,7 +218,10 @@ export default function DescriptionReserve() {
     const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
 
     function payPix(info: iFormPixPayment){
-        navigation.navigate('PixScreen', {courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))})
+        navigation.navigate('PixScreen', {
+            courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name,
+             value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))
+        })
         setShowPixPaymentModal(false)
       }
 

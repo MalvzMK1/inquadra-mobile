@@ -29,7 +29,10 @@ type RootStackParamList = {
 		userPhoto: string | undefined
 	};
 	DeleteAccountSuccess: undefined
-	DescriptionReserve: undefined;
+	DescriptionReserve: {
+		userId: string
+		courtId: string
+	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
 		courtID:string,
@@ -49,5 +52,9 @@ type RootStackParamList = {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
 	} & {
 		photos: string[]
+	}
+	PixScreen: {
+		courtName: string,
+		value: string
 	}
 }

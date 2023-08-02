@@ -4,9 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
-import useGetUserById from '../../hooks/useUserById';
+import {useGetUserById} from '../../hooks/useUserById';
 import { useHistoricReserveOff } from '../../hooks/useHistoricReserveOff';
 import { format, parseISO } from 'date-fns';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {HOST_API} from '@env'
 
 function formatDateTime(dateTimeString: string): string {
     try {
@@ -32,8 +34,7 @@ function formatDateTime(dateTimeString: string): string {
   }
 
 
-export default function InfoReserva() {
-    const navigation = useNavigation()
+export default function InfoReserva({navigation, route}: NativeStackScreenProps<RootStackParamList, 'InfoReserva'>) {
     const user_id = '1'
    
     const {data, error, loading} = useGetHistoricReserveOn(user_id)
@@ -41,7 +42,7 @@ export default function InfoReserva() {
         
     return (
         <View className='h-full w-max bg-zinc-600'>
-            <View className=' h-11 w-max  bg-zinc-900'></View>
+            {/* <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
                     <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
@@ -60,7 +61,7 @@ export default function InfoReserva() {
                         />
                     </TouchableOpacity>
                 </View>
-            </View>
+            </View> */}
 
             {/* Div maior para carregar todos os itens inseridos do historico*/}
             <View className='h-max w-max bg-zinc-600'>
@@ -76,11 +77,16 @@ export default function InfoReserva() {
                             {
                             !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo) =>  
                                 courtInfo.attributes.status ?
-                                <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
+                                <TouchableOpacity onPress={() => {                                 
+                                    navigation.navigate('DescriptionReserve', {
+                                        courtId: courtInfo.attributes.court_availability.data.attributes.court.data.id,
+                                        userId: user_id
+                                    })
+                                }}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                                     <View>
                                         <Image
-                                            source={{ uri: 'https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg' }}
+                                            source={{ uri: HOST_API + courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />
