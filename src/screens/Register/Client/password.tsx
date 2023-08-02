@@ -1,8 +1,7 @@
-import { View, Text, TextInput, Image, Button } from "react-native"
-import React, { useState, useRef } from "react"
+import {View, Text, TextInput, Image, ActivityIndicator} from "react-native"
+import React, { useState } from "react"
 import { RegisterHeader } from "../../../components/RegisterHeader"
 import { TouchableOpacity } from "react-native"
-import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { CheckBox } from 'react-native-elements'
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {Controller, useForm} from "react-hook-form";
@@ -39,14 +38,15 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 	const handleConfirmShowPassword = () => {
 		setShowConfirmedPassword(!showConfirmedPassword)
 	}
-	const checked: string = "checked"
 
 	const [isTermChecked, setIsTermChecked] = useState(false)
 	const [isCaptchaChecked, setIsCaptchaChecked] = useState(false)
 	const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false)
 	const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	function handleSignup(data: IFormData): void {
+		setIsLoading(true)
 		if (isTermChecked) {
 			if (isCaptchaChecked) {
 				console.log(data)
@@ -64,18 +64,17 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 							phone_number: userDatas.phoneNumber,
 							username: userDatas.name,
 						}
+					}).then(value => {
+						navigation.navigate('RegisterSuccess')
+						alert(value.data?.createUsersPermissionsUser.data.attributes.email)
 					})
-						.then(value => navigation.navigate('RegisterSuccess'))
-						.catch(error => {
-							console.log(error)
-							alert(error)
-						})
+						.catch((reason) => console.error(reason))
+						.finally(() => setIsLoading(false))
 				}
 			} setIsCaptchaCheckedError(true)
 		} setIsTermCheckedError(true)
 	}
 
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return (
 		<View className=" flex flex-col bg-white h-screen items-center p-5">
 
@@ -166,7 +165,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 				<TouchableOpacity
 					className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
 					onPress={handleSubmit(handleSignup)}>
-					<Text className='text-gray-50'>Continuar</Text>
+					<Text className='text-gray-50'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Continuar'}</Text>
 				</TouchableOpacity>
 			</View>
 		</View>

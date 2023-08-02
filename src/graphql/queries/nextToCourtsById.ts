@@ -1,52 +1,49 @@
 import { gql } from "@apollo/client";
 
 
-export interface INextToCourtByIdResponse{
-    courts: {
-        data: Array<{
-            id: Court ['id'];
+export interface ICourtByIdResponse {
+  court: {
+    data: {
+      id: Court['id']
+      attributes: {
+        court_type: {
+          data: {
             attributes: {
-                name: Court ['name']
-                court_type:{
-                    data:{
-                        attributes:{
-                            name: SportType['name']
-                        }
-                    }
-                } & {
-                    photo: {
-                        data: {
-                            attributes:{
-                                url: Photo['url']
-                            }
-                        }
-                    } 
-                } & {
-                    establishment:{
-                        data:{
-                            id: Establishment['id']
-                            attributes: Omit<Establishment, 'id'> & {
-                                address: {
-                                    data: {
-                                        latitude: Address['latitude']
-                                        longitude: Address['longitude']    
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }     
+              name: SportType['name']
             }
-        }>
+          }
+        }
+        name: Court['name']
+        photo:{
+          data: Array<{
+            attributes:{
+              url: Photo['url']
+            }
+          }>
+        }
+        establishment:{
+          data:{
+            id: Establishment['id']
+            attributes: {
+              corporateName: Establishment['corporateName']
+              address: {
+                latitude: Address['latitude']
+                longitude: Address['longitude']
+              }
+            }
+          }
+        }
+      }
     }
+  }
 }
 
-export interface INextToCourtBiIdVariables {
+export interface ICourtByIdVariables {
 	id: string
 }
 
-export const useNextToCourtByIdQuery = gql`
-    query nextToCourtById($id: ID) {
+export const courtByIdQuery = gql`
+  query courtById($id: ID) {
   court(id: $id) {
     data {
       id
@@ -78,15 +75,7 @@ export const useNextToCourtByIdQuery = gql`
             }
           }
         }
-        court_type {
-          data {
-            attributes {
-              name
-            }
-          }
-        }
       }
     }
   }
-}
-`;
+}`;

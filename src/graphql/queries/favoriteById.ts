@@ -69,7 +69,7 @@ export interface IFavoriteByIdVariables {
 }
 
 export const favoriteByIdQuery = gql`
-  query getFavoriteById($id: ID) {
+query getFavoriteById($id: ID) {
   usersPermissionsUser(id: $id) {
     data {
       attributes {

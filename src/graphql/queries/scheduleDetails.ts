@@ -85,5 +85,4 @@ query getDetailsReserve($id: ID) {
       }
     }
   }
-}
-`
+}`
