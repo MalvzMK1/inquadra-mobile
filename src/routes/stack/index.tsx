@@ -26,6 +26,8 @@ import HomeEstablishment from '../../screens/HomeEstablishment';
 import InfoProfileEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment';
 import DeleteAccountEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/deleteAccount';
 import FinancialEstablishment from '../../screens/FinancialEstablishment';
+import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
+import DetailsAmountReceivable from '../../screens/FinancialEstablishment/Client/DetailsAmountReceivable';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -35,6 +37,60 @@ export default function () {
 
 	return (
 		<Navigator>
+			<Screen
+				name="DetailsAmountReceivable"
+				component={DetailsAmountReceivable}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>Detalhes</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name="AmountAvailableWithdrawal"
+				component={AmountAvailableWithdrawal}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>Detalhes</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="FinancialEstablishment"
 				component={FinancialEstablishment}
