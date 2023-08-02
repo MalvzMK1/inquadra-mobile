@@ -239,7 +239,7 @@ export default function DescriptionReserve() {
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                            source={{ uri: 'https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg' }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />

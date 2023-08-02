@@ -1,4 +1,4 @@
-export type PixKey = {
+type PixKey = {
 	id: string
 	key: string
 }

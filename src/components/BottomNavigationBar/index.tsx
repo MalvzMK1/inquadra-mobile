@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import { useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -6,7 +6,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 import { BottomNavigationType } from '../../types/BottomNavigationProps';
 
 export function BottomNavigationBar(props: BottomNavigationType) {
-	const navigation = useNavigation()
+	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
 	const [showButtons, setShowButtons] = useState(false)
 	const opacityValue = useSharedValue(0)
