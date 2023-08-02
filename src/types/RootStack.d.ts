@@ -33,7 +33,6 @@ type RootStackParamList = {
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
 		courtID:string,
-		userID: string,
 		userPhoto: string | undefined,
 	};
 	CourtAvailibilityInfo: {

@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import storage from '../../utils/storage';
 
-export default function CourtCardHome(props: CourtCardInfos & {userID: string, photoUser: string | undefined}) {
+export default function CourtCardHome(props: CourtCardInfos & {photoUser: string | undefined}) {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
 	const [color, setColor] = useState("white")
@@ -13,7 +13,6 @@ export default function CourtCardHome(props: CourtCardInfos & {userID: string, p
 	return (
 		<TouchableOpacity onPress={() => navigation.navigate('EstablishmentInfo', {
 			courtID: props.id,
-			userID:  props.userID,
 			userPhoto: props.photoUser
 		})}>
 			<View className='flex flex-row flex-1 gap-x-[14px] mb-5'>

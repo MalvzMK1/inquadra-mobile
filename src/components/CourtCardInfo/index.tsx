@@ -12,7 +12,7 @@ export function CourtCard(props: CourtCardInfo) {
                 <Text className="text-[#FF6112] text-[15px] leading-[24px]">{props.name}</Text>
                 <Text className="text-[12px] leading-[20px] font-normal">{props.type}</Text>
                 <Text className="flex text-[12px] leading-[20px] font-bold items-center justify-center">Avaliação: {props.rate ? props.rate : "Quadra ainda não foi avaliada"} <Ionicons name="star-sharp" size={20} color="orange" /> </Text>
-                <Text className="text-[12px] leading-[20px] font-bold mt-4">Tem horários disponíveis</Text>
+                <Text className="text-[12px] leading-[20px] font-bold mt-4">{props.availabilities || props.availabilities == undefined ? "Tem" : "Não"} horário disponivel</Text>
             </View>
         </View>
     )

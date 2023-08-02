@@ -5,4 +5,5 @@ export type CourtCardInfo = {
     type: string
     rate: number
     image: string
+    availabilities: boolean| undefined
 }

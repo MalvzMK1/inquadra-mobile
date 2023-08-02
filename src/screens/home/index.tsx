@@ -123,7 +123,6 @@ export default function Home({ menuBurguer, route }: Props) {
 			{isDisabled && <HomeBar 
 				courts={courts} 
 				userName={userHookData?.usersPermissionsUser.data.attributes.username} 
-				userID={route.params.userID} 
 				photoUser={route.params.userPhoto}/>
 			}
 			<BottomNavigationBar

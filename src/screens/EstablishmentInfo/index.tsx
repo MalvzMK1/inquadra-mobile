@@ -17,9 +17,8 @@ const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
     const EstablishmentInfos = useGetEstablishmentByCourtId(route.params?.courtID.toString())
-    const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(route.params.userID)
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
-
+    
     const [userLocation, setUserLocation] = useState({
         latitude: 0,
         longitude: 0
@@ -34,6 +33,9 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         photosAmenitie: Array<string>,
         type: string
     }>()
+    const [userId, setUserId] = useState<string>()
+
+    const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(userId)
 
     const [arrayfavoriteEstablishment, setArrayFavoriteEstablishment] = useState<Array<{ id: any }>>([])
 
@@ -59,6 +61,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     name: court.attributes.name,
                     rating: court.attributes.rating,
                     court_type: court.attributes.court_type.data.attributes.name,
+                    court_availabilities: court.attributes.court_availabilities.data[0],
                     photo: 'http://192.168.15.5:1337' + court.attributes.photo.data[0].attributes.url,
                 }
             })
@@ -112,6 +115,13 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     })
                 }
             })
+            await AsyncStorage.getItem("userInfos").then((value) => {
+                if (value) {
+                   const userID = JSON.parse(value)
+                   setUserId(userID.rawData.userId)
+                }
+            })
+            
         }
         fetchData()
     }, [])
@@ -119,6 +129,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     const handlePressFavoriteEstablishment = () => {
 
         let newArrayfavoriteEstablishment = [""]
+
         if (!heart) {
             newArrayfavoriteEstablishment = arrayfavoriteEstablishment.map((item) => {
                 return item.id
@@ -126,9 +137,6 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
             if (Establishment) {
                 newArrayfavoriteEstablishment.push(Establishment?.id.toString())
             }
-
-            console.log("caso:", true);
-            
         } else {
             const filteredArray = arrayfavoriteEstablishment.filter((item) =>
                 item.id !== Establishment?.id
@@ -136,20 +144,18 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
             newArrayfavoriteEstablishment = filteredArray.map((item) => {
                 return item.id
             })
-
-            console.log("caso:", false);
-            
-
         }
 
         setHeart((prevState) => !prevState);
 
-        updateFavoriteEstablishment({
-            variables: {
-                user_id: route.params.userID,
-                favorite_establishments: newArrayfavoriteEstablishment
-            }
-        })
+        if(userId){   
+            updateFavoriteEstablishment({
+                variables: {
+                    user_id: userId,
+                    favorite_establishments: newArrayfavoriteEstablishment
+                }
+            })
+        }
 
     };
 
@@ -243,6 +249,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                         {Court.filter((court) => court.court_type === type).map((court) => (
                             <CourtCard
                                 key={court.id}
+                                availabilities={court.court_availabilities}
                                 image={court.photo}
                                 name={court.name}
                                 type={court.court_type}

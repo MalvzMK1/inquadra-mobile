@@ -24,11 +24,10 @@ interface HomeBarProps {
 		distance: number,
 	}>,
 	userName: string | undefined
-	userID: string
 	photoUser: string | undefined
 }
 
-export default function HomeBar({courts, userName, userID, photoUser}: HomeBarProps) {
+export default function HomeBar({courts, userName, photoUser}: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
@@ -60,7 +59,6 @@ export default function HomeBar({courts, userName, userID, photoUser}: HomeBarPr
 					<CourtCardHome
 						key={item.id}
 						id={item.id}
-						userID={userID}
 						photoUser={photoUser}
 						image={item.image}
 						name={item.name}
