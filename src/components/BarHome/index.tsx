@@ -9,9 +9,6 @@ import Animated, {
 	FadeIn
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
-import { useGetNextToCourts } from "../../hooks/useNextToCourts";
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 interface HomeBarProps {
 	courts: Array<{
@@ -24,7 +21,7 @@ interface HomeBarProps {
 		distance: number,
 	}>,
 	userName: string | undefined
-	photoUser: string | undefined
+	// photoUser: string | undefined
 }
 
 export default function HomeBar({courts, userName, photoUser}: HomeBarProps) {
@@ -59,7 +56,7 @@ export default function HomeBar({courts, userName, photoUser}: HomeBarProps) {
 					<CourtCardHome
 						key={item.id}
 						id={item.id}
-						photoUser={photoUser}
+						// photoUser={photoUser}
 						image={item.image}
 						name={item.name}
 						distance={item.distance}

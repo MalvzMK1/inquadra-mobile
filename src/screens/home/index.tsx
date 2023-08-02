@@ -59,13 +59,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
 	const userGeolocation = route.params.userGeolocation
 
-	if (!userHookLoading && !userHookError) {
-		// TODO: IMPLEMENTAR A FOTO DO USUÁRIO A PARTIR DO ID
-		//  FIX: MAXIMUM UPDATE DEPTH EXCEEDED. THIS CAN HAPPEN WHEN A COMPONENT REPATEDLY CALLS SETSTATE INSIDE COMPONENT WILL UPDATE OR COMPONENT DID UPDATE
-		// if (!!userHookData?.usersPermissionsUser.data.attributes.photo.data)
-			
-	}
-
 	return (
 		<View className="flex-1 flex flex-col">
 			{
@@ -125,7 +118,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				isDisabled && <HomeBar 
 						courts={courts} 
 						userName={userHookData?.usersPermissionsUser.data.attributes.username}
-						photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
+						// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
 					/>
 			}
 			<BottomNavigationBar 

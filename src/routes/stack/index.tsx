@@ -31,6 +31,7 @@ import DeleteAccountEstablishment from '../../screens/ProfileEstablishmentRegist
 import FinancialEstablishment from '../../screens/FinancialEstablishment';
 import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
+import {HOST_API} from '@env'
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -107,9 +108,9 @@ export default function () {
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
 							console.log(params)
-							// navigation.navigate('ProfileSettings', {
-							// 	userPhoto: params.userPhoto
-							// })
+							navigation.navigate('ProfileSettings', {
+								userPhoto: HOST_API + params.userPhoto
+							})
 						}}>
 							<Image
 								source={params.userPhoto ? { uri: `http://192.168.0.10:1337${params.userPhoto}` } : require('../../assets/default-user-image.png')}
@@ -284,7 +285,7 @@ export default function () {
 					headerRight: () => (
 						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
 							<Image
-								source={params?.userPhoto ? { uri: `http://192.168.0.10:1337${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								source={params?.userPhoto ? { uri: params.userPhoto } : require('../../assets/default-user-image.png')}
 								className='w-full h-full'
 							/>
 						</TouchableOpacity>

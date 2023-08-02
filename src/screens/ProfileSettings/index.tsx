@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	View,
 	Text,
@@ -21,7 +21,7 @@ import { TextInputMask } from 'react-native-masked-text';
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
-import useGetUserById from "../../hooks/useUserById";
+import {useGetUserById} from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
@@ -67,7 +67,7 @@ const countriesData = [
 
 type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}}
 
-export default function ProfileSettings() {
+export default function ProfileSettings({navigation, route}) {
 	const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
 
 	const { loading, error, data } = useGetUserById("2");
@@ -132,8 +132,8 @@ export default function ProfileSettings() {
 		setShowExitConfirmation(false);
 
 	};
-
-	const [profilePicture, setProfilePicture] = useState<string>();
+	console.log(route.params.userPhoto)
+	const [profilePicture, setProfilePicture] = useState<string>(route.params.userPhoto);
 
 	const handleProfilePictureUpload = async () => {
 		try {
@@ -162,7 +162,7 @@ export default function ProfileSettings() {
 		}
 	};
 
-	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+	// const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const [showCard, setShowCard] = useState(false);
 	const [cardData, setCardData] = useState({
 		cardNumber: '',
