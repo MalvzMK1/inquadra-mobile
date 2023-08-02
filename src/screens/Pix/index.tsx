@@ -1,17 +1,43 @@
 import React from 'react'
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import { payload } from '../../components/pix/payLoadGenerator';
-import { QrC } from 'qrcode-pix';
+import QRCode from 'react-native-qrcode-svg';
+import * as Clipboard from 'expo-clipboard';
+import Toast from 'react-native-toast-message';
+import { useRoute } from '@react-navigation/native';
 
-const payLoad = payload('+5511990216755', 'e o pix?', 'Enzo Diogenes do Prado', 'OSASCO', '1832', '150.00')
+
+
+
+interface RouteParams {
+    courtName: string;
+    value: number
+  }
+
+
 
 export default function PixScreen() {
     const navigation = useNavigation()
+    const route = useRoute()
+    const { courtName, value } = route.params as RouteParams
+    const formatedValue = value.toFixed(2)
 
-    console.log(payLoad)
+    const payLoad = payload('+5511990216755', courtName, 'Enzo Diogenes do Prado', 'OSASCO', formatedValue.toString())
+    
+    const handleCopiarTexto = () => {
+        Clipboard.setStringAsync(payLoad);
+        Toast.show({
+            type: 'success',
+            text1: 'Texto copiado',
+            text2: 'O texto foi copiado para a área de transferência.',
+            position: 'bottom',
+            visibilityTime: 2000, // tempo em milissegundos que a mensagem ficará visível
+          });
+      };
+
     return (
         <View className='h-full w-max bg-white'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
@@ -34,13 +60,21 @@ export default function PixScreen() {
                     </TouchableOpacity>
                 </View>
             </View>
-
-            <View>
-                <QRCode value={payLoad} size={200} />
+            <View className='h-max w-max flex items-center justify-start pt-16'>
+                <Text className='font-black font text-xl pb-5'>{courtName}</Text>
+                <View>
+                    <QRCode value={payLoad} size={200} />
+                </View>   
+                <Text className='font-black font text-xl pt-2 pb-3'>Pagamento do Sinal</Text>
+                <View className='h-14 w-screen bg-gray-300 justify-center items-center '>
+                    <Text className='font-black font text-3xl text-gray-600'>R${value}</Text>
+                </View>
+                <TouchableOpacity className='pt-5' onPress={handleCopiarTexto}>
+                     <View className='h-14 w-80 rounded-md bg-orange-500 flex items-center justify-center'>
+                         <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>                 
+                     </View>
+                </TouchableOpacity>
             </View>
-
-           
-            
         </View>
     )
 }

@@ -6,6 +6,30 @@ import { TextInput } from 'react-native-paper';
 import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
 import useGetUserById from '../../hooks/useUserById';
 import { useHistoricReserveOff } from '../../hooks/useHistoricReserveOff';
+import { format, parseISO } from 'date-fns';
+
+function formatDateTime(dateTimeString: string): string {
+    try {
+        const parsedDateTime = parseISO(dateTimeString);
+        const formattedDate = format(parsedDateTime, 'dd/MM/yyyy');
+        const formattedTime = format(parsedDateTime, 'HH:mm');
+        return `${formattedDate} as ${formattedTime}`;
+      } catch (error) {
+        console.error('Erro ao converter a data:', error);
+        return 'Data inválida';
+      }
+  }
+
+  function formatDate(dateTimeString: string): string {
+    try {
+        const parsedDateTime = parseISO(dateTimeString);
+        const formattedDate = format(parsedDateTime, 'dd/MM/yyyy');
+        return `${formattedDate}`;
+      } catch (error) {
+        console.error('Erro ao converter a data:', error);
+        return 'Data inválida';
+      }
+  }
 
 
 export default function InfoReserva() {
@@ -14,7 +38,6 @@ export default function InfoReserva() {
    
     const {data, error, loading} = useGetHistoricReserveOn(user_id)
 
-    console.log(data)
         
     return (
         <View className='h-full w-max bg-zinc-600'>
@@ -77,15 +100,13 @@ export default function InfoReserva() {
                                             </View>
                                                 <Text className='font-black text-xs text-white pl-1'>%{Math.floor((courtInfo.attributes.valuePayed / courtInfo.attributes.court_availability.data.attributes.value) * 100)}</Text>                       
                                         </View>
-                                            <Text className='font-black text-xs text-white pt-1'>Reserva feita em {new Date(courtInfo.attributes.createdAt).toDateString()}</Text>
+                                            <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt)}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
                             : null
                             ): null
                             }
-
-                            {}
                             {/* View de texto indicando das reservas finalizadas*/}
                             <View className='flex items-start w-max pt-14'>
                                 <Text className='text-lg font-black text-white'>RESERVAS FINALIZADAS</Text>
@@ -135,12 +156,9 @@ export default function InfoReserva() {
                                         </View>
 
                                             <View>
-                                                <Text className='font-black text-xs text-white'>Ultima Reserva {new Date(courtInfo.attributes.createdAt).toDateString()}</Text>
+                                                <Text className='font-black text-xs text-white'>Ultima Reserva {formatDateTime(courtInfo?.attributes?.createdAt)}</Text>
                                             </View>
                                     </View>
-
-                                    
-
                                 </View>
                             </TouchableOpacity>
                             : null

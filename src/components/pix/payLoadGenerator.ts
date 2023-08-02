@@ -27,10 +27,22 @@ function getValue(id: string, value: string): string {
     
         // RETORNA CÓDIGO CRC16 DE 4 CARACTERES
         return ID_CRC16 + '04' + resultado.toString(16).toUpperCase();
+ }
+
+
+ function generateRandomKey() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+  
+    for (let i = 0; i < 25; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
+  
+    return result;
+  }
 
-
-export function payload(pixKey: string, description: string, merchantName: string, merchantCity: string, txId: string, value: string):string {
+export function payload(pixKey: string, description: string, merchantName: string, merchantCity: string, value: string):string {
     const ID_PAYLOAD_FORMAT_INDICATOR = '00';
     const ID_MERCHANT_ACCOUNT_INFORMATION = '26';
     const ID_MERCHANT_ACCOUNT_INFORMATION_GUI = '00';
@@ -44,13 +56,14 @@ export function payload(pixKey: string, description: string, merchantName: strin
     const ID_MERCHANT_CITY = '60';
     const ID_ADDITIONAL_DATA_FIELD_TEMPLATE = '62';
     const ID_ADDITIONAL_DATA_FIELD_TEMPLATE_TXID = '05';
+    const randomKey = generateRandomKey()
 
     let gui                 = getValue(ID_MERCHANT_ACCOUNT_INFORMATION_GUI, 'br.gov.bcb.pix')
     let key                 = getValue(ID_MERCHANT_ACCOUNT_INFORMATION_KEY, pixKey)
     let descriptionValue    = description === '' || description === null ? '' : getValue(ID_MERCHANT_ACCOUNT_INFORMATION_DESCRIPTION, description)
     let accountValues       = getValue(ID_MERCHANT_ACCOUNT_INFORMATION,`${gui}${key}${descriptionValue}`)
 
-    let txid                = getValue(ID_ADDITIONAL_DATA_FIELD_TEMPLATE_TXID, txId)
+    let txid                = getValue(ID_ADDITIONAL_DATA_FIELD_TEMPLATE_TXID, randomKey)
     let additionalIdField   = getValue(ID_ADDITIONAL_DATA_FIELD_TEMPLATE, txid)
 
     let payload =
@@ -60,5 +73,4 @@ export function payload(pixKey: string, description: string, merchantName: strin
     return `${payload}${getCRC16(payload)}`
 }
 
-console.log(payload('+5511990216755', 'boa', 'Enzo Diogenes do Prado', 'OSASCO', '44647797864', '700.00'))
 

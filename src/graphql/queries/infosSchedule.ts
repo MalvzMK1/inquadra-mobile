@@ -89,7 +89,9 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
             }
           }
         }
-        user_payments(filters: { id: { eq: $idUser } }) {
+        user_payments(
+          filters: { users_permissions_user: { id: { eq: $idUser } } }
+        ) {
           data {
             attributes {
               users_permissions_user {

@@ -1,5 +1,5 @@
 import ProgressBar from 'react-native-progress/Bar'
-import React, { useState } from 'react'
+import React, { useState, useEffect} from 'react'
 import { View, Text, Image, Modal, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -11,19 +11,9 @@ import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
 import { z } from "zod";
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { QrCodePix } from 'qrcode-pix';
+import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
+import Countdown from '../../components/countdown/Countdown';
 
-const qrCodePix = QrCodePix({
-    version: '01',
-    key: '11990216755', //or any PIX key
-    name: 'Enzo Diogenes do Prado',
-    city: 'OSASCO',
-    transactionId: 'BA1544D64E68276A1010329', //max 25 characters
-    message: '700 CONTO NUMA POLO?',
-    cep: '06130090',
-    value: 700,
-    
-});
 
 const countriesData = [
     { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
@@ -87,14 +77,7 @@ export default function DescriptionReserve() {
     const user_id = '1'
     const schedule_id = '1'
 
-    const convertToAmericanDate = (dateString: string) => {
-        const parts = dateString.split('/');
-        const day = parts[0];
-        const month = parts[1];
-        const year = parts[2];
-        const americanDate = `${year}-${month}-${day}`;
-        return americanDate;
-      };
+  
 
       interface iFormCardPayment {
         value: string
@@ -102,7 +85,12 @@ export default function DescriptionReserve() {
         cpf: string
         cvv: string
         date: string
-        // countryID: string
+      }
+
+      interface iFormPixPayment {
+        name: string
+        cpf: string
+        value: string
       }
 
       const isValidCPF = (cpf: string): boolean => {
@@ -158,7 +146,6 @@ export default function DescriptionReserve() {
                 }
             })
             setShowCardPaymentModal(false)
-            
       }
       
       const formSchema = z.object({
@@ -183,12 +170,59 @@ export default function DescriptionReserve() {
           }, { message: "A data de vencimento é inválida" }),
       })
 
+      const convertToAmericanDate = (dateString: string) => {
+        const parts = dateString.split('/');
+        const day = parts[0];
+        const month = parts[1];
+        const year = parts[2];
+        const americanDate = `${year}-${month}-${day}`;
+        return americanDate;
+      };
+
+      function formatDateTime(dateTimeString: string): string {
+        try {
+            const parsedDateTime = parseISO(dateTimeString);
+            const formattedDate = format(parsedDateTime, 'dd/MM/yyyy');
+            const formattedTime = format(parsedDateTime, 'HH:mm');
+            return `${formattedDate} as ${formattedTime}`;
+          } catch (error) {
+            console.error('Erro ao converter a data:', error);
+            return 'Data inválida';
+          }
+      }
+
+      function formatDate(dateTimeString: string): string {
+        try {
+            const parsedDateTime = parseISO(dateTimeString);
+            const formattedDate = format(parsedDateTime, 'dd/MM/yyyy');
+            return `${formattedDate}`;
+          } catch (error) {
+            console.error('Erro ao converter a data:', error);
+            return 'Data inválida';
+          }
+      }
+
+       const formSchemaPixPayment = z.object({
+        value: z.string({required_error: "É necessário inserir um valor"}).min(1),
+        name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
+        cpf: z.string({required_error: "É necessário inserir o CPF"}).max(15, {message: "CPF invalido"}).refine(isValidCPF, { message: "CPF inválido" })
+      })
+
     const {control, handleSubmit, formState: {errors}, getValues} = useForm<iFormCardPayment>({
         resolver: zodResolver(formSchema)
+    })
+
+    const {control:controlPix, handleSubmit:handleSubmitPix, formState: {errors:errorsPix}, getValues:getValuesPix} = useForm<iFormPixPayment>({
+        resolver: zodResolver(formSchemaPixPayment)
     })
         
     const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
     const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
+
+    function payPix(info: iFormPixPayment){
+        navigation.navigate('PixScreen', {courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))})
+        setShowPixPaymentModal(false)
+      }
 
     return (
         <View className='flex-1 bg-zinc-600'>      
@@ -212,6 +246,7 @@ export default function DescriptionReserve() {
                     </TouchableOpacity>
                 </View>
             </View>
+            <ScrollView>
             <View className='h-6'></View>
             <View className='flex w-max h-80 bg-zinc-900  px-5'>
                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
@@ -242,7 +277,7 @@ export default function DescriptionReserve() {
                             </View>
                             <View className='flex-row pt-2'>
                                 <View>
-                                    <Text className='font-black text-xs text-white'>Reserva feita em {new Date(data?.scheduling.data.attributes.createdAt).toDateString()}</Text>
+                                    <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt)}</Text>
                                 </View>
                             </View>
                             <View className='pt-2'>
@@ -255,17 +290,25 @@ export default function DescriptionReserve() {
                 <View>
                     <Text className='font-black text-xs text-white pb-1'>STATUS :</Text>
                 </View>
-                <View className='w-full'>
-                    <View className='relative w-full justify-center'>
-                        <Text className='absolute z-10 self-center text-white font-bold'>R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value}</Text>
-                        <ProgressBar progress={ 
-                           Math.floor(100)
-                        } width={null} height={30} borderRadius={5} color={'#0FA958'} unfilledColor={'#0FA95866'} />
-                    </View>
+                <View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
+                <Text className='absolute z-10 self-center text-white font-bold'>
+                    R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value}
+                    </Text>
+                    {/* Verificando se os valores de valuePayed e valueCort estão definidos antes de calcular o progresso */}
+                    {data?.scheduling.data.attributes.valuePayed && data?.scheduling.data.attributes.court_availability.data.attributes.value && (
+                        <ProgressBar
+                        progress={Math.floor((data.scheduling.data.attributes.valuePayed / data.scheduling.data.attributes.court_availability.data.attributes.value) * 100)}
+                        width={null}
+                        height={30}
+                        borderRadius={5}
+                        color={'#0FA958'}
+                        unfilledColor={'#0FA95866'}
+                        />
+                    )}
                 </View>
                 <View className=' h-18 w-full flex items-center'>
                     <View className='w-60 pt-2 item-center'>
-                        <Text className='font-black text-xs text-center text-white'>Tempo restante para pagamento 4 dias, 3 horas e 20 minutos</Text>
+                        <Countdown targetDate={new Date(data?.scheduling?.data?.attributes?.payDay)} />
                     </View>
                 </View>
                 {
@@ -314,7 +357,7 @@ export default function DescriptionReserve() {
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity className='pb-2' onPress={() => navigation.navigate('PixScreen')}>
+                            <TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
                                 <View className='h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center'>
                                     <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
                                 </View>
@@ -332,17 +375,20 @@ export default function DescriptionReserve() {
                         <View>
                             <Text className='text-gray-50 font-black'>MEUS PAGAMENTOS:</Text>
                         </View>
-
-                        <View className='w-full pt-5'>
-                            <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
-                                <Text className='text-black font-normal pl-4'>{data?.scheduling.data.attributes.user_payments.data[0].attributes.users_permissions_user.data.attributes.username}</Text>
-                                <Text className='text-black font-normal'>{new Date(data?.scheduling.data.attributes.user_payments.data[0].attributes.createdAt).toDateString()}</Text>
-                                <Text className='text-black font-normal pr-4'>R${data?.scheduling.data.attributes.user_payments.data[0].attributes.value}</Text>
+                        {
+                            data?.scheduling.data.attributes.user_payments.data.map((paymentInfo) => 
+                            <View className='w-full pt-5'>
+                                <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
+                                    <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
+                                    <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt)}</Text>
+                                    <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
+                                </View>
                             </View>
-                        </View>
+                            )
+                        }                 
                     </>
                     : null
-                }
+                }   
                 <View className='pt-6'>
                     <Text className='text-gray-50 font-black'>HISTÓRICO DE PAGAMENTOS :</Text>
                 </View>
@@ -350,6 +396,7 @@ export default function DescriptionReserve() {
                     <Text className='text-gray-50 font-semibold text-center'>Compartilhe essa página ! Informações serão mostradas aqui uma vez que outros realisem pagamentos </Text>
                 </View>
             </View>
+            </ScrollView>
             <Modal visible={showCardPaymentModal} animationType="fade" transparent={true}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>      
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
@@ -493,45 +540,65 @@ export default function DescriptionReserve() {
                      
                 </View>
             </Modal>
-            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>z
+            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                         <View className='flex gap-y-[10px]'>
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Nome</Text>
-                                <TextInput
-                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                    placeholder='Ex: nome'
-                                    value={name}
-                                    onChangeText={setName}>
-                                </TextInput>
+                                <Controller
+                                    name='name'
+                                    control={controlPix}
+                                    render={({field: {onChange}})=> (
+                                        <TextInput
+                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                            placeholder='Ex: nome'
+                                            onChangeText={onChange}>
+                                        </TextInput>
+                                    )}
+                                ></Controller>
+                                {errorsPix.name && <Text className='text-red-400 text-sm'>{errorsPix.name.message}</Text>}    
                             </View>
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>CPF</Text>
-                                <MaskInput
-                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                    placeholder='Ex: 000.000.000-00'
-                                    value={cpf}
-                                    onChangeText={setCpf}
-                                    mask={Masks.BRL_CPF}
-                                    keyboardType='numeric'>
-                                </MaskInput>
+                                <Controller
+                                    name='cpf'
+                                    control={controlPix}
+                                    render={({field: {onChange}}) => (
+                                        <MaskInput
+                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                            placeholder='Ex: 000.000.000-00'
+                                            value={getValuesPix('cpf')}
+                                            onChangeText={onChange}
+                                            mask={Masks.BRL_CPF}
+                                            keyboardType='numeric'>
+                                        </MaskInput>
+                                    )}
+                                ></Controller>
+                                {errorsPix.cpf && <Text className='text-red-400 text-sm'>{errorsPix.cpf.message}</Text>}   
                             </View>
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>Valor da contribuição</Text>
-                                <MaskInput
-                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                    placeholder='Ex: R$ 30,00'
-                                    value={value}
-                                    onChangeText={setValue}
-                                    mask={Masks.BRL_CURRENCY}
-                                    keyboardType='numeric'>
-                                </MaskInput>
+                                <Controller
+                                    name='value'
+                                    control= {controlPix}
+                                    render = {({field: {onChange}}) => (
+                                        <MaskInput
+                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                            placeholder='Ex: R$ 30,00'
+                                            value={getValuesPix('value')}
+                                            onChangeText={onChange}
+                                            mask={Masks.BRL_CURRENCY}
+                                            keyboardType='numeric'>
+                                        </MaskInput>
+                                    )}
+                                ></Controller>
+                                {errorsPix.value && <Text className='text-red-400 text-sm'>{errorsPix.value.message}</Text>}    
                             </View>
                         </View>
                         <View>
                             <Button mode="contained" style={{height: 50, width: '100%',backgroundColor: '#FF6112',borderRadius: 8,justifyContent: 'center',alignItems: 'center', marginTop: 20}}
-                                onPress={() => setShowPixPaymentModal(false)}>
+                                onPress={handleSubmitPix( payPix , console.log )}>
                                 <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                             </Button>
                         </View>
