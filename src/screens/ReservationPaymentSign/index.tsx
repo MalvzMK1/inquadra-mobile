@@ -110,7 +110,6 @@ export default function ReservationPaymentSign() {
                     </View>
                     </View>
                 </TouchableOpacity>
-
                 {showCard && (
                     <View className="border border-gray-500 rounded-xl p-4 mt-3">
                     <View className="flex-row justify-between">

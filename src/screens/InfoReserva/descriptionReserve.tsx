@@ -5,6 +5,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
+import { TextInputMask } from 'react-native-masked-text';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { useInfoSchedule } from '../../hooks/useInfoSchedule';
 import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
@@ -93,30 +94,32 @@ export default function DescriptionReserve() {
         cpf: z.string({required_error: "É necessário inserir o CPF"}).max(15, {message: "CPF invalido"}).refine(isValidCPF, { message: "CPF inválido" }),
         cvv: z.string({required_error: "É necessário inserir um CVV"}).max(3, {message: "Só é possivel digitar até 3 caracteres"}).min(3, {message: "O minimo são 3 caracteres"}),
         date: z.string().refine((value) => {
+            const [month, year] = value.split('/');
             const currentDate = new Date();
-            const [day, month, year] = value.split('/'); 
-            const inputDate = new Date(`${year}-${month}-${day}`); 
-        
+            const inputDate = new Date(`20${year}-${month}-01`);
+          
             if (isNaN(inputDate.getTime())) {
               return false;
             }
-        
+          
             if (inputDate.getTime() <= currentDate.getTime()) {
               return false;
             }
-        
+          
             return true;
           }, { message: "A data de vencimento é inválida" }),
       })
 
-      const convertToAmericanDate = (dateString: string) => {
-        const parts = dateString.split('/');
-        const day = parts[0];
-        const month = parts[1];
-        const year = parts[2];
-        const americanDate = `${year}-${month}-${day}`;
+      function convertToAmericanDate(dateString) {
+        const [month, year] = dateString.split('/');
+        const currentYear = new Date().getFullYear();
+        const currentCentury = Math.floor(currentYear / 100);
+      
+        const yearInFull = currentCentury * 100 + parseInt(year, 10);
+    
+        const americanDate = `${month}/01/${yearInFull}`;
         return americanDate;
-      };
+      }
 
       function formatDateTime(dateTimeString: string): string {
         try {
@@ -470,19 +473,21 @@ export default function DescriptionReserve() {
                             </View>
                             <View className='flex flex-row'>
                                 <View className='flex-1 mr-[20px]'>
-                                    <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
-                                    
+                                    <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>   
                                     <Controller
                                         name='date'
                                         control= {control}
                                         render={({field: {onChange}}) => (
-                                            <MaskInput
-                                                className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='MM/AA'
-                                                value={getValues('date')}
-                                                onChangeText={onChange}
-                                                mask={Masks.DATE_DDMMYYYY}>
-                                            </MaskInput>
+                                            <TextInputMask className='p-3 border border-neutral-400 rounded bg-white'
+                                            options={{
+                                            format: 'MM/YY',
+                                            }}
+                                            type={'datetime'}
+                                            value={getValues('date')}
+                                            onChangeText={onChange}
+                                            placeholder="MM/YY"
+                                            keyboardType="numeric"
+                                        />
                                         )}
                                     ></Controller>
                                     {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
