@@ -20,6 +20,7 @@ import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import {NavigationProp, useNavigation} from "@react-navigation/native";
+import PixScreen from '../../screens/Pix';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -80,6 +81,13 @@ export default function () {
 			<Screen
 				name="Register"
 				component={Register}
+				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name="PixScreen"
+				component={PixScreen}
 				options={{
 					headerTitle: '',
 				}}
