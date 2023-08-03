@@ -5,6 +5,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
+import { TextInputMask } from 'react-native-masked-text';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { useInfoSchedule } from '../../hooks/useInfoSchedule';
 import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
@@ -13,69 +14,24 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
 import Countdown from '../../components/countdown/Countdown';
-import {HOST_API} from '@env'
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import useCountries from '../../hooks/useCountries';
+import {HOST_API} from  '@env';
 
-
-const countriesData = [
-    { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    { key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
-    { key: '3', value: 'Portugal', img: 'https://static.mundoeducacao.uol.com.br/mundoeducacao/2022/03/bandeira-portugal.jpg' },
-    { key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/conteudo/images/estados-unidos.jpg' },
-    { key: '5', value: 'Canadá', img: 'https://s5.static.brasilescola.uol.com.br/be/2021/04/bandeira-do-canada.jpg' },
-    { key: '6', value: 'Itália', img: 'https://s5.static.brasilescola.uol.com.br/be/2021/12/bandeira-da-italia.jpg' },
-    { key: '7', value: 'Reino Unido', img: 'https://s4.static.brasilescola.uol.com.br/be/2021/10/bandeira-do-reino-unido.jpg' },
-]
-
-const getCountryImage = (countryName: string) => {
-    const countryImg = countriesData.find(item => item.value === countryName)?.img
-    return countryImg
-}
-
-export default function DescriptionReserve({navigation, route}: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
-
-    const [showCameraIcon, setShowCameraIcon] = useState(false);
-    const [showCard, setShowCard] = useState(false);
-
-    const handleCardClick = () => {
-        setShowCard(!showCard);
-        setShowCameraIcon(false);
-    };
-
-    interface InfoCourtCardContentPaymentProgressBarProps {
-        progress: number
-    }
+export default function DescriptionReserve() {
 
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
-
-    const handleOpenPaymentModal = () => {
-        setShowCardPaymentModal(true)
-    }
-
-    const handleExitPaymentModal = () => {
-        setShowCardPaymentModal(false)
-    }
     
-    const [name, setName] = useState("")
-    const [cpf, setCpf] = useState("")
-    const [value, setValue] = useState("")
     const [creditCard, setCreditCard] = useState("")
-    const [maturityDate, setMaturityDate] = useState("")
-    const [creditCardCvv, setCreditCardCvv] = useState("")
     const [selected, setSelected] = useState("")
 
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
 
-    const handleOpenPixPaymentModal = () => {
-        setShowPixPaymentModal(true)
-    }
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
-    const handleExitPixPaymentModal = () => {
-        setShowPixPaymentModal(false)
-    }
+    const user_id = '1'
+    const schedule_id = '1'
 
-    const user_id = route.params.userId
-    const schedule_id = route.params.courtId
+  
 
       interface iFormCardPayment {
         value: string
@@ -94,7 +50,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
       const isValidCPF = (cpf: string): boolean => {
         const cleanedCPF = cpf.replace(/[^\d]/g, '');
       
-        // Verificar se o CPF tem 11 dígitos
+
         if (cleanedCPF.length !== 11) {
           return false;
         }
@@ -130,21 +86,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
         return true;
       };
 
-      function pay(data: iFormCardPayment){
-        userPaymentCard({ 
-                variables: {
-                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
-                    schedulingId: schedule_id,
-                    userId: user_id, 
-                    name: data.name,
-                    cpf: data.cpf,
-                    cvv: parseInt(data.cvv),
-                    date: convertToAmericanDate(data.date),
-                    countryID: '1',
-                }
-            })
-            setShowCardPaymentModal(false)
-      }
+      
       
       const formSchema = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
@@ -152,30 +94,32 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
         cpf: z.string({required_error: "É necessário inserir o CPF"}).max(15, {message: "CPF invalido"}).refine(isValidCPF, { message: "CPF inválido" }),
         cvv: z.string({required_error: "É necessário inserir um CVV"}).max(3, {message: "Só é possivel digitar até 3 caracteres"}).min(3, {message: "O minimo são 3 caracteres"}),
         date: z.string().refine((value) => {
+            const [month, year] = value.split('/');
             const currentDate = new Date();
-            const [day, month, year] = value.split('/'); 
-            const inputDate = new Date(`${year}-${month}-${day}`); 
-        
+            const inputDate = new Date(`20${year}-${month}-01`);
+          
             if (isNaN(inputDate.getTime())) {
               return false;
             }
-        
+          
             if (inputDate.getTime() <= currentDate.getTime()) {
               return false;
             }
-        
+          
             return true;
           }, { message: "A data de vencimento é inválida" }),
       })
 
-      const convertToAmericanDate = (dateString: string) => {
-        const parts = dateString.split('/');
-        const day = parts[0];
-        const month = parts[1];
-        const year = parts[2];
-        const americanDate = `${year}-${month}-${day}`;
+      function convertToAmericanDate(dateString) {
+        const [month, year] = dateString.split('/');
+        const currentYear = new Date().getFullYear();
+        const currentCentury = Math.floor(currentYear / 100);
+      
+        const yearInFull = currentCentury * 100 + parseInt(year, 10);
+    
+        const americanDate = `${month}/01/${yearInFull}`;
         return americanDate;
-      };
+      }
 
       function formatDateTime(dateTimeString: string): string {
         try {
@@ -200,6 +144,30 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
           }
       }
 
+
+      const getCountryImage = (countryISOCode: string | null): string | undefined => {
+        if (countryISOCode && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        
+          if (selectedCountry) {
+            return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
+          }
+        }
+        return undefined;
+      };
+
+
+      const getCountryIdByISOCode = (countryISOCode: string | null): string => {
+        if (countryISOCode && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        
+          if (selectedCountry) {
+            return selectedCountry.id;
+          }
+        }
+        return "";
+      };
+
        const formSchemaPixPayment = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
         name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
@@ -215,15 +183,44 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
     })
         
     const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
+    const {data:dataCountry, error:errorCountry, loading:loadingCountry} = useCountries()
     const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
 
+
+    
+
+    const closeCardPayment = () => {
+        setShowCardPaymentModal(false);
+      };
+    
+      const closePixPayment = () => {
+        setShowPixPaymentModal(false);
+      };
+
+
+      function pay(data: iFormCardPayment){
+        const countryId = getCountryIdByISOCode(selected)
+        userPaymentCard({ 
+                variables: {
+                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
+                    schedulingId: schedule_id,
+                    userId: user_id, 
+                    name: data.name,
+                    cpf: data.cpf,
+                    cvv: parseInt(data.cvv),
+                    date: convertToAmericanDate(data.date),
+                    countryID: countryId,
+                }
+            })
+            setShowCardPaymentModal(false)
+      }
+
+
     function payPix(info: iFormPixPayment){
-        navigation.navigate('PixScreen', {
-            courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name,
-             value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))
-        })
+        navigation.navigate('PixScreen', {courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))})
         setShowPixPaymentModal(false)
       }
+
 
     return (
         <View className='flex-1 bg-zinc-600'>      
@@ -231,7 +228,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
                     <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva')}>
-                        {/* <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} /> */}
+                        <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
                 <View className='flex item-center justify-center'>
@@ -240,7 +237,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: 'https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg' }}
+                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -269,7 +266,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                                         <Text className='font-normal text-xs text-orange-600'>Editar</Text>
                                     </View>
                                     <View className='flex items-center justify-center pl-4'>
-                                        {/* <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} /> */}
+                                        <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} />
                                     </View>
                                 </View>
                             </View>
@@ -295,7 +292,6 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                 <Text className='absolute z-10 self-center text-white font-bold'>
                     R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value}
                     </Text>
-                    {/* Verificando se os valores de valuePayed e valueCort estão definidos antes de calcular o progresso */}
                     {data?.scheduling.data.attributes.valuePayed && data?.scheduling.data.attributes.court_availability.data.attributes.value && (
                         <ProgressBar
                         progress={Math.floor((data.scheduling.data.attributes.valuePayed / data.scheduling.data.attributes.court_availability.data.attributes.value) * 100)}
@@ -315,7 +311,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                 {
                     data?.scheduling?.data?.attributes?.owner?.data?.id !== user_id ? (
                     <View className='h-max w-full flex justify-center items-center pl-2'>
-                            <TouchableOpacity className='pt-2 pb-5'>
+                            <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
                                 <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
                                     <View className='w-1'></View>                       
                                     <View className='h-5 w-5 items-center justify-center'>
@@ -326,7 +322,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity className='pb-2'>
+                            <TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
                                 <View className='h-10 w-64 rounded-md bg-orange-500 flex items-center justify-center'>
                                         <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>                 
                                 </View>
@@ -338,7 +334,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                             <View className='flex-row item-center justify-center'>
                                 <TouchableOpacity onPress={() => navigation.navigate('DescriptionInvited')} className='flex-row'>
                                     <View className='h-5 w-5 items-center justify-center'>
-                                        {/* <TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} /> */}
+                                        <TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} />
                                     </View>
                                     <View className='item-center justify-center'>
                                         <Text className='font-black text-xs text-center text-white pl-1'>Compartilhar</Text>
@@ -351,7 +347,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                                 <View className='w-30 h-10 bg-white rounded-sm flex-row items-center'>
                                     <View className='w-1'></View>
                                     <View className='h-5 w-5 items-center justify-center'>
-                                        {/* <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} /> */}
+                                        <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} />
                                     </View>
                                     <View className='item-center justify-center'>
                                         <Text className='font-black text-xs text-center text-gray-400 pl-1'>Adicionar Pagamento</Text>
@@ -398,7 +394,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                 </View>
             </View>
             </ScrollView>
-            <Modal visible={showCardPaymentModal} animationType="fade" transparent={true}>
+            <Modal visible={showCardPaymentModal} animationType="fade" transparent={true} onRequestClose={closeCardPayment}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>      
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                     <ScrollView>
@@ -477,19 +473,21 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                             </View>
                             <View className='flex flex-row'>
                                 <View className='flex-1 mr-[20px]'>
-                                    <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
-                                    
+                                    <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>   
                                     <Controller
                                         name='date'
                                         control= {control}
                                         render={({field: {onChange}}) => (
-                                            <MaskInput
-                                                className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='MM/AA'
-                                                value={getValues('date')}
-                                                onChangeText={onChange}
-                                                mask={Masks.DATE_DDMMYYYY}>
-                                            </MaskInput>
+                                            <TextInputMask className='p-3 border border-neutral-400 rounded bg-white'
+                                            options={{
+                                            format: 'MM/YY',
+                                            }}
+                                            type={'datetime'}
+                                            value={getValues('date')}
+                                            onChangeText={onChange}
+                                            placeholder="MM/YY"
+                                            keyboardType="numeric"
+                                        />
                                         )}
                                     ></Controller>
                                     {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
@@ -518,15 +516,20 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                                     <Image className='h-[21px] w-[30px] mr-[15px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
                                     <SelectList
                                         setSelected={(val: string) => {
-                                            setSelected(val)
+                                            setSelected(val);
+                                            
                                         }}
-                                        data={countriesData}
+                                        data={dataCountry?.countries?.data.map(country => ({
+                                            value: country?.attributes.ISOCode,
+                                            label: country?.attributes.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
+                                            img: `${HOST_API}${country?.attributes.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+                                        })) || []}
                                         save="value"
                                         placeholder='Selecione um país'
                                         searchPlaceholder='Pesquisar...'
-                                    />
+                                        />
                                 </View>
-                            </View>
+                            </View> 
                                 <View>
                                     <Button mode="contained" style={{height: 50, width: '100%',backgroundColor: '#FF6112',borderRadius: 8,justifyContent: 'center',alignItems: 'center', marginTop: 20}}
                                             onPress={handleSubmit(pay, console.log)}
@@ -541,7 +544,7 @@ export default function DescriptionReserve({navigation, route}: NativeStackScree
                      
                 </View>
             </Modal>
-            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true}>
+            <Modal visible={showPixPaymentModal} animationType="fade" transparent={true} onRequestClose={closePixPayment} >
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                         <View className='flex gap-y-[10px]'>
