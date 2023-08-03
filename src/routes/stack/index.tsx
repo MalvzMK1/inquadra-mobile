@@ -42,33 +42,6 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="CourtSchedule"
-				component={CourtSchedule}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 85,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View className='flex-1 justify-center items-center'>
-							<Text className='text-white text-[18px] font-black'>Agenda</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity className='pr-[10px]'>
-							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
-						</TouchableOpacity>
-					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
-			/>
-			<Screen
 				name="Login"
 				component={Login}
 				options={{
@@ -488,7 +461,33 @@ export default function () {
 					),
 				}}
 			/>
-	
+			<Screen
+				name="CourtSchedule"
+				component={CourtSchedule}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 85,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>Agenda</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 		</Navigator>
 	);
 }

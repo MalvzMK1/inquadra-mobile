@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_07_2023_08_48__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_07_2023_08_48__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/FavoriteCourts/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/FavoriteCourts/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -80,7 +78,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "WI564T624__SYNC",
+    "git-widget-placeholder": "WI564T650",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
