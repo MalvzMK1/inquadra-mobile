@@ -2,17 +2,18 @@ import { View, Text, ScrollView, Modal, Image } from "react-native"
 import React, { useState } from 'react'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import WeekDayButton from "../../components/WeekDays";
-import { dayInitial } from '../../screens/CourtAvailibilityInfo';
+// import { dayInitial } from '../../screens/CourtAvailibilityInfo';
 import { Calendar } from 'react-native-calendars'
-import { getWeekDates } from "../../utils/getWeekDates"
+import { getWeekDays } from "../../utils/getWeekDates";
 import { DateData } from "react-native-calendars"
-import { addDays, format } from 'date-fns'
+import { addDays, format, getWeek } from 'date-fns'
 import AddCourtSchedule from "../../components/AddCourtSchedule";
 import { SelectList } from 'react-native-dropdown-select-list'
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import CourtSlideButton from "../../components/CourtSlideButton";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { Button } from "react-native-paper";
+import ScheduleBlockDetails from "../../components/ScheduleBlockDetails";
 
 const currentDate = new Date()
 const currentDay = currentDate.getDay()
@@ -33,7 +34,7 @@ export default function CourtSchedule() {
     const [dateSelected, setDateSelected] = useState(new Date())
     const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
 
-    const weekDates: FormatedWeekDates[] = getWeekDates(dateSelected)
+    const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
     function handleCalendarClick(data: DateData) {
         const date = new Date(data.dateString)
@@ -48,9 +49,13 @@ export default function CourtSchedule() {
     const [schedulingsHistoricFocus, setSchedulingsHistoricFocus] = useState(false)
     const [selectedCourt, setSelectedCourt] = useState("")
     const [blockScheduleModal, setBlockScheduleModal] = useState(false)
+    const closeBlockScheduleModal = () => setBlockScheduleModal(false)
     const [startsAt, setStartsAt] = useState("")
     const [endsAt, setEndsAt] = useState("")
     const [confirmBlockSchedule, setConfirmBlockSchedule] = useState(false)
+    const closeConfirmBlockScheduleModal = () => setConfirmBlockSchedule(false)
+    const [blockScheduleDetailsModal, setBlockScheduleDetailsModal] = useState(false)
+    const closeBlockScheduleDetailsModal = () => setBlockScheduleDetailsModal(false)
 
     return (
         <View className="h-full w-full">
@@ -58,7 +63,7 @@ export default function CourtSchedule() {
             <View className="w-full h-fit flex-col mt-[15px] pl-[25px] pr-[25px]">
                 <View className="flex-row w-full justify-between items-center">
                     <Text className="font-black text-[20px] text-[#292929]">{dateSelected.getDay()} {portugueseMonths[currentMonth]}</Text>
-                    <TouchableOpacity onPress={() => setConfirmBlockSchedule(!confirmBlockSchedule)} className="h-fit w-fit justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]">
+                    <TouchableOpacity onPress={() => setBlockScheduleModal(!blockScheduleModal)} className="h-fit w-fit justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]">
                         <Text className="font-bold text-[12px] text-white">Bloquear agenda</Text>
                     </TouchableOpacity>
                 </View>
@@ -192,7 +197,7 @@ export default function CourtSchedule() {
                 playerScreen={false}
             />
 
-            <Modal visible={blockScheduleModal} animationType="fade" transparent={true}>
+            <Modal visible={blockScheduleModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleModal}>
                 <View className="h-full w-full justify-center items-center">
                     <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
 
@@ -204,6 +209,14 @@ export default function CourtSchedule() {
 
                             <CourtSlideButton
                                 name="Fênix"
+                            />
+
+                            <CourtSlideButton
+                                name="Clube do Zeca"
+                            />
+
+                            <CourtSlideButton
+                                name="Society 21"
                             />
 
                         </View>
@@ -244,20 +257,50 @@ export default function CourtSchedule() {
                         </View>
 
                         <View className="w-full h-fit mt-[20px] mb-[20px] justify-center items-center">
-                            <Button onPress={() => console.log("batata")} className='h-14 w-[80%] rounded-md bg-orange-500 flex items-center justify-center'>
-                                <Text className="font-medium text-[16px] text-white">Salvar</Text>
+                            <Button onPress={() => {
+                                closeBlockScheduleModal()
+                                setBlockScheduleDetailsModal(true)
+                            }} className='h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center'>
+                                <Text className="w-full h-full font-medium text-[16px] text-white">Salvar</Text>
                             </Button>
                         </View>
-
 
                     </View>
                 </View>
             </Modal>
 
-            <Modal visible={confirmBlockSchedule} animationType="fade" transparent={true}>
+            <Modal visible={confirmBlockSchedule} animationType="fade" transparent={true} onRequestClose={closeConfirmBlockScheduleModal}>
+                <View className="h-full w-full justify-center items-center">
+                    <View className="h-[256px] w-[350px] bg-white rounded-[5px] items-center justify-center">
+                        <View className=" items-center justify-evenly h-[80%]">
+                            <Text className="font-bold text-[14px] text-center">Agenda bloqueada com sucesso</Text>
+                            <Image source={require('../../assets/orange_logo_inquadra.png')}></Image>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal visible={blockScheduleDetailsModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleDetailsModal}>
                 <View className="h-full w-full justify-center items-center">
                     <View className="h-[256px] w-[350px] bg-white rounded-[5px] items-center">
-                        <Text className="font-bold text-[14px] text-center">Agenda bloqueada com sucesso</Text>
+                        <Text className="font-bold text-[14px] mt-[30px]">DETALHES DA RESERVA</Text>
+
+                        <ScheduleBlockDetails
+                            userName="Lucas Santos"
+                            courtType="Basquete"
+                            startsAt="15:00h"
+                            endsAt="16:00h"
+                            payedStatus={true}
+                        />
+
+                        <View className="w-full h-fit mt-[35px] mb-[20px] justify-center items-center pl-[40px] pr-[40px]">
+                            <Button onPress={() => {
+                                closeBlockScheduleDetailsModal()
+                                setConfirmBlockSchedule(true)
+                            }} className='h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center'>
+                                <Text className="w-full h-full font-medium text-[16px] text-white">Fechar</Text>
+                            </Button>
+                        </View>
                     </View>
                 </View>
             </Modal>
