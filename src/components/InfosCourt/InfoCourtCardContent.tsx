@@ -24,7 +24,7 @@ export function InfoCourtCardContent({children, lastScheduling, hasDisponibility
 		formatedHour = formatHour(lastScheduling)
 	}
 	return(
-		<View className='flex-1 flex-1 flex flex-col justify-between'>
+		<View className='flex-1 flex flex-col justify-between'>
 			<View className='w-full flex-1'>
 				{children}
 			</View>

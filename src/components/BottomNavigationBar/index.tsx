@@ -30,14 +30,18 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ProfileSettings')}>
+							onPress={() => navigation.navigate('ProfileSettings', {
+								userPhoto: undefined
+							})}>
 							<Image
 								source={require('../../assets/settings_black_icon.png')}
 							/>
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('FavoriteCourts')}>
+							onPress={() => navigation.navigate('FavoriteCourts', {
+								userPhoto: undefined
+							})}>
 							<Image
 								source={require('../../assets/black_heart.png')}
 							/>
@@ -58,14 +62,14 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
+							>
 							<Image
 								source={require('../../assets/house_black_icon.png')}
 							/>
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
+							onPress={() => navigation.navigate('InfoReserva')}>
 							<Image
 								source={require('../../assets/calendar_black_icon.png')}
 							/>

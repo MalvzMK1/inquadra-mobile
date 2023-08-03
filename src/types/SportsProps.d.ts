@@ -1,4 +1,5 @@
 type SportsCard = {
-    image: string
+    id: string
+    image: ImageSourcePropType
     name: string
 }
