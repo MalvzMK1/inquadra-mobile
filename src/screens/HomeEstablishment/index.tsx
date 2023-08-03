@@ -20,7 +20,7 @@ import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 export default function HomeEstablishment() {
 
 
-    // const { loading, error, data } = useGetFavoriteById("1");
+    const { loading, error, data } = useGetFavoriteById("1");
     //   console.log(data);
     //   if (loading) return <Text>Loading...</Text>;
     //   if (error) {

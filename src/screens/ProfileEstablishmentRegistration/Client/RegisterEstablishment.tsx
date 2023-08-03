@@ -3,10 +3,12 @@ import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList } from
 import React, { useState } from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
+import { CheckBox } from 'react-native-elements'
 import { useNavigation } from "@react-navigation/native";
+import Select from 'react-select'
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { MultipleSelectList } from 'react-native-dropdown-select-list';
+import DropDownSelect, { MultipleSelectList } from 'react-native-dropdown-select-list';
 
 
 export default function RegisterEstablishment() {
@@ -158,7 +160,7 @@ export default function RegisterEstablishment() {
                         </View>
                         </View>
                         <View>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center' onPressIn={() => navigation.navigate('RegisterCourt')}>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('ReservationPaymentSign')}>
                                 <Text className='text-gray-50'>Continuar</Text>
                             </TouchableOpacity>
                         </View>
