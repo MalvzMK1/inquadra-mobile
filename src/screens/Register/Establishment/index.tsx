@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Image, FlatList } from "react-native";
 
 import React, { useState } from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
@@ -10,6 +10,7 @@ import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from 'zod'
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
 interface IFormSchema {
 	cnpj: string,
@@ -40,7 +41,7 @@ const formSchema = z.object({
 	})))
 })
 
-export default function RegisterEstablishment() {
+export default function RegisterEstablishment({navigation, route}: NativeStackScreenProps<RootStackParamList, 'EstablishmentRegister'>) {
 	const {
 		control,
 		handleSubmit,
@@ -50,11 +51,6 @@ export default function RegisterEstablishment() {
 		resolver: zodResolver(formSchema)
 	})
 
-	const [cpf, setCpf] = useState("");
-	const [phone, setPhone] = useState("");
-	const [cep, setCep] = useState("")
-	const [isChecked, setIsChecked] = useState(false)
-	const navigation = useNavigation()
 	const [profilePicture, setProfilePicture] = useState(null);
 
 	const [photos, setPhotos] = useState([]);
@@ -137,7 +133,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
-						{errors.address?.cnpj && <Text className='text-red-400 text-sm'>{errors.address?.cnpj.message}</Text>}
+						{errors.cnpj && <Text className='text-red-400 text-sm'>{errors.cnpj.message}</Text>}
 					</View>
 					<View>
 						<Text className="text-xl p-1">Telefone para Contato</Text>
@@ -156,7 +152,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
-						{errors.address?.phone && <Text className='text-red-400 text-sm'>{errors.address?.phone.message}</Text>}
+						{errors.phone && <Text className='text-red-400 text-sm'>{errors.phone.message}</Text>}
 					</View>
 					<View>
 						<Text className='text-xl p-1'>Endereço</Text>
@@ -171,7 +167,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
-						{errors.address?.street && <Text className='text-red-400 text-sm'>{errors.address?.street.message}</Text>}
+						{errors.address?.streetName && <Text className='text-red-400 text-sm'>{errors.address?.streetName.message}</Text>}
 					</View>
 					<View className="flex flex-row justify-between">
 						<View>
@@ -267,7 +263,5 @@ export default function RegisterEstablishment() {
 				</View>
 			</View>
 		</ScrollView>
-// 		</View>
-// </ScrollView>
-);
+	);
 }
