@@ -27,7 +27,7 @@ export default function DescriptionReserve() {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
-    const user_id = '2'
+    const user_id = '1'
     const schedule_id = '1'
 
   
