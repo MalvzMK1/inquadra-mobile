@@ -4,11 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
-import {useGetUserById} from '../../hooks/useUserById';
-import { useHistoricReserveOff } from '../../hooks/useHistoricReserveOff';
 import { format, parseISO } from 'date-fns';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {HOST_API} from '@env'
+import {HOST_API} from  '@env';
+
 
 function formatDateTime(dateTimeString: string): string {
     try {
@@ -34,7 +32,8 @@ function formatDateTime(dateTimeString: string): string {
   }
 
 
-export default function InfoReserva({navigation, route}: NativeStackScreenProps<RootStackParamList, 'InfoReserva'>) {
+export default function InfoReserva() {
+    const navigation = useNavigation()
     const user_id = '1'
    
     const {data, error, loading} = useGetHistoricReserveOn(user_id)
@@ -42,10 +41,10 @@ export default function InfoReserva({navigation, route}: NativeStackScreenProps<
         
     return (
         <View className='h-full w-max bg-zinc-600'>
-            {/* <View className=' h-11 w-max  bg-zinc-900'></View>
+            <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('Login')}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -55,13 +54,13 @@ export default function InfoReserva({navigation, route}: NativeStackScreenProps<
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-max w-max'>
                         <Image
-                            source={{ uri: 'https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg' }}
+                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
                     </TouchableOpacity>
                 </View>
-            </View> */}
+            </View>
 
             {/* Div maior para carregar todos os itens inseridos do historico*/}
             <View className='h-max w-max bg-zinc-600'>
@@ -77,12 +76,7 @@ export default function InfoReserva({navigation, route}: NativeStackScreenProps<
                             {
                             !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo) =>  
                                 courtInfo.attributes.status ?
-                                <TouchableOpacity onPress={() => {                                 
-                                    navigation.navigate('DescriptionReserve', {
-                                        courtId: courtInfo.attributes.court_availability.data.attributes.court.data.id,
-                                        userId: user_id
-                                    })
-                                }}>
+                                <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                                     <View>
                                         <Image
@@ -117,7 +111,6 @@ export default function InfoReserva({navigation, route}: NativeStackScreenProps<
                             <View className='flex items-start w-max pt-14'>
                                 <Text className='text-lg font-black text-white'>RESERVAS FINALIZADAS</Text>
                             </View>
-                            {/* Div para criação dos cards de reservas FINALIZADAS*/}
                             {
                                 !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo)=>
                                     !courtInfo.attributes.status ?
@@ -126,7 +119,7 @@ export default function InfoReserva({navigation, route}: NativeStackScreenProps<
 
                                     <View>
                                         <Image
-                                            source={{ uri: 'https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg' }}
+                                            source={{ uri: HOST_API + courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />
