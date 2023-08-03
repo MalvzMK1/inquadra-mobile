@@ -5,6 +5,8 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
 import { format, parseISO } from 'date-fns';
+import {HOST_API} from  '@env';
+
 
 function formatDateTime(dateTimeString: string): string {
     try {
@@ -78,7 +80,7 @@ export default function InfoReserva() {
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                                     <View>
                                         <Image
-                                            source={{ uri: `http://192.168.0.229:1337${courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url}` }}
+                                            source={{ uri: HOST_API + courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />
@@ -109,7 +111,6 @@ export default function InfoReserva() {
                             <View className='flex items-start w-max pt-14'>
                                 <Text className='text-lg font-black text-white'>RESERVAS FINALIZADAS</Text>
                             </View>
-                            {/* Div para criação dos cards de reservas FINALIZADAS*/}
                             {
                                 !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo)=>
                                     !courtInfo.attributes.status ?
@@ -118,7 +119,7 @@ export default function InfoReserva() {
 
                                     <View>
                                         <Image
-                                            source={{ uri: `http://192.168.0.229:1337${courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url}` }}
+                                            source={{ uri: HOST_API + courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
                                             style={{ width: 138, height: 90 }}
                                             borderRadius={5}
                                         />

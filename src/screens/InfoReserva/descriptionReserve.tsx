@@ -14,33 +14,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
 import Countdown from '../../components/countdown/Countdown';
 import useCountries from '../../hooks/useCountries';
-
+import {HOST_API} from  '@env';
 
 export default function DescriptionReserve() {
 
-    const [showCameraIcon, setShowCameraIcon] = useState(false);
-    const [showCard, setShowCard] = useState(false);
-
-    const handleCardClick = () => {
-        setShowCard(!showCard);
-        setShowCameraIcon(false);
-    };
-
-    interface InfoCourtCardContentPaymentProgressBarProps {
-        progress: number
-    }
-
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
     
-    const [name, setName] = useState("")
-    const [cpf, setCpf] = useState("")
-    const [value, setValue] = useState("")
     const [creditCard, setCreditCard] = useState("")
-    const [maturityDate, setMaturityDate] = useState("")
-    const [creditCardCvv, setCreditCardCvv] = useState("")
     const [selected, setSelected] = useState("")
-    const [countriesData, setCountriesData] = useState<CountryAPI[]>([]);
-    const [countryId, setCountryId] = useState<string | null>(null);
 
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
 
@@ -166,7 +147,7 @@ export default function DescriptionReserve() {
           const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
         
           if (selectedCountry) {
-            return `http://192.168.0.229:1337${selectedCountry.attributes.flag.data.attributes.url}`;
+            return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
           }
         }
         return undefined;
@@ -183,9 +164,6 @@ export default function DescriptionReserve() {
         }
         return "";
       };
-
-      
-      
 
        const formSchemaPixPayment = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
@@ -240,11 +218,6 @@ export default function DescriptionReserve() {
         setShowPixPaymentModal(false)
       }
 
-      const countryOptions = dataCountry?.countries?.data.map(country => ({
-        value: country?.id,
-        label: country?.attributes?.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
-        img: `http://192.168.0.229:1337${country?.attributes?.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
-      })) || [];
 
     return (
         <View className='flex-1 bg-zinc-600'>      
@@ -274,7 +247,7 @@ export default function DescriptionReserve() {
                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                     <View>
                         <Image
-                            source={{ uri: `http://192.168.0.229:1337${data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url}` }}
+                            source={{ uri: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url }}
                             style={{ width: 138, height: 90 }}
                             borderRadius={5}
                         />
@@ -544,7 +517,7 @@ export default function DescriptionReserve() {
                                         data={dataCountry?.countries?.data.map(country => ({
                                             value: country?.attributes.ISOCode,
                                             label: country?.attributes.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
-                                            img: `http://192.168.0.229:1337${country?.attributes.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+                                            img: `${HOST_API}${country?.attributes.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
                                         })) || []}
                                         save="value"
                                         placeholder='Selecione um país'
