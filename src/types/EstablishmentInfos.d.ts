@@ -5,4 +5,5 @@ type Establishment = {
 	cnpj: string
 	phoneNumber: string
 	cellphoneNumber: string
+	photo: string
 }

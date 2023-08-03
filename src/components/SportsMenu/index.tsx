@@ -17,6 +17,7 @@ import Animated, {
 	FadeOut,
 	FadeIn
 } from 'react-native-reanimated';
+import {NativeStackNavigatorProps} from "react-native-screens/lib/typescript/native-stack/types";
 
 const arrayIcons = [
 	{
@@ -63,20 +64,24 @@ const arrayIcons = [
 	},
 ]
 
-export default function SportsMenu() {
+interface ISportsMenuProps {
+	sports: SportType[]
+}
 
-	const [selected, setSelected] = useState(0)
+export default function SportsMenu({sports}: ISportsMenuProps) {
+
+	const [selected, setSelected] = useState<string>()
 	
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className={`flex w-full justify-center items-center h-[8%] `}>
 			<ScrollView horizontal={true}>
 				{
-					arrayIcons.map((item) => (
+					sports.map((item) => (
 						<TouchableOpacity className='justify-center' onPress={() => setSelected(item.id)}>
 							{selected !== item.id ? (
-								<SportItem key={item.id} id={item.id} name={item.name} image={item.image} />
+								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].image} />
 							) : (
-								<SportItem key={item.id} id={item.id} name={item.name} image={item.activeImage} />
+								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].activeImage} />
 							)}
 						</TouchableOpacity>
 					))

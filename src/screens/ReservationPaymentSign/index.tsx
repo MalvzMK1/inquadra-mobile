@@ -110,7 +110,6 @@ export default function ReservationPaymentSign() {
                     </View>
                     </View>
                 </TouchableOpacity>
-
                 {showCard && (
                     <View className="border border-gray-500 rounded-xl p-4 mt-3">
                     <View className="flex-row justify-between">
@@ -177,7 +176,7 @@ export default function ReservationPaymentSign() {
                         <Text className="text-base">Quadra de Futsal</Text>
                         <Text className="text-base">4,3 Km de distância</Text>
                         <View className="flex flex-row">
-                        <Text className="text-base">Avaliação: 4,4 </Text>
+                        <Text className="text-base">Avaliação: 4,5 </Text>
                         <View className="pt-1">
                             <FontAwesome name="star" color="#FF4715" size={11} /></View>
                         </View>

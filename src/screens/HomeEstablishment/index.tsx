@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useReserveDisponible } from "../../hooks/useReserveDisponible";
-import { useNextToCourtByIdQuery } from "../../graphql/queries/nextToCourtsById";
+import { courtByIdQuery } from "../../graphql/queries/nextToCourtsById";
 import { useGetNextToCourtsById } from "../../hooks/useNextToCourtById";
 import { useEstablishmentSchedulings } from "../../hooks/useEstablishmentSchedulings";
 import { useSchedulingById } from "../../hooks/useSchedulingById";
