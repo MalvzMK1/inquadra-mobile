@@ -18,14 +18,12 @@ import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
-import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import PixScreen from '../../screens/Pix';
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
 import CourtPriceHour from '../../screens/CourtPriceHour';
 import EditCourt from '../../screens/EditCourt';
-import CourtSchedule from '../../screens/CourtSchedule';
 import CompletedEstablishmentRegistration from '../../screens/CompletedEstablishmentRegistration';
 import InfoProfileEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment';
 import registerEstablishmentProfile from '../../screens/ProfileEstablishmentRegistration';
@@ -33,6 +31,7 @@ import DeleteAccountEstablishment from '../../screens/ProfileEstablishmentRegist
 import FinancialEstablishment from '../../screens/FinancialEstablishment';
 import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
+import Schedulings from '../../screens/Schedulings';
 import { HOST_API } from '@env'
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -42,6 +41,33 @@ export default function () {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return (
 		<Navigator>
+			<Screen
+				name='Schedulings'
+				component={Schedulings}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 80,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>Reservas</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
@@ -54,33 +80,6 @@ export default function () {
 						height: 200,
 						backgroundColor: '#292929',
 					},
-				}}
-			/>
-			<Screen
-				name="CourtSchedule"
-				component={CourtSchedule}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 85,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View className='flex-1 justify-center items-center'>
-							<Text className='text-white text-[18px] font-black'>Agenda</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity className='pr-[10px]'>
-							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
-						</TouchableOpacity>
-					),
-					headerLeft: () => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
 				}}
 			/>
 			<Screen

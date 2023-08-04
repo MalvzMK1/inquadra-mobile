@@ -24,7 +24,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 	let viewContent = null
 
 	if (props.playerScreen) {
-		viewContent = <View className='className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}'>
+		viewContent = <View className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
 			{
 				showButtons && (
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
@@ -79,7 +79,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 			}
 		</View>
 	} else {
-		viewContent = <View className='className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}'>
+		viewContent = <View className={`fixed h-24 ${props.isDisabled ? "bg-transparent" : "bg-transparent"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
 			{
 				showButtons && (
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>

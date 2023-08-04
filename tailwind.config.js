@@ -7,7 +7,8 @@ module.exports = {
 				'football-field': "url('/src/assets/football_field.jpg')",
 			},
 			colors: {
-				'dull-gray-color': 'rgba(182, 182, 182, 0.2)'
+				'dull-gray-color': 'rgba(182, 182, 182, 0.2)',
+				'button-dull-gray-color': 'rgba(41, 41, 41, 0.5)'
 			}
 		}
 	},
