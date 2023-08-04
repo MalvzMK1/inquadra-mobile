@@ -18,7 +18,6 @@ import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
-import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import PixScreen from '../../screens/Pix';
 import { NavigationProp, useNavigation } from "@react-navigation/native";
@@ -32,6 +31,7 @@ import FinancialEstablishment from '../../screens/FinancialEstablishment';
 import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import {HOST_API} from '@env'
+import HistoryPayment from '../../screens/FinancialEstablishment/HistoryPayment';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -40,6 +40,33 @@ export default function () {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return (
 		<Navigator>
+			<Screen
+				name="HistoryPayment"
+				component={HistoryPayment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
