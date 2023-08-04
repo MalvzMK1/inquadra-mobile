@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Text, Image, Dimensions, ScrollView } from "react-native"
+import { View, Text, Image, Dimensions, ScrollView, Share } from "react-native"
 import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import Carousel from "react-native-snap-carousel"
@@ -18,7 +18,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     let distance
     const EstablishmentInfos = useGetEstablishmentByCourtId(route.params?.courtID.toString())
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
-    
+
     const [userLocation, setUserLocation] = useState({
         latitude: 0,
         longitude: 0
@@ -26,6 +26,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     const [Establishment, setEstablishment] = useState<{
         id: number
         corporateName: string,
+        cellPhoneNumber: string,
         streetName: string,
         photo: string,
         latitude: number,
@@ -68,6 +69,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
             const establishment = {
                 id: infosEstablishment.id,
                 corporateName: infosEstablishment.attributes.corporateName,
+                cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
                 type: infosEstablishment.attributes.type,
                 streetName: infosEstablishment.attributes.address.streetName,
                 latitude: infosEstablishment.attributes.address.latitude,
@@ -81,6 +83,17 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
             }
         }
     }, [EstablishmentInfos.data, EstablishmentInfos.loading])
+
+    const onShare = async () => {
+        try {
+            await Share.share({
+                message:
+                    "Estabelecimento: " + Establishment?.corporateName + ", Telefone: " + Establishment?.cellPhoneNumber
+            });
+        } catch (error: any) {
+            console.log(error.message);
+        }
+    };
 
     useEffect(() => {
 
@@ -117,11 +130,11 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
             })
             await AsyncStorage.getItem("userInfos").then((value) => {
                 if (value) {
-                   const userID = JSON.parse(value)
-                   setUserId(userID.rawData.userId)
+                    const userID = JSON.parse(value)
+                    setUserId(userID.rawData.userId)
                 }
             })
-            
+
         }
         fetchData()
     }, [])
@@ -148,7 +161,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
 
         setHeart((prevState) => !prevState);
 
-        if(userId){   
+        if (userId) {
             updateFavoriteEstablishment({
                 variables: {
                     user_id: userId,
@@ -200,11 +213,11 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                                     :
                                     < AntDesign name="heart" size={24} color="red" />
                             }
-                        </TouchableOpacity>
-                        <TouchableOpacity>
+                        </TouchableOpacity >
+                        <TouchableOpacity onPress={onShare}>
                             <Ionicons name="share-social" size={30} color="black" />
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={onShare}>
                             <FontAwesome name="phone" size={30} color="black" />
                         </TouchableOpacity>
                     </View>
