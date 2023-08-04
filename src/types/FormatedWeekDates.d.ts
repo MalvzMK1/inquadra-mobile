@@ -1,3 +1,6 @@
 type FormatedWeekDates = {
-    dateItem: string
+	dayName: string,
+	localeDayInitial: string,
+	day: string,
+	date: Date
 }

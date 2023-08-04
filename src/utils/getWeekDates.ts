@@ -1,25 +1,33 @@
-export function getWeekDates(date: Date) {
-    const selectedDate = new Date(date);
-    const dayOfWeek = selectedDate.getDay();
-    const startDate = new Date(selectedDate);
-    startDate.setDate(selectedDate.getDate() - dayOfWeek);
-    const weekDates: Date[] = [startDate];
+import {addDays, format} from 'date-fns'
+import {ptBR} from 'date-fns/locale'
 
-    for (let i = 1; i < 7; i++) {
-        const nextDay = new Date(startDate);
-        nextDay.setDate(startDate.getDate() + i);
-        weekDates.push(nextDay);
-    }
+export function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDates> {
+	const daysOfWeek: Array<FormatedWeekDates> = []
 
-    let formatedWeekDates: FormatedWeekDates[] = []
+	const sundayIndex = date.getDay()
 
-    weekDates.forEach(item => {
-        let dateItem: string = item.toISOString().split("-")[2].split("T")[0].toString()
+	for (let i = 0; i < 7; i++) {
+		const weekDate = addDays(date, i);
+		const localeDayInitial = format(
+			weekDate,
+			'eee',
+			{
+				locale: ptBR,
+			}).toUpperCase()[0];
+		const dayName = format(
+			weekDate,
+			'eeee'
+		)
 
-        formatedWeekDates.push({
-            dateItem
-        })
-    })
+		const currentIndex = (sundayIndex + i) % 7
 
-    return formatedWeekDates;
-};
+		daysOfWeek[currentIndex] = {
+			dayName: dayName.charAt(0).toUpperCase() + dayName.slice(1),
+			localeDayInitial,
+			day: format(weekDate, 'dd'),
+			date: weekDate
+		};
+	}
+
+	return daysOfWeek
+}
