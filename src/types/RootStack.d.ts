@@ -1,8 +1,19 @@
 type RootStackParamList = {
 	Login: undefined;
+	CourtSchedule: undefined;
+	RegisterCourts: undefined;
+	RegisterEstablishmentProfile: undefined;
+	CompletedEstablishmentResgistration: undefined;
+	DeleteAccountEstablishment: undefined;
+	InfoProfileEstablishment: undefined;
+	FinancialEstablishment: undefined;
+	CourtPriceHour: undefined;
+	EditCourt: undefined;
 	ChooseUserType: undefined;
 	Register: undefined;
-	EstablishmentRegister: undefined;
+	EstablishmentRegister: {
+		ownerID: string
+	};
 	Home: {
 		userGeolocation: {
 			latitude: number,

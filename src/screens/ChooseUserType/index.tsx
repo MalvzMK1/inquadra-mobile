@@ -19,7 +19,7 @@ export default function ChooseUserType() {
 				<UserTypeCard
 					title='Parceiro InQuadra'
 					subtitle='Anuncie seu estabelecimento e facilite a gestão do seu negócio'
-					pageNavigation='EstablishmentRegister'
+					pageNavigation='RegisterEstablishmentProfile'
 					image={require('../../assets/partner_inquadra.png')}
 				/>
 

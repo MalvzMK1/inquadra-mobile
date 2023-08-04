@@ -9,15 +9,10 @@ export default function CourtCardHome(props: CourtCardInfos) {
 
 	const [color, setColor] = useState("white")
 
-	// console.error(props.image)
-
-	console.log(props)
-
 	return (
-		<TouchableOpacity onPress={() => navigation.navigate('CourtAvailibilityInfo', {
-			courtId: props.id,
-			courtImage: props.image,
-			courtName: props.name
+		<TouchableOpacity onPress={() => navigation.navigate('EstablishmentInfo', {
+			courtID: props.id,
+			userPhoto:  undefined,
 		})}>
 			<View className='flex flex-row flex-1 gap-x-[14px] mb-5'>
 				{/*<TouchableOpacity className='w-12 h-22 rounded-[10px] bg-red-500' onPress={() => navigation.navigate('CourtAvailibilityInfo', {*/}
