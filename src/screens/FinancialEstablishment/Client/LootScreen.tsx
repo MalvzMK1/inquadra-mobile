@@ -1,4 +1,4 @@
-import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
+
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Slider } from "react-native";
 
