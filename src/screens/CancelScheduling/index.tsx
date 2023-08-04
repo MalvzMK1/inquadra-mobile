@@ -1,12 +1,19 @@
-import { View, Text, TextInput } from "react-native";
+import { View, Text, TextInput, Modal, Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import React, { useState } from "react";
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { CancelSchedulingInfo } from "../../components/CancelSchedulingInfo";
+import { Button } from "react-native-paper";
 
 export default function CancelScheduling() {
     const [cancelReason, setCancelReason] = useState("")
     const maxLength: number = 200
+
+    const [showConfirmCancel, setShowConfirmCancel] = useState(false)
+    const closeConfirmCancelModal = () => setShowConfirmCancel(false)
+
+    const [showSuccessCancel, setShowSuccessCancel] = useState(false)
+    const closeSuccessCancelModal = () => setShowSuccessCancel(false)
 
     const handleTextChange = (text: string) => text.length <= maxLength ? setCancelReason(text) : ""
 
@@ -48,7 +55,7 @@ export default function CancelScheduling() {
 
                 <Text className="text-[12px] text-[#292929] mt-[5px] text-start">Ao confirmar o cancelamento, o extorno financeiro será realizado automaticamente para o cliente.*</Text>
 
-                <TouchableOpacity className="w-full h-[56px] bg-[#FF6112] items-center justify-center rounded-[5px] mt-[125px]">
+                <TouchableOpacity onPress={() => setShowConfirmCancel(true)} className="w-full h-[56px] bg-[#FF6112] items-center justify-center rounded-[5px] mt-[125px]">
                     <Text className="font-medium text-[16px] text-white">Cancelar reserva</Text>
                 </TouchableOpacity>
             </View>
@@ -57,6 +64,45 @@ export default function CancelScheduling() {
                 establishmentScreen={true}
                 playerScreen={false}
             />
+
+            <Modal visible={showConfirmCancel} animationType="fade" transparent={true} onRequestClose={closeConfirmCancelModal}>
+                <View className="h-full w-full justify-center items-center">
+                    <View className="h-[256px] w-[350px] bg-white rounded-[5px] items-center justify-center">
+                        <View className="w-full h-[60%] items-center justify-between">
+                            <Text className="text-center font-bold text-[16px] w-[60%]">Tem certeza que deseja cancelar a reserva?</Text>
+
+                            <View className="flex flex-row items-center">
+                                <Button
+                                    onPress={() => {
+                                        closeConfirmCancelModal()
+                                        // setBlockScheduleDetailsModal(true)
+                                    }}
+                                    className='h-[50px] w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px]'>
+                                    <Text className="w-full h-full font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
+                                </Button>
+
+                                <Button onPress={() => {
+                                    closeConfirmCancelModal()
+                                    setShowSuccessCancel(true)
+                                }} className='h-[50px] w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px]'>
+                                    <Text className="w-full h-full font-medium text-[14px] text-white">Confirmar e extornar</Text>
+                                </Button>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal visible={showSuccessCancel} animationType="fade" transparent={true} onRequestClose={closeSuccessCancelModal}>
+                <View className="h-full w-full justify-center items-center">
+                    <View className="h-[256px] w-[350px] bg-white rounded-[5px] items-center justify-center">
+                        <View className=" items-center justify-evenly h-[80%] w-full">
+                            <Text className="text-center font-bold text-[16px] w-[50%]">Reserva cancelada com sucesso</Text>
+                            <Image source={require('../../assets/orange_logo_inquadra.png')}></Image>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     )
 }
