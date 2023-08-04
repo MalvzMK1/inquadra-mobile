@@ -42,6 +42,20 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
+				name="Login"
+				component={Login}
+				options={{
+					headerTitle: () => (
+						<Image source={require('../../assets/inquadra_logo.png')} />
+					),
+					headerTitleAlign: 'center',
+					headerStyle: {
+						height: 200,
+						backgroundColor: '#292929',
+					},
+				}}
+			/>
+			<Screen
 				name='Schedulings'
 				component={Schedulings}
 				options={{
@@ -66,20 +80,6 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
-				}}
-			/>
-			<Screen
-				name="Login"
-				component={Login}
-				options={{
-					headerTitle: () => (
-						<Image source={require('../../assets/inquadra_logo.png')} />
-					),
-					headerTitleAlign: 'center',
-					headerStyle: {
-						height: 200,
-						backgroundColor: '#292929',
-					},
 				}}
 			/>
 			<Screen
