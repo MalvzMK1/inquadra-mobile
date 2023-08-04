@@ -84,6 +84,10 @@ export default function () {
 				}}
 			/>
 			<Screen
+				name="ChooseUserType"
+				component={ChooseUserType}
+			/>
+			<Screen
 				name='Schedulings'
 				component={Schedulings}
 				options={{
