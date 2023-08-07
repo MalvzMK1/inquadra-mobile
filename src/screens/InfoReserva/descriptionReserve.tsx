@@ -110,7 +110,7 @@ export default function DescriptionReserve() {
           }, { message: "A data de vencimento é inválida" }),
       })
 
-      function convertToAmericanDate(dateString) {
+      function convertToAmericanDate(dateString: string) {
         const [month, year] = dateString.split('/');
         const currentYear = new Date().getFullYear();
         const currentCentury = Math.floor(currentYear / 100);

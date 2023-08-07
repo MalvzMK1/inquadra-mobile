@@ -11,4 +11,6 @@ type Court = {
 	name: string
 	rating: number
 	fantasy_name: string
+	address: string
+	image: string
 }
