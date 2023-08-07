@@ -32,6 +32,7 @@ import FinancialEstablishment from '../../screens/FinancialEstablishment';
 import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import Schedulings from '../../screens/Schedulings';
+import CancelScheduling from '../../screens/CancelScheduling';
 import { HOST_API } from '@env'
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -41,6 +42,33 @@ export default function () {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return (
 		<Navigator>
+			<Screen
+				name='CancelScheduling'
+				component={CancelScheduling}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 80,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>Reservas</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
@@ -54,6 +82,10 @@ export default function () {
 						backgroundColor: '#292929',
 					},
 				}}
+			/>
+			<Screen
+				name="ChooseUserType"
+				component={ChooseUserType}
 			/>
 			<Screen
 				name='Schedulings'
@@ -75,7 +107,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -83,8 +115,8 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="ChooseUserType"
-				component={ChooseUserType}
+				name="Login"
+				component={Login}
 				options={{
 					headerShown: false,
 				}}
@@ -427,7 +459,7 @@ export default function () {
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -454,7 +486,7 @@ export default function () {
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -466,7 +498,7 @@ export default function () {
 				component={CourtPriceHour}
 				options={{
 					headerTitle: 'Definir hora/valor',
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="black" />
 						</TouchableOpacity>
@@ -493,7 +525,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
