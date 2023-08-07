@@ -20,6 +20,7 @@ type RootStackParamList = {
 		phone_number: string;
 		role: string
 	};
+	CancelScheduling: undefined
 	Home: {
 		userGeolocation: {
 			latitude: number,

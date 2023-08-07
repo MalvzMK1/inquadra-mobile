@@ -43,6 +43,20 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
+				name="Login"
+				component={Login}
+				options={{
+					headerTitle: () => (
+						<Image source={require('../../assets/inquadra_logo.png')} />
+					),
+					headerTitleAlign: 'center',
+					headerStyle: {
+						height: 200,
+						backgroundColor: '#292929',
+					},
+				}}
+			/>
+			<Screen
 				name='CancelScheduling'
 				component={CancelScheduling}
 				options={{
@@ -67,20 +81,6 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
-				}}
-			/>
-			<Screen
-				name="Login"
-				component={Login}
-				options={{
-					headerTitle: () => (
-						<Image source={require('../../assets/inquadra_logo.png')} />
-					),
-					headerTitleAlign: 'center',
-					headerStyle: {
-						height: 200,
-						backgroundColor: '#292929',
-					},
 				}}
 			/>
 			<Screen
@@ -115,17 +115,10 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="Login"
-				component={Login}
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<Screen
 				name='RegisterEstablishmentProfile'
 				component={registerEstablishmentProfile}
 				options={{
-					headerTitle:"",
+					headerTitle: "",
 					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="black" />
