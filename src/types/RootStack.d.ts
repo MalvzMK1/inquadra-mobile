@@ -54,10 +54,10 @@ type RootStackParamList = {
 		courtImage: string,
 		courtName: string
 	}
-	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
+	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber' | 'photo'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
 	} & {
-		photos: string[]
+		photos: string[] | undefined
 	}
 	PixScreen: {
 		courtName: string,

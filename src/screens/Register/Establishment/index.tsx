@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator} from "react-native";
+import {View, Text, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, Platform} from "react-native";
 
 import React, {useEffect, useState} from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
@@ -60,7 +60,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 	const [selectAmenitiesData, setSelectAmenitiesData] = useState<Array<{key: string, value: string}>>([])
 
 	function handleAmenitieClick(providedAmenitieId: Array<string>): void {
-		console.log();
+		console.log(providedAmenitieId);
 	}
 
 	const {
@@ -86,6 +86,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 				aspect: [1, 1],
 				quality: 1,
 				allowsMultipleSelection: true, // Habilita a seleção múltipla de fotos
+				base64: true,
 			});
 
 			if (!result.canceled) {
@@ -99,6 +100,10 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 		}
 	};
 
+	function transformBase64ToBinary(base64: string): void {
+		// TODO: TRANSFORM BASE64 IMAGE TO BINARY
+	}
+
 	const handleDeletePhoto = (index) => {
 		const newPhotos = [...photos];
 		newPhotos.splice(index, 1);
@@ -107,13 +112,13 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 
 	function submitForm(data: IFormSchema) {
 		console.log({data, amenities: selected})
+
 		navigation.navigate('RegisterCourt', {
-			photos: photos.map(photo => photo.uri),
+			photos: undefined,
 			cnpj: data.cnpj,
 			address: data.address,
 			phoneNumber: data.phone,
-			corporateName: data.name,
-			photo: photos[0].uri
+			corporateName: data.name
 		})
 	}
 
@@ -138,7 +143,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 
 	return (
 		<ScrollView className="h-fit bg-white flex-1">
-			{errors && <Text>{JSON.stringify(errors)}</Text>}
+			{/*{errors && <Text>{JSON.stringify(errors)}</Text>}*/}
 			{amenitiesLoading && selectAmenitiesData.length === 0 ? <ActivityIndicator size='large' color='#F5620F' /> :
 				<View>
 					<View className="items-center mt-9 p-4">
@@ -259,17 +264,9 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 								control={control}
 								render={({field: {onChange}}) => (
 									<MultipleSelectList
-										setSelected={handleAmenitieClick}
+										setSelected={(val: Array<string>) => setSelected(val)}
 										// @ts-ignore
 										data={selectAmenitiesData}
-										// data={() => {
-										// 	if (!amenitiesLoading && amenitiesData)
-										// 		return amenitiesData.amenities.data.map(amenitie => ({
-										// 			value: amenitie.attributes.name,
-										// 			key: amenitie.id
-										// 		}));
-										// 	return [{key: '0', value: 'Nenhuma facilidade encontrada'}];
-										// }}
 										save={'key'}
 										placeholder="Selecione aqui..."
 										label="Amenidades escolhidas:"
