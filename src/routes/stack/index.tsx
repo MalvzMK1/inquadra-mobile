@@ -21,7 +21,7 @@ import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import PixScreen from '../../screens/Pix';
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
+import CourtAvailabilityInfo from '../../screens/CourtAvailabilityInfo';
 import CourtPriceHour from '../../screens/CourtPriceHour';
 import EditCourt from '../../screens/EditCourt';
 import CompletedEstablishmentRegistration from '../../screens/CompletedEstablishmentRegistration';
@@ -355,8 +355,8 @@ export default function () {
 				)}
 			</Screen>
 			<Screen
-				name="CourtAvailibilityInfo"
-				component={CourtAvailibilityInfo}
+				name="CourtAvailabilityInfo"
+				component={CourtAvailabilityInfo}
 				options={{
 					headerShown: false,
 				}}

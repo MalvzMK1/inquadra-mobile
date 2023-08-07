@@ -10,9 +10,9 @@ import {addDays, format} from 'date-fns'
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import { getWeekDays } from "../../utils/getWeekDates"
 
-interface ICourtAvailibilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailibilityInfo'> {}
+interface ICourtAvailabilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailabilityInfo'> {}
 
-export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailibilityInfoProps) {
+export default function CourtAvailabilityInfo({navigation, route}: ICourtAvailabilityInfoProps) {
 	const {
 		data: courtAvailability,
 		loading: isCourtAvailabilityLoading,

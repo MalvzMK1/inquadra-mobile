@@ -2,7 +2,7 @@ import { View, Text, ScrollView, Modal, Image } from "react-native"
 import React, { useState } from 'react'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import WeekDayButton from "../../components/WeekDays";
-// import { dayInitial } from '../../screens/CourtAvailibilityInfo';
+// import { dayInitial } from '../../screens/CourtAvailabilityInfo';
 import { Calendar } from 'react-native-calendars'
 import { getWeekDays } from "../../utils/getWeekDates";
 import { DateData } from "react-native-calendars"

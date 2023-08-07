@@ -2,7 +2,13 @@ type RootStackParamList = {
 	Login: undefined;
 	ChooseUserType: undefined;
 	Register: undefined;
-	EstablishmentRegister: undefined;
+	EstablishmentRegister: {
+		name: string
+		email: string
+		phoneNumber: string
+		cpf: string
+		password: string
+	};
 	Home: {
 		userGeolocation: {
 			latitude: number,
@@ -38,7 +44,7 @@ type RootStackParamList = {
 		courtID:string,
 		userPhoto: string | undefined,
 	};
-	CourtAvailibilityInfo: {
+	CourtAvailabilityInfo: {
 		courtId: string,
 		courtImage: string,
 		courtName: string

@@ -3,16 +3,16 @@ import { View, Text, TouchableOpacity, TextInput, Image, FlatList } from "react-
 import React, { useState } from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {z} from 'zod'
+import {string, z} from 'zod'
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
 interface IFormSchema {
+	name: string,
 	cnpj: string,
 	phone: string,
 	address: Omit<Address, 'id' | 'latitude' | 'longitude'>,
@@ -20,6 +20,8 @@ interface IFormSchema {
 }
 
 const formSchema = z.object({
+	name: z.string()
+		.nonempty('Esse campo não pode estar vazio!'),
 	cnpj: z.string()
 		.nonempty('Esse campo não pode estar vazio!')
 		.min(14, 'Deve ser informado um CNPJ válido!'),
@@ -32,7 +34,7 @@ const formSchema = z.object({
 			.min(8, 'Deve ser informado um CEP válido!'),
 		number: z.string()
 			.nonempty('Esse campo não pode estar vazio!'),
-		street: z.string()
+		streetName: z.string()
 			.nonempty('Esse campo não pode estar vazio!'),
 	}),
 	amenities: z.optional(z.array(z.object({
@@ -53,9 +55,9 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 
 	const [profilePicture, setProfilePicture] = useState(null);
 
-	const [photos, setPhotos] = useState([]);
+	const [photos, setPhotos] = useState<Array<{uri: string}>>([]);
 
-	const [selected, setSelected] = React.useState([]);
+	const [selected, setSelected] = useState<Array<string>>([]);
 
 	const data = [
 		{id:'1', value:'Estacionamento'},
@@ -87,7 +89,10 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 			});
 
 			if (!result.canceled) {
-				setPhotos([...photos, { uri: result.uri }]);
+				if (photos.length > 0)
+					setPhotos([...photos, { uri: result.uri }]);
+				else
+					setPhotos([{uri: result.uri}])
 			}
 		} catch (error) {
 			console.log('Erro ao carregar a imagem: ', error);
@@ -102,6 +107,14 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 
 	function submitForm(data: IFormSchema) {
 		console.log({data, amenities: selected})
+		navigation.navigate('RegisterCourt', {
+			photos: photos.map(photo => photo.uri),
+			cnpj: data.cnpj,
+			address: data.address,
+			phoneNumber: data.phone,
+			corporateName: data.name,
+			photo: photos[0].uri
+		})
 	}
 
 	return (
@@ -114,7 +127,18 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 				<View className='p-5 gap-7 flex flex-col justify-between'>
 					<View>
 						<Text className='text-xl p-1'>Nome do Estabelecimento</Text>
-						<TextInput className='p-5 border border-neutral-400 rounded' placeholder='Ex.: Quadra do Zeca'></TextInput>
+						<Controller 
+							name='name'
+							control={control}
+							render={({field: {onChange}}) => (
+								<TextInput 
+									className='p-5 border border-neutral-400 rounded' 
+									placeholder='Ex.: Quadra do Zeca' 
+									onChangeText={onChange}
+								/>
+							)}
+						/>
+						{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text> }
 					</View>
 					<View>
 						<Text className="text-xl p-1">CNPJ</Text>
@@ -157,7 +181,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 					<View>
 						<Text className='text-xl p-1'>Endereço</Text>
 						<Controller
-							name='address.street'
+							name='address.streetName'
 							control={control}
 							render={({field: {onChange}}) => (
 								<TextInput
@@ -194,7 +218,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 								render={({field: {onChange}}) => (
 									<MaskInput
 										className='p-5 border border-neutral-400 rounded w-44'
-										placeholder='(00) 0000-0000'
+										placeholder='0000-000'
 										value={getValues('address.cep')}
 										onChangeText={onChange}
 										maxLength={9}
@@ -214,9 +238,9 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 						control={control}
 						render={({field: {onChange}}) => (
 							<MultipleSelectList
-								setSelected={(val) => setSelected(val)}
+								setSelected={(val: Array<string>) => setSelected(val)}
 								data={data}
-								save={'id'}
+								save={'key'}
 								placeholder="Selecione aqui..."
 								label="Amenidades escolhidas:"
 								boxStyles={{borderRadius: 4, minHeight: 55}}
