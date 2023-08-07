@@ -9,7 +9,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
-import { useGetUserById } from "../../hooks/useUserById";
 
 interface IFormData {
 	identifier: string
@@ -40,27 +39,6 @@ export default function Login() {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	const [teste, { data: updateCourtData, loading: updateCourtLoading, error: updateCourtError }] = useUpdateCourt()
-
-	const handleTeste = async () => {
-		try {
-			// Perform the mutation
-			const response = await teste({
-				variables: {
-					court_id: 3,
-					court_name: "Quadra do RAPAZ",
-					courtType: 1,
-					fantasyName: "Quadra",
-					photos: ['3'],
-					court_availabilities: ['1'],
-					minimum_value: 20.00
-
-				},
-			});
-			console.log("Mutation Response:", response);
-		} catch (error) {
-			console.error("Error while registering establishment:", error);
-		}
-	};
 
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
