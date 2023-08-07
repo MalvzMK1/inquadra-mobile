@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Slider } from "react-native";
 
-export default function LootScreen() {
+export default function WithdrawScreen() {
 
     const [number, setNumber] = useState(680);
 

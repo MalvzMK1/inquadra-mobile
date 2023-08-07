@@ -31,7 +31,8 @@ import FinancialEstablishment from '../../screens/FinancialEstablishment';
 import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import {HOST_API} from '@env'
-import LootScreen from '../../screens/FinancialEstablishment/Client/LootScreen';
+import LootScreen from '../../screens/FinancialEstablishment/Client/WithdrawScreen';
+import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawScreen';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -41,8 +42,8 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="LootScreen"
-				component={LootScreen}
+				name="WithdrawScreen"
+				component={WithdrawScreen}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
