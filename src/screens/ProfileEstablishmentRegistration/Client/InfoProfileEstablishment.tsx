@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, NavigationProp } from "@react-navigation/native"
 import * as ImagePicker from 'expo-image-picker';
@@ -9,31 +9,113 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import useUpdateEstablishment from '../../../hooks/useUpdateEstablishment';
 import { useGetUserEstablishmentInfos } from '../../../hooks/useGetUserEstablishmentInfos';
 import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Controller, useForm } from "react-hook-form";
+import useUpdateUser from '../../../hooks/useUpdateUser';
 
-const tora = {
-  "establishment_id": 2,
-  "corporate_name": "Teste Deu Tora",
-  "cnpj": "56119122000123",
-  "phone_number": "(99)9999-9999",
-  "cep": "06233031",
-  "latitude": "-23.514366416737303",
-  "longitude": "-46.78709989124614",
-  "street_name": "R. Calixto Da Tora",
-  "amenities": ["1", "2"],
-  "cellphone_number": "(99)09999-9999",
-  "photos": ["2"]
+// const updateEstablishment = async () => {
+//   await updateEstablishmentHook({
+//     variables: {
+//       establishment_id: 2,
+//       corporate_name: "Teste deu tora",
+//       cnpj: "56119122000123",
+//       phone_number: "(99)9999-9999",
+//       cep: "06233031",
+//       latitude: "-23.514366416737303",
+//       longitude: "-46.78709989124614",
+//       street_name: "R. Calixto Da Tora",
+//       amenities: ["1", "2"],
+//       cellphone_number: "(99)09999-9999",
+//       photos: ["2"]
+//     }
+//   })
+// }
+
+interface IFormData {
+  userName: string
+  email: string
+  phoneNumber: string
 }
-const userId = "1"
+
+const formSchema = z.object({
+  userName: z.string()
+    .nonempty('O campo não pode estar vazio'),
+  email: z.string()
+    .nonempty('O campo não pode estar vazio'),
+  phoneNumber: z.string()
+    .nonempty('O campo não pode estar vazio')
+})
+
+interface IFantasyNameFormData {
+  fantasyName: string
+  confirmFantasyName: string
+}
+
+const fantasyNameFormSchema = z.object({
+  fanstasyName: z.string()
+    .nonempty('O campo não pode estar vazio'),
+  confirmFantasyName: z.string()
+    .nonempty('O campo não pode estar vazio')
+})
+
+interface IAddressFormData {
+  cep: string
+  streetName: string
+}
+
+const addressFormSchema = z.object({
+  cep: z.string()
+    .nonempty('O campo não pode estar vazio'),
+  streetName: z.string()
+    .nonempty('O campo não pode estar vazio')
+})
+
+interface IPasswordFormData {
+  actualPassword: string
+  password: string
+  confirmPassword: string
+}
+
+const passwordFormSchema = z.object({
+  actualPassword: z.string()
+    .nonempty('O campo não pode estar vazio'),
+  password: z.string()
+    .nonempty('O campo não pode estar vazio'),
+  confirmPassword: z.string()
+    .nonempty('O campo não pode estar vazio')
+})
+
+const userId = "2"
 
 export default function InfoProfileEstablishment() {
+  const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
+    resolver: zodResolver(formSchema)
+  })
+
+  const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
   const [updateEstablishmentHook, { data, error, loading }] = useUpdateEstablishment()
   const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
-  console.log(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes)
 
-  const [userName, setUserName] = useState(userByEstablishmentData?.usersPermissionsUser.data.attributes.username)
-  const [userEmail, setUserEmail] = useState(userByEstablishmentData?.usersPermissionsUser.data.attributes.email)
-  const [phoneNumber, setPhoneNumber] = useState(userByEstablishmentData?.usersPermissionsUser.data.attributes.phoneNumber)
-  const [cpf, setCpf] = useState(userByEstablishmentData?.usersPermissionsUser.data.attributes.cpf)
+  let amenities: string[] = []
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.forEach(amenitieItem => {
+    amenities.push(amenitieItem.attributes.name)
+  })
+
+  let courts: string[] = []
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.courts.data.forEach(item => {
+    courts.push(item.attributes.name)
+  })
+
+  const userName = userByEstablishmentData?.usersPermissionsUser.data.attributes.username
+  const userEmail = userByEstablishmentData?.usersPermissionsUser.data.attributes.email
+  
+  const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
+  useEffect(() => {
+    setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data.attributes.phoneNumber)
+  }, [userByEstablishmentData])
+  
+  
+  const cpf = userByEstablishmentData?.usersPermissionsUser.data.attributes.cpf
 
   const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
   const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
@@ -41,7 +123,7 @@ export default function InfoProfileEstablishment() {
   const closeEditAddressModal = () => setEditAddressModal(false)
   const [editCNPJModal, setEditCNPJModal] = useState(false)
   const closeEditCNPJModal = () => setEditCNPJModal(false)
-  const [editPasswordModal, setEditPasswordModal] = useState(true)
+  const [editPasswordModal, setEditPasswordModal] = useState(false)
   const closeEditPasswordModal = () => setEditPasswordModal(false)
   const [selected, setSelected] = useState("")
 
@@ -75,22 +157,46 @@ export default function InfoProfileEstablishment() {
   //   }
   // }
 
-  const updateEstablishment = async () => {
-    await updateEstablishmentHook({
+  // const updateEstablishment = async () => {
+  //   await updateEstablishmentHook({
+  //     variables: {
+  //       establishment_id: 2,
+  //       corporate_name: "Teste deu tora",
+  //       cnpj: "56119122000123",
+  //       phone_number: "(99)9999-9999",
+  //       cep: "06233031",
+  //       latitude: "-23.514366416737303",
+  //       longitude: "-46.78709989124614",
+  //       street_name: "R. Calixto Da Tora",
+  //       amenities: ["1", "2"],
+  //       cellphone_number: "(99)09999-9999",
+  //       photos: ["2"]
+  //     }
+  //   })
+  // }
+
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleUpdateUser = (data: IFormData): void => {
+    setIsLoading(true)
+
+    const userDatas = {
+      ...data,
+    }
+
+    updateUserHook({
       variables: {
-        establishment_id: 2,
-        corporate_name: "Teste deu tora",
-        cnpj: "56119122000123",
-        phone_number: "(99)9999-9999",
-        cep: "06233031",
-        latitude: "-23.514366416737303",
-        longitude: "-46.78709989124614",
-        street_name: "R. Calixto Da Tora",
-        amenities: ["1", "2"],
-        cellphone_number: "(99)09999-9999",
-        photos: ["2"]
+        user_id: userId,
+        username: userDatas.userName,
+        email: userDatas.email,
+        phone_number: userDatas.phoneNumber,
+        cpf: cpf
       }
+    }).then(value => {
+      alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
     })
+      .catch((reason) => console.error(reason))
+      .finally(() => setIsLoading(false))
   }
 
   const [expiryDate, setExpiryDate] = useState('');
@@ -108,21 +214,6 @@ export default function InfoProfileEstablishment() {
     { key: '4', value: 'CNPJ' },
     { key: '5', value: 'Alterar Senha' },
   ]
-
-  const dataAmenities = [
-    { key: '1', value: 'Estacionamento' },
-    { key: '2', value: 'Bar & Restaurante' },
-    { key: '3', value: 'Vestiário' },
-    { key: '4', value: 'Espaço Kids' },
-  ]
-
-  const dataCourts = [
-    { key: '1', value: 'Quadra 1' },
-    { key: '2', value: 'Campo 1' },
-    { key: '3', value: 'Quadra 2' },
-    { key: '4', value: 'Campo 2' },
-  ]
-
 
   const [profilePicture, setProfilePicture] = useState(userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url);
 
@@ -231,22 +322,61 @@ export default function InfoProfileEstablishment() {
         <View className="p-6 space-y-10">
           <View>
             <Text className="text-base">Nome</Text>
-            <TextInput value={userName} onChangeText={setUserName} className="p-4 border border-gray-500 rounded-lg h-45" placeholder='Jhon' placeholderTextColor="#B8B8B8" />
+            <Controller
+              name='userName'
+              control={control}
+              render={({ field: { onChange } }) => (
+                <TextInput
+                  textContentType='username'
+                  defaultValue={userName}
+                  onChangeText={onChange}
+                  className="p-4 border border-gray-500 rounded-lg h-45"
+                  placeholder='Jhon'
+                  placeholderTextColor="#B8B8B8"
+                />
+              )}
+            />
           </View>
+          {errors.userName && <Text className='text-red-400 text-sm'>{errors.userName.message}</Text>}
 
           <View>
             <Text className="text-base">E-mail</Text>
-            <TextInput value={userEmail} onChangeText={setUserEmail} keyboardType='email-address' className="p-4 border border-gray-500 rounded-lg h-45" placeholder='Jhon@mail.com.br' placeholderTextColor="#B8B8B8" />
+            <Controller
+              name='email'
+              control={control}
+              render={({ field: { onChange } }) => (
+                <TextInput
+                  textContentType='emailAddress'
+                  defaultValue={userEmail}
+                  onChangeText={onChange}
+                  keyboardType='email-address'
+                  className="p-4 border border-gray-500 rounded-lg h-45"
+                  placeholder='Jhon@mail.com.br'
+                  placeholderTextColor="#B8B8B8"
+                />
+              )}
+            />
+
           </View>
+
           <View>
             <Text className="text-base">Telefone</Text>
-            <MaskInput
-              className='p-4 border border-gray-500 rounded-lg h-45'
-              placeholder='Ex: (00) 0000-0000'
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              mask={Masks.BRL_PHONE}>
-            </MaskInput>
+            <Controller
+              name='phoneNumber'
+              control={control}
+              render={({ field: { onChange } }) => (
+                <MaskInput
+                  className='p-4 border border-gray-500 rounded-lg h-45'
+                  placeholder='Ex: (00) 0000-0000'
+                  value={phoneNumber}
+                  onChangeText={(masked, unmasked) => {
+                    onChange(masked)
+                    setPhoneNumber(masked)
+                  }}
+                  mask={Masks.BRL_PHONE}>
+                </MaskInput>
+              )}
+            />
           </View>
 
           <View>
@@ -255,8 +385,8 @@ export default function InfoProfileEstablishment() {
               className='p-4 border border-gray-500 rounded-lg h-45'
               placeholder='Ex: 000.000.000-00'
               value={cpf}
-              onChangeText={setCpf}
-              mask={Masks.BRL_CPF}>
+              mask={Masks.BRL_CPF}
+              editable={false}>
             </MaskInput>
           </View>
 
@@ -313,7 +443,7 @@ export default function InfoProfileEstablishment() {
             <Text className='text-base mb-1'>Amenidades do Local</Text>
             <SelectList
               setSelected={(val: string) => setSelected(val)}
-              data={dataAmenities}
+              data={amenities}
               save="value"
               placeholder='Selecione um dado'
               searchPlaceholder="Pesquisar..."
@@ -330,7 +460,7 @@ export default function InfoProfileEstablishment() {
             <Text className='text-base mb-1'>Editar Quadra/Campo</Text>
             <SelectList
               setSelected={(val: string) => setSelected(val)}
-              data={dataCourts}
+              data={courts}
               save="value"
               placeholder='Selecione um dado'
               searchPlaceholder="Pesquisar..."
@@ -345,14 +475,20 @@ export default function InfoProfileEstablishment() {
 
           <View>
             <View className='p-2'>
-              <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
-                <Text className='text-gray-50'>Excluir essa conta</Text>
+              <TouchableOpacity onPress={handleSubmit(handleUpdateUser)} className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center'>
+                <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
               </TouchableOpacity>
             </View>
 
             <View className='p-2'>
-              <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
+              <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' >
                 <Text className='text-gray-50'>Sair do App</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View className='p-2'>
+              <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
+                <Text className='text-gray-50'>Excluir essa conta</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -539,7 +675,7 @@ export default function InfoProfileEstablishment() {
 
       </ScrollView>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
