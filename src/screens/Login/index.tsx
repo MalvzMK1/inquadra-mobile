@@ -99,6 +99,7 @@ export default function Login() {
 						render={({ field: { onChange } }) => (
 							<TextInput
 								className="h-14 text-base"
+								keyboardType='email-address'
 								onChangeText={onChange}
 								outlineColor='#DCDCDC'
 								mode='outlined'
