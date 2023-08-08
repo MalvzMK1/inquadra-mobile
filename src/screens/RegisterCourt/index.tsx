@@ -1,25 +1,68 @@
-import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Image, FlatList } from "react-native";
 
 import React, { useState } from "react";
-import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from "@expo/vector-icons";
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { AntDesign } from '@expo/vector-icons';
+import useRegisterCourt from "../../hooks/useRegisterCourt";
+import { z } from "zod";
+import {useForm} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function RegisterCourt() {
 
-   
-    const navigation = useNavigation()
+    const [registerCourt, { data, error, loading }] = useRegisterCourt()
+
+    const formSchema = z.object({
+        name: z.string()
+            .nonempty('O nome não pode estar vazio!'),
+        minimum_value: z.string()
+            .nonempty('O campo não pode estar vazio, determine um valor!'),
+    })
+    interface IFormDatasCourt{
+        name: string
+        minimum_value: number
+        courtType: number
+        fantasyName: string
+        photos: string[]
+        court_availabilities: string[]
+    }
+    function RegisterNewCourt(data: IFormDatasCourt){
+        registerCourt({
+            variables: {
+                court_name: data.name,
+                courtType: data.courtType,
+                fantasyName: data.fantasyName,
+                photos: data.photos,
+                court_availabilities: data.court_availabilities,
+                minimum_value: data.minimum_value
+            }
+        })
+    }
+
+
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+	const { control, handleSubmit, formState: {errors}, getValues } = useForm<IFormDatasCourt>({
+		resolver: zodResolver(formSchema)
+	});
+	
+	function handleGoToNextRegisterPage(data: IFormDatasCourt): void {
+		console.log(data)
+		navigation.navigate('RegisterNewCourt', {
+			...data
+		})
+	}
+
 
     const [photos, setPhotos] = useState([]);
 
     const [selected, setSelected] = React.useState([]);
   
-    const data = [
+    const dataSports = [
         {key:'1', value:'Futsal'},
         {key:'2', value:'Vôlei'},
         {key:'3', value:'Basquete'},
@@ -60,6 +103,8 @@ export default function RegisterCourt() {
             setPhotos(newPhotos);
         };
 
+       
+
     return (
             <ScrollView className="h-fit bg-white flex-1"> 
                 <View className="items-center mt-9 p-4">
@@ -71,7 +116,7 @@ export default function RegisterCourt() {
                             <Text className="text-xl p-1">Selecione a modalidade:</Text>
                             <MultipleSelectList 
                                 setSelected={(val: React.SetStateAction<never[]>) => setSelected(val)} 
-                                data={data} 
+                                data={dataSports} 
                                 save="value"
                                 placeholder="Selecione aqui..."
                                 label="Modalidades escolhidas:"
@@ -87,6 +132,7 @@ export default function RegisterCourt() {
                         <View>
                             <Text className='text-xl p-1'>Nome fantasia da quadra?</Text>
                             <TextInput className='p-5 border border-neutral-400 rounded' placeholder='Ex.: Quadra do Zeca'></TextInput>
+                            {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
                         </View>
                         <View>
                         <Text className="text-xl p-1">Fotos da quadra</Text>  
@@ -123,6 +169,7 @@ export default function RegisterCourt() {
                         <View>
                             <Text className='text-xl p-1'>Sinal mínimo para locação</Text>
                             <TextInput className='p-5 border border-neutral-400 rounded' placeholder='Ex.: R$ 00.00'></TextInput>
+                            {errors.name && <Text className='text-red-400 text-sm'>{errors.minimum_value?.message}</Text>}
                         </View>
                         <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
                             <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => navigation.navigate("RegisterNewCourt")} />
