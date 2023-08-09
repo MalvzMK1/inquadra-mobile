@@ -13,13 +13,24 @@ import { useGetNextToCourts } from "../../hooks/useNextToCourts";
 import { useGetUserById } from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import {HOST_API} from '@env';
+import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
 }
 
+interface EstablishmentObject {
+	id: string,
+	latitude: number,
+	longitude: number,
+	name: string,
+	type: string,
+	image: string,
+	distance: number,
+}
+
 export default function Home({ menuBurguer, route, navigation }: Props) {
-	const {data, loading, error} = useGetNextToCourts()
+	const {data, loading, error} = useEstablishmentCardInformations()
 	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
 	const [courts, setCourts] = useState<Array<{
 		id: string,
@@ -34,17 +45,35 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
 	useEffect(() => {
 		if (!error && !loading) {
-			const newCourts = data?.courts.data.map((court) => {
-				return {
-					id: court.id,
-					latitude: Number(court.attributes.establishment.data.attributes.address.latitude),
-					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
-					name: court.attributes.name,
-					type: court.attributes.court_type.data.attributes.name,
-					image: HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
-					distance: 666, // Substitua pelos valores reais
-				}
-			});
+			const newCourts = data?.establishments.data
+				.filter(establishment => (
+					establishment.attributes.photos.data &&
+					establishment.attributes.photos.data.length > 0 &&
+					establishment.attributes.courts.data
+				))
+				.map((establishment => {
+					let establishmentObject: EstablishmentObject;
+
+					let courtTypes = establishment.attributes.courts.data!
+						.filter(court => court.attributes.court_type.data !== null)
+						.map(court => court.attributes.court_type.data!.attributes.name);
+
+					console.log(courtTypes)
+
+					if (!courtTypes) courtTypes = []
+
+					establishmentObject = {
+						id: establishment.id,
+						name: establishment.attributes.corporateName,
+						latitude: Number(establishment.attributes.address.latitude),
+						longitude: Number(establishment.attributes.address.longitude),
+						distance: 666, // Change to real values,
+						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
+						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : ''
+					}
+
+					return establishmentObject
+				}))
 
 			if (newCourts) {
 				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
