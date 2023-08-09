@@ -6,6 +6,7 @@ export interface IgetHistoricOfReserveOnResponse{
             attributes: {
                 schedulings_owner: {
                     data: Array<{
+                        id: string
                         attributes: {
                             status: boolean
                             createdAt: Date
@@ -53,6 +54,7 @@ query getHistoricOfReserveOn($id: ID) {
       attributes {
         schedulings_owner {
           data {
+            id
             attributes {
               status
               createdAt
