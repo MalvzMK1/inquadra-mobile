@@ -12,15 +12,15 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetNextToCourts } from "../../hooks/useNextToCourts";
 import { useGetUserById } from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
-import {HOST_API} from '@env';
+import { HOST_API } from '@env';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
 }
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
-	const {data, loading, error} = useGetNextToCourts()
-	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
+	const { data, loading, error } = useGetNextToCourts()
+	const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
 	const [courts, setCourts] = useState<Array<{
 		id: string,
 		latitude: number,
@@ -30,7 +30,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		image: string,
 		distance: number,
 	}>>([])
-	const {data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError} = useAvailableSportTypes()
+	const { data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError } = useAvailableSportTypes()
 
 	useEffect(() => {
 		if (!error && !loading) {
@@ -41,7 +41,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
 					name: court.attributes.name,
 					type: court.attributes.court_type.data.attributes.name,
-					image: HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
+					image: (court.attributes.photo.data.length == 0 ? '' : HOST_API + court.attributes.photo.data[0].attributes.url),
 					distance: 666, // Substitua pelos valores reais
 				}
 			});
@@ -63,7 +63,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		<View className="flex-1 flex flex-col">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-				isDisabled && !menuBurguer && <SportsMenu sports={availableSportTypes?.courts.data.map(sportType => ({
+					isDisabled && !menuBurguer && <SportsMenu sports={availableSportTypes?.courts.data.map(sportType => ({
 						id: sportType.attributes.court_type.data.id,
 						name: sportType.attributes.court_type.data.attributes.name
 					})) ?? []} />
@@ -115,14 +115,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				{menuBurguer && <FilterComponent />}
 			</View>
 			{
-				isDisabled && <HomeBar 
-						courts={courts} 
-						userName={userHookData?.usersPermissionsUser.data.attributes.username}
-						// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
-					/>
+				isDisabled && <HomeBar
+					courts={courts}
+					userName={userHookData?.usersPermissionsUser.data.attributes.username}
+				// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
+				/>
 			}
-			<BottomNavigationBar 
-				isDisabled={isDisabled} 
+			<BottomNavigationBar
+				isDisabled={isDisabled}
 				playerScreen={true}
 				establishmentScreen={false}
 			/>
