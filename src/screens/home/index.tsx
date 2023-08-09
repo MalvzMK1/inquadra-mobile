@@ -12,7 +12,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetNextToCourts } from "../../hooks/useNextToCourts";
 import { useGetUserById } from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
-import {HOST_API} from '@env';
+import { HOST_API } from '@env';
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
@@ -92,7 +92,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		<View className="flex-1 flex flex-col">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-				isDisabled && !menuBurguer && <SportsMenu sports={availableSportTypes?.courts.data.map(sportType => ({
+					isDisabled && !menuBurguer && <SportsMenu sports={availableSportTypes?.courts.data.map(sportType => ({
 						id: sportType.attributes.court_type.data.id,
 						name: sportType.attributes.court_type.data.attributes.name
 					})) ?? []} />
@@ -144,14 +144,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				{menuBurguer && <FilterComponent />}
 			</View>
 			{
-				isDisabled && <HomeBar 
-						courts={courts} 
-						userName={userHookData?.usersPermissionsUser.data.attributes.username}
-						// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
-					/>
+				isDisabled && <HomeBar
+					courts={courts}
+					userName={userHookData?.usersPermissionsUser.data.attributes.username}
+				// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
+				/>
 			}
-			<BottomNavigationBar 
-				isDisabled={isDisabled} 
+			<BottomNavigationBar
+				isDisabled={isDisabled}
 				playerScreen={true}
 				establishmentScreen={false}
 			/>

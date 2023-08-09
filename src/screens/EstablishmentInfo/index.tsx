@@ -76,7 +76,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 latitude: infosEstablishment.attributes.address.latitude,
                 longitude: infosEstablishment.attributes.address.longitude,
                 photo: HOST_API + infosEstablishment.attributes.photos.data[0].attributes.url,
-                photosAmenitie: infosEstablishment.attributes.photosAmenitie.data.map((photo: { attributes: { url: string } }) => "http://192.168.15.5:1337" + photo.attributes.url)
+                photosAmenitie: infosEstablishment.attributes.photosAmenitie.data.map((photo: { attributes: { url: string } }) => HOST_API + photo.attributes.url)
             }
             setEstablishment(establishment)
             if (courts) {
@@ -141,37 +141,28 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     }, [])
 
     const handlePressFavoriteEstablishment = () => {
+        const isCurrentlyFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
 
-        let newArrayfavoriteEstablishment = [""]
+        let newArrayfavoriteEstablishment = [];
 
-        if (!heart) {
-            newArrayfavoriteEstablishment = arrayfavoriteEstablishment.map((item) => {
-                return item.id
-            })
-            if (Establishment) {
-                newArrayfavoriteEstablishment.push(Establishment?.id.toString())
-            }
+        if (!isCurrentlyFavorite) {
+            newArrayfavoriteEstablishment = [...arrayfavoriteEstablishment, { id: Establishment?.id }];
         } else {
-            const filteredArray = arrayfavoriteEstablishment.filter((item) =>
-                item.id !== Establishment?.id
-            );
-            newArrayfavoriteEstablishment = filteredArray.map((item) => {
-                return item.id
-            })
+            newArrayfavoriteEstablishment = arrayfavoriteEstablishment.filter(item => item.id !== Establishment?.id);
         }
 
-        setHeart((prevState) => !prevState);
+        setArrayFavoriteEstablishment(newArrayfavoriteEstablishment);
 
         if (userId) {
             updateFavoriteEstablishment({
                 variables: {
                     user_id: userId,
-                    favorite_establishments: newArrayfavoriteEstablishment
+                    favorite_establishments: newArrayfavoriteEstablishment.map(item => item.id.toString())
                 }
-            })
+            });
         }
-
     };
+
 
     if (Establishment) {
         distance = getDistanceFromLatLonInKm(Establishment?.latitude, Establishment?.longitude, userLocation.latitude, userLocation.longitude)
