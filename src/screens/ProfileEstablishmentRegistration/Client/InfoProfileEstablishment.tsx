@@ -12,6 +12,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form";
 import useUpdateUser from '../../../hooks/useUpdateUser';
+import useUpdateEstablishmentAddress from '../../../hooks/useUpdateEstablishmentAddress';
+import { HOST_API } from '@env'
+import storage from '../../../utils/storage';
 
 // const updateEstablishment = async () => {
 //   await updateEstablishmentHook({
@@ -85,15 +88,18 @@ const passwordFormSchema = z.object({
     .nonempty('O campo não pode estar vazio')
 })
 
-const userId = "2"
+const userId = "1"
 
 export default function InfoProfileEstablishment() {
   const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
     resolver: zodResolver(formSchema)
   })
+  const { control: controlAddress, handleSubmit: handleSubmitAddress, formState: { errors: addressErrors } } = useForm<IAddressFormData>({
+    resolver: zodResolver(addressFormSchema)
+  })
 
   const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
-  const [updateEstablishmentHook, { data, error, loading }] = useUpdateEstablishment()
+  const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
   const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
 
   let amenities: string[] = []
@@ -106,26 +112,36 @@ export default function InfoProfileEstablishment() {
     courts.push(item.attributes.name)
   })
 
+  let establishmentPhotos: string[] = []
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data.forEach(photoItem => {
+    establishmentPhotos.push(photoItem.id)
+  })
+
   const userName = userByEstablishmentData?.usersPermissionsUser.data.attributes.username
   const userEmail = userByEstablishmentData?.usersPermissionsUser.data.attributes.email
-  
+
   const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
   useEffect(() => {
     setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data.attributes.phoneNumber)
   }, [userByEstablishmentData])
-  
-  
+
+
   const cpf = userByEstablishmentData?.usersPermissionsUser.data.attributes.cpf
 
   const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
   const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
-  const [editAddressModal, setEditAddressModal] = useState(false)
+  const [editAddressModal, setEditAddressModal] = useState(true)
   const closeEditAddressModal = () => setEditAddressModal(false)
   const [editCNPJModal, setEditCNPJModal] = useState(false)
   const closeEditCNPJModal = () => setEditCNPJModal(false)
   const [editPasswordModal, setEditPasswordModal] = useState(false)
   const closeEditPasswordModal = () => setEditPasswordModal(false)
   const [selected, setSelected] = useState("")
+
+  const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+  storage.load<{ latitude: number, longitude: number }>({
+    key: 'userGeolocation'
+  }).then(data => setUserGeolocation(data))
 
   // const setAllFalse = () => {
   //   setEditFantasyNameModal(false)
@@ -155,25 +171,7 @@ export default function InfoProfileEstablishment() {
   //     setAllFalse()
   //     setEditPasswordModal(true)
   //   }
-  // }
-
-  // const updateEstablishment = async () => {
-  //   await updateEstablishmentHook({
-  //     variables: {
-  //       establishment_id: 2,
-  //       corporate_name: "Teste deu tora",
-  //       cnpj: "56119122000123",
-  //       phone_number: "(99)9999-9999",
-  //       cep: "06233031",
-  //       latitude: "-23.514366416737303",
-  //       longitude: "-46.78709989124614",
-  //       street_name: "R. Calixto Da Tora",
-  //       amenities: ["1", "2"],
-  //       cellphone_number: "(99)09999-9999",
-  //       photos: ["2"]
-  //     }
-  //   })
-  // }
+  // 
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -194,6 +192,35 @@ export default function InfoProfileEstablishment() {
       }
     }).then(value => {
       alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
+    })
+      .catch((reason) => console.error(reason))
+      .finally(() => setIsLoading(false))
+  }
+
+  const [cep, setCep] = useState<string | undefined>()
+  useEffect(() => {
+    setCep(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.address.cep)
+  })
+
+  const streetName = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.address.streetName
+
+  const handleUpdateEstablishmentAddress = (data: IAddressFormData): void => {
+    setIsLoading(true)
+
+    const addressData = {
+      ...data
+    }
+
+    updateEstablishmentAddressHook({
+      variables: {
+        establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id,
+        cep: addressData.cep,
+        street_name: addressData.streetName,
+        latitude: userGeolocation?.latitude.toString(),
+        longitude: userGeolocation?.longitude.toString()
+      }
+    }).then(value => {
+      alert(value.data?.updateEstablishment.data.attributes.address.streetName)
     })
       .catch((reason) => console.error(reason))
       .finally(() => setIsLoading(false))
@@ -307,7 +334,7 @@ export default function InfoProfileEstablishment() {
             {profilePicture ? (
               <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
             ) : (
-              <Ionicons name="person-circle-outline" size={100} color="#bbb" />
+              <Image source={{ uri: "http://192.168.15.19:1337" + userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url }} style={styles.profilePicture} />
             )}
             <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
               {profilePicture ? (
@@ -325,38 +352,46 @@ export default function InfoProfileEstablishment() {
             <Controller
               name='userName'
               control={control}
+              rules={{
+                required: true,
+                minLength: 6
+              }}
               render={({ field: { onChange } }) => (
                 <TextInput
                   textContentType='username'
                   defaultValue={userName}
                   onChangeText={onChange}
-                  className="p-4 border border-gray-500 rounded-lg h-45"
+                  className={`p-4 border ${errors.userName ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
                   placeholder='Jhon'
                   placeholderTextColor="#B8B8B8"
                 />
               )}
             />
+            {errors.userName && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.userName.message}</Text>}
           </View>
-          {errors.userName && <Text className='text-red-400 text-sm'>{errors.userName.message}</Text>}
 
           <View>
             <Text className="text-base">E-mail</Text>
             <Controller
               name='email'
               control={control}
+              rules={{
+                required: true,
+                minLength: 6
+              }}
               render={({ field: { onChange } }) => (
                 <TextInput
                   textContentType='emailAddress'
                   defaultValue={userEmail}
                   onChangeText={onChange}
                   keyboardType='email-address'
-                  className="p-4 border border-gray-500 rounded-lg h-45"
+                  className={`p-4 border ${errors.email ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
                   placeholder='Jhon@mail.com.br'
                   placeholderTextColor="#B8B8B8"
                 />
               )}
             />
-
+            {errors.email && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.email.message}</Text>}
           </View>
 
           <View>
@@ -364,9 +399,13 @@ export default function InfoProfileEstablishment() {
             <Controller
               name='phoneNumber'
               control={control}
+              rules={{
+                required: true,
+                minLength: 6
+              }}
               render={({ field: { onChange } }) => (
                 <MaskInput
-                  className='p-4 border border-gray-500 rounded-lg h-45'
+                  className={`p-4 border ${errors.phoneNumber ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
                   placeholder='Ex: (00) 0000-0000'
                   value={phoneNumber}
                   onChangeText={(masked, unmasked) => {
@@ -377,6 +416,7 @@ export default function InfoProfileEstablishment() {
                 </MaskInput>
               )}
             />
+            {errors.phoneNumber && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.phoneNumber.message}</Text>}
           </View>
 
           <View>
@@ -567,18 +607,47 @@ export default function InfoProfileEstablishment() {
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Insira o número do seu CEP:</Text>
-                <MaskInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
-                  mask={Masks.ZIP_CODE}
-                  keyboardType='numeric'
+                <Controller
+                  name='cep'
+                  control={controlAddress}
+                  rules={{
+                    required: true
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <MaskInput
+                      className={`p-4 border ${addressErrors.cep ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
+                      value={cep}
+                      onChangeText={(masked, unmasked) => {
+                        onChange(masked)
+                        setCep(masked)
+                      }}
+                      mask={Masks.ZIP_CODE}
+                      keyboardType='numeric'
+                    />
+                  )}
                 />
+                {addressErrors.cep && <Text className='text-red-400 text-sm -pt-[10px]'>{addressErrors.cep.message}</Text>}
               </View>
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Insira o nome da sua rua:</Text>
-                <TextInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
+                <Controller
+                  name='streetName'
+                  control={controlAddress}
+                  rules={{
+                    required: true
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      defaultValue={streetName}
+                      onChangeText={onChange}
+                      className={`p-4 border ${addressErrors.streetName ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
+                      placeholder='Nome da rua'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
                 />
+                {addressErrors.streetName && <Text className='text-red-400 text-sm -pt-[10px]'>{addressErrors.streetName.message}</Text>}
               </View>
 
               <View className="flex flex-row items-center mt-[10px]">
@@ -590,11 +659,8 @@ export default function InfoProfileEstablishment() {
                   <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {
-                  // closeConfirmCancelModal()
-                  // setShowSuccessCancel(true)
-                }} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                  <Text className="font-medium text-[14px] text-white">Confirmar</Text>
+                <TouchableOpacity onPress={handleSubmitAddress(handleUpdateEstablishmentAddress)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
+                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
                 </TouchableOpacity>
               </View>
 
