@@ -21,7 +21,7 @@ export function isValidCPF(cpf: string): boolean{
     if (remainder !== parseInt(cleanedCPF.charAt(9))) {
       return false;
     }
-  
+    
     sum = 0;
     for (let i = 0; i < 10; i++) {
       sum += parseInt(cleanedCPF.charAt(i)) * (11 - i);

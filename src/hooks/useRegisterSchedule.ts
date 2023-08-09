@@ -5,6 +5,6 @@ import {
     registerScheduleMutation
 } from "../graphql/mutations/registerSchedule"
 
-export default function useRegisterSchedule(){
+export function useRegisterSchedule(){
     return useMutation<IRegisterScheduleResponse, IRegisterScheduleVariables>(registerScheduleMutation)
 }

@@ -24,15 +24,34 @@ import { isValidCPF } from "../../utils/isValidCpf";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import useCountries from '../../hooks/useCountries'
 import { formatDateTime, formatDate, convertToAmericanDate } from "../../utils/formatDate";
+import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabilityStatus";
+import { useSchedule } from "../../hooks/useSchedule";
+import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
+import CourtAvailibility from "../../components/CourtAvailibility";
+import { useRoute } from '@react-navigation/native';
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function ReservationPaymentSign() {
+export default function ReservationPaymentSign({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
+    
+    interface RouteParams {
+        id_user: string;
+        id_court_availability: string
+        date_court_availability: string
+        court_id: string
+      }
+
+    // const { id_user, id_court_availability, date_court_availability, court_id } = route.params as RouteParams
+
     const id_user = '1'
+    const id_court_availability = '1'
+    const date_court_availability = "2023-07-27"
     const court_id = '1'
-    const schedule_id = '1'
 
     const {data:dataReserve, error:errorReserve, loading:loadingReserve} = useReserveInfo(court_id)
     const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
     const {data:dataCountry, error:errorCountry, loading:loadingCountry} = useCountries()
+    const [updateStatusCourtAvailability, {data:dataStatusAvailability, error:errorStatusAvailability, loading:loadingStatusAvailability}] = useUpdateCourtAvailabilityStatus()
+    const [createSchedule, {data:dataCreateSchedule, error:errorCreateSchedule, loading:loadingCreateSchedule} ] = useRegisterSchedule()
 
     const [showCard, setShowCard] = useState(false);
     const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -60,15 +79,7 @@ export default function ReservationPaymentSign() {
   
    
     const [selected, setSelected] = React.useState("");
-    const countriesData = [
-      { key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-      { key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
-      { key: '3', value: 'Portugal', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-      { key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-      { key: '5', value: 'Canadá', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-      { key: '6', value: 'Itália', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-      { key: '7', value: 'Reino Unido', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-    ]
+   
   
     const handleCVVChange = (input: any) => {
     const numericInput = input.replace(/\D/g, '');
@@ -145,9 +156,9 @@ export default function ReservationPaymentSign() {
 
 
 
-    const getCountryImage = (countryISOCode: string | null): string | undefined => {
-        if (countryISOCode && dataCountry) {
-          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+    const getCountryImage = (countryName: string | null): string | undefined => {
+        if (countryName && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.name === countryName);
         
           if (selectedCountry) {
             return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
@@ -157,9 +168,9 @@ export default function ReservationPaymentSign() {
       };
 
 
-      const getCountryIdByISOCode = (countryISOCode: string | null): string => {
-        if (countryISOCode && dataCountry) {
-          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+      const getCountryIdByName = (countryName: string | null): string => {
+        if (countryName && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(name => name.attributes.name === countryName);
         
           if (selectedCountry) {
             return selectedCountry.id;
@@ -168,24 +179,64 @@ export default function ReservationPaymentSign() {
         return "";
       };
 
-    function pay(data: iFormCardPayment){
-        const countryId = getCountryIdByISOCode(selected)
-        userPaymentCard({ 
+      const pay = async (data: iFormCardPayment) => {
+        try {
+            const newScheduleId = await createNewSchedule(); 
+    
+            const countryId = getCountryIdByName(selected);
+            userPaymentCard({ 
                 variables: {
                     value: parseFloat(dataReserve?.courtAvailability?.data?.attributes?.minValue),
-                    schedulingId: schedule_id,
+                    schedulingId: newScheduleId,
                     userId: id_user, 
                     name: data.name,
                     cpf: data.cpf,
                     cvv: parseInt(data.cvv),
                     date: convertToAmericanDate(data.date),
                     countryID: countryId,
+                    publishedAt: new Date().toISOString()
                 }
-            })
-            handleSaveCard()
+            });
+    
+            updateStatusDisponibleCourt();
+            handleSaveCard();
+        } catch (error) {
+
+            console.error("Erro ao criar o agendamento:", error);
+        }
+    };
+
+      const createNewSchedule = async () => {
+        try {
+            const create = await createSchedule({
+                variables: {
+                    title: 'newnew',
+                    court_availability: 1,
+                    date: date_court_availability,
+                    pay_day: date_court_availability,
+                    value_payed: parseFloat(dataReserve?.courtAvailability?.data?.attributes?.minValue),
+                    owner: parseFloat(id_user),
+                    users: [parseFloat(id_user)],
+                    publishedAt: new Date().toISOString()
+                }
+            });
+            return create.data?.createScheduling?.data?.id
+
+        } catch (error) {
+            console.error("Erro na mutação createSchedule:", error);
+        }
+    };
+
+      const updateStatusDisponibleCourt = () => {
+        updateStatusCourtAvailability({
+            variables: {
+                id: id_court_availability,
+                status: true
+            }
+        })
       }
 
-    const navigation = useNavigation()
+    
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
             <ScrollView>
@@ -209,7 +260,11 @@ export default function ReservationPaymentSign() {
                 </View>
                 <View className='px-10 py-5'>
 					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center' 
-                    onPressIn={() => navigation.navigate('PixScreen', {courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name, value: dataReserve?.courtAvailability.data.attributes.minValue})}>
+                    onPressIn={() => navigation.navigate('PixScreen', {
+                            courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name, 
+                            value: dataReserve?.courtAvailability.data.attributes.minValue,
+                            userID: id_user
+                        })}>
                         <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
                     </TouchableOpacity>
 				</View>
@@ -302,16 +357,16 @@ export default function ReservationPaymentSign() {
                             </View>
                             <View>
                                 <Text className='text-sm text-[#FF6112]'>País</Text>
-                                <View className='flex flex-row items-center p-3 border border-neutral-400 rounded bg-white'>
-                                    <Image className='h-[21px] w-[30px] mr-[15px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
+                                <View className='flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white'>
+                                    <Image className='h-[21px] w-[30px] mr-[10px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
                                     <SelectList
                                         setSelected={(val: string) => {
                                             setSelected(val);
                                             
                                         }}
                                         data={dataCountry?.countries?.data.map(country => ({
-                                            value: country?.attributes.ISOCode,
-                                            label: country?.attributes.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
+                                            value: country?.attributes.name,
+                                            label: country?.attributes.name || "", // Mostra o ISOCode (ou uma string vazia se não existir)
                                             img: `${HOST_API}${country?.attributes.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
                                         })) || []}
                                         save="value"

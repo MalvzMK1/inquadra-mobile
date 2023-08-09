@@ -31,7 +31,7 @@ type RootStackParamList = {
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
-		courtId: string
+		scheduleId:string
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
@@ -41,12 +41,14 @@ type RootStackParamList = {
 	CourtAvailibilityInfo: {
 		courtId: string,
 		courtImage: string,
-		courtName: string
+		courtName: string,
+		userId: string
 	};
 	ReservationPaymentSign: {
 		courtId: string,
 		courtImage: string,
-		courtName: string
+		courtName: string,
+		userId: string,
 	}
 	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
@@ -55,6 +57,7 @@ type RootStackParamList = {
 	}
 	PixScreen: {
 		courtName: string,
-		value: string
+		value: string,
+		userID: string,
 	}
 }
