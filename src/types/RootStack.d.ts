@@ -1,8 +1,26 @@
 type RootStackParamList = {
 	Login: undefined;
+	CourtSchedule: undefined;
+	RegisterCourts: undefined;
+	RegisterEstablishmentProfile: undefined;
+	CompletedEstablishmentResgistration: undefined;
+	DeleteAccountEstablishment: undefined;
+	InfoProfileEstablishment: undefined;
+	FinancialEstablishment: undefined;
+	CourtPriceHour: undefined;
+	EditCourt: undefined;
+	Schedulings: undefined
 	ChooseUserType: undefined;
 	Register: undefined;
-	EstablishmentRegister: undefined;
+	EstablishmentRegister: {
+		username: string;
+		cpf: string;
+		email: string;
+		password: string;
+		phone_number: string;
+		role: string
+	};
+	CancelScheduling: undefined
 	Home: {
 		userGeolocation: {
 			latitude: number,
@@ -35,7 +53,7 @@ type RootStackParamList = {
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
-		courtID:string,
+		courtID: string,
 		userPhoto: string | undefined,
 	};
 	CourtAvailibilityInfo: {

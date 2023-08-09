@@ -18,21 +18,22 @@ import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
-import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import PixScreen from '../../screens/Pix';
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
 import CourtPriceHour from '../../screens/CourtPriceHour';
 import EditCourt from '../../screens/EditCourt';
-import CourtSchedule from '../../screens/CourtSchedule';
 import CompletedEstablishmentRegistration from '../../screens/CompletedEstablishmentRegistration';
 import InfoProfileEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment';
+import registerEstablishmentProfile from '../../screens/ProfileEstablishmentRegistration';
 import DeleteAccountEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/deleteAccount';
 import FinancialEstablishment from '../../screens/FinancialEstablishment';
 import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
-import {HOST_API} from '@env'
+import Schedulings from '../../screens/Schedulings';
+import CancelScheduling from '../../screens/CancelScheduling';
+import { HOST_API } from '@env'
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -56,18 +57,18 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="CourtSchedule"
-				component={CourtSchedule}
+				name='CancelScheduling'
+				component={CancelScheduling}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-						height: 85,
+						height: 80,
 						backgroundColor: '#292929',
 					},
 					headerTitleAlign: 'center',
 					headerTitle: () => (
 						<View className='flex-1 justify-center items-center'>
-							<Text className='text-white text-[18px] font-black'>Agenda</Text>
+							<Text className='text-white text-[18px] font-black'>Reservas</Text>
 						</View>
 					),
 					headerRight: () => (
@@ -76,7 +77,7 @@ export default function () {
 						</TouchableOpacity>
 					),
 					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
@@ -85,8 +86,44 @@ export default function () {
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
+			/>
+			<Screen
+				name='Schedulings'
+				component={Schedulings}
 				options={{
-					headerShown: false,
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 80,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>Reservas</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name='RegisterEstablishmentProfile'
+				component={registerEstablishmentProfile}
+				options={{
+					headerTitle: "",
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="black" />
+						</TouchableOpacity>
+					),
 				}}
 			/>
 			<Screen
@@ -141,7 +178,7 @@ export default function () {
 							})
 						}}>
 							<Image
-								source={params.userPhoto ? { uri: `http://192.168.0.10:1337${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -178,7 +215,7 @@ export default function () {
 			</Screen>
 			<Screen
 				name="HomeVariant"
-				options={({ route: {params} }) => ({
+				options={({ route: { params } }) => ({
 					headerTitleStyle: {
 						fontSize: 26
 					},
@@ -198,7 +235,7 @@ export default function () {
 							})
 						}}>
 							<Image
-								source={params.userPhoto ? {uri: `http://192.168.0.10:1337${params.userPhoto}`} : require('../../assets/default-user-image.png')}
+								source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -288,7 +325,7 @@ export default function () {
 							})
 						}}>
 							<Image
-								source={params.userPhoto ? { uri: `http://192.168.0.10:1337${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -337,7 +374,7 @@ export default function () {
 					headerRight: () => (
 						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
 							<Image
-								source={params?.userPhoto ? { uri: `http://192.168.0.10:1337${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className='w-full h-full'
 							/>
 						</TouchableOpacity>
@@ -375,7 +412,7 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-					},headerTitleAlign: 'center',
+					}, headerTitleAlign: 'center',
 				}}
 			/>
 			<Screen
@@ -488,7 +525,7 @@ export default function () {
 					),
 				}}
 			/>
-	
+
 		</Navigator>
 	);
 }
