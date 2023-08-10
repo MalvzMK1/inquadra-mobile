@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/CancelScheduling/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CancelScheduling/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/apolloClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/apolloClient.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +129,7 @@
       <workItem from="1689241421703" duration="3871000" />
       <workItem from="1689282203327" duration="141000" />
       <workItem from="1689282366590" duration="193000" />
-      <workItem from="1691661416027" duration="3735000" />
+      <workItem from="1691661416027" duration="7037000" />
     </task>
     <servers />
   </component>

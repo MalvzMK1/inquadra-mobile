@@ -46,7 +46,6 @@
     "geolib": "^3.3.4",
     "graphql": "^16.7.1",
     "nativewind": "^2.0.11",
-    "node-fetch": "^3.3.2",
     "password-requirements": "^1.2.1",
     "postcss": "8.4.23",
     "react": "18.2.0",
