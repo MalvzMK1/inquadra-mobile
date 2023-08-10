@@ -23,10 +23,10 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 	const handleTextChange = (text: string) => text.length <= maxLength ? setCancelReason(text) : ""
 
 	return (
-		<View className="h-full w-full pl-[30px] pr-[30px] pt-[20px] justify-between">
+		<View className="h-full w-full pl-[30px] pr-[30px] pt-[20px]">
 			{
 				loading ? <ActivityIndicator size='large' color='#F5620F' /> :
-					<View>
+					<View className='flex justify-between h-full'>
 						<View>
 							<Text className="font-black text-[16px] text-[#292929]">Cancelamento de reserva</Text>
 							<Text className="text-[14px] text-[#292929] opacity-50 underline mt-[20px]">Informações gerais:</Text>
@@ -46,7 +46,7 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 										courtType={data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_type.data.attributes.name}
 										startsAt={data.scheduling.data.attributes.court_availability.data.attributes.startsAt}
 										endsAt={data?.scheduling.data.attributes.court_availability.data.attributes.endsAt}
-										price={70}
+										price={data.scheduling.data.attributes.court_availability.data.attributes.value}
 										payedStatus={data?.scheduling.data.attributes.payedStatus}
 									/>
 									:
@@ -74,15 +74,17 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 
 							<Text className="text-[12px] text-[#292929] mt-[5px] text-start">Ao confirmar o cancelamento, o extorno financeiro será realizado automaticamente para o cliente.*</Text>
 
-							<TouchableOpacity onPress={() => setShowConfirmCancel(true)} className="w-full h-[56px] bg-[#FF6112] items-center justify-center rounded-[5px] mt-[125px]">
+							</View>
+						<View>
+							<TouchableOpacity onPress={() => setShowConfirmCancel(true)} className="w-full h-14 bg-[#FF6112] items-center justify-center rounded-[5px]">
 								<Text className="font-medium text-[16px] text-white">Cancelar reserva</Text>
 							</TouchableOpacity>
-						</View>
 
-						<BottomNavigationBar
-							establishmentScreen={true}
-							playerScreen={false}
-						/>
+							<BottomNavigationBar
+								establishmentScreen={true}
+								playerScreen={false}
+							/>
+						</View>
 
 						<Modal visible={showConfirmCancel} animationType="fade" transparent={true} onRequestClose={closeConfirmCancelModal}>
 							<View className="h-full w-full justify-center items-center">

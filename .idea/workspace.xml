@@ -6,16 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/scheduleDetails.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/scheduleDetails.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/schedulingById.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/DEPRECATED_schedulingById.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/useSchedulingById.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/DEPRECATED_useSchedulingById.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/useSchedulingDetails.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/useSchedulingDetails.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/CancelScheduling/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CancelScheduling/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,6 +65,11 @@
       </RecentBranches>
     </option>
   </component>
+  <component name="JsbtTreeLayoutManager">
+    <layout place="tools.popupnpm">
+      <scroll-view-position x="0" y="0" />
+    </layout>
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -130,7 +126,7 @@
       <workItem from="1689241421703" duration="3871000" />
       <workItem from="1689282203327" duration="141000" />
       <workItem from="1689282366590" duration="193000" />
-      <workItem from="1691661416027" duration="1482000" />
+      <workItem from="1691661416027" duration="2600000" />
     </task>
     <servers />
   </component>
