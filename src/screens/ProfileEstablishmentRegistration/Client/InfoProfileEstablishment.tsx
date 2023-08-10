@@ -16,6 +16,8 @@ import useUpdateEstablishmentAddress from '../../../hooks/useUpdateEstablishment
 import { HOST_API } from '@env'
 import storage from '../../../utils/storage';
 import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablishmentFantasyName';
+import { set } from 'date-fns';
+import useUpdateUserPassword from '../../../hooks/useUpdateUserPassword';
 
 // const updateEstablishment = async () => {
 //   await updateEstablishmentHook({
@@ -72,13 +74,13 @@ const addressFormSchema = z.object({
 })
 
 interface IPasswordFormData {
-  actualPassword: string
+  currentPassword: string
   password: string
   confirmPassword: string
 }
 
 const passwordFormSchema = z.object({
-  actualPassword: z.string()
+  currentPassword: z.string()
     .nonempty('O campo não pode estar vazio'),
   password: z.string()
     .nonempty('O campo não pode estar vazio'),
@@ -98,11 +100,15 @@ export default function InfoProfileEstablishment() {
   const { control: controlFantasyName, handleSubmit: handleSubmitFantasyName, formState: { errors: fantasyNameErrors } } = useForm<IFantasyNameFormData>({
     resolver: zodResolver(fantasyNameFormSchema)
   })
+  const { control: controlPassword, handleSubmit: handleSubmitPassword, formState: { errors: passwordErrors } } = useForm<IPasswordFormData>({
+    resolver: zodResolver(passwordFormSchema)
+  })
 
   const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
   const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
   const [updateEstablishmentFantasyNameHook, { data: updateFantasyNameData, error: updateFantasyNameError, loading: updateFantasyNameLoading }] = useUpdateEstablishmentFantasyName()
   const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
+  const [updateUserPassword, { data: updateUserPasswordData, error: updateUserPasswordError, loading: updateUserPasswordLoading }] = useUpdateUserPassword()
 
   let amenities: string[] = []
   userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.forEach(amenitieItem => {
@@ -130,7 +136,7 @@ export default function InfoProfileEstablishment() {
 
   const cpf = userByEstablishmentData?.usersPermissionsUser.data.attributes.cpf
 
-  const [editFantasyNameModal, setEditFantasyNameModal] = useState(true);
+  const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
   const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
   const [editAddressModal, setEditAddressModal] = useState(false)
   const closeEditAddressModal = () => setEditAddressModal(false)
@@ -145,35 +151,32 @@ export default function InfoProfileEstablishment() {
     key: 'userGeolocation'
   }).then(data => setUserGeolocation(data))
 
-  // const setAllFalse = () => {
-  //   setEditFantasyNameModal(false)
-  //   setEditAddressModal(false)
-  //   setEditCNPJModal(false)
-  //   setEditPasswordModal(false)
-  // }
+  const setAllFalse = () => {
+    setEditFantasyNameModal(false)
+    setEditAddressModal(false)
+    setEditCNPJModal(false)
+    setEditPasswordModal(false)
+  }
+  const handleOptionChange = (option: string) => {
+    setSelected(option)
 
-  // const handleOptionChange = (option: string) => {
-  //   console.log(option);
-
-  //   setSelected(option)
-
-  //   if (selected == "Nome Fantasia") {
-  //     setAllFalse()
-  //     setEditFantasyNameModal(true)
-  //   }
-  //   else if (selected == "Endereço") {
-  //     setAllFalse()
-  //     setEditAddressModal(true)
-  //   }
-  //   else if (selected == "CNPJ") {
-  //     setAllFalse()
-  //     setEditCNPJModal(true)
-  //   }
-  //   else {
-  //     setAllFalse()
-  //     setEditPasswordModal(true)
-  //   }
-  // 
+    if (selected == "Nome Fantasia") {
+      setAllFalse()
+      setEditFantasyNameModal(true)
+    }
+    else if (selected == "Endereço") {
+      setAllFalse()
+      setEditAddressModal(true)
+    }
+    else if (selected == "CNPJ") {
+      setAllFalse()
+      setEditCNPJModal(true)
+    }
+    else {
+      setAllFalse()
+      setEditPasswordModal(true)
+    }
+  }
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -248,6 +251,32 @@ export default function InfoProfileEstablishment() {
     })
       .catch((reason) => console.error(reason))
       .finally(() => setIsLoading(false))
+  }
+
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+
+  const handleUpdateUserPassword = (data: IPasswordFormData): void => {
+    setIsLoading(true)
+
+    if (data.password === data.confirmPassword) {
+      const passwordData = {
+        ...data
+      }
+
+      updateUserPassword({
+        variables: {
+          current_password: passwordData.currentPassword,
+          password: passwordData.password,
+          password_confirmation: passwordData.confirmPassword
+        }
+      }).then(value => {
+        alert("Senha alterada com sucesso")
+      })
+        .catch((reason) => console.error(reason))
+        .finally(() => setIsLoading(false))
+    }
   }
 
   const [expiryDate, setExpiryDate] = useState('');
@@ -489,6 +518,7 @@ export default function InfoProfileEstablishment() {
               <Text className='text-base mb-1'>Dados Estabelecimento</Text>
               <SelectList
                 setSelected={(val: string) => setSelected(val)}
+                onSelect={() => handleOptionChange(selected)}
                 data={dataEstablishment}
                 save="value"
                 placeholder='Selecione um dado'
@@ -727,23 +757,68 @@ export default function InfoProfileEstablishment() {
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Insira a sua senha atual:</Text>
-                <TextInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
+                <Controller
+                  name='currentPassword'
+                  control={controlPassword}
+                  rules={{
+                    required: true,
+                    minLength: 6
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      textContentType='password'
+                      onChangeText={onChange}
+                      className={`p-4 border ${passwordErrors.currentPassword ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
+                      placeholder='Senha atual'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
                 />
+                {passwordErrors.currentPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.currentPassword.message}</Text>}
               </View>
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Insira sua nova senha:</Text>
-                <TextInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
+                <Controller
+                  name='password'
+                  control={controlPassword}
+                  rules={{
+                    required: true,
+                    minLength: 6
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      textContentType='password'
+                      onChangeText={onChange}
+                      className={`p-4 border ${passwordErrors.password ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
+                      placeholder='Nova senha'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
                 />
+                {passwordErrors.password && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.password.message}</Text>}
               </View>
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Confirme sua nova senha:</Text>
-                <TextInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
+                <Controller
+                  name='confirmPassword'
+                  control={controlPassword}
+                  rules={{
+                    required: true,
+                    minLength: 6
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      textContentType='password'
+                      onChangeText={onChange}
+                      className={`p-4 border ${passwordErrors.confirmPassword ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
+                      placeholder='Confirme a nova senha'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
                 />
+                {passwordErrors.confirmPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.confirmPassword.message}</Text>}
               </View>
 
               <View className="flex flex-row items-center mt-[10px]">
@@ -755,11 +830,8 @@ export default function InfoProfileEstablishment() {
                   <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {
-                  // closeConfirmCancelModal()
-                  // setShowSuccessCancel(true)
-                }} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                  <Text className="font-medium text-[14px] text-white">Confirmar</Text>
+                <TouchableOpacity onPress={handleSubmitPassword(handleUpdateUserPassword)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
+                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
                 </TouchableOpacity>
               </View>
 
