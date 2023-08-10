@@ -19,6 +19,8 @@ import useUploadImage from "../../hooks/useUploadImage";
 import { IUploadImageVariables } from "../../graphql/mutations/uploadImage";
 import { da } from "date-fns/locale";
 import {HOST_API} from '@env'
+import MaskInput, {Masks} from "react-native-mask-input";
+
 
 type CourtTypes = Array<{label: string, value: string}>;
 
@@ -93,31 +95,45 @@ export default function RegisterCourt() {
 
     function RegisterNewCourt(data: IFormDatasCourt){
         console.log(courtTypes)
-        const courtIds = selected.map((selectedCourt, index) => {
-            return courtTypes.filter(court => court.value == selectedCourt).map(parsedIds => parsedIds.label)
+        
+        let courtIDs: Array<string> = [];
+
+        selected.forEach(selectedType => {
+            courtTypes.forEach(type => {
+                if (type.value === selectedType) courtIDs.push(type.label)
+            })
         })
        
-        console.log(data, selected, courtIds)
+        console.log(data, selected, courtIDs, data.minimum_value)
+        const payload = {
+            court_name: `Quadra de ${selected}`,
+            courtType: courtIDs,
+            fantasyName: data.fantasyName,
+            photos: ["2"],
+            court_availabilities: ["2"], // tela vinicius
+            minimum_value: Number(data.minimum_value) / 100,
+            currentDate: new Date().toISOString()      
+        }
+        console.log(payload)
+        // for (const object in payload) console.log(object, typeof payload[object] === 'object' && 'É UM ARRAY?' + payload[object][0])
         registerCourt({
-            variables: {
-                court_name: `Quadra de ${selected}`,
-                courtType: courtIds,
-                fantasyName: data.fantasyName,
-                // photos: ["2"],
-                //court_availabilities: ["2"], // tela vinicius
-                minimum_value: parseFloat(data.minimum_value)           
-            }
-        }).catch(console.error).then(console.log)
+            variables: payload
+        }).catch(err => console.error({...err})).then(console.log)
     }
 
     const formSchema = z.object({
         // court_name: z.string(),
         minimum_value: z.string({required_error:"É necessário determinar um valor mínimo."}),
-        //courtType: z.array(z.string()),
-        fantasyName: z.string({required_error: "É necessário determinar um nome fantasia."}),
+        // courtType: z.string({required_error:"Selecione pelo menos uma modalidade."}),
+        fantasyName: z.string({required_error: "Dê um nome fantasia."}),
         //photos: z.array(z.string()),
         //court_availabilities: z.string()
-      })
+    })
+
+    // const courtType = z.string().array().nonempty({
+    //     message: "Can't be empty!",
+    // })
+
     
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
         resolver: zodResolver(formSchema)
@@ -168,7 +184,7 @@ export default function RegisterCourt() {
 
     const [photos, setPhotos] = useState([]);
     
-    const [selected, setSelected] = React.useState([]);
+    const [selected, setSelected] = useState<Array<string>>([]);
 
       const [selectedItems, setSelectedItems] = useState([]);  
 
@@ -206,19 +222,6 @@ export default function RegisterCourt() {
         };
 
         const dataSports = dataSportType?.courts?.data || [];
-
-        // let newCourtTypes: Array<{value: string, label: string}> = [];
-
-        // !sportLoading ? dataSportType?.courts.data.forEach((sport) => {
-        //     newCourtTypes = [...newCourtTypes, ...sport.attributes.court_types.data.map(typeCourt => ({
-        //         value: typeCourt.attributes.name ?? '',
-        //         label: typeCourt.id ?? ''
-        //     }))]
-        //     // courtTypes = sport.attributes.court_types.data.map(console.log)
-        // }) : []
-        
-        // setCourtTypes(newCourtTypes)
-        // console.log({salsicha: newCourtTypes})
 
     
     useEffect(() => {
@@ -333,19 +336,12 @@ export default function RegisterCourt() {
                                 name='minimum_value'
                                 control={control}
                                 render={({ field: { onChange, value } }) => (
-                                    <TextInputMask
-                                        type="money"
-                                        options={{
-                                        precision: 2,
-                                        separator: ',',
-                                        delimiter: '.',
-                                        unit: 'R$ ',
-                                        suffixUnit: '',
-                                        }}
+                                    <MaskInput
+                                        mask={Masks.BRL_CURRENCY}
                                         keyboardType="numeric"
                                         value={value}
                                         placeholder='Ex.: R$ 00.00'
-                                        onChangeText={onChange}
+                                        onChangeText={(masked, unmasked) => onChange(unmasked)}
                                         className='p-5 border border-neutral-400 rounded'
                                     />
                                 )}
