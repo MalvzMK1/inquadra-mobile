@@ -29,6 +29,7 @@ export interface IHistoricPayment {
                             {
                               attributes: {
                                 valuePayed: number
+                                date: string
                                 users: {
                                   data: [
                                     {
@@ -91,6 +92,7 @@ query getHistoryPayment($ID: ID!) {
                       data{
                         attributes{
                           valuePayed
+                          date
                           users{
                             data{
                               attributes{

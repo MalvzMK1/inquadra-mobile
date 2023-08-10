@@ -35,6 +35,7 @@ import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import Schedulings from '../../screens/Schedulings';
 import CancelScheduling from '../../screens/CancelScheduling';
 import { HOST_API } from '@env'
+import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -267,6 +268,30 @@ export default function () {
 					/>
 				)}
 			</Screen>
+			<Screen
+				name='AmountAvailableWithdrawal'
+				component={AmountAvailableWithdrawal}
+				options={{
+					headerTitleAlign: 'center',
+					headerTitle: "Detalhes",
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 125,
+						backgroundColor: '#292929',
+					},
+					headerLeftContainerStyle: {
+						marginLeft: 12,
+					},
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image
+								source={require('../../assets/default-user-image.png')}
+								className="rounded-full w-[50px] h-[50px]"
+							/>
+						</TouchableOpacity>
+					)
+				}}
+			/>
 			<Screen
 				name="RegisterPassword"
 				component={Password}
