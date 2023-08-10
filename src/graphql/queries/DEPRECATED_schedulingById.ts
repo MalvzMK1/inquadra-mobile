@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export interface ISchedulingByIdResponse{
+export interface DEPRECATED_ISchedulingByIdResponse {
   establishment:{
     data:{
       attributes:{
@@ -27,11 +27,11 @@ export interface ISchedulingByIdResponse{
   }
 }
 
-export interface ISchedulingByIdVariables {
+export interface DEPRECATED_ISchedulingByIdVariables {
 	id: string
 }
 
-export const schedulingByIdQuery = gql`
+export const DEPRECATED_schedulingByIdQuery = gql`
 query typeSchedulingById ($id : ID){
   establishment(id: $id) {
     data {
