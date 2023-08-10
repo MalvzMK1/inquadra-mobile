@@ -43,6 +43,47 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
+				name="InfoProfileEstablishment"
+				component={InfoProfileEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name="Login"
+				component={Login}
+				options={{
+					headerTitle: () => (
+						<Image source={require('../../assets/inquadra_logo.png')} />
+					),
+					headerTitleAlign: 'center',
+					headerStyle: {
+						height: 200,
+						backgroundColor: '#292929',
+					},
+				}}
+			/>
+			<Screen
 				name='CancelScheduling'
 				component={CancelScheduling}
 				options={{
@@ -68,24 +109,6 @@ export default function () {
 						</TouchableOpacity>
 					),
 				}}
-			/>
-			<Screen
-				name="Login"
-				component={Login}
-				options={{
-					headerTitle: () => (
-						<Image source={require('../../assets/inquadra_logo.png')} />
-					),
-					headerTitleAlign: 'center',
-					headerStyle: {
-						height: 200,
-						backgroundColor: '#292929',
-					},
-				}}
-			/>
-			<Screen
-				name="ChooseUserType"
-				component={ChooseUserType}
 			/>
 			<Screen
 				name='Schedulings'
@@ -114,18 +137,12 @@ export default function () {
 					),
 				}}
 			/>
-			<Screen
-				name="Login"
-				component={Login}
-				options={{
-					headerShown: false,
-				}}
-			/>
+
 			<Screen
 				name='RegisterEstablishmentProfile'
 				component={registerEstablishmentProfile}
 				options={{
-					headerTitle:"",
+					headerTitle: "",
 					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="black" />
@@ -439,33 +456,7 @@ export default function () {
 					),
 				}}
 			/>
-			<Screen
-				name="InfoProfileEstablishment"
-				component={InfoProfileEstablishment}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 100,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
-						</TouchableOpacity>
-					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
-			/>
+
 			<Screen
 				name="FinancialEstablishment"
 				component={FinancialEstablishment}
