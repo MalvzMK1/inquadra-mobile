@@ -13,7 +13,7 @@ export interface IRegisterCourtResponse{
 
 export interface IRegisterCourtVariables{
     court_name: string,
-    courtType: number,
+    courtType: string,
     fantasyName: string,
     photos: Array<string>,
     court_availabilities: Array<string>,
@@ -46,6 +46,4 @@ mutation newCourt(
       }
     }
   }
-}
-
-`
+}`

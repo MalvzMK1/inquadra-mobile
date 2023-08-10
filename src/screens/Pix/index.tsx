@@ -11,7 +11,6 @@ import { useRoute } from '@react-navigation/native';
 
 
 
-
 interface RouteParams {
     courtName: string;
     value: number

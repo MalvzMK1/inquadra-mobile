@@ -10,65 +10,142 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import useRegisterCourt from "../../hooks/useRegisterCourt";
 import { z } from "zod";
-import {useForm} from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {useForm, Controller} from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
+import { TextInputMask } from "react-native-masked-text";
+import { ActivityIndicator } from "react-native-paper";
+import useUploadImage from "../../hooks/useUploadImage";
+import { IUploadImageVariables } from "../../graphql/mutations/uploadImage";
+import { da } from "date-fns/locale";
+import {HOST_API} from '@env'
+
 
 export default function RegisterCourt() {
 
-    const [registerCourt, { data, error, loading }] = useRegisterCourt()
+    
+    const [modalities, setModalities] = useState([])
 
-    const formSchema = z.object({
-        name: z.string()
-            .nonempty('O nome não pode estar vazio!'),
-        minimum_value: z.string()
-            .nonempty('O campo não pode estar vazio, determine um valor!'),
-    })
-    interface IFormDatasCourt{
-        name: string
-        minimum_value: number
-        courtType: number
-        fantasyName: string
-        photos: string[]
-        court_availabilities: string[]
+    const[courtName, setCourtName] = useState("")
+    const [courtType, setCourtType] = useState("")
+    const[fantasyName, setFantasyName] = useState("")
+    const[photo, setPhoto] = useState(Array<string>)
+    const[courtAvailabilities, setCourtAvailabilities] = useState(Array<string>)
+    const [minValue, setMinValue] = useState("")
+
+    const [registerCourt, { data, error, loading }] = useRegisterCourt()
+    const {data: dataSportType, loading: sportLoading, error: sportError} = useAvailableSportTypes();
+    // console.log(sportLoading)
+    // console.log(HOST_API)
+    // if (!sportLoading) console.log(dataSportType?.courts.data[0].attributes)
+
+    //const {data:dataSportType, error:errorSportType, loading:loadingSportType} = useAvailableSportTypes()
+    //if (!loadingSportType) console.log({data: dataSportType, error: errorSportType});
+
+    // const [uploadImage, { data: uploadImageData, error: uploadImageError, loading: uploadImageLoading }] = useUploadImage();
+
+    // const handleUploadPhotos = async () => {
+    //     try {
+    //       // Iterate over the selected photos and upload each one
+    //       for (const photo of photos) {
+    //         const uploadVariables: IUploadImageVariables = {
+    //           ref_id: 'some-id', // Substitua pelo ID correto da entidade no Strapi
+    //           ref: 'some-ref', // Substitua pela referência correta no Strapi
+    //           field: 'photos', // Substitua pelo campo correto onde você deseja salvar as fotos no Strapi
+    //           file: photo.uri, // Substitua pela URI correta da foto
+    //         };
+      
+    //         // Fazer o upload da foto
+    //         const { data } = await uploadImage({ variables: uploadVariables });
+      
+    //         // Use a resposta se necessário (por exemplo, para mostrar a URL da foto carregada)
+    //         console.log('Foto enviada com sucesso:', data.upload.data.attributes.url);
+    //       }
+      
+    //       // Limpar as fotos após o upload (ou faça isso de acordo com o seu fluxo de negócios)
+    //       setPhotos([]);
+    //     } catch (error) {
+    //       console.error('Erro ao enviar fotos:', error);
+    //     }
+    //   };
+      
+    function Teste (data: IFormDatasCourt){
+        console.log(data)
     }
+
+
     function RegisterNewCourt(data: IFormDatasCourt){
+        console.log(data, setSelected)
         registerCourt({
             variables: {
-                court_name: data.name,
+                court_name: `Quadra de ${selected}`,
                 courtType: data.courtType,
                 fantasyName: data.fantasyName,
-                photos: data.photos,
-                court_availabilities: data.court_availabilities,
-                minimum_value: data.minimum_value
-            }
-        })
+                photos: ["2"],
+                court_availabilities: ['2'],
+                minimum_value: 23.50            }
+        }).catch(console.error).then(console.log)
     }
 
+    const formSchema = z.object({
+        // court_name: z.string(),
+        minimum_value: z.string(),
+        // courtType: z.array(z.string()),
+        fantasyName: z.string(),
+        //photos: z.array(z.string()),
+        //court_availabilities: z.string()
+      })
+    
+    const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
+        resolver: zodResolver(formSchema)
+    });
+    
+    interface IFormDatasCourt{
+        court_name: string
+        minimum_value: string
+        courtType: string
+        fantasyName: string
+        photos: string[]
+        court_availabilities?: string[]
+    }
+
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleRegisterCourt = (data: IFormDatasCourt): void => {
+        setIsLoading(true)
+
+        const registerCourts = {
+            ...data,
+        }
+
+        registerCourt({
+            variables: {
+                court_name: `Quadra de ${selected[0]}`,
+                courtType: "2",
+                fantasyName: registerCourts.fantasyName,
+                photos: registerCourts.photos,
+                court_availabilities: registerCourts.court_availabilities,
+                minimum_value: parseFloat(registerCourts.minimum_value)
+            }
+        }).then(value => {
+            alert(value.data?.createCourt.data.attributes.name)
+        })
+            .catch((reason) => console.error(reason))
+            .finally(() => setIsLoading(false)) 
+    }
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-	const { control, handleSubmit, formState: {errors}, getValues } = useForm<IFormDatasCourt>({
-		resolver: zodResolver(formSchema)
-	});
 	
-	function handleGoToNextRegisterPage(data: IFormDatasCourt): void {
-		console.log(data)
-		navigation.navigate('RegisterNewCourt', {
-			...data
-		})
-	}
+    // console.log({errorSportType})
+    // !loadingSportType && console.log(dataSportType)
+    // console.log({
+    //     ...errorSportType
+    // })
 
 
     const [photos, setPhotos] = useState([]);
-
+    
     const [selected, setSelected] = React.useState([]);
-  
-    const dataSports = [
-        {key:'1', value:'Futsal'},
-        {key:'2', value:'Vôlei'},
-        {key:'3', value:'Basquete'},
-        {key:'4', value:'Futebol'},
-        {key:'5', value:'Tennnis'},
-    ]
 
       const [selectedItems, setSelectedItems] = useState([]);  
 
@@ -95,6 +172,8 @@ export default function RegisterCourt() {
       } catch (error) {
         console.log('Erro ao carregar a imagem: ', error);
       }
+
+
     };
 
         const handleDeletePhoto = (index) => {
@@ -103,10 +182,11 @@ export default function RegisterCourt() {
             setPhotos(newPhotos);
         };
 
-       
+        const dataSports = dataSportType?.courts?.data || [];
 
     return (
             <ScrollView className="h-fit bg-white flex-1"> 
+            {errors && <Text>{JSON.stringify(errors)}</Text>}
                 <View className="items-center mt-9 p-4">
                     <Text className="text-3xl text-center font-extrabold text-gray-700">Cadastro Quadra</Text>
                 </View>
@@ -114,51 +194,82 @@ export default function RegisterCourt() {
                     <View className='p-5 gap-7 flex flex-col justify-between'>
                     <View>
                             <Text className="text-xl p-1">Selecione a modalidade:</Text>
-                            <MultipleSelectList 
-                                setSelected={(val: React.SetStateAction<never[]>) => setSelected(val)} 
-                                data={dataSports} 
-                                save="value"
-                                placeholder="Selecione aqui..."
-                                label="Modalidades escolhidas:"
-                                boxStyles={{borderRadius: 4, minHeight: 55}}
-                                inputStyles={{color: "#FF6112", alignSelf: "center"}}
-                                searchPlaceholder="Procurar"
-                                badgeStyles={{ backgroundColor: "#FF6112"}}
-                                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-                                searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
-                                arrowicon={<AntDesign name="down" size={13} color="#FF6112" style={{marginEnd: 2, alignSelf: "center"}} />}
+                            
+                            <Controller
+                                name='courtType'
+                                control={control}
+                                render={({ field: { onChange } }) => (
+                                    <MultipleSelectList
+                                    setSelected={(val: []) => {
+                                        setSelected(val);
+                                        onChange([val])
+                                        
+                                    }}  data={dataSportType?.courts?.data?.map((sport) => ({
+                                            value: sport.attributes.court_type.data.attributes.name || '',
+                                            label: sport.attributes.court_type?.data.id || ''
+                                        })) || []}
+                                        save="value"
+                                        placeholder="Selecione aqui..."
+                                        label="Modalidades escolhidas:"
+                                        boxStyles={{ borderRadius: 4, minHeight: 55 }}
+                                        inputStyles={{ color: "#FF6112", alignSelf: "center" }}
+                                        searchPlaceholder="Procurar"
+                                        badgeStyles={{ backgroundColor: "#FF6112" }}
+                                        closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                                        searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+                                        arrowicon={<AntDesign name="down" size={13} color="#FF6112" style={{ marginEnd: 2, alignSelf: "center" }} />}
+                                    />
+                                )}
                             />
-                            </View>
+                            {errors?.courtType?.message && <Text className='text-red-400 text-sm'>{errors.courtType.message}</Text>}                     
+                        </View>
                         <View>
                             <Text className='text-xl p-1'>Nome fantasia da quadra?</Text>
-                            <TextInput className='p-5 border border-neutral-400 rounded' placeholder='Ex.: Quadra do Zeca'></TextInput>
-                            {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+                            <Controller
+                                name='fantasyName'
+                                control={control}
+                                render={({ field: { onChange, value } }) => (
+                                    <TextInput 
+                                    className='p-5 border border-neutral-400 rounded' 
+                                    placeholder='Ex.: Quadra do Zeca'
+                                    value={value}
+                                    onChangeText={onChange}>
+                                    </TextInput>
+                                )}
+                            />
                         </View>
                         <View>
                         <Text className="text-xl p-1">Fotos da quadra</Text>  
-                    
                         <View className="border border-dotted border-neutral-400 rounded relative">
-                        <View className="flex flex-row items-center" style={{ justifyContent: "space-between", height: 130 }}>
+                            <View className="flex flex-row items-center" style={{ justifyContent: "space-between", height: 130 }}>
                             <Text className="text-base text-gray-300 font-bold m-6 " onPress={handleProfilePictureUpload}>
                                 Carregue suas fotos aqui.
                             </Text>
                             <Ionicons name="star-outline" size={20} color="#FF6112" style={{ marginEnd: 20 }} onPress={handleProfilePictureUpload} />
-                        </View>
-                            
-                            <FlatList className="h-max"
-                            data={photos}
-                            renderItem={({ item, index }) => (
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, margin: 10}} />
-                                <TouchableOpacity style={{ position: 'absolute', right: 0, left: 0, bottom: 0, top: 0, justifyContent: 'center', alignItems: 'center' }} onPress={() => handleDeletePhoto(index)}>
-                                    <Ionicons name="trash" size={25} color="#FF6112" />
-                                </TouchableOpacity>
-                                </View>
-                            )}
-                            keyExtractor={(item, index) => index.toString()}
-                            horizontal
+                            </View>
+                            <Controller
+                                name='photos'
+                                control={control}
+                                rules={{ required: false }} 
+                                render={({ field: { onChange, value } }) => (
+                                    <FlatList
+                                        className="h-max"
+                                        data={photos}
+                                        renderItem={({ item, index }) => (
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, margin: 10 }} />
+                                            <TouchableOpacity style={{ position: 'absolute', right: 0, left: 0, bottom: 0, top: 0, justifyContent: 'center', alignItems: 'center' }} onPress={() => handleDeletePhoto(index)}>
+                                                <Ionicons name="trash" size={25} color="#FF6112" />
+                                            </TouchableOpacity>
+                                            </View>
+                                        )}
+                                        keyExtractor={(item, index) => index.toString()}
+                                        horizontal
+                                        />
+                                 )}
                             />
                         </View>
+
                         </View>
                         <View>
                         <Text className='text-xl p-1'>Valor aluguel/hora</Text>
@@ -168,19 +279,40 @@ export default function RegisterCourt() {
                         </View>
                         <View>
                             <Text className='text-xl p-1'>Sinal mínimo para locação</Text>
-                            <TextInput className='p-5 border border-neutral-400 rounded' placeholder='Ex.: R$ 00.00'></TextInput>
-                            {errors.name && <Text className='text-red-400 text-sm'>{errors.minimum_value?.message}</Text>}
+                            <Controller
+                                name='minimum_value'
+                                control={control}
+                                render={({ field: { onChange, value } }) => (
+                                    <TextInputMask
+                                        type="money"
+                                        options={{
+                                        precision: 2,
+                                        separator: ',',
+                                        delimiter: '.',
+                                        unit: 'R$ ',
+                                        suffixUnit: '',
+                                        }}
+                                        keyboardType="numeric"
+                                        value={value}
+                                        placeholder='Ex.: R$ 00.00'
+                                        onChangeText={onChange}
+                                        className='p-5 border border-neutral-400 rounded'
+                                    />
+                                )}
+                            />
+
+                            {errors.minimum_value && <Text className='text-red-400 text-sm'>{errors.minimum_value.message}</Text>}
+
                         </View>
                         <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
                             <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => navigation.navigate("RegisterNewCourt")} />
                             <Text className="pl-4 text-lg" onPress={() => navigation.navigate("RegisterNewCourt")}>Adicionar uma nova Quadra</Text>
                         </View>
                         <View>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('RegisterNewCourt')}>
-                                <Text className='text-gray-50'>Concluir</Text>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={handleSubmit(RegisterNewCourt)}>
+                                <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size="small" color= '#F5620F' /> : 'Concluir'}</Text>
                             </TouchableOpacity>
                         </View>
-                       
                         </View>
                     </View>
             </ScrollView> 

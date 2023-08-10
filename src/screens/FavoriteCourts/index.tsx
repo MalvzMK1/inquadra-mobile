@@ -1,9 +1,9 @@
 import {ScrollView} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
 import { useGetFavoriteById } from "../../hooks/useFavoriteById"
-import {HOST_API} from '@env'
 import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
+import {HOST_API} from '@env'
 // import {RootStackParamList} from "../../types/RootStack";
 
 /*  */

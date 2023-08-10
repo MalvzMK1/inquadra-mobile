@@ -34,6 +34,7 @@ import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import Schedulings from '../../screens/Schedulings';
 import CancelScheduling from '../../screens/CancelScheduling';
 import { HOST_API } from '@env'
+import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -42,6 +43,20 @@ export default function () {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return (
 		<Navigator>
+			<Screen
+				name='RegisterCourts'
+				component={RegisterCourt}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name='RegisterNewCourt'
+				component={RegisterNewCourt}
+				options={{
+					headerShown: false
+				}}
+			/>
 			<Screen
 				name="Login"
 				component={Login}
@@ -145,13 +160,6 @@ export default function () {
 				component={RegisterEstablishment}
 				options={{
 					headerTitle: '',
-				}}
-			/>
-			<Screen
-				name='RegisterCourts'
-				component={RegisterCourt}
-				options={{
-					headerShown: false
 				}}
 			/>
 			<Screen
