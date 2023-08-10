@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, TextInput, Image, FlatList } from "react-native";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
@@ -20,21 +20,22 @@ import { IUploadImageVariables } from "../../graphql/mutations/uploadImage";
 import { da } from "date-fns/locale";
 import {HOST_API} from '@env'
 
+type CourtTypes = Array<{label: string, value: string}>;
 
-export default function RegisterCourt() {
-
-    
+export default function RegisterCourt() {    
     const [modalities, setModalities] = useState([])
 
-    const[courtName, setCourtName] = useState("")
+    const [courtName, setCourtName] = useState("")
     const [courtType, setCourtType] = useState("")
-    const[fantasyName, setFantasyName] = useState("")
-    const[photo, setPhoto] = useState(Array<string>)
-    const[courtAvailabilities, setCourtAvailabilities] = useState(Array<string>)
+    const [fantasyName, setFantasyName] = useState("")
+    const [photo, setPhoto] = useState(Array<string>)
+    const [courtAvailabilities, setCourtAvailabilities] = useState(Array<string>)
     const [minValue, setMinValue] = useState("")
-
+    const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const {data: dataSportType, loading: sportLoading, error: sportError} = useAvailableSportTypes();
+    // !sportLoading && console.log(sportError)
+
     // console.log(sportLoading)
     // console.log(HOST_API)
     // if (!sportLoading) console.log(dataSportType?.courts.data[0].attributes)
@@ -69,29 +70,51 @@ export default function RegisterCourt() {
     //     }
     //   };
       
-    function Teste (data: IFormDatasCourt){
-        console.log(data)
-    }
+    // function Teste (data: IFormDatasCourt){
+    //     console.log(data)
+    // }
+
+    // useEffect(() => {
+    //     let newCourtTypes: CourtTypes;
+
+    //     console.log('OIE')
+
+    //     dataSportType?.courts.data.forEach((sport) => {
+    //         newCourtTypes = [...newCourtTypes, ...sport.attributes.court_types.data.map(typeCourt => ({
+    //             value: typeCourt.attributes.name ?? '',
+    //             label: typeCourt.id ?? ''
+    //         }))]
+    //         console.log(courtTypes)
+    //     })
+
+    //     setCourtTypes(prevState => [...prevState, ...newCourtTypes])
+    // }, [dataSportType])
 
 
     function RegisterNewCourt(data: IFormDatasCourt){
-        console.log(data, setSelected)
+        console.log(courtTypes)
+        const courtIds = selected.map((selectedCourt, index) => {
+            return courtTypes.filter(court => court.value == selectedCourt).map(parsedIds => parsedIds.label)
+        })
+       
+        console.log(data, selected, courtIds)
         registerCourt({
             variables: {
                 court_name: `Quadra de ${selected}`,
-                courtType: data.courtType,
+                courtType: courtIds,
                 fantasyName: data.fantasyName,
-                photos: ["2"],
-                court_availabilities: ['2'],
-                minimum_value: 23.50            }
+                // photos: ["2"],
+                //court_availabilities: ["2"], // tela vinicius
+                minimum_value: parseFloat(data.minimum_value)           
+            }
         }).catch(console.error).then(console.log)
     }
 
     const formSchema = z.object({
         // court_name: z.string(),
-        minimum_value: z.string(),
-        // courtType: z.array(z.string()),
-        fantasyName: z.string(),
+        minimum_value: z.string({required_error:"É necessário determinar um valor mínimo."}),
+        //courtType: z.array(z.string()),
+        fantasyName: z.string({required_error: "É necessário determinar um nome fantasia."}),
         //photos: z.array(z.string()),
         //court_availabilities: z.string()
       })
@@ -121,7 +144,7 @@ export default function RegisterCourt() {
         registerCourt({
             variables: {
                 court_name: `Quadra de ${selected[0]}`,
-                courtType: "2",
+                courtType: registerCourts.courtType,
                 fantasyName: registerCourts.fantasyName,
                 photos: registerCourts.photos,
                 court_availabilities: registerCourts.court_availabilities,
@@ -184,6 +207,36 @@ export default function RegisterCourt() {
 
         const dataSports = dataSportType?.courts?.data || [];
 
+        // let newCourtTypes: Array<{value: string, label: string}> = [];
+
+        // !sportLoading ? dataSportType?.courts.data.forEach((sport) => {
+        //     newCourtTypes = [...newCourtTypes, ...sport.attributes.court_types.data.map(typeCourt => ({
+        //         value: typeCourt.attributes.name ?? '',
+        //         label: typeCourt.id ?? ''
+        //     }))]
+        //     // courtTypes = sport.attributes.court_types.data.map(console.log)
+        // }) : []
+        
+        // setCourtTypes(newCourtTypes)
+        // console.log({salsicha: newCourtTypes})
+
+    
+    useEffect(() => {
+        let newCourtTypes: Array<{value: string, label: string}> = [];
+
+        dataSportType?.courts.data.forEach(sport => {
+            newCourtTypes = [...newCourtTypes, ...sport.attributes.court_types.data.filter((deco, index) => {
+                if (newCourtTypes[index])
+                    return deco.id !== newCourtTypes[index].label
+                return deco
+            }).map(court => ({
+                value: court.attributes.name,
+                label: court.id
+            }))]
+        })
+        setCourtTypes(newCourtTypes);
+    }, [dataSportType, sportLoading])
+
     return (
             <ScrollView className="h-fit bg-white flex-1"> 
             {errors && <Text>{JSON.stringify(errors)}</Text>}
@@ -204,10 +257,7 @@ export default function RegisterCourt() {
                                         setSelected(val);
                                         onChange([val])
                                         
-                                    }}  data={dataSportType?.courts?.data?.map((sport) => ({
-                                            value: sport.attributes.court_type.data.attributes.name || '',
-                                            label: sport.attributes.court_type?.data.id || ''
-                                        })) || []}
+                                    }}  data={courtTypes}
                                         save="value"
                                         placeholder="Selecione aqui..."
                                         label="Modalidades escolhidas:"
