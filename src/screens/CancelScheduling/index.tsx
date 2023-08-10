@@ -7,9 +7,11 @@ import { Button } from "react-native-paper";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {DEPRECATED_useSchedulingById} from "../../hooks/DEPRECATED_useSchedulingById";
 import {useGetSchedulingsDetails} from "../../hooks/useSchedulingDetails";
+import useCancelSchedule from "../../hooks/useCancelSchedule";
 
 export default function CancelScheduling({route, navigation}: NativeStackScreenProps<RootStackParamList, 'CancelScheduling'>) {
 	const {data, loading, error} = useGetSchedulingsDetails(route.params.scheduleID);
+	const [cancelSchedule, canceledScheduleResponse] = useCancelSchedule()
 
 	const [cancelReason, setCancelReason] = useState("")
 	const maxLength: number = 200
@@ -20,7 +22,22 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 	const [showSuccessCancel, setShowSuccessCancel] = useState(false)
 	const closeSuccessCancelModal = () => setShowSuccessCancel(false)
 
-	const handleTextChange = (text: string) => text.length <= maxLength ? setCancelReason(text) : ""
+	const handleTextChange = (text: string) => text.length <= maxLength && setCancelReason(text)
+
+	function handleCancelReserve() {
+		cancelSchedule({
+			variables: {
+				scheduleId: route.params.scheduleID,
+				reason: cancelReason
+			}
+		}).then(response => {
+			closeConfirmCancelModal()
+			setShowSuccessCancel(true)
+			navigation.goBack()
+		}).catch(error => {
+			alert(error)
+		})
+	}
 
 	return (
 		<View className="h-full w-full pl-[30px] pr-[30px] pt-[20px]">
@@ -103,8 +120,7 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 											</Button>
 
 											<Button onPress={() => {
-												closeConfirmCancelModal()
-												setShowSuccessCancel(true)
+												handleCancelReserve()
 											}} className='h-[50px] w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px]'>
 												<Text className="w-full h-full font-medium text-[14px] text-white">Confirmar e extornar</Text>
 											</Button>
