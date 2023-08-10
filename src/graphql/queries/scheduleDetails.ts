@@ -16,6 +16,7 @@ export interface ISchedulingDetailsResponse {
                 court_availability: {
                     data?: {
                         attributes: {
+                            value: number
                             court: {
                                 data?: {
                                     id: Court['id']
