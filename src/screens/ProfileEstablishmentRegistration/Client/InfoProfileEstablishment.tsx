@@ -15,6 +15,7 @@ import useUpdateUser from '../../../hooks/useUpdateUser';
 import useUpdateEstablishmentAddress from '../../../hooks/useUpdateEstablishmentAddress';
 import { HOST_API } from '@env'
 import storage from '../../../utils/storage';
+import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablishmentFantasyName';
 
 // const updateEstablishment = async () => {
 //   await updateEstablishmentHook({
@@ -51,13 +52,10 @@ const formSchema = z.object({
 
 interface IFantasyNameFormData {
   fantasyName: string
-  confirmFantasyName: string
 }
 
 const fantasyNameFormSchema = z.object({
-  fanstasyName: z.string()
-    .nonempty('O campo não pode estar vazio'),
-  confirmFantasyName: z.string()
+  fantasyName: z.string()
     .nonempty('O campo não pode estar vazio')
 })
 
@@ -88,7 +86,7 @@ const passwordFormSchema = z.object({
     .nonempty('O campo não pode estar vazio')
 })
 
-const userId = "1"
+const userId = "2"
 
 export default function InfoProfileEstablishment() {
   const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
@@ -97,9 +95,13 @@ export default function InfoProfileEstablishment() {
   const { control: controlAddress, handleSubmit: handleSubmitAddress, formState: { errors: addressErrors } } = useForm<IAddressFormData>({
     resolver: zodResolver(addressFormSchema)
   })
+  const { control: controlFantasyName, handleSubmit: handleSubmitFantasyName, formState: { errors: fantasyNameErrors } } = useForm<IFantasyNameFormData>({
+    resolver: zodResolver(fantasyNameFormSchema)
+  })
 
   const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
   const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
+  const [updateEstablishmentFantasyNameHook, { data: updateFantasyNameData, error: updateFantasyNameError, loading: updateFantasyNameLoading }] = useUpdateEstablishmentFantasyName()
   const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
 
   let amenities: string[] = []
@@ -128,9 +130,9 @@ export default function InfoProfileEstablishment() {
 
   const cpf = userByEstablishmentData?.usersPermissionsUser.data.attributes.cpf
 
-  const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
+  const [editFantasyNameModal, setEditFantasyNameModal] = useState(true);
   const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
-  const [editAddressModal, setEditAddressModal] = useState(true)
+  const [editAddressModal, setEditAddressModal] = useState(false)
   const closeEditAddressModal = () => setEditAddressModal(false)
   const [editCNPJModal, setEditCNPJModal] = useState(false)
   const closeEditCNPJModal = () => setEditCNPJModal(false)
@@ -221,6 +223,28 @@ export default function InfoProfileEstablishment() {
       }
     }).then(value => {
       alert(value.data?.updateEstablishment.data.attributes.address.streetName)
+    })
+      .catch((reason) => console.error(reason))
+      .finally(() => setIsLoading(false))
+  }
+
+  const fantasyName = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.fantasyName
+  // console.log(fantasyName)
+
+  const handleUpdateEstablishmentFantasyName = (data: IFantasyNameFormData): void => {
+    setIsLoading(true)
+
+    const fantasyNameData = {
+      ...data
+    }
+
+    updateEstablishmentFantasyNameHook({
+      variables: {
+        establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id,
+        fantasy_name: fantasyNameData.fantasyName
+      }
+    }).then(value => {
+      alert(value.data?.updateEstablishment.data.attributes.fantasyName)
     })
       .catch((reason) => console.error(reason))
       .finally(() => setIsLoading(false))
@@ -568,16 +592,23 @@ export default function InfoProfileEstablishment() {
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Insira um novo nome fantasia:</Text>
-                <TextInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
+                <Controller
+                  name='fantasyName'
+                  control={controlFantasyName}
+                  rules={{
+                    required: true
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      defaultValue={fantasyName}
+                      onChangeText={onChange}
+                      className={`p-4 border ${fantasyNameErrors.fantasyName ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
+                      placeholder='Nome fantasia'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
                 />
-              </View>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Confirme o nome fantasia:</Text>
-                <TextInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
-                />
+                {fantasyNameErrors.fantasyName && <Text className='text-red-400 text-sm -pt-[10px]'>{fantasyNameErrors.fantasyName.message}</Text>}
               </View>
 
               <View className="flex flex-row items-center mt-[10px]">
@@ -589,11 +620,8 @@ export default function InfoProfileEstablishment() {
                   <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {
-                  // closeConfirmCancelModal()
-                  // setShowSuccessCancel(true)
-                }} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                  <Text className="font-medium text-[14px] text-white">Confirmar</Text>
+                <TouchableOpacity onPress={handleSubmitFantasyName(handleUpdateEstablishmentFantasyName)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
+                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
                 </TouchableOpacity>
               </View>
 
