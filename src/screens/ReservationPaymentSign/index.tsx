@@ -8,14 +8,15 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from "@react-navigation/native";
-
 
 export default function ReservationPaymentSign() {
-
-// 
-
     const [showCard, setShowCard] = useState(false);
+    const [cardData, setCardData] = useState({
+      cardNumber: '',
+      expirationDate: '',
+      cvv: '',
+      country: ''
+    });
     const [showCameraIcon, setShowCameraIcon] = useState(false);
     const handleCardClick = () => {
       setShowCard(!showCard);
@@ -68,8 +69,6 @@ export default function ReservationPaymentSign() {
         setShowPaymentInformation(false);
         setShowRateInformation(false);
     };
-
-    const navigation = useNavigation()
     
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -77,7 +76,7 @@ export default function ReservationPaymentSign() {
                 <View>
                 <Image source={require('../../assets/quadra.png')}className="w-full h-[230]"/>
                 </View>
-                <View className="pt-5 pb-4 flex justify-center flex-row">
+                <View className="pt-5 pb-4 flex justify-center flex-row p-2">
                     <Text className="text-base text-center font-bold">
                         Para realizar sua reserva é necessário pagar um sinal.
                     </Text>
@@ -93,7 +92,7 @@ export default function ReservationPaymentSign() {
                     </Text>
                 </View>
                 <View className='px-10 py-5'>
-					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center' onPressIn={() => navigation.navigate('Login')}>
+					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'>
                         <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
                     </TouchableOpacity>
 				</View>
@@ -103,13 +102,14 @@ export default function ReservationPaymentSign() {
                     <View className="h-30 border border-gray-500 rounded-md">
                     <View className="flex-row justify-center items-center m-2">
                     <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                        <Text className="flex-1 text-base text-center mb-0">
+                        <Text className="flex-1 text-base text-right mb-0">
                         {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Selecionar Cartão'}
                         </Text>
                         <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
                     </View>
                     </View>
                 </TouchableOpacity>
+
                 {showCard && (
                     <View className="border border-gray-500 rounded-xl p-4 mt-3">
                     <View className="flex-row justify-between">
@@ -171,37 +171,36 @@ export default function ReservationPaymentSign() {
                     </Text>
                 </View>
                 </View>
-                <View className="bg-gray-300 flex flex-row">
-                    <View className="m-6">
-                        <Text className="text-base">Quadra de Futsal</Text>
-                        <Text className="text-base">4,3 Km de distância</Text>
-                        <View className="flex flex-row">
-                        <Text className="text-base">Avaliação: 4,5 </Text>
-                        <View className="pt-1">
-                            <FontAwesome name="star" color="#FF4715" size={11} /></View>
-                        </View>
-                        <Text className="text-base">Rua Jogatina 512 - Jd Futebol</Text>
+                <View className="bg-gray-300 flex flex-row justify-between items-center p-2">
+                <View className="flex items-start">
+                    <Text className="text-base">Quadra de Futsal</Text>
+                    <Text className="text-base">4,3 Km de distância</Text>
+                    <View className="flex flex-row items-center">
+                    <FontAwesome name="star" color="#FF4715" size={11} />
+                    <Text className="text-base pl-1">Avaliação: 4,5</Text>
                     </View>
-                    <View className="justify-center gap-1">
-                        <View className="flex flex-row">
-                            <View className="bg-orange-500 rounded p-1">
-                                <FontAwesome5 name="tshirt" size={14} color = "white" />
-                            </View>
-                        <Text className="text-base pl-2">Vestiário</Text>
-                        </View>
-                        <View className="flex flex-row">
-                            <View className="bg-orange-500 rounded p-1">
-                                <MaterialIcons name="local-restaurant" size={18} color="white" />
-                            </View>
-                            <Text className="text-base pl-2 pt-1">Restaurante</Text>
-                        </View>
-                        <View className="flex flex-row">
-                        <View className="bg-orange-500 rounded p-1">
-                            <FontAwesome name="car" size={16} color="white" />
-                        </View>
-                        <Text className="text-base pl-2 pt-1">Estacionamento</Text>
-                        </View>
+                    <Text className="text-base">Rua Jogatina 512 - Jd Futebol</Text>
+                </View>
+                <View className="flex gap-1">
+                    <View className="flex flex-row items-center pr-2">
+                    <View className="bg-orange-500 rounded p-1">
+                        <FontAwesome5 name="tshirt" size={14} color="white" />
                     </View>
+                    <Text className="text-base pl-1">Vestiário</Text>
+                    </View>
+                    <View className="flex flex-row items-center pr-2">
+                    <View className="bg-orange-500 rounded p-1">
+                        <MaterialIcons name="local-restaurant" size={18} color="white" />
+                    </View>
+                    <Text className="text-base pl-1">Restaurante</Text>
+                    </View>
+                    <View className="flex flex-row items-center">
+                    <View className="bg-orange-500 rounded p-1">
+                        <FontAwesome name="car" size={16} color="white" />
+                    </View>
+                    <Text className="text-base pl-1">Estacionamento</Text>
+                    </View>
+                </View>
                 </View>
                 <View className="p-4 justify-center items-center border-b ml-8 mr-8">
                     <View className="flex flex-row gap-6">
@@ -222,12 +221,12 @@ export default function ReservationPaymentSign() {
                 <View className="justify-center items-center pt-6">
                     <View className="flex flex-row gap-10">
                         <Text className="font-bold text-xl text-right text-[#717171]">Total: </Text>
-                        <Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ 470.00</Text>
+                        <Text className="flex flex-row font-bold text-xl text-right text-[#717171]">470.00</Text>
                     </View>
                 </View>
                 <Modal visible={showRateInformation} animationType="fade" transparent={true}>
                 <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
-                    <View className="bg-white rounded-md items-center rounded">
+                    <View className="bg-white rounded-md items-center">
                     <Text className="bg-white p-8 rounded text-base text-center">Através dessa taxa provemos a tecnologia necessária para você reservar suas quadras com antecedência e rapidez.</Text>
                         <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
                         <Text className="text-white">OK</Text>
@@ -237,7 +236,7 @@ export default function ReservationPaymentSign() {
                 </Modal>
                 <Modal visible={showPaymentInformation} animationType="fade" transparent={true}>
                 <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
-                    <View className="bg-white rounded-md items-center rounded">
+                    <View className="bg-white rounded-md items-center">
                     <Text className="bg-white p-8 rounded text-base text-center">Esse valor será deduzido do valor total e não será estornado, mesmo no caso de não comparecimento ao local ou cancelamento da reserva.</Text>
                         <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
                         <Text className="text-white">OK</Text>
