@@ -200,8 +200,8 @@ const [profilePicture, setProfilePicture] = useState(null);
                 </View>
               </View>
               
-              <View className="p-2 justify-center items-center">
-                <TouchableOpacity onPress={handleSaveCard} className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
+              <View className="p-5 justify-center items-center">
+                <TouchableOpacity onPress={handleSaveCard} className="w-40 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
                   <Text className="text-white">Salvar</Text>
                 </TouchableOpacity>
               </View>
