@@ -93,6 +93,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
 			})
 		}
+
+		console.log(userHookData?.usersPermissionsUser.data.attributes.photo.data)
 	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
@@ -129,29 +131,29 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						longitudeDelta: 0.004,
 					}}
 				>
-					{/*{*/}
-					{/*	establishments.map((item) => (*/}
-					{/*		<Marker*/}
-					{/*			coordinate={{*/}
-					{/*				latitude: item.latitude,*/}
-					{/*				longitude: item.longitude,*/}
-					{/*			}}*/}
-					{/*			icon={pointerMap}*/}
-					{/*			title='test'*/}
-					{/*			description='test'*/}
-					{/*		>*/}
-					{/*			<CourtBallon*/}
-					{/*				id={item.id}*/}
-					{/*				key={item.id}*/}
-					{/*				name={item.name}*/}
-					{/*				distance={item.distance}*/}
-					{/*				image={item.image}*/}
-					{/*				type={item.type}*/}
-					{/*			// pageNavigation='EstablishmentInfo'*/}
-					{/*			/>*/}
-					{/*		</Marker>*/}
-					{/*	))*/}
-					{/*}*/}
+					{
+						establishments.map((item) => (
+							<Marker
+								coordinate={{
+									latitude: item.latitude,
+									longitude: item.longitude,
+								}}
+								icon={pointerMap}
+								title='test'
+								description='test'
+							>
+								<CourtBallon
+									id={item.id}
+									key={item.id}
+									name={item.name}
+									distance={item.distance}
+									image={item.image}
+									type={item.type}
+								// pageNavigation='EstablishmentInfo'
+								/>
+							</Marker>
+						))
+					}
 				</MapView>
 				{!isDisabled && (
 					<TouchableOpacity className={`absolute left-3 top-3`} onPress={() => setIsDisabled((prevState) => !prevState)}>
