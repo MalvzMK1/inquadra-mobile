@@ -14,14 +14,14 @@ export default function DetailsAmountReceivable() {
                 <View>
                     <View className="p-2 flex flex-col justify-between">
                     <View className="pt-6 flex flex-row justify-between">
-                        <Text className="text-lg font-bold">Valores disponíveis</Text>
+                        <Text className="text-lg font-bold">Valores a receber</Text>
                     </View>
                     <View className="mt-2 flex flex-row">
                         <AntDesign name="calendar" size={20} color="gray" />
                         <Text className="text-base text-gray-500 underline"> Hoje {formattedData}</Text>
                     </View>
                     <View>
-                        <Text className="text-base text-gray-500 mt-1">Saldo total disponível para saque: R$ 1.390,71</Text>
+                        <Text className="text-base text-gray-500 mt-1">Saldo total a receber: R$ 1.390,71</Text>
                     </View>
                     <View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
                     <View className="flex items-center">
@@ -117,11 +117,6 @@ export default function DetailsAmountReceivable() {
                         <View className="p-1">
                             <FontAwesome5 name="smile-beam" size={18} color="gray" />
                         </View>
-                    </View>
-                    <View className="p-3 items-center justify-center">
-                        <TouchableOpacity className='w-5/6 h-12 rounded-md bg-[#FF6112] flex items-center justify-center'>
-                            <Text className='text-gray-50 font-bold'>Sacar</Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
                 </View>
