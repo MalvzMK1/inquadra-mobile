@@ -37,6 +37,7 @@ import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
 import DetailsAmountReceivable from '../../screens/FinancialEstablishment/Client/DetailsAmountReceivable';
+import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryPayment';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -386,7 +387,7 @@ export default function () {
 				options={{
 					headerShown: false,
 				}}
-			/> */}
+			/>  */}
 			<Screen
 				name='ReservationPaymentSign'
 				component={ReservationPaymentSign}
@@ -491,6 +492,18 @@ export default function () {
 					headerStyle: {
 					},headerTitleAlign: 'center',
 				}}
+			/> 
+			<Screen
+				name='HistoryPayment'
+				component={HistoryPayment}
+				options={{
+					headerTitle: 'Definir hora/valor',
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="black" />
+						</TouchableOpacity>
+					)
+				}}
 			/>
 			<Screen
 				name='CourtPriceHour'
@@ -531,7 +544,6 @@ export default function () {
 					),
 				}}
 			/>
-	
 		</Navigator>
 	);
 }
