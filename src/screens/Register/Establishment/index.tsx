@@ -227,7 +227,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 									control={control}
 									render={({field: {onChange}}) => (
 										<TextInput
-											className='p-5 border border-neutral-400 rounded'
+											className='p-5 border border-neutral-400 rounded w-32'
 											placeholder='123'
 											onChangeText={onChange}
 											keyboardType={'numbers-and-punctuation'}
@@ -243,7 +243,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 									control={control}
 									render={({field: {onChange}}) => (
 										<MaskInput
-											className='p-5 border border-neutral-400 rounded w-44'
+											className='p-5 border border-neutral-400 rounded w-32'
 											placeholder='0000-000'
 											value={getValues('address.cep')}
 											onChangeText={onChange}
@@ -257,7 +257,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 							</View>
 						</View>
 					</View>
-						<View>
+						<View className="p-2">
 							<Text className="text-xl p-1">Amenidades do Local</Text>
 							<Controller
 								name='amenities'
@@ -282,13 +282,13 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 							/>
 							{errors.amenities && <Text className='text-red-400 text-sm'>{errors.amenities.message}</Text>}
 						</View>
-						<View>
+						<View className="p-2">
 							<Text className="text-xl p-1">Fotos do estabelecimento</Text>
 
 							<View className="border rounded relative">
-								<View className="flex flex-row">
-									<Text className="text-base text-gray-400 font-bold m-6" onPress={handleProfilePictureUpload}>Carregue as fotos do Estabelecimento. {"\n"} Ex: frente, o bar, o vestiário e afins. </Text>
-									<Ionicons name="star-outline" size={20} color="#FF6112" style = {{ marginTop: 35, marginLeft: 15 }} onPress={handleProfilePictureUpload} />
+								<View className="flex flex-row self-center">
+									<Text className="text-base text-gray-400 font-bold m-2 text-center" onPress={handleProfilePictureUpload}>Carregue as fotos do Estabelecimento. {"\n"} Ex: frente, o bar, o vestiário e afins. </Text>
+									<Ionicons name="star-outline" size={20} color="#FF6112" style = {{ alignSelf: "center" }} onPress={handleProfilePictureUpload} />
 								</View>
 
 								<FlatList
@@ -307,7 +307,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 								/>
 							</View>
 						</View>
-						<View>
+						<View className="p-2">
 							<TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center' onPressIn={handleSubmit(submitForm)}>
 								<Text className='text-gray-50'>Continuar</Text>
 							</TouchableOpacity>
