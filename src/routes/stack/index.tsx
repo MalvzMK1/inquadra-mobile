@@ -22,6 +22,7 @@ import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
+import HomeEstablishment from '../../screens/HomeEstablishment';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -170,6 +171,13 @@ export default function () {
 				options={{
 					title: '',
 					headerTransparent: true,
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="HomeEstablishment"
+				component={HomeEstablishment}
+				options={{
 					headerShown: false
 				}}
 			/>
