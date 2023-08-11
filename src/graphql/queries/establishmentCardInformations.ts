@@ -24,12 +24,12 @@ export interface IEstablishmentCardInformationsResponse {
 				courts: {
 					data?: Array<{
 						attributes: {
-							court_type: {
-								data?: {
+							court_types: {
+								data: Array<{
 									attributes: {
 										name: CourtType['name']
 									}
-								}
+								}>
 							}
 						}
 					}>
@@ -63,7 +63,7 @@ export const establishmentCardInformationsQuery = gql`
                     courts {
                         data {
                             attributes {
-                                court_type {
+                                court_types {
                                     data {
                                         attributes {
                                             name
