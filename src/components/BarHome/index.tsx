@@ -24,7 +24,7 @@ interface HomeBarProps {
 	// photoUser: string | undefined
 }
 
-export default function HomeBar({courts, userName, photoUser}: HomeBarProps) {
+export default function HomeBar({courts, userName}: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
