@@ -36,7 +36,7 @@ export default function RegisterCourt() {
     const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const {data: dataSportType, loading: sportLoading, error: sportError} = useAvailableSportTypes();
-    // !sportLoading && console.log(sportError)
+    //!sportLoading && console.log(sportError)
 
     // console.log(sportLoading)
     // console.log(HOST_API)
@@ -124,8 +124,8 @@ export default function RegisterCourt() {
     const formSchema = z.object({
         // court_name: z.string(),
         minimum_value: z.string({required_error:"É necessário determinar um valor mínimo."}),
-        // courtType: z.string({required_error:"Selecione pelo menos uma modalidade."}),
-        fantasyName: z.string({required_error: "Dê um nome fantasia."}),
+        //courtType:z.array(z.string({required_error:"Selecione pelo menos uma modalidade."})),
+        fantasyName: z.string({required_error: "Diga um nome fantasia."}),
         //photos: z.array(z.string()),
         //court_availabilities: z.string()
     })
@@ -242,7 +242,6 @@ export default function RegisterCourt() {
 
     return (
             <ScrollView className="h-fit bg-white flex-1"> 
-            {errors && <Text>{JSON.stringify(errors)}</Text>}
                 <View className="items-center mt-9 p-4">
                     <Text className="text-3xl text-center font-extrabold text-gray-700">Cadastro Quadra</Text>
                 </View>
@@ -290,6 +289,8 @@ export default function RegisterCourt() {
                                     </TextInput>
                                 )}
                             />
+                        {errors?.fantasyName?.message && <Text className='text-red-400 text-sm'>{errors.fantasyName.message}</Text>}                     
+
                         </View>
                         <View>
                         <Text className="text-xl p-1">Fotos da quadra</Text>  
