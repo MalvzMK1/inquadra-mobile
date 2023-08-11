@@ -12,7 +12,7 @@ export default function DetailsAmountReceivable() {
         <View className="flex-1">
             <ScrollView>
                 <View>
-                    <View className="p-5 flex flex-col justify-between">
+                    <View className="p-2 flex flex-col justify-between">
                     <View className="pt-6 flex flex-row justify-between">
                         <Text className="text-lg font-bold">Valores disponíveis</Text>
                     </View>
@@ -23,130 +23,93 @@ export default function DetailsAmountReceivable() {
                     <View>
                         <Text className="text-base text-gray-500 mt-1">Saldo total disponível para saque: R$ 1.390,71</Text>
                     </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                        <Text className="text-base">Valor recebido de: </Text>
+                    <View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
+                    <View className="flex items-center">
+                        <Text className="text-base">Valor recebido de:</Text>
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                     </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex items-center">
+                        <Text className="text-base">Data a debitar:</Text>
+                        <Text className="text-xl font-bold ml-1">23/08</Text>
+                    </View>
+                    <View className="flex justify-center items-center">
+                        <Text className="text-xl text-green-600 font-bold">+R$150,00</Text>
                     </View>
                     </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
-                        <Text className="text-xl font-bold">Alan Vieira</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                        <Text className="text-base">Valor recebido de: </Text>
+
+                    <View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
+                    <View className="flex items-center">
+                        <Text className="text-base">Valor recebido de:</Text>
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                     </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex items-center">
+                        <Text className="text-base">Data a debitar:</Text>
+                        <Text className="text-xl font-bold ml-1">23/08</Text>
+                    </View>
+                    <View className="flex justify-center items-center">
+                        <Text className="text-xl text-green-600 font-bold">+R$150,00</Text>
                     </View>
                     </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
-                        <Text className="text-xl font-bold">Alan Vieira</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
+                    <View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
+                    <View className="flex items-center">
+                        <Text className="text-base">Valor recebido de:</Text>
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                     </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex items-center">
+                        <Text className="text-base">Data a debitar:</Text>
+                        <Text className="text-xl font-bold ml-1">23/08</Text>
+                    </View>
+                    <View className="flex justify-center items-center">
+                        <Text className="text-xl text-green-600 font-bold">+R$150,00</Text>
                     </View>
                     </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
-                        <Text className="text-xl font-bold">Alan Vieira</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
+                    <View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
+                    <View className="flex items-center">
+                        <Text className="text-base">Valor recebido de:</Text>
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                     </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex items-center">
+                        <Text className="text-base">Data a debitar:</Text>
+                        <Text className="text-xl font-bold ml-1">23/08</Text>
                     </View>
+                    <View className="flex justify-center items-center">
+                        <Text className="text-xl text-green-600 font-bold">+R$150,00</Text>
                     </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
-                        <Text className="text-xl font-bold">Alan Vieira</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
+                    </View><View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
+                    <View className="flex items-center">
+                        <Text className="text-base">Valor recebido de:</Text>
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                     </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex items-center">
+                        <Text className="text-base">Data a debitar:</Text>
+                        <Text className="text-xl font-bold ml-1">23/08</Text>
                     </View>
+                    <View className="flex justify-center items-center">
+                        <Text className="text-xl text-green-600 font-bold">+R$150,00</Text>
                     </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
-                        <Text className="text-xl font-bold">Alan Vieira</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
+                    </View><View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
+                    <View className="flex items-center">
+                        <Text className="text-base">Valor recebido de:</Text>
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                     </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex items-center">
+                        <Text className="text-base">Data a debitar:</Text>
+                        <Text className="text-xl font-bold ml-1">23/08</Text>
                     </View>
+                    <View className="flex justify-center items-center">
+                        <Text className="text-xl text-green-600 font-bold">+R$150,00</Text>
                     </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
-                        <Text className="text-xl font-bold">Alan Vieira</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
+                    </View><View className="bg-gray-200 mt-3 rounded-md flex flex-row justify-between pt-2 pb-2">
+                    <View className="flex items-center">
+                        <Text className="text-base">Valor recebido de:</Text>
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                     </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex items-center">
+                        <Text className="text-base">Data a debitar:</Text>
+                        <Text className="text-xl font-bold ml-1">23/08</Text>
                     </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="flex justify-center">
-                    <Text className="text-base">Valor recebido de: </Text>
-                        <Text className="text-xl font-bold">Alan Vieira</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    <View className="flex justify-center items-center">
+                        <Text className="text-xl text-green-600 font-bold">+R$150,00</Text>
                     </View>
                     </View>
                     <View className="p-4 flex flex-row justify-center">
