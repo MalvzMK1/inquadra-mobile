@@ -1,7 +1,6 @@
 type RootStackParamList = {
 	Login: undefined;
 	CourtSchedule: undefined;
-	RegisterCourts: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
 	HomeEstablishment: undefined
@@ -72,7 +71,7 @@ type RootStackParamList = {
 		courtName: string,
 		userId: string,
 	}
-	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
+	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
 	} & {
 		photos: string[]
