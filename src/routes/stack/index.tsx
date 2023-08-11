@@ -20,7 +20,9 @@ import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAcc
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import PixScreen from '../../screens/Pix';
+import HomeEstablishment from '../../screens/HomeEstablishment';
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import PixScreen from '../../screens/Pix';
 import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
 import CourtPriceHour from '../../screens/CourtPriceHour';
 import EditCourt from '../../screens/EditCourt';
@@ -34,6 +36,7 @@ import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import Schedulings from '../../screens/Schedulings';
 import CancelScheduling from '../../screens/CancelScheduling';
 import { HOST_API } from '@env'
+import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -42,6 +45,20 @@ export default function () {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 	return (
 		<Navigator>
+			<Screen
+				name="Login"
+				component={Login}
+				options={{
+					headerTitle: () => (
+						<Image source={require('../../assets/inquadra_logo.png')} />
+					),
+					headerTitleAlign: 'center',
+					headerStyle: {
+						height: 200,
+						backgroundColor: '#292929',
+					},
+				}}
+			/>
 			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}
@@ -70,17 +87,45 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="Login"
-				component={Login}
+				name='HomeEstablishment'
+				component={HomeEstablishment}
 				options={{
-					headerTitle: () => (
-						<Image source={require('../../assets/inquadra_logo.png')} />
-					),
-					headerTitleAlign: 'center',
+					headerTitle: "Olá John",
+					headerTitleAlign: "center",
+					headerLeft: () => (<></>),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image
+								source={require('../../assets/default-user-image.png')}
+								className="rounded-full w-[50px] h-[50px]"
+							/>
+						</TouchableOpacity>
+					)
+				}}
+			/>
+			<Screen
+				options={{
+					headerTintColor: 'white',
 					headerStyle: {
-						height: 200,
+						height: 100,
 						backgroundColor: '#292929',
 					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
 				}}
 			/>
 			<Screen
@@ -165,6 +210,13 @@ export default function () {
 				}}
 			/>
 			<Screen
+				name="PixScreen"
+				component={PixScreen}
+				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
 				name="EstablishmentRegister"
 				component={RegisterEstablishment}
 				options={{
@@ -196,9 +248,10 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							console.log(params)
+							console.log({params})
 							navigation.navigate('ProfileSettings', {
-								userPhoto: HOST_API + params.userPhoto
+								userPhoto: HOST_API + params.userPhoto,
+								userID: params.userID
 							})
 						}}>
 							<Image
@@ -273,6 +326,30 @@ export default function () {
 					/>
 				)}
 			</Screen>
+			<Screen
+				name='AmountAvailableWithdrawal'
+				component={AmountAvailableWithdrawal}
+				options={{
+					headerTitleAlign: 'center',
+					headerTitle: "Detalhes",
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 125,
+						backgroundColor: '#292929',
+					},
+					headerLeftContainerStyle: {
+						marginLeft: 12,
+					},
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image
+								source={require('../../assets/default-user-image.png')}
+								className="rounded-full w-[50px] h-[50px]"
+							/>
+						</TouchableOpacity>
+					)
+				}}
+			/>
 			<Screen
 				name="RegisterPassword"
 				component={Password}

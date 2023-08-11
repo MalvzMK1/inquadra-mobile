@@ -12,16 +12,30 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetNextToCourts } from "../../hooks/useNextToCourts";
 import { useGetUserById } from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
-import {HOST_API} from '@env';
+import { HOST_API } from '@env';
+import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
+import {calculateDistance} from "../../components/calculateDistance/calculateDistance";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
 }
 
+interface EstablishmentObject {
+	id: string,
+	latitude: number,
+	longitude: number,
+	name: string,
+	type: string,
+	image: string,
+	distance: number,
+}
+
 export default function Home({ menuBurguer, route, navigation }: Props) {
-	const {data, loading, error} = useGetNextToCourts()
+	const userGeolocation = route.params.userGeolocation;
+
+	const {data, loading, error} = useEstablishmentCardInformations()
 	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
-	const [courts, setCourts] = useState<Array<{
+	const [establishments, setEstablishments] = useState<Array<{
 		id: string,
 		latitude: number,
 		longitude: number,
@@ -29,44 +43,78 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		type: string,
 		image: string,
 		distance: number,
-	}>>([])
+	}>>([]);
+	const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
 	const {data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError} = useAvailableSportTypes()
 
 	useEffect(() => {
 		if (!error && !loading) {
-			const newCourts = data?.courts.data.map((court) => {
-				return {
-					id: court.id,
-					latitude: Number(court.attributes.establishment.data.attributes.address.latitude),
-					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
-					name: court.attributes.name,
-					type: court.attributes.court_type.data.attributes.name,
-					image: HOST_API + (court.attributes.photo.data.length == 0 ? '' : court.attributes.photo.data[0].attributes.url),
-					distance: 666, // Substitua pelos valores reais
-				}
-			});
+			const newCourts = data?.establishments.data
+				.filter(establishment => (
+					establishment.attributes.photos.data &&
+					establishment.attributes.photos.data.length > 0 &&
+					establishment.attributes.courts.data
+				))
+				.map((establishment => {
+					let establishmentObject: EstablishmentObject;
+
+					let courtTypes = establishment.attributes.courts.data!
+						.filter(court => court.attributes.court_types.data.length > 0)
+						.map(court => court.attributes.court_types.data)
+						.map(courtType => courtType.map(type => type.attributes.name))
+
+					console.log(courtTypes)
+
+					if (!courtTypes) courtTypes = []
+
+					establishmentObject = {
+						id: establishment.id,
+						name: establishment.attributes.corporateName,
+						latitude: Number(establishment.attributes.address.latitude),
+						longitude: Number(establishment.attributes.address.latitude),
+						distance: calculateDistance(
+							userGeolocation.latitude,
+							userGeolocation.longitude,
+							Number(establishment.attributes.address.latitude),
+							Number(establishment.attributes.address.latitude)
+							) / 1000, // Change to real values,
+						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
+						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : ''
+					}
+
+					return establishmentObject
+				}))
 
 			if (newCourts) {
-				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
+				setEstablishments((prevCourts) => [...prevCourts, ...newCourts]);
 			}
 
 			navigation.setParams({
 				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
 			})
 		}
+
+		console.log(userHookData?.usersPermissionsUser.data.attributes.photo.data)
 	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
-	const userGeolocation = route.params.userGeolocation
+	useEffect(() => {
+		const newAvailableSportTypes: SportType[] = [];
+
+		availableSportTypes?.courts.data.forEach(court => {
+			court.attributes.court_types.data.forEach(courtType => {
+				newAvailableSportTypes.push({id: courtType.id, name: courtType.attributes.name})
+			})
+		})
+
+		setSportTypes(newAvailableSportTypes)
+	}, [availableSportTypes, availableSportTypesError])
 
 	return (
 		<View className="flex-1 flex flex-col">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-				isDisabled && !menuBurguer && <SportsMenu sports={availableSportTypes?.courts.data.map(sportType => ({
-						id: sportType.attributes.court_type.data.id,
-						name: sportType.attributes.court_type.data.attributes.name
-					})) ?? []} />
+					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} />
 			}
 			<View className='flex-1'>
 
@@ -84,7 +132,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					}}
 				>
 					{
-						courts.map((item) => (
+						establishments.map((item) => (
 							<Marker
 								coordinate={{
 									latitude: item.latitude,
@@ -115,14 +163,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				{menuBurguer && <FilterComponent />}
 			</View>
 			{
-				isDisabled && <HomeBar 
-						courts={courts} 
-						userName={userHookData?.usersPermissionsUser.data.attributes.username}
-						// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
-					/>
+				isDisabled && <HomeBar
+					courts={establishments}
+					userName={userHookData?.usersPermissionsUser.data.attributes.username}
+				// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
+				/>
 			}
-			<BottomNavigationBar 
-				isDisabled={isDisabled} 
+			<BottomNavigationBar
+				isDisabled={isDisabled}
 				playerScreen={true}
 				establishmentScreen={false}
 			/>

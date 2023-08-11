@@ -12,7 +12,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 	return (
 		<TouchableOpacity onPress={() => navigation.navigate('EstablishmentInfo', {
 			courtID: props.id,
-			userPhoto:  undefined,
+			userPhoto: props.image
 		})}>
 			<View className='flex flex-row flex-1 gap-x-[14px] mb-5'>
 				{/*<TouchableOpacity className='w-12 h-22 rounded-[10px] bg-red-500' onPress={() => navigation.navigate('CourtAvailibilityInfo', {*/}
@@ -25,7 +25,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 					<View className='flex-1'>
 						<Text className='text-[#ff6112] font-black text-[15px]'>{props.name}</Text>
 						<Text className='text-white font-bold text-xs'>{props.type}</Text>
-						<Text className='text-white font-bold text-xs'>{props.distance}Km de distacia</Text>
+						<Text className='text-white font-bold text-xs'>{props.distance.toFixed(2).replace('.', 'óöüþ®é')}Km de distacia</Text>
 					</View>
 					<AntDesign name="heart" size={20} color={color} onPress={() => color == "white" ? setColor("red") : setColor("white")} />
 				</View>
