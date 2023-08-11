@@ -23,7 +23,7 @@ let userId = ""
 storage.load<UserInfos>({
   key: 'userInfos',
 }).then((data) => {
-   userId = data.userId
+  userId = data.userId
 })
 
 interface IFormData {
@@ -286,6 +286,20 @@ export default function InfoProfileEstablishment() {
         .catch((reason) => alert(reason))
         .finally(() => setIsLoading(false))
     }
+  }
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmedPassword, setShowConfirmedPassword] = useState(false)
+
+  const handleShowCurrentPassword = () => {
+    setShowCurrentPassword(!showCurrentPassword)
+  }
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  }
+  const handleConfirmShowPassword = () => {
+    setShowConfirmedPassword(!showConfirmedPassword)
   }
 
   const handleNewPixKey = (data: IPixKeyFormData): void => {
@@ -818,67 +832,85 @@ export default function InfoProfileEstablishment() {
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Insira a sua senha atual:</Text>
-                <Controller
-                  name='currentPassword'
-                  control={controlPassword}
-                  rules={{
-                    required: true,
-                    minLength: 6
-                  }}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      textContentType='password'
-                      onChangeText={onChange}
-                      className={`p-4 border ${passwordErrors.currentPassword ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                      placeholder='Senha atual'
-                      placeholderTextColor="#B8B8B8"
-                    />
-                  )}
-                />
+                <View className={passwordErrors.currentPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+                  <Controller
+                    name='currentPassword'
+                    control={controlPassword}
+                    rules={{
+                      required: true,
+                      minLength: 6
+                    }}
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        textContentType='password'
+                        secureTextEntry={!showCurrentPassword}
+                        onChangeText={onChange}
+                        className="p-4 flex-1"
+                        placeholder='Senha atual'
+                        placeholderTextColor="#B8B8B8"
+                      />
+                    )}
+                  />
+                  <TouchableOpacity onPress={handleShowCurrentPassword}>
+                    <Image className="h-4 w-4 m-4" source={!showCurrentPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
+                  </TouchableOpacity>
+                </View>
                 {passwordErrors.currentPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.currentPassword.message}</Text>}
               </View>
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Insira sua nova senha:</Text>
-                <Controller
-                  name='password'
-                  control={controlPassword}
-                  rules={{
-                    required: true,
-                    minLength: 6
-                  }}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      textContentType='password'
-                      onChangeText={onChange}
-                      className={`p-4 border ${passwordErrors.password ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                      placeholder='Nova senha'
-                      placeholderTextColor="#B8B8B8"
-                    />
-                  )}
-                />
+                <View className={passwordErrors.password ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+                  <Controller
+                    name='password'
+                    control={controlPassword}
+                    rules={{
+                      required: true,
+                      minLength: 6
+                    }}
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        textContentType='password'
+                        secureTextEntry={!showPassword}
+                        onChangeText={onChange}
+                        className="p-4 flex-1"
+                        placeholder='Nova senha'
+                        placeholderTextColor="#B8B8B8"
+                      />
+                    )}
+                  />
+                  <TouchableOpacity onPress={handleShowPassword}>
+                    <Image className="h-4 w-4 m-4" source={!showPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
+                  </TouchableOpacity>
+                </View>
                 {passwordErrors.password && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.password.message}</Text>}
               </View>
 
               <View className='w-full'>
                 <Text className='text-[14px] font-bold'>Confirme sua nova senha:</Text>
-                <Controller
-                  name='confirmPassword'
-                  control={controlPassword}
-                  rules={{
-                    required: true,
-                    minLength: 6
-                  }}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      textContentType='password'
-                      onChangeText={onChange}
-                      className={`p-4 border ${passwordErrors.confirmPassword ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                      placeholder='Confirme a nova senha'
-                      placeholderTextColor="#B8B8B8"
-                    />
-                  )}
-                />
+                <View className={passwordErrors.confirmPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+                  <Controller
+                    name='confirmPassword'
+                    control={controlPassword}
+                    rules={{
+                      required: true,
+                      minLength: 6
+                    }}
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        textContentType='password'
+                        secureTextEntry={!showConfirmedPassword}
+                        onChangeText={onChange}
+                        className="p-4 flex-1"
+                        placeholder='Confirme a nova senha'
+                        placeholderTextColor="#B8B8B8"
+                      />
+                    )}
+                  />
+                  <TouchableOpacity onPress={handleConfirmShowPassword}>
+                    <Image className="h-4 w-4 m-4" source={!showConfirmedPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
+                  </TouchableOpacity>
+                </View>
                 {passwordErrors.confirmPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.confirmPassword.message}</Text>}
               </View>
 
