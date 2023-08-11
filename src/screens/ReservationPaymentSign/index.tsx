@@ -76,7 +76,7 @@ export default function ReservationPaymentSign() {
                 <View>
                 <Image source={require('../../assets/quadra.png')}className="w-full h-[230]"/>
                 </View>
-                <View className="pt-5 pb-4 flex justify-center flex-row">
+                <View className="pt-5 pb-4 flex justify-center flex-row p-2">
                     <Text className="text-base text-center font-bold">
                         Para realizar sua reserva é necessário pagar um sinal.
                     </Text>
@@ -171,37 +171,36 @@ export default function ReservationPaymentSign() {
                     </Text>
                 </View>
                 </View>
-                <View className="bg-gray-300 flex flex-row">
-                    <View className="m-8">
-                        <Text className="text-base">Quadra de Futsal</Text>
-                        <Text className="text-base">4,3 Km de distância</Text>
-                        <View className="flex flex-row">
-                        <Text className="text-base">Avaliação: 4,5 </Text>
-                        <View className="pt-1">
-                            <FontAwesome name="star" color="#FF4715" size={11} /></View>
-                        </View>
-                        <Text className="text-base">Rua Jogatina 512 - Jd Futebol</Text>
+                <View className="bg-gray-300 flex flex-row justify-between items-center p-2">
+                <View className="flex items-start">
+                    <Text className="text-base">Quadra de Futsal</Text>
+                    <Text className="text-base">4,3 Km de distância</Text>
+                    <View className="flex flex-row items-center">
+                    <FontAwesome name="star" color="#FF4715" size={11} />
+                    <Text className="text-base pl-1">Avaliação: 4,5</Text>
                     </View>
-                    <View className="justify-center gap-1">
-                        <View className="flex flex-row">
-                            <View className="bg-orange-500 rounded p-1">
-                                <FontAwesome5 name="tshirt" size={14} color = "white" />
-                            </View>
-                        <Text className="text-base pl-2">Vestiário</Text>
-                        </View>
-                        <View className="flex flex-row">
-                            <View className="bg-orange-500 rounded p-1">
-                                <MaterialIcons name="local-restaurant" size={18} color="white" />
-                            </View>
-                            <Text className="text-base pl-2 pt-1">Restaurante</Text>
-                        </View>
-                        <View className="flex flex-row">
-                        <View className="bg-orange-500 rounded p-1">
-                            <FontAwesome name="car" size={16} color="white" />
-                        </View>
-                        <Text className="text-base pl-2 pt-1">Estacionamento</Text>
-                        </View>
+                    <Text className="text-base">Rua Jogatina 512 - Jd Futebol</Text>
+                </View>
+                <View className="flex gap-1">
+                    <View className="flex flex-row items-center pr-2">
+                    <View className="bg-orange-500 rounded p-1">
+                        <FontAwesome5 name="tshirt" size={14} color="white" />
                     </View>
+                    <Text className="text-base pl-1">Vestiário</Text>
+                    </View>
+                    <View className="flex flex-row items-center pr-2">
+                    <View className="bg-orange-500 rounded p-1">
+                        <MaterialIcons name="local-restaurant" size={18} color="white" />
+                    </View>
+                    <Text className="text-base pl-1">Restaurante</Text>
+                    </View>
+                    <View className="flex flex-row items-center">
+                    <View className="bg-orange-500 rounded p-1">
+                        <FontAwesome name="car" size={16} color="white" />
+                    </View>
+                    <Text className="text-base pl-1">Estacionamento</Text>
+                    </View>
+                </View>
                 </View>
                 <View className="p-4 justify-center items-center border-b ml-8 mr-8">
                     <View className="flex flex-row gap-6">
