@@ -7,7 +7,6 @@ import { useReserveDisponible } from "../../hooks/useReserveDisponible";
 import { courtByIdQuery } from "../../graphql/queries/nextToCourtsById";
 import { useGetNextToCourtsById } from "../../hooks/useNextToCourtById";
 import { useEstablishmentSchedulings } from "../../hooks/useEstablishmentSchedulings";
-import { useSchedulingById } from "../../hooks/useSchedulingById";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import { useSchedule } from "../../hooks/useSchedule";

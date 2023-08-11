@@ -10,14 +10,14 @@ import getDistanceFromLatLonInKm from '../../utils/distanceCalculator'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
 import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
-import { HOST_API } from "@env";
+import {HOST_API} from '@env';
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
-    const EstablishmentInfos = useGetEstablishmentByCourtId(route.params?.courtID.toString())
+    const EstablishmentInfos = useGetEstablishmentByCourtId(route.params.courtID)
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
 
     const [userLocation, setUserLocation] = useState({

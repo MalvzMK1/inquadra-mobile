@@ -2,7 +2,6 @@ type RootStackParamList = {
 	Login: undefined;
 	CourtSchedule: undefined;
 	AmountAvailableWithdrawal: undefined;
-	RegisterCourts: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
 	HomeEstablishment: undefined
@@ -22,7 +21,9 @@ type RootStackParamList = {
 		phone_number: string;
 		role: string
 	};
-	CancelScheduling: undefined
+	CancelScheduling: {
+		scheduleID: string
+	}
 	Home: {
 		userGeolocation: {
 			latitude: number,
@@ -46,7 +47,8 @@ type RootStackParamList = {
 		userPhoto: string | undefined,
 	};
 	ProfileSettings: {
-		userPhoto: string | undefined
+		userPhoto: string | undefined,
+		userID: string
 	};
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
@@ -70,7 +72,7 @@ type RootStackParamList = {
 		courtName: string,
 		userId: string,
 	}
-	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
+	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
 	} & {
 		photos: string[]
