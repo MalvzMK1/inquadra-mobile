@@ -123,7 +123,8 @@ export default function CourtAvailabilityInfo({navigation, route}: ICourtAvailab
 							onPress={() => navigation.navigate('ReservationPaymentSign', {
 								courtName: route.params.courtName,
 								courtImage: route.params.courtImage,
-								courtId: route.params.courtId
+								courtId: route.params.courtId,
+								userId: route.params.userId
 							})}
 						>
 							<Text className='text-white'>RESERVAR</Text>

@@ -3,8 +3,8 @@ import { gql } from "@apollo/client";
 export interface ICourtType {
 	id: SportType['id']
 	attributes: {
-    	name: SportType['name']
-    }
+		name: SportType['name']
+	}
 }
 
 export interface ISportTypesResponse {
@@ -12,8 +12,8 @@ export interface ISportTypesResponse {
 		data: Array<{
 			attributes: {
 				court_types: {
-                    data: Array<ICourtType>
-                }
+					data: Array<ICourtType>
+				}
 			}
 		}>
 		__typename: string
@@ -25,7 +25,7 @@ export const availablesSportTypesQuery = gql`
         courts {
             data {
                 attributes {
-                    court_types{
+                    court_types {
                         data {
                             id
                             attributes {

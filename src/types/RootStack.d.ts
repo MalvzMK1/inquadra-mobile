@@ -1,9 +1,10 @@
 type RootStackParamList = {
 	Login: undefined;
 	CourtSchedule: undefined;
-	RegisterCourts: undefined;
+	AmountAvailableWithdrawal: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
+	HomeEstablishment: undefined
 	DeleteAccountEstablishment: undefined;
 	InfoProfileEstablishment: undefined;
 	FinancialEstablishment: undefined;
@@ -20,7 +21,9 @@ type RootStackParamList = {
 		phone_number: string;
 		role: string
 	};
-	CancelScheduling: undefined
+	CancelScheduling: {
+		scheduleID: string
+	}
 	Home: {
 		userGeolocation: {
 			latitude: number,
@@ -44,12 +47,13 @@ type RootStackParamList = {
 		userPhoto: string | undefined,
 	};
 	ProfileSettings: {
-		userPhoto: string | undefined
+		userPhoto: string | undefined,
+		userID: string
 	};
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
-		courtId: string
+		scheduleId:string
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
@@ -59,20 +63,23 @@ type RootStackParamList = {
 	CourtAvailabilityInfo: {
 		courtId: string,
 		courtImage: string,
-		courtName: string
+		courtName: string,
+		userId: string
 	};
 	ReservationPaymentSign: {
 		courtId: string,
 		courtImage: string,
-		courtName: string
+		courtName: string,
+		userId: string,
 	}
-	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber' | 'photo'> & {
+	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
 	} & {
 		photos: string[] | undefined
 	}
 	PixScreen: {
 		courtName: string,
-		value: string
+		value: string,
+		userID: string,
 	}
 }

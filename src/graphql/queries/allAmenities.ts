@@ -8,6 +8,7 @@ export interface IAllAmenitiesResponse {
 				name: Amenitie['name'],
 				iconAmenitie: {
 					data: {
+						id: string,
 						attributes: {
 							url: string
 						}
@@ -19,7 +20,7 @@ export interface IAllAmenitiesResponse {
 }
 
 export const allAmenitiesQuery = gql`
-    query getAllAmenities {
+    query allAmenities {
         amenities {
             data {
                 id
@@ -37,4 +38,4 @@ export const allAmenitiesQuery = gql`
             }
         }
     }
-`
+`;
