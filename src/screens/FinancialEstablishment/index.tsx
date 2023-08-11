@@ -55,20 +55,7 @@ export default function FinancialEstablishment() {
                         <Image source={require('../../assets/picture.png')} className="h-16 w-16"></Image>
                         <Image source={require('../../assets/quadra.png')} className="h-8 w-8 absolute border-2 border-[#FF6112] mt-8 ml-10 rounded-md"></Image>
                     </View>
-                    <View className="flex justify-center -ml-7">
-                        <Text className="text-xl font-bold">Lucas Santos</Text>
-                        <Text className="text-base">Quadra Fênix - 3h</Text>
-                    </View>
-                    <View className="justify-center">
-                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
-                    <View className="relative">
-                        <Image source={require('../../assets/picture.png')} className="h-16 w-16"></Image>
-                        <Image source={require('../../assets/quadra.png')} className="h-8 w-8 absolute border-2 border-[#FF6112] mt-8 ml-10 rounded-md"></Image>
-                    </View>
-                    <View className="flex justify-center -ml-7">
+                    <View className="flex justify-center ml-2">
                         <Text className="text-xl font-bold">Alan Vieira</Text>
                         <Text className="text-base">Clube do Zeca - 1h</Text>
                     </View>
@@ -81,7 +68,7 @@ export default function FinancialEstablishment() {
                         <Image source={require('../../assets/picture.png')} className="h-16 w-16"></Image>
                         <Image source={require('../../assets/quadra.png')} className="h-8 w-8 absolute border-2 border-[#FF6112] mt-8 ml-10 rounded-md"></Image>
                     </View>
-                    <View className="flex justify-center -ml-7">
+                    <View className="flex justify-center ml-2">
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                         <Text className="text-base">Quadra Fênix - 3h</Text>
                     </View>
@@ -94,9 +81,22 @@ export default function FinancialEstablishment() {
                         <Image source={require('../../assets/picture.png')} className="h-16 w-16"></Image>
                         <Image source={require('../../assets/quadra.png')} className="h-8 w-8 absolute border-2 border-[#FF6112] mt-8 ml-10 rounded-md"></Image>
                     </View>
-                    <View className="flex justify-center -ml-7">
+                    <View className="flex justify-center ml-2">
                         <Text className="text-xl font-bold">Lucas Santos</Text>
                         <Text className="text-base">Quadra Fênix - 3h</Text>
+                    </View>
+                    <View className="justify-center">
+                        <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
+                    </View>
+                    </View>
+                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
+                    <View className="relative">
+                        <Image source={require('../../assets/picture.png')} className="h-16 w-16"></Image>
+                        <Image source={require('../../assets/quadra.png')} className="h-8 w-8 absolute border-2 border-[#FF6112] mt-8 ml-10 rounded-md"></Image>
+                    </View>
+                    <View className="flex justify-center ml-2">
+                        <Text className="text-xl font-bold">Alan Vieira</Text>
+                        <Text className="text-base">Clube do Zeca - 1h</Text>
                     </View>
                     <View className="justify-center">
                         <Text className="text-xl text-right text-green-600 font-bold">+R$150,00</Text>
