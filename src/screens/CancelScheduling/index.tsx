@@ -5,7 +5,6 @@ import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { CancelSchedulingInfo } from "../../components/CancelSchedulingInfo";
 import { Button } from "react-native-paper";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {DEPRECATED_useSchedulingById} from "../../hooks/DEPRECATED_useSchedulingById";
 import {useGetSchedulingsDetails} from "../../hooks/useSchedulingDetails";
 import useCancelSchedule from "../../hooks/useCancelSchedule";
 

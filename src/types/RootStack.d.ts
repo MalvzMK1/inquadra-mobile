@@ -47,7 +47,8 @@ type RootStackParamList = {
 		userPhoto: string | undefined,
 	};
 	ProfileSettings: {
-		userPhoto: string | undefined
+		userPhoto: string | undefined,
+		userID: string
 	};
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {

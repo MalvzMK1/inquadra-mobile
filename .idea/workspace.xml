@@ -6,10 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/apolloClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/apolloClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/DEPRECATED_schedulingById.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/establishmentCardInformations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/establishmentCardInformations.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/sportTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/sportTypes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/DEPRECATED_useSchedulingById.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/CancelScheduling/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CancelScheduling/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Register/Establishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Establishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/home/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +98,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;WI564T666&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Development/work/inquadra/mobile&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -130,6 +136,8 @@
       <workItem from="1689282203327" duration="141000" />
       <workItem from="1689282366590" duration="193000" />
       <workItem from="1691661416027" duration="7037000" />
+      <workItem from="1691746608786" duration="122000" />
+      <workItem from="1691746746713" duration="8723000" />
     </task>
     <servers />
   </component>
