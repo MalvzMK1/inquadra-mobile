@@ -6,36 +6,25 @@ import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { SelectList } from 'react-native-dropdown-select-list';
-import useUpdateEstablishment from '../../../hooks/useUpdateEstablishment';
 import { useGetUserEstablishmentInfos } from '../../../hooks/useGetUserEstablishmentInfos';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form";
 import useUpdateUser from '../../../hooks/useUpdateUser';
 import useUpdateEstablishmentAddress from '../../../hooks/useUpdateEstablishmentAddress';
-import { HOST_API } from '@env'
 import storage from '../../../utils/storage';
 import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablishmentFantasyName';
-import { set } from 'date-fns';
 import useUpdateUserPassword from '../../../hooks/useUpdateUserPassword';
+import useRegisterPixKey from '../../../hooks/useRegisterPixKey';
+type DateTime = Date;
 
-// const updateEstablishment = async () => {
-//   await updateEstablishmentHook({
-//     variables: {
-//       establishment_id: 2,
-//       corporate_name: "Teste deu tora",
-//       cnpj: "56119122000123",
-//       phone_number: "(99)9999-9999",
-//       cep: "06233031",
-//       latitude: "-23.514366416737303",
-//       longitude: "-46.78709989124614",
-//       street_name: "R. Calixto Da Tora",
-//       amenities: ["1", "2"],
-//       cellphone_number: "(99)09999-9999",
-//       photos: ["2"]
-//     }
-//   })
-// }
+let userId = ""
+
+storage.load<UserInfos>({
+  key: 'userInfos',
+}).then((data) => {
+   userId = data.userId
+})
 
 interface IFormData {
   userName: string
@@ -88,7 +77,15 @@ const passwordFormSchema = z.object({
     .nonempty('O campo não pode estar vazio')
 })
 
-const userId = "2"
+interface IPixKeyFormData {
+  pixKey: string
+}
+
+const pixKeyFormSchema = z.object({
+  pixKey: z.string()
+    .nonempty('O campo não pode estar vazio')
+})
+
 
 export default function InfoProfileEstablishment() {
   const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
@@ -103,12 +100,16 @@ export default function InfoProfileEstablishment() {
   const { control: controlPassword, handleSubmit: handleSubmitPassword, formState: { errors: passwordErrors } } = useForm<IPasswordFormData>({
     resolver: zodResolver(passwordFormSchema)
   })
+  const { control: controlPixKey, handleSubmit: handleSubmitPixKey, formState: { errors: pixKeyErrors } } = useForm<IPixKeyFormData>({
+    resolver: zodResolver(pixKeyFormSchema)
+  })
 
   const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
   const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
   const [updateEstablishmentFantasyNameHook, { data: updateFantasyNameData, error: updateFantasyNameError, loading: updateFantasyNameLoading }] = useUpdateEstablishmentFantasyName()
   const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
   const [updateUserPassword, { data: updateUserPasswordData, error: updateUserPasswordError, loading: updateUserPasswordLoading }] = useUpdateUserPassword()
+  const [newPixKey, { data: newPixKeyData, error: newPixKeyError, loading: newPixKeyLoading }] = useRegisterPixKey()
 
   let amenities: string[] = []
   userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.forEach(amenitieItem => {
@@ -123,6 +124,11 @@ export default function InfoProfileEstablishment() {
   let establishmentPhotos: string[] = []
   userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data.forEach(photoItem => {
     establishmentPhotos.push(photoItem.id)
+  })
+
+  let pixKeys: string[] = []
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.pix_keys.data.forEach(pixKeyItem => {
+    pixKeys.push(pixKeyItem.attributes.key)
   })
 
   const userName = userByEstablishmentData?.usersPermissionsUser.data.attributes.username
@@ -145,6 +151,9 @@ export default function InfoProfileEstablishment() {
   const [editPasswordModal, setEditPasswordModal] = useState(false)
   const closeEditPasswordModal = () => setEditPasswordModal(false)
   const [selected, setSelected] = useState("")
+  const [pixKeySelected, setPixKeySelected] = useState("")
+  const [amenitieSelected, setAmeniniteSelected] = useState("")
+  const [courtSelected, setCourtSelected] = useState("")
 
   const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
   storage.load<{ latitude: number, longitude: number }>({
@@ -198,7 +207,7 @@ export default function InfoProfileEstablishment() {
     }).then(value => {
       alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
     })
-      .catch((reason) => console.error(reason))
+      .catch((reason) => alert(reason))
       .finally(() => setIsLoading(false))
   }
 
@@ -227,7 +236,7 @@ export default function InfoProfileEstablishment() {
     }).then(value => {
       alert(value.data?.updateEstablishment.data.attributes.address.streetName)
     })
-      .catch((reason) => console.error(reason))
+      .catch((reason) => alert(reason))
       .finally(() => setIsLoading(false))
   }
 
@@ -249,7 +258,7 @@ export default function InfoProfileEstablishment() {
     }).then(value => {
       alert(value.data?.updateEstablishment.data.attributes.fantasyName)
     })
-      .catch((reason) => console.error(reason))
+      .catch((reason) => alert(reason))
       .finally(() => setIsLoading(false))
   }
 
@@ -274,9 +283,29 @@ export default function InfoProfileEstablishment() {
       }).then(value => {
         alert("Senha alterada com sucesso")
       })
-        .catch((reason) => console.error(reason))
+        .catch((reason) => alert(reason))
         .finally(() => setIsLoading(false))
     }
+  }
+
+  const handleNewPixKey = (data: IPixKeyFormData): void => {
+    setIsLoading(true)
+
+    const pixKeyData = {
+      ...data
+    }
+
+    const currentDate: DateTime = new Date();
+
+    newPixKey({
+      variables: {
+        establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id,
+        pix_key: pixKeyData.pixKey,
+        published_at: currentDate
+      }
+    }).then(() => alert("Chave pix cadastrada com sucesso"))
+      .catch((reason) => alert(reason))
+      .finally(() => setIsLoading(false))
   }
 
   const [expiryDate, setExpiryDate] = useState('');
@@ -496,19 +525,51 @@ export default function InfoProfileEstablishment() {
           </TouchableOpacity>
 
           {showCard && (
+            <View>
+              <SelectList
+                setSelected={(val: string) => setPixKeySelected(val)}
+                data={pixKeys}
+                save="value"
+                placeholder='Selecione um dado'
+                searchPlaceholder="Pesquisar..."
+                dropdownTextStyles={{ color: "#FF6112" }}
+                inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8" }}
+                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+                arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+              />
+            </View>
+          )}
+
+          {showCard && (
             <View className="border border-gray-500 p-4 ">
               <View className="flex-row justify-between">
                 <View className="flex-1">
                   <Text className="text-base text-[#FF6112] mb-3">Chave PIX</Text>
                   <View>
-                    <TextInput className="p-4 border border-gray-500 rounded-md" placeholder='Coloque sua chave PIX' placeholderTextColor="#B8B8B8" />
+                    <Controller
+                      name='pixKey'
+                      control={controlPixKey}
+                      rules={{
+                        required: true
+                      }}
+                      render={({ field: { onChange } }) => (
+                        <TextInput
+                          onChangeText={onChange}
+                          className={`p-4 border ${pixKeyErrors.pixKey ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
+                          placeholder='Coloque sua chave PIX'
+                          placeholderTextColor="#B8B8B8"
+                        />
+                      )}
+                    />
+                    {pixKeyErrors.pixKey && <Text className='text-red-400 text-sm -pt-[10px]'>{pixKeyErrors.pixKey.message}</Text>}
                   </View>
                 </View>
               </View>
 
               <View className="p-2 justify-center items-center">
-                <TouchableOpacity onPress={handleSaveCard} className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
-                  <Text className="text-white">Salvar</Text>
+                <TouchableOpacity onPress={handleSubmitPixKey(handleNewPixKey)} className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
+                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -536,7 +597,7 @@ export default function InfoProfileEstablishment() {
           <View className="">
             <Text className='text-base mb-1'>Amenidades do Local</Text>
             <SelectList
-              setSelected={(val: string) => setSelected(val)}
+              setSelected={(val: string) => setAmeniniteSelected(val)}
               data={amenities}
               save="value"
               placeholder='Selecione um dado'
@@ -553,7 +614,7 @@ export default function InfoProfileEstablishment() {
           <View className="">
             <Text className='text-base mb-1'>Editar Quadra/Campo</Text>
             <SelectList
-              setSelected={(val: string) => setSelected(val)}
+              setSelected={(val: string) => setCourtSelected(val)}
               data={courts}
               save="value"
               placeholder='Selecione um dado'
