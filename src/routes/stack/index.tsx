@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Login from '../../screens/Login';
 import ChooseUserType from '../../screens/ChooseUserType/';
 import Register from '../../screens/Register/Client';
+import RegisterEstablishment from '../../screens/Register/Establishment';
 import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
 import Home from '../../screens/home';
@@ -17,17 +18,31 @@ import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
 import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
-import InvitedDescription from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
-import {NavigationProp, useNavigation} from "@react-navigation/native";
 import PixScreen from '../../screens/Pix';
+import HomeEstablishment from '../../screens/HomeEstablishment';
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import PixScreen from '../../screens/Pix';
+import CourtAvailibilityInfo from '../../screens/CourtAvailibilityInfo';
+import CourtPriceHour from '../../screens/CourtPriceHour';
+import EditCourt from '../../screens/EditCourt';
+import CompletedEstablishmentRegistration from '../../screens/CompletedEstablishmentRegistration';
+import InfoProfileEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment';
+import registerEstablishmentProfile from '../../screens/ProfileEstablishmentRegistration';
+import DeleteAccountEstablishment from '../../screens/ProfileEstablishmentRegistration/Client/deleteAccount';
+import FinancialEstablishment from '../../screens/FinancialEstablishment';
+import RegisterCourt from '../../screens/RegisterCourt';
+import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
+import Schedulings from '../../screens/Schedulings';
+import CancelScheduling from '../../screens/CancelScheduling';
+import { HOST_API } from '@env'
+import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 	const [menuBurguer, setMenuBurguer] = useState(false)
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
-
 	return (
 		<Navigator>
 			<Screen
@@ -45,23 +60,40 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="ProfileSettings"
-				component={ProfileSettings}
+				name='HomeEstablishment'
+				component={HomeEstablishment}
+				options={{
+					headerTitle: "Olá John",
+					headerTitleAlign: "center",
+					headerLeft: () => (<></>),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image
+								source={require('../../assets/default-user-image.png')}
+								className="rounded-full w-[50px] h-[50px]"
+							/>
+						</TouchableOpacity>
+					)
+				}}
+			/>
+			<Screen
+				name='CancelScheduling'
+				component={CancelScheduling}
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-						height: 100,
+						height: 80,
 						backgroundColor: '#292929',
 					},
 					headerTitleAlign: 'center',
 					headerTitle: () => (
-						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>Reservas</Text>
 						</View>
 					),
 					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
 					headerLeft: ({ navigation }) => (
@@ -74,6 +106,49 @@ export default function () {
 			<Screen
 				name="ChooseUserType"
 				component={ChooseUserType}
+			/>
+			<Screen
+				name='Schedulings'
+				component={Schedulings}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 80,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>Reservas</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name='RegisterEstablishmentProfile'
+				component={registerEstablishmentProfile}
+				options={{
+					headerTitle: "",
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="black" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name="PixScreen"
+				component={PixScreen}
 				options={{
 					headerShown: false,
 				}}
@@ -93,8 +168,22 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="Home"
+				name="EstablishmentRegister"
+				component={RegisterEstablishment}
 				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name='RegisterCourts'
+				component={RegisterCourt}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="Home"
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 125,
@@ -110,10 +199,14 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							navigation.navigate('ProfileSettings')
+							console.log({params})
+							navigation.navigate('ProfileSettings', {
+								userPhoto: HOST_API + params.userPhoto,
+								userID: params.userID
+							})
 						}}>
 							<Image
-								source={require('../../assets/qodeless_logo.jpg')}
+								source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -139,7 +232,7 @@ export default function () {
 							}
 						</TouchableOpacity>
 					),
-				}}
+				})}
 			>
 				{props => (
 					<Home
@@ -150,7 +243,7 @@ export default function () {
 			</Screen>
 			<Screen
 				name="HomeVariant"
-				options={({ route }) => ({
+				options={({ route: { params } }) => ({
 					headerTitleStyle: {
 						fontSize: 26
 					},
@@ -165,10 +258,12 @@ export default function () {
 					},
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							navigation.navigate('ProfileSettings')
+							navigation.navigate('ProfileSettings', {
+								userPhoto: params.userPhoto
+							})
 						}}>
 							<Image
-								source={require('../../assets/qodeless_logo.jpg')}
+								source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -182,6 +277,30 @@ export default function () {
 					/>
 				)}
 			</Screen>
+			<Screen
+				name='AmountAvailableWithdrawal'
+				component={AmountAvailableWithdrawal}
+				options={{
+					headerTitleAlign: 'center',
+					headerTitle: "Detalhes",
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 125,
+						backgroundColor: '#292929',
+					},
+					headerLeftContainerStyle: {
+						marginLeft: 12,
+					},
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image
+								source={require('../../assets/default-user-image.png')}
+								className="rounded-full w-[50px] h-[50px]"
+							/>
+						</TouchableOpacity>
+					)
+				}}
+			/>
 			<Screen
 				name="RegisterPassword"
 				component={Password}
@@ -224,7 +343,7 @@ export default function () {
 					headerShown: false
 				}}
 			/>
-			
+
 			<Screen
 				name="RegisterSuccess"
 				component={RegisterSuccess}
@@ -237,7 +356,7 @@ export default function () {
 			<Screen
 				name="FavoriteCourts"
 				component={FavoriteCourts}
-				options={({ route }) => ({
+				options={({ route: { params } }) => ({
 					headerTitle: 'Favoritos',
 					headerTitleStyle: {
 						fontSize: 26
@@ -253,10 +372,12 @@ export default function () {
 					},
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							navigation.navigate('ProfileSettings')
+							navigation.navigate('ProfileSettings', {
+								userPhoto: params.userPhoto
+							})
 						}}>
 							<Image
-								source={require('../../assets/qodeless_logo.jpg')}
+								source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className="w-full h-full"
 							/>
 						</TouchableOpacity>
@@ -264,18 +385,118 @@ export default function () {
 				})}
 			/>
 			<Screen
-				name="EstablishmentInfo"
-				component={EstablishmentInfo}
-				options={{
+				name="ProfileSettings"
+				component={ProfileSettings}
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
-						height: 80,
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
+							<Image
+								source={params?.userPhoto ? { uri: params.userPhoto } : require('../../assets/default-user-image.png')}
+								className='w-full h-full'
+							/>
+						</TouchableOpacity>
+					),
+				})}
+			/>
+			<Screen
+				name="EstablishmentInfo"
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
 						backgroundColor: '#292929',
 					},
 					headerTitleAlign: 'center',
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>ESTABELECIMENTO</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
+							<Image
+								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								className='w-full h-full'
+							/>
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				})}
+			>
+				{props => (
+					<EstablishmentInfo
+						{...props}
+					/>
+				)}
+			</Screen>
+			<Screen
+				name="CourtAvailibilityInfo"
+				component={CourtAvailibilityInfo}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<Screen
+				name='ReservationPaymentSign'
+				component={ReservationPaymentSign}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="CompletedEstablishmentResgistration"
+				component={CompletedEstablishmentRegistration}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+					}, headerTitleAlign: 'center',
+				}}
+			/>
+			<Screen
+				name="DeleteAccountEstablishment"
+				component={DeleteAccountEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+				}}
+			/>
+			<Screen
+				name="InfoProfileEstablishment"
+				component={InfoProfileEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
 						</View>
 					),
 					headerRight: () => (
@@ -290,6 +511,73 @@ export default function () {
 					),
 				}}
 			/>
+			<Screen
+				name="FinancialEstablishment"
+				component={FinancialEstablishment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+			<Screen
+				name='CourtPriceHour'
+				component={CourtPriceHour}
+				options={{
+					headerTitle: 'Definir hora/valor',
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="black" />
+						</TouchableOpacity>
+					)
+				}}
+			/>
+			<Screen
+				name="EditCourt"
+				component={EditCourt}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 80,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>QUADRAS</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
+			/>
+
 		</Navigator>
 	);
 }

@@ -4,4 +4,5 @@ type Address = {
 	cep: string
 	latitude: string
 	longitude: string
+	number?: string
 }

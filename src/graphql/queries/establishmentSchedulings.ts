@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
-export interface IEstablishmentSchedulingsResponse {
+export interface IEstablishmentSchedulingsResponse{
 	schedulings:{
-            data: {
+            data: Array<{
                 id: Scheduling['id']  
                 attributes: {
                     date: Scheduling['date']
@@ -17,43 +17,42 @@ export interface IEstablishmentSchedulingsResponse {
                             }
                         }
                     }
-                users: {
-                    data: {
-                        attributes: {
+                users:{
+                    data: Array<{
+                        attributes:{
                             username: User['username']
                             email: User['email']
                             cpf: User['cpf']
                         }
-                    }
+                    }>
                 }
-                court_availability: {
-                    data: {
-                        attributes: {
-                            startsAt: CourtAvailability['startsAt']
-                            endsAt: CourtAvailability['endsAt']
+                court_availability:{
+                    data:{
+                        attributes:{
+                            startsAt: string
+                            endsAt: string
                             value: CourtAvailability['value']
                             dayUseService: CourtAvailability['dayUseService']
                         }
                     }
                 }
             }
-        }
+        }>
     }
 }
 
 export interface IEstablishmentSchedulingsVariables {
 	id: string
-    date: Date
+    date: string
 }
 
 export const establishmentSchedulingQuery = gql`
-    query GetEstablishmentsSchedulings($id: ID, $date: String!) {
+    query GetEstablishmentsSchedulings($id: ID, $date: DateTime!) {
     schedulings(
         filters: {
         court_availability: { court: { establishment: { id: { eq: $id } } } }
         date: { eq: $date }
-        }
-        ) {
+        }){
             data {
                 id  
                 attributes {

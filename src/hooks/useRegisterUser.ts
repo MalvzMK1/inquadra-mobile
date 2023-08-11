@@ -1,4 +1,4 @@
-import {MutationResult, useMutation} from "@apollo/client";
+import {useMutation} from "@apollo/client";
 import{
     IRegisterUserResponse,
     IRegisterUserVariables,

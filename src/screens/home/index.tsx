@@ -1,67 +1,41 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import {View, TouchableOpacity} from 'react-native';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import useGetNextToCourts from "../../hooks/useNextToCourts";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useGetNextToCourts } from "../../hooks/useNextToCourts";
+import { useGetUserById } from "../../hooks/useUserById";
+import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
+import { HOST_API } from '@env';
+import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
+import {calculateDistance} from "../../components/calculateDistance/calculateDistance";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
 }
 
-const ArrayLocations = [
-	{
-		latitude: 37.78825,
-		longitude: -122.4324,
-		nome: "quadra Legal",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		type: "quadra amadora",
-		distance: 4.5
-	},
-	{
-		latitude: -29.1354,
-		longitude: 69.0102,
-		nome: "quadra daora",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	},
-	{
-		latitude: 66.2539,
-		longitude:  -167.8774,
-		nome: "quadra Legal",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	},
-	{
-		latitude: -44.9763,
-		longitude: -102.6039,
-		nome: "quadra daora",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-
-	},
-	{
-		latitude: -76.5344,
-		longitude: -46.7475,
-		nome: "quadra Legal",
-		type: "quadra amadora",
-		Image: "https://static.sportit.com.br/public/sportit/imagens/produtos/quadra-poliesportiva-piso-modular-externo-m2-2921.jpg",
-		distance: 4.5
-	}
-]
+interface EstablishmentObject {
+	id: string,
+	latitude: number,
+	longitude: number,
+	name: string,
+	type: string,
+	image: string,
+	distance: number,
+}
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
-	const {data, loading, error} = useGetNextToCourts()
-	const [courts, setCourts] = useState<Array<{
+	const userGeolocation = route.params.userGeolocation;
+
+	const {data, loading, error} = useEstablishmentCardInformations()
+	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
+	const [establishments, setEstablishments] = useState<Array<{
 		id: string,
 		latitude: number,
 		longitude: number,
@@ -69,34 +43,79 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		type: string,
 		image: string,
 		distance: number,
-	}>>([])
+	}>>([]);
+	const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
+	const {data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError} = useAvailableSportTypes()
 
 	useEffect(() => {
 		if (!error && !loading) {
-			const newCourts = data?.courts.data.map((court) => {
-				return {
-					id: court.id,
-					latitude: Number(court.attributes.establishment.data.attributes.address.latitude),
-					longitude: Number(court.attributes.establishment.data.attributes.address.longitude),
-					name: court.attributes.name,
-					type: court.attributes.court_type.data.attributes.name,
-					image: 'http://192.168.0.10:1337' + court.attributes.photo.data[0].attributes.url,
-					distance: 666, // Substitua pelos valores reais
-				}
-			});
+			const newCourts = data?.establishments.data
+				.filter(establishment => (
+					establishment.attributes.photos.data &&
+					establishment.attributes.photos.data.length > 0 &&
+					establishment.attributes.courts.data
+				))
+				.map((establishment => {
+					let establishmentObject: EstablishmentObject;
+
+					let courtTypes = establishment.attributes.courts.data!
+						.filter(court => court.attributes.court_types.data.length > 0)
+						.map(court => court.attributes.court_types.data)
+						.map(courtType => courtType.map(type => type.attributes.name))
+
+					console.log(courtTypes)
+
+					if (!courtTypes) courtTypes = []
+
+					establishmentObject = {
+						id: establishment.id,
+						name: establishment.attributes.corporateName,
+						latitude: Number(establishment.attributes.address.latitude),
+						longitude: Number(establishment.attributes.address.latitude),
+						distance: calculateDistance(
+							userGeolocation.latitude,
+							userGeolocation.longitude,
+							Number(establishment.attributes.address.latitude),
+							Number(establishment.attributes.address.latitude)
+							) / 1000, // Change to real values,
+						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
+						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : ''
+					}
+
+					return establishmentObject
+				}))
 
 			if (newCourts) {
-				setCourts((prevCourts) => [...prevCourts, ...newCourts]);
+				setEstablishments((prevCourts) => [...prevCourts, ...newCourts]);
 			}
+
+			navigation.setParams({
+				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+			})
 		}
-	}, [data, loading]);
+
+		console.log(userHookData?.usersPermissionsUser.data.attributes.photo.data)
+	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
-	const userGeolocation = route.params.userGeolocation
+	useEffect(() => {
+		const newAvailableSportTypes: SportType[] = [];
+
+		availableSportTypes?.courts.data.forEach(court => {
+			court.attributes.court_types.data.forEach(courtType => {
+				newAvailableSportTypes.push({id: courtType.id, name: courtType.attributes.name})
+			})
+		})
+
+		setSportTypes(newAvailableSportTypes)
+	}, [availableSportTypes, availableSportTypesError])
 
 	return (
 		<View className="flex-1 flex flex-col">
-			{isDisabled && !menuBurguer && <SportsMenu />}
+			{
+				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
+					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} />
+			}
 			<View className='flex-1'>
 
 				<MapView
@@ -113,7 +132,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					}}
 				>
 					{
-						courts.map((item) => (
+						establishments.map((item) => (
 							<Marker
 								coordinate={{
 									latitude: item.latitude,
@@ -124,11 +143,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 								description='test'
 							>
 								<CourtBallon
+									id={item.id}
 									key={item.id}
 									name={item.name}
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
+								// pageNavigation='EstablishmentInfo'
 								/>
 							</Marker>
 						))
@@ -141,13 +162,17 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
-			{isDisabled && <HomeBar courts={courts}/>}
+			{
+				isDisabled && <HomeBar
+					courts={establishments}
+					userName={userHookData?.usersPermissionsUser.data.attributes.username}
+				// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
+				/>
+			}
 			<BottomNavigationBar
 				isDisabled={isDisabled}
-				buttonOneNavigation='ProfileSettings'
-				buttonTwoNavigation='FavoriteCourts'
-				buttonThreeNavigation='Home'
-				buttonFourNavigation='InfoReserva'
+				playerScreen={true}
+				establishmentScreen={false}
 			/>
 		</View >
 	);

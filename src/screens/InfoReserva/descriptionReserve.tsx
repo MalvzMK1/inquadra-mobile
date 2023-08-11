@@ -5,6 +5,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
+import { TextInputMask } from 'react-native-masked-text';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { useInfoSchedule } from '../../hooks/useInfoSchedule';
 import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
@@ -15,22 +16,30 @@ import { format, parseISO, differenceInSeconds, formatDuration, intervalToDurati
 import Countdown from '../../components/countdown/Countdown';
 import useCountries from '../../hooks/useCountries';
 import {HOST_API} from  '@env';
-
-export default function DescriptionReserve() {
+import { isValidCPF } from "../../utils/isValidCpf";
+import { formatDateTime, formatDate, convertToAmericanDate } from "../../utils/formatDate";
+import useUpdateScheduleValue from '../../hooks/useUpdateScheduleValue';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useGetMenuUser } from '../../hooks/useMenuUser';
+export default function DescriptionReserve({navigation, route}:NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
+    const user_id = route.params.userId
+    const schedule_id = route.params.scheduleId
+    const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
+    const schedulePrice = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value
+    const scheduleValuePayed = data?.scheduling?.data?.attributes?.valuePayed
+    const {data:dataCountry, error:errorCountry, loading:loadingCountry} = useCountries()
+    const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
+    const [updateScheduleValue, {data:dataScheduleValue, error:errorScheduleValue, loading:loadingScheduleValue}] = useUpdateScheduleValue()
+    const {data:dataUser, error:errorUser, loading:loadingUser} = useGetMenuUser(user_id)
 
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
     
     const [creditCard, setCreditCard] = useState("")
     const [selected, setSelected] = useState("")
+    const [countriesData, setCountriesData] = useState<CountryAPI[]>([]);
+    const [countryId, setCountryId] = useState<string | null>(null);
 
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
-
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
-
-    const user_id = '2'
-    const schedule_id = '1'
-
-  
 
       interface iFormCardPayment {
         value: string
@@ -44,48 +53,7 @@ export default function DescriptionReserve() {
         name: string
         cpf: string
         value: string
-      }
-
-      const isValidCPF = (cpf: string): boolean => {
-        const cleanedCPF = cpf.replace(/[^\d]/g, '');
-      
-
-        if (cleanedCPF.length !== 11) {
-          return false;
-        }
-      
-        if (/^(\d)\1+$/.test(cleanedCPF)) {
-          return false;
-        }
-      
-        let sum = 0;
-        for (let i = 0; i < 9; i++) {
-          sum += parseInt(cleanedCPF.charAt(i)) * (10 - i);
-        }
-        let remainder = (sum * 10) % 11;
-        if (remainder === 10 || remainder === 11) {
-          remainder = 0;
-        }
-        if (remainder !== parseInt(cleanedCPF.charAt(9))) {
-          return false;
-        }
-      
-        sum = 0;
-        for (let i = 0; i < 10; i++) {
-          sum += parseInt(cleanedCPF.charAt(i)) * (11 - i);
-        }
-        remainder = (sum * 10) % 11;
-        if (remainder === 10 || remainder === 11) {
-          remainder = 0;
-        }
-        if (remainder !== parseInt(cleanedCPF.charAt(10))) {
-          return false;
-        }
-      
-        return true;
-      };
-
-      
+      }    
       
       const formSchema = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
@@ -93,53 +61,21 @@ export default function DescriptionReserve() {
         cpf: z.string({required_error: "É necessário inserir o CPF"}).max(15, {message: "CPF invalido"}).refine(isValidCPF, { message: "CPF inválido" }),
         cvv: z.string({required_error: "É necessário inserir um CVV"}).max(3, {message: "Só é possivel digitar até 3 caracteres"}).min(3, {message: "O minimo são 3 caracteres"}),
         date: z.string().refine((value) => {
+            const [month, year] = value.split('/');
             const currentDate = new Date();
-            const [day, month, year] = value.split('/'); 
-            const inputDate = new Date(`${year}-${month}-${day}`); 
-        
+            const inputDate = new Date(`20${year}-${month}-01`);
+          
             if (isNaN(inputDate.getTime())) {
               return false;
             }
-        
+          
             if (inputDate.getTime() <= currentDate.getTime()) {
               return false;
             }
-        
+          
             return true;
           }, { message: "A data de vencimento é inválida" }),
       })
-
-      const convertToAmericanDate = (dateString: string) => {
-        const parts = dateString.split('/');
-        const day = parts[0];
-        const month = parts[1];
-        const year = parts[2];
-        const americanDate = `${year}-${month}-${day}`;
-        return americanDate;
-      };
-
-      function formatDateTime(dateTimeString: string): string {
-        try {
-            const parsedDateTime = parseISO(dateTimeString);
-            const formattedDate = format(parsedDateTime, 'dd/MM/yyyy');
-            const formattedTime = format(parsedDateTime, 'HH:mm');
-            return `${formattedDate} as ${formattedTime}`;
-          } catch (error) {
-            console.error('Erro ao converter a data:', error);
-            return 'Data inválida';
-          }
-      }
-
-      function formatDate(dateTimeString: string): string {
-        try {
-            const parsedDateTime = parseISO(dateTimeString);
-            const formattedDate = format(parsedDateTime, 'dd/MM/yyyy');
-            return `${formattedDate}`;
-          } catch (error) {
-            console.error('Erro ao converter a data:', error);
-            return 'Data inválida';
-          }
-      }
 
 
       const getCountryImage = (countryISOCode: string | null): string | undefined => {
@@ -148,6 +84,29 @@ export default function DescriptionReserve() {
         
           if (selectedCountry) {
             return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
+          }
+        }
+        return undefined;
+      };
+
+
+      const getCountryIdByISOCode = (countryISOCode: string | null): string => {
+        if (countryISOCode && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        
+          if (selectedCountry) {
+            return selectedCountry.id;
+          }
+        }
+        return "";
+      };
+
+      const getCountryImage = (countryISOCode: string | null): string | undefined => {
+        if (countryISOCode && dataCountry) {
+          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        
+          if (selectedCountry) {
+            return `http://192.168.0.229:1337${selectedCountry.attributes.flag.data.attributes.url}`;
           }
         }
         return undefined;
@@ -178,13 +137,7 @@ export default function DescriptionReserve() {
     const {control:controlPix, handleSubmit:handleSubmitPix, formState: {errors:errorsPix}, getValues:getValuesPix} = useForm<iFormPixPayment>({
         resolver: zodResolver(formSchemaPixPayment)
     })
-        
-    const {data, error, loading} = useInfoSchedule(schedule_id, user_id)
-    const {data:dataCountry, error:errorCountry, loading:loadingCountry} = useCountries()
-    const [userPaymentCard, {data:userCardData, error:userCardError, loading:userCardLoading }] = useUserPaymentCard()
-
-
-    
+          
 
     const closeCardPayment = () => {
         setShowCardPaymentModal(false);
@@ -192,6 +145,52 @@ export default function DescriptionReserve() {
     
       const closePixPayment = () => {
         setShowPixPaymentModal(false);
+      };
+
+
+      async function pay(data: iFormCardPayment){
+        const countryId = getCountryIdByISOCode(selected)
+        await userPaymentCard({ 
+                variables: {
+                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
+                    schedulingId: schedule_id,
+                    userId: '1',
+                    name: data.name,
+                    cpf: data.cpf,
+                    cvv: parseInt(data.cvv),
+                    date: convertToAmericanDate(data.date),
+                    countryID: countryId,
+                    publishedAt: new Date().toISOString()
+                }
+            })
+            await scheduleValueUpdate(parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')))
+            setShowCardPaymentModal(false)
+      }     
+
+      const scheduleValueUpdate = async (value:number) =>{
+        let validatePayment = value + scheduleValuePayed >= schedulePrice ? true : false
+        let valuePayedUpdate = value + scheduleValuePayed
+        try {
+            const update = await updateScheduleValue({
+                variables: {
+                    payed_status: validatePayment,
+                    scheduling_id: parseInt(schedule_id),
+                    value_payed:valuePayedUpdate
+                }
+            })
+            console.log(update.data?.updateScheduling.data.id)
+        } catch(error){
+            console.log("Erro na mutação updateValueSchedule", error)
+        }
+      }
+
+
+    const closeCardPayment = () => {
+        setShowPixPaymentModal(false);
+      };
+    
+      const closePixPayment = () => {
+        setShowCardPaymentModal(false);
       };
 
 
@@ -212,15 +211,19 @@ export default function DescriptionReserve() {
             setShowCardPaymentModal(false)
       }
 
-
     function payPix(info: iFormPixPayment){
-        navigation.navigate('PixScreen', {courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))})
+        navigation.navigate('PixScreen', {courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.')), userID: user_id})
         setShowPixPaymentModal(false)
       }
 
+      const countryOptions = dataCountry?.countries?.data.map(country => ({
+        value: country?.id,
+        label: country?.attributes?.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
+        img: `http://192.168.0.229:1337${country?.attributes?.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+      })) || [];
 
     return (
-        <View className='flex-1 bg-zinc-600'>      
+        <View className='flex-1 bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
@@ -234,7 +237,7 @@ export default function DescriptionReserve() {
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
+                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data.attributes.photo?.data.attributes.url }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -470,19 +473,21 @@ export default function DescriptionReserve() {
                             </View>
                             <View className='flex flex-row'>
                                 <View className='flex-1 mr-[20px]'>
-                                    <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
-                                    
+                                    <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>   
                                     <Controller
                                         name='date'
                                         control= {control}
                                         render={({field: {onChange}}) => (
-                                            <MaskInput
-                                                className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='MM/AA'
-                                                value={getValues('date')}
-                                                onChangeText={onChange}
-                                                mask={Masks.DATE_DDMMYYYY}>
-                                            </MaskInput>
+                                            <TextInputMask className='p-3 border border-neutral-400 rounded bg-white'
+                                            options={{
+                                            format: 'MM/YY',
+                                            }}
+                                            type={'datetime'}
+                                            value={getValues('date')}
+                                            onChangeText={onChange}
+                                            placeholder="MM/YY"
+                                            keyboardType="numeric"
+                                        />
                                         )}
                                     ></Controller>
                                     {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}

@@ -1,9 +1,17 @@
 type CourtAvailability = {
     id: string
-    status: string
-    dayUseService: string
-    startsAt: Date
-    endsAt: Date
-    weekDay: string
+    status: Boolean
+    dayUseService?: Boolean
+    startsAt: string
+    endsAt: string
+    weekDay: WeekDays
     value: number
+    minValue:number
+    title?: string
+}
+
+type GraphQLCourtAvailability = {
+    id: string,
+    __typename?: string,
+    attributes: Omit<CourtAvailability, 'id'>
 }

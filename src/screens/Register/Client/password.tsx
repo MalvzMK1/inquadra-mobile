@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Image } from "react-native"
+import {View, Text, TextInput, Image, ActivityIndicator} from "react-native"
 import React, { useState } from "react"
 import { RegisterHeader } from "../../../components/RegisterHeader"
 import { TouchableOpacity } from "react-native"
@@ -38,14 +38,15 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 	const handleConfirmShowPassword = () => {
 		setShowConfirmedPassword(!showConfirmedPassword)
 	}
-	const checked: string = "checked"
 
 	const [isTermChecked, setIsTermChecked] = useState(false)
 	const [isCaptchaChecked, setIsCaptchaChecked] = useState(false)
 	const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false)
 	const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	function handleSignup(data: IFormData): void {
+		setIsLoading(true)
 		if (isTermChecked) {
 			if (isCaptchaChecked) {
 				console.log(data)
@@ -63,12 +64,12 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 							phone_number: userDatas.phoneNumber,
 							username: userDatas.name,
 						}
+					}).then(value => {
+						navigation.navigate('RegisterSuccess')
+						alert(value.data?.createUsersPermissionsUser.data.attributes.email)
 					})
-						.then(value => navigation.navigate('RegisterSuccess'))
-						.catch(error => {
-							console.log(error)
-							alert(error)
-						})
+						.catch((reason) => console.error(reason))
+						.finally(() => setIsLoading(false))
 				}
 			} setIsCaptchaCheckedError(true)
 		} setIsTermCheckedError(true)
@@ -164,7 +165,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 				<TouchableOpacity
 					className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
 					onPress={handleSubmit(handleSignup)}>
-					<Text className='text-gray-50'>Continuar</Text>
+					<Text className='text-gray-50'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Continuar'}</Text>
 				</TouchableOpacity>
 			</View>
 		</View>
