@@ -3,6 +3,7 @@ import {gql} from "@apollo/client";
 export interface IRegisterUserResponse{
     createUsersPermissionsUser:{
         data:{
+            id: number
             attributes: {
                 username: User['username']
 				email: User['email']
@@ -47,6 +48,7 @@ export const registerUserMutation = gql`
         }
     ) {
         data {
+            id
         attributes {
             username
             email

@@ -1,5 +1,5 @@
-import {useEffect, useRef, useState} from 'react';
-import {View, Text, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -9,8 +9,6 @@ import Animated, {
 	FadeIn
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
-import useGetNextToCourts from "../../hooks/useNextToCourts";
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
 interface HomeBarProps {
 	courts: Array<{
@@ -23,6 +21,7 @@ interface HomeBarProps {
 		distance: number,
 	}>,
 	userName: string | undefined
+	// photoUser: string | undefined
 }
 
 export default function HomeBar({courts, userName}: HomeBarProps) {
@@ -55,7 +54,9 @@ export default function HomeBar({courts, userName}: HomeBarProps) {
 			<ScrollView className='p-5'>
 				{courts !== undefined ? courts.map((item) => (
 					<CourtCardHome
+						key={item.id}
 						id={item.id}
+						// photoUser={photoUser}
 						image={item.image}
 						name={item.name}
 						distance={item.distance}

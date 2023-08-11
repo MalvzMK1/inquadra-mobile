@@ -4,39 +4,40 @@ import { gql } from "@apollo/client";
 export interface IUserByIdResponse {
   usersPermissionsUser: {
     data: {
+      id: User['id'];
       attributes: {
-        id: User['id'];
-        attributes: {
-          username: User['username'];
-          email: User['email'];
-          phoneNumber: User['phoneNumber'];
-          cpf: User['cpf'];
-          paymentCardInformations: PaymentCardInformations;
-        };
-        country: {
-          data: {
-            id: Country['id'];
-            attributes: Omit<Country, 'id'>;
-          }
-          flag: {
+        username: User['username'];
+        email: User['email'];
+        phoneNumber: User['phoneNumber'];
+        cpf: User['cpf'];
+        paymentCardInformations: {
+          id: PaymentCardInformations['id']
+          cvv: PaymentCardInformations['cvv']
+          dueDate: string
+          country: {
             data: {
               attributes: {
-                url: Flag['url'];
+                flag: {
+                  data: {
+                    attributes: {
+                      url: Flag['url'];
+                    };
+                  };
+                };
               };
             };
           };
         };
+        photo: {
+          data?: {
+            attributes: {
+              url: Photo['url'];
+            };
+          };
+        };
       };
-    } & {
-      photo: {
-        data:{
-          attributes: {
-            url: Photo['url']
-          }
-        }
-      }
-    }
-  }
+    };
+  };
 }
 
 export interface IUserByIdVariables {

@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export interface IEstablishmentSchedulingsResponse {
+export interface IEstablishmentSchedulingsResponse{
 	schedulings:{
             data: Array<{
                 id: Scheduling['id']  
@@ -17,20 +17,20 @@ export interface IEstablishmentSchedulingsResponse {
                             }
                         }
                     }
-                users: {
+                users:{
                     data: Array<{
-                        attributes: {
+                        attributes:{
                             username: User['username']
                             email: User['email']
                             cpf: User['cpf']
                         }
                     }>
                 }
-                court_availability: {
-                    data: {
-                        attributes: {
-                            startsAt: CourtAvailability['startsAt']
-                            endsAt: CourtAvailability['endsAt']
+                court_availability:{
+                    data:{
+                        attributes:{
+                            startsAt: string
+                            endsAt: string
                             value: CourtAvailability['value']
                             dayUseService: CourtAvailability['dayUseService']
                         }
@@ -52,8 +52,7 @@ export const establishmentSchedulingQuery = gql`
         filters: {
         court_availability: { court: { establishment: { id: { eq: $id } } } }
         date: { eq: $date }
-        }
-        ) {
+        }){
             data {
                 id  
                 attributes {

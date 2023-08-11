@@ -1,24 +1,86 @@
-import { View, Text, TouchableOpacity, TextInput, Image } from "react-native";
-
 import React, { useState } from "react";
+import { View, Text, TouchableOpacity, TextInput, Image, Alert } from "react-native";
+import { Controller, useForm } from "react-hook-form";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
 import { CheckBox } from 'react-native-elements'
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod'
+import useRegisterUser from "../../hooks/useRegisterUser";
+import validateCpf from "../../utils/validateCPF";
 
+const formSchema = z.object({
+    name: z.string()
+        .nonempty('O nome não pode estar vazio!'),
+    email: z.string()
+        .nonempty('O E-mail não pode estar vazio!')
+        .includes('@', {
+            message: 'O E-mail passado não é válido',
+        })
+        .max(254, 'O E-mail passado não é válido'),
+    phoneNumber: z.string()
+        .nonempty('O número de telefone não pode estar vazio!')
+        .max(15, 'O número passado não é válido'),
+    cpf: z.string()
+        .nonempty('O CPF não pode estar vazio!')
+        .max(14, 'O CPF passado não é válido'),
+    password: z.string()
+        .nonempty('O campo não pode estar vazio'),
+    confirmPassword: z.string()
+        .nonempty('O campo não pode estar vazio'),
+})
 
 export default function ProfileEstablishmentRegistration() {
+    const [registerUser, { data, error, loading }] = useRegisterUser()
 
-    const [cpf, setCpf] = useState("");
-    const [phone, setPhone] = useState("");
-    const [password, setPassword] = useState('');
+    interface IFormDatas {
+        name: string
+        email: string
+        phoneNumber: string
+        cpf: string
+        password: string
+        confirmPassword: string
+    }
+
+
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatas>({
+        resolver: zodResolver(formSchema)
+    });
+
+
     const [isChecked, setIsChecked] = useState(false)
     const [captchaChecked, setCaptchaChecked] = useState(false)
-    const navigation = useNavigation()
+    const [samePasswords, setSamePasswords] = useState(true)
+    const [validCpf, setValidCpf] = useState(true)
+
+    function handleGoToNextRegisterPage(data: IFormDatas): void {
+        let result = false
+        if (data.confirmPassword == data.password) {
+            result = true
+            if (isChecked && captchaChecked) {
+                if (validateCpf(data.cpf)) {
+                    navigation.navigate("EstablishmentRegister", {
+                        username: data.name,
+                        cpf: data.cpf,
+                        email: data.email,
+                        password: data.password,
+                        phone_number: data.phoneNumber,
+                        role: "4"
+                    })
+                } else setValidCpf(false)
+            } else {
+                if (!isChecked) Alert.alert("Termos de Uso e Política de Privacidade", "É necessario aceitar os termos e condições para prosseguir")
+                if (!captchaChecked) Alert.alert("Complete a Verificação de Segurança", "Complete o Captcha para prosseguir")
+            }
+        }
+        setSamePasswords(result)
+    }
 
     return (
-		<View className="flex-1 bg-white h-screen">
-            <ScrollView> 
+        <View className="flex-1 bg-white h-screen">
+            <ScrollView>
                 <View className="items-center mt-9 p-4">
                     <Text className="text-3xl text-center font-extrabold text-gray-700">Cadastro Pessoal</Text>
                 </View>
@@ -26,72 +88,171 @@ export default function ProfileEstablishmentRegistration() {
                     <View className='p-5 gap-7 flex flex-col justify-between'>
                         <View>
                             <Text className='text-xl p-1'>Qual é o seu nome?</Text>
-                            <TextInput className='p-5 border border-neutral-400 rounded' placeholder='Ex.: João'></TextInput>
+                            <Controller
+                                name='name'
+                                control={control}
+                                rules={{
+                                    required: true
+                                }}
+                                render={({ field: { onChange } }) => (
+                                    <TextInput
+                                        onChangeText={onChange}
+                                        className={errors.name ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                        placeholder='Ex.: João'
+                                    />
+                                )}
+                            />
+                            {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
                         </View>
-
                         <View>
                             <Text className='text-xl p-1'>Qual é o seu email?</Text>
-                            <TextInput className='p-5 border border-neutral-400 rounded' placeholder='exemplo@mail.com.br'></TextInput>
+                            <Controller
+                                name='email'
+                                control={control}
+                                rules={{
+                                    required: true,
+                                    maxLength: 254
+                                }}
+                                render={({ field: { onChange } }) => (
+                                    <TextInput
+                                        textContentType='emailAddress'
+                                        keyboardType='email-address'
+                                        maxLength={254}
+                                        onChangeText={onChange}
+                                        className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                        placeholder='exemplo@mail.com.br'
+                                    />
+                                )}
+                            />
+                            {errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
                         </View>
                         <View>
                             <Text className="text-xl p-1">CPF</Text>
-                            <MaskInput 
-                                    className='p-5 border border-neutral-400 rounded' 
-                                    placeholder='000-000-000-00'
-                                    value={cpf}
-                                    onChangeText={setCpf}
-                                    mask={Masks.BRL_CPF}>
-                                </MaskInput>
+                            <Controller
+                                name='cpf'
+                                control={control}
+                                rules={{
+                                    required: true,
+                                    minLength: 11,
+                                    maxLength: 11
+                                }}
+                                render={({ field: { onChange } }) => (
+                                    <MaskInput
+                                        mask={Masks.BRL_CPF}
+                                        maskAutoComplete={true}
+                                        value={getValues('cpf')}
+                                        keyboardType='numeric'
+                                        maxLength={14}
+                                        onChange={() => setValidCpf(true)}
+                                        onChangeText={(masked, unmasked, obfuscated) => onChange(unmasked)}
+                                        className={errors.cpf ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                        placeholder='000.000.000-00'
+                                    />
+                                )}
+                            />
+                            {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
+                            {!validCpf && !errors.cpf && <Text className='text-red-400 text-sm'>Digite um CPF valido</Text>}
                         </View>
                         <View>
                             <Text className="text-xl p-1">Telefone para Contato</Text>
-                        <MaskInput 
-                                className='p-5 border border-neutral-400 rounded' 
-                                placeholder='(00) 0000-0000'
-                                value={phone}
-                                onChangeText={setPhone}
-                                mask={Masks.BRL_PHONE}>
-                            </MaskInput>
+                            <Controller
+                                name={'phoneNumber'}
+                                control={control}
+                                rules={{
+                                    required: true,
+                                    minLength: 11,
+                                    maxLength: 11
+                                }}
+                                render={({ field: { onChange } }) => (
+                                    <MaskInput
+                                        mask={Masks.BRL_PHONE}
+                                        maskAutoComplete={true}
+                                        value={getValues('phoneNumber')}
+                                        textContentType='telephoneNumber'
+                                        keyboardType='phone-pad'
+                                        maxLength={15}
+                                        onChangeText={(masked, unmasked, obfuscated) => onChange(unmasked)}
+                                        className={errors.phoneNumber ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                        placeholder='(00) 00000-0000'
+                                    />
+                                )}
+                            />
+                            {errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
                         </View>
+                    </View>
+                    <View className="p-5 gap-7 flex flex-col">
+                        <View>
+                            <Text className="text-xl p-1">Criar Senha para acesso</Text>
+                            <Controller
+                                name='password'
+                                control={control}
+                                rules={{
+                                    required: true,
+                                    minLength: 6
+                                }}
+                                render={({ field: { onChange } }) => (
+                                    <TextInput
+                                        textContentType='password'
+                                        onChangeText={onChange}
+                                        className={errors.password || !samePasswords ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                        placeholder='**********'
+                                    />
+                                )}
+                            />
+                            {errors.password && <Text className='text-red-400 text-sm'>{errors.password.message}</Text>}
+                            {!samePasswords && <Text className='text-red-400 text-sm'>As senha devem ser iguais</Text>}
                         </View>
                         <View>
-                        <View className="p-5 mt-7">
-                            <Text className="text-xl p-1">Criar Senha para acesso</Text>
-                            <TextInput secureTextEntry className='p-5 border border-neutral-400 rounded' placeholder="*********" ></TextInput>
+                            <Text className="text-xl p-1">Repita sua nova senha</Text>
+                            <Controller
+                                name='confirmPassword'
+                                control={control}
+                                rules={{
+                                    required: true,
+                                    minLength: 6
+                                }}
+                                render={({ field: { onChange } }) => (
+                                    <TextInput
+                                        textContentType='password'
+                                        onChangeText={onChange}
+                                        className={errors.confirmPassword || !samePasswords ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                        placeholder='**********'
+                                    />
+                                )}
+                            />
+                            {errors.confirmPassword && <Text className='text-red-400 text-sm'>{errors.confirmPassword.message}</Text>}
+                            {!samePasswords && <Text className='text-red-400 text-sm'>As senha devem ser iguais</Text>}
                         </View>
-                        <View className="p-5">
-                        <Text className="text-xl p-1">Repita sua nova senha</Text>
-                            <TextInput secureTextEntry className='p-5 border border-neutral-400 rounded' placeholder="*********" ></TextInput>
-                        </View>
-                        </View>
-                        <View className="flex flex-row justify-start items-center w-full">
+                    </View>
+                </View>
+                <View className="px-5 pt-6">
+                    <View className="flex flex-row w-4/5">
                         <CheckBox
+                            className=""
                             checked={isChecked}
                             onPress={() => setIsChecked(!isChecked)}
                         />
-                        <View className="flex ">
-                        <Text className="text-base flex-wrap">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap">Termo de Uso e Política de Privacidade</Text> </Text>
+                        <View className="flex">
+                            <Text className="text-base">Li e estou de acordo com o <Text className="text-[#3D58DB]">Termo de Uso e Política de Privacidade</Text> </Text>
                         </View>
                     </View>
-                    <View className="flex items-center pt-3">
-                    <View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">
-                        <View className="flex flex-row items-center">
-                            <CheckBox
-                                checked={captchaChecked}
-                                onPress={() => setCaptchaChecked(!captchaChecked)}
-                            />
-                            <Text className="text-[#959595] text-base">Não sou um robô</Text>
+                    <View className="flex items-center pt-3 pb-4">
+                        <View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2 mb-[60px]">
+                            <View className="flex flex-row items-center">
+                                <CheckBox
+                                    checked={captchaChecked}
+                                    onPress={() => setCaptchaChecked(!captchaChecked)}
+                                />
+                                <Text className="text-[#959595] text-base">Não sou um robô</Text>
+                            </View>
+                            <Image className="w-8 h-8 mr-5" source={require('../../../assets/captcha.png')}></Image>
                         </View>
-                        <Image className="w-8 h-8 mr-5" source={require('../../../assets/captcha.png')}></Image>
                     </View>
-                    </View>
-                    </View>
-                    <View className='p-6'>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' onPressIn={() => navigation.navigate('RegisterEstablishment')}>
-                                <Text className='text-gray-50'>Continuar</Text>
-                            </TouchableOpacity>
-                    </View>
-            </ScrollView> 
-		</View>     
-	);
+                    <TouchableOpacity className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mb-3' onPress={handleSubmit(handleGoToNextRegisterPage)}>
+                        <Text className='text-gray-50'>Continuar</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </View>
+    );
 }    
