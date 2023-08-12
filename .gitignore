@@ -9,7 +9,15 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-android/
+
+android/*
+android/app/*
+android/app/src/*
+android/app/src/main/*
+
+!android/app
+!android/app/src
+!android/app/src/main
 !android/app/src/main/AndroidManifest.xml
 !android/build.gradle
 
