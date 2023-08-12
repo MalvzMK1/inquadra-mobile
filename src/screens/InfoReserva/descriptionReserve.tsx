@@ -101,29 +101,6 @@ export default function DescriptionReserve({navigation, route}:NativeStackScreen
         return "";
       };
 
-      const getCountryImage = (countryISOCode: string | null): string | undefined => {
-        if (countryISOCode && dataCountry) {
-          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
-        
-          if (selectedCountry) {
-            return `http://192.168.0.229:1337${selectedCountry.attributes.flag.data.attributes.url}`;
-          }
-        }
-        return undefined;
-      };
-
-
-      const getCountryIdByISOCode = (countryISOCode: string | null): string => {
-        if (countryISOCode && dataCountry) {
-          const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
-        
-          if (selectedCountry) {
-            return selectedCountry.id;
-          }
-        }
-        return "";
-      };
-
        const formSchemaPixPayment = z.object({
         value: z.string({required_error: "É necessário inserir um valor"}).min(1),
         name: z.string({required_error: "É necessário inserir o nome"}).max(29, {message: "Só é possivel digitar até 30 caracteres"}),
@@ -182,33 +159,6 @@ export default function DescriptionReserve({navigation, route}:NativeStackScreen
         } catch(error){
             console.log("Erro na mutação updateValueSchedule", error)
         }
-      }
-
-
-    const closeCardPayment = () => {
-        setShowPixPaymentModal(false);
-      };
-    
-      const closePixPayment = () => {
-        setShowCardPaymentModal(false);
-      };
-
-
-      function pay(data: iFormCardPayment){
-        const countryId = getCountryIdByISOCode(selected)
-        userPaymentCard({ 
-                variables: {
-                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
-                    schedulingId: schedule_id,
-                    userId: user_id, 
-                    name: data.name,
-                    cpf: data.cpf,
-                    cvv: parseInt(data.cvv),
-                    date: convertToAmericanDate(data.date),
-                    countryID: countryId,
-                }
-            })
-            setShowCardPaymentModal(false)
       }
 
     function payPix(info: iFormPixPayment){

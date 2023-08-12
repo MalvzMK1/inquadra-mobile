@@ -11,9 +11,7 @@ type Flag = {
     alternativeText: string
     url: string
     hash?: string
-<<<<<<< HEAD
 }
-
 
 interface CountryAPI {
     id: string;
@@ -33,7 +31,3 @@ interface CountryAPI {
       };
     };
   }
-  
-=======
-}
->>>>>>> c0e5801257af601f89511f7d4cbbc4208ce740f8
