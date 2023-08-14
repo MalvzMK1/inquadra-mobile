@@ -8,6 +8,7 @@ import {Controller, useForm} from "react-hook-form";
 import {z} from "zod";
 import { zodResolver } from '@hookform/resolvers/zod'
 import useRegisterUser from "../../../hooks/useRegisterUser";
+import {ApolloError} from "@apollo/client";
 
 type RegisterPasswordProps = NativeStackScreenProps<RootStackParamList, 'RegisterPassword'>
 
@@ -50,7 +51,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 		setIsLoading(true)
 		if (isTermChecked) {
 			if (isCaptchaChecked) {
-				console.log(data)
+				// console.log(data)
 				if (data.password === data.confirmPassword) {
 					const userDatas = {
 						...route.params,
@@ -69,13 +70,26 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						navigation.navigate('RegisterSuccess')
 						alert(value.data?.createUsersPermissionsUser.data.attributes.email)
 					})
-						.catch((reason) => console.error(reason))
+						.catch((reason) => {
+							if (reason instanceof ApolloError) {
+								if (reason.message === 'Email already taken')
+									alert('O E-mail já está em uso');
+							}
+							navigation.goBack()
+						})
 						.finally(() => setIsLoading(false))
+				} else {
+					setIsLoading(false)
+					setPasswordsMatch(false)
 				}
+			} else {
+				setIsCaptchaCheckedError(true)
 				setIsLoading(false)
-				setPasswordsMatch(false)
-			} setIsCaptchaCheckedError(true)
-		} setIsTermCheckedError(true)
+			}
+		} else {
+			setIsTermCheckedError(true)
+			setIsLoading(false)
+		}
 	}
 
 	return (
