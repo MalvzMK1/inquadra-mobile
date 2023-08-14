@@ -1,18 +1,17 @@
 import { gql } from "@apollo/client";
 
-
 export interface INextToCourtResponse{
     courts:{
         data: Array<{
           id: Court['id']
           attributes:{
-            court_type:{
+            court_types: Array<{
               data:{
                 attributes:{
                   name: SportType['name']
                 }
               }
-            }
+            }>
             name: Court['name']
             photo:{
               data: Array<{
@@ -43,7 +42,7 @@ query nextToCourts {
     data {
       id
       attributes {
-        court_type {
+        court_types {
           data {
             attributes {
               name
