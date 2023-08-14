@@ -169,11 +169,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
 				/>
 			}
-			<BottomNavigationBar
-				isDisabled={isDisabled}
-				playerScreen={true}
-				establishmentScreen={false}
-			/>
+			{
+				userHookData && <BottomNavigationBar
+					isDisabled={isDisabled}
+					playerScreen={true}
+					establishmentScreen={false}
+					userID={userHookData.usersPermissionsUser.data.id}
+				/>
+			}
 		</View >
 	);
 }
