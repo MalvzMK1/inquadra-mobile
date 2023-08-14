@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/favoriteById.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/favoriteById.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/FavoriteCourts/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/FavoriteCourts/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Register/Establishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Establishment/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,6 +38,14 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI564T678" />
+                    <option name="lastUsedInstant" value="1692021861" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1692021011" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI564T677" />
                     <option name="lastUsedInstant" value="1692018102" />
                   </RecentBranch>
@@ -48,14 +56,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI564T673" />
                     <option name="lastUsedInstant" value="1691502992" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1691486505" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="payment-api-integration" />
-                    <option name="lastUsedInstant" value="1689244873" />
                   </RecentBranch>
                 </list>
               </option>
@@ -85,7 +85,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "WI564T677",
+    "git-widget-placeholder": "WI564T678",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
