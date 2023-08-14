@@ -44,6 +44,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 	const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false)
 	const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const [passwordsMatch, setPasswordsMatch] = useState<boolean>(true)
 
 	function handleSignup(data: IFormData): void {
 		setIsLoading(true)
@@ -71,6 +72,8 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						.catch((reason) => console.error(reason))
 						.finally(() => setIsLoading(false))
 				}
+				setIsLoading(false)
+				setPasswordsMatch(false)
 			} setIsCaptchaCheckedError(true)
 		} setIsTermCheckedError(true)
 	}
@@ -108,6 +111,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						</TouchableOpacity>
 					</View>
 					{errors.password && <Text className='text-red-400 text-sm'>{errors.password.message}</Text>}
+					{!passwordsMatch && <Text className='text-red-400 text-sm'>As senha devem ser iguais</Text>}
 				</View>
 
 				<View className="w-full">
@@ -135,6 +139,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						</TouchableOpacity>
 					</View>
 					{errors.confirmPassword && <Text className='text-red-400 text-sm'>{errors.confirmPassword.message}</Text>}
+					{!passwordsMatch && <Text className='text-red-400 text-sm'>As senha devem ser iguais</Text>}
 				</View>
 
 				<View className="flex flex-row justify-start items-center w-full">
