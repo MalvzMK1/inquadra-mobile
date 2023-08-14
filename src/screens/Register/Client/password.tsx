@@ -88,7 +88,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 			<View className='gap-2 flex flex-col justify-between items-center w-full'>
 				<View className="w-full">
 					<Text className='text-xl'>Escolha uma senha</Text>
-					<View className={errors.password ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+					<View className={errors.password || !passwordsMatch ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
 						<Controller
 							name='password'
 							control={control}
@@ -116,7 +116,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 
 				<View className="w-full">
 					<Text className='text-xl'>Repita a senha escolhida</Text>
-					<View className={errors.confirmPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+					<View className={errors.confirmPassword || !passwordsMatch ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
 						<Controller
 							name='confirmPassword'
 							control={control}
