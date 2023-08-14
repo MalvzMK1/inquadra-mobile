@@ -45,6 +45,7 @@ type RootStackParamList = {
 	InfoReserva: undefined;
 	FavoriteCourts: {
 		userPhoto: string | undefined,
+		userID: string
 	};
 	ProfileSettings: {
 		userPhoto: string | undefined,
