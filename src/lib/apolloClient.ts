@@ -16,6 +16,7 @@ storage.load<UserInfos>({
 
 const authLink = new ApolloLink((operation, forward) => {
 	const token = jwt // TODO: pegar o token -> STORAGE
+	console.log(token)
 	operation.setContext({
 		headers: {
 			Authorization: 'bearer ' + token
@@ -25,7 +26,8 @@ const authLink = new ApolloLink((operation, forward) => {
 })
 
 export const client = new ApolloClient({
-	link: authLink.concat(link),
+	link: link,
 	cache: new InMemoryCache(),
 });
 
+console.log(link)
