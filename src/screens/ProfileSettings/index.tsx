@@ -231,7 +231,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 
 	return (
 				<View className="flex-1 bg-white h-full">
-					{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}
+					{/* {errors && <Text>ERRO: {JSON.stringify(errors)}</Text>} */}
 					{
 						loading ?
 							<View className='flex-1'>
