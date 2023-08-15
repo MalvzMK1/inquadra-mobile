@@ -20,78 +20,17 @@ import { IUploadImageVariables } from "../../graphql/mutations/uploadImage";
 import { da } from "date-fns/locale";
 import {HOST_API} from '@env'
 import MaskInput, {Masks} from "react-native-mask-input";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../../types/RootStack";
 
 
 type CourtTypes = Array<{label: string, value: string}>;
 
-export default function RegisterCourt() {    
-    const [modalities, setModalities] = useState([])
-
-    const [courtName, setCourtName] = useState("")
-    const [courtType, setCourtType] = useState("")
-    const [fantasyName, setFantasyName] = useState("")
-    const [photo, setPhoto] = useState(Array<string>)
-    const [courtAvailabilities, setCourtAvailabilities] = useState(Array<string>)
-    const [minValue, setMinValue] = useState("")
+export default function RegisterCourt({navigation, route}: NativeStackScreenProps<RootStackParamList, 'RegisterCourts'>) {
+    const [isLoading, setIsLoading] = useState(false)
     const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const {data: dataSportType, loading: sportLoading, error: sportError} = useAvailableSportTypes();
-    //!sportLoading && console.log(sportError)
-
-    // console.log(sportLoading)
-    // console.log(HOST_API)
-    // if (!sportLoading) console.log(dataSportType?.courts.data[0].attributes)
-
-    //const {data:dataSportType, error:errorSportType, loading:loadingSportType} = useAvailableSportTypes()
-    //if (!loadingSportType) console.log({data: dataSportType, error: errorSportType});
-
-    // const [uploadImage, { data: uploadImageData, error: uploadImageError, loading: uploadImageLoading }] = useUploadImage();
-
-    // const handleUploadPhotos = async () => {
-    //     try {
-    //       // Iterate over the selected photos and upload each one
-    //       for (const photo of photos) {
-    //         const uploadVariables: IUploadImageVariables = {
-    //           ref_id: 'some-id', // Substitua pelo ID correto da entidade no Strapi
-    //           ref: 'some-ref', // Substitua pela referência correta no Strapi
-    //           field: 'photos', // Substitua pelo campo correto onde você deseja salvar as fotos no Strapi
-    //           file: photo.uri, // Substitua pela URI correta da foto
-    //         };
-      
-    //         // Fazer o upload da foto
-    //         const { data } = await uploadImage({ variables: uploadVariables });
-      
-    //         // Use a resposta se necessário (por exemplo, para mostrar a URL da foto carregada)
-    //         console.log('Foto enviada com sucesso:', data.upload.data.attributes.url);
-    //       }
-      
-    //       // Limpar as fotos após o upload (ou faça isso de acordo com o seu fluxo de negócios)
-    //       setPhotos([]);
-    //     } catch (error) {
-    //       console.error('Erro ao enviar fotos:', error);
-    //     }
-    //   };
-      
-    // function Teste (data: IFormDatasCourt){
-    //     console.log(data)
-    // }
-
-    // useEffect(() => {
-    //     let newCourtTypes: CourtTypes;
-
-    //     console.log('OIE')
-
-    //     dataSportType?.courts.data.forEach((sport) => {
-    //         newCourtTypes = [...newCourtTypes, ...sport.attributes.court_types.data.map(typeCourt => ({
-    //             value: typeCourt.attributes.name ?? '',
-    //             label: typeCourt.id ?? ''
-    //         }))]
-    //         console.log(courtTypes)
-    //     })
-
-    //     setCourtTypes(prevState => [...prevState, ...newCourtTypes])
-    // }, [dataSportType])
-
 
     function RegisterNewCourt(data: IFormDatasCourt){
         console.log(courtTypes)
@@ -103,7 +42,7 @@ export default function RegisterCourt() {
                 if (type.value === selectedType) courtIDs.push(type.label)
             })
         })
-       
+
         console.log(data, selected, courtIDs, data.minimum_value)
         const payload = {
             court_name: `Quadra de ${selected}`,
@@ -114,27 +53,14 @@ export default function RegisterCourt() {
             minimum_value: Number(data.minimum_value) / 100,
             currentDate: new Date().toISOString()      
         }
-        console.log(payload)
-        // for (const object in payload) console.log(object, typeof payload[object] === 'object' && 'É UM ARRAY?' + payload[object][0])
-        registerCourt({
-            variables: payload
-        }).catch(err => console.error({...err})).then(console.log)
+        navigation.navigate('AllVeryWell')
     }
 
     const formSchema = z.object({
-        // court_name: z.string(),
         minimum_value: z.string({required_error:"É necessário determinar um valor mínimo."}),
-        //courtType:z.array(z.string({required_error:"Selecione pelo menos uma modalidade."})),
         fantasyName: z.string({required_error: "Diga um nome fantasia."}),
-        //photos: z.array(z.string()),
-        //court_availabilities: z.string()
     })
 
-    // const courtType = z.string().array().nonempty({
-    //     message: "Can't be empty!",
-    // })
-
-    
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
         resolver: zodResolver(formSchema)
     });
@@ -147,8 +73,6 @@ export default function RegisterCourt() {
         photos: string[]
         court_availabilities?: string[]
     }
-
-    const [isLoading, setIsLoading] = useState(false)
 
     const handleRegisterCourt = (data: IFormDatasCourt): void => {
         setIsLoading(true)
@@ -172,9 +96,6 @@ export default function RegisterCourt() {
             .catch((reason) => console.error(reason))
             .finally(() => setIsLoading(false)) 
     }
-
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-	
     // console.log({errorSportType})
     // !loadingSportType && console.log(dataSportType)
     // console.log({
@@ -327,7 +248,7 @@ export default function RegisterCourt() {
                         </View>
                         <View>
                         <Text className='text-xl p-1'>Valor aluguel/hora</Text>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('')}>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('CourtPriceHour')}>
                                 <Text className='text-gray-50'>Clique para Definir</Text>
                             </TouchableOpacity>
                         </View>

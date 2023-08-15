@@ -2,10 +2,10 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import {NavigationProp, useNavigation} from "@react-navigation/native";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../../types/RootStack";
 
-export default function AllVeryWell() {
-
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+export default function AllVeryWell({navigation, route}: NativeStackScreenProps<RootStackParamList, 'AllVeryWell'>) {
 
     return (
         <View className="flex-1">
@@ -38,7 +38,7 @@ export default function AllVeryWell() {
             </View>
         </ScrollView>
         <View className="bg-white">
-            <TouchableOpacity className='h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('')}>
+            <TouchableOpacity className='h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('HomeEstablishment')}>
                 <Text className='text-gray-50'>Concluir</Text>
             </TouchableOpacity>
         </View>

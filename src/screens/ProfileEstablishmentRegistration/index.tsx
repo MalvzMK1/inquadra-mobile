@@ -196,6 +196,7 @@ export default function ProfileEstablishmentRegistration() {
                                         onChangeText={onChange}
                                         className={errors.password || !samePasswords ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
                                         placeholder='**********'
+                                        secureTextEntry
                                     />
                                 )}
                             />
@@ -217,6 +218,7 @@ export default function ProfileEstablishmentRegistration() {
                                         onChangeText={onChange}
                                         className={errors.confirmPassword || !samePasswords ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
                                         placeholder='**********'
+                                        secureTextEntry
                                     />
                                 )}
                             />

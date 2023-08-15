@@ -87,7 +87,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 		}
 	};
 
-	const handleDeletePhoto = (index) => {
+	const handleDeletePhoto = (index: number) => {
 		const newPhotos = [...photos];
 		newPhotos.splice(index, 1);
 		setPhotos(newPhotos);
