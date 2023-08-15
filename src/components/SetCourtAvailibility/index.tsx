@@ -1,20 +1,21 @@
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, TextInput } from 'react-native';
 import React, { useState, useRef } from "react"
 import { CheckBox } from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PriceHour from '../CourtPriceHour';
+import { useComponentContext } from '../../context/ComponentContext';
+import { ComponentProvider } from '../../context/ComponentContext';
 
 export default function SetCourtAvailibility() {
-    const [dayUseYes, setDayUseYes] = useState(false)
-    const [dayUseNo, setDayUseNo] = useState(false)
-    const [addedComponents, setAddedComponents] = useState<JSX.Element[]>([])
     const nextIdRef = useRef(1)
+
+    const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUseYes, setDayUseYes, dayUseNo, setDayUseNo } = useComponentContext()
 
     const handleAddNewComponentButton = () => {
         const newComponent = <PriceHour key={nextIdRef.current++} />
 
         if (addedComponents && addedComponents.length > 0)
-            setAddedComponents((prevState) => [...prevState, newComponent])
+            setAddedComponents((prevState: JSX.Element) => [...prevState, newComponent])
         else
             setAddedComponents([newComponent])
     };
@@ -35,15 +36,15 @@ export default function SetCourtAvailibility() {
                 'ERRO!',
                 'Adicione um horário para que seja possível copiar',
                 [
-                  {
-                    text: 'VOLTAR',
-                    style: 'cancel'
-                  },
+                    {
+                        text: 'VOLTAR',
+                        style: 'cancel'
+                    },
                 ],
                 {
-                  cancelable: true
+                    cancelable: true
                 }
-              );
+            );
         }
     }
 
@@ -110,6 +111,13 @@ export default function SetCourtAvailibility() {
             <TouchableOpacity onPress={handleAddNewComponentButton} className='h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]'>
                 <Text className='text-white text-[10px]'>Adicionar horário</Text>
             </TouchableOpacity>
+
+            <Text>Input Value: {inputValue}</Text>
+            <TextInput
+                value={inputValue}
+                onChangeText={setInputValue}
+                placeholder="Enter something"
+            />
 
             {!copyButtonClick && (
                 <View className='flex-row items-center justify-between mt-[35px] mb-[30px]'>
