@@ -6,6 +6,7 @@ import { useGetUserHistoricPayment } from "../../hooks/useGetHistoricPayment";
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { HOST_API } from "@env";
+import { RootStackParamList } from "../../types/RootStack";
 
 export default function FinancialEstablishment() {
 
