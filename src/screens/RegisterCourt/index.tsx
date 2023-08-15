@@ -21,6 +21,7 @@ import { da } from "date-fns/locale";
 import {HOST_API} from '@env'
 import MaskInput, {Masks} from "react-native-mask-input";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../../types/RootStack";
 
 
 type CourtTypes = Array<{label: string, value: string}>;
@@ -52,14 +53,7 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
             minimum_value: Number(data.minimum_value) / 100,
             currentDate: new Date().toISOString()      
         }
-        navigation.navigate('AllVeryWell', {
-          courtsInformations: [{
-          }],
-          establishmentInformations: { // TODO: PASSAR OS DADOS VALIDOS
-          },
-          profileInformations: {
-          }
-        })
+        navigation.navigate('AllVeryWell')
     }
 
     const formSchema = z.object({
@@ -254,7 +248,7 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
                         </View>
                         <View>
                         <Text className='text-xl p-1'>Valor aluguel/hora</Text>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('')}>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('SetCourtAvailability')}>
                                 <Text className='text-gray-50'>Clique para Definir</Text>
                             </TouchableOpacity>
                         </View>
