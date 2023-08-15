@@ -248,7 +248,7 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
                         </View>
                         <View>
                         <Text className='text-xl p-1'>Valor aluguel/hora</Text>
-                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('SetCourtAvailability')}>
+                            <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('CourtPriceHour')}>
                                 <Text className='text-gray-50'>Clique para Definir</Text>
                             </TouchableOpacity>
                         </View>

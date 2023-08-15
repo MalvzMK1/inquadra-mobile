@@ -38,7 +38,7 @@ export default function AllVeryWell({navigation, route}: NativeStackScreenProps<
             </View>
         </ScrollView>
         <View className="bg-white">
-            <TouchableOpacity className='h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('')}>
+            <TouchableOpacity className='h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('HomeEstablishment')}>
                 <Text className='text-gray-50'>Concluir</Text>
             </TouchableOpacity>
         </View>
