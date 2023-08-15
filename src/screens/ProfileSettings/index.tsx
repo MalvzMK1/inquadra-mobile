@@ -26,6 +26,7 @@ import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
 import {useGetFavoriteById} from "../../hooks/useFavoriteById";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
 interface IFormData {
 	name: string
@@ -67,10 +68,10 @@ const countriesData = [
 
 type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}}
 
-export default function ProfileSettings({navigation, route}) {
+export default function ProfileSettings({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
 	const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
 
-	const { loading, error, data } = useGetUserById("2");
+	const { loading, error, data } = useGetUserById(route.params.userID);
 	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
 	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
 
@@ -230,7 +231,7 @@ export default function ProfileSettings({navigation, route}) {
 
 	return (
 				<View className="flex-1 bg-white h-full">
-					{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}
+					{/* {errors && <Text>ERRO: {JSON.stringify(errors)}</Text>} */}
 					{
 						loading ?
 							<View className='flex-1'>
