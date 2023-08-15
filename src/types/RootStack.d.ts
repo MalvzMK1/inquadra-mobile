@@ -6,7 +6,10 @@ type RootStackParamList = {
 	AmountAvailableWithdrawal: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
-	HomeEstablishment: undefined
+	HomeEstablishment: {
+		userPhoto: string | undefined,
+		userID: string
+	}
 	DeleteAccountEstablishment: undefined;
 	InfoProfileEstablishment: undefined;
 	FinancialEstablishment: undefined;

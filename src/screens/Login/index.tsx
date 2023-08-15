@@ -1,14 +1,18 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import useUpdateCourt from '../../hooks/useUpdateCourt';
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import { string, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
+import { RootStackParamList } from '../../types/RootStack';
+import { useGetUserById } from '../../hooks/useUserById';
+import { QueryResult } from '@apollo/client';
+import { IUserByIdResponse, IUserByIdVariables } from '../../graphql/queries/userById';
 
 interface IFormData {
 	identifier: string
@@ -26,10 +30,23 @@ const formSchema = z.object({
 export default function Login() {
 	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
 	const [authUser, { data, loading, error }] = useLoginUser()
+	const [userId, setUserId] = useState<string>()
+	const [roleUser, setRoleUser] = useState<string>()
+	const { data: userData, loading: userLoading, error: userError } = useGetUserById(userId);
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
 		resolver: zodResolver(formSchema)
 	})
+
+	async function getTypeUser(id: string) {
+		setUserId(id);
+	}
+
+	useEffect(() => {
+		if (userId && userData) {
+			setRoleUser(userData?.usersPermissionsUser.data.attributes.role.data.id);
+		}
+	}, [userId, userData]);
 
 	storage.load<{ latitude: number, longitude: number }>({
 		key: 'userGeolocation'
@@ -44,36 +61,45 @@ export default function Login() {
 		setShowPassword(!showPassword);
 	}
 
-	function handleLogin(data: IFormData): void {
-		setIsLoading(true)
+	const handleLogin = (data: IFormData): void => {
+		setIsLoading(true);
 		authUser({
 			variables: {
 				identifier: data.identifier.trim(),
-				password: data.password.trim()
-			}
-		}).then(data => {
-			if (data.data) {
+				password: data.password.trim(),
+			},
+		}).then(authData => {
+			if (authData.data) {
 				storage.save({
 					key: 'userInfos',
 					data: {
-						token: data.data.login.jwt,
-						userId: data.data.login.user.id
+						token: authData.data.login.jwt,
+						userId: authData.data.login.user.id,
 					},
-					expires: 1000 * 3600
-				})
+					expires: 1000 * 3600,
+				});
+
+				getTypeUser(authData.data.login.user.id);
+
+				storage.load<UserInfos>({
+					key: 'userInfos',
+				}).then(userData => {
+					if (roleUser === "3") {
+						navigation.navigate('Home', {
+							userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+							userID: userData.userId,
+							userPhoto: undefined
+						});
+					} else if (roleUser === "4") {
+						navigation.navigate('HomeEstablishment', {
+							userID: userData.userId,
+							userPhoto: undefined
+						});
+					}
+				});
 			}
-			storage.load<UserInfos>({
-				key: 'userInfos',
-			}).then((data) => {
-				setIsLoading(false)
-				navigation.navigate('Home', {
-					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-					userID: data.userId,
-					userPhoto: undefined
-				})
-			})
 		}).catch(err => console.error(err))
-			.finally(() => setIsLoading(false))
+			.finally(() => setIsLoading(false));
 	}
 
 	return (
