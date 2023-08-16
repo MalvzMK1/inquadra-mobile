@@ -1,5 +1,3 @@
-import {z} from "zod";
-
 type RootStackParamList = {
 	Login: undefined;
 	CourtSchedule: undefined;
@@ -80,6 +78,7 @@ type RootStackParamList = {
 	}
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
+		
 		photos: string[] | undefined
 		profileInfos: {
 			username: string;
@@ -94,6 +93,15 @@ type RootStackParamList = {
 		courtName: string,
 		value: string,
 		userID: string,
+	}
+	RegisterNewCourt: {
+		courtArray: CourtAdd[]
+	}
+	RegisterNewCourtAdded: {
+		courtArray: CourtAdd[]
+	}
+	AllVeryWell: {
+		courtArray: CourtAdd[]
 	}
 	AllVeryWell: Pick<RootStackParamList, 'RegisterCourts'> | undefined
 }
