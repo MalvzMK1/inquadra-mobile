@@ -13,6 +13,7 @@ import CourtCardHome from '../CourtCardHome';
 import { useGetNextToCourts } from '../../hooks/useNextToCourts';
 import { calculateDistance } from '../../utils/calculateDistance';
 import storage from '../../utils/storage';
+import { useGetUserById } from '../../hooks/useUserById';
 
 let userLatitude: number
 let userLongitude: number
@@ -22,6 +23,14 @@ storage.load<{ latitude: number, longitude: number }>({
 }).then(data => {
 	userLatitude = data.latitude
 	userLongitude = data.longitude
+})
+
+let userId: string
+
+storage.load({
+	key: 'userInfos'
+}).then(data => {
+	userId = data.userId
 })
 
 interface HomeBarProps {
@@ -48,6 +57,17 @@ export default function HomeBar({ userName, photoUser }: HomeBarProps) {
 	});
 
 	const { data, error, loading } = useGetNextToCourts()
+	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
+
+	let userFavoriteCourts: string[] = []
+
+	userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
+		userFavoriteCourts.push(item.id)
+	})
+
+	const verifyCourtLike = (courtId: string) => {
+		return userFavoriteCourts?.includes(courtId)
+	}
 
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
@@ -61,13 +81,14 @@ export default function HomeBar({ userName, photoUser }: HomeBarProps) {
 			<ScrollView className='p-5'>
 				{data?.courts.data !== undefined ? data?.courts.data.map((item) => (
 					<CourtCardHome
-						key={item.id}
+						// key={item.id}
 						id={item.id}
 						// photoUser={photoUser}
 						image={item.attributes.photo.data[0].attributes.url}
 						name={item.attributes.name}
 						distance={calculateDistance(userLatitude, userLongitude, parseFloat(item.attributes.establishment.data.attributes.address.latitude), parseFloat(item.attributes.establishment.data.attributes.address.longitude)).toFixed(0)}
 						type={item.attributes.court_type.data.attributes.name}
+						liked={verifyCourtLike(item.id)}
 					/>
 				)) : <ActivityIndicator size='small' color='#fff' />}
 			</ScrollView>
