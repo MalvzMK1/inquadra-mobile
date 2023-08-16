@@ -4,11 +4,10 @@ import { useGetFavoriteById } from "../../hooks/useFavoriteById"
 import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
 import {HOST_API} from '@env'
-// import {RootStackParamList} from "../../types/RootStack";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
-/*  */
-export default function FavoriteCourts() {
-	const USER_ID = '2'; //LEGÍVEL
+export default function FavoriteCourts({navigation, route}: NativeStackScreenProps<RootStackParamList, 'FavoriteCourts'>) {
+	const USER_ID = route.params.userID; //LEGÍVEL
 	const {data, error, loading} = useGetFavoriteById(USER_ID, USER_ID) 
 	const [color, setColor] = useState("red")
 

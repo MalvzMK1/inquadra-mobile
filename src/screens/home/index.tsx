@@ -9,7 +9,6 @@ import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.png';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useGetNextToCourts } from "../../hooks/useNextToCourts";
 import { useGetUserById } from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import { HOST_API } from '@env';
@@ -48,6 +47,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	const {data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError} = useAvailableSportTypes()
 
 	useEffect(() => {
+		console.log(error)
 		if (!error && !loading) {
 			const newCourts = data?.establishments.data
 				.filter(establishment => (
@@ -169,11 +169,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
 				/>
 			}
-			<BottomNavigationBar
-				isDisabled={isDisabled}
-				playerScreen={true}
-				establishmentScreen={false}
-			/>
+			{
+				userHookData && <BottomNavigationBar
+					isDisabled={isDisabled}
+					playerScreen={true}
+					establishmentScreen={false}
+					userID={userHookData.usersPermissionsUser.data.id}
+				/>
+			}
 		</View >
 	);
 }

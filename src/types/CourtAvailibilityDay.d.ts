@@ -3,4 +3,5 @@ type CourtAvailibilityDay = {
     buttonBoolean: boolean
     setter: React.Dispatch<React.SetStateAction<boolean>>
     setAllFalse: () => void
+    children: JSX.Element
 }

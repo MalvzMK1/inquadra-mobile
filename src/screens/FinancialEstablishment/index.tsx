@@ -6,6 +6,7 @@ import { useGetUserHistoricPayment } from "../../hooks/useGetHistoricPayment";
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { HOST_API } from "@env";
+import { RootStackParamList } from "../../types/RootStack";
 
 export default function FinancialEstablishment() {
 
@@ -22,6 +23,8 @@ export default function FinancialEstablishment() {
         courtName: string;
         date: string
         photoUser: string | null
+        startsAt: string;
+        endsAt: string
     }>>()
 
     const { data, loading, error } = useGetUserHistoricPayment("5")
@@ -37,26 +40,35 @@ export default function FinancialEstablishment() {
                 photoCourt: string;
                 valuePayed: number;
                 courtName: string;
-                date: string
+                date: string;
+                startsAt: string;
+                endsAt: string
             }[] = [];
 
             const amountPaid: number[] = []
 
             dataHistoric?.forEach((item) => {
                 let photo = item.attributes.photo.data[0].attributes.url;
-                item.attributes.court_availabilities.data[0].attributes.schedulings.data.forEach((schedulings) => {
-                    schedulings.attributes.users.data.forEach((user) => {
-                        infosCard.push({
-                            username: user.attributes.username,
-                            photoUser: user.attributes.photo.data ? HOST_API + user.attributes.photo.data.attributes.url : null,
-                            photoCourt: HOST_API + photo,
-                            valuePayed: schedulings.attributes.valuePayed,
-                            courtName: item.attributes.name,
-                            date: schedulings.attributes.date
+                if (item.attributes.court_availabilities.data.length > 0) {
+                    item.attributes.court_availabilities.data[0].attributes.schedulings.data.forEach((schedulings) => {
+                        // console.log(item.attributes.court_availabilities.data)
+
+                        schedulings.attributes.users.data.forEach((user) => {
+                            console.log(user.attributes.username)
+                            infosCard.push({
+                                startsAt: item.attributes.court_availabilities.data[0].attributes.startsAt,
+                                endsAt: item.attributes.court_availabilities.data[0].attributes.endsAt,
+                                username: user.attributes.username,
+                                photoUser: user.attributes.photo.data ? HOST_API + user.attributes.photo.data.attributes.url : null,
+                                photoCourt: HOST_API + photo,
+                                valuePayed: schedulings.attributes.valuePayed,
+                                courtName: item.attributes.name,
+                                date: schedulings.attributes.date
+                            });
+                            amountPaid.push(schedulings.attributes.valuePayed)
                         });
-                        amountPaid.push(schedulings.attributes.valuePayed)
                     });
-                });
+                }
             });
 
             if (infosCard) {
@@ -142,7 +154,7 @@ export default function FinancialEstablishment() {
                                 const currentDate = date;
                                 const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
-                                const cardDate = card.date.split("T")[0];
+                                const cardDate = card.date;
 
                                 if (cardDate === formattedDate) {
                                     return (
@@ -152,6 +164,8 @@ export default function FinancialEstablishment() {
                                             photoCourt={card.photoCourt}
                                             courtName={card.courtName}
                                             photoUser={card.photoUser}
+                                            startsAt={card.startsAt}
+                                            endsAt={card.endsAt}
                                         />
                                     );
                                 }
