@@ -74,6 +74,7 @@ type RootStackParamList = {
 	}
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
+		
 	} & {
 		photos: string[] | undefined
 	}
@@ -81,5 +82,14 @@ type RootStackParamList = {
 		courtName: string,
 		value: string,
 		userID: string,
+	}
+	RegisterNewCourt: {
+		courtArray: CourtAdd[]
+	}
+	RegisterNewCourtAdded: {
+		courtArray: CourtAdd[]
+	}
+	AllVeryWell: {
+		courtArray: CourtAdd[]
 	}
 }
