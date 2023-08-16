@@ -10,8 +10,14 @@ export interface IUserByIdResponse {
         email: User['email'];
         phoneNumber: User['phoneNumber'];
         cpf: User['cpf'];
+        favorite_courts: {
+          data: [
+            {
+              id: Court["id"]
+            }
+          ]
+        }
         paymentCardInformations: {
-          id: PaymentCardInformations['id']
           cvv: PaymentCardInformations['cvv']
           dueDate: string
           country: {
@@ -54,6 +60,11 @@ query getUserById($id: ID){
           email
           phoneNumber
           cpf
+          favorite_courts {
+            data {
+              id
+            }
+          }
           paymentCardInformations{
             id
             cvv
