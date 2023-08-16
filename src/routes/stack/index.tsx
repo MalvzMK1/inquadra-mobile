@@ -590,15 +590,6 @@ export default function () {
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
-				options={{
-					headerTitle: 'Definir hora/valor',
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="black" />
-						</TouchableOpacity>
-					)
-				}}
-			/>
 			<Screen
 				name='CourtPriceHour'
 				component={CourtPriceHour}
