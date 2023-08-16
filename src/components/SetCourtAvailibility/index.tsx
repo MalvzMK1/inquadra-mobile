@@ -3,16 +3,30 @@ import React, { useState, useRef } from "react"
 import { CheckBox } from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PriceHour from '../CourtPriceHour';
-import { useComponentContext } from '../../context/ComponentContext';
-import { ComponentProvider } from '../../context/ComponentContext';
+import {useComponentContext} from '../../context/ComponentContext';
+import {InComponentInputsProvider} from '../../context/ComponentInputsContext';
 
 export default function SetCourtAvailibility() {
-    const nextIdRef = useRef(1)
+  const nextIdRef = useRef(1)
 
-    const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUseYes, setDayUseYes, dayUseNo, setDayUseNo } = useComponentContext()
+  const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse } = useComponentContext()
+  const [priceHours, setPriceHours] = useState<Array<{startsAt: string, endsAt: string, price: string}>>([])
 
     const handleAddNewComponentButton = () => {
-        const newComponent = <PriceHour key={nextIdRef.current++} />
+      const inputValues = {
+        startsAt: '',
+        endsAt: '',
+        price: ''
+      }
+      setPriceHours(prevState => [...prevState, inputValues])
+        const newComponent = (
+          <InComponentInputsProvider>
+            <PriceHour
+              key={nextIdRef.current++}
+              values={inputValues}
+            />
+          </InComponentInputsProvider>
+        )
 
         if (addedComponents && addedComponents.length > 0)
             setAddedComponents((prevState: JSX.Element) => [...prevState, newComponent])
@@ -71,10 +85,9 @@ export default function SetCourtAvailibility() {
             <View className='flex-row'>
                 <View className='flex-row items-center justify-center'>
                     <CheckBox
-                        checked={dayUseYes}
+                        checked={dayUse}
                         onPress={() => {
-                            setDayUseYes(!dayUseYes)
-                            setDayUseNo(false)
+                            setDayUse(true)
                         }}
                     />
                     <Text className='text-white text-[16px] -ml-[15px]'>Sim</Text>
@@ -82,10 +95,9 @@ export default function SetCourtAvailibility() {
 
                 <View className='flex-row items-center justify-center ml-[5px]'>
                     <CheckBox
-                        checked={dayUseNo}
+                        checked={!dayUse}
                         onPress={() => {
-                            setDayUseNo(!dayUseNo)
-                            setDayUseYes(false)
+                            setDayUse(false)
                         }}
                     />
                     <Text className='text-white text-[16px] -ml-[15px]'>Não</Text>
