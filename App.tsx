@@ -5,7 +5,7 @@ import { client } from './src/lib/apolloClient';
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import storage from "./src/utils/storage";
-import { ComponentProvider } from './src/context/ComponentContext';
+// import { ComponentProvider } from './src/context/ComponentContext';
 
 export default function App() {
 	useEffect(() => {
@@ -29,9 +29,9 @@ export default function App() {
 	return (
 		<ApolloProvider client={client}>
 			<PaperProvider>
-				<ComponentProvider>
+				{/*<ComponentProvider>*/}
 					<Routes />
-				</ComponentProvider>
+				{/*</ComponentProvider>*/}
 			</PaperProvider>
 		</ApolloProvider>
 	);
