@@ -6,17 +6,15 @@ interface ComponentContextType {
   setInputValue: (value: string) => void;
   addedComponents: JSX.Element[];
   setAddedComponents: (component: JSX.Element[]) => void;
-  dayUseYes: boolean;
-  setDayUseYes: (dayUse: boolean) => void;
-  dayUseNo: boolean;
-  setDayUseNo: (dayUse: boolean) => void;
-};
+  dayUse: boolean;
+  setDayUse: (dayUse: boolean) => void;
+}
 
 const ComponentContext = createContext<ComponentContextType | undefined>(undefined);
 
 export const useComponentContext = () => {
   const context = useContext(ComponentContext);
-  
+
   if (!context) {
     throw new Error('useComponentContext must be used within a ComponentProvider');
   }
@@ -26,11 +24,10 @@ export const useComponentContext = () => {
 export const ComponentProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const [inputValue, setInputValue] = useState('');
   const [addedComponents, setAddedComponents] = useState<JSX.Element[]>([]);
-  const [dayUseYes, setDayUseYes] = useState(false);
-  const [dayUseNo, setDayUseNo] = useState(false);
+  const [dayUse, setDayUse] = useState(false);
 
   return (
-    <ComponentContext.Provider value={{ inputValue, setInputValue, addedComponents, setAddedComponents, dayUseYes, setDayUseYes, dayUseNo, setDayUseNo }}>
+    <ComponentContext.Provider value={{ inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse }}>
       {children}
     </ComponentContext.Provider>
   );
