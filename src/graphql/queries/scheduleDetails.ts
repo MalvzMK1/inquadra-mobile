@@ -2,11 +2,11 @@ import { gql } from "@apollo/client";
 
 export interface ISchedulingDetailsResponse {
     scheduling: {
-        data?: {
+        data: {
             id: Scheduling['id']
             attributes: {
                 owner: {
-                    data?: {
+                    data: {
                         id: User['id']
                         attributes: {
                             username: User['username']
@@ -14,15 +14,14 @@ export interface ISchedulingDetailsResponse {
                     }
                 }
                 court_availability: {
-                    data?: {
+                    data: {
                         attributes: {
-                            value: number
                             court: {
-                                data?: {
+                                data: {
                                     id: Court['id']
                                     attributes: {
                                         court_type: {
-                                            data?: {
+                                            data: {
                                                 attributes: {
                                                     name: CourtCardInfos['type']
                                                 }
@@ -47,44 +46,43 @@ export interface ISchedulingDetailsVariables {
 }
 
 export const schedulingsDetailsQuery = gql`
-  query getDetailsReserve($id: ID) {
-    scheduling(id: $id) {
-      data {
-        id
-        attributes {
-          owner {
-            data {
-              id
-              attributes {
-                username
-              }
+query getDetailsReserve($id: ID) {
+  scheduling(id: $id) {
+    data {
+      id
+      attributes {
+        owner {
+          data {
+            id
+            attributes {
+              username
             }
           }
-          court_availability {
-            data {
-              attributes {
-                value
-                court {
-                  data {
-                    id
-                    attributes {
-                      court_type {
-                        data {
-                          attributes {
-                            name
-                          }
+        }
+        court_availability {
+          data {
+            attributes {
+              court {
+                data {
+                  id
+                  attributes {
+                    court_type {
+                      data {
+                        attributes {
+                          name
                         }
                       }
                     }
                   }
                 }
-                startsAt
-                endsAt
               }
+              startsAt
+              endsAt
             }
           }
-          payedStatus
         }
+        payedStatus
       }
     }
-  }`
+  }
+}`

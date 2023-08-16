@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import {BottomNavigationType} from "../../types/BottomNavigationProps";
 
 export function BottomNavigationBar(props: BottomNavigationType) {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
@@ -25,15 +24,14 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 	let viewContent = null
 
 	if (props.playerScreen) {
-		viewContent = <View className={`h-24 bg-${props.isDisabled ? "[#292929]" : "transparent"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
+		viewContent = <View className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
 			{
 				showButtons && (
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('ProfileSettings', {
-								userPhoto: undefined,
-								userID: props.userID
+								userPhoto: undefined
 							})}>
 							<Image
 								source={require('../../assets/settings_black_icon.png')}
@@ -42,8 +40,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('FavoriteCourts', {
-								userPhoto: undefined,
-								userID: props.userID
+								userPhoto: undefined
 							})}>
 							<Image
 								source={require('../../assets/black_heart.png')}

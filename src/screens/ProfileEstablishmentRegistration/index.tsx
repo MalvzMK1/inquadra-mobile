@@ -61,14 +61,21 @@ export default function ProfileEstablishmentRegistration() {
             result = true
             if (isChecked && captchaChecked) {
                 if (validateCpf(data.cpf)) {
-                    navigation.navigate("EstablishmentRegister", {
-                        username: data.name,
-                        cpf: data.cpf,
-                        email: data.email,
-                        password: data.password,
-                        phone_number: data.phoneNumber,
-                        role: "4"
+                    registerUser({
+                        variables: {
+                            username: data.name,
+                            cpf: data.cpf,
+                            email: data.email,
+                            password: data.password,
+                            phone_number: data.phoneNumber,
+                            role: "4"
+                        }
+                    }).then(value => {
+                        if(value.data) navigation.navigate("EstablishmentRegister", {
+                            ownerID: value.data?.createUsersPermissionsUser.data.id.toString()
+                        })
                     })
+                    .catch((reason) => console.error(reason))
                 } else setValidCpf(false)
             } else {
                 if (!isChecked) Alert.alert("Termos de Uso e Política de Privacidade", "É necessario aceitar os termos e condições para prosseguir")
@@ -196,7 +203,6 @@ export default function ProfileEstablishmentRegistration() {
                                         onChangeText={onChange}
                                         className={errors.password || !samePasswords ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
                                         placeholder='**********'
-                                        secureTextEntry
                                     />
                                 )}
                             />
@@ -218,7 +224,6 @@ export default function ProfileEstablishmentRegistration() {
                                         onChangeText={onChange}
                                         className={errors.confirmPassword || !samePasswords ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
                                         placeholder='**********'
-                                        secureTextEntry
                                     />
                                 )}
                             />

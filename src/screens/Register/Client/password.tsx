@@ -8,7 +8,6 @@ import {Controller, useForm} from "react-hook-form";
 import {z} from "zod";
 import { zodResolver } from '@hookform/resolvers/zod'
 import useRegisterUser from "../../../hooks/useRegisterUser";
-import {ApolloError} from "@apollo/client";
 
 type RegisterPasswordProps = NativeStackScreenProps<RootStackParamList, 'RegisterPassword'>
 
@@ -45,13 +44,12 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 	const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false)
 	const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const [passwordsMatch, setPasswordsMatch] = useState<boolean>(true)
 
 	function handleSignup(data: IFormData): void {
 		setIsLoading(true)
 		if (isTermChecked) {
 			if (isCaptchaChecked) {
-				// console.log(data)
+				console.log(data)
 				if (data.password === data.confirmPassword) {
 					const userDatas = {
 						...route.params,
@@ -70,26 +68,11 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						navigation.navigate('RegisterSuccess')
 						alert(value.data?.createUsersPermissionsUser.data.attributes.email)
 					})
-						.catch((reason) => {
-							if (reason instanceof ApolloError) {
-								if (reason.message === 'Email already taken')
-									alert('O E-mail já está em uso');
-							}
-							navigation.goBack()
-						})
+						.catch((reason) => console.error(reason))
 						.finally(() => setIsLoading(false))
-				} else {
-					setIsLoading(false)
-					setPasswordsMatch(false)
 				}
-			} else {
-				setIsCaptchaCheckedError(true)
-				setIsLoading(false)
-			}
-		} else {
-			setIsTermCheckedError(true)
-			setIsLoading(false)
-		}
+			} setIsCaptchaCheckedError(true)
+		} setIsTermCheckedError(true)
 	}
 
 	return (
@@ -102,7 +85,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 			<View className='gap-2 flex flex-col justify-between items-center w-full'>
 				<View className="w-full">
 					<Text className='text-xl'>Escolha uma senha</Text>
-					<View className={errors.password || !passwordsMatch ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+					<View className={errors.password ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
 						<Controller
 							name='password'
 							control={control}
@@ -125,12 +108,11 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						</TouchableOpacity>
 					</View>
 					{errors.password && <Text className='text-red-400 text-sm'>{errors.password.message}</Text>}
-					{!passwordsMatch && <Text className='text-red-400 text-sm'>As senha devem ser iguais</Text>}
 				</View>
 
 				<View className="w-full">
 					<Text className='text-xl'>Repita a senha escolhida</Text>
-					<View className={errors.confirmPassword || !passwordsMatch ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+					<View className={errors.confirmPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
 						<Controller
 							name='confirmPassword'
 							control={control}
@@ -153,7 +135,6 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						</TouchableOpacity>
 					</View>
 					{errors.confirmPassword && <Text className='text-red-400 text-sm'>{errors.confirmPassword.message}</Text>}
-					{!passwordsMatch && <Text className='text-red-400 text-sm'>As senha devem ser iguais</Text>}
 				</View>
 
 				<View className="flex flex-row justify-start items-center w-full">

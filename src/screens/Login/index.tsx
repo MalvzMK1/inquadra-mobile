@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,8 +9,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
-import { RootStackParamList } from '../../types/RootStack';
-import { useGetUserById } from '../../hooks/useUserById';
 
 interface IFormData {
 	identifier: string
@@ -28,75 +26,54 @@ const formSchema = z.object({
 export default function Login() {
 	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
 	const [authUser, { data, loading, error }] = useLoginUser()
-	const [userId, setUserId] = useState<string>()
-	const [roleUser, setRoleUser] = useState<string>()
-	const [showPassword, setShowPassword] = useState<boolean>(false)
-	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const { data: userData, loading: userLoading, error: userError } = useGetUserById(userId);
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
 		resolver: zodResolver(formSchema)
 	})
 
-	useEffect(() => {
-		if (userId && userData) {
-			setRoleUser(userData?.usersPermissionsUser.data.attributes.role.data.id);
-		}
-	}, [userId, userData]);
-
-	useEffect(() => {
-		if (!isLoading && userId && userData) {
-			if (roleUser === "3") {
-				navigation.navigate('Home', {
-					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-					userID: userId,
-					userPhoto: undefined
-				});
-			} else if (roleUser === "4") {
-				navigation.navigate('HomeEstablishment', {
-					userID: userId,
-					userPhoto: undefined
-				});
-			}
-		}
-	}, [roleUser, isLoading]);
-
-
 	storage.load<{ latitude: number, longitude: number }>({
 		key: 'userGeolocation'
 	}).then(data => setUserGeolocation(data))
+
+	const [showPassword, setShowPassword] = useState<boolean>(false)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
+
+	const [teste, { data: updateCourtData, loading: updateCourtLoading, error: updateCourtError }] = useUpdateCourt()
 
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
 	}
 
-
-	const handleLogin = (data: IFormData): void => {
-		setIsLoading(true);
+	function handleLogin(data: IFormData): void {
+		setIsLoading(true)
 		authUser({
 			variables: {
 				identifier: data.identifier.trim(),
-				password: data.password.trim(),
-			},
-		}).then(authData => {
-			if (authData.data) {
+				password: data.password.trim()
+			}
+		}).then(data => {
+			if (data.data) {
 				storage.save({
 					key: 'userInfos',
 					data: {
-						token: authData.data.login.jwt,
-						userId: authData.data.login.user.id,
+						token: data.data.login.jwt,
+						userId: data.data.login.user.id
 					},
-					expires: 1000 * 3600,
-				});
-
-				setUserId(authData.data.login.user.id);
-
-				storage.load<UserInfos>({
-					key: 'userInfos',
+					expires: 1000 * 3600
 				})
 			}
+			storage.load<UserInfos>({
+				key: 'userInfos',
+			}).then((data) => {
+				setIsLoading(false)
+				navigation.navigate('Home', {
+					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+					userID: data.userId,
+					userPhoto: undefined
+				})
+			})
 		}).catch(err => console.error(err))
-			.finally(() => setIsLoading(false));
+			.finally(() => setIsLoading(false))
 	}
 
 	return (
@@ -107,7 +84,11 @@ export default function Login() {
 			</TouchableOpacity> */}
 
 			<View className="flex-1 flex items-center justify-center px-7">
-				<TouchableOpacity onPress={() => navigation.navigate('CourtPriceHour')}>
+				<TouchableOpacity onPress={() => navigation.navigate('Home', {
+					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+					userID: '2',
+					userPhoto: undefined
+				})}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
 				</TouchableOpacity>
 
@@ -118,7 +99,6 @@ export default function Login() {
 						render={({ field: { onChange } }) => (
 							<TextInput
 								className="h-14 text-base"
-								keyboardType='email-address'
 								onChangeText={onChange}
 								outlineColor='#DCDCDC'
 								mode='outlined'
@@ -199,7 +179,7 @@ export default function Login() {
 					</View>
 					<View className='flex-row  items-center justify-center pt-11'>
 						<Text className='text-base text-gray-400'>Ainda não tem uma conta?</Text>
-						<TouchableOpacity onPress={() => navigation.navigate('RegisterCourts')}>
+						<TouchableOpacity onPress={() => navigation.navigate('ChooseUserType')}>
 							<Text className='text-orange-500 text-base'>Clique aqui</Text>
 						</TouchableOpacity>
 					</View>

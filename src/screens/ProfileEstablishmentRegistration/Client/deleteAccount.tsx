@@ -10,7 +10,7 @@ const nameCourt = "Fenix Esportes"
 
 return (
     <View className="h-full flex justify-center items-center">
-    <View className="h-3/4 w-full flex flex-col justify-between items-center">
+    <View className="h-2/4 w-full flex flex-col justify-between items-center">
         <View className="flex flex-col justify-center items-center">
         <Text className="text-3xl font-semibold text-center">Pedido de Exclusão de {nameCourt} em Análise</Text>
         </View>

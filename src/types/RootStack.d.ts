@@ -1,13 +1,9 @@
 type RootStackParamList = {
 	Login: undefined;
 	CourtSchedule: undefined;
-	AmountAvailableWithdrawal: undefined;
+	RegisterCourts: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
-	HomeEstablishment: {
-		userPhoto: string | undefined,
-		userID: string
-	}
 	DeleteAccountEstablishment: undefined;
 	InfoProfileEstablishment: undefined;
 	FinancialEstablishment: undefined;
@@ -17,16 +13,8 @@ type RootStackParamList = {
 	ChooseUserType: undefined;
 	Register: undefined;
 	EstablishmentRegister: {
-		username: string;
-		cpf: string;
-		email: string;
-		password: string;
-		phone_number: string;
-		role: string
+		ownerID: string
 	};
-	CancelScheduling: {
-		scheduleID: string
-	}
 	Home: {
 		userGeolocation: {
 			latitude: number,
@@ -48,60 +36,37 @@ type RootStackParamList = {
 	InfoReserva: undefined;
 	FavoriteCourts: {
 		userPhoto: string | undefined,
-		userID: string
 	};
 	ProfileSettings: {
-		userPhoto: string | undefined,
-		userID: string
+		userPhoto: string | undefined
 	};
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
-		scheduleId:string
+		courtId: string
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
-		courtID: string,
+		courtID:string,
 		userPhoto: string | undefined,
 	};
-	CourtAvailabilityInfo: {
+	CourtAvailibilityInfo: {
 		courtId: string,
 		courtImage: string,
-		courtName: string,
-		userId: string
+		courtName: string
 	};
 	ReservationPaymentSign: {
 		courtId: string,
 		courtImage: string,
-		courtName: string,
-		userId: string,
+		courtName: string
 	}
-	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
+	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
-		
-		photos: string[] | undefined
-		profileInfos: {
-			username: string;
-			cpf: string;
-			email: string;
-			password: string;
-			phone_number: string;
-			role: string
-		}
+	} & {
+		photos: string[]
 	}
 	PixScreen: {
 		courtName: string,
-		value: string,
-		userID: string,
+		value: string
 	}
-	RegisterNewCourt: {
-		courtArray: CourtAdd[]
-	}
-	RegisterNewCourtAdded: {
-		courtArray: CourtAdd[]
-	}
-	AllVeryWell: {
-		courtArray: CourtAdd[]
-	}
-	AllVeryWell: Pick<RootStackParamList, 'RegisterCourts'> | undefined
 }

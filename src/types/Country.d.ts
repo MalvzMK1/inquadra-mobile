@@ -12,22 +12,3 @@ type Flag = {
     url: string
     hash?: string
 }
-
-interface CountryAPI {
-    id: string;
-    attributes: {
-      name: string;
-      ISOCode: string;
-      flag: {
-        data: {
-          id: string;
-          attributes: {
-            name: string;
-            alternativeText: string | null;
-            hash: string;
-            url: string;
-          };
-        };
-      };
-    };
-  }

@@ -6,13 +6,13 @@ export interface ICourtByIdResponse {
     data: {
       id: Court['id']
       attributes: {
-        court_types: Array<{
+        court_type: {
           data: {
             attributes: {
               name: SportType['name']
             }
           }
-        }>
+        }
         name: Court['name']
         photo:{
           data: Array<{
@@ -48,7 +48,7 @@ export const courtByIdQuery = gql`
     data {
       id
       attributes {
-        court_types {
+        court_type {
           data {
             attributes {
               name

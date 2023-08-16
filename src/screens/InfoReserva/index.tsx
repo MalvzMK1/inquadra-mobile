@@ -6,8 +6,7 @@ import { TextInput } from 'react-native-paper';
 import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
 import { format, parseISO } from 'date-fns';
 import {HOST_API} from  '@env';
-import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack/types';
-import { useGetMenuUser } from '../../hooks/useMenuUser';
+
 
 function formatDateTime(dateTimeString: string): string {
     try {
@@ -33,11 +32,13 @@ function formatDateTime(dateTimeString: string): string {
   }
 
 
-export default function InfoReserva({navigation, route}:NativeStackScreenProps<RootStackParamList, 'InfoReserva'>) {
+export default function InfoReserva() {
+    const navigation = useNavigation()
     const user_id = '1'
-    const {data:dataUser, error:errorUser, loading:loadingUser} = useGetMenuUser(user_id)
+   
     const {data, error, loading} = useGetHistoricReserveOn(user_id)
 
+        
     return (
         <View className='h-full w-max bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
@@ -53,7 +54,7 @@ export default function InfoReserva({navigation, route}:NativeStackScreenProps<R
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-max w-max'>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data.attributes.photo?.data.attributes.url }}
+                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -73,10 +74,9 @@ export default function InfoReserva({navigation, route}:NativeStackScreenProps<R
                         <View className='w-max h-max px-3'>
                             {/* Div para criação dos cards de reservas ativas*/}
                             {
-                            !error && !loading ?
-                                data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo) =>  
+                            !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo) =>  
                                 courtInfo.attributes.status ?
-                                <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve',{userId: user_id, scheduleId: courtInfo.id})}>
+                                <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                                     <View>
                                         <Image
@@ -114,8 +114,9 @@ export default function InfoReserva({navigation, route}:NativeStackScreenProps<R
                             {
                                 !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo)=>
                                     !courtInfo.attributes.status ?
-                            <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve', {userId: user_id, scheduleId: courtInfo.id})}>
+                            <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve')}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
+
                                     <View>
                                         <Image
                                             source={{ uri: HOST_API + courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
@@ -123,6 +124,7 @@ export default function InfoReserva({navigation, route}:NativeStackScreenProps<R
                                             borderRadius={5}
                                         />
                                     </View>
+
                                     <View className='h-max w-max pl-1'>
 
                                         <View>

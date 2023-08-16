@@ -64,12 +64,3 @@ type CreateInvoiceResponse = {
 	}[]
 	creditCardTransaction: string | null
 }
-
-enum EPayableWith {
-	PIX = 'pix',
-	CREDIT_CARD = 'credit_card',
-}
-
-type PayableWith = keyof typeof EPayableWith;
-
-const pay: PayableWith = ''

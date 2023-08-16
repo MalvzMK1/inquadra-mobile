@@ -1,345 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, NavigationProp } from "@react-navigation/native"
+import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
-import MaskInput, { Masks } from 'react-native-mask-input';
+import MaskInput, { Masks } from 'react-native-mask-input'; 
 import { SelectList } from 'react-native-dropdown-select-list';
-import { useGetUserEstablishmentInfos } from '../../../hooks/useGetUserEstablishmentInfos';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from "react-hook-form";
-import useUpdateUser from '../../../hooks/useUpdateUser';
-import useUpdateEstablishmentAddress from '../../../hooks/useUpdateEstablishmentAddress';
-import storage from '../../../utils/storage';
-import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablishmentFantasyName';
-import useUpdateUserPassword from '../../../hooks/useUpdateUserPassword';
-import useRegisterPixKey from '../../../hooks/useRegisterPixKey';
-type DateTime = Date;
-
-let userId = ""
-
-storage.load<UserInfos>({
-  key: 'userInfos',
-}).then((data) => {
-  userId = data.userId
-})
-
-interface IFormData {
-  userName: string
-  email: string
-  phoneNumber: string
-}
-
-const formSchema = z.object({
-  userName: z.string()
-    .nonempty('O campo não pode estar vazio'),
-  email: z.string()
-    .nonempty('O campo não pode estar vazio'),
-  phoneNumber: z.string()
-    .nonempty('O campo não pode estar vazio')
-})
-
-interface IFantasyNameFormData {
-  fantasyName: string
-}
-
-const fantasyNameFormSchema = z.object({
-  fantasyName: z.string()
-    .nonempty('O campo não pode estar vazio')
-})
-
-interface IAddressFormData {
-  cep: string
-  streetName: string
-}
-
-const addressFormSchema = z.object({
-  cep: z.string()
-    .nonempty('O campo não pode estar vazio'),
-  streetName: z.string()
-    .nonempty('O campo não pode estar vazio')
-})
-
-interface IPasswordFormData {
-  currentPassword: string
-  password: string
-  confirmPassword: string
-}
-
-const passwordFormSchema = z.object({
-  currentPassword: z.string()
-    .nonempty('O campo não pode estar vazio'),
-  password: z.string()
-    .nonempty('O campo não pode estar vazio'),
-  confirmPassword: z.string()
-    .nonempty('O campo não pode estar vazio')
-})
-
-interface IPixKeyFormData {
-  pixKey: string
-}
-
-const pixKeyFormSchema = z.object({
-  pixKey: z.string()
-    .nonempty('O campo não pode estar vazio')
-})
-
 
 export default function InfoProfileEstablishment() {
-  const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
-    resolver: zodResolver(formSchema)
-  })
-  const { control: controlAddress, handleSubmit: handleSubmitAddress, formState: { errors: addressErrors } } = useForm<IAddressFormData>({
-    resolver: zodResolver(addressFormSchema)
-  })
-  const { control: controlFantasyName, handleSubmit: handleSubmitFantasyName, formState: { errors: fantasyNameErrors } } = useForm<IFantasyNameFormData>({
-    resolver: zodResolver(fantasyNameFormSchema)
-  })
-  const { control: controlPassword, handleSubmit: handleSubmitPassword, formState: { errors: passwordErrors } } = useForm<IPasswordFormData>({
-    resolver: zodResolver(passwordFormSchema)
-  })
-  const { control: controlPixKey, handleSubmit: handleSubmitPixKey, formState: { errors: pixKeyErrors } } = useForm<IPixKeyFormData>({
-    resolver: zodResolver(pixKeyFormSchema)
-  })
-
-  const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
-  const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
-  const [updateEstablishmentFantasyNameHook, { data: updateFantasyNameData, error: updateFantasyNameError, loading: updateFantasyNameLoading }] = useUpdateEstablishmentFantasyName()
-  const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
-  const [updateUserPassword, { data: updateUserPasswordData, error: updateUserPasswordError, loading: updateUserPasswordLoading }] = useUpdateUserPassword()
-  const [newPixKey, { data: newPixKeyData, error: newPixKeyError, loading: newPixKeyLoading }] = useRegisterPixKey()
-
-  let amenities: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.forEach(amenitieItem => {
-    amenities.push(amenitieItem.attributes.name)
-  })
-
-  let courts: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.courts.data.forEach(item => {
-    courts.push(item.attributes.name)
-  })
-
-  let establishmentPhotos: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data.forEach(photoItem => {
-    establishmentPhotos.push(photoItem.id)
-  })
-
-  let pixKeys: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.pix_keys.data.forEach(pixKeyItem => {
-    pixKeys.push(pixKeyItem.attributes.key)
-  })
-
-  const userName = userByEstablishmentData?.usersPermissionsUser.data.attributes.username
-  const userEmail = userByEstablishmentData?.usersPermissionsUser.data.attributes.email
-
-  const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
-  useEffect(() => {
-    setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data.attributes.phoneNumber)
-  }, [userByEstablishmentData])
-
-
-  const cpf = userByEstablishmentData?.usersPermissionsUser.data.attributes.cpf
-
-  const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
-  const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
-  const [editAddressModal, setEditAddressModal] = useState(false)
-  const closeEditAddressModal = () => setEditAddressModal(false)
-  const [editCNPJModal, setEditCNPJModal] = useState(false)
-  const closeEditCNPJModal = () => setEditCNPJModal(false)
-  const [editPasswordModal, setEditPasswordModal] = useState(false)
-  const closeEditPasswordModal = () => setEditPasswordModal(false)
-  const [selected, setSelected] = useState("")
-  const [pixKeySelected, setPixKeySelected] = useState("")
-  const [amenitieSelected, setAmeniniteSelected] = useState("")
-  const [courtSelected, setCourtSelected] = useState("")
-
-  const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
-  storage.load<{ latitude: number, longitude: number }>({
-    key: 'userGeolocation'
-  }).then(data => setUserGeolocation(data))
-
-  const setAllFalse = () => {
-    setEditFantasyNameModal(false)
-    setEditAddressModal(false)
-    setEditCNPJModal(false)
-    setEditPasswordModal(false)
-  }
-  const handleOptionChange = (option: string) => {
-    setSelected(option)
-
-    if (selected == "Nome Fantasia") {
-      setAllFalse()
-      setEditFantasyNameModal(true)
-    }
-    else if (selected == "Endereço") {
-      setAllFalse()
-      setEditAddressModal(true)
-    }
-    else if (selected == "CNPJ") {
-      setAllFalse()
-      setEditCNPJModal(true)
-    }
-    else {
-      setAllFalse()
-      setEditPasswordModal(true)
-    }
-  }
-
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleUpdateUser = (data: IFormData): void => {
-    setIsLoading(true)
-
-    const userDatas = {
-      ...data,
-    }
-
-    updateUserHook({
-      variables: {
-        user_id: userId,
-        username: userDatas.userName,
-        email: userDatas.email,
-        phone_number: userDatas.phoneNumber,
-        cpf: cpf
-      }
-    }).then(value => {
-      alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
-    })
-      .catch((reason) => alert(reason))
-      .finally(() => setIsLoading(false))
-  }
-
-  const [cep, setCep] = useState<string | undefined>()
-  useEffect(() => {
-    setCep(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.address.cep)
-  })
-
-  const streetName = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.address.streetName
-
-  const handleUpdateEstablishmentAddress = (data: IAddressFormData): void => {
-    setIsLoading(true)
-
-    const addressData = {
-      ...data
-    }
-
-    updateEstablishmentAddressHook({
-      variables: {
-        establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id,
-        cep: addressData.cep,
-        street_name: addressData.streetName,
-        latitude: userGeolocation?.latitude.toString(),
-        longitude: userGeolocation?.longitude.toString()
-      }
-    }).then(value => {
-      alert(value.data?.updateEstablishment.data.attributes.address.streetName)
-    })
-      .catch((reason) => alert(reason))
-      .finally(() => setIsLoading(false))
-  }
-
-  const fantasyName = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.fantasyName
-  // console.log(fantasyName)
-
-  const handleUpdateEstablishmentFantasyName = (data: IFantasyNameFormData): void => {
-    setIsLoading(true)
-
-    const fantasyNameData = {
-      ...data
-    }
-
-    updateEstablishmentFantasyNameHook({
-      variables: {
-        establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id,
-        fantasy_name: fantasyNameData.fantasyName
-      }
-    }).then(value => {
-      alert(value.data?.updateEstablishment.data.attributes.fantasyName)
-    })
-      .catch((reason) => alert(reason))
-      .finally(() => setIsLoading(false))
-  }
-
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-
-  const handleUpdateUserPassword = (data: IPasswordFormData): void => {
-    setIsLoading(true)
-
-    if (data.password === data.confirmPassword) {
-      const passwordData = {
-        ...data
-      }
-
-      updateUserPassword({
-        variables: {
-          current_password: passwordData.currentPassword,
-          password: passwordData.password,
-          password_confirmation: passwordData.confirmPassword
-        }
-      }).then(value => {
-        alert("Senha alterada com sucesso")
-      })
-        .catch((reason) => alert(reason))
-        .finally(() => setIsLoading(false))
-    }
-  }
-
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmedPassword, setShowConfirmedPassword] = useState(false)
-
-  const handleShowCurrentPassword = () => {
-    setShowCurrentPassword(!showCurrentPassword)
-  }
-  const handleShowPassword = () => {
-    setShowPassword(!showPassword);
-  }
-  const handleConfirmShowPassword = () => {
-    setShowConfirmedPassword(!showConfirmedPassword)
-  }
-
-  const handleNewPixKey = (data: IPixKeyFormData): void => {
-    setIsLoading(true)
-
-    const pixKeyData = {
-      ...data
-    }
-
-    const currentDate: DateTime = new Date();
-
-    newPixKey({
-      variables: {
-        establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id,
-        pix_key: pixKeyData.pixKey,
-        published_at: currentDate
-      }
-    }).then(() => alert("Chave pix cadastrada com sucesso"))
-      .catch((reason) => alert(reason))
-      .finally(() => setIsLoading(false))
-  }
+  
 
   const [expiryDate, setExpiryDate] = useState('');
 
   const handleExpiryDateChange = (formatted: string) => {
-    setExpiryDate(formatted);
+    setExpiryDate(formatted); 
   };
 
   const [cvv, setCVV] = useState('');
 
   const dataEstablishment = [
-    { key: '1', value: 'Razão Social' },
-    { key: '2', value: 'Nome Fantasia' },
-    { key: '3', value: 'Endereço' },
-    { key: '4', value: 'CNPJ' },
-    { key: '5', value: 'Alterar Senha' },
-  ]
+    {key:'1', value:'Razão Social'},
+    {key:'2', value:'Nome Fantasia'},
+    {key:'3', value:'Endereço'},
+    {key:'4', value:'CNPJ'},
+    {key:'5', value:'Alterar Senha'},
+    ]
 
-  const [profilePicture, setProfilePicture] = useState(userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url);
+    const dataAmenities = [
+        {key:'1', value:'Estacionamento'},
+        {key:'2', value:'Bar & Restaurante'},
+        {key:'3', value:'Vestiário'},
+        {key:'4', value:'Espaço Kids'},
+    ]
 
+    const dataCourts = [
+        {key:'1', value:'Quadra 1'},
+        {key:'2', value:'Campo 1'},
+        {key:'3', value:'Quadra 2'},
+        {key:'4', value:'Campo 2'},
+    ]
+
+  const [selected, setSelected] = React.useState("");
+const [profilePicture, setProfilePicture] = useState(null);
 
   const handleProfilePictureUpload = async () => {
     try {
@@ -366,7 +68,7 @@ export default function InfoProfileEstablishment() {
   };
 
 
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+  const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
 
   const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -419,247 +121,157 @@ export default function InfoProfileEstablishment() {
     setCVV(truncatedCVV);
   };
 
-
+  const [ phoneNumber, setPhoneNumber ] = useState("")
+  const [ cpf, setCpf ] = useState("")
 
   return (
     <View className="flex-1 bg-white h-full">
-
+      
       <ScrollView className="flex-grow p-1">
-        <TouchableOpacity className="items-center mt-8">
-          <View style={styles.container}>
-            {profilePicture ? (
-              <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
-            ) : (
-              <Image source={{ uri: "http://192.168.15.19:1337" + userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url }} style={styles.profilePicture} />
-            )}
-            <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
-              {profilePicture ? (
-                <Ionicons name="pencil-outline" size={30} color="#fff" />
-              ) : (
-                <Ionicons name="camera-outline" size={30} color="#fff" />
-              )}
-            </TouchableOpacity>
-          </View>
+      <TouchableOpacity className="items-center mt-8">
+        <View style={styles.container}>
+      {profilePicture ? (
+        <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+      ) : (
+        <Ionicons name="person-circle-outline" size={100} color="#bbb" />
+      )}
+      <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
+        {profilePicture ? (
+          <Ionicons name="pencil-outline" size={30} color="#fff" />
+        ) : (
+          <Ionicons name="camera-outline" size={30} color="#fff" />
+        )}
+      </TouchableOpacity>
+    </View>
         </TouchableOpacity>
 
         <View className="p-6 space-y-10">
-          <View>
-            <Text className="text-base">Nome</Text>
-            <Controller
-              name='userName'
-              control={control}
-              rules={{
-                required: true,
-                minLength: 6
-              }}
-              render={({ field: { onChange } }) => (
-                <TextInput
-                  textContentType='username'
-                  defaultValue={userName}
-                  onChangeText={onChange}
-                  className={`p-4 border ${errors.userName ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                  placeholder='Jhon'
-                  placeholderTextColor="#B8B8B8"
-                />
-              )}
-            />
-            {errors.userName && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.userName.message}</Text>}
+        <View>
+          <Text className="text-base">Nome</Text>
+          <TextInput className="p-4 border border-gray-500 rounded-lg h-45" placeholder='Jhon' placeholderTextColor="#B8B8B8" />
           </View>
 
           <View>
             <Text className="text-base">E-mail</Text>
-            <Controller
-              name='email'
-              control={control}
-              rules={{
-                required: true,
-                minLength: 6
-              }}
-              render={({ field: { onChange } }) => (
-                <TextInput
-                  textContentType='emailAddress'
-                  defaultValue={userEmail}
-                  onChangeText={onChange}
-                  keyboardType='email-address'
-                  className={`p-4 border ${errors.email ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                  placeholder='Jhon@mail.com.br'
-                  placeholderTextColor="#B8B8B8"
-                />
-              )}
-            />
-            {errors.email && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.email.message}</Text>}
+            <TextInput className="p-4 border border-gray-500 rounded-lg h-45" placeholder='Jhon@mail.com.br' placeholderTextColor="#B8B8B8" />
           </View>
-
           <View>
-            <Text className="text-base">Telefone</Text>
-            <Controller
-              name='phoneNumber'
-              control={control}
-              rules={{
-                required: true,
-                minLength: 6
-              }}
-              render={({ field: { onChange } }) => (
-                <MaskInput
-                  className={`p-4 border ${errors.phoneNumber ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                  placeholder='Ex: (00) 0000-0000'
-                  value={phoneNumber}
-                  onChangeText={(masked, unmasked) => {
-                    onChange(masked)
-                    setPhoneNumber(masked)
-                  }}
-                  mask={Masks.BRL_PHONE}>
-                </MaskInput>
-              )}
-            />
-            {errors.phoneNumber && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.phoneNumber.message}</Text>}
+          <Text className="text-base">Telefone</Text>
+          <MaskInput
+              className='p-4 border border-gray-500 rounded-lg h-45'
+              placeholder='Ex: (00) 0000-0000'
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              mask={Masks.BRL_PHONE}>
+          </MaskInput>
           </View>
-
+          
           <View>
-            <Text className="text-base">CPF</Text>
-            <MaskInput
+          <Text className="text-base">CPF</Text>
+          <MaskInput
               className='p-4 border border-gray-500 rounded-lg h-45'
               placeholder='Ex: 000.000.000-00'
               value={cpf}
-              mask={Masks.BRL_CPF}
-              editable={false}>
-            </MaskInput>
+              onChangeText={setCpf}
+              mask={Masks.BRL_CPF}>
+          </MaskInput>
           </View>
-
+          
           <TouchableOpacity onPress={handleCardClick}>
             <Text className="text-base">Chave PIX</Text>
             <View className="h-12 border border-gray-500 rounded-lg">
               <View className="flex-row justify-center items-center m-2">
                 <Text className="flex-1 text-base text-[#B8B8B8]"> Chaves Cadastradas
                 </Text>
-
-                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" style={{ marginRight: 8 }} />
+                
+                <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" style={{marginRight: 8}} />
               </View>
             </View>
           </TouchableOpacity>
-
-          {showCard && (
-            <View>
-              <SelectList
-                setSelected={(val: string) => setPixKeySelected(val)}
-                data={pixKeys}
-                save="value"
-                placeholder='Selecione um dado'
-                searchPlaceholder="Pesquisar..."
-                dropdownTextStyles={{ color: "#FF6112" }}
-                inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8" }}
-                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-                searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
-                arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
-              />
-            </View>
-          )}
 
           {showCard && (
             <View className="border border-gray-500 p-4 ">
               <View className="flex-row justify-between">
                 <View className="flex-1">
                   <Text className="text-base text-[#FF6112] mb-3">Chave PIX</Text>
-                  <View>
-                    <Controller
-                      name='pixKey'
-                      control={controlPixKey}
-                      rules={{
-                        required: true
-                      }}
-                      render={({ field: { onChange } }) => (
-                        <TextInput
-                          onChangeText={onChange}
-                          className={`p-4 border ${pixKeyErrors.pixKey ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                          placeholder='Coloque sua chave PIX'
-                          placeholderTextColor="#B8B8B8"
-                        />
-                      )}
-                    />
-                    {pixKeyErrors.pixKey && <Text className='text-red-400 text-sm -pt-[10px]'>{pixKeyErrors.pixKey.message}</Text>}
-                  </View>
+                <View>
+                    <TextInput className="p-4 border border-gray-500 rounded-md" placeholder='Coloque sua chave PIX' placeholderTextColor="#B8B8B8" />
+                </View>
                 </View>
               </View>
-
-              <View className="p-5 justify-center items-center">
-                <TouchableOpacity onPress={handleSubmitPixKey(handleNewPixKey)} className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
-                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
+              
+              <View className="p-2 justify-center items-center">
+                <TouchableOpacity onPress={handleSaveCard} className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
+                  <Text className="text-white">Salvar</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
-          <View>
-            <View className="">
-              <Text className='text-base mb-1'>Dados Estabelecimento</Text>
-              <SelectList
-                setSelected={(val: string) => setSelected(val)}
-                onSelect={() => handleOptionChange(selected)}
-                data={dataEstablishment}
-                save="value"
-                placeholder='Selecione um dado'
-                searchPlaceholder="Pesquisar..."
-                dropdownTextStyles={{ color: "#FF6112" }}
-                inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8" }}
-                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-                searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
-                arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
-
-              />
-            </View>
-
-          </View>
-          <View className="">
+        <View>
+        <View className="">
+            <Text className='text-base mb-1'>Dados Estabelecimento</Text>
+        <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={dataEstablishment}
+            save="value"
+            placeholder='Selecione um dado'
+            searchPlaceholder="Pesquisar..."
+            dropdownTextStyles={{ color: "#FF6112" }}
+            inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8"}}
+            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+            arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+            
+            />
+        </View>
+        
+    </View>
+    <View className="">
             <Text className='text-base mb-1'>Amenidades do Local</Text>
-            <SelectList
-              setSelected={(val: string) => setAmeniniteSelected(val)}
-              data={amenities}
-              save="value"
-              placeholder='Selecione um dado'
-              searchPlaceholder="Pesquisar..."
-              dropdownTextStyles={{ color: "#FF6112" }}
-              inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8" }}
-              closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-              searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
-              arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
-
+        <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={dataAmenities}
+            save="value"
+            placeholder='Selecione um dado'
+            searchPlaceholder="Pesquisar..."
+            dropdownTextStyles={{ color: "#FF6112" }}
+            inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8"}}
+            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+            arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+            
             />
-          </View>
+    </View>
 
-          <View className="">
+        <View className="">
             <Text className='text-base mb-1'>Editar Quadra/Campo</Text>
-            <SelectList
-              setSelected={(val: string) => setCourtSelected(val)}
-              data={courts}
-              save="value"
-              placeholder='Selecione um dado'
-              searchPlaceholder="Pesquisar..."
-              dropdownTextStyles={{ color: "#FF6112" }}
-              inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8" }}
-              closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-              searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
-              arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
-
+        <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={dataCourts}
+            save="value"
+            placeholder='Selecione um dado'
+            searchPlaceholder="Pesquisar..."
+            dropdownTextStyles={{ color: "#FF6112" }}
+            inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8"}}
+            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+            arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+            
             />
-          </View>
-
+        </View>
+            
           <View>
-            <View className='p-2'>
-              <TouchableOpacity onPress={handleSubmit(handleUpdateUser)} className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center'>
-                <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
-              </TouchableOpacity>
-            </View>
+          <View className='p-2'>
+					  <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
+            	<Text className='text-gray-50'>Excluir essa conta</Text>
+            </TouchableOpacity>
+				  </View>
 
-            <View className='p-2'>
-              <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' >
-                <Text className='text-gray-50'>Sair do App</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View className='p-2'>
-              <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
-                <Text className='text-gray-50'>Excluir essa conta</Text>
-              </TouchableOpacity>
-            </View>
+          <View className='p-2'>
+					  <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
+             	<Text className='text-gray-50'>Sair do App</Text>
+          	</TouchableOpacity>
+				</View>
           </View>
         </View>
 
@@ -667,274 +279,32 @@ export default function InfoProfileEstablishment() {
           <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
             <View className="bg-white rounded-md p-20 items-center">
               <Text className=" font-bold text-lg mb-8">Confirmar exclusão da conta?</Text>
-              <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
-                <Text className="text-white">Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete} onPressIn={() => navigation.navigate('DeleteAccountEstablishment')}>
-                <Text className="text-white">Confirmar</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
+                  <Text className="text-white">Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}  onPressIn={() => navigation.navigate('DeleteAccountEstablishment')}>
+                  <Text className="text-white">Confirmar</Text>
+                </TouchableOpacity>
+              </View>
           </View>
         </Modal>
-
+                
         <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
           <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
             <View className="bg-white rounded-md p-20 items-center">
               <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
-              <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
-                <Text className="text-white">Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit} onPressIn={() => navigation.navigate('Login')}>
-                <Text className="text-white">Confirmar</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+                  <Text className="text-white">Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit} onPressIn={() => navigation.navigate('Login')}>
+                  <Text className="text-white">Confirmar</Text>
+                </TouchableOpacity>
+              </View>
           </View>
         </Modal>
-
-        <Modal visible={editFantasyNameModal} animationType="fade" transparent={true} onRequestClose={closeEditFantasyNameModal}>
-          <View className='h-full w-full justify-center items-center'>
-            <View className='h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6'>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Insira um novo nome fantasia:</Text>
-                <Controller
-                  name='fantasyName'
-                  control={controlFantasyName}
-                  rules={{
-                    required: true
-                  }}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      defaultValue={fantasyName}
-                      onChangeText={onChange}
-                      className={`p-4 border ${fantasyNameErrors.fantasyName ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                      placeholder='Nome fantasia'
-                      placeholderTextColor="#B8B8B8"
-                    />
-                  )}
-                />
-                {fantasyNameErrors.fantasyName && <Text className='text-red-400 text-sm -pt-[10px]'>{fantasyNameErrors.fantasyName.message}</Text>}
-              </View>
-
-              <View className="flex flex-row items-center mt-[10px]">
-                <TouchableOpacity
-                  onPress={() => {
-                    closeEditFantasyNameModal()
-                  }}
-                  className='h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]'>
-                  <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={handleSubmitFantasyName(handleUpdateEstablishmentFantasyName)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
-                </TouchableOpacity>
-              </View>
-
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={editAddressModal} animationType='fade' transparent={true} onRequestClose={closeEditAddressModal}>
-          <View className='h-full w-full justify-center items-center'>
-            <View className='h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6'>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Insira o número do seu CEP:</Text>
-                <Controller
-                  name='cep'
-                  control={controlAddress}
-                  rules={{
-                    required: true
-                  }}
-                  render={({ field: { onChange } }) => (
-                    <MaskInput
-                      className={`p-4 border ${addressErrors.cep ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                      value={cep}
-                      onChangeText={(masked, unmasked) => {
-                        onChange(masked)
-                        setCep(masked)
-                      }}
-                      mask={Masks.ZIP_CODE}
-                      keyboardType='numeric'
-                    />
-                  )}
-                />
-                {addressErrors.cep && <Text className='text-red-400 text-sm -pt-[10px]'>{addressErrors.cep.message}</Text>}
-              </View>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Insira o nome da sua rua:</Text>
-                <Controller
-                  name='streetName'
-                  control={controlAddress}
-                  rules={{
-                    required: true
-                  }}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      defaultValue={streetName}
-                      onChangeText={onChange}
-                      className={`p-4 border ${addressErrors.streetName ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
-                      placeholder='Nome da rua'
-                      placeholderTextColor="#B8B8B8"
-                    />
-                  )}
-                />
-                {addressErrors.streetName && <Text className='text-red-400 text-sm -pt-[10px]'>{addressErrors.streetName.message}</Text>}
-              </View>
-
-              <View className="flex flex-row items-center mt-[10px]">
-                <TouchableOpacity
-                  onPress={() => {
-                    closeEditAddressModal()
-                  }}
-                  className='h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]'>
-                  <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={handleSubmitAddress(handleUpdateEstablishmentAddress)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
-                </TouchableOpacity>
-              </View>
-
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={editCNPJModal} animationType='fade' transparent={true} onRequestClose={closeEditCNPJModal}>
-          <View className='h-full w-full justify-center items-center'>
-            <View className='h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6'>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Seu CNPJ:</Text>
-                <TextInput
-                  className='p-[5px] border border-neutral-400 rounded bg-white'
-                  value={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.cnpj}
-                  editable={false}
-                />
-              </View>
-
-              <View className="flex flex-row items-center mt-[10px]">
-                <TouchableOpacity onPress={() => {
-                  closeEditCNPJModal()
-                }} className='h-fit w-full rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                  <Text className="font-medium text-[14px] text-white">Confirmar</Text>
-                </TouchableOpacity>
-              </View>
-
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={editPasswordModal} animationType='fade' transparent={true} onRequestClose={closeEditPasswordModal}>
-          <View className='h-full w-full justify-center items-center'>
-            <View className='h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6'>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Insira a sua senha atual:</Text>
-                <View className={passwordErrors.currentPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
-                  <Controller
-                    name='currentPassword'
-                    control={controlPassword}
-                    rules={{
-                      required: true,
-                      minLength: 6
-                    }}
-                    render={({ field: { onChange } }) => (
-                      <TextInput
-                        textContentType='password'
-                        secureTextEntry={!showCurrentPassword}
-                        onChangeText={onChange}
-                        className="p-4 flex-1"
-                        placeholder='Senha atual'
-                        placeholderTextColor="#B8B8B8"
-                      />
-                    )}
-                  />
-                  <TouchableOpacity onPress={handleShowCurrentPassword}>
-                    <Image className="h-4 w-4 m-4" source={!showCurrentPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
-                  </TouchableOpacity>
-                </View>
-                {passwordErrors.currentPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.currentPassword.message}</Text>}
-              </View>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Insira sua nova senha:</Text>
-                <View className={passwordErrors.password ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
-                  <Controller
-                    name='password'
-                    control={controlPassword}
-                    rules={{
-                      required: true,
-                      minLength: 6
-                    }}
-                    render={({ field: { onChange } }) => (
-                      <TextInput
-                        textContentType='password'
-                        secureTextEntry={!showPassword}
-                        onChangeText={onChange}
-                        className="p-4 flex-1"
-                        placeholder='Nova senha'
-                        placeholderTextColor="#B8B8B8"
-                      />
-                    )}
-                  />
-                  <TouchableOpacity onPress={handleShowPassword}>
-                    <Image className="h-4 w-4 m-4" source={!showPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
-                  </TouchableOpacity>
-                </View>
-                {passwordErrors.password && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.password.message}</Text>}
-              </View>
-
-              <View className='w-full'>
-                <Text className='text-[14px] font-bold'>Confirme sua nova senha:</Text>
-                <View className={passwordErrors.confirmPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
-                  <Controller
-                    name='confirmPassword'
-                    control={controlPassword}
-                    rules={{
-                      required: true,
-                      minLength: 6
-                    }}
-                    render={({ field: { onChange } }) => (
-                      <TextInput
-                        textContentType='password'
-                        secureTextEntry={!showConfirmedPassword}
-                        onChangeText={onChange}
-                        className="p-4 flex-1"
-                        placeholder='Confirme a nova senha'
-                        placeholderTextColor="#B8B8B8"
-                      />
-                    )}
-                  />
-                  <TouchableOpacity onPress={handleConfirmShowPassword}>
-                    <Image className="h-4 w-4 m-4" source={!showConfirmedPassword ? require('../../../assets/eye.png') : require('../../../assets/eye-slash.png')}></Image>
-                  </TouchableOpacity>
-                </View>
-                {passwordErrors.confirmPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.confirmPassword.message}</Text>}
-              </View>
-
-              <View className="flex flex-row items-center mt-[10px]">
-                <TouchableOpacity
-                  onPress={() => {
-                    closeEditPasswordModal()
-                  }}
-                  className='h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]'>
-                  <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={handleSubmitPassword(handleUpdateUserPassword)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                  <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
-                </TouchableOpacity>
-              </View>
-
-            </View>
-          </View>
-        </Modal>
-
       </ScrollView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

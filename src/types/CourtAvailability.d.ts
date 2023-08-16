@@ -6,7 +6,6 @@ type CourtAvailability = {
     endsAt: string
     weekDay: WeekDays
     value: number
-    minValue:number
     title?: string
 }
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, Text, Image, Alert } from 'react-native';
-import { Route, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import { payload } from '../../components/pix/payLoadGenerator';
@@ -8,20 +8,22 @@ import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
 import { useRoute } from '@react-navigation/native';
-import { useGetMenuUser } from '../../hooks/useMenuUser';
-import {HOST_API} from  '@env';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> {}
 
 
-export default function PixScreen({navigation, route}: RouteParams) {
-    // const navigation = useNavigation()
-    // const route = useRoute()
-    const { courtName, value, userID } = route.params
-    const formatedValue = Number(value).toFixed(2)
 
-    const {data:dataUser, error:errorUser, loading:loadingUser} = useGetMenuUser(route.params.userID)
+
+interface RouteParams {
+    courtName: string;
+    value: number
+  }
+
+
+
+export default function PixScreen() {
+    const navigation = useNavigation()
+    const route = useRoute()
+    const { courtName, value } = route.params as RouteParams
+    const formatedValue = value.toFixed(2)
 
     const payLoad = payload('+5511990216755', courtName, 'Enzo Diogenes do Prado', 'OSASCO', formatedValue.toString())
     
@@ -41,7 +43,7 @@ export default function PixScreen({navigation, route}: RouteParams) {
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('Login')}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -51,7 +53,7 @@ export default function PixScreen({navigation, route}: RouteParams) {
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-max w-max'>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data.attributes.photo?.data.attributes.url }}
+                            source={{ uri: 'https://i1.sndcdn.com/artworks-z2IyrLsaAE9AmeIg-3bUswQ-t500x500.jpg' }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />

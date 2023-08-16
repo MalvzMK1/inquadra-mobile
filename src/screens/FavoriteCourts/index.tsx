@@ -1,13 +1,14 @@
 import {ScrollView} from "react-native";
 import {InfosCourt} from "../../components/InfosCourt";
 import { useGetFavoriteById } from "../../hooks/useFavoriteById"
+import {HOST_API} from '@env'
 import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
-import {HOST_API} from '@env'
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
+// import {RootStackParamList} from "../../types/RootStack";
 
-export default function FavoriteCourts({navigation, route}: NativeStackScreenProps<RootStackParamList, 'FavoriteCourts'>) {
-	const USER_ID = route.params.userID; //LEGÍVEL
+/*  */
+export default function FavoriteCourts() {
+	const USER_ID = '2'; //LEGÍVEL
 	const {data, error, loading} = useGetFavoriteById(USER_ID, USER_ID) 
 	const [color, setColor] = useState("red")
 

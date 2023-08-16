@@ -28,7 +28,6 @@ export interface IUserPaymentCardVariables{
     cvv: number
     date: string
     countryID: string
-    publishedAt: string
 }
 
 export const userPaymentCardMutation = gql`
@@ -41,7 +40,6 @@ mutation newUserPayment(
   $cvv: Int
   $date: Date
   $countryID: ID
-  $publishedAt: DateTime
 ) {
   createUserPayment(
     data: {
@@ -51,7 +49,6 @@ mutation newUserPayment(
       name: $name
       cpf: $cpf
       card: { cvv: $cvv, dueDate: $date, country: $countryID }
-      publishedAt: $publishedAt
     }
   ) {
     data {
@@ -69,5 +66,4 @@ mutation newUserPayment(
     }
   }
 }
-
 `

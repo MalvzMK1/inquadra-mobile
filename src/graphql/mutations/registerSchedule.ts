@@ -11,9 +11,7 @@ export interface IRegisterScheduleResponse{
     }
 }
 
-
 export interface IRegisterScheduleVariables{
-    publishedAt: string
     title: string
     court_availability: number
     users: Array<number>
@@ -32,7 +30,6 @@ mutation newSchedule(
   $date: Date
   $pay_day: Date
   $value_payed: Float
-  $publishedAt: DateTime
 ) {
   createScheduling(
     data: {
@@ -43,7 +40,6 @@ mutation newSchedule(
       date: $date
       payDay: $pay_day
       valuePayed: $value_payed
-      publishedAt: $publishedAt
     }
   ) {
     data {

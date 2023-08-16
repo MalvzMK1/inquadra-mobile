@@ -32,27 +32,23 @@ async function generateIuguApiBodyRequest(
 
     let {data: userAddress} = await axios.get<FindAddressByCepResponse>(`https://example.api.findcep.com/v1/cep/${user.attributes?.address?.cep}.json`)
       console.log(userAddress)
-
-		if (!user.attributes?.phoneNumber) throw new Error('Deve ser passado um número de telefone para contato.');
-		if (!scheduling.attributes.court_availability?.data) throw new Error('Nenhum dado sobre a disponibilidade de quadra encontrado');
-		if (!scheduling.attributes.court_availability.data.attributes?.court) throw new Error('Nenhum dado sobre a quadra encontrado');
-		if (!scheduling.attributes.court_availability.data.attributes.court.data?.attributes) throw new Error('Nenhum dado sobre a quadra encontrado');
-
 		if (user.attributes) {
 			return {
 				email: user.attributes.email,
 				due_date: '2023-12-31',
 				items: [
 					{
-						description: scheduling.attributes.court_availability.data.attributes.court.data.attributes.name,
+						description:
+							scheduling.attributes.court_availability?.data?.attributes?.court
+								?.data?.attributes?.name,
 						price_cents: valueToBePayedPerUser,
 						quantity: 1,
 					},
 				],
-				payable_with: ['credit_card', 'pix'],
+				payable_with: ['credit_card'],
 				payer: {
           cpf_cnpj: user.attributes.cpf,
-          phone: user.attributes.phoneNumber,
+          phone: '11555554444',
           phone_prefix: '55',
 					email: user.attributes.email,
 					name: user.attributes.username,
