@@ -590,6 +590,7 @@ export default function () {
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
+			/>
 			<Screen
 				name='CourtPriceHour'
 				component={CourtPriceHour}
