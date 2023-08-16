@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList } from "react-native";
 
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
@@ -10,8 +10,11 @@ import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from 'zod'
+import useAllAmenities from "../../../hooks/useAllAmenities";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
 interface IFormSchema {
+	corporateName: string,
 	cnpj: string,
 	phone: string,
 	address: Omit<Address, 'id' | 'latitude' | 'longitude'>,
@@ -19,6 +22,8 @@ interface IFormSchema {
 }
 
 const formSchema = z.object({
+	corporateName: z.string()
+		.nonempty('Esse campo não pode estar vazio!'),
 	cnpj: z.string()
 		.nonempty('Esse campo não pode estar vazio!')
 		.min(14, 'Deve ser informado um CNPJ válido!'),
@@ -31,7 +36,7 @@ const formSchema = z.object({
 			.min(8, 'Deve ser informado um CEP válido!'),
 		number: z.string()
 			.nonempty('Esse campo não pode estar vazio!'),
-		street: z.string()
+		streetName: z.string()
 			.nonempty('Esse campo não pode estar vazio!'),
 	}),
 	amenities: z.optional(z.array(z.object({
@@ -40,7 +45,7 @@ const formSchema = z.object({
 	})))
 })
 
-export default function RegisterEstablishment() {
+export default function RegisterEstablishment({navigation, route}: NativeStackScreenProps<RootStackParamList, 'EstablishmentRegister'>) {
 	const {
 		control,
 		handleSubmit,
@@ -50,26 +55,10 @@ export default function RegisterEstablishment() {
 		resolver: zodResolver(formSchema)
 	})
 
-	const [cpf, setCpf] = useState("");
-	const [phone, setPhone] = useState("");
-	const [cep, setCep] = useState("")
-	const [isChecked, setIsChecked] = useState(false)
-	const navigation = useNavigation()
-	const [profilePicture, setProfilePicture] = useState(null);
-
 	const [photos, setPhotos] = useState([]);
-
 	const [selected, setSelected] = React.useState([]);
-
-	const data = [
-		{id:'1', value:'Estacionamento'},
-		{id:'2', value:'Vestiário'},
-		{id:'3', value:'Restaurante'},
-		{id:'4', value:'Opção 4'},
-		{id:'5', value:'Opção 5'},
-		{id:'6', value:'Opção 6'},
-		{id:'7', value:'Opção 7'},
-	]
+	const [selectAmenities, setSelectAmenities] = useState<Array<{key: string, value: string}>>([]);
+	const {data: allAmenitiesData, loading: isAmenitiesLoading, error: isAmenitiesError} = useAllAmenities();
 
 	const [selectedItems, setSelectedItems] = useState([]);
 
@@ -98,15 +87,35 @@ export default function RegisterEstablishment() {
 		}
 	};
 
-	const handleDeletePhoto = (index) => {
+	const handleDeletePhoto = (index: number) => {
 		const newPhotos = [...photos];
 		newPhotos.splice(index, 1);
 		setPhotos(newPhotos);
 	};
 
 	function submitForm(data: IFormSchema) {
-		console.log({data, amenities: selected})
+		console.log({data, amenities: selected, personalInfos: route.params})
+		navigation.navigate('RegisterCourts', {
+			cnpj: data.cnpj,
+			address: data.address,
+			photos: [], // TODO: PHOTOS INTEGRATION
+			corporateName: data.corporateName,
+			phoneNumber: data.phone,
+			photo: '' // TODO: PHOTO INTEGRATION
+		}) // TODO: Change to court register screen
 	}
+
+	useEffect(() => {
+		const newAmenitiesArray: Array<{key: string, value: string}> = [];
+
+		if (!isAmenitiesLoading && !isAmenitiesError)
+			allAmenitiesData?.amenities.data.forEach(amenitie => {
+				newAmenitiesArray.push({key: amenitie.id, value: amenitie.attributes.name});
+			})
+
+		console.log(newAmenitiesArray)
+		setSelectAmenities(prevState => [...prevState, ...newAmenitiesArray]);
+	}, [allAmenitiesData])
 
 	return (
 		<ScrollView className="h-fit bg-white flex-1">
@@ -118,7 +127,18 @@ export default function RegisterEstablishment() {
 				<View className='p-5 gap-7 flex flex-col justify-between'>
 					<View>
 						<Text className='text-xl p-1'>Nome do Estabelecimento</Text>
-						<TextInput className='p-5 border border-neutral-400 rounded' placeholder='Ex.: Quadra do Zeca'></TextInput>
+						<Controller
+							name='corporateName'
+							control={control}
+							render={({field: {onChange}}) => (
+								<TextInput
+									className='p-5 border border-neutral-400 rounded'
+									placeholder='Ex.: Quadra do Zeca'
+									onChangeText={onChange}
+								/>
+							)}
+						/>
+					{errors.corporateName && <Text className='text-red-400 text-sm'>{errors.corporateName.message}</Text> }
 					</View>
 					<View>
 						<Text className="text-xl p-1">CNPJ</Text>
@@ -137,7 +157,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
-						{errors.address?.cnpj && <Text className='text-red-400 text-sm'>{errors.address?.cnpj.message}</Text>}
+						{errors.cnpj && <Text className='text-red-400 text-sm'>{errors.cnpj.message}</Text>}
 					</View>
 					<View>
 						<Text className="text-xl p-1">Telefone para Contato</Text>
@@ -156,12 +176,12 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
-						{errors.address?.phone && <Text className='text-red-400 text-sm'>{errors.address?.phone.message}</Text>}
+						{errors.phone && <Text className='text-red-400 text-sm'>{errors.phone.message}</Text>}
 					</View>
 					<View>
 						<Text className='text-xl p-1'>Endereço</Text>
 						<Controller
-							name='address.street'
+							name='address.streetName'
 							control={control}
 							render={({field: {onChange}}) => (
 								<TextInput
@@ -171,7 +191,7 @@ export default function RegisterEstablishment() {
 								/>
 							)}
 						/>
-						{errors.address?.street && <Text className='text-red-400 text-sm'>{errors.address?.street.message}</Text>}
+						{errors.address?.streetName && <Text className='text-red-400 text-sm'>{errors.address?.streetName.message}</Text>}
 					</View>
 					<View className="flex flex-row justify-between">
 						<View>
@@ -219,8 +239,8 @@ export default function RegisterEstablishment() {
 						render={({field: {onChange}}) => (
 							<MultipleSelectList
 								setSelected={(val) => setSelected(val)}
-								data={data}
-								save={'id'}
+								data={selectAmenities}
+								save={'key'}
 								placeholder="Selecione aqui..."
 								label="Amenidades escolhidas:"
 								boxStyles={{borderRadius: 4, minHeight: 55}}
@@ -267,7 +287,5 @@ export default function RegisterEstablishment() {
 				</View>
 			</View>
 		</ScrollView>
-// 		</View>
-// </ScrollView>
-);
+	);
 }

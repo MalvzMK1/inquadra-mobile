@@ -10,13 +10,14 @@ import getDistanceFromLatLonInKm from '../../utils/distanceCalculator'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
 import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
+import {HOST_API} from '@env';
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
-    const EstablishmentInfos = useGetEstablishmentByCourtId(route.params?.courtID.toString())
+    const EstablishmentInfos = useGetEstablishmentByCourtId(route.params.courtID)
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
 
     const [userLocation, setUserLocation] = useState({
@@ -63,7 +64,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     rating: court.attributes.rating,
                     court_type: court.attributes.court_type.data.attributes.name,
                     court_availabilities: court.attributes.court_availabilities.data[0],
-                    photo: 'http://192.168.15.5:1337' + court.attributes.photo.data[0].attributes.url,
+                    photo: HOST_API + court.attributes.photo.data[0].attributes.url,
                 }
             })
             const establishment = {
@@ -74,8 +75,8 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 streetName: infosEstablishment.attributes.address.streetName,
                 latitude: infosEstablishment.attributes.address.latitude,
                 longitude: infosEstablishment.attributes.address.longitude,
-                photo: 'http://192.168.15.5:1337' + infosEstablishment.attributes.photos.data[0].attributes.url,
-                photosAmenitie: infosEstablishment.attributes.photosAmenitie.data.map((photo: { attributes: { url: string } }) => "http://192.168.15.5:1337" + photo.attributes.url)
+                photo: HOST_API + infosEstablishment.attributes.photos.data[0].attributes.url,
+                photosAmenitie: infosEstablishment.attributes.photosAmenitie.data.map((photo: { attributes: { url: string } }) => HOST_API + photo.attributes.url)
             }
             setEstablishment(establishment)
             if (courts) {
@@ -140,37 +141,28 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     }, [])
 
     const handlePressFavoriteEstablishment = () => {
+        const isCurrentlyFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
 
-        let newArrayfavoriteEstablishment = [""]
+        let newArrayfavoriteEstablishment = [];
 
-        if (!heart) {
-            newArrayfavoriteEstablishment = arrayfavoriteEstablishment.map((item) => {
-                return item.id
-            })
-            if (Establishment) {
-                newArrayfavoriteEstablishment.push(Establishment?.id.toString())
-            }
+        if (!isCurrentlyFavorite) {
+            newArrayfavoriteEstablishment = [...arrayfavoriteEstablishment, { id: Establishment?.id }];
         } else {
-            const filteredArray = arrayfavoriteEstablishment.filter((item) =>
-                item.id !== Establishment?.id
-            );
-            newArrayfavoriteEstablishment = filteredArray.map((item) => {
-                return item.id
-            })
+            newArrayfavoriteEstablishment = arrayfavoriteEstablishment.filter(item => item.id !== Establishment?.id);
         }
 
-        setHeart((prevState) => !prevState);
+        setArrayFavoriteEstablishment(newArrayfavoriteEstablishment);
 
         if (userId) {
             updateFavoriteEstablishment({
                 variables: {
                     user_id: userId,
-                    favorite_establishments: newArrayfavoriteEstablishment
+                    favorite_establishments: newArrayfavoriteEstablishment.map(item => item.id.toString())
                 }
-            })
+            });
         }
-
     };
+
 
     if (Establishment) {
         distance = getDistanceFromLatLonInKm(Establishment?.latitude, Establishment?.longitude, userLocation.latitude, userLocation.longitude)

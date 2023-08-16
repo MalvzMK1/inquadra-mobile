@@ -38,7 +38,9 @@ import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
 import DetailsAmountReceivable from '../../screens/FinancialEstablishment/Client/DetailsAmountReceivable';
-// import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryPayment';
+import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryPayment';
+import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
+import RegisterNewCourtAdded from '../../screens/RegisterCourt/Client/newCourtAdded';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -216,6 +218,20 @@ export default function () {
 			<Screen
 				name="Register"
 				component={Register}
+				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name="RegisterNewCourt"
+				component={RegisterNewCourt}
+				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name="RegisterNewCourtAdded"
+				component={RegisterNewCourtAdded}
 				options={{
 					headerTitle: '',
 				}}
@@ -590,15 +606,14 @@ export default function () {
 			{/* <Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
+			/>
+			<Screen
+				name='CourtPriceHour'
+				component={CourtPriceHour}
 				options={{
 					headerTitle: 'Definir hora/valor',
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="black" />
-						</TouchableOpacity>
-					)
 				}}
-			/> */}
+			/>
 			<Screen
 				name='CourtPriceHour'
 				component={CourtPriceHour}
