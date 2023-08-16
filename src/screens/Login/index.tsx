@@ -48,6 +48,23 @@ export default function Login() {
 		}
 	}, [userId, userData]);
 
+	useEffect(() => {
+		if (userId) {
+			if (roleUser === "3") {
+				navigation.navigate('Home', {
+					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+					userID: userId,
+					userPhoto: undefined
+				});
+			} else if (roleUser === "4") {
+				navigation.navigate('HomeEstablishment', {
+					userID: userId,
+					userPhoto: undefined
+				});
+			}
+		}
+	}, [roleUser]);
+
 	storage.load<{ latitude: number, longitude: number }>({
 		key: 'userGeolocation'
 	}).then(data => setUserGeolocation(data))
@@ -83,20 +100,7 @@ export default function Login() {
 
 				storage.load<UserInfos>({
 					key: 'userInfos',
-				}).then(userData => {
-					if (roleUser === "3") {
-						navigation.navigate('Home', {
-							userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-							userID: userData.userId,
-							userPhoto: undefined
-						});
-					} else if (roleUser === "4") {
-						navigation.navigate('HomeEstablishment', {
-							userID: userData.userId,
-							userPhoto: undefined
-						});
-					}
-				});
+				})
 			}
 		}).catch(err => console.error(err))
 			.finally(() => setIsLoading(false));
