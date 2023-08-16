@@ -1,22 +1,22 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
-export interface IUpdateFavoriteCourtResponse{
-    updateUsersPermissionsUser: {
-        data: {
-            attributes: {
-                favorite_courts: {
-                    data: [
-                        id: Court['id']
-                    ]
-                }
-            }
+export interface IUpdateFavoriteCourtResponse {
+  updateUsersPermissionsUser: {
+    data: {
+      attributes: {
+        favorite_courts: {
+          data: [
+            id: Court['id']
+          ]
         }
+      }
     }
+  }
 }
 
-export interface IUpdateFavoriteCourtVariables{
-     user_id: number,
-    favorite_courts: Array<number>
+export interface IUpdateFavoriteCourtVariables {
+  user_id: string,
+  favorite_courts: Array<string>
 }
 
 
