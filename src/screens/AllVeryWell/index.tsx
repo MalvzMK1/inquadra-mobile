@@ -36,6 +36,7 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
                         }
                     });
                     console.log("Deu bom");
+                    navigation.navigate('CompletedEstablishmentRegistration')
                 } catch (error) {
                     console.log("Deu ruim patrão", error);
                 }
@@ -51,11 +52,10 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
             <ScrollView className="bg-white">
                 <View className="p-4 gap-3">
                     <View>
-                        <Text className="text-xl p-2" onPress={() => navigation.navigate('CourtDetails')}>Detalhes Quadra</Text>
+                        <Text className="text-xl p-2">Detalhes Gerais</Text>
                         <View className="border rounded border-orange-400 p-5">
-                            <Text className="text-base" onPress={() => navigation.navigate('CourtDetails')}>3 quadras cadastradas</Text>
-                            <Text className="text-base" onPress={() => navigation.navigate('CourtDetails')}>Total de 25 fotos</Text>
-                            <Text className="text-base" onPress={() => navigation.navigate('CourtDetails')}>Valores e horários editados</Text>
+                            <Text className="text-base">{courts.length} quadras cadastradas</Text>
+                            <Text className="text-base">Total de {courts.reduce((totalPhotos, court) => totalPhotos + court.photos.length, 0)} fotos</Text>
                         </View>
                     </View>
 

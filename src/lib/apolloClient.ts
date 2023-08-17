@@ -1,10 +1,11 @@
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
-// import { HOST_API } from '@env'
+import { HOST_API } from '@env'
 import storage from "../utils/storage";
 
 const link = new HttpLink({
-    uri: "http://192.168.0.229:1337/" + "graphql"
+    uri: HOST_API + "/graphql"
 })
+
 
 let jwt: string = ""
 
