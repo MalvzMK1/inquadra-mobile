@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_07_2023_08_48__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_07_2023_08_48__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/FavoriteCourts/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/FavoriteCourts/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/deleteUser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/deleteUser.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,16 +38,24 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="payment-api-integration" />
-                    <option name="lastUsedInstant" value="1689244873" />
+                    <option name="branchName" value="WI564T678" />
+                    <option name="lastUsedInstant" value="1692021861" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1689244598" />
+                    <option name="lastUsedInstant" value="1692021011" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="main" />
-                    <option name="lastUsedInstant" value="1689244324" />
+                    <option name="branchName" value="WI564T677" />
+                    <option name="lastUsedInstant" value="1692018102" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T676" />
+                    <option name="lastUsedInstant" value="1692016790" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T673" />
+                    <option name="lastUsedInstant" value="1691502992" />
                   </RecentBranch>
                 </list>
               </option>
@@ -80,7 +85,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "WI564T624__SYNC",
+    "git-widget-placeholder": "WI564T684",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -108,7 +113,7 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="dbd0e8e0-28cf-442d-80dc-9d802c639314" name="Changes" comment="" />
+      <changelist id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="" />
       <created>1689153054992</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -117,6 +122,10 @@
       <workItem from="1689241421703" duration="3871000" />
       <workItem from="1689282203327" duration="141000" />
       <workItem from="1689282366590" duration="193000" />
+      <workItem from="1691157771654" duration="3386000" />
+      <workItem from="1691398693250" duration="2835000" />
+      <workItem from="1691401573898" duration="1069000" />
+      <workItem from="1692093650411" duration="1282000" />
     </task>
     <servers />
   </component>

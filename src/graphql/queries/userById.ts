@@ -17,11 +17,20 @@ export interface IUserByIdResponse {
             }
           ]
         }
+        role: {
+          data: {
+            id: string
+          }
+        }
+          ]
+        }
         paymentCardInformations: {
+          id: PaymentCardInformations['id']
           cvv: PaymentCardInformations['cvv']
           dueDate: string
           country: {
             data: {
+              id: string
               attributes: {
                 flag: {
                   data: {
@@ -65,12 +74,18 @@ query getUserById($id: ID){
               id
             }
           }
+          role{
+            data{
+              id
+            }
+          }
           paymentCardInformations{
             id
             cvv
             dueDate
             country{
               data{
+                id
                 attributes{
                   flag{
                     data{

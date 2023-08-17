@@ -10,9 +10,9 @@ import {addDays, format} from 'date-fns'
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import { getWeekDays } from "../../utils/getWeekDates"
 
-interface ICourtAvailibilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailibilityInfo'> {}
+interface ICourtAvailabilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailabilityInfo'> {}
 
-export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailibilityInfoProps) {
+export default function CourtAvailabilityInfo({navigation, route}: ICourtAvailabilityInfoProps) {
 	const {
 		data: courtAvailability,
 		loading: isCourtAvailabilityLoading,
@@ -123,7 +123,8 @@ export default function CourtAvailibilityInfo({navigation, route}: ICourtAvailib
 							onPress={() => navigation.navigate('ReservationPaymentSign', {
 								courtName: route.params.courtName,
 								courtImage: route.params.courtImage,
-								courtId: route.params.courtId
+								courtId: route.params.courtId,
+								userId: route.params.userId
 							})}
 						>
 							<Text className='text-white'>RESERVAR</Text>

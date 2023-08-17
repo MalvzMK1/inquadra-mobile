@@ -11,7 +11,6 @@ import {
 	ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,7 +24,10 @@ import {useGetUserById} from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
-import {useGetFavoriteById} from "../../hooks/useFavoriteById";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import useCountries from "../../hooks/useCountries";
+import {HOST_API} from "@env";
+import useDeleteUser from "../../hooks/useDeleteUser";
 
 interface IFormData {
 	name: string
@@ -44,10 +46,18 @@ interface IFormData {
 }
 
 const formSchema = z.object({
-	name: z.string(),
-	email: z.string(),
-	phoneNumber: z.string(),
-	cpf: z.string(),
+	name: z.string()
+		.nonempty('Esse campo não pode estar vazio'),
+	email: z.string()
+		.nonempty('Esse campo não pode estar vazio')
+		.max(256, 'Insira um E-mail válido')
+		.includes('@', {
+			message: 'Insira um E-mail válido'
+		}),
+	phoneNumber: z.string()
+		.nonempty('Esse campo não pode estar vazio'),
+	cpf: z.string()
+		.nonempty('Esse campo não pode estar vazio'),
 	paymentCardInfos: z.optional(z.object({
 		dueDate: z.string(),
 		cvv: z.string(),
@@ -55,24 +65,33 @@ const formSchema = z.object({
 	}).nullable())
 })
 
-const countriesData = [
-	{ key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
-	{ key: '3', value: 'Portugal', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '5', value: 'Canadá', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '6', value: 'Itália', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '7', value: 'Reino Unido', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-]
+type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string, country: string}}
 
-type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}}
-
-export default function ProfileSettings({navigation, route}) {
+export default function ProfileSettings({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
 	const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
 
-	const { loading, error, data } = useGetUserById("2");
+	const { loading, error, data } = useGetUserById(route.params.userID);
+	const {data: countriesData, loading: countriesLoading, error: countriesError} = useCountries();
 	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
 	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
+	const [deleteUser] = useDeleteUser();
+
+	const [countriesArray, setCountriesArray] = useState<Array<{key: string, value: string}>>([])
+
+	useEffect(() => {
+		let newCountriesArray: Array<{key: string, value: string, img: string}> = [];
+		if (!countriesLoading && countriesData) {
+			newCountriesArray = countriesData.countries.data.map(country => {
+				return {
+					key: country.id,
+					value: country.attributes.name,
+					img: HOST_API + country.attributes.flag
+				}
+			})
+		}
+
+		setCountriesArray(prevState => [...prevState, ...newCountriesArray])
+	}, [countriesData, countriesLoading])
 
 	const {
 		control,
@@ -111,8 +130,25 @@ export default function ProfileSettings({navigation, route}) {
 		setShowDeleteConfirmation(true);
 	};
 
+	const [deleteAccountLoading, setDeleteAccountLoading] = useState<boolean>(false)
+
 	const handleConfirmDelete = () => {
-		setShowDeleteConfirmation(false);
+		if (userInfos) {
+			// TODO: IMPLEMENT ACCOUNT DELETE
+			setDeleteAccountLoading(true);
+
+			deleteUser({
+				variables: {
+					user_id: userInfos.id
+				}
+			}).then(() => navigation.navigate('DeleteAccountSuccess'))
+				.catch((err) => alert(JSON.stringify(err)))
+				.finally(() => setDeleteAccountLoading(false))
+		}
+
+
+		// setShowDeleteConfirmation(false);
+		// navigation.navigate('DeleteAccountSuccess');
 	};
 
 	const handleCancelDelete = () => {
@@ -164,12 +200,7 @@ export default function ProfileSettings({navigation, route}) {
 
 	// const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const [showCard, setShowCard] = useState(false);
-	const [cardData, setCardData] = useState({
-		cardNumber: '',
-		expirationDate: '',
-		cvv: '',
-		country: ''
-	});
+
 	const [showCameraIcon, setShowCameraIcon] = useState(false);
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 	const [showExitConfirmation, setShowExitConfirmation] = useState(false);
@@ -191,7 +222,7 @@ export default function ProfileSettings({navigation, route}) {
 	async function loadInformations() {
 		let newUserInfos = userInfos;
 
-		if (!loading) {
+		if (!loading && data) {
 			newUserInfos = {
 				id: data.usersPermissionsUser.data.id,
 				username: data.usersPermissionsUser.data.attributes.username,
@@ -199,16 +230,18 @@ export default function ProfileSettings({navigation, route}) {
 				email: data.usersPermissionsUser.data.attributes.email,
 				phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
 				paymentCardInfos: {
-					dueDate: "11/11",
-					cvv: "1234",
+					dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate,
+					cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString(),
+					country: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id
 				},
 			};
-
 			setUserInfos(newUserInfos);
 		}
 
 		return newUserInfos;
 	}
+	// if (!loading) alert(data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv)
+
 
 	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined): void {
 		// console.log(userData)
@@ -230,7 +263,7 @@ export default function ProfileSettings({navigation, route}) {
 
 	return (
 				<View className="flex-1 bg-white h-full">
-					{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}
+					{/* {errors && <Text>ERRO: {JSON.stringify(errors)}</Text>} */}
 					{
 						loading ?
 							<View className='flex-1'>
@@ -269,6 +302,7 @@ export default function ProfileSettings({navigation, route}) {
 											/>
 										)}
 									/>
+									{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
 									<Text className="text-base">E-mail</Text>
 									<Controller
 										name='email'
@@ -283,6 +317,7 @@ export default function ProfileSettings({navigation, route}) {
 											/>
 										)}
 									/>
+									{errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
 									<Text className="text-base">Telefone</Text>
 									<Controller
 										name='phoneNumber'
@@ -298,6 +333,7 @@ export default function ProfileSettings({navigation, route}) {
 											/>
 										)}
 									/>
+									{errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
 									<Text className="text-base">CPF</Text>
 									<Controller
 										name='cpf'
@@ -313,7 +349,7 @@ export default function ProfileSettings({navigation, route}) {
 											/>
 										)}
 									/>
-
+									{errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
 									<TouchableOpacity onPress={handleCardClick}>
 										<Text className="text-base">Dados Cartão</Text>
 										<View className="h-30 border border-gray-500 rounded-md">
@@ -388,7 +424,7 @@ export default function ProfileSettings({navigation, route}) {
 																	setSelected={(val: string) => {
 																		onChange(val)
 																	}}
-																	data={countriesData}
+																	data={countriesArray}
 																	save='value'
 																	placeholder='Selecione um país...'
 																	searchPlaceholder='Pesquisar...'
@@ -434,8 +470,8 @@ export default function ProfileSettings({navigation, route}) {
 											<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
 												<Text className="text-white">Cancelar</Text>
 											</TouchableOpacity>
-											<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}  onPressIn={() => navigation.navigate('DeleteAccountSuccess')}>
-												<Text className="text-white">Confirmar</Text>
+											<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
+												<Text className="text-white">{deleteAccountLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> : 'Confirmar'}</Text>
 											</TouchableOpacity>
 										</View>
 									</View>

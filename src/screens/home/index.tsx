@@ -52,6 +52,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	}
 
 	useEffect(() => {
+		console.log(error)
 		if (!error && !loading) {
 			const newCourts = data?.establishments.data
 				.filter(establishment => (
@@ -83,6 +84,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						) / 1000, // Change to real values,
 						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
 						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
+						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : ''
 					}
 
 					return establishmentObject
@@ -97,6 +99,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
 			})
 		}
+
+		console.log(userHookData?.usersPermissionsUser.data.attributes.photo.data)
 	}, [data, loading, userHookLoading]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
