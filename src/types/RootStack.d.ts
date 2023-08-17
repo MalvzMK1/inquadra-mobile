@@ -92,4 +92,8 @@ type RootStackParamList = {
 	AllVeryWell: {
 		courtArray: CourtAdd[]
 	}
+	CourtDetails: {
+		courtArray: CourtAdd[]
+	}
+
 }

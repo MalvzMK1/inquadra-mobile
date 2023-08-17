@@ -29,3 +29,4 @@ export const client = new ApolloClient({
     link: authLink.concat(link),
     cache: new InMemoryCache(),
 });
+

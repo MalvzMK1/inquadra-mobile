@@ -20,7 +20,7 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
 
     const [addCourt, { data: dataRegisterCourt, loading: loadingRegisterCourt, error: errorRegisterCourt }] = useRegisterCourt()
 
-    const registerCourts = async (courts: CourtArrayObject[]) => {    
+    const registerCourts = async (courts: CourtArrayObject[]) => {
         try {
             await Promise.all(courts.map(async (court) => {
                 try {
@@ -46,42 +46,46 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
         }
     };
 
-    
+
     return (
         <View className="flex-1">
             <ScrollView className="bg-white">
                 <View className="p-4 gap-3">
-                    <View>
-                        <Text className="text-xl p-2">Detalhes Gerais</Text>
-                        <View className="border rounded border-orange-400 p-5">
-                            <Text className="text-base">{courts.length} quadras cadastradas</Text>
-                            <Text className="text-base">Total de {courts.reduce((totalPhotos, court) => totalPhotos + court.photos.length, 0)} fotos</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('CourtDetails')}>
+                        <View>
+                            <Text className="text-xl p-2">Detalhes Gerais</Text>
+                            <View className="border rounded border-orange-400 p-5">
+                                <Text className="text-base">{courts.length} quadras cadastradas</Text>
+                                <Text className="text-base">Total de {courts.reduce((totalPhotos, court) => totalPhotos + court.photos.length, 0)} fotos</Text>
+                            </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
 
                     {
                         courts.map((court) =>
-                            <View>
-                                <Text className="text-xl p-2">{court.court_name}</Text>
-                                <View className="border rounded border-orange-400 p-5">
-                                    {
-                                        court.photos.length > 1
-                                            ? <Text className="text-base">Total de {court.photos.length} fotos cadastradas</Text>
-                                            : <Text className="text-base">Total de {court.photos.length} foto cadastrada</Text>
-                                    }
-                                    {
-                                        court.court_availabilities.length > 0
-                                            ? <Text className="text-base">Valores e horários editados</Text>
-                                            : <Text className="text-base">Valores e horarios não editados</Text>
-                                    }
+                            <TouchableOpacity onPress={() => navigation.navigate('CourtDetails', {courtArray: courts})}>
+                                <View>
+                                    <Text className="text-xl p-2">{court.court_name}</Text>
+                                    <View className="border rounded border-orange-400 p-5">
+                                        {
+                                            court.photos.length > 1
+                                                ? <Text className="text-base">Total de {court.photos.length} fotos cadastradas</Text>
+                                                : <Text className="text-base">Total de {court.photos.length} foto cadastrada</Text>
+                                        }
+                                        {
+                                            court.court_availabilities.length > 0
+                                                ? <Text className="text-base">Valores e horários editados</Text>
+                                                : <Text className="text-base">Valores e horarios não editados</Text>
+                                        }
+                                    </View>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         )
                     }
                 </View>
             </ScrollView>
             <View className="bg-white">
-                <TouchableOpacity className='h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center' onPress= {() => registerCourts(courts)}>
+                <TouchableOpacity className='h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => registerCourts(courts)}>
                     <Text className='text-gray-50'>Concluir</Text>
                 </TouchableOpacity>
             </View>
