@@ -34,6 +34,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
 	const { data, loading, error } = useEstablishmentCardInformations()
 	const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
+
 	const [establishments, setEstablishments] = useState<Array<{
 		id: string,
 		latitude: number,
@@ -52,7 +53,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	}
 
 	useEffect(() => {
-		console.log(error)
+		// console.log({error})
 		if (!error && !loading) {
 			const newCourts = data?.establishments.data
 				.filter(establishment => (
@@ -69,7 +70,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						.map(courtType => courtType.map(type => type.attributes.name))
 
 					if (!courtTypes) courtTypes = []
-					console.log(establishment)
+					// console.log({establishment})
 
 					establishmentObject = {
 						id: establishment.id,
@@ -84,7 +85,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						) / 1000, // Change to real values,
 						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
 						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
-						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : ''
 					}
 
 					return establishmentObject
@@ -100,8 +100,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			})
 		}
 
-		console.log(userHookData?.usersPermissionsUser.data.attributes.photo.data)
-	}, [data, loading, userHookLoading]);
+	}, [data, loading, userHookLoading, userHookData]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	useEffect(() => {
@@ -125,7 +124,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		<View className="flex-1 flex flex-col">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} />
+					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} />
 			}
 			<View className='flex-1'>
 
@@ -175,7 +174,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			</View>
 			{
 				isDisabled && <HomeBar
-					chosenType={sportSelected}
 					courts={establishments}
 					userName={userHookData?.usersPermissionsUser.data.attributes.username}
 				/>
