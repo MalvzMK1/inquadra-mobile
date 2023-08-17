@@ -11,7 +11,6 @@ import {
 	ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,8 +24,9 @@ import {useGetUserById} from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
-import {useGetFavoriteById} from "../../hooks/useFavoriteById";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import useCountries from "../../hooks/useCountries";
+import {HOST_API} from "@env";
 
 interface IFormData {
 	name: string
@@ -56,24 +56,34 @@ const formSchema = z.object({
 	}).nullable())
 })
 
-const countriesData = [
-	{ key: '1', value: 'Brasil', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '2', value: 'França', img: 'https://static.todamateria.com.br/upload/58/4f/584f1a8561a5c-franca.jpg' },
-	{ key: '3', value: 'Portugal', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '4', value: 'Estados Unidos', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '5', value: 'Canadá', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '6', value: 'Itália', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-	{ key: '7', value: 'Reino Unido', img: 'https://s3.static.brasilescola.uol.com.br/be/2021/11/bandeira-do-brasil.jpg' },
-]
-
 type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}}
 
 export default function ProfileSettings({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
 	const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
 
 	const { loading, error, data } = useGetUserById(route.params.userID);
+	const {data: countriesData, loading: countriesLoading, error: countriesError} = useCountries();
 	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
 	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
+
+	const [countriesArray, setCountriesArray] = useState<Array<{key: string, value: string}>>([])
+
+	useEffect(() => {
+		let newCountriesArray: Array<{key: string, value: string, img: string}> = [];
+		if (!countriesLoading && countriesData) {
+			newCountriesArray = countriesData.countries.data.map(country => {
+				return {
+					key: country.id,
+					value: country.attributes.name,
+					img: HOST_API + country.attributes.flag
+				}
+			})
+		}
+
+		setCountriesArray(prevState => [...prevState, ...newCountriesArray])
+	}, [countriesData, countriesLoading])
+
+
 
 	const {
 		control,
@@ -389,7 +399,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 																	setSelected={(val: string) => {
 																		onChange(val)
 																	}}
-																	data={countriesData}
+																	data={countriesArray}
 																	save='value'
 																	placeholder='Selecione um país...'
 																	searchPlaceholder='Pesquisar...'
