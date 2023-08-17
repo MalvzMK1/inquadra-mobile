@@ -22,8 +22,6 @@ export interface IUserByIdResponse {
             id: string
           }
         }
-          ]
-        }
         paymentCardInformations: {
           id: PaymentCardInformations['id']
           cvv: PaymentCardInformations['cvv']
