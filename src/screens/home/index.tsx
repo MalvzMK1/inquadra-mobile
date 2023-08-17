@@ -160,6 +160,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
+									userId={userHookData?.usersPermissionsUser.data.id}
+									liked={true}
 								/>
 							</Marker>
 						))
