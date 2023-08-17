@@ -45,10 +45,18 @@ interface IFormData {
 }
 
 const formSchema = z.object({
-	name: z.string(),
-	email: z.string(),
-	phoneNumber: z.string(),
-	cpf: z.string(),
+	name: z.string()
+		.nonempty('Esse campo não pode estar vazio'),
+	email: z.string()
+		.nonempty('Esse campo não pode estar vazio')
+		.max(256, 'Insira um E-mail válido')
+		.includes('@', {
+			message: 'Insira um E-mail válido'
+		}),
+	phoneNumber: z.string()
+		.nonempty('Esse campo não pode estar vazio'),
+	cpf: z.string()
+		.nonempty('Esse campo não pode estar vazio'),
 	paymentCardInfos: z.optional(z.object({
 		dueDate: z.string(),
 		cvv: z.string(),
@@ -56,7 +64,7 @@ const formSchema = z.object({
 	}).nullable())
 })
 
-type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}}
+type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string, country: string}}
 
 export default function ProfileSettings({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
 	const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
@@ -82,8 +90,6 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 
 		setCountriesArray(prevState => [...prevState, ...newCountriesArray])
 	}, [countriesData, countriesLoading])
-
-
 
 	const {
 		control,
@@ -175,12 +181,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 
 	// const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const [showCard, setShowCard] = useState(false);
-	const [cardData, setCardData] = useState({
-		cardNumber: '',
-		expirationDate: '',
-		cvv: '',
-		country: ''
-	});
+
 	const [showCameraIcon, setShowCameraIcon] = useState(false);
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 	const [showExitConfirmation, setShowExitConfirmation] = useState(false);
@@ -202,7 +203,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	async function loadInformations() {
 		let newUserInfos = userInfos;
 
-		if (!loading) {
+		if (!loading && data) {
 			newUserInfos = {
 				id: data.usersPermissionsUser.data.id,
 				username: data.usersPermissionsUser.data.attributes.username,
@@ -210,16 +211,18 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 				email: data.usersPermissionsUser.data.attributes.email,
 				phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
 				paymentCardInfos: {
-					dueDate: "11/11",
-					cvv: "1234",
+					dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate,
+					cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString(),
+					country: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id
 				},
 			};
-
 			setUserInfos(newUserInfos);
 		}
 
 		return newUserInfos;
 	}
+	// if (!loading) alert(data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv)
+
 
 	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined): void {
 		// console.log(userData)
@@ -280,6 +283,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 											/>
 										)}
 									/>
+									{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
 									<Text className="text-base">E-mail</Text>
 									<Controller
 										name='email'
@@ -294,6 +298,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 											/>
 										)}
 									/>
+									{errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
 									<Text className="text-base">Telefone</Text>
 									<Controller
 										name='phoneNumber'
@@ -309,6 +314,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 											/>
 										)}
 									/>
+									{errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
 									<Text className="text-base">CPF</Text>
 									<Controller
 										name='cpf'
@@ -324,7 +330,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 											/>
 										)}
 									/>
-
+									{errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
 									<TouchableOpacity onPress={handleCardClick}>
 										<Text className="text-base">Dados Cartão</Text>
 										<View className="h-30 border border-gray-500 rounded-md">
