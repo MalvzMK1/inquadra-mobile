@@ -81,7 +81,7 @@ export default function HomeBar({ userName, photoUser }: HomeBarProps) {
 			<ScrollView className='p-5'>
 				{data?.courts.data !== undefined ? data?.courts.data.map((item) => (
 					<CourtCardHome
-						// key={item.id}
+						key={item.id}
 						id={item.id}
 						// photoUser={photoUser}
 						image={item.attributes.photo.data[0].attributes.url}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Image, Text } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { RefreshControl, TouchableOpacity } from 'react-native-gesture-handler';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from '../../utils/storage';
 import useUpdateFavoriteCourt from '../../hooks/useUpdateFavoriteCourt';
@@ -18,40 +18,44 @@ storage.load({
 export default function CourtCardHome(props: CourtCardInfos) {
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
-	
 	const [color, setColor] = useState(props.liked ? "red" : "white")
 
 	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
 
-	let userFavoriteCourts: string[] = []
+	const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>([])
+	// let userFavoriteCourts: string[] = []
 
-	userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
-		userFavoriteCourts.push(item.id)
-	})
-	
+	useEffect(() => {
+		userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
+			setUserFavoriteCourts([item.id])
+		})
+	}, [userByIdData])
+
 	const [updateLikedCourts, { data, error, loading }] = useUpdateFavoriteCourt()
 
 	const [isLoading, setIsLoading] = useState(false)
-	
+
 	const handleUpdateCourtLike = (courtId: string): void => {
-		
+
 		const courtsData = [
 			...userFavoriteCourts
 		]
-		
+
 		if (userFavoriteCourts?.includes(courtId)) {
 			setIsLoading(true)
 			const arrayWithoutDeletedItem = courtsData.filter(item => item !== courtId)
-			// console.log(arrayWithoutDeletedItem)
-			
+
 			updateLikedCourts({
 				variables: {
 					user_id: userId,
 					favorite_courts: arrayWithoutDeletedItem
 				}
-			}).then(() => alert("Dislike dado com sucesso"))
+			})
 				.catch((reason) => alert(reason))
-				.finally(() => setIsLoading(false))
+				.finally(() => {
+					setIsLoading(false)
+					setUserFavoriteCourts(arrayWithoutDeletedItem)
+				})
 		} else {
 			setIsLoading(true)
 			courtsData.push(courtId)
@@ -61,9 +65,12 @@ export default function CourtCardHome(props: CourtCardInfos) {
 					user_id: userId,
 					favorite_courts: courtsData
 				}
-			}).then(() => alert("Like dado com sucesso"))
+			})
 				.catch((reason) => alert(reason))
-				.finally(() => setIsLoading(false))
+				.finally(() => {
+					setIsLoading(false)
+					setUserFavoriteCourts(courtsData)
+				})
 		}
 	}
 
