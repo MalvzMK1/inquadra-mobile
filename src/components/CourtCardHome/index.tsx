@@ -24,7 +24,11 @@ export default function CourtCardHome(props: CourtCardInfos) {
 				<View className='flex flex-row flex-1'>
 					<View className='flex-1'>
 						<Text className='text-[#ff6112] font-black text-[15px]'>{props.name}</Text>
-						<Text className='text-white font-bold text-xs'>{props.type}</Text>
+						<Text className='text-white font-bold text-xs'>
+							{
+								Array.isArray(props.type) ? props.type.join(" & ") : props.type
+							}
+						</Text>
 						<Text className='text-white font-bold text-xs'>{props.distance.toFixed(2).replace('.', ',')}Km de distacia</Text>
 					</View>
 					<AntDesign name="heart" size={20} color={color} onPress={() => color == "white" ? setColor("red") : setColor("white")} />

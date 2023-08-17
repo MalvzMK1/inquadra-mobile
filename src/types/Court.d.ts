@@ -2,9 +2,8 @@ type CourtCardInfos = {
 	id: string
 	image: string
 	name: string
-	type: string
+	type: string | string[]
 	distance: number
-	userId: string
 }
 
 type Court = {
