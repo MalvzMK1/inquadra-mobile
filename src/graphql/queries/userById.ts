@@ -21,6 +21,7 @@ export interface IUserByIdResponse {
           dueDate: string
           country: {
             data: {
+              id: string
               attributes: {
                 flag: {
                   data: {
@@ -70,6 +71,7 @@ query getUserById($id: ID){
             dueDate
             country{
               data{
+                id
                 attributes{
                   flag{
                     data{
