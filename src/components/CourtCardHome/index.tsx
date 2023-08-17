@@ -23,7 +23,6 @@ export default function CourtCardHome(props: CourtCardInfos) {
 	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
 
 	const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>([])
-	// let userFavoriteCourts: string[] = []
 
 	useEffect(() => {
 		userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
@@ -40,6 +39,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 		const courtsData = [
 			...userFavoriteCourts
 		]
+		
 
 		if (userFavoriteCourts?.includes(courtId)) {
 			setIsLoading(true)
@@ -50,7 +50,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 					user_id: userId,
 					favorite_courts: arrayWithoutDeletedItem
 				}
-			})
+			}).then(() => alert("Dislike"))
 				.catch((reason) => alert(reason))
 				.finally(() => {
 					setIsLoading(false)
@@ -65,7 +65,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 					user_id: userId,
 					favorite_courts: courtsData
 				}
-			})
+			}).then(() => alert("Like"))
 				.catch((reason) => alert(reason))
 				.finally(() => {
 					setIsLoading(false)

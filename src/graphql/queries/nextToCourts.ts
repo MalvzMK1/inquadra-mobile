@@ -43,7 +43,7 @@ query nextToCourts {
     data {
       id
       attributes {
-        court_type {
+        court_types {
           data {
             attributes {
               name
