@@ -74,6 +74,8 @@ export default function CourtCardHome(props: CourtCardInfos) {
 		}
 	}
 
+	console.log({E_AQUI: props.distance.toFixed(2)})
+
 	return (
 		<TouchableOpacity onPress={() => navigation.navigate('EstablishmentInfo', {
 			courtID: props.id,

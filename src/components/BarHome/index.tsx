@@ -84,11 +84,12 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 								.map((item) => {
 									return (
 										<CourtCardHome
+											userId={userId}
 											key={item.id}
 											id={item.id}
 											image={item.image}
 											name={item.name}
-											distance={item.distance.toFixed(0)}
+											distance={item.distance}
 											type={item.type}
 											liked={verifyCourtLike(item.id)}
 										/>
@@ -99,11 +100,12 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 						courts !== undefined ? courts.map((item) => {
 							return (
 								<CourtCardHome
+									userId={userId}
 									key={item.id}
 									id={item.id}
 									image={item.image}
 									name={item.name}
-									distance={item.distance.toFixed(0)}
+									distance={item.distance}
 									type={item.type}
 									liked={verifyCourtLike(item.id)}
 								/>
