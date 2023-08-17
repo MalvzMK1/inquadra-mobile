@@ -9,6 +9,16 @@ import Animated, {
 	FadeIn
 } from 'react-native-reanimated';
 import CourtCardHome from '../CourtCardHome';
+import storage from '../../utils/storage';
+import { useGetUserById } from '../../hooks/useUserById';
+
+let userId: string
+
+storage.load({
+	key: 'userInfos'
+}).then(data => {
+	userId = data.userId
+})
 
 interface HomeBarProps {
 	courts: Array<{
@@ -20,11 +30,11 @@ interface HomeBarProps {
 		image: string,
 		distance: number,
 	}>,
-	userName: string | undefined
-	// photoUser: string | undefined
+	userName: string | undefined,
+	chosenType: string | undefined
 }
 
-export default function HomeBar({courts, userName}: HomeBarProps) {
+export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
@@ -42,6 +52,18 @@ export default function HomeBar({courts, userName}: HomeBarProps) {
 		};
 	});
 
+	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
+
+	let userFavoriteCourts: string[] = []
+
+	userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
+		userFavoriteCourts.push(item.id)
+	})
+
+	const verifyCourtLike = (courtId: string) => {
+		return userFavoriteCourts?.includes(courtId)
+	}
+
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
 			<View
@@ -52,17 +74,44 @@ export default function HomeBar({courts, userName}: HomeBarProps) {
 				<Text className='text-white text-lg font-black mt-3'>Olá{userName ? `, ${userName}` : null}!</Text>
 			</View>
 			<ScrollView className='p-5'>
-				{courts !== undefined ? courts.map((item) => (
-					<CourtCardHome
-						key={item.id}
-						id={item.id}
-						// photoUser={photoUser}
-						image={item.image}
-						name={item.name}
-						distance={item.distance}
-						type={item.type}
-					/>
-				)) : <ActivityIndicator size='small' color='#fff' />}
+				{
+					chosenType ?
+						courts !== undefined ?
+							courts.filter(item => {
+								const types = Array.isArray(item.type) ? item.type : item.type.split(" & ")
+								return chosenType ? types.includes(chosenType) : true
+							})
+								.map((item) => {
+									return (
+										<CourtCardHome
+											userId={userId}
+											key={item.id}
+											id={item.id}
+											image={item.image}
+											name={item.name}
+											distance={item.distance}
+											type={item.type}
+											liked={verifyCourtLike(item.id)}
+										/>
+									)
+								})
+							: <ActivityIndicator size='small' color='#fff' />
+						:
+						courts !== undefined ? courts.map((item) => {
+							return (
+								<CourtCardHome
+									userId={userId}
+									key={item.id}
+									id={item.id}
+									image={item.image}
+									name={item.name}
+									distance={item.distance}
+									type={item.type}
+									liked={verifyCourtLike(item.id)}
+								/>
+							)
+						}) : <ActivityIndicator size='small' color='#fff' />
+				}
 			</ScrollView>
 		</Animated.View>
 	)

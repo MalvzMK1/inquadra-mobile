@@ -1,20 +1,35 @@
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, TextInput } from 'react-native';
 import React, { useState, useRef } from "react"
 import { CheckBox } from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PriceHour from '../CourtPriceHour';
+import {useComponentContext} from '../../context/ComponentContext';
+import {InComponentInputsProvider} from '../../context/ComponentInputsContext';
 
 export default function SetCourtAvailibility() {
-    const [dayUseYes, setDayUseYes] = useState(false)
-    const [dayUseNo, setDayUseNo] = useState(false)
-    const [addedComponents, setAddedComponents] = useState<JSX.Element[]>([])
-    const nextIdRef = useRef(1)
+  const nextIdRef = useRef(1)
+
+  const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse } = useComponentContext()
+  const [priceHours, setPriceHours] = useState<Array<{startsAt: string, endsAt: string, price: string}>>([])
 
     const handleAddNewComponentButton = () => {
-        const newComponent = <PriceHour key={nextIdRef.current++} />
+      const inputValues = {
+        startsAt: '',
+        endsAt: '',
+        price: ''
+      }
+      setPriceHours(prevState => [...prevState, inputValues])
+        const newComponent = (
+          <InComponentInputsProvider>
+            <PriceHour
+              key={nextIdRef.current++}
+              values={inputValues}
+            />
+          </InComponentInputsProvider>
+        )
 
         if (addedComponents && addedComponents.length > 0)
-            setAddedComponents((prevState) => [...prevState, newComponent])
+            setAddedComponents((prevState: JSX.Element) => [...prevState, newComponent])
         else
             setAddedComponents([newComponent])
     };
@@ -35,15 +50,15 @@ export default function SetCourtAvailibility() {
                 'ERRO!',
                 'Adicione um horário para que seja possível copiar',
                 [
-                  {
-                    text: 'VOLTAR',
-                    style: 'cancel'
-                  },
+                    {
+                        text: 'VOLTAR',
+                        style: 'cancel'
+                    },
                 ],
                 {
-                  cancelable: true
+                    cancelable: true
                 }
-              );
+            );
         }
     }
 
@@ -70,10 +85,9 @@ export default function SetCourtAvailibility() {
             <View className='flex-row'>
                 <View className='flex-row items-center justify-center'>
                     <CheckBox
-                        checked={dayUseYes}
+                        checked={dayUse}
                         onPress={() => {
-                            setDayUseYes(!dayUseYes)
-                            setDayUseNo(false)
+                            setDayUse(true)
                         }}
                     />
                     <Text className='text-white text-[16px] -ml-[15px]'>Sim</Text>
@@ -81,10 +95,9 @@ export default function SetCourtAvailibility() {
 
                 <View className='flex-row items-center justify-center ml-[5px]'>
                     <CheckBox
-                        checked={dayUseNo}
+                        checked={!dayUse}
                         onPress={() => {
-                            setDayUseNo(!dayUseNo)
-                            setDayUseYes(false)
+                            setDayUse(false)
                         }}
                     />
                     <Text className='text-white text-[16px] -ml-[15px]'>Não</Text>
@@ -110,6 +123,13 @@ export default function SetCourtAvailibility() {
             <TouchableOpacity onPress={handleAddNewComponentButton} className='h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]'>
                 <Text className='text-white text-[10px]'>Adicionar horário</Text>
             </TouchableOpacity>
+
+            <Text>Input Value: {inputValue}</Text>
+            <TextInput
+                value={inputValue}
+                onChangeText={setInputValue}
+                placeholder="Enter something"
+            />
 
             {!copyButtonClick && (
                 <View className='flex-row items-center justify-between mt-[35px] mb-[30px]'>
