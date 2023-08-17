@@ -27,6 +27,7 @@ import { transformCardDueDateToParsedString } from "../../utils/transformCardDue
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import {HOST_API} from "@env";
+import useDeleteUser from "../../hooks/useDeleteUser";
 
 interface IFormData {
 	name: string
@@ -73,6 +74,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	const {data: countriesData, loading: countriesLoading, error: countriesError} = useCountries();
 	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
 	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
+	const [deleteUser] = useDeleteUser();
 
 	const [countriesArray, setCountriesArray] = useState<Array<{key: string, value: string}>>([])
 
@@ -128,8 +130,25 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		setShowDeleteConfirmation(true);
 	};
 
+	const [deleteAccountLoading, setDeleteAccountLoading] = useState<boolean>(false)
+
 	const handleConfirmDelete = () => {
-		setShowDeleteConfirmation(false);
+		if (userInfos) {
+			// TODO: IMPLEMENT ACCOUNT DELETE
+			setDeleteAccountLoading(true);
+
+			deleteUser({
+				variables: {
+					user_id: userInfos.id
+				}
+			}).then(() => navigation.navigate('DeleteAccountSuccess'))
+				.catch((err) => alert(JSON.stringify(err)))
+				.finally(() => setDeleteAccountLoading(false))
+		}
+
+
+		// setShowDeleteConfirmation(false);
+		// navigation.navigate('DeleteAccountSuccess');
 	};
 
 	const handleCancelDelete = () => {
@@ -451,8 +470,8 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 											<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
 												<Text className="text-white">Cancelar</Text>
 											</TouchableOpacity>
-											<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}  onPressIn={() => navigation.navigate('DeleteAccountSuccess')}>
-												<Text className="text-white">Confirmar</Text>
+											<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
+												<Text className="text-white">{deleteAccountLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> : 'Confirmar'}</Text>
 											</TouchableOpacity>
 										</View>
 									</View>
