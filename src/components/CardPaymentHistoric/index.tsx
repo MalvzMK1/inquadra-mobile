@@ -6,9 +6,13 @@ interface InfosPayment {
     valuePayed: number;
     courtName: string;
     photoUser: any;
+    startsAt: string;
+    endsAt: string
 }
 
 export default function CardPaymentHistoric(props: InfosPayment) {
+    const endsAt = props.endsAt.split(":")
+    const startsAt = props.startsAt.split(":")
 
     return (
         <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row justify-between">
@@ -19,7 +23,7 @@ export default function CardPaymentHistoric(props: InfosPayment) {
                 </View>
                 <View className="flex justify-center self-start ml-3">
                     <Text className="text-xl font-bold">{props.username}</Text>
-                    <Text className="text-base">{props.courtName} - 3h</Text>
+                    <Text className="text-base">{props.courtName} - {parseFloat(endsAt[0]) - parseFloat(startsAt[0])}h{parseFloat(endsAt[1]) - parseFloat(startsAt[1])}m</Text>
                 </View>
             </View>
             <View className="justify-center">

@@ -36,15 +36,17 @@ export default function AmountAvailableWithdrawal() {
             }[] = [];
 
             dataHistoric?.forEach((item) => {
-                item.attributes.court_availabilities.data[0].attributes.schedulings.data.forEach((schedulings) => {
-                    schedulings.attributes.users.data.forEach((user) => {
-                        infosCard.push({
-                            username: user.attributes.username,
-                            valuePayed: schedulings.attributes.valuePayed,
-                            date: schedulings.attributes.date
+                if (item.attributes.court_availabilities.data.length > 0) {
+                    item.attributes.court_availabilities.data[0].attributes.schedulings.data.forEach((schedulings) => {
+                        schedulings.attributes.users.data.forEach((user) => {
+                            infosCard.push({
+                                username: user.attributes.username,
+                                valuePayed: schedulings.attributes.valuePayed,
+                                date: schedulings.attributes.date
+                            });
                         });
                     });
-                });
+                }
             });
 
             if (infosCard) {
