@@ -132,6 +132,8 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 
 	const [deleteAccountLoading, setDeleteAccountLoading] = useState<boolean>(false)
 
+	console.log(loadInformations())
+
 	const handleConfirmDelete = () => {
 		if (userInfos) {
 			// TODO: IMPLEMENT ACCOUNT DELETE
@@ -168,7 +170,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		setShowExitConfirmation(false);
 
 	};
-	console.log(route.params.userPhoto)
+
 	const [profilePicture, setProfilePicture] = useState<string>(route.params.userPhoto);
 
 	const handleProfilePictureUpload = async () => {
@@ -230,14 +232,14 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 				email: data.usersPermissionsUser.data.attributes.email,
 				phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
 				paymentCardInfos: {
-					dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate,
-					cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString(),
-					country: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id
+					dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
+					cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
+					country: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id : ''
 				},
 			};
-			setUserInfos(newUserInfos);
-		}
 
+		}
+		// setUserInfos(newUserInfos);
 		return newUserInfos;
 	}
 	// if (!loading) alert(data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv)
