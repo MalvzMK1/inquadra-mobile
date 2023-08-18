@@ -53,7 +53,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	}
 
 	useEffect(() => {
-		// console.log({error})
 		if (!error && !loading) {
 			const newCourts = data?.establishments.data
 				.filter(establishment => (
@@ -70,19 +69,18 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						.map(courtType => courtType.map(type => type.attributes.name))
 
 					if (!courtTypes) courtTypes = []
-					// console.log({establishment})
 
 					establishmentObject = {
 						id: establishment.id,
 						name: establishment.attributes.corporateName,
 						latitude: Number(establishment.attributes.address.latitude),
-						longitude: Number(establishment.attributes.address.latitude),
+						longitude: Number(establishment.attributes.address.longitude),
 						distance: calculateDistance(
 							userGeolocation.latitude,
 							userGeolocation.longitude,
 							Number(establishment.attributes.address.latitude),
-							Number(establishment.attributes.address.latitude)
-						) / 1000, // Change to real values,
+							Number(establishment.attributes.address.longitude)
+						) / 1000,
 						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
 						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
 					}
@@ -118,20 +116,23 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	
 		setSportTypes(newAvailableSportTypes);
 	}, [availableSportTypes, availableSportTypesError]);
-	
+
+	establishments.forEach(establishment => {
+		console.log(establishment.latitude, establishment.longitude)
+	})
 
 	return (
 		<View className="flex-1 flex flex-col">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} />
+					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} />
 			}
 			<View className='flex-1'>
 
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
-					className='w-screen h-screen flex'
+					className='w-screen h-full flex'
 					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
@@ -142,7 +143,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					}}
 				>
 					{
-
 						establishments.map((item) => (
 							<Marker
 								coordinate={{
@@ -150,8 +150,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									longitude: item.longitude,
 								}}
 								icon={pointerMap}
-								title='test'
-								description='test'
+								title={item.name}
+								description={item.name}
 							>
 								<CourtBallon
 									id={item.id}
@@ -176,6 +176,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			</View>
 			{
 				isDisabled && <HomeBar
+					chosenType={sportSelected}
 					courts={establishments}
 					userName={userHookData?.usersPermissionsUser.data.attributes.username}
 				/>

@@ -30,6 +30,7 @@ export interface IUserByIdResponse {
             data: {
               id: string
               attributes: {
+                name: string
                 flag: {
                   data: {
                     attributes: {
@@ -85,6 +86,7 @@ query getUserById($id: ID){
               data{
                 id
                 attributes{
+                  name
                   flag{
                     data{
                       attributes{

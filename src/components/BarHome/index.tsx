@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useEffect, useRef, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -41,16 +41,16 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 	useAnimatedReaction(
 		() => expanded,
 		(value) => {
-			height.value = withTiming(value ? '100%' : '40%', { duration: 500 });
+			height.value = withTiming(value ? '100%' : '40%', { duration: 500 })
 		},
 		[expanded]
-	);
+	)
 
 	const animatedStyle = useAnimatedStyle(() => {
 		return {
 			height: height.value,
-		};
-	});
+		}
+	})
 
 	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
 
