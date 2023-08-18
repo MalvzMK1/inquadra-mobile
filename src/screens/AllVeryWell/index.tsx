@@ -4,6 +4,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useRegisterCourt from "../../hooks/useRegisterCourt";
+import { useFocusEffect } from '@react-navigation/native';
 
 interface CourtArrayObject {
     court_name: string,
@@ -19,6 +20,16 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
 
     const [addCourt, { data: dataRegisterCourt, loading: loadingRegisterCourt, error: errorRegisterCourt }] = useRegisterCourt()
+
+
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         if (route.params && route.params.courtArray) {
+    //             setCourts(route.params.courtArray);
+    //         }
+    //     }, [route.params])
+    // );
+
 
     const registerCourts = async (courts: CourtArrayObject[]) => {
         try {
@@ -63,7 +74,7 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
 
                     {
                         courts.map((court) =>
-                            <TouchableOpacity onPress={() => navigation.navigate('CourtDetails', {courtArray: courts})}>
+                            <TouchableOpacity onPress={() => navigation.navigate('CourtDetails', { courtArray: courts })}>
                                 <View>
                                     <Text className="text-xl p-2">{court.court_name}</Text>
                                     <View className="border rounded border-orange-400 p-5">

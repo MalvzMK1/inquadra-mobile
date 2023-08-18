@@ -51,8 +51,6 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
 
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
 
-    console.log(courts)
-
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
     }
@@ -126,32 +124,6 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
     }
 
     const [isLoading, setIsLoading] = useState(false)
-
-    const handleRegisterCourt = (data: IFormDatasCourt): void => {
-        setIsLoading(true)
-
-        const registerCourts = {
-            ...data,
-        }
-
-        registerCourt({
-            variables: {
-                court_name: `Quadra de ${selected[0]}`,
-                courtType: registerCourts.courtType,
-                fantasyName: registerCourts.fantasyName,
-                photos: registerCourts.photos,
-                court_availabilities: registerCourts.court_availabilities,
-                minimum_value: parseFloat(registerCourts.minimum_value)
-            }
-        }).then(value => {
-            alert(value.data?.createCourt.data.attributes.name)
-        })
-            .catch((reason) => console.error(reason))
-            .finally(() => setIsLoading(false))
-    }
-
-
-
 
     const [photos, setPhotos] = useState([]);
 

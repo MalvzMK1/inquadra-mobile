@@ -8,21 +8,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-import useRegisterCourt from "../../hooks/useRegisterCourt";
+import useRegisterCourt from "../../../hooks/useRegisterCourt";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
-import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
+import useAvailableSportTypes from "../../../hooks/useAvailableSportTypes";
 import { TextInputMask } from "react-native-masked-text";
 import { ActivityIndicator } from "react-native-paper";
-import useUploadImage from "../../hooks/useUploadImage";
-import { IUploadImageVariables } from "../../graphql/mutations/uploadImage";
+import useUploadImage from "../../../hooks/useUploadImage";
+import { IUploadImageVariables } from "../../../graphql/mutations/uploadImage";
 import { da } from "date-fns/locale";
 import { HOST_API } from '@env'
 import MaskInput, { Masks } from "react-native-mask-input";
-import { useSportTypes } from "../../hooks/useSportTypesFixed";
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {RootStackParamList} from "../../types/RootStack";
+import { useSportTypes } from "../../../hooks/useSportTypesFixed";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 interface CourtArrayObject {
     court_name: string,
@@ -36,27 +35,39 @@ interface CourtArrayObject {
 
 
 type CourtTypes = Array<{ label: string, value: string }>;
-
-export default function RegisterCourt({navigation, route}: NativeStackScreenProps<RootStackParamList, 'RegisterCourts'>) {
-    const [isLoading, setIsLoading] = useState(false)
+export default function editCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'editCourt'>) {
+    
     const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
-    const [courts, setCourts] = useState<CourtArrayObject[]>([])
-    
+
+    const indexCourtEdit = route.params.indexCourtArray
+    const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
+
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
     }
-    function RegisterNewCourt(data: IFormDatasCourt) {
-       
+
+    async function updateCourtsAtIndex(index:number, newValue: CourtArrayObject) {
+        const updatedCourts = [...courts];
+        updatedCourts[index] = newValue;
+        return updatedCourts
+    }
+    
+    
+
+
+    async function finishingCourtsRegisters(data: IFormDatasCourt) {
         let courtIDs: Array<string> = [];
+
         selected.forEach(selectedType => {
             courtTypes.forEach(type => {
                 if (type.value === selectedType) courtIDs.push(type.label)
             })
-        })
-        const payload = {
+        });
+
+        const updatedCourt = {
             court_name: `Quadra de ${selected}`,
             courtType: courtIDs,
             fantasyName: data.fantasyName,
@@ -64,41 +75,20 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
             court_availabilities: ["2"], // tela vinicius
             minimum_value: Number(data.minimum_value) / 100,
             currentDate: new Date().toISOString()
-        }
-        addToCourtArray(payload)
+        };
+
+        const updatedArray = await updateCourtsAtIndex(indexCourtEdit, updatedCourt);
         
-        navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
+        // Realizar a navegação após a atualização do estado
+        navigation.navigate("CourtDetails", { courtArray: updatedArray });
     }
 
-    function finishingCourtsRegisters (data: IFormDatasCourt){
-        let courtIDs: Array<string> = [];
-
-        selected.forEach(selectedType => {
-            courtTypes.forEach(type => {
-                if (type.value === selectedType) courtIDs.push(type.label)
-            })
-        })
-
-        const payload = {
-            court_name: `Quadra de ${selected}`,
-            courtType: courtIDs,
-            fantasyName: data.fantasyName,
-            photos: ["2"],
-            court_availabilities: ["2"], // tela vinicius
-            minimum_value: Number(data.minimum_value) / 100,
-            currentDate: new Date().toISOString()
-        }
-        addToCourtArray(payload)
-        
-        navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] })
-    } 
 
     const formSchema = z.object({
         minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
         fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
     })
 
-    
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
         resolver: zodResolver(formSchema)
@@ -113,36 +103,14 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
         court_availabilities?: string[]
     }
 
-    const handleRegisterCourt = (data: IFormDatasCourt): void => {
-        setIsLoading(true)
-
-        const registerCourts = {
-            ...data,
-        }
-
-        registerCourt({
-            variables: {
-                court_name: `Quadra de ${selected[0]}`,
-                courtType: registerCourts.courtType,
-                fantasyName: registerCourts.fantasyName,
-                photos: registerCourts.photos,
-                court_availabilities: registerCourts.court_availabilities,
-                minimum_value: parseFloat(registerCourts.minimum_value)
-            }
-        }).then(value => {
-            alert(value.data?.createCourt.data.attributes.name)
-        })
-            .catch((reason) => console.error(reason))
-            .finally(() => setIsLoading(false))
-    }
-
-
+    const [isLoading, setIsLoading] = useState(false)
 
     const [photos, setPhotos] = useState([]);
 
     const [selected, setSelected] = useState<Array<string>>([]);
 
-    const [selectedItems, setSelectedItems] = useState([]);
+   
+    console.log(courts[indexCourtEdit].minimum_value.toFixed(2))
 
     const handleProfilePictureUpload = async () => {
         try {
@@ -203,6 +171,7 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
                         <Controller
                             name='courtType'
                             control={control}
+                            defaultValue={courts[indexCourtEdit].courtType[0]}
                             render={({ field: { onChange } }) => (
                                 <MultipleSelectList
                                     setSelected={(val: []) => {
@@ -229,6 +198,7 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
                         <Controller
                             name='fantasyName'
                             control={control}
+                            defaultValue= {courts[indexCourtEdit].fantasyName}
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
                                     className='p-5 border border-neutral-400 rounded'
@@ -285,6 +255,7 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
                         <Controller
                             name='minimum_value'
                             control={control}
+                            defaultValue={"R$"+courts[indexCourtEdit].minimum_value.toFixed(2).toString()}
                             render={({ field: { onChange, value } }) => (
                                 <MaskInput
                                     mask={Masks.BRL_CURRENCY}
@@ -299,13 +270,7 @@ export default function RegisterCourt({navigation, route}: NativeStackScreenProp
 
                         {errors.minimum_value && <Text className='text-red-400 text-sm'>{errors.minimum_value.message}</Text>}
 
-                    </View>
-                    <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
-                        <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => { 
-                            navigation.navigate("RegisterNewCourt", { courtArray: courts })
-                            }}/>
-                        <Text className="pl-4 text-lg" onPress={handleSubmit(RegisterNewCourt)}>Adicionar uma nova Quadra</Text>
-                    </View>
+                    </View>           
                     <View>
                         <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={handleSubmit(finishingCourtsRegisters)}>
                             <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size="small" color='#F5620F' /> : 'Concluir'}</Text>
