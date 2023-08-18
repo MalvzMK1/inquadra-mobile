@@ -70,19 +70,18 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						.map(courtType => courtType.map(type => type.attributes.name))
 
 					if (!courtTypes) courtTypes = []
-					// console.log({establishment})
 
 					establishmentObject = {
 						id: establishment.id,
 						name: establishment.attributes.corporateName,
 						latitude: Number(establishment.attributes.address.latitude),
-						longitude: Number(establishment.attributes.address.latitude),
+						longitude: Number(establishment.attributes.address.longitude),
 						distance: calculateDistance(
 							userGeolocation.latitude,
 							userGeolocation.longitude,
 							Number(establishment.attributes.address.latitude),
-							Number(establishment.attributes.address.latitude)
-						) / 1000, // Change to real values,
+							Number(establishment.attributes.address.longitude)
+						) / 1000,
 						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
 						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
 					}
@@ -118,7 +117,10 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	
 		setSportTypes(newAvailableSportTypes);
 	}, [availableSportTypes, availableSportTypesError]);
-	
+
+	establishments.forEach(establishment => {
+		console.log(establishment.latitude, establishment.longitude)
+	})
 
 	return (
 		<View className="flex-1 flex flex-col">
@@ -131,7 +133,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
-					className='w-screen h-screen flex'
+					className='w-screen h-full flex'
 					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
@@ -142,7 +144,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					}}
 				>
 					{
-
 						establishments.map((item) => (
 							<Marker
 								coordinate={{
