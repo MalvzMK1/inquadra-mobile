@@ -53,7 +53,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	}
 
 	useEffect(() => {
-		// console.log({error})
 		if (!error && !loading) {
 			const newCourts = data?.establishments.data
 				.filter(establishment => (
@@ -126,7 +125,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		<View className="flex-1 flex flex-col">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} />
+					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} />
 			}
 			<View className='flex-1'>
 
@@ -177,6 +176,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			</View>
 			{
 				isDisabled && <HomeBar
+					chosenType={sportSelected}
 					courts={establishments}
 					userName={userHookData?.usersPermissionsUser.data.attributes.username}
 				/>

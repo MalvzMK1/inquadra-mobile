@@ -9,7 +9,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
-import { RootStackParamList } from '../../types/RootStack';
 import { useGetUserById } from '../../hooks/useUserById';
 
 interface IFormData {
