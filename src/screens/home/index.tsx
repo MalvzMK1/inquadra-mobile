@@ -151,8 +151,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									longitude: item.longitude,
 								}}
 								icon={pointerMap}
-								title='test'
-								description='test'
+								title={item.name}
+								description={item.name}
 							>
 								<CourtBallon
 									id={item.id}
