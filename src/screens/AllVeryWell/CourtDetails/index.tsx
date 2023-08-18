@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Image } from 'react-native';
 
 import { ScrollView } from "react-native-gesture-handler";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import useRegisterCourt from '../../../hooks/useRegisterCourt';
+
+
 
 interface CourtArrayObject {
     court_name: string,
@@ -19,6 +22,16 @@ interface CourtArrayObject {
 
 export default function CourtDetails({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CourtDetails'>) {
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
+
+    useEffect(() => {
+        setCourts(route.params.courtArray);
+    }, [route.params.courtArray]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourts(route.params.courtArray);
+        }, [route.params.courtArray])
+    );
 
     const [addCourt, { data: dataRegisterCourt, loading: loadingRegisterCourt, error: errorRegisterCourt }] = useRegisterCourt()
 
@@ -47,19 +60,32 @@ export default function CourtDetails({ navigation, route }: NativeStackScreenPro
             console.log("Erro externo:", error);
         }
     };
+
+
+    // const sendUpdatedDataBack = () => {
+    //     navigation.navigate('AllVeryWell', { courtArray: courts });
+    // };
+    
+    // useEffect(() => {
+    //     navigation.addListener('beforeRemove', (e) => {
+    //         sendUpdatedDataBack();
+    //     });
+    // }, [courts, navigation]);
+
+
     return (
         <View className='flex-1'>
             <ScrollView className='flex-grow'>
                 <Text className='p-2 pt-6 text-2xl'>Detalhes Quadra</Text>
                 {
-                    courts.map((court) =>
+                    courts.map((court, index) =>
                         <View className='bg-[#292929]'>
                             <View className='flex flex-row pl-5 pt-5 pb-5'>
                                 <Image source={require('../../../assets/quadra.png')} className="w-2/5"></Image>
                                 <View className='w-4/6 pr-5'>
                                     <View className='flex flex-row pr-2'>
                                         <Text className='text-[#FF6112] font-bold pl-2 flex-grow'>{court.fantasyName}</Text>
-                                        <Ionicons name="pencil" size={20} color="#FF6112"/>
+                                        <Ionicons name="pencil" size={20} color="#FF6112" onPress={() => {navigation.navigate('editCourt', {courtArray: courts, indexCourtArray: index})}}/>
                                     </View>
                                     <Text className='text-white font-bold pl-2'>Valor inicial: {court.minimum_value} reais</Text>
                                     <Text className='text-white font-bold pl-2'>Locação de: Terça a Domingo</Text>

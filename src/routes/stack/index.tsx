@@ -41,6 +41,7 @@ import DetailsAmountReceivable from '../../screens/FinancialEstablishment/Client
 import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryPayment';
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import RegisterNewCourtAdded from '../../screens/RegisterCourt/Client/newCourtAdded';
+import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -429,6 +430,13 @@ export default function () {
 			<Screen
 				name="DescriptionInvited"
 				component={DescriptionInvited}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="editCourt"
+				component={editCourt}
 				options={{
 					headerShown: false
 				}}

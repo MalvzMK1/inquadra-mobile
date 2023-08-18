@@ -95,5 +95,9 @@ type RootStackParamList = {
 	CourtDetails: {
 		courtArray: CourtAdd[]
 	}
+	editCourt: {
+		courtArray: CourtAdd[]
+		indexCourtArray: number
+	}
 
 }
