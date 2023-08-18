@@ -42,8 +42,13 @@ export default function SportsMenu({ sports, callBack }: ISportsMenuProps) {
 				{
 					sports.map((item) => (
 						<TouchableOpacity className='justify-center' onPress={() => {
-							callBack(item.name)
-							setSelected(item.id)
+							if(selected === item.id){
+								callBack(undefined)
+								setSelected(undefined)
+							}else{
+								callBack(item.name)
+								setSelected(item.id)
+							}
 						}}>
 							{selected !== item.id ? (
 								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].image} />

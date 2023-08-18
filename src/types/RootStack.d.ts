@@ -1,5 +1,8 @@
 type RootStackParamList = {
 	Login: undefined;
+	HistoryPayment: undefined,
+	DetailsAmountReceivable: undefined;
+	CompletedEstablishmentRegistration: undefined;
 	CourtSchedule: undefined;
 	AmountAvailableWithdrawal: undefined;
 	RegisterEstablishmentProfile: undefined;
@@ -103,5 +106,8 @@ type RootStackParamList = {
 	AllVeryWell: {
 		courtArray: CourtAdd[]
 	}
-	AllVeryWell: Pick<RootStackParamList, 'RegisterCourts'> | undefined
+	CourtDetails: {
+		courtArray: CourtAdd[]
+	}
+
 }

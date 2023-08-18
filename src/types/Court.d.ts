@@ -4,6 +4,8 @@ type CourtCardInfos = {
 	name: string
 	type: string | string[]
 	distance: number
+	liked: boolean
+	userId: string
 }
 
 type Court = {

@@ -106,7 +106,11 @@ export default function Login() {
 			</TouchableOpacity> */}
 
 			<View className="flex-1 flex items-center justify-center px-7">
-				<TouchableOpacity onPress={() => navigation.navigate('CourtPriceHour')}>
+				<TouchableOpacity onPress={() => navigation.navigate('Home', {
+					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+					userID: "9",
+					userPhoto: undefined
+				})}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
 				</TouchableOpacity>
 

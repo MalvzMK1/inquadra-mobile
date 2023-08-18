@@ -7,13 +7,13 @@ import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
-import pointerMap from '../../assets/pointerMap.png';
+import pointerMap from '../../assets/pointerMap.jpeg';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserById } from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import { HOST_API } from '@env';
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
-import { calculateDistance } from "../../components/calculateDistance/calculateDistance";
+import { calculateDistance } from '../../utils/calculateDistance';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -34,6 +34,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
 	const { data, loading, error } = useEstablishmentCardInformations()
 	const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
+
 	const [establishments, setEstablishments] = useState<Array<{
 		id: string,
 		latitude: number,
@@ -68,7 +69,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						.map(courtType => courtType.map(type => type.attributes.name))
 
 					if (!courtTypes) courtTypes = []
-					console.log(establishment)
 
 					establishmentObject = {
 						id: establishment.id,
@@ -87,6 +87,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
 					return establishmentObject
 				}))
+				
 
 			if (newCourts) {
 				setEstablishments((prevCourts) => [...prevCourts, ...newCourts]);
@@ -96,7 +97,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
 			})
 		}
-	}, [data, loading, userHookLoading]);
+
+	}, [data, loading, userHookLoading, userHookData]);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	useEffect(() => {
@@ -156,6 +158,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
+									userId={userHookData?.usersPermissionsUser.data.id}
+									liked={true}
 								/>
 							</Marker>
 						))
@@ -181,6 +185,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					playerScreen={true}
 					establishmentScreen={false}
 					userID={userHookData.usersPermissionsUser.data.id}
+					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
 				/>
 			}
 		</View >

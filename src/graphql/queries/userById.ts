@@ -10,6 +10,13 @@ export interface IUserByIdResponse {
         email: User['email'];
         phoneNumber: User['phoneNumber'];
         cpf: User['cpf'];
+        favorite_courts: {
+          data: [
+            {
+              id: Court["id"]
+            }
+          ]
+        }
         role: {
           data: {
             id: string
@@ -21,6 +28,7 @@ export interface IUserByIdResponse {
           dueDate: string
           country: {
             data: {
+              id: string
               attributes: {
                 flag: {
                   data: {
@@ -59,6 +67,11 @@ query getUserById($id: ID){
           email
           phoneNumber
           cpf
+          favorite_courts {
+            data {
+              id
+            }
+          }
           role{
             data{
               id
@@ -70,6 +83,7 @@ query getUserById($id: ID){
             dueDate
             country{
               data{
+                id
                 attributes{
                   flag{
                     data{

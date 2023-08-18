@@ -32,7 +32,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('ProfileSettings', {
-								userPhoto: undefined,
+								userPhoto: props.userPhoto,
 								userID: props.userID
 							})}>
 							<Image
@@ -42,7 +42,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('FavoriteCourts', {
-								userPhoto: undefined,
+								userPhoto: props.userPhoto,
 								userID: props.userID
 							})}>
 							<Image

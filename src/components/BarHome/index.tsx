@@ -7,8 +7,18 @@ import Animated, {
 	withTiming,
 	FadeOut,
 	FadeIn
-} from 'react-native-reanimated'
-import CourtCardHome from '../CourtCardHome'
+} from 'react-native-reanimated';
+import CourtCardHome from '../CourtCardHome';
+import storage from '../../utils/storage';
+import { useGetUserById } from '../../hooks/useUserById';
+
+let userId: string
+
+storage.load({
+	key: 'userInfos'
+}).then(data => {
+	userId = data.userId
+})
 
 interface HomeBarProps {
 	courts: Array<{
@@ -25,8 +35,8 @@ interface HomeBarProps {
 }
 
 export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) {
-	const [expanded, setExpanded] = useState(false)
-	const height = useSharedValue('40%')
+	const [expanded, setExpanded] = useState(false);
+	const height = useSharedValue('40%');
 
 	useAnimatedReaction(
 		() => expanded,
@@ -41,6 +51,18 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 			height: height.value,
 		}
 	})
+
+	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
+
+	let userFavoriteCourts: string[] = []
+
+	userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
+		userFavoriteCourts.push(item.id)
+	})
+
+	const verifyCourtLike = (courtId: string) => {
+		return userFavoriteCourts?.includes(courtId)
+	}
 
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
@@ -62,12 +84,14 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 								.map((item) => {
 									return (
 										<CourtCardHome
+											userId={userId}
 											key={item.id}
 											id={item.id}
 											image={item.image}
 											name={item.name}
 											distance={item.distance}
 											type={item.type}
+											liked={verifyCourtLike(item.id)}
 										/>
 									)
 								})
@@ -76,16 +100,17 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 						courts !== undefined ? courts.map((item) => {
 							return (
 								<CourtCardHome
+									userId={userId}
 									key={item.id}
 									id={item.id}
 									image={item.image}
 									name={item.name}
 									distance={item.distance}
 									type={item.type}
+									liked={verifyCourtLike(item.id)}
 								/>
 							)
 						}) : <ActivityIndicator size='small' color='#fff' />
-
 				}
 			</ScrollView>
 		</Animated.View>

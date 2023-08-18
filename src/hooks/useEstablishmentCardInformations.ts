@@ -1,4 +1,4 @@
-import {QueryResult, useQuery} from "@apollo/client";
+import { QueryResult, useQuery } from "@apollo/client";
 import {
 	establishmentCardInformationsQuery,
 	IEstablishmentCardInformationsResponse
