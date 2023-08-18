@@ -4,7 +4,10 @@ type RootStackParamList = {
 	AmountAvailableWithdrawal: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
-	HomeEstablishment: undefined
+	HomeEstablishment: {
+		userPhoto: string | undefined,
+		userID: string
+	}
 	DeleteAccountEstablishment: undefined;
 	InfoProfileEstablishment: undefined;
 	FinancialEstablishment: undefined;
@@ -45,6 +48,7 @@ type RootStackParamList = {
 	InfoReserva: undefined;
 	FavoriteCourts: {
 		userPhoto: string | undefined,
+		userID: string
 	};
 	ProfileSettings: {
 		userPhoto: string | undefined,
@@ -75,8 +79,15 @@ type RootStackParamList = {
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
 		
-	} & {
 		photos: string[] | undefined
+		profileInfos: {
+			username: string;
+			cpf: string;
+			email: string;
+			password: string;
+			phone_number: string;
+			role: string
+		}
 	}
 	PixScreen: {
 		courtName: string,

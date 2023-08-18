@@ -24,6 +24,8 @@ export interface IHistoricPayment {
                   data: [
                     {
                       attributes: {
+                        startsAt: string
+                        endsAt: string
                         schedulings: {
                           data: [
                             {
@@ -88,6 +90,8 @@ query getHistoryPayment($ID: ID!) {
               court_availabilities{
                 data{
 									attributes{
+                    startsAt
+                    endsAt
                     schedulings{
                       data{
                         attributes{
