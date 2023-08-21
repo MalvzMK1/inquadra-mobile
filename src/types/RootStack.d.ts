@@ -12,7 +12,9 @@ type RootStackParamList = {
 		userID: string
 	}
 	DeleteAccountEstablishment: undefined;
-	InfoProfileEstablishment: undefined;
+	InfoProfileEstablishment: {
+		userPhoto: string
+	};
 	FinancialEstablishment: undefined;
 	CourtPriceHour: undefined;
 	EditCourt: undefined;

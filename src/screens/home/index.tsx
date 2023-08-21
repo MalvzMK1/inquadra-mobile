@@ -14,6 +14,8 @@ import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import { HOST_API } from '@env';
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 import { calculateDistance } from '../../utils/calculateDistance';
+import React from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -52,15 +54,17 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		setSportSelected(nameSport)
 	}
 
-	useEffect(() => {
-		if (!error && !loading) {
-			const newCourts = data?.establishments.data
-				.filter(establishment => (
+	useFocusEffect(
+		React.useCallback(() => {
+			setEstablishments([]);
+			if (!error && !loading) {
+				const newCourts = data?.establishments.data
+				  .filter(establishment => (
 					establishment.attributes.photos.data &&
 					establishment.attributes.photos.data.length > 0 &&
 					establishment.attributes.courts.data
-				))
-				.map((establishment => {
+				  ))
+				  .map((establishment => {
 					let establishmentObject: EstablishmentObject;
 
 					let courtTypes = establishment.attributes.courts.data!
@@ -86,40 +90,35 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					}
 
 					return establishmentObject
-				}))
-				
-
-			if (newCourts) {
-				setEstablishments((prevCourts) => [...prevCourts, ...newCourts]);
-			}
-
-			navigation.setParams({
-				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
-			})
-		}
-
-	}, [data, loading, userHookLoading, userHookData]);
+				  }));
+		
+				if (newCourts) {
+				  setEstablishments(newCourts);
+				}
+		
+				navigation.setParams({
+				  userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+				});
+			  }
+		}, [data, loading, userHookLoading, userHookData, error])
+	);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	useEffect(() => {
 		const newAvailableSportTypes: SportType[] = [];
-	
+
 		availableSportTypes?.courts.data.forEach(court => {
 			court.attributes.court_types.data.forEach(courtType => {
 				const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
-				
+
 				if (!sportAlreadyAdded) {
 					newAvailableSportTypes.push({ id: courtType.id, name: courtType.attributes.name });
 				}
 			});
 		});
-	
+
 		setSportTypes(newAvailableSportTypes);
 	}, [availableSportTypes, availableSportTypesError]);
-
-	establishments.forEach(establishment => {
-		console.log(establishment.latitude, establishment.longitude)
-	})
 
 	return (
 		<View className="flex-1 flex flex-col">

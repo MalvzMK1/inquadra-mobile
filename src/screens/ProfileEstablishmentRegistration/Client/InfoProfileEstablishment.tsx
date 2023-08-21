@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, NavigationProp } from "@react-navigation/native"
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input';
@@ -16,6 +17,7 @@ import storage from '../../../utils/storage';
 import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablishmentFantasyName';
 import useUpdateUserPassword from '../../../hooks/useUpdateUserPassword';
 import useRegisterPixKey from '../../../hooks/useRegisterPixKey';
+import useDeleteUser from '../../../hooks/useDeleteUser';
 type DateTime = Date;
 
 let userId = ""
@@ -87,7 +89,7 @@ const pixKeyFormSchema = z.object({
 })
 
 
-export default function InfoProfileEstablishment() {
+export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
   const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
     resolver: zodResolver(formSchema)
   })
@@ -103,31 +105,31 @@ export default function InfoProfileEstablishment() {
   const { control: controlPixKey, handleSubmit: handleSubmitPixKey, formState: { errors: pixKeyErrors } } = useForm<IPixKeyFormData>({
     resolver: zodResolver(pixKeyFormSchema)
   })
-
   const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
   const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
   const [updateEstablishmentFantasyNameHook, { data: updateFantasyNameData, error: updateFantasyNameError, loading: updateFantasyNameLoading }] = useUpdateEstablishmentFantasyName()
   const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
   const [updateUserPassword, { data: updateUserPasswordData, error: updateUserPasswordError, loading: updateUserPasswordLoading }] = useUpdateUserPassword()
   const [newPixKey, { data: newPixKeyData, error: newPixKeyError, loading: newPixKeyLoading }] = useRegisterPixKey()
+  const [userDelete] = useDeleteUser()
 
   let amenities: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.forEach(amenitieItem => {
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.map(amenitieItem => {
     amenities.push(amenitieItem.attributes.name)
   })
 
   let courts: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.courts.data.forEach(item => {
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.courts.data.map(item => {
     courts.push(item.attributes.name)
   })
 
   let establishmentPhotos: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data.forEach(photoItem => {
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data.map(photoItem => {
     establishmentPhotos.push(photoItem.id)
   })
 
-  let pixKeys: string[] = []
-  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.pix_keys.data.forEach(pixKeyItem => {
+  const pixKeys: string[] = []
+  userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.pix_keys.data.map(pixKeyItem => {
     pixKeys.push(pixKeyItem.attributes.key)
   })
 
@@ -137,6 +139,9 @@ export default function InfoProfileEstablishment() {
   const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
   useEffect(() => {
     setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data.attributes.phoneNumber)
+    navigation.setParams({
+      userPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url
+    })
   }, [userByEstablishmentData])
 
 
@@ -338,7 +343,7 @@ export default function InfoProfileEstablishment() {
     { key: '5', value: 'Alterar Senha' },
   ]
 
-  const [profilePicture, setProfilePicture] = useState(userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url);
+  const [profilePicture, setProfilePicture] = useState(route.params.userPhoto);
 
 
   const handleProfilePictureUpload = async () => {
@@ -366,7 +371,6 @@ export default function InfoProfileEstablishment() {
   };
 
 
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>()
   const [showCard, setShowCard] = useState(false);
 
   const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -670,7 +674,9 @@ export default function InfoProfileEstablishment() {
               <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
                 <Text className="text-white">Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete} onPressIn={() => navigation.navigate('DeleteAccountEstablishment')}>
+              <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete} onPressIn={() => navigation.navigate('DeleteAccountEstablishment', {
+                establishmentName: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.corporateName
+              })}>
                 <Text className="text-white">Confirmar</Text>
               </TouchableOpacity>
             </View>

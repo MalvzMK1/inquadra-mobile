@@ -73,7 +73,6 @@ export default function CourtCardHome(props: CourtCardInfos) {
 				})
 		}
 	}
-
 	return (
 		<TouchableOpacity onPress={() => navigation.navigate('EstablishmentInfo', {
 			establishmentID: props.id,

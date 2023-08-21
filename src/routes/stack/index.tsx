@@ -65,9 +65,21 @@ export default function () {
 				}}
 			/>
 			<Screen
+				options={{
+					headerTitle: () => (
+						<Image source={require('../../assets/inquadra_logo.png')} />
+					),
+					headerTitleAlign: 'center',
+					headerStyle: {
+						height: 200,
+						backgroundColor: '#292929',
+					},
+				}}
+			/>
+			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
@@ -81,15 +93,15 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+							<Image source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
 					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
-					),
-				}}
+					)
+				})}
 			/>
 			<Screen
 				name='ChooseUserType'
@@ -121,9 +133,6 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-						height: 100,
-						backgroundColor: '#292929',
-					},
 					headerTitleAlign: 'center',
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -140,9 +149,6 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
-				}}
-			/>
-			<Screen
 				name='CancelScheduling'
 				component={CancelScheduling}
 				options={{
