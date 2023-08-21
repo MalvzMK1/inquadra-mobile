@@ -61,7 +61,7 @@ export default function () {
 					},
 				}}
 			/>
-			<Screen
+			{/* <Screen
 				options={{
 					headerTitle: () => (
 						<Image source={require('../../assets/inquadra_logo.png')} />
@@ -72,7 +72,7 @@ export default function () {
 						backgroundColor: '#292929',
 					},
 				}}
-			/>
+			/> */}
 			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}
@@ -129,7 +129,6 @@ export default function () {
 				component={EditCourt}
 				options={{
 					headerTintColor: 'white',
-					headerStyle: {
 					headerTitleAlign: 'center',
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -145,7 +144,10 @@ export default function () {
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
-					),
+					)
+				}}
+			/>
+			<Screen
 				name='CancelScheduling'
 				component={CancelScheduling}
 				options={{
