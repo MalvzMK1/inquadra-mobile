@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -17,19 +17,20 @@ interface CourtArrayObject {
 }
 
 export default function AllVeryWell({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'AllVeryWell'>) {
-    const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
-
+    
     const [addCourt, { data: dataRegisterCourt, loading: loadingRegisterCourt, error: errorRegisterCourt }] = useRegisterCourt()
+    
+    const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
+    useEffect(() => {
+        setCourts(route.params.courtArray);
+    }, [route.params.courtArray]);
 
-
-    // useFocusEffect(
-    //     React.useCallback(() => {
-    //         if (route.params && route.params.courtArray) {
-    //             setCourts(route.params.courtArray);
-    //         }
-    //     }, [route.params])
-    // );
-
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourts(route.params.courtArray);
+        }, [route.params.courtArray])
+    );
+    
 
     const registerCourts = async (courts: CourtArrayObject[]) => {
         try {
