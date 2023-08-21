@@ -74,20 +74,13 @@ export default function CourtCardHome(props: CourtCardInfos) {
 		}
 	}
 
-	console.log({E_AQUI: props.distance.toFixed(2)})
-
 	return (
 		<TouchableOpacity onPress={() => navigation.navigate('EstablishmentInfo', {
-			courtID: props.id,
+			establishmentID: props.id,
 			userPhoto: undefined,
 		})}>
 			<View className='flex flex-row flex-1 gap-x-[14px] mb-5'>
-				{/*<TouchableOpacity className='w-12 h-22 rounded-[10px] bg-red-500' onPress={() => navigation.navigate('CourtAvailabilityInfo', {*/}
-				{/*	courtId: props.id*/}
-				{/*})}>*/}
-				{/*	<Image className='w-inherit h-inherit rounded-[10px]' source={{ uri: props.image }} />*/}
 				<Image className='w-[40%] h-[85px] rounded-[10px]' source={{ uri: props.image }} />
-				{/*</TouchableOpacity>*/}
 				<View className='flex flex-row flex-1 '>
 					<View className='flex-1'>
 						<Text className='text-[#ff6112] font-black text-[15px]'>{props.name}</Text>
