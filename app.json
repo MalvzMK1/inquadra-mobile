@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
-    "version": "1.0.0",
+    "name": "InQuadra",
+    "slug": "InQuadra",
+    "version": "1.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -27,13 +27,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "build:debug": "cd android && gradlew clean && gradlew assembleDebug",
-    "postbuild:debug": "rm -rf ./android/app/src/main/res/drawable-* && echo \"O arquivo está em ./android/app/build/outputs/apk/debug\"",
-    "prebuild:release": "rm -rf ./android/app/src/main/res/drawable-*",
-    "build:release": "cd android && gradlew clean && gradlew bundleRelease --stacktrace",
-    "postbuild:release": "echo \"O arquivo está em ./android/app/build/outputs/apk/release\"",
-    "eas-build:remote": "eas build -p android --profile preview",
-    "eas-build:local": "eas build -p android --profile preview --local",
     "extra": {
       "eas": {
         "projectId": "d462fe57-5fcc-47ae-8581-181a6733381d"

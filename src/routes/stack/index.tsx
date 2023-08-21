@@ -64,7 +64,7 @@ export default function () {
 					},
 				}}
 			/>
-						<Screen
+			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}
 				options={{
@@ -91,7 +91,7 @@ export default function () {
 					),
 				}}
 			/>
-			<Screen 
+			<Screen
 				name='ChooseUserType'
 				component={ChooseUserType}
 				options={{
@@ -250,8 +250,8 @@ export default function () {
 				options={{
 					headerShown: false
 				}}
-			/> 
-			 <Screen
+			/>
+			<Screen
 				name='AllVeryWell'
 				component={AllVeryWell}
 				options={{
@@ -264,7 +264,7 @@ export default function () {
 				options={{
 					headerShown: false
 				}}
-			/> 
+			/>
 			<Screen
 				name='CompletedEstablishmentRegistration'
 				component={CompletedEstablishmentRegistration}
@@ -290,7 +290,7 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							console.log({params})
+							console.log({ params })
 							navigation.navigate('ProfileSettings', {
 								userPhoto: HOST_API + params.userPhoto,
 								userID: params.userID
@@ -587,7 +587,7 @@ export default function () {
 					headerTitleAlign: 'center',
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>FINANCEIRO</Text>
 						</View>
 					),
 					headerRight: () => (
@@ -608,34 +608,21 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-					},headerTitleAlign: 'center',
+					}, headerTitleAlign: 'center',
 				}}
-			/> 
+			/>
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
-				options={{
-					headerTitle: 'Definir hora/valor',
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="black" />
-						</TouchableOpacity>
-					)
-				}}
 			/>
 			<Screen
 				name='CourtPriceHour'
 				component={CourtPriceHour}
 				options={{
 					headerTitle: 'Definir hora/valor',
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="black" />
-						</TouchableOpacity>
-					)
 				}}
 			/>
 
 		</Navigator>
-	);
+	)
 }

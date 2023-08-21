@@ -1,12 +1,18 @@
 import { View, Text, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import MaskInput, { Masks } from 'react-native-mask-input';
-import React, { useState } from "react"
+import React, {useEffect} from "react"
+import {useComponentContext} from "../../context/ComponentInputsContext";
 
-export default function PriceHour() {
-    const [startsAt, setStartsAt] = useState("")
-    const [endsAt, setEndsAt] = useState("")
-    const [price, setPrice] = useState("")
+export default function PriceHour({values}: {values: {startsAt: string, endsAt: string, price: string}}) {
+  const {startsAt, setStartsAt, endsAt, setEndsAt, price, setPrice} = useComponentContext();
+
+  useEffect(() => {
+    setStartsAt(values.startsAt);
+    setEndsAt(values.endsAt);
+    setPrice(values.price);
+  }, [values.endsAt, values.startsAt, values.price])
+
     return (
         <View className='flex-row w-full justify-between items-center mt-[10px]'>
             <View className='flex-row items-center'>

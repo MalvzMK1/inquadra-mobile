@@ -1,24 +1,16 @@
 import { View, Text, TouchableOpacity, TextInput, Image, FlatList } from "react-native";
-
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from "@expo/vector-icons";
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
-import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import useRegisterCourt from "../../../hooks/useRegisterCourt";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import useAvailableSportTypes from "../../../hooks/useAvailableSportTypes";
-import { TextInputMask } from "react-native-masked-text";
 import { ActivityIndicator } from "react-native-paper";
-import useUploadImage from "../../../hooks/useUploadImage";
-import { IUploadImageVariables } from "../../../graphql/mutations/uploadImage";
-import { da } from "date-fns/locale";
-import { HOST_API } from '@env'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -37,7 +29,7 @@ interface CourtArrayObject {
 
 
 type CourtTypes = Array<{ label: string, value: string }>;
-export default function editCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'editCourt'>) {
+export default function EditCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'editCourt'>) {
     
     const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()

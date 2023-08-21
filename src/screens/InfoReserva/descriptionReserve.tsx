@@ -169,8 +169,14 @@ export default function DescriptionReserve({navigation, route}:NativeStackScreen
       const countryOptions = dataCountry?.countries?.data.map(country => ({
         value: country?.id,
         label: country?.attributes?.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
-        img: `http://192.168.0.229:1337${country?.attributes?.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+        img: `${HOST_API}${country?.attributes?.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
       })) || [];
+
+
+    function share() {
+      console.log('--- SHARE FUNCTION HAS BEEN TRIGGERED ---')
+      alert('--- SHARE FUNCTION HAS BEEN TRIGGERED ---')
+    }
 
     return (
         <View className='flex-1 bg-zinc-600'>
@@ -282,7 +288,7 @@ export default function DescriptionReserve({navigation, route}:NativeStackScreen
                     <View className='h-28 w-60 flex-row  pr-5'>
                         <View className='h-max w-max  justify-center items-start'>
                             <View className='flex-row item-center justify-center'>
-                                <TouchableOpacity onPress={() => navigation.navigate('DescriptionInvited')} className='flex-row'>
+                                <TouchableOpacity onPress={() => share()} className='flex-row'>
                                     <View className='h-5 w-5 items-center justify-center'>
                                         <TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} />
                                     </View>

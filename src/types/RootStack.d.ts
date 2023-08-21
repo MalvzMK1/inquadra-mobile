@@ -1,12 +1,20 @@
 type RootStackParamList = {
 	Login: undefined;
+	HistoryPayment: undefined,
+	DetailsAmountReceivable: undefined;
+	CompletedEstablishmentRegistration: undefined;
 	CourtSchedule: undefined;
 	AmountAvailableWithdrawal: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
-	HomeEstablishment: undefined
+	HomeEstablishment: {
+		userPhoto: string | undefined,
+		userID: string
+	}
 	DeleteAccountEstablishment: undefined;
-	InfoProfileEstablishment: undefined;
+	InfoProfileEstablishment: {
+		userPhoto: string
+	};
 	FinancialEstablishment: undefined;
 	CourtPriceHour: undefined;
 	EditCourt: undefined;
@@ -45,6 +53,7 @@ type RootStackParamList = {
 	InfoReserva: undefined;
 	FavoriteCourts: {
 		userPhoto: string | undefined,
+		userID: string
 	};
 	ProfileSettings: {
 		userPhoto: string | undefined,
@@ -57,7 +66,7 @@ type RootStackParamList = {
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
-		courtID: string,
+		establishmentID: string,
 		userPhoto: string | undefined,
 	};
 	CourtAvailabilityInfo: {
@@ -75,8 +84,15 @@ type RootStackParamList = {
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
 		
-	} & {
 		photos: string[] | undefined
+		profileInfos: {
+			username: string;
+			cpf: string;
+			email: string;
+			password: string;
+			phone_number: string;
+			role: string
+		}
 	}
 	PixScreen: {
 		courtName: string,

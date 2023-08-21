@@ -2,11 +2,11 @@ import { View, Text, Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {useNavigation} from "@react-navigation/native";
 import { Octicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function DeleteAccountEstablishment() {
-const navigation = useNavigation();
+export default function DeleteAccountEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "DeleteAccountEstablishment">) {
 
-const nameCourt = "Fenix Esportes"
+const nameCourt = route.params.establishmentName
 
 return (
     <View className="h-full flex justify-center items-center">

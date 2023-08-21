@@ -9,7 +9,7 @@ export default function CourtBallon(props:CourtCardInfos) {
             <View className=''>
                 <Text className='font-black text-[#FF6112] text-[10px]'>{props.name}</Text>
                 <Text className='text-[8px]'>{props.type}</Text>
-                <Text className='font-bold text-[8px]'>{props.distance}Km de Distancia</Text>
+                <Text className='font-bold text-[8px]'>{props.distance.toFixed(2)}Km de Distancia</Text>
             </View>
         </Callout>
     )
