@@ -119,7 +119,14 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
   })
 
   let courts: string[] = []
+
+  interface ICourts {
+    id: string
+    courtName: string
+  }
+  let courtsJson: ICourts[] = []
   userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.courts.data.map(item => {
+    courtsJson = [...courtsJson, {id: item.id ,courtName: item.attributes.name}]
     courts.push(item.attributes.name)
   })
 
@@ -128,7 +135,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     establishmentPhotos.push(photoItem.id)
   })
 
-  const pixKeys: string[] = []
+  let pixKeys: string[] = []
   userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.pix_keys.data.map(pixKeyItem => {
     pixKeys.push(pixKeyItem.attributes.key)
   })
@@ -423,7 +430,13 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     setCVV(truncatedCVV);
   };
 
-
+  const handleEditCourt = (selectedCourt: string) => {
+    const findCourt = courtsJson.find(courtItem => courtItem.courtName === selectedCourt)
+    
+    navigation.navigate('EditCourt', {
+      courtId: findCourt?.id
+    })
+  }
 
   return (
     <View className="flex-1 bg-white h-full">
@@ -633,6 +646,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             <Text className='text-base mb-1'>Editar Quadra/Campo</Text>
             <SelectList
               setSelected={(val: string) => setCourtSelected(val)}
+              onSelect={() => {
+                handleEditCourt(courtSelected)
+              }}
               data={courts}
               save="value"
               placeholder='Selecione um dado'
