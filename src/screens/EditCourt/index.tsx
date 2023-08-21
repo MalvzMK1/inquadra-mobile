@@ -7,6 +7,7 @@ import { ImageSourcePropType } from "react-native/Libraries/Image/Image"
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { SelectList } from 'react-native-dropdown-select-list'
 import MaskInput, { Masks } from "react-native-mask-input";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 const courtTypesData = [
     { value: 'Futsal' },
@@ -16,8 +17,9 @@ const courtTypesData = [
     { value: 'Tênis' }
 ]
 
-export default function EditCourt() {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+export default function EditCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, "EditCourt">) {
+    const courtId = route.params.courtId
+    
     const [photo, setPhoto] = useState("")
 
     const handleProfilePictureUpload = async () => {
