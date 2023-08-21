@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/EstablishmentByCourtId.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/EstablishmentByCourtId.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +37,14 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1692626004" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T631_SYNC" />
+                    <option name="lastUsedInstant" value="1692625628" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI564T685" />
                     <option name="lastUsedInstant" value="1692613762" />
                   </RecentBranch>
@@ -50,14 +55,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI564T687" />
                     <option name="lastUsedInstant" value="1692351367" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T668_NEW_SYNC" />
-                    <option name="lastUsedInstant" value="1692282817" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T678" />
-                    <option name="lastUsedInstant" value="1692021861" />
                   </RecentBranch>
                 </list>
               </option>
@@ -87,7 +84,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "WI564T685",
+    "git-widget-placeholder": "develop",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -129,7 +126,7 @@
       <workItem from="1691401573898" duration="1069000" />
       <workItem from="1692093650411" duration="1282000" />
       <workItem from="1692350641231" duration="5513000" />
-      <workItem from="1692609285522" duration="10760000" />
+      <workItem from="1692609285522" duration="11785000" />
     </task>
     <servers />
   </component>
