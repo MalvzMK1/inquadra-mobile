@@ -17,6 +17,7 @@ import storage from '../../../utils/storage';
 import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablishmentFantasyName';
 import useUpdateUserPassword from '../../../hooks/useUpdateUserPassword';
 import useRegisterPixKey from '../../../hooks/useRegisterPixKey';
+import useDeleteUser from '../../../hooks/useDeleteUser';
 type DateTime = Date;
 
 let userId = ""
@@ -110,6 +111,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
   const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
   const [updateUserPassword, { data: updateUserPasswordData, error: updateUserPasswordError, loading: updateUserPasswordLoading }] = useUpdateUserPassword()
   const [newPixKey, { data: newPixKeyData, error: newPixKeyError, loading: newPixKeyLoading }] = useRegisterPixKey()
+  const [userDelete] = useDeleteUser()
 
   let amenities: string[] = []
   userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.map(amenitieItem => {
@@ -672,7 +674,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
               <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
                 <Text className="text-white">Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete} onPressIn={() => navigation.navigate('DeleteAccountEstablishment')}>
+              <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete} onPressIn={() => navigation.navigate('DeleteAccountEstablishment', {
+                establishmentName: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.corporateName
+              })}>
                 <Text className="text-white">Confirmar</Text>
               </TouchableOpacity>
             </View>
