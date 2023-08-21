@@ -1,12 +1,16 @@
-import {z} from "zod";
-
 type RootStackParamList = {
 	Login: undefined;
+	HistoryPayment: undefined,
+	DetailsAmountReceivable: undefined;
+	CompletedEstablishmentRegistration: undefined;
 	CourtSchedule: undefined;
 	AmountAvailableWithdrawal: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
-	HomeEstablishment: undefined
+	HomeEstablishment: {
+		userPhoto: string | undefined,
+		userID: string
+	}
 	DeleteAccountEstablishment: undefined;
 	InfoProfileEstablishment: {
 		userPhoto: string
@@ -79,6 +83,7 @@ type RootStackParamList = {
 	}
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
+		
 		photos: string[] | undefined
 		profileInfos: {
 			username: string;
@@ -94,5 +99,21 @@ type RootStackParamList = {
 		value: string,
 		userID: string,
 	}
-	AllVeryWell: Pick<RootStackParamList, 'RegisterCourts'> | undefined
+	RegisterNewCourt: {
+		courtArray: CourtAdd[]
+	}
+	RegisterNewCourtAdded: {
+		courtArray: CourtAdd[]
+	}
+	AllVeryWell: {
+		courtArray: CourtAdd[]
+	}
+	CourtDetails: {
+		courtArray: CourtAdd[]
+	}
+	editCourt: {
+		courtArray: CourtAdd[]
+		indexCourtArray: number
+	}
+
 }

@@ -12,7 +12,7 @@ export default function CompletedEstablishmentRegistration() {
                     <Image source={require('../../assets/Group.png')} className="w-20 h-20"></Image>   
                     <Text className="text-lg text-center">Aguarde a aprovação do seu Perfil em breve Entraremos em contato confirmando seu acesso.</Text>
                 </View>
-                <TouchableOpacity className='h-14 mt-4 w-80 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('RegisterPassword')}>
+                <TouchableOpacity className='h-14 mt-4 w-80 rounded-md bg-orange-500 flex items-center justify-center' onPress={() => navigation.navigate('Login')}>
                   <Text className='text-gray-50'>Continuar</Text>
                 </TouchableOpacity>
             </View>

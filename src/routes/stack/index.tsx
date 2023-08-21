@@ -39,6 +39,9 @@ import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
 import DetailsAmountReceivable from '../../screens/FinancialEstablishment/Client/DetailsAmountReceivable';
 import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryPayment';
+import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
+import RegisterNewCourtAdded from '../../screens/RegisterCourt/Client/newCourtAdded';
+import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -222,6 +225,20 @@ export default function () {
 			<Screen
 				name="Register"
 				component={Register}
+				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name="RegisterNewCourt"
+				component={RegisterNewCourt}
+				options={{
+					headerTitle: '',
+				}}
+			/>
+			<Screen
+				name="RegisterNewCourtAdded"
+				component={RegisterNewCourtAdded}
 				options={{
 					headerTitle: '',
 				}}
@@ -419,6 +436,13 @@ export default function () {
 			<Screen
 				name="DescriptionInvited"
 				component={DescriptionInvited}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name="editCourt"
+				component={editCourt}
 				options={{
 					headerShown: false
 				}}

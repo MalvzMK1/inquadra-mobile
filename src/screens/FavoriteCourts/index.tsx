@@ -16,9 +16,12 @@ export default function FavoriteCourts({navigation, route}: NativeStackScreenPro
 			{
 				!loading &&
 					data?.usersPermissionsUser.data.attributes.favorite_courts.data.map(courtType => (
-						<InfosCourt.Root category={courtType.attributes.court_type.data.attributes.name}>
+						<InfosCourt.Root category={courtType.attributes.court_types.data[0].attributes.name}>
+							{/*
+								TODO: INTEGRATE CORRECTLY WITH THE NEW ATTRIBUTE TYPE (ARRAY)
+							*/}
 							{
-								courtType.attributes.court_type.data.attributes.courts.data.map(courtInfo => (
+								courtType.attributes.court_types.data[0].attributes.courts.data.map(courtInfo => (
 									<InfosCourt.Court imageUrl={{uri: HOST_API + courtInfo.attributes.photo.data[0]?.attributes.url, height: 90, width: 138}}>
 										<InfosCourt.Content 
 											lastScheduling={
