@@ -583,7 +583,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 </View>
               </View>
 
-              <View className="p-2 justify-center items-center">
+              <View className="p-5 justify-center items-center">
                 <TouchableOpacity onPress={handleSubmitPixKey(handleNewPixKey)} className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center">
                   <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
                 </TouchableOpacity>

@@ -12,7 +12,7 @@ export interface IFavoriteByIdResponse {
             favorite_courts: {
               data: Array<{
                 attributes: {
-                  court_type: {
+                  court_types: Array<{
                     data: {
                       attributes: {
                         name: string
@@ -59,7 +59,7 @@ export interface IFavoriteByIdResponse {
                         }
                       }
                     }
-                  }
+                  }>
                 }
               }>
             }
@@ -74,50 +74,51 @@ export interface IFavoriteByIdVariables {
 }
 
 export const favoriteByIdQuery = gql`
- query getFavoriteById($id: ID, $userId: ID) {
-  usersPermissionsUser(id: $id) {
-    data {
-      attributes {
-        favorite_courts {
-          data {
-            attributes {
-              court_type {
-                data {
-                  attributes {
-                    name
-                    courts {
-                      data {
-                        attributes {
-                          name
-                          fantasy_name
-                          photo {
-                            data {
-                              attributes {
-                                url
-                              }
-                            }
-                          }
-                          establishment {
-                            data {
-                              id
-                              attributes {
-                                address {
-                                  latitude
-                                  longitude
-                                  cep
+  query getFavoriteById($id: ID) {
+    usersPermissionsUser(id: $id) {
+      data {
+        attributes {
+          favorite_courts {
+            data {
+              attributes {
+                court_types {
+                  data {
+                    attributes {
+                      name
+                      courts {
+                        data {
+                          attributes {
+                            name
+                            fantasy_name
+                            photo {
+                              data {
+                                attributes {
+                                  url
                                 }
                               }
                             }
-                          }
-                           court_availabilities {
-                            data {
-                              attributes {
-                                schedulings(
-                                  filters: { owner: { id: { eq: $userId } } }
-                                ) {
-                                  data {
-                                    attributes {
-                                      date
+                            establishment {
+                              data {
+                                id
+                                attributes {
+                                  address {
+                                    latitude
+                                    longitude
+                                    cep
+                                  }
+                                }
+                              }
+                            }
+                            court_availabilities {
+                              data {
+                                attributes {
+                                  schedulings(
+                                    filters: { owner: { id: { eq: $id } } }
+                                  ) {
+                                    data {
+                                      attributes {
+                                        date
+                                      }
                                     }
                                   }
                                 }
@@ -136,5 +137,4 @@ export const favoriteByIdQuery = gql`
       }
     }
   }
-}
 `

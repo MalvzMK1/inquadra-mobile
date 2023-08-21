@@ -1,9 +1,12 @@
+import {z} from "zod";
+
 type RootStackParamList = {
 	Login: undefined;
 	CourtSchedule: undefined;
-	RegisterCourts: undefined;
+	AmountAvailableWithdrawal: undefined;
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
+	HomeEstablishment: undefined
 	DeleteAccountEstablishment: undefined;
 	InfoProfileEstablishment: {
 		userPhoto: string
@@ -15,8 +18,16 @@ type RootStackParamList = {
 	ChooseUserType: undefined;
 	Register: undefined;
 	EstablishmentRegister: {
-		ownerID: string
+		username: string;
+		cpf: string;
+		email: string;
+		password: string;
+		phone_number: string;
+		role: string
 	};
+	CancelScheduling: {
+		scheduleID: string
+	}
 	Home: {
 		userGeolocation: {
 			latitude: number,
@@ -38,37 +49,50 @@ type RootStackParamList = {
 	InfoReserva: undefined;
 	FavoriteCourts: {
 		userPhoto: string | undefined,
+		userID: string
 	};
 	ProfileSettings: {
-		userPhoto: string | undefined
+		userPhoto: string | undefined,
+		userID: string
 	};
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
-		courtId: string
+		scheduleId:string
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
-		courtID:string,
+		courtID: string,
 		userPhoto: string | undefined,
 	};
-	CourtAvailibilityInfo: {
+	CourtAvailabilityInfo: {
 		courtId: string,
 		courtImage: string,
-		courtName: string
+		courtName: string,
+		userId: string
 	};
 	ReservationPaymentSign: {
 		courtId: string,
 		courtImage: string,
-		courtName: string
+		courtName: string,
+		userId: string,
 	}
-	RegisterCourt: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
+	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
-	} & {
-		photos: string[]
+		photos: string[] | undefined
+		profileInfos: {
+			username: string;
+			cpf: string;
+			email: string;
+			password: string;
+			phone_number: string;
+			role: string
+		}
 	}
 	PixScreen: {
 		courtName: string,
-		value: string
+		value: string,
+		userID: string,
 	}
+	AllVeryWell: Pick<RootStackParamList, 'RegisterCourts'> | undefined
 }
