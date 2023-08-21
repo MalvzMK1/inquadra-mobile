@@ -5,4 +5,5 @@ type BottomNavigationType = {
 	establishmentScreen: boolean
 	playerScreen: boolean
 	userID: string
+	userPhoto: string
 }

@@ -2,158 +2,152 @@ import { gql } from "@apollo/client";
 import { CourtType } from "../../__generated__/graphql";
 
 export interface IEstablishmentByCourtId {
-  data: {
-    court: {
-      data: {
-        attributes: {
-          establishment: {
-            data: {
-              id: string,
-              attributes: {
-                type: string,
-                corporateName: Establishment["corporateName"],
-                cellPhoneNumber: Establishment["cellphoneNumber"],
-                address: {
-                  latitude: Address["latitude"],
-                  longitude: Address["longitude"],
-                  streetName: Address["streetName"]
-                },
-                amenities: {
-                  data: {
-                    attributes: {
-                      name: Amenitie["name"]
-                    }
-                  }
-                },
-                photosAmenitie: {
-                  data: [
-                    {
-                      attributes: {
-                        url: string
-                      }
-                    }
-                  ]
-                }
-                photos: {
-                  data: {
-                    attributes: {
-                      url: Establishment["photo"]
-                    }
-                  }
-                },
-                courts: {
-                  data: {
-                    court_availabilities: {
-                      data: {
-                        attributes: {
-                          status: boolean,
-                        }
-                      }[]
-                    }
-                    favorited_user: {
-                      data: {
-                        id: number
-                      }
-                    }
-                    rating: Court["rating"],
-                    court_type: {
-                      data: {
-                        attributes: {
-                          name: CourtType["name"]
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+	establishment: {
+		data: {
+			id: Establishment['id'],
+			attributes: {
+				corporateName: Establishment['corporateName'],
+				cellPhoneNumber: Establishment['cellphoneNumber']
+				address: {
+					latitude: Address['latitude'],
+					longitude: Address['longitude'],
+					cep: Address['cep'],
+					streetName: Address['streetName']
+				},
+				photos: {
+					data: Array<{
+						attributes: {
+							url: string,
+						}
+					}>
+				},
+				courts: {
+					data: Array<{
+						id: Court['id'],
+						attributes: {
+							rating?: Court['rating'],
+							name: Court['fantasy_name'],
+							court_types: {
+								data: Array<{
+									attributes: {
+										name: CourtType['name']
+									}
+								}>
+							}
+							court_availabilities: {
+								data: Array<{
+									attributes: {
+										schedulings: {
+											data: Array<{
+												id: Scheduling['id']
+											}>
+										}
+									}
+								}>
+							}
+							photo: {
+								data: Array<{
+									attributes: {
+										url: string
+									}
+								}>
+							}
+						}
+					}>
+				}
+				amenities: {
+					data: Array<{
+						id: Amenitie['id'],
+						attributes: {
+							name: Amenitie['name'],
+							iconAmenitie: {
+								data: {
+									attributes: {
+										url: Amenitie['icon']
+									}
+								}
+							}
+						}
+					}>
+				}
+
+			}
+		}
+	}
 }
 
 export const EstablishmentByCourtIdQuery = gql`
-query getEstablishmentbyCourtId($id: ID) {
-  court(id: $id) {
-    data{
-      attributes{
-        establishment{
-          data{
-            id
-            attributes{
-              type
-              corporateName
-              cellPhoneNumber
-              address{
-                latitude
-              	longitude
-                streetName
-              }
-              amenities{
-                data{
-                  attributes{
-                    name
-                  }
-                }
-              }
-              photosAmenitie{
-                data{
-                  attributes{
-                    url
-                  }
-                }
-              }
-              photos{
-                data{
-                  attributes{
-                    url
-                  }
-                }
-              }
-              courts{
-								data{
-                  id
-									attributes{
-                    court_availabilities{
-                      data{
-												attributes{
-                          status
-                        }
-                      }
+    query getEstablishment($id: ID) {
+        establishment(id: $id) {
+            data {
+                id
+                attributes {
+                    corporateName
+                    cellPhoneNumber
+                    address {
+                        latitude
+                        longitude
+                        streetName
+		                    cep
                     }
-                    name
-                    photo {
-                    	data{
-												attributes{
-                          url
+                    photos {
+                        data {
+                            attributes {
+                                url
+                            }
                         }
-                      }
-                  	}
-                    rating
-                    court_type{
-                      data{
-                        attributes{
-													name
-                        }
-                      }
                     }
-                    court_availabilities{
-                      data{
-                        attributes{
-                          status
+                    courts {
+                        data {
+                            id
+                            attributes {
+                                rating
+                                name
+                                court_types {
+                                    data {
+                                        attributes {
+                                            name
+                                        }
+                                    }
+                                }
+                                court_availabilities {
+                                    data {
+                                        attributes {
+                                            schedulings {
+                                                data {
+                                                    id
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+		                            photo {
+				                            data {
+						                            attributes {
+								                            url
+						                            }
+				                            }
+		                            }
+                            }
                         }
-                      }
                     }
-                  }
+                    amenities {
+                        data {
+                            id
+                            attributes {
+                                name
+                                iconAmenitie {
+                                    data {
+                                        attributes {
+                                            url
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
         }
-      }
     }
-  }
-}
 `

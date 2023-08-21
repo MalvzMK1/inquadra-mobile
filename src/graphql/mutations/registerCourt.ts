@@ -13,12 +13,12 @@ export interface IRegisterCourtResponse{
 
 export interface IRegisterCourtVariables{
     court_name: string,
-    courtType: Array<string>,
+    courtTypes: string[],
     fantasyName: string,
-    photos: Array<string>,
-    court_availabilities: Array<string>,
+    photos: string[],
+    court_availabilities: string[],
     minimum_value: number
-    currentDate: string
+    current_date: string
 }
 
 export const registerCourtMutation = gql`

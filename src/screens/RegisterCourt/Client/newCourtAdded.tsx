@@ -36,7 +36,7 @@ interface CourtArrayObject {
 
 type CourtTypes = Array<{ label: string, value: string }>;
 
-export default function RegisterNewCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'RegisterNewCourt'>) {
+export default function RegisterNewCourtAdded({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'RegisterNewCourtAdded'>) {
     const [modalities, setModalities] = useState([])
 
     const [courtName, setCourtName] = useState("")
@@ -53,6 +53,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
 
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
+        console.log(courts)
     }
 
     useFocusEffect(
@@ -81,9 +82,8 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
             currentDate: new Date().toISOString()
         }
         addToCourtArray(payload)
-        console.log({ courtArray: payload })
-
-        navigation.navigate("RegisterNewCourtAdded", { courtArray: [...courts, payload] })
+        
+        navigation.navigate("RegisterNewCourt", { courtArray: courts })
     }
 
     function finishingCourtsRegisters (data: IFormDatasCourt){
