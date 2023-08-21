@@ -5,7 +5,9 @@ type RootStackParamList = {
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
 	DeleteAccountEstablishment: undefined;
-	InfoProfileEstablishment: undefined;
+	InfoProfileEstablishment: {
+		userPhoto: string
+	};
 	FinancialEstablishment: undefined;
 	CourtPriceHour: undefined;
 	EditCourt: undefined;
