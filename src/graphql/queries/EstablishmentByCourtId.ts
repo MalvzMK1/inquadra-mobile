@@ -21,6 +21,13 @@ export interface IEstablishmentByCourtId {
 						}
 					}>
 				},
+				logo: {
+					data: {
+						attributes: {
+							url: string
+						}
+					}
+				}
 				courts: {
 					data: Array<{
 						id: Court['id'],
@@ -97,6 +104,13 @@ export const EstablishmentByCourtIdQuery = gql`
                             }
                         }
                     }
+		                logo {
+				                data {
+						                attributes {
+								                url
+						                }
+				                }
+		                }
                     courts {
                         data {
                             id

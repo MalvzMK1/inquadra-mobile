@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
@@ -42,12 +42,23 @@ import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryP
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import RegisterNewCourtAdded from '../../screens/RegisterCourt/Client/newCourtAdded';
 import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
+import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
+import storage from "../../utils/storage";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 	const [menuBurguer, setMenuBurguer] = useState(false)
+	const [userId, setUserId] = useState<string>();
+
+	useEffect(() => {
+		storage.load<UserInfos>({
+			key: 'userInfos',
+		}).then(response => setUserId(response.userId))
+	}, [])
+
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+
 	return (
 		<Navigator>
 			<Screen
@@ -106,7 +117,9 @@ export default function () {
 					headerTitleAlign: "center",
 					headerLeft: () => (<></>),
 					headerRight: () => (
-						<TouchableOpacity className='pr-[10px]'>
+						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
+							userPhoto: "tora"
+						})} className='pr-[10px]'>
 							<Image
 								source={require('../../assets/default-user-image.png')}
 								className="rounded-full w-[50px] h-[50px]"
@@ -350,7 +363,8 @@ export default function () {
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
 							navigation.navigate('ProfileSettings', {
-								userPhoto: params.userPhoto
+								userPhoto: params.userPhoto,
+								userID: userId
 							})
 						}}>
 							<Image
@@ -471,7 +485,8 @@ export default function () {
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
 							navigation.navigate('ProfileSettings', {
-								userPhoto: params.userPhoto
+								userPhoto: params.userPhoto,
+								userID: userId
 							})
 						}}>
 							<Image
@@ -522,7 +537,12 @@ export default function () {
 						</View>
 					),
 					headerRight: () => (
-						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
+						<TouchableOpacity
+							className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
+							onPress={() => navigation.navigate('ProfileSettings', {
+								userID: userId,
+								userPhoto: params.userPhoto
+							})}>
 							<Image
 								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className='w-full h-full'
@@ -622,7 +642,13 @@ export default function () {
 					headerTitle: 'Definir hora/valor',
 				}}
 			/>
-
+			<Screen
+				name='CourtAvailabilityInfo'
+				component={CourtAvailabilityInfo}
+				options={{
+					headerShown: false
+				}}
+			/>
 		</Navigator>
 	)
 }
