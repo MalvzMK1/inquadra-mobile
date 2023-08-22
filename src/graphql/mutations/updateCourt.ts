@@ -12,9 +12,9 @@ export interface IUpdateCourtResponse{
 }
 
 export interface IUpdateCourtVariables{
-    court_id: number,
+    court_id: string,
     court_name: string,
-    court_types: number,
+    court_types: Array<string>,
     fantasy_name: string,
     photos: Array<string>,
     court_availabilities: Array<string>,
