@@ -106,7 +106,9 @@ export default function () {
 					headerTitleAlign: "center",
 					headerLeft: () => (<></>),
 					headerRight: () => (
-						<TouchableOpacity className='pr-[10px]'>
+						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
+							userPhoto: "tora"
+						})} className='pr-[10px]'>
 							<Image
 								source={require('../../assets/default-user-image.png')}
 								className="rounded-full w-[50px] h-[50px]"
