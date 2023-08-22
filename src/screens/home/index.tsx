@@ -120,6 +120,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		setSportTypes(newAvailableSportTypes);
 	}, [availableSportTypes, availableSportTypesError]);
 
+	if (!userHookLoading) console.log(userHookData)
+
 	return (
 		<View className="flex-1 flex flex-col">
 			{

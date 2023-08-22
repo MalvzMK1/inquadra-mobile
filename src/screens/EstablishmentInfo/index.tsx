@@ -89,10 +89,9 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     streetName: infosEstablishment.attributes.address.streetName,
                     latitude: Number(infosEstablishment.attributes.address.latitude),
                     longitude: Number(infosEstablishment.attributes.address.longitude),
-                    photo: HOST_API + infosEstablishment.attributes.photos.data[lastPhotoIndex].attributes.url,
+                    photo: HOST_API + infosEstablishment.attributes.logo.data.attributes.url,
                     photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
-                        if (index !== lastPhotoIndex)
-                            return HOST_API + photo.attributes.url
+                        return HOST_API + photo.attributes.url
                     }),
                     type: courts.map(court => court.court_type).join(', ')
                 }
@@ -125,6 +124,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 }
             )
             if (favoriteEstablishmentId) {
+                console.log(favoriteEstablishmentId)
                 setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
             }
 
@@ -136,30 +136,6 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         const isFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
         setHeart(isFavorite);
     }, [arrayfavoriteEstablishment, Establishment?.id]);
-
-    useEffect(() => {
-        async function fetchData() {
-            await AsyncStorage.getItem("userGeolocation").then((value) => {
-                if (value) {
-                    const geolocationData = JSON.parse(value)
-                    const latitude = geolocationData.rawData.latitude
-                    const longitude = geolocationData.rawData.longitude
-                    setUserLocation({
-                        latitude: latitude,
-                        longitude: longitude
-                    })
-                }
-            })
-            await AsyncStorage.getItem("userInfos").then((value) => {
-                if (value) {
-                    const userID = JSON.parse(value)
-                    setUserId(userID.rawData.userId)
-                }
-            })
-
-        }
-        fetchData()
-    }, [])
 
     const handlePressFavoriteEstablishment = () => {
         const isCurrentlyFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
