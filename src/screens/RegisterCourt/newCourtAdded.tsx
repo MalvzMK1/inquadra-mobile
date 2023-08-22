@@ -114,11 +114,8 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
 
 
     const formSchema = z.object({
-        minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
-        fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
-        courtType: z.array(z.string()).refine(arr => arr.length > 0, {
-            message: "Selecione pelo menos uma modalidade."
-        }),
+        minimum_value: z.string().nonempty("É necessário determinar um valor mínimo."),
+        fantasyName: z.string().nonempty("Diga um nome fantasia.")
     })
 
 
@@ -140,6 +137,8 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
     const [photos, setPhotos] = useState([]);
 
     const [selected, setSelected] = useState<Array<string>>([]);
+
+    const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false)
 
     const [selectedItems, setSelectedItems] = useState([]);
 
@@ -221,7 +220,11 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
                                 />
                             )}
                         />
-                        {errors?.courtType?.message && <Text className='text-red-400 text-sm'>{errors.courtType.message}</Text>}
+                        {
+                            isCourtTypeEmpty === true
+                                ? <Text className='text-red-400 text-sm'>É necessário inserir pelo menos um tipo de quadra</Text>
+                                : null
+                        }
                     </View>
                     <View>
                         <Text className='text-xl p-1'>Nome fantasia da quadra?</Text>
@@ -300,11 +303,32 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
 
                     </View>
                     <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
-                        <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={handleSubmit(RegisterNewCourt)} />
-                        <Text className="pl-4 text-lg" onPress={handleSubmit(RegisterNewCourt)}>Adicionar uma nova Quadra</Text>
+                        <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => {
+                            if (selected.length === 0) {
+                                setIsCourtTypeEmpty(true);
+                            } else {
+                                setIsCourtTypeEmpty(false);
+                                handleSubmit(RegisterNewCourt)();
+                            }
+                        }} />
+                        <Text className="pl-4 text-lg" onPress={() => {
+                            if (selected.length === 0) {
+                                setIsCourtTypeEmpty(true);
+                            } else {
+                                setIsCourtTypeEmpty(false);
+                                handleSubmit(RegisterNewCourt)();
+                            }
+                        }}>Adicionar uma nova Quadra</Text>
                     </View>
                     <View>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={handleSubmit(finishingCourtsRegisters)}>
+                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => {
+                            if (selected.length === 0) {
+                                setIsCourtTypeEmpty(true);
+                            } else {
+                                setIsCourtTypeEmpty(false);
+                                handleSubmit(finishingCourtsRegisters)();
+                            }
+                        }}>
                             <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size="small" color='#F5620F' /> : 'Concluir'}</Text>
                         </TouchableOpacity>
                     </View>

@@ -22,6 +22,7 @@ import { HOST_API } from '@env'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { empty } from "@apollo/client";
 
 interface CourtArrayObject {
     court_name: string,
@@ -50,13 +51,13 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
     const [courts, setCourts] = useState<CourtArrayObject[]>([])
-    
+
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
     }
 
     function RegisterNewCourt(data: IFormDatasCourt) {
-        
+
         let courtIDs: Array<string> = [];
 
         selected.forEach(selectedType => {
@@ -75,11 +76,11 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
             currentDate: new Date().toISOString()
         }
         addToCourtArray(payload)
-        
+
         navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
     }
 
-    function finishingCourtsRegisters (data: IFormDatasCourt){
+    function finishingCourtsRegisters(data: IFormDatasCourt) {
         let courtIDs: Array<string> = [];
 
         selected.forEach(selectedType => {
@@ -98,16 +99,13 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
             currentDate: new Date().toISOString()
         }
         addToCourtArray(payload)
-        
+
         navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] })
-    } 
+    }
 
     const formSchema = z.object({
-        minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
-        fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
-        courtType: z.array(z.string()).refine((val) => val.length > 0, {
-            message: "Selecione pelo menos uma modalidade"
-        })
+        minimum_value: z.string().nonempty("É necessário determinar um valor mínimo."),
+        fantasyName: z.string().nonempty("Diga um nome fantasia.")
     })
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
@@ -126,6 +124,9 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     const [isLoading, setIsLoading] = useState(false)
 
     const [photos, setPhotos] = useState([]);
+
+
+    const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false)
 
     const [selected, setSelected] = useState<Array<string>>([]);
 
@@ -209,7 +210,11 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                                 />
                             )}
                         />
-                        {errors?.courtType?.message && <Text className='text-red-400 text-sm'>{errors.courtType.message}</Text>}
+                        {
+                            isCourtTypeEmpty === true
+                                ? <Text className='text-red-400 text-sm'>É necessário inserir pelo menos um tipo de quadra</Text>
+                                : null
+                        }
                     </View>
                     <View>
                         <Text className='text-xl p-1'>Nome fantasia da quadra?</Text>
@@ -288,13 +293,32 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
 
                     </View>
                     <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
-                        <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => { 
-                            navigation.navigate("RegisterNewCourt", { courtArray: courts })
-                            }}/>
-                        <Text className="pl-4 text-lg" onPress={handleSubmit(RegisterNewCourt)}>Adicionar uma nova Quadra</Text>
+                        <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => {
+                            if (selected.length === 0) {
+                                setIsCourtTypeEmpty(true);
+                            } else {
+                                setIsCourtTypeEmpty(false);
+                                handleSubmit(RegisterNewCourt)();
+                            }
+                        }} />
+                        <Text className="pl-4 text-lg" onPress={() => {
+                            if (selected.length === 0) {
+                                setIsCourtTypeEmpty(true);
+                            } else {
+                                setIsCourtTypeEmpty(false);
+                                handleSubmit(RegisterNewCourt)();
+                            }
+                        }}>Adicionar uma nova Quadra</Text>
                     </View>
                     <View>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={handleSubmit(finishingCourtsRegisters)}>
+                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => {
+                            if (selected.length === 0) {
+                                setIsCourtTypeEmpty(true);
+                            } else {
+                                setIsCourtTypeEmpty(false);
+                                handleSubmit(finishingCourtsRegisters)();
+                            }
+                        }}>
                             <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size="small" color='#F5620F' /> : 'Concluir'}</Text>
                         </TouchableOpacity>
                     </View>
