@@ -119,14 +119,14 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     useEffect(() => {
 
         if (!FavoriteEstablishment.error && !FavoriteEstablishment.loading) {
-            // const favoriteEstablishmentId = FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
-            //     (establishment) => {
-            //         return { id: establishment.id }
-            //     }
-            // )
-            // if (favoriteEstablishmentId) {
-            //     setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
-            // }
+            const favoriteEstablishmentId = FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+                (establishment) => {
+                    return { id: establishment.id }
+                }
+            )
+            if (favoriteEstablishmentId) {
+                setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
+            }
 
         }
 
@@ -275,6 +275,8 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                         {Court.filter((court) => court.court_type === type).map((court) => (
                             <CourtCard
                                 key={court.id}
+                                id={court.id}
+                                userId={userId}
                                 availabilities={court.court_availabilities}
                                 image={court.photo}
                                 name={court.name}

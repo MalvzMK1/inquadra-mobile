@@ -58,7 +58,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		React.useCallback(() => {
 			setEstablishments([]);
 			if (!error && !loading) {
-				const newCourts = data?.establishments.data
+				const newEstablishments = data?.establishments.data
 				  .filter(establishment => (
 					establishment.attributes.photos.data &&
 					establishment.attributes.photos.data.length > 0 &&
@@ -85,21 +85,21 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 							Number(establishment.attributes.address.latitude),
 							Number(establishment.attributes.address.longitude)
 						) / 1000,
-						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
+						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === establishment.attributes.photos.data!.length - 1)?.attributes.url ?? '',
 						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
 					}
 
 					return establishmentObject
 				  }));
 		
-				if (newCourts) {
-				  setEstablishments(newCourts);
+				if (newEstablishments) {
+				  setEstablishments(newEstablishments);
 				}
 		
 				navigation.setParams({
 				  userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
 				});
-			  }
+			}
 		}, [data, loading, userHookLoading, userHookData, error])
 	);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
