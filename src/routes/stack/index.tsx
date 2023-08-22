@@ -42,6 +42,7 @@ import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryP
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import RegisterNewCourtAdded from '../../screens/RegisterCourt/Client/newCourtAdded';
 import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
+import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -622,7 +623,13 @@ export default function () {
 					headerTitle: 'Definir hora/valor',
 				}}
 			/>
-
+			<Screen
+				name='CourtAvailabilityInfo'
+				component={CourtAvailabilityInfo}
+				options={{
+					headerShown: false
+				}}
+			/>
 		</Navigator>
 	)
 }
