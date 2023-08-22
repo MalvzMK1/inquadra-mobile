@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,16 +37,16 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI564T685" />
+                    <option name="lastUsedInstant" value="1692696892" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="develop" />
                     <option name="lastUsedInstant" value="1692626004" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI564T631_SYNC" />
                     <option name="lastUsedInstant" value="1692625628" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T685" />
-                    <option name="lastUsedInstant" value="1692613762" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="release" />
@@ -83,7 +84,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "release",
+    "git-widget-placeholder": "WI564T685",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",

@@ -1,25 +1,69 @@
 import { useNavigation, NavigationProp } from "@react-navigation/native"
-import { useState } from 'react';
-import { View, Image, Text, TextInput, ScrollView } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Image, Text, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageSourcePropType } from "react-native/Libraries/Image/Image"
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
-import { SelectList } from 'react-native-dropdown-select-list'
+import { SelectList, MultipleSelectList } from 'react-native-dropdown-select-list'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useSportTypes } from "../../hooks/useSportTypesFixed";
+import useCourtById from "../../hooks/useCourtById";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Controller, useForm } from "react-hook-form";
+import useUpdateCourt from "../../hooks/useUpdateCourt";
+import { HOST_API } from '@env'
 
-const courtTypesData = [
-    { value: 'Futsal' },
-    { value: 'Vôlei' },
-    { value: 'Basquete' },
-    { value: 'Handebol' },
-    { value: 'Tênis' }
-]
+interface ICourtFormData {
+    fantasyName: string
+    minimumScheduleValue: number
+}
+
+const courtFormSchema = z.object({
+    fantasyName: z.string()
+        .nonempty("Insira um nome!"),
+    minimumScheduleValue: z.number()
+})
 
 export default function EditCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, "EditCourt">) {
     const courtId = route.params.courtId
-    
+
+    const { control, handleSubmit, formState: { errors } } = useForm<ICourtFormData>({
+        resolver: zodResolver(courtFormSchema)
+    })
+
+    const { data: sportTypesData, error: sportTypesError, loading: sportTypesLoading } = useSportTypes()
+    const { data: courtByIdData, error: courtByIdError, loading: courtByIdLoading } = useCourtById(courtId)
+    const [updateCourtHook, { data, loading, error }] = useUpdateCourt()
+
+    let courtTypesData: string[] = []
+    sportTypesData?.courtTypes.data.map(sportItem => courtTypesData.push(sportItem.attributes.name))
+
+    const fantasyName = courtByIdData?.court.data.attributes.fantasy_name
+    const minimumScheduleValue: number | undefined = courtByIdData?.court.data.attributes.minimumScheduleValue
+    const [minimumScheduleValueState, setMinimumSheduleValue] = useState<number>()
+    useEffect(() => {
+        setMinimumSheduleValue(minimumScheduleValue)
+    }, [courtByIdData])
+    // console.log(typeof minimumScheduleValueState)
+
+    let courtAvailibilites: string[] = []
+    if (courtByIdData?.court.data.attributes.court_availibilites != null || courtByIdData?.court.data.attributes.court_availibilites != undefined) {
+        courtByIdData?.court.data.attributes.court_availibilites.data.map(courtAvailibilityItem => courtAvailibilites.push(courtAvailibilityItem.attributes.id))
+    }
+
+    let courtPhotos: string[] = []
+    courtByIdData?.court.data.attributes.photo.data.map(photoItem => {
+        courtPhotos.push(photoItem.id)
+    })
+
+    let courtTypes: string[] = []
+    if (courtByIdData?.court.data.attributes.court_types != null || courtByIdData?.court.data.attributes.court_types != undefined) {
+        courtByIdData?.court.data.attributes.court_types.data.map(courtTypeItem => courtTypes.push(courtTypeItem.id))
+    }
+
     const [photo, setPhoto] = useState("")
 
     const handleProfilePictureUpload = async () => {
@@ -47,15 +91,37 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         }
     };
 
-    const [courtTypeSelected, setCourtTypeSelected] = useState("")
-    const [fantasyName, setFantasyName] = useState("")
-    const [minValue, setMinValue] = useState("")
+    // const [courtTypeSelected, setCourtTypeSelected] = useState<Array<string>>()
+
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleUpdateCourt = (data: ICourtFormData): void => {
+        setIsLoading(true)
+
+        const courtData = {
+            ...data
+        }
+
+        updateCourtHook({
+            variables: {
+                court_id: courtId,
+                court_availabilities: courtAvailibilites,
+                court_name: courtByIdData?.court.data.attributes.name,
+                court_types: courtTypes,
+                fantasy_name: courtData.fantasyName,
+                minimum_value: courtData.minimumScheduleValue,
+                photos: courtPhotos
+            }
+        }).then(() => alert("Quadra atualizada"))
+            .catch((reason) => alert(reason))
+            .finally(() => setIsLoading(false))
+    }
 
     return (
         <ScrollView className="h-full w-full flex flex-col">
 
             <View className="pt-[15px] pl-[7px] pr-[7px] flex flex-col items-center justify-center h-fit w-full">
-                <Image className="h-[210px] w-[375px] rounded-[5px]" source={{ uri: photo }}></Image>
+                <Image className="h-[210px] w-[375px] rounded-[5px]" source={{ uri: HOST_API + courtByIdData?.court.data.attributes.photo.data[0].attributes.url }}></Image>
 
                 <View className="flex flex-row items-center justify-center gap-x-[5px]">
                     <Text className="text-[16px] text-[#FF6112] font-semibold">Editar</Text>
@@ -72,9 +138,9 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                     <View className="w-full items-center mb-[5px]">
                         <Text className="text-[16px] text-[#4E4E4E] font-normal">Selecione a modalidade:</Text>
                     </View>
-                    <SelectList
+                    <MultipleSelectList
                         setSelected={(val: string) => {
-                            setCourtTypeSelected(val)
+                            // setCourtTypeSelected(val)
                         }}
                         data={courtTypesData}
                         save="value"
@@ -86,22 +152,47 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
                 <View className="mb-[20px]">
                     <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Nome fantasia da quadra?</Text>
-                    <TextInput
-                        className='p-4 border border-neutral-400 rounded'
-                        placeholder="Ex: Arena Society"
+                    <Controller
+                        name='fantasyName'
+                        control={control}
+                        rules={{
+                            required: true
+                        }}
+                        render={({ field: { onChange } }) => (
+                            <TextInput
+                                onChangeText={onChange}
+                                defaultValue={fantasyName}
+                                className={`p-4 border ${errors.fantasyName ? "border-red-400" : "border-gray-400"}  rounded-lg h-45`}
+                                placeholder="Ex: Arena Society"
+                            />
+                        )}
                     />
+                    {errors.fantasyName && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.fantasyName.message}</Text>}
                 </View>
 
                 <View className="mb-[20px]">
                     <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Sinal mínimo para locação</Text>
-                    <MaskInput
-                        className='p-4 border border-neutral-400 rounded'
-                        placeholder='R$ 00,00'
-                        keyboardType="numeric"
-                        value={minValue}
-                        onChangeText={setMinValue}
-                        mask={Masks.BRL_CURRENCY}
+                    <Controller
+                        name='minimumScheduleValue'
+                        control={control}
+                        rules={{
+                            required: true
+                        }}
+                        render={({ field: { onChange } }) => (
+                            <MaskInput
+                                className={`p-4 border ${errors.minimumScheduleValue ? "border-red-400" : "border-gray-400"}  rounded-lg h-45`}
+                                placeholder='R$ 00,00'
+                                keyboardType="numeric"
+                                onChangeText={(masked, unmasked) => {
+                                    onChange(parseFloat(unmasked))
+                                    setMinimumSheduleValue(parseFloat(unmasked))
+                                }}
+                                value={minimumScheduleValueState?.toString()}
+                                mask={Masks.BRL_CURRENCY}
+                            />
+                        )}
                     />
+                    {errors.minimumScheduleValue && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.minimumScheduleValue.message}</Text>}
                 </View>
 
                 <View className="">
@@ -116,9 +207,9 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
                 <TouchableOpacity
                     className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mt-[50px]'
-                    onPress={() => true}
+                    onPress={handleSubmit(handleUpdateCourt)}
                 >
-                    <Text className="font-semibold text-white text-[14px]">Salvar</Text>
+                    <Text className="font-semibold text-white text-[14px]">{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
                 </TouchableOpacity>
 
                 <BottomNavigationBar
