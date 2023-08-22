@@ -6,12 +6,13 @@ import Carousel from "react-native-snap-carousel"
 import { CourtCard } from "../../components/CourtCardInfo"
 import useGetEstablishmentByCourtId from "../../hooks/useGetEstablishmentByCourtId"
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import getDistanceFromLatLonInKm from '../../utils/distanceCalculator'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
 import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
 import {HOST_API} from '@env';
 import storage from '../../utils/storage'
+import {calculateDistance} from "../../utils/calculateDistance";
+import {EstablishmentByCourtIdQuery} from "../../graphql/queries/EstablishmentByCourtId";
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
@@ -33,6 +34,11 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         latitude: 0,
         longitude: 0
     })
+
+    storage.load<{latitude: string, longitude: string}>({
+        key: 'userGeolocation'
+    }).then(response => setUserLocation({latitude: Number(response.latitude), longitude: Number(response.longitude)}))
+
     const [Establishment, setEstablishment] = useState<{
         id: string
         corporateName: string,
@@ -162,7 +168,23 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
 
 
     if (Establishment) {
-        distance = getDistanceFromLatLonInKm(Establishment?.latitude, Establishment?.longitude, userLocation.latitude, userLocation.longitude)
+        distance = calculateDistance(
+          Establishment?.latitude,
+          Establishment?.longitude,
+          userLocation.latitude,
+          userLocation.longitude
+        ) / 1000
+
+        console.log({
+            result: calculateDistance(
+                Establishment.latitude,
+                Establishment.longitude,
+                userLocation.latitude,
+                userLocation.longitude,
+            ) / 1000,
+            establishment: {lat: Establishment.latitude, long: Establishment.longitude},
+            user: userLocation
+        })
     }
 
     const uniqueCourtTypes = [...new Set(Court.map((court) => court.court_type))];
