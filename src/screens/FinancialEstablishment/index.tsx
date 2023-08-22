@@ -3,16 +3,14 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import CardPaymentHistoric from "../../components/CardPaymentHistoric";
 import { useGetUserHistoricPayment } from "../../hooks/useGetHistoricPayment";
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation, useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { HOST_API } from "@env";
-import { RootStackParamList } from "../../types/RootStack";
 
 export default function FinancialEstablishment() {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const currentDate = new Date();
-    const [valueCollected, setValueCollected] = useState<Array<number>>()
+    const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [date, setDate] = useState(new Date())
 
@@ -29,67 +27,75 @@ export default function FinancialEstablishment() {
 
     const { data, loading, error } = useGetUserHistoricPayment("5")
 
-    useEffect(() => {
+    useFocusEffect(
+        React.useCallback(() => {
+            setInfosHistoric([]);
+            setValueCollected([]);
 
-        const dataHistoric = data?.establishment.data.attributes.courts.data;
+            const dataHistoric = data?.establishment.data.attributes.courts.data;
 
-        if (!error && !loading) {
-            const infosCard: {
-                username: string;
-                photoUser: string | null;
-                photoCourt: string;
-                valuePayed: number;
-                courtName: string;
-                date: string;
-                startsAt: string;
-                endsAt: string
-            }[] = [];
+            if (!error && !loading) {
+                const infosCard: {
+                    username: string;
+                    photoUser: string | null;
+                    photoCourt: string;
+                    valuePayed: number;
+                    courtName: string;
+                    date: string;
+                    startsAt: string;
+                    endsAt: string
+                }[] = [];
 
-            const amountPaid: number[] = []
+                const amountPaid: { valuePayment: number, payday: string }[] = []
 
-            dataHistoric?.forEach((item) => {
-                let photo = item.attributes.photo.data[0].attributes.url;
-                if (item.attributes.court_availabilities.data.length > 0) {
-                    item.attributes.court_availabilities.data[0].attributes.schedulings.data.forEach((schedulings) => {
-                        // console.log(item.attributes.court_availabilities.data)
+                dataHistoric?.forEach((court) => {
+                    let courtPhoto = court.attributes.photo.data[0].attributes.url;
 
-                        schedulings.attributes.users.data.forEach((user) => {
-                            console.log(user.attributes.username)
-                            infosCard.push({
-                                startsAt: item.attributes.court_availabilities.data[0].attributes.startsAt,
-                                endsAt: item.attributes.court_availabilities.data[0].attributes.endsAt,
-                                username: user.attributes.username,
-                                photoUser: user.attributes.photo.data ? HOST_API + user.attributes.photo.data.attributes.url : null,
-                                photoCourt: HOST_API + photo,
-                                valuePayed: schedulings.attributes.valuePayed,
-                                courtName: item.attributes.name,
-                                date: schedulings.attributes.date
+                    court.attributes.court_availabilities.data.forEach((availability) => {
+                        availability.attributes.schedulings.data.forEach((schedulings) => {
+
+                            schedulings.attributes.user_payments.data.forEach((payment) => {
+
+                                const user = payment.attributes.users_permissions_user.data.attributes;
+
+                                infosCard.push({
+                                    startsAt: availability.attributes.startsAt,
+                                    endsAt: availability.attributes.endsAt,
+                                    username: user.username,
+                                    photoUser: user.photo.data.attributes.url ? HOST_API + user.photo.data.attributes.url : null,
+                                    photoCourt: HOST_API + courtPhoto,
+                                    valuePayed: payment.attributes.value,
+                                    courtName: court.attributes.name,
+                                    date: schedulings.attributes.date,
+                                });
+                                amountPaid.push({
+                                    valuePayment: payment.attributes.value,
+                                    payday: schedulings.attributes.date
+                                });
                             });
-                            amountPaid.push(schedulings.attributes.valuePayed)
                         });
                     });
-                }
-            });
-
-            if (infosCard) {
-                setInfosHistoric(prevState => {
-                    if (prevState === undefined) {
-                        return infosCard;
-                    }
-                    return [...prevState, ...infosCard];
                 });
-            }
-            if (amountPaid) {
-                setValueCollected(prevState => {
-                    if (prevState === undefined) {
-                        return amountPaid
-                    }
-                    return [...prevState, ...amountPaid]
-                })
-            }
-        }
 
-    }, [error, loading])
+                if (infosCard) {
+                    setInfosHistoric(prevState => {
+                        if (prevState === undefined) {
+                            return infosCard;
+                        }
+                        return [...prevState, ...infosCard];
+                    });
+                }
+                if (amountPaid) {
+                    setValueCollected(prevState => {
+                        if (prevState === undefined) {
+                            return amountPaid
+                        }
+                        return [...prevState, ...amountPaid]
+                    })
+                }
+            }
+        }, [error, loading])
+    )
 
     const handleDatePicker = () => {
         setShowDatePicker(true)
@@ -101,6 +107,28 @@ export default function FinancialEstablishment() {
         }
     }
 
+    function isAvailableForWithdrawal() {
+        const currentDate = new Date();
+
+        const futureDates: { valuePayment: number; payday: string; }[] = [];
+        const pastDates: { valuePayment: number; payday: string; }[] = [];
+
+        valueCollected?.forEach((item) => {
+            const paydayDate = new Date(item.payday);
+
+            if (paydayDate > currentDate) {
+                futureDates.push(item);
+            } else {
+                pastDates.push(item);
+            }
+        });
+
+        return {
+            futureDates: futureDates,
+            pastDates: pastDates,
+        };
+    }
+
     return (
         <View className="flex-1">
             <ScrollView>
@@ -109,7 +137,7 @@ export default function FinancialEstablishment() {
                         <View className="bg-[#292929] border rounded-md p-5">
                             <Text className="text-[#FF6112] text-base font-bold">Valor disponível para saque</Text>
                             <View className="pt-5 gap-2">
-                                <Text className="text-white text-3xl font-extrabold text-center">R$ {valueCollected ? valueCollected.reduce((total, current) => total + current, 0) : 0}</Text>
+                                <Text className="text-white text-3xl font-extrabold text-center">R$ {valueCollected ? isAvailableForWithdrawal().pastDates.reduce((total, current) => total + current.valuePayment, 0) : 0}</Text>
                             </View>
                             <View className="p-3 items-center justify-center">
                                 <TouchableOpacity className='h-10 w-40 rounded-md bg-[#FF6112] flex items-center justify-center'>
@@ -125,7 +153,7 @@ export default function FinancialEstablishment() {
                         <View className="bg-[#292929] border rounded-md p-5">
                             <Text className="text-[#FF6112] text-base font-bold">Valor pago no crédito a receber</Text>
                             <View className="pt-5 gap-2">
-                                <Text className="text-white text-3xl font-extrabold text-center">R$ {valueCollected ? valueCollected.reduce((total, current) => total + current, 0) : 0}</Text>
+                                <Text className="text-white text-3xl font-extrabold text-center">R$ {valueCollected ? isAvailableForWithdrawal().futureDates.reduce((total, current) => total + current.valuePayment, 0) : 0}</Text>
                             </View>
                         </View>
                         <View className="bg-[#FF6112] h-7 rounded flex items-center justify-center">
@@ -147,7 +175,17 @@ export default function FinancialEstablishment() {
                             />
                         )}
                         <View>
-                            <Text className="text-base text-gray-500 mt-1">Saldo recebido do dia: R$ {valueCollected ? valueCollected.reduce((total, current) => total + current, 0) : 0}</Text>
+                            <Text className="text-base text-gray-500 mt-1">Saldo recebido do dia: R$
+                                {
+                                    valueCollected?.map((item) => {
+                                            if (new Date(item.payday).toISOString().split("T")[0] === date.toISOString().split("T")[0]) {
+                                                return item.valuePayment;
+                                            } else {
+                                                return 0;
+                                            }
+                                    }).reduce((total, current) => total + current, 0)
+                                }
+                            </Text>
                         </View>
                         {
                             infosHistoric?.map((card) => {
