@@ -17,7 +17,6 @@ import Animated, {
 	FadeOut,
 	FadeIn
 } from 'react-native-reanimated';
-import {NativeStackNavigatorProps} from "react-native-screens/lib/typescript/native-stack/types";
 
 const arrayIcons = [
 	{
@@ -26,63 +25,38 @@ const arrayIcons = [
 		image: iconFutebol,
 		activeImage: activeIconFutebol
 	},
-	{
-		id: 2,
-		name: "Beach Tennis",
-		image: iconBTennis,
-		activeImage: activeIconBTennis
-	},
-	{
-		id: 3,
-		name: "Futsal",
-		image: iconFutebol,
-		activeImage: activeIconFutebol
-	},
-	{
-		id: 4,
-		name: "Volei",
-		image: iconVoley,
-		activeImage: activeIconVoley
-	},
-	{
-		id: 5,
-		name: "Footvolley",
-		image: iconFVoley,
-		activeImage: activeIconFVoley
-	},
-	{
-		id: 6,
-		name: "Tenis",
-		image: iconTennis,
-		activeImage: activeIconTennis
-	},
-	{
-		id: 7,
-		name: "Basquete",
-		image: iconBasquete,
-		activeImage: activeIconBasquete
-	},
 ]
 
 interface ISportsMenuProps {
-	sports: SportType[]
+	sports: SportType[],
+	callBack: Function
 }
 
-export default function SportsMenu({sports}: ISportsMenuProps) {
+export default function SportsMenu({ sports, callBack }: ISportsMenuProps) {
 
 	const [selected, setSelected] = useState<string>()
-	
+
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className={`flex w-full justify-center items-center h-[8%] `}>
 			<ScrollView horizontal={true}>
 				{
 					sports.map((item) => (
-						<TouchableOpacity className='justify-center' onPress={() => setSelected(item.id)}>
+						<TouchableOpacity className='justify-center' onPress={() => {
+							if(selected === item.id){
+								callBack(undefined)
+								setSelected(undefined)
+							}else{
+								callBack(item.name)
+								setSelected(item.id)
+							}
+						}}>
 							{selected !== item.id ? (
 								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].image} />
-							) : (
-								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].activeImage} />
-							)}
+							)
+								:
+								(
+									<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].activeImage} />
+								)}
 						</TouchableOpacity>
 					))
 				}

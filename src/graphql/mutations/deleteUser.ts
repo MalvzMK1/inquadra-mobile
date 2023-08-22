@@ -13,7 +13,7 @@ export interface IDeleteUserResponse{
 }
 
 export interface IDeleteUserVariables{
-    user_id: number
+    user_id: string
 }
 
 export const deleteUserMutation = gql`

@@ -6,21 +6,32 @@ export interface ICourtByIdResponse {
     data: {
       id: Court['id']
       attributes: {
-        court_type: {
-          data: {
+        court_types: {
+          data: Array<{
+            id: SportType['id']
             attributes: {
               name: SportType['name']
             }
-          }
+          }>
         }
         name: Court['name']
+        fantasy_name: Court['fantasy_name']
+        court_availibilites: {
+          data: Array<{
+            attributes: {
+              id: CourtAvailability['id']
+            }
+          }>
+        }
         photo:{
           data: Array<{
+            id: Photo['id'],
             attributes:{
               url: Photo['url']
             }
           }>
         }
+        minimumScheduleValue: CourtAdd['minimum_value']
         establishment:{
           data:{
             id: Establishment['id']
@@ -48,21 +59,30 @@ export const courtByIdQuery = gql`
     data {
       id
       attributes {
-        court_type {
+        court_types {
           data {
+            id
             attributes {
               name
             }
           }
         }
         name
+        fantasy_name
+        court_availabilities {
+          data {
+            id
+          }
+        }
         photo {
           data {
+            id
             attributes {
               url
             }
           }
         }
+        minimumScheduleValue
         establishment {
           data {
             id

@@ -7,14 +7,15 @@ import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
-import pointerMap from '../../assets/pointerMap.png';
+import pointerMap from '../../assets/pointerMap.jpeg';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useGetNextToCourts } from "../../hooks/useNextToCourts";
 import { useGetUserById } from "../../hooks/useUserById";
 import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import { HOST_API } from '@env';
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
-import {calculateDistance} from "../../components/calculateDistance/calculateDistance";
+import { calculateDistance } from '../../utils/calculateDistance';
+import React from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -33,8 +34,9 @@ interface EstablishmentObject {
 export default function Home({ menuBurguer, route, navigation }: Props) {
 	const userGeolocation = route.params.userGeolocation;
 
-	const {data, loading, error} = useEstablishmentCardInformations()
-	const {data: userHookData, loading: userHookLoading, error: userHookError} = useGetUserById(route.params.userID)
+	const { data, loading, error } = useEstablishmentCardInformations()
+	const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
+
 	const [establishments, setEstablishments] = useState<Array<{
 		id: string,
 		latitude: number,
@@ -45,17 +47,24 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		distance: number,
 	}>>([]);
 	const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
-	const {data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError} = useAvailableSportTypes()
+	const [sportSelected, setSportSelected] = useState<string>()
+	const { data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError } = useAvailableSportTypes()
 
-	useEffect(() => {
-		if (!error && !loading) {
-			const newCourts = data?.establishments.data
-				.filter(establishment => (
+	const HandleSportSelected = (nameSport: string) => {
+		setSportSelected(nameSport)
+	}
+
+	useFocusEffect(
+		React.useCallback(() => {
+			setEstablishments([]);
+			if (!error && !loading) {
+				const newEstablishments = data?.establishments.data
+				  .filter(establishment => (
 					establishment.attributes.photos.data &&
 					establishment.attributes.photos.data.length > 0 &&
 					establishment.attributes.courts.data
-				))
-				.map((establishment => {
+				  ))
+				  .map((establishment => {
 					let establishmentObject: EstablishmentObject;
 
 					let courtTypes = establishment.attributes.courts.data!
@@ -63,39 +72,36 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						.map(court => court.attributes.court_types.data)
 						.map(courtType => courtType.map(type => type.attributes.name))
 
-					console.log(courtTypes)
-
 					if (!courtTypes) courtTypes = []
 
 					establishmentObject = {
 						id: establishment.id,
 						name: establishment.attributes.corporateName,
 						latitude: Number(establishment.attributes.address.latitude),
-						longitude: Number(establishment.attributes.address.latitude),
+						longitude: Number(establishment.attributes.address.longitude),
 						distance: calculateDistance(
 							userGeolocation.latitude,
 							userGeolocation.longitude,
 							Number(establishment.attributes.address.latitude),
-							Number(establishment.attributes.address.latitude)
-							) / 1000, // Change to real values,
-						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === 0)?.attributes.url ?? '',
-						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : ''
+							Number(establishment.attributes.address.longitude)
+						) / 1000,
+						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === establishment.attributes.photos.data!.length - 1)?.attributes.url ?? '',
+						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
 					}
 
 					return establishmentObject
-				}))
-
-			if (newCourts) {
-				setEstablishments((prevCourts) => [...prevCourts, ...newCourts]);
+				  }));
+		
+				if (newEstablishments) {
+				  setEstablishments(newEstablishments);
+				}
+		
+				navigation.setParams({
+				  userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+				});
 			}
-
-			navigation.setParams({
-				userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
-			})
-		}
-
-		console.log(userHookData?.usersPermissionsUser.data.attributes.photo.data)
-	}, [data, loading, userHookLoading]);
+		}, [data, loading, userHookLoading, userHookData, error])
+	);
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
 	useEffect(() => {
@@ -103,25 +109,31 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
 		availableSportTypes?.courts.data.forEach(court => {
 			court.attributes.court_types.data.forEach(courtType => {
-				newAvailableSportTypes.push({id: courtType.id, name: courtType.attributes.name})
-			})
-		})
+				const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
 
-		setSportTypes(newAvailableSportTypes)
-	}, [availableSportTypes, availableSportTypesError])
+				if (!sportAlreadyAdded) {
+					newAvailableSportTypes.push({ id: courtType.id, name: courtType.attributes.name });
+				}
+			});
+		});
+
+		setSportTypes(newAvailableSportTypes);
+	}, [availableSportTypes, availableSportTypesError]);
+
+	if (!userHookLoading) console.log(userHookData)
 
 	return (
 		<View className="flex-1 flex flex-col">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} />
+					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} />
 			}
 			<View className='flex-1'>
 
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
-					className='w-screen h-screen flex'
+					className='w-screen h-full flex'
 					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
@@ -139,8 +151,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									longitude: item.longitude,
 								}}
 								icon={pointerMap}
-								title='test'
-								description='test'
+								title={item.name}
+								description={item.name}
 							>
 								<CourtBallon
 									id={item.id}
@@ -149,7 +161,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
-								// pageNavigation='EstablishmentInfo'
+									userId={userHookData?.usersPermissionsUser.data.id}
+									liked={true}
 								/>
 							</Marker>
 						))
@@ -164,16 +177,20 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			</View>
 			{
 				isDisabled && <HomeBar
+					chosenType={sportSelected}
 					courts={establishments}
 					userName={userHookData?.usersPermissionsUser.data.attributes.username}
-				// photoUser={userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url}
 				/>
 			}
-			<BottomNavigationBar
-				isDisabled={isDisabled}
-				playerScreen={true}
-				establishmentScreen={false}
-			/>
+			{
+				userHookData && <BottomNavigationBar
+					isDisabled={isDisabled}
+					playerScreen={true}
+					establishmentScreen={false}
+					userID={userHookData.usersPermissionsUser.data.id}
+					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+				/>
+			}
 		</View >
 	);
 }

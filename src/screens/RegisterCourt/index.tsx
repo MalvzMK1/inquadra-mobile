@@ -21,8 +21,9 @@ import { da } from "date-fns/locale";
 import { HOST_API } from '@env'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import { empty } from "@apollo/client";
+import {RootStackParamList} from "../../types/RootStack";
 
 interface CourtArrayObject {
     court_name: string,
@@ -37,15 +38,8 @@ interface CourtArrayObject {
 
 type CourtTypes = Array<{ label: string, value: string }>;
 
-export default function RegisterCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'RegisterCourts'>) {
-    const [modalities, setModalities] = useState([])
-
-    const [courtName, setCourtName] = useState("")
-    const [courtType, setCourtType] = useState("")
-    const [fantasyName, setFantasyName] = useState("")
-    const [photo, setPhoto] = useState(Array<string>)
-    const [courtAvailabilities, setCourtAvailabilities] = useState(Array<string>)
-    const [minValue, setMinValue] = useState("")
+export default function RegisterCourt({navigation, route}: NativeStackScreenProps<RootStackParamList, 'RegisterCourts'>) {
+    const [isLoading, setIsLoading] = useState(false)
     const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
@@ -55,17 +49,14 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
     }
-
     function RegisterNewCourt(data: IFormDatasCourt) {
 
         let courtIDs: Array<string> = [];
-
         selected.forEach(selectedType => {
             courtTypes.forEach(type => {
                 if (type.value === selectedType) courtIDs.push(type.label)
             })
         })
-
         const payload = {
             court_name: `Quadra de ${selected}`,
             courtType: courtIDs,
@@ -120,8 +111,6 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
         photos: string[]
         court_availabilities?: string[]
     }
-
-    const [isLoading, setIsLoading] = useState(false)
 
     const [photos, setPhotos] = useState([]);
 

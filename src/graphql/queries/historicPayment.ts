@@ -24,27 +24,33 @@ export interface IHistoricPayment {
                   data: [
                     {
                       attributes: {
+                        startsAt: string
+                        endsAt: string
                         schedulings: {
                           data: [
                             {
                               attributes: {
-                                valuePayed: number
-                                date: string
-                                users: {
-                                  data: [
-                                    {
-                                      attributes: {
-                                        username: string
-                                        photo: {
-                                          data: {
-                                            attributes: {
-                                              url: string
+                                date: string,
+                                user_payments: {
+                                  data: [{
+                                    attributes: {
+                                      value: number
+                                      users_permissions_user: {
+                                        data: {
+                                          attributes: {
+                                            username: string
+                                            photo: {
+                                              data: {
+                                                attributes: {
+                                                  url: string
+                                                }
+                                              }
                                             }
                                           }
                                         }
                                       }
                                     }
-                                  ]
+                                  }]
                                 }
                               }
                             }
@@ -74,6 +80,7 @@ query getHistoryPayment($ID: ID!) {
     data{
       id
       attributes{
+        corporateName
       	courts{
           data{
             attributes{
@@ -88,19 +95,28 @@ query getHistoryPayment($ID: ID!) {
               court_availabilities{
                 data{
 									attributes{
+                    startsAt
+                    endsAt
                     schedulings{
                       data{
                         attributes{
-                          valuePayed
                           date
-                          users{
+                          valuePayed
+                          user_payments{
                             data{
                               attributes{
-                                username
-                                photo{
+                                value
+                                users_permissions_user{
                                   data{
                                     attributes{
-                                      url
+                                      username
+                                      photo{
+                                        data{
+																					attributes{
+                                            url
+                                          }
+                                        }
+                                      }
                                     }
                                   }
                                 }

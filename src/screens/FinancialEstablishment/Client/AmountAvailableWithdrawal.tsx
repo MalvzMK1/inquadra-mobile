@@ -3,16 +3,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 import { SimpleLineIcons } from '@expo/vector-icons';
-import DateTimePicker from "@react-native-community/datetimepicker"
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker"
 import CardDetailsPaymentHistoric from "../../../components/CardDetailsPaymentHistoric";
-
-
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function AmountAvailableWithdrawal() {
     const currentDate = new Date();
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const [valueCollected, setValueCollected] = useState<Array<number>>()
+    const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [date, setDate] = useState(new Date())
     const [infosHistoric, setInfosHistoric] = useState<Array<{
@@ -24,50 +21,85 @@ export default function AmountAvailableWithdrawal() {
     const { data, loading, error } = useGetUserHistoricPayment("5")
 
 
-    useEffect(() => {
 
-        const dataHistoric = data?.establishment.data.attributes.courts.data;
+    useFocusEffect(
+        React.useCallback(() => {
+            setInfosHistoric([]);
+            setValueCollected([]);
 
-        if (!error && !loading) {
-            const infosCard: {
-                username: string;
-                valuePayed: number;
-                date: string
-            }[] = [];
+            const dataHistoric = data?.establishment.data.attributes.courts.data;
 
-            dataHistoric?.forEach((item) => {
-                item.attributes.court_availabilities.data[0].attributes.schedulings.data.forEach((schedulings) => {
-                    schedulings.attributes.users.data.forEach((user) => {
-                        infosCard.push({
-                            username: user.attributes.username,
-                            valuePayed: schedulings.attributes.valuePayed,
-                            date: schedulings.attributes.date
+            if (!error && !loading) {
+                const infosCard: {
+                    username: string;
+                    valuePayed: number;
+                    date: string;
+                }[] = [];
+
+                const amountPaid: { valuePayment: number, payday: string }[] = []
+
+                dataHistoric?.forEach((court) => {
+                    court.attributes.court_availabilities.data.forEach((availability) => {
+                        availability.attributes.schedulings.data.forEach((schedulings) => {
+                            schedulings.attributes.user_payments.data.forEach((payment) => {
+                                const user = payment.attributes.users_permissions_user.data.attributes;
+                                infosCard.push({
+                                    username: user.username,
+                                    valuePayed: payment.attributes.value,
+                                    date: schedulings.attributes.date,
+                                });
+                                amountPaid.push({
+                                    valuePayment: payment.attributes.value,
+                                    payday: schedulings.attributes.date
+                                });
+                            });
                         });
                     });
                 });
-            });
 
-            if (infosCard) {
-                setInfosHistoric(prevState => {
-                    if (prevState === undefined) {
-                        return infosCard;
-                    }
-                    return [...prevState, ...infosCard];
-                });
+                if (infosCard) {
+                    setInfosHistoric(prevState => {
+                        if (prevState === undefined) {
+                            return infosCard;
+                        }
+                        return [...prevState, ...infosCard];
+                    });
+                }
+
+                if (amountPaid) {
+                    setValueCollected(prevState => {
+                        if (prevState === undefined) {
+                            return amountPaid
+                        }
+                        return [...prevState, ...amountPaid]
+                    })
+                }
             }
-        }
-
-    }, [error, loading])
+        }, [error, loading])
+    )
 
     const handleDatePicker = () => {
         setShowDatePicker(true)
     }
-    const handleDateChange = (event: object, selectedDate: any) => {
-        setShowDatePicker(false)
+    const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+        setShowDatePicker(false);
         if (selectedDate) {
-            setDate(selectedDate)
+            setDate(selectedDate);
         }
     }
+
+    function isAvailableForWithdrawal() {
+        const currentDate = new Date();
+
+        const datesFilter = valueCollected?.filter((item) => {
+            const paydayDate = new Date(item.payday);
+
+            return paydayDate <= currentDate;
+        });
+
+        return datesFilter;
+    }
+
 
 
     return (
@@ -86,11 +118,16 @@ export default function AmountAvailableWithdrawal() {
                             <DateTimePicker
                                 value={date}
                                 mode="date"
+                                maximumDate={new Date()}
                                 onChange={handleDateChange}
                             />
                         )}
                         <View>
-                            <Text className="text-base text-gray-500 mt-1">Saldo total disponível para saque: R$ 1.390,71</Text>
+                            <Text className="text-base text-gray-500 mt-1">Saldo total disponível para saque: R$
+                                {
+                                    isAvailableForWithdrawal()?.reduce((total, current) => total + current.valuePayment, 0)
+                                }
+                            </Text>
                         </View>
                         <View>
                             {

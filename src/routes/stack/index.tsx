@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
@@ -42,12 +42,23 @@ import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryP
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
 import RegisterNewCourtAdded from '../../screens/RegisterCourt/newCourtAdded';
 import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
+import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
+import storage from "../../utils/storage";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
 	const [menuBurguer, setMenuBurguer] = useState(false)
+	const [userId, setUserId] = useState<string>();
+
+	useEffect(() => {
+		storage.load<UserInfos>({
+			key: 'userInfos',
+		}).then(response => setUserId(response.userId))
+	}, [])
+
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
+
 	return (
 		<Navigator>
 			<Screen
@@ -64,7 +75,7 @@ export default function () {
 					},
 				}}
 			/>
-						<Screen
+			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}
 				options={{
@@ -91,7 +102,7 @@ export default function () {
 					),
 				}}
 			/>
-			<Screen 
+			<Screen
 				name='ChooseUserType'
 				component={ChooseUserType}
 				options={{
@@ -106,7 +117,9 @@ export default function () {
 					headerTitleAlign: "center",
 					headerLeft: () => (<></>),
 					headerRight: () => (
-						<TouchableOpacity className='pr-[10px]'>
+						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
+							userPhoto: "tora"
+						})} className='pr-[10px]'>
 							<Image
 								source={require('../../assets/default-user-image.png')}
 								className="rounded-full w-[50px] h-[50px]"
@@ -250,8 +263,8 @@ export default function () {
 				options={{
 					headerShown: false
 				}}
-			/> 
-			 <Screen
+			/>
+			<Screen
 				name='AllVeryWell'
 				component={AllVeryWell}
 				options={{
@@ -264,7 +277,7 @@ export default function () {
 				options={{
 					headerShown: false
 				}}
-			/> 
+			/>
 			<Screen
 				name='CompletedEstablishmentRegistration'
 				component={CompletedEstablishmentRegistration}
@@ -290,7 +303,7 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-							console.log({params})
+							console.log({ params })
 							navigation.navigate('ProfileSettings', {
 								userPhoto: HOST_API + params.userPhoto,
 								userID: params.userID
@@ -350,7 +363,8 @@ export default function () {
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
 							navigation.navigate('ProfileSettings', {
-								userPhoto: params.userPhoto
+								userPhoto: params.userPhoto,
+								userID: userId
 							})
 						}}>
 							<Image
@@ -471,7 +485,8 @@ export default function () {
 					headerRight: () => (
 						<TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
 							navigation.navigate('ProfileSettings', {
-								userPhoto: params.userPhoto
+								userPhoto: params.userPhoto,
+								userID: userId
 							})
 						}}>
 							<Image
@@ -522,7 +537,12 @@ export default function () {
 						</View>
 					),
 					headerRight: () => (
-						<TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
+						<TouchableOpacity
+							className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
+							onPress={() => navigation.navigate('ProfileSettings', {
+								userID: userId,
+								userPhoto: params.userPhoto
+							})}>
 							<Image
 								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
 								className='w-full h-full'
@@ -587,7 +607,7 @@ export default function () {
 					headerTitleAlign: 'center',
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>FINANCEIRO</Text>
 						</View>
 					),
 					headerRight: () => (
@@ -608,34 +628,27 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-					},headerTitleAlign: 'center',
+					}, headerTitleAlign: 'center',
 				}}
-			/> 
+			/>
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
-				options={{
-					headerTitle: 'Definir hora/valor',
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="black" />
-						</TouchableOpacity>
-					)
-				}}
 			/>
 			<Screen
 				name='CourtPriceHour'
 				component={CourtPriceHour}
 				options={{
 					headerTitle: 'Definir hora/valor',
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="black" />
-						</TouchableOpacity>
-					)
 				}}
 			/>
-
+			<Screen
+				name='CourtAvailabilityInfo'
+				component={CourtAvailabilityInfo}
+				options={{
+					headerShown: false
+				}}
+			/>
 		</Navigator>
-	);
+	)
 }
