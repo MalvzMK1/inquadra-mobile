@@ -8,19 +8,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-import useRegisterCourt from "../../../hooks/useRegisterCourt";
+import useRegisterCourt from "../../hooks/useRegisterCourt";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
-import useAvailableSportTypes from "../../../hooks/useAvailableSportTypes";
+import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import { TextInputMask } from "react-native-masked-text";
 import { ActivityIndicator } from "react-native-paper";
-import useUploadImage from "../../../hooks/useUploadImage";
-import { IUploadImageVariables } from "../../../graphql/mutations/uploadImage";
+import useUploadImage from "../../hooks/useUploadImage";
+import { IUploadImageVariables } from "../../graphql/mutations/uploadImage";
 import { da } from "date-fns/locale";
 import { HOST_API } from '@env'
 import MaskInput, { Masks } from "react-native-mask-input";
-import { useSportTypes } from "../../../hooks/useSportTypesFixed";
+import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from '@react-navigation/native'
 
@@ -51,18 +51,19 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
 
-    const addToCourtArray = (court: CourtAdd) => {
+     const addToCourtArray = async (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
         console.log(courts)
     }
 
+  
     useFocusEffect(
         React.useCallback(() => {
             setCourts(route.params.courtArray);
         }, [route.params.courtArray])
     );
 
-    function RegisterNewCourt(data: IFormDatasCourt) {
+    async function RegisterNewCourt(data: IFormDatasCourt) {
 
         let courtIDs: Array<string> = [];
 
@@ -81,11 +82,13 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
             minimum_value: Number(data.minimum_value) / 100,
             currentDate: new Date().toISOString()
         }
+        
         addToCourtArray(payload)
         
-        navigation.navigate("RegisterNewCourt", { courtArray: courts })
+        navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
     }
 
+    
     function finishingCourtsRegisters (data: IFormDatasCourt){
         let courtIDs: Array<string> = [];
 
@@ -113,6 +116,9 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
     const formSchema = z.object({
         minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
         fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
+        courtType: z.array(z.string()).refine(arr => arr.length > 0, {
+            message: "Selecione pelo menos uma modalidade."
+        }),
     })
 
 

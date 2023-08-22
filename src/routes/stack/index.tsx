@@ -40,7 +40,7 @@ import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Clie
 import DetailsAmountReceivable from '../../screens/FinancialEstablishment/Client/DetailsAmountReceivable';
 import HistoryPayment from '../../screens/FinancialEstablishment/Client/HistoryPayment';
 import RegisterNewCourt from '../../screens/RegisterCourt/Client/newCourt';
-import RegisterNewCourtAdded from '../../screens/RegisterCourt/Client/newCourtAdded';
+import RegisterNewCourtAdded from '../../screens/RegisterCourt/newCourtAdded';
 import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();

@@ -56,7 +56,7 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     }
 
     function RegisterNewCourt(data: IFormDatasCourt) {
-       
+        
         let courtIDs: Array<string> = [];
 
         selected.forEach(selectedType => {
@@ -105,10 +105,10 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     const formSchema = z.object({
         minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
         fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
+        courtType: z.array(z.string()).refine((val) => val.length > 0, {
+            message: "Selecione pelo menos uma modalidade"
+        })
     })
-
-    
-
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
         resolver: zodResolver(formSchema)
@@ -124,32 +124,6 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     }
 
     const [isLoading, setIsLoading] = useState(false)
-
-    const handleRegisterCourt = (data: IFormDatasCourt): void => {
-        setIsLoading(true)
-
-        const registerCourts = {
-            ...data,
-        }
-
-        registerCourt({
-            variables: {
-                court_name: `Quadra de ${selected[0]}`,
-                courtType: registerCourts.courtType,
-                fantasyName: registerCourts.fantasyName,
-                photos: registerCourts.photos,
-                court_availabilities: registerCourts.court_availabilities,
-                minimum_value: parseFloat(registerCourts.minimum_value)
-            }
-        }).then(value => {
-            alert(value.data?.createCourt.data.attributes.name)
-        })
-            .catch((reason) => console.error(reason))
-            .finally(() => setIsLoading(false))
-    }
-
-
-
 
     const [photos, setPhotos] = useState([]);
 

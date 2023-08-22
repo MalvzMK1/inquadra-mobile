@@ -12,13 +12,14 @@ export interface IRegisterCourtResponse{
 }
 
 export interface IRegisterCourtVariables{
-    court_name: string,
-    courtTypes: string[],
-    fantasyName: string,
-    photos: string[],
-    court_availabilities: string[],
+    court_name: string
+    courtTypes: string[]
+    fantasyName: string
+    photos: string[]
+    court_availabilities: string[]
     minimum_value: number
     current_date: string
+    establishmentId: string
 }
 
 export const registerCourtMutation = gql`
@@ -30,6 +31,7 @@ mutation newCourt(
   $court_availabilities: [ID]
   $minimum_value: Float
   $current_date: DateTime
+  $establishmentId: ID
 ) {
   createCourt(
     data: {
@@ -40,6 +42,7 @@ mutation newCourt(
       court_availabilities: $court_availabilities
       minimumScheduleValue: $minimum_value
       publishedAt: $current_date
+      establishment: $establishmentId
     }
   ) {
     data {

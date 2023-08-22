@@ -51,15 +51,17 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
 
-    const addToCourtArray = (court: CourtAdd) => {
-        setCourts(prevState => [...prevState, court]);
-    }
-
     useFocusEffect(
         React.useCallback(() => {
             setCourts(route.params.courtArray);
+            reset()
+            setSelected([])
         }, [route.params.courtArray])
     );
+
+    const addToCourtArray = (court: CourtAdd) => {
+        setCourts(prevState => [...prevState, court]);
+    }
 
     function RegisterNewCourt(data: IFormDatasCourt) {
 
@@ -81,7 +83,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
             currentDate: new Date().toISOString()
         }
         addToCourtArray(payload)
-        console.log({ courtArray: payload })
+    
 
         navigation.navigate("RegisterNewCourtAdded", { courtArray: [...courts, payload] })
     }
@@ -113,6 +115,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
     const formSchema = z.object({
         minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
         fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
+        courtType: z.string().array().min(1, "Selecione pelo menos uma modalidade")
     })
 
 

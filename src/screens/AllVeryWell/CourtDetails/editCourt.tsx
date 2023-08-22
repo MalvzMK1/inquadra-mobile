@@ -82,6 +82,9 @@ export default function editCourt({ navigation, route }: NativeStackScreenProps<
     const formSchema = z.object({
         minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
         fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
+        courtType: z.array(z.string()).refine(arr => arr.length > 0, {
+            message: "Selecione pelo menos uma modalidade."
+        }),
     })
 
 
@@ -105,8 +108,6 @@ export default function editCourt({ navigation, route }: NativeStackScreenProps<
     const [selected, setSelected] = useState<Array<string>>([]);
 
    
-    console.log(courts[indexCourtEdit].minimum_value.toFixed(2))
-
     const handleProfilePictureUpload = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -256,7 +257,7 @@ export default function editCourt({ navigation, route }: NativeStackScreenProps<
                         <Controller
                             name='minimum_value'
                             control={control}
-                            defaultValue={"R$"+courts[indexCourtEdit].minimum_value.toFixed(2).toString()}
+                            defaultValue={(courts[indexCourtEdit].minimum_value * 100).toString()}
                             render={({ field: { onChange, value } }) => (
                                 <MaskInput
                                     mask={Masks.BRL_CURRENCY}
