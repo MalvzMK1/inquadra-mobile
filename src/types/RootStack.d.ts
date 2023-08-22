@@ -11,11 +11,17 @@ type RootStackParamList = {
 		userPhoto: string | undefined,
 		userID: string
 	}
-	DeleteAccountEstablishment: undefined;
-	InfoProfileEstablishment: undefined;
+	DeleteAccountEstablishment: {
+		establishmentName: string | undefined
+	};
+	InfoProfileEstablishment: {
+		userPhoto: string
+	}
 	FinancialEstablishment: undefined;
 	CourtPriceHour: undefined;
-	EditCourt: undefined;
+	EditCourt: {
+		courtId: string | undefined
+	};
 	Schedulings: undefined
 	ChooseUserType: undefined;
 	Register: undefined;
@@ -64,7 +70,7 @@ type RootStackParamList = {
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
-		courtID: string,
+		establishmentID: string,
 		userPhoto: string | undefined,
 	};
 	CourtAvailabilityInfo: {

@@ -22,6 +22,7 @@ import { HOST_API } from '@env'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFocusEffect } from '@react-navigation/native'
 
 interface CourtArrayObject {
     court_name: string,
@@ -32,7 +33,6 @@ interface CourtArrayObject {
     minimum_value: number,
     currentDate: string
 }
-
 
 type CourtTypes = Array<{ label: string, value: string }>;
 
@@ -49,13 +49,18 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
-
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
-
 
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
+        console.log(courts)
     }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourts(route.params.courtArray);
+        }, [route.params.courtArray])
+    );
 
     function RegisterNewCourt(data: IFormDatasCourt) {
 
@@ -77,10 +82,10 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
             currentDate: new Date().toISOString()
         }
         addToCourtArray(payload)
-        console.log({ courtArray: payload })
-        navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
+        
+        navigation.navigate("RegisterNewCourt", { courtArray: courts })
     }
-    
+
     function finishingCourtsRegisters (data: IFormDatasCourt){
         let courtIDs: Array<string> = [];
 
@@ -111,7 +116,7 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
     })
 
 
-    const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
+    const { control, handleSubmit, formState: { errors }, getValues, reset } = useForm<IFormDatasCourt>({
         resolver: zodResolver(formSchema)
     });
 

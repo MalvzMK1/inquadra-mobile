@@ -11,13 +11,22 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
 import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
 import {HOST_API} from '@env';
+import storage from '../../utils/storage'
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 
+let userId: string
+
+storage.load({
+    key: 'userInfos'
+}).then(data => {
+    userId = data.userId
+})
+
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
-    const EstablishmentInfos = useGetEstablishmentByCourtId(route.params.courtID)
+    const {data: establishmentData, loading: establishmentLoading, error: establishmentError} = useGetEstablishmentByCourtId(route.params.establishmentID)
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
 
     const [userLocation, setUserLocation] = useState({
@@ -25,7 +34,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         longitude: 0
     })
     const [Establishment, setEstablishment] = useState<{
-        id: number
+        id: string
         corporateName: string,
         cellPhoneNumber: string,
         streetName: string,
@@ -33,9 +42,8 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         latitude: number,
         longitude: number,
         photosAmenitie: Array<string>,
-        type: string
+        type?: string
     }>()
-    const [userId, setUserId] = useState<string>()
 
     const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(userId)
 
@@ -46,44 +54,56 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     const [footerHeartColor, setFooterHeartColor] = useState("white")
 
     const [Court, setCourt] = useState<Array<{
-        id: number,
+        id: string,
         name: string,
         rating: number,
         court_type: string,
-        court_availabilities: boolean | undefined
+        court_availabilities: boolean
         photo: string,
     }>>([])
 
     useEffect(() => {
-        const infosEstablishment = EstablishmentInfos.data?.court.data.attributes.establishment.data
-        if (!EstablishmentInfos.error && !EstablishmentInfos.loading) {
-            const courts = infosEstablishment.attributes.courts.data.map((court: any) => {
-                return {
-                    id: court.id,
-                    name: court.attributes.name,
-                    rating: court.attributes.rating,
-                    court_type: court.attributes.court_type.data.attributes.name,
-                    court_availabilities: court.attributes.court_availabilities.data[0],
-                    photo: HOST_API + court.attributes.photo.data[0].attributes.url,
+        if (!error && !loading) {
+            if (establishmentData) {
+                const infosEstablishment = establishmentData.establishment.data
+                const courts = infosEstablishment.attributes.courts.data.map(court => {
+                    console.log({COURT_ID: court.attributes.photo.data[0].attributes.url})
+                    return {
+                        id: court.id,
+                        name: court.attributes.name,
+                        rating: court.attributes.rating ? court.attributes.rating : 0,
+                        court_type: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
+                        court_availabilities: court.attributes.court_availabilities.data.length > 0,
+                        photo: HOST_API + court.attributes.photo.data[0].attributes.url,
+                    }
+                })
+
+
+                // TODO: IMPLEMENT LOGO ATTRIBUTE IN THE DATABASE SO IT ISN'T FIXED IN THE LAST INDEX
+                const lastPhotoIndex = infosEstablishment.attributes.photos.data.length - 1;
+
+                const establishment = {
+                    id: infosEstablishment.id,
+                    corporateName: infosEstablishment.attributes.corporateName,
+                    cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
+                    streetName: infosEstablishment.attributes.address.streetName,
+                    latitude: Number(infosEstablishment.attributes.address.latitude),
+                    longitude: Number(infosEstablishment.attributes.address.longitude),
+                    photo: HOST_API + infosEstablishment.attributes.photos.data[lastPhotoIndex].attributes.url,
+                    photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
+                        if (index !== lastPhotoIndex)
+                            return HOST_API + photo.attributes.url
+                    }),
+                    type: courts.map(court => court.court_type).join(', ')
                 }
-            })
-            const establishment = {
-                id: infosEstablishment.id,
-                corporateName: infosEstablishment.attributes.corporateName,
-                cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
-                type: infosEstablishment.attributes.type,
-                streetName: infosEstablishment.attributes.address.streetName,
-                latitude: infosEstablishment.attributes.address.latitude,
-                longitude: infosEstablishment.attributes.address.longitude,
-                photo: HOST_API + infosEstablishment.attributes.photos.data[0].attributes.url,
-                photosAmenitie: infosEstablishment.attributes.photosAmenitie.data.map((photo: { attributes: { url: string } }) => HOST_API + photo.attributes.url)
-            }
-            setEstablishment(establishment)
-            if (courts) {
-                setCourt((prevCourts) => [...prevCourts, ...courts])
+
+                setEstablishment(establishment)
+                if (courts) {
+                    setCourt(prevState => [...prevState, ...courts])
+                }
             }
         }
-    }, [EstablishmentInfos.data, EstablishmentInfos.loading])
+    }, [establishmentData])
 
     const onShare = async () => {
         try {
@@ -99,14 +119,15 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     useEffect(() => {
 
         if (!FavoriteEstablishment.error && !FavoriteEstablishment.loading) {
-            const favoriteEstablishmentId = FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
-                (establishment) => {
-                    return { id: establishment.id }
-                }
-            )
-            if (favoriteEstablishmentId) {
-                setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
-            }
+            // const favoriteEstablishmentId = FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+            //     (establishment) => {
+            //         return { id: establishment.id }
+            //     }
+            // )
+            // if (favoriteEstablishmentId) {
+            //     setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
+            // }
+
         }
 
     }, [FavoriteEstablishment.error, FavoriteEstablishment.loading]);

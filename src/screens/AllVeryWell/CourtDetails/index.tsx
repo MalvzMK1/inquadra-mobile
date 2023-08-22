@@ -7,7 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 import useRegisterCourt from '../../../hooks/useRegisterCourt';
-
+import { BackHandler } from 'react-native';
+import { CommonActions } from '@react-navigation/native'; // Importe CommonActions
 
 
 interface CourtArrayObject {
@@ -61,17 +62,20 @@ export default function CourtDetails({ navigation, route }: NativeStackScreenPro
         }
     };
 
+useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      sendUpdatedDataBack();
+      return true;
+    });
 
-    // const sendUpdatedDataBack = () => {
-    //     navigation.navigate('AllVeryWell', { courtArray: courts });
-    // };
-    
-    // useEffect(() => {
-    //     navigation.addListener('beforeRemove', (e) => {
-    //         sendUpdatedDataBack();
-    //     });
-    // }, [courts, navigation]);
+    return () => {
+      backHandler.remove();
+    };
+  }, [courts]);
 
+  const sendUpdatedDataBack = () => {
+    navigation.navigate('AllVeryWell', { courtArray: courts });
+  };
 
     return (
         <View className='flex-1'>
@@ -85,7 +89,7 @@ export default function CourtDetails({ navigation, route }: NativeStackScreenPro
                                 <View className='w-4/6 pr-5'>
                                     <View className='flex flex-row pr-2'>
                                         <Text className='text-[#FF6112] font-bold pl-2 flex-grow'>{court.fantasyName}</Text>
-                                        <Ionicons name="pencil" size={20} color="#FF6112" onPress={() => {navigation.navigate('editCourt', {courtArray: courts, indexCourtArray: index})}}/>
+                                        <Ionicons name="pencil" size={20} color="#FF6112" onPress={() => { navigation.navigate('editCourt', { courtArray: courts, indexCourtArray: index }) }} />
                                     </View>
                                     <Text className='text-white font-bold pl-2'>Valor inicial: {court.minimum_value} reais</Text>
                                     <Text className='text-white font-bold pl-2'>Locação de: Terça a Domingo</Text>

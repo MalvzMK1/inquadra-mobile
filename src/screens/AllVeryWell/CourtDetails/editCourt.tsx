@@ -14,6 +14,8 @@ import { ActivityIndicator } from "react-native-paper";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFocusEffect } from '@react-navigation/native'
+
 
 interface CourtArrayObject {
     court_name: string,
@@ -37,9 +39,6 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
     const indexCourtEdit = route.params.indexCourtArray
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
 
-    const addToCourtArray = (court: CourtAdd) => {
-        setCourts(prevState => [...prevState, court]);
-    }
 
     async function updateCourtsAtIndex(index:number, newValue: CourtArrayObject) {
         const updatedCourts = [...courts];
@@ -47,9 +46,6 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         return updatedCourts
     }
     
-    
-
-
     async function finishingCourtsRegisters(data: IFormDatasCourt) {
         let courtIDs: Array<string> = [];
 
@@ -71,7 +67,6 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
         const updatedArray = await updateCourtsAtIndex(indexCourtEdit, updatedCourt);
         
-        // Realizar a navegação após a atualização do estado
         navigation.navigate("CourtDetails", { courtArray: updatedArray });
     }
 
@@ -150,6 +145,12 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
         setCourtTypes(newCourtTypes);
     }, [dataSportTypeAvaible, loadingSportTypeAvaible])
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourts(route.params.courtArray);
+        }, [route.params.courtArray])
+    ); 
 
     return (
         <ScrollView className="h-fit bg-white flex-1">

@@ -16,7 +16,6 @@ storage.load<UserInfos>({
 
 const authLink = new ApolloLink((operation, forward) => {
 	const token = jwt;
-
 	const requiresAuth = operation.operationName === "userLogin";
 
 	if (!requiresAuth) {
@@ -34,8 +33,6 @@ const authLink = new ApolloLink((operation, forward) => {
 const link = ApolloLink.from([authLink, httpLink]);
 
 export const client = new ApolloClient({
-	link: link,
+	link: authLink.concat(link),
 	cache: new InMemoryCache(),
 });
-
-console.log(link)

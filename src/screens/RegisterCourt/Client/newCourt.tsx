@@ -22,6 +22,7 @@ import { HOST_API } from '@env'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFocusEffect } from '@react-navigation/native'
 
 interface CourtArrayObject {
     court_name: string,
@@ -48,12 +49,17 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
-
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
 
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
     }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourts(route.params.courtArray);
+        }, [route.params.courtArray])
+    );
 
     function RegisterNewCourt(data: IFormDatasCourt) {
 
@@ -110,7 +116,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
     })
 
 
-    const { control, handleSubmit, formState: { errors }, getValues } = useForm<IFormDatasCourt>({
+    const { control, handleSubmit, formState: { errors }, getValues, reset } = useForm<IFormDatasCourt>({
         resolver: zodResolver(formSchema)
     });
 
