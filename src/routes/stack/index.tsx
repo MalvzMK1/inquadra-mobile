@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
@@ -628,7 +628,11 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-					}, headerTitleAlign: 'center',
+						height: 100,
+						backgroundColor: '#292929',
+					}, 
+					headerTitleAlign: 'center',
+					title:"Detalhes"
 				}}
 			/>
 			<Screen
