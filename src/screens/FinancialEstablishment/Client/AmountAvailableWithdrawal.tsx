@@ -3,24 +3,28 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 import { SimpleLineIcons } from '@expo/vector-icons';
-import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker"
 import CardDetailsPaymentHistoric from "../../../components/CardDetailsPaymentHistoric";
 import { useFocusEffect } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function AmountAvailableWithdrawal() {
+interface Props extends NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'> {
+	establishmentId: string
+}
+
+export default function AmountAvailableWithdrawal({route}: Props) {
+    
     const currentDate = new Date();
     const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
-    const [showDatePicker, setShowDatePicker] = useState(false)
-    const [date, setDate] = useState(new Date())
     const [infosHistoric, setInfosHistoric] = useState<Array<{
         username: string;
         valuePayed: number;
         date: string
     }>>()
 
-    const { data, loading, error } = useGetUserHistoricPayment("5")
+    const establishmentId = route.params.establishmentId
+    const { data, loading, error } = useGetUserHistoricPayment(establishmentId)
 
-
+    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -78,16 +82,6 @@ export default function AmountAvailableWithdrawal() {
         }, [error, loading])
     )
 
-    const handleDatePicker = () => {
-        setShowDatePicker(true)
-    }
-    const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-        setShowDatePicker(false);
-        if (selectedDate) {
-            setDate(selectedDate);
-        }
-    }
-
     function isAvailableForWithdrawal() {
         const currentDate = new Date();
 
@@ -99,9 +93,7 @@ export default function AmountAvailableWithdrawal() {
 
         return datesFilter;
     }
-
-
-
+    
     return (
         <View className="flex-1">
             <ScrollView>
@@ -110,18 +102,10 @@ export default function AmountAvailableWithdrawal() {
                         <View className="pt-6 flex flex-row justify-between">
                             <Text className="text-lg font-bold">Valores disponíveis</Text>
                         </View>
-                        <TouchableOpacity className="mt-2 flex flex-row" onPress={handleDatePicker}>
+                        <View className="mt-2 flex flex-row">
                             <AntDesign name="calendar" size={20} color="gray" />
-                            <Text className="text-base text-gray-500 underline">{date.getDate().toString().padStart(2, '0')}/{(date.getMonth() + 1).toString().padStart(2, '0')}</Text>
-                        </TouchableOpacity>
-                        {showDatePicker && (
-                            <DateTimePicker
-                                value={date}
-                                mode="date"
-                                maximumDate={new Date()}
-                                onChange={handleDateChange}
-                            />
-                        )}
+                            <Text className="text-base text-gray-500">{currentDate.getDate().toString().padStart(2, '0')}/{(currentDate.getMonth() + 1).toString().padStart(2, '0')}</Text>
+                        </View>
                         <View>
                             <Text className="text-base text-gray-500 mt-1">Saldo total disponível para saque: R$
                                 {
@@ -132,12 +116,10 @@ export default function AmountAvailableWithdrawal() {
                         <View>
                             {
                                 infosHistoric?.map((card) => {
-                                    const currentDate = date;
-                                    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+                                    const currentDate = new Date();
+                                    const cardDate = new Date(card.date.split("T")[0]);
 
-                                    const cardDate = card.date.split("T")[0];
-
-                                    if (cardDate === formattedDate) {
+                                    if (cardDate <= currentDate) {
                                         return <CardDetailsPaymentHistoric
                                             username={card.username}
                                             valuePayed={card.valuePayed}

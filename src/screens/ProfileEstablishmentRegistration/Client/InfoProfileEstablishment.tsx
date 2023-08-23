@@ -434,7 +434,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     const findCourt = courtsJson.find(courtItem => courtItem.courtName === selectedCourt)
     
     navigation.navigate('EditCourt', {
-      courtId: findCourt?.id
+      courtId: findCourt?.id,
+      userPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url
     })
   }
 

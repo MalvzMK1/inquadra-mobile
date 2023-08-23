@@ -25,7 +25,8 @@ export default function FinancialEstablishment() {
         endsAt: string
     }>>()
 
-    const { data, loading, error } = useGetUserHistoricPayment("5")
+    const establishmentId = "5"
+    const { data, loading, error } = useGetUserHistoricPayment(establishmentId)
 
     useFocusEffect(
         React.useCallback(() => {
@@ -145,7 +146,9 @@ export default function FinancialEstablishment() {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("AmountAvailableWithdrawal")}>
+                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("AmountAvailableWithdrawal", {
+                            establishmentId: establishmentId
+                        })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
                         </TouchableOpacity>
                     </View>
@@ -156,9 +159,11 @@ export default function FinancialEstablishment() {
                                 <Text className="text-white text-3xl font-extrabold text-center">R$ {valueCollected ? isAvailableForWithdrawal().futureDates.reduce((total, current) => total + current.valuePayment, 0) : 0}</Text>
                             </View>
                         </View>
-                        <View className="bg-[#FF6112] h-7 rounded flex items-center justify-center">
+                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("DetailsAmountReceivable", {
+                            establishmentId: establishmentId
+                        })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
-                        </View>
+                        </TouchableOpacity>
                         <View className="pt-6 flex flex-row justify-between">
                             <Text className="text-lg font-bold">Valores recebidos</Text>
                             <Text className="text-lg font-bold underline text-[#FF6112]">Histórico</Text>
