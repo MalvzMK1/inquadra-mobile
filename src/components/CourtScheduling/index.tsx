@@ -7,6 +7,7 @@ type CourtSchedulingT = {
     startsAt: string
     endsAt: string
     status: SchedulingStatus
+    id: string
 }
 
 export default function CourtScheduling(props: CourtSchedulingT) {
@@ -42,7 +43,9 @@ export default function CourtScheduling(props: CourtSchedulingT) {
             <TouchableOpacity
                 className={`${props.status == "Active" ? "bg-[#FF6112]" : "bg-button-dull-gray-color"} h-[35px] w-[65px] items-center justify-center rounded-[5px]`}
                 onPress={() => {
-                    props.status == "Active" ? navigation.navigate("CancelScheduling") : ""
+                    props.status == "Active" ? navigation.navigate("CancelScheduling", {
+                        scheduleID: props.id
+                    }) : ""
                 }}>
                 <Text className={`text-center font-bold text-[11px] text-white ${props.status == "Active" ? "opacity-100" : "opacity-50"}`}>Cancelar reserva</Text>
             </TouchableOpacity>
