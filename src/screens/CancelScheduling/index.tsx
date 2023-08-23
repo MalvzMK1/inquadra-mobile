@@ -60,8 +60,6 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 		if (newCourtType) setCourtType(newCourtType);
 	}, [data])
 
-	console.log('AQUI')
-
 	return (
 		<View className="h-full w-full pl-[30px] pr-[30px] pt-[20px]">
 			{
