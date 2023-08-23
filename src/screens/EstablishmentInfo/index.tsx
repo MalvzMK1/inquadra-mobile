@@ -35,10 +35,6 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         longitude: 0
     })
 
-    storage.load<{latitude: string, longitude: string}>({
-        key: 'userGeolocation'
-    }).then(response => setUserLocation({latitude: Number(response.latitude), longitude: Number(response.longitude)}))
-
     const [Establishment, setEstablishment] = useState<{
         id: string
         corporateName: string,
@@ -209,6 +205,12 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
 
         calculateRating();
     }, [Court]);
+
+    useEffect(() => {
+        storage.load<{latitude: string, longitude: string}>({
+            key: 'userGeolocation'
+        }).then(response => setUserLocation({latitude: Number(response.latitude), longitude: Number(response.longitude)}))
+    }, [])
 
     return (
         <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
