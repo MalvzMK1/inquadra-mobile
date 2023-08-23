@@ -2,8 +2,9 @@ import { View, Text, Image, ScrollView } from "react-native"
 import CourtSchedulingContainer from "../../components/CourtSchedulingContainer"
 import { BottomNavigationBar } from "../../components/BottomNavigationBar"
 import CourtScheduling from "../../components/CourtScheduling"
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
-export default function Schedulings() {
+export default function Schedulings({navigation, route}: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
     const currentDate = new Date().toISOString().split("T")[0];
 
     return (
@@ -20,6 +21,7 @@ export default function Schedulings() {
                 >
                     <View>
                         <CourtScheduling
+                            id={'1'}
                             name="Quadra Fênix"
                             startsAt="17:00h"
                             endsAt="18:00h"
@@ -27,6 +29,7 @@ export default function Schedulings() {
                         />
 
                         <CourtScheduling
+                            id={'2'}
                             name="Quadra Fênix"
                             startsAt="17:00h"
                             endsAt="18:00h"
@@ -38,8 +41,9 @@ export default function Schedulings() {
             </ScrollView>
 
             <BottomNavigationBar
-                establishmentScreen={true}
-                playerScreen={false}
+                establishmentScreen
+                userID={'1'}
+                userPhoto={'https'}
             />
         </View>
     )
