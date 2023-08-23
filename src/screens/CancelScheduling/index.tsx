@@ -1,6 +1,6 @@
 import {View, Text, TextInput, Modal, Image, ActivityIndicator} from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { CancelSchedulingInfo } from "../../components/CancelSchedulingInfo";
 import { Button } from "react-native-paper";
@@ -10,9 +10,10 @@ import useCancelSchedule from "../../hooks/useCancelSchedule";
 
 export default function CancelScheduling({route, navigation}: NativeStackScreenProps<RootStackParamList, 'CancelScheduling'>) {
 	const {data, loading, error} = useGetSchedulingsDetails(route.params.scheduleID);
-	const [cancelSchedule, canceledScheduleResponse] = useCancelSchedule()
-
-	const [cancelReason, setCancelReason] = useState("")
+	const [cancelSchedule] = useCancelSchedule();
+	const [courtName, setCourtName] = useState<string>('');
+	const [courtType, setCourtType] = useState<string>('');
+	const [cancelReason, setCancelReason] = useState<string>("")
 	const maxLength: number = 200
 
 	const [showConfirmCancel, setShowConfirmCancel] = useState(false)
@@ -38,6 +39,29 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 		})
 	}
 
+	useEffect(() => {
+		let newCourtName: string | undefined = undefined;
+		let newCourtType: string | undefined = undefined;
+
+		if (
+			data &&
+			data.scheduling.data &&
+			data.scheduling.data.attributes.court_availability.data &&
+			data.scheduling.data.attributes.court_availability.data.attributes.court.data &&
+			data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data
+		) {
+			newCourtType = data?.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.court_types.data.map(courtType => {
+				return courtType.attributes.name
+			}).join(', ');
+			newCourtName = 'Quadra de ' + newCourtType;
+		}
+
+		if (newCourtName) setCourtName(newCourtName);
+		if (newCourtType) setCourtType(newCourtType);
+	}, [data])
+
+	console.log('AQUI')
+
 	return (
 		<View className="h-full w-full pl-[30px] pr-[30px] pt-[20px]">
 			{
@@ -54,12 +78,12 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 									data.scheduling.data.attributes.owner.data &&
 									data.scheduling.data.attributes.court_availability.data &&
 									data.scheduling.data.attributes.court_availability.data.attributes.court.data &&
-									data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_type.data
+									data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data
 								) ?
 									<CancelSchedulingInfo
 										userName={data.scheduling.data.attributes.owner.data.attributes.username}
-										courtName={data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_type.data.attributes.name}
-										courtType={data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_type.data.attributes.name}
+										courtName={courtName}
+										courtType={courtType}
 										startsAt={data.scheduling.data.attributes.court_availability.data.attributes.startsAt}
 										endsAt={data?.scheduling.data.attributes.court_availability.data.attributes.endsAt}
 										price={data.scheduling.data.attributes.court_availability.data.attributes.value}
