@@ -30,7 +30,7 @@ interface CourtArrayObject {
 
 type CourtTypes = Array<{ label: string, value: string }>;
 export default function EditCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'editCourt'>) {
-    
+
     const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
@@ -40,12 +40,12 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
 
 
-    async function updateCourtsAtIndex(index:number, newValue: CourtArrayObject) {
+    async function updateCourtsAtIndex(index: number, newValue: CourtArrayObject) {
         const updatedCourts = [...courts];
         updatedCourts[index] = newValue;
         return updatedCourts
     }
-    
+
     async function finishingCourtsRegisters(data: IFormDatasCourt) {
         let courtIDs: Array<string> = [];
 
@@ -66,14 +66,14 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         };
 
         const updatedArray = await updateCourtsAtIndex(indexCourtEdit, updatedCourt);
-        
+
         navigation.navigate("CourtDetails", { courtArray: updatedArray });
     }
 
 
     const formSchema = z.object({
-        minimum_value: z.string({ required_error: "É necessário determinar um valor mínimo." }),
-        fantasyName: z.string({ required_error: "Diga um nome fantasia." }),
+        minimum_value: z.string().nonempty("É necessário determinar um valor mínimo."),
+        fantasyName: z.string().nonempty("Diga um nome fantasia.")
     })
 
 
@@ -94,10 +94,10 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
     const [photos, setPhotos] = useState([]);
 
+    const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false)
+
     const [selected, setSelected] = useState<Array<string>>([]);
 
-   
-    console.log(courts[indexCourtEdit].minimum_value.toFixed(2))
 
     const handleProfilePictureUpload = async () => {
         try {
@@ -150,7 +150,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         React.useCallback(() => {
             setCourts(route.params.courtArray);
         }, [route.params.courtArray])
-    ); 
+    );
 
     return (
         <ScrollView className="h-fit bg-white flex-1">
@@ -184,14 +184,18 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                                 />
                             )}
                         />
-                        {errors?.courtType?.message && <Text className='text-red-400 text-sm'>{errors.courtType.message}</Text>}
+                       {
+                            isCourtTypeEmpty === true
+                                ? <Text className='text-red-400 text-sm'>É necessário inserir pelo menos um tipo de quadra</Text>
+                                : null
+                        }
                     </View>
                     <View>
                         <Text className='text-xl p-1'>Nome fantasia da quadra?</Text>
                         <Controller
                             name='fantasyName'
                             control={control}
-                            defaultValue= {courts[indexCourtEdit].fantasyName}
+                            defaultValue={courts[indexCourtEdit].fantasyName}
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
                                     className='p-5 border border-neutral-400 rounded'
@@ -248,7 +252,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                         <Controller
                             name='minimum_value'
                             control={control}
-                            defaultValue={"R$"+courts[indexCourtEdit].minimum_value.toFixed(2).toString()}
+                            defaultValue={(courts[indexCourtEdit].minimum_value * 100).toString()}
                             render={({ field: { onChange, value } }) => (
                                 <MaskInput
                                     mask={Masks.BRL_CURRENCY}
@@ -263,9 +267,16 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
                         {errors.minimum_value && <Text className='text-red-400 text-sm'>{errors.minimum_value.message}</Text>}
 
-                    </View>           
+                    </View>
                     <View>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={handleSubmit(finishingCourtsRegisters)}>
+                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => {
+                            if (selected.length === 0) {
+                                setIsCourtTypeEmpty(true);
+                            } else {
+                                setIsCourtTypeEmpty(false);
+                                handleSubmit(finishingCourtsRegisters)();
+                            }
+                        }}>
                             <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size="small" color='#F5620F' /> : 'Concluir'}</Text>
                         </TouchableOpacity>
                     </View>

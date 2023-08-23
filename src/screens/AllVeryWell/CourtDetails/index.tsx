@@ -48,7 +48,8 @@ export default function CourtDetails({ navigation, route }: NativeStackScreenPro
                             photos: court.photos,
                             court_availabilities: court.court_availabilities,
                             minimum_value: court.minimum_value,
-                            current_date: new Date().toISOString()
+                            current_date: new Date().toISOString(),
+                            establishmentId: '6'
                         }
                     });
                     console.log("Deu bom");

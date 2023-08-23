@@ -6,12 +6,13 @@ import Carousel from "react-native-snap-carousel"
 import { CourtCard } from "../../components/CourtCardInfo"
 import useGetEstablishmentByCourtId from "../../hooks/useGetEstablishmentByCourtId"
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import getDistanceFromLatLonInKm from '../../utils/distanceCalculator'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
 import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
 import {HOST_API} from '@env';
 import storage from '../../utils/storage'
+import {calculateDistance} from "../../utils/calculateDistance";
+import {EstablishmentByCourtIdQuery} from "../../graphql/queries/EstablishmentByCourtId";
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
@@ -33,6 +34,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         latitude: 0,
         longitude: 0
     })
+
     const [Establishment, setEstablishment] = useState<{
         id: string
         corporateName: string,
@@ -89,10 +91,9 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     streetName: infosEstablishment.attributes.address.streetName,
                     latitude: Number(infosEstablishment.attributes.address.latitude),
                     longitude: Number(infosEstablishment.attributes.address.longitude),
-                    photo: HOST_API + infosEstablishment.attributes.photos.data[lastPhotoIndex].attributes.url,
+                    photo: HOST_API + infosEstablishment.attributes.logo.data.attributes.url,
                     photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
-                        if (index !== lastPhotoIndex)
-                            return HOST_API + photo.attributes.url
+                        return HOST_API + photo.attributes.url
                     }),
                     type: courts.map(court => court.court_type).join(', ')
                 }
@@ -119,14 +120,15 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     useEffect(() => {
 
         if (!FavoriteEstablishment.error && !FavoriteEstablishment.loading) {
-            // const favoriteEstablishmentId = FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
-            //     (establishment) => {
-            //         return { id: establishment.id }
-            //     }
-            // )
-            // if (favoriteEstablishmentId) {
-            //     setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
-            // }
+            const favoriteEstablishmentId = FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+                (establishment) => {
+                    return { id: establishment.id }
+                }
+            )
+            if (favoriteEstablishmentId) {
+                console.log(favoriteEstablishmentId)
+                setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
+            }
 
         }
 
@@ -136,30 +138,6 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         const isFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
         setHeart(isFavorite);
     }, [arrayfavoriteEstablishment, Establishment?.id]);
-
-    useEffect(() => {
-        async function fetchData() {
-            await AsyncStorage.getItem("userGeolocation").then((value) => {
-                if (value) {
-                    const geolocationData = JSON.parse(value)
-                    const latitude = geolocationData.rawData.latitude
-                    const longitude = geolocationData.rawData.longitude
-                    setUserLocation({
-                        latitude: latitude,
-                        longitude: longitude
-                    })
-                }
-            })
-            await AsyncStorage.getItem("userInfos").then((value) => {
-                if (value) {
-                    const userID = JSON.parse(value)
-                    setUserId(userID.rawData.userId)
-                }
-            })
-
-        }
-        fetchData()
-    }, [])
 
     const handlePressFavoriteEstablishment = () => {
         const isCurrentlyFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
@@ -186,7 +164,23 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
 
 
     if (Establishment) {
-        distance = getDistanceFromLatLonInKm(Establishment?.latitude, Establishment?.longitude, userLocation.latitude, userLocation.longitude)
+        distance = calculateDistance(
+          Establishment?.latitude,
+          Establishment?.longitude,
+          userLocation.latitude,
+          userLocation.longitude
+        ) / 1000
+
+        console.log({
+            result: calculateDistance(
+                Establishment.latitude,
+                Establishment.longitude,
+                userLocation.latitude,
+                userLocation.longitude,
+            ) / 1000,
+            establishment: {lat: Establishment.latitude, long: Establishment.longitude},
+            user: userLocation
+        })
     }
 
     const uniqueCourtTypes = [...new Set(Court.map((court) => court.court_type))];
@@ -211,6 +205,12 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
 
         calculateRating();
     }, [Court]);
+
+    useEffect(() => {
+        storage.load<{latitude: string, longitude: string}>({
+            key: 'userGeolocation'
+        }).then(response => setUserLocation({latitude: Number(response.latitude), longitude: Number(response.longitude)}))
+    }, [])
 
     return (
         <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
@@ -275,6 +275,8 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                         {Court.filter((court) => court.court_type === type).map((court) => (
                             <CourtCard
                                 key={court.id}
+                                id={court.id}
+                                userId={userId}
                                 availabilities={court.court_availabilities}
                                 image={court.photo}
                                 name={court.name}

@@ -23,7 +23,7 @@ export default function CardPaymentHistoric(props: InfosPayment) {
                 </View>
                 <View className="flex justify-center self-start ml-3">
                     <Text className="text-xl font-bold">{props.username}</Text>
-                    <Text className="text-base">{props.courtName} - {parseFloat(endsAt[0]) - parseFloat(startsAt[0])}h{parseFloat(endsAt[1]) - parseFloat(startsAt[1])}m</Text>
+                    <Text className="text-base">{props.courtName} - {parseFloat(endsAt[0]) - parseFloat(startsAt[0])}h{Math.abs(parseFloat(endsAt[1]) - parseFloat(startsAt[1])).toString().padStart(2, '0')}m</Text>
                 </View>
             </View>
             <View className="justify-center">
