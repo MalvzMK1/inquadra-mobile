@@ -70,10 +70,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     const formSchema = z.object({
-        value: z.string({ required_error: "É necessário inserir um valor" }).min(1),
-        name: z.string({ required_error: "É necessário inserir o nome" }).max(29, { message: "Só é possivel digitar até 30 caracteres" }),
-        cpf: z.string({ required_error: "É necessário inserir o CPF" }).max(15, { message: "CPF invalido" }).refine(isValidCPF, { message: "CPF inválido" }),
-        cvv: z.string({ required_error: "É necessário inserir um CVV" }).max(3, { message: "Só é possivel digitar até 3 caracteres" }).min(3, { message: "O minimo são 3 caracteres" }),
+        value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value, context) => {
+            const schedulingAmount = valueDisponibleToPay;
+            const parsedValue = parseFloat(value.replace(/[^\d,.]/g, '').replace(',', '.'));
+
+            if (isNaN(parsedValue)) {
+                return false;
+            }
+
+            return parsedValue <= schedulingAmount;
+        }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueDisponibleToPay}`),
+        name: z.string().nonempty("É necessário inserir o nome").max(29, "Só é possível digitar até 30 caracteres"),
+        cpf: z.string().nonempty("É necessário inserir o CPF").max(15, "CPF inválido").refine(isValidCPF, "CPF inválido"),
+        cvv: z.string().nonempty("É necessário inserir um CVV").max(3, "Só é possível digitar até 3 caracteres").min(3, "O mínimo são 3 caracteres"),
         date: z.string().refine((value) => {
             const [month, year] = value.split('/');
             const currentDate = new Date();
@@ -83,13 +92,10 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 return false;
             }
 
-            if (inputDate.getTime() <= currentDate.getTime()) {
-                return false;
-            }
+            return inputDate.getTime() > currentDate.getTime();
+        }, "A data de vencimento é inválida"),
+    });
 
-            return true;
-        }, { message: "A data de vencimento é inválida" }),
-    })
 
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
@@ -116,9 +122,18 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     };
 
     const formSchemaPixPayment = z.object({
-        value: z.string({ required_error: "É necessário inserir um valor" }).min(1),
-        name: z.string({ required_error: "É necessário inserir o nome" }).max(29, { message: "Só é possivel digitar até 30 caracteres" }),
-        cpf: z.string({ required_error: "É necessário inserir o CPF" }).max(15, { message: "CPF invalido" }).refine(isValidCPF, { message: "CPF inválido" })
+        value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value, context) => {
+            const schedulingAmount = valueDisponibleToPay;
+            const parsedValue = parseFloat(value.replace(/[^\d,.]/g, '').replace(',', '.'));
+
+            if (isNaN(parsedValue)) {
+                return false;
+            }
+
+            return parsedValue <= schedulingAmount;
+        }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueDisponibleToPay}`),
+        name: z.string().nonempty("É necessário inserir o nome").max(29, "Só é possível digitar até 30 caracteres"),
+        cpf: z.string().nonempty("É necessário inserir o CPF").max(15, "CPF inválido").refine(isValidCPF, "CPF inválido"),
     })
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<iFormCardPayment>({
