@@ -45,18 +45,19 @@ export default function Login() {
 
 	useEffect(() => {
 		if (!isLoading && userId && userData) {
-			if (roleUser === "3") {
-				navigation.navigate('Home', {
-					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-					userID: userId,
-					userPhoto: undefined
-				});
-			} else if (roleUser === "4") {
-				navigation.navigate('HomeEstablishment', {
-					userID: userId,
-					userPhoto: undefined
-				});
-			}
+			console.log(roleUser)
+			// if (roleUser === "3") {
+			// 	navigation.navigate('Home', {
+			// 		userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+			// 		userID: userId,
+			// 		userPhoto: undefined
+			// 	});
+			// } else if (roleUser === "4") {
+			// 	navigation.navigate('HomeEstablishment', {
+			// 		userID: userId,
+			// 		userPhoto: undefined
+			// 	});
+			// }
 		}
 	}, [roleUser, isLoading]);
 
@@ -107,17 +108,18 @@ export default function Login() {
 						key: 'userInfos',
 						data: {
 							jwt: undefined,
-							userId: 2,
+							userId: 1,
 						},
+						expires: 1000 * 3600
 					}).then(() => {
 						storage.load<UserInfos>({
 							key: 'userInfos'
 						}).then(response => {
-							navigation.navigate('Home', {
-								userGeolocation: userGeolocation ? userGeolocation : {
-									latitude: 78.23570781291714,
-									longitude: 15.491400000982967
-								},
+							navigation.navigate('HomeEstablishment', {
+								// userGeolocation: userGeolocation ? userGeolocation : {
+								// 	latitude: 78.23570781291714,
+								// 	longitude: 15.491400000982967
+								// },
 								userID: response.userId,
 								userPhoto: undefined
 							})
