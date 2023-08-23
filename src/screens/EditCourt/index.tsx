@@ -40,6 +40,16 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
     let courtTypesData: string[] = []
     sportTypesData?.courtTypes.data.map(sportItem => courtTypesData.push(sportItem.attributes.name))
+    
+    interface ICourtTypes {
+        id: string
+        name: string
+    }
+
+    let allCourtTypesJson: ICourtTypes[] = []
+    sportTypesData?.courtTypes.data.map(sportTypeItem => {
+        allCourtTypesJson = [...allCourtTypesJson, {id: sportTypeItem.id, name: sportTypeItem.attributes.name}]
+    })
 
     const fantasyName = courtByIdData?.court.data.attributes.fantasy_name
     const minimumScheduleValue: number | undefined = courtByIdData?.court.data.attributes.minimumScheduleValue
@@ -47,7 +57,6 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
     useEffect(() => {
         setMinimumSheduleValue(minimumScheduleValue)
     }, [courtByIdData])
-    // console.log(typeof minimumScheduleValueState)
 
     let courtAvailibilites: string[] = []
     if (courtByIdData?.court.data.attributes.court_availibilites != null || courtByIdData?.court.data.attributes.court_availibilites != undefined) {
@@ -63,6 +72,12 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
     if (courtByIdData?.court.data.attributes.court_types != null || courtByIdData?.court.data.attributes.court_types != undefined) {
         courtByIdData?.court.data.attributes.court_types.data.map(courtTypeItem => courtTypes.push(courtTypeItem.id))
     }
+
+    
+    let courtTypesJson: ICourtTypes[] = []
+    courtByIdData?.court.data.attributes.court_types.data.map(courtTypeItem => {
+        courtTypesJson = [...courtTypesJson, { id: courtTypeItem.id, name: courtTypeItem.attributes.name }]
+    })
 
     const [photo, setPhoto] = useState("")
 
@@ -91,7 +106,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         }
     };
 
-    // const [courtTypeSelected, setCourtTypeSelected] = useState<Array<string>>()
+    const [courtTypeSelected, setCourtTypeSelected] = useState<Array<string> | undefined>([])
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -102,12 +117,21 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
             ...data
         }
 
+        let courtTypesId: string[] = []
+        if(courtTypeSelected) {
+            courtTypeSelected?.map(courtTypeSelectedItem => {
+                const courtTypeIdItem = allCourtTypesJson.find(courtTypeItem => courtTypeItem.name === courtTypeSelectedItem)?.id
+                if(courtTypeIdItem != undefined)
+                    courtTypesId?.push(courtTypeIdItem)
+            })
+        }
+
         updateCourtHook({
             variables: {
                 court_id: courtId,
                 court_availabilities: courtAvailibilites,
                 court_name: courtByIdData?.court.data.attributes.name,
-                court_types: courtTypes,
+                court_types: courtTypesId,
                 fantasy_name: courtData.fantasyName,
                 minimum_value: courtData.minimumScheduleValue,
                 photos: courtPhotos
@@ -139,9 +163,10 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                         <Text className="text-[16px] text-[#4E4E4E] font-normal">Selecione a modalidade:</Text>
                     </View>
                     <MultipleSelectList
-                        setSelected={(val: string) => {
-                            // setCourtTypeSelected(val)
+                        setSelected={(val: []) => {
+                            setCourtTypeSelected(val)
                         }}
+                        // defaultOption={{key: courtTypesJson[0].id, value: courtTypesJson[0].name}}
                         data={courtTypesData}
                         save="value"
                         placeholder='Selecione uma modalidade'
