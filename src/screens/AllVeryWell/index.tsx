@@ -17,9 +17,9 @@ interface CourtArrayObject {
 }
 
 export default function AllVeryWell({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'AllVeryWell'>) {
-    
+
     const [addCourt, { data: dataRegisterCourt, loading: loadingRegisterCourt, error: errorRegisterCourt }] = useRegisterCourt()
-    
+
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
     useEffect(() => {
         setCourts(route.params.courtArray);
@@ -30,7 +30,7 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
             setCourts(route.params.courtArray);
         }, [route.params.courtArray])
     );
-    
+
 
     const registerCourts = async (courts: CourtArrayObject[]) => {
         try {
@@ -44,7 +44,8 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
                             photos: court.photos,
                             court_availabilities: court.court_availabilities,
                             minimum_value: court.minimum_value,
-                            current_date: new Date().toISOString()
+                            current_date: new Date().toISOString(),
+                            establishmentId: '6'
                         }
                     });
                     console.log("Deu bom");
