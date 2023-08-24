@@ -27,7 +27,7 @@ const formSchema = z.object({
 export default function Login() {
 	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
 	const [authUser, { data, loading, error }] = useLoginUser()
-	const [userId, setUserId] = useState<string>()
+	const [userId, setUserId] = useState<string>("0")
 	const [roleUser, setRoleUser] = useState<string>()
 	const [showPassword, setShowPassword] = useState<boolean>(false)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -38,13 +38,16 @@ export default function Login() {
 	})
 
 	useEffect(() => {
+		if(userId && userId !== "0")
 		if (userId && userData) {
 			setRoleUser(userData?.usersPermissionsUser.data.attributes.role.data.id);
 		}
 	}, [userId, userData]);
 
 	useEffect(() => {
-		if (!isLoading && userId && userData) {
+		if(userId && userId !== "0")
+		if (!isLoading && userData) {
+			console.log(roleUser)
 			if (roleUser === "3") {
 				navigation.navigate('Home', {
 					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
@@ -94,8 +97,10 @@ export default function Login() {
 					key: 'userInfos',
 				})
 			}
-		}).catch(err => console.error(err))
-			.finally(() => setIsLoading(false));
+		}).catch(err => {
+			console.error(err)
+			setUserId("0")
+		}).finally(() => setIsLoading(false));
 	}
 
 	return (
@@ -107,17 +112,18 @@ export default function Login() {
 						key: 'userInfos',
 						data: {
 							jwt: undefined,
-							userId: 2,
+							userId: 7,
 						},
+						expires: 1000 * 3600
 					}).then(() => {
 						storage.load<UserInfos>({
 							key: 'userInfos'
 						}).then(response => {
-							navigation.navigate('Home', {
-								userGeolocation: userGeolocation ? userGeolocation : {
-									latitude: 78.23570781291714,
-									longitude: 15.491400000982967
-								},
+							navigation.navigate('HomeEstablishment', {
+								// userGeolocation: userGeolocation ? userGeolocation : {
+								// 	latitude: 78.23570781291714,
+								// 	longitude: 15.491400000982967
+								// },
 								userID: response.userId,
 								userPhoto: undefined
 							})

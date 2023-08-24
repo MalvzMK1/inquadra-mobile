@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Image, View } from 'react-native';
 import { TextInput, Text } from 'react-native-paper';
@@ -118,7 +118,7 @@ export default function () {
 					headerLeft: () => (<></>),
 					headerRight: () => (
 						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
-							userPhoto: "tora"
+							userPhoto: ""
 						})} className='pr-[10px]'>
 							<Image
 								source={require('../../assets/default-user-image.png')}
@@ -131,7 +131,7 @@ export default function () {
 			<Screen
 				name='EditCourt'
 				component={EditCourt}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
@@ -140,12 +140,12 @@ export default function () {
 					headerTitleAlign: 'center',
 					headerTitle: () => (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>QUADRAS</Text>
 						</View>
 					),
 					headerRight: () => (
 						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+							<Image source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
 					headerLeft: ({ navigation }) => (
@@ -153,7 +153,7 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
-				}}
+				})}
 			/>
 			<Screen
 				name='CancelScheduling'
@@ -628,12 +628,25 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-					}, headerTitleAlign: 'center',
+						height: 100,
+						backgroundColor: '#292929',
+					}, 
+					headerTitleAlign: 'center',
+					title:"Detalhes"
 				}}
 			/>
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					}, 
+					headerTitleAlign: 'center',
+					title:"Histórico"
+				}}
 			/>
 			<Screen
 				name='CourtPriceHour'
