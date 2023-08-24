@@ -230,8 +230,6 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		let newUserInfos = userInfos;
 
 		if (!loading && data) {
-			console.log(data?.usersPermissionsUser.data.attributes.paymentCardInformations)
-
 			newUserInfos = {
 				id: data.usersPermissionsUser.data.id,
 				username: data.usersPermissionsUser.data.attributes.username,
@@ -242,8 +240,8 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 					dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
 					cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
 					country: {
-						id: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id : '',
-						value: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.attributes.name : ''
+						id: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id : '',
+						value: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.attributes.name : ''
 					}
 				},
 			};
@@ -266,6 +264,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	useEffect(() => {
 		// console.log({FUNCAO: loadInformations(), DADOS: data})
 		loadInformations().then((data) => {
+			console.log({data})
 			defineDefaultFieldValues(data)
 			setUserInfos(data)
 		});

@@ -26,7 +26,8 @@ type RootStackParamList = {
 	FinancialEstablishment: undefined;
 	CourtPriceHour: undefined;
 	EditCourt: {
-		courtId: string | undefined
+		courtId: string | undefined,
+		userPhoto: string | undefined
 	};
 	Schedulings: undefined
 	ChooseUserType: undefined;
