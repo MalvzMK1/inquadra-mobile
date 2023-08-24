@@ -6,7 +6,7 @@ import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment"
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-interface Props extends NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'> {
+interface Props extends NativeStackScreenProps<RootStackParamList, 'DetailsAmountReceivable'> {
     establishmentId: string
 }
 

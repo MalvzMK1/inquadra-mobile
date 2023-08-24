@@ -95,7 +95,7 @@ export default function () {
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -148,7 +148,7 @@ export default function () {
 							<Image source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -175,7 +175,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -202,7 +202,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -615,7 +615,7 @@ export default function () {
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: () => (
+					headerLeft: ({ navigation }) => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
