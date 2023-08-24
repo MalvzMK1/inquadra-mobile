@@ -47,6 +47,7 @@ export default function Login() {
 	useEffect(() => {
 		if(userId && userId !== "0")
 		if (!isLoading && userData) {
+			console.log(roleUser)
 			if (roleUser === "3") {
 				navigation.navigate('Home', {
 					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
@@ -111,17 +112,18 @@ export default function Login() {
 						key: 'userInfos',
 						data: {
 							jwt: undefined,
-							userId: 2,
+							userId: 7,
 						},
+						expires: 1000 * 3600
 					}).then(() => {
 						storage.load<UserInfos>({
 							key: 'userInfos'
 						}).then(response => {
-							navigation.navigate('Home', {
-								userGeolocation: userGeolocation ? userGeolocation : {
-									latitude: 78.23570781291714,
-									longitude: 15.491400000982967
-								},
+							navigation.navigate('HomeEstablishment', {
+								// userGeolocation: userGeolocation ? userGeolocation : {
+								// 	latitude: 78.23570781291714,
+								// 	longitude: 15.491400000982967
+								// },
 								userID: response.userId,
 								userPhoto: undefined
 							})

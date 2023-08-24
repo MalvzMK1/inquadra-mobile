@@ -1,38 +1,18 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, SafeAreaView, FlatList, StyleSheet, ScrollView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React, {useEffect, useState} from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useReserveDisponible } from "../../hooks/useReserveDisponible";
-import { courtByIdQuery } from "../../graphql/queries/nextToCourtsById";
-import { useGetNextToCourtsById } from "../../hooks/useNextToCourtById";
-import { useEstablishmentSchedulings } from "../../hooks/useEstablishmentSchedulings";
-import { useGetUserById } from "../../hooks/useUserById";
-import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
-import { useSchedule } from "../../hooks/useSchedule";
-import { useGetNextToCourts } from "../../hooks/useNextToCourts";
-import { useGetMenuUser } from "../../hooks/useMenuUser";
-import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
-import { useGetFavoriteById } from "../../hooks/useFavoriteById";
-import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
+import {BottomNavigationBar} from "../../components/BottomNavigationBar";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import storage from "../../utils/storage";
 
-export default function HomeEstablishment() {
-
-
-    // const { loading, error, data } = useGetFavoriteById("1");
-    //   console.log(data);
-    //   if (loading) return <Text>Loading...</Text>;
-    //   if (error) {
-    //     return <Text>Error: {JSON.stringify(error)}</Text>;
-    //   }
-    //   return <Text>Hello {JSON.stringify(data)}!</Text>;
-
-    const navigation = useNavigation();
+export default function HomeEstablishment({navigation, route}: NativeStackScreenProps<RootStackParamList, 'HomeEstablishment'>) {
     const [selected, setSelected] = useState('');
+    const [userId, setUserId] = useState<string>()
 
     const [selectedDate, setSelectedDate] = useState('');
 
-    const CustomTimeView = ({ text }) => {
+    const CustomTimeView = ({ text }: {text: string}) => {
         return (
             <View className="flex flex-row h-10 items-center w-20 border-r-2 border-gray-300">
                 <View>
@@ -59,7 +39,14 @@ export default function HomeEstablishment() {
         },
     ];
 
-
+    useEffect(() => {
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            console.log(data)
+            setUserId(data.userId)
+        })
+    }, [])
 
     return (
         <View className="flex-1">
@@ -244,6 +231,17 @@ export default function HomeEstablishment() {
                     </View>
                 </View>
             </ScrollView>
+            {
+                userId ?
+                    <BottomNavigationBar
+                        establishmentScreen
+                        userID={userId}
+                        userPhoto={'http'}
+                    />
+                    :
+                    null
+            }
+
         </View>
     );
 }
