@@ -9,6 +9,13 @@ export interface IEstablishmentAllSchedulesResponse {
 					data: Array<{
 						id: Court['id'],
 						attributes: {
+							photo: {
+								data: Array<{
+									attributes: {
+										url: string
+									}
+								}>
+							}
 							court_types: {
 								data: Array<{
 									attributes: {
@@ -53,6 +60,13 @@ export const allEstablishmentSchedulesQuery = gql`
                         data {
                             id
                             attributes {
+                                photo {
+                                    data {
+                                        attributes {
+                                            url
+                                        }
+                                    }
+                                }
                                 court_types {
                                     data {
                                         attributes {
