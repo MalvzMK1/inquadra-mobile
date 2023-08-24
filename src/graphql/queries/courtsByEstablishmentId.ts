@@ -10,6 +10,18 @@ export interface ICourtsByEstablishmentIdResponse {
                         id: Court['id']
                         attributes: {
                             name: CourtAdd['court_name']
+                            court_availabilities: {
+                                data: Array<{
+                                    id: CourtAvailability['id']
+                                    attributes: {
+                                        startsAt: CourtAvailability['startsAt']
+                                        endsAt: CourtAvailability['endsAt']
+                                        status: CourtAvailability['status']
+                                        value: CourtAvailability['value']
+                                        weekDay: CourtAvailability['weekDay']
+                                      }
+                                }>
+                            }
                         }
                     }>
                 }
@@ -33,6 +45,18 @@ export const courtsByEstablishmentIdQuery = gql`
             id 
             attributes {
               name
+              court_availabilities {
+                data {
+                  id
+                  attributes {
+                    startsAt
+                    endsAt
+                    status
+                    value
+                    weekDay
+                  }
+                }
+              }
             }
           }
         }
