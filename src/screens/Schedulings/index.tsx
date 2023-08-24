@@ -8,6 +8,8 @@ import storage from "../../utils/storage";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 import {addDays} from "date-fns";
 import {HOST_API} from '@env';
+import DateTimePicker from "@react-native-community/datetimepicker";
+import FilterDate from "../../components/FilterDate";
 
 interface ScheduleCardInfos {
 	id: string,
@@ -25,8 +27,11 @@ interface ScheduleArray {
 }
 
 export default function Schedulings({navigation}: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
+	const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
 	const [userId, setUserId] = useState<string>();
 	const [schedules, setSchedules] = useState<Array<ScheduleArray>>([])
+	const [displayDatePicker, setDisplayDatePicker] = useState<boolean>();
+	const [selectedDate, setSelectedDate] = useState<Date>()
 	const {data, loading, error} = useAllEstablishmentSchedules('5') // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
 	const currentDate = new Date().toISOString().split("T")[0];
 
@@ -88,14 +93,27 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 		<View className=" h-full w-full pt-[20px] pl-[30px] pr-[30px]">
 			<View className="w-full h-fit items-center justify-between flex flex-row">
 				<Text className="font-black text-[16px]">Registro de reservas</Text>
-				<Image source={require('../../assets/calendar_orange_icon.png')}></Image>
+				<TouchableOpacity onPress={() => {
+					setDisplayDatePicker(!displayDatePicker)
+				}}>
+					<Image source={require('../../assets/calendar_orange_icon.png')} />
+				</TouchableOpacity>
 			</View>
 
-			<ScrollView className="mt-[15px]">
+			{
+				displayDatePicker &&
+					<DateTimePicker
+						value={selectedDate ? selectedDate : new Date()}
+						onChange={(event, date) => {
+							if (event.type === 'dismissed') setSelectedDate(undefined)
+							else setSelectedDate(date)
 
-				<TouchableOpacity onPress={() => console.log(schedules)} >
-					<Text>OIE</Text>
-				</TouchableOpacity>
+							setDisplayDatePicker(false)
+						}}
+					/>
+			}
+
+			<ScrollView className="mt-[15px]">
 
 				{
 					schedules.map(schedule => (
@@ -118,27 +136,11 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 					))
 				}
 
-				{/*<CourtSchedulingContainer*/}
-				{/*	date={currentDate}*/}
-				{/*>*/}
-				{/*	<View>*/}
-
-
-				{/*		<CourtScheduling*/}
-				{/*			id={'2'}*/}
-				{/*			name="Quadra Fênix"*/}
-				{/*			startsAt="17:00h"*/}
-				{/*			endsAt="18:00h"*/}
-				{/*			status="Canceled"*/}
-				{/*		/>*/}
-				{/*	</View>*/}
-				{/*</CourtSchedulingContainer>*/}
-
 			</ScrollView>
 
 			<BottomNavigationBar
 				establishmentScreen
-				userID={'1'}
+				userID={userId}
 				userPhoto={'https'}
 			/>
 		</View>
