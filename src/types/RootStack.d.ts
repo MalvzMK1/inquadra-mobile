@@ -1,6 +1,8 @@
 type RootStackParamList = {
 	Login: undefined;
-	HistoryPayment: undefined,
+	HistoryPayment: {
+		establishmentId: string,
+	};
 	DetailsAmountReceivable: {
 		establishmentId: string,
 	};
