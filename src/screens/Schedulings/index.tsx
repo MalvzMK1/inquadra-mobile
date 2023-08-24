@@ -3,13 +3,14 @@ import CourtSchedulingContainer from "../../components/CourtSchedulingContainer"
 import { BottomNavigationBar } from "../../components/BottomNavigationBar"
 import CourtScheduling from "../../components/CourtScheduling"
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import storage from "../../utils/storage";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
-import {addDays} from "date-fns";
+import {addDays, format} from "date-fns";
 import {HOST_API} from '@env';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import FilterDate from "../../components/FilterDate";
+import {Calendar, DateData} from "react-native-calendars";
 
 interface ScheduleCardInfos {
 	id: string,
@@ -27,13 +28,21 @@ interface ScheduleArray {
 }
 
 export default function Schedulings({navigation}: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
-	const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
 	const [userId, setUserId] = useState<string>();
 	const [schedules, setSchedules] = useState<Array<ScheduleArray>>([])
 	const [displayDatePicker, setDisplayDatePicker] = useState<boolean>();
-	const [selectedDate, setSelectedDate] = useState<Date>()
+	const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 	const {data, loading, error} = useAllEstablishmentSchedules('5') // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
 	const currentDate = new Date().toISOString().split("T")[0];
+
+	function handleCalendarClick(data: DateData) {
+		const date = new Date(data.dateString)
+		// const weekDay = format(addDays(date, 1), 'eeee')
+
+		setSelectedDate(date)
+		// setSelectedWeekDate(weekDay as WeekDays)
+	}
+
 
 	useEffect(() => {
 		storage.load<UserInfos>({
@@ -102,13 +111,12 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 
 			{
 				displayDatePicker &&
-					<DateTimePicker
-						value={selectedDate ? selectedDate : new Date()}
-						onChange={(event, date) => {
-							if (event.type === 'dismissed') setSelectedDate(undefined)
-							else setSelectedDate(date)
-
-							setDisplayDatePicker(false)
+					<Calendar
+						current={selectedDate.toISOString()}
+						onDayPress={handleCalendarClick}
+						markedDates={{
+							[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
+							// '2023-08-02': { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
 						}}
 					/>
 			}
