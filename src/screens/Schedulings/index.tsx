@@ -52,7 +52,7 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 							ends: availability.attributes.endsAt.slice(0, 5)
 						})
 						newSchedules.push({
-							id: court.id,
+							id: schedule.id,
 							name: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
 							status: availability.attributes.status,
 							endsAt: availability.attributes.endsAt.slice(0, 5),
