@@ -655,12 +655,25 @@ export default function () {
 				options={{
 					headerTintColor: 'white',
 					headerStyle: {
-					}, headerTitleAlign: 'center',
+						height: 100,
+						backgroundColor: '#292929',
+					}, 
+					headerTitleAlign: 'center',
+					title:"Detalhes"
 				}}
 			/>
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					}, 
+					headerTitleAlign: 'center',
+					title:"Histórico"
+				}}
 			/>
 			<Screen
 				name='CourtPriceHour'
