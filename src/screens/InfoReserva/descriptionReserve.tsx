@@ -22,6 +22,10 @@ import useUpdateScheduleValue from '../../hooks/useUpdateScheduleValue';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useGetMenuUser } from '../../hooks/useMenuUser';
 import { useAllPaymentsSchedulingById } from '../../hooks/useAllPaymentsScheduling';
+import { generateRandomKey } from '../../utils/activationKeyGenerate';
+import Toast from 'react-native-toast-message';
+import * as Clipboard from 'expo-clipboard';
+
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId
     const schedule_id = route.params.scheduleId
@@ -52,7 +56,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
     const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
 
-
     const valueDisponibleToPay = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value - data?.scheduling?.data?.attributes?.valuePayed
 
     interface iFormCardPayment {
@@ -68,6 +71,18 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         cpf: string
         value: string
     }
+
+    const handleCopiarTexto = () => {
+        Clipboard.setStringAsync(data?.scheduling?.data?.attributes?.activationKey);
+        Toast.show({
+            type: 'success',
+            text1: 'Texto copiado',
+            text2: 'O texto foi copiado para a área de transferência.',
+            position: 'bottom',
+            visibilityTime: 2000, // tempo em milissegundos que a mensagem ficará visível
+          });
+      };
+
 
     const formSchema = z.object({
         value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value, context) => {
@@ -155,36 +170,48 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
 
     async function pay(data: iFormCardPayment) {
-        const countryId = getCountryIdByISOCode(selected)
-        await userPaymentCard({
-            variables: {
-                value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
-                schedulingId: schedule_id,
-                userId: '1',
-                name: data.name,
-                cpf: data.cpf,
-                cvv: parseInt(data.cvv),
-                date: convertToAmericanDate(data.date),
-                countryID: countryId,
-                publishedAt: new Date().toISOString()
-            }
-        })
-        await scheduleValueUpdate(parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')))
-        setShowCardPaymentModal(false)
+        const countryId = getCountryIdByISOCode(selected);
+        try {
+            await userPaymentCard({
+                variables: {
+                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
+                    schedulingId: schedule_id,
+                    userId: '1',
+                    name: data.name,
+                    cpf: data.cpf,
+                    cvv: parseInt(data.cvv),
+                    date: convertToAmericanDate(data.date),
+                    countryID: countryId,
+                    publishedAt: new Date().toISOString()
+                }
+            });
+    
+            await scheduleValueUpdate(parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')));
+            
+            setShowCardPaymentModal(false);
+
+            alert("Pagamento efetuado com sucesso, recarregue a pagina para visualizar as atualizações!")
+            
+
+        } catch (error) {
+            console.error("Erro durante o pagamento:", error);
+        }
     }
 
     const scheduleValueUpdate = async (value: number) => {
         let validatePayment = value + scheduleValuePayed >= schedulePrice ? true : false
         let valuePayedUpdate = value + scheduleValuePayed
+        let activation_key = value + scheduleValuePayed >= schedulePrice? generateRandomKey(4) : null
         try {
             const update = await updateScheduleValue({
                 variables: {
                     payed_status: validatePayment,
                     scheduling_id: parseInt(schedule_id),
-                    value_payed: valuePayedUpdate
+                    value_payed: valuePayedUpdate,
+                    activated: false,
+                    activation_key: activation_key
                 }
             })
-            console.log(update.data?.updateScheduling.data.id)
         } catch (error) {
             console.log("Erro na mutação updateValueSchedule", error)
         }
@@ -234,7 +261,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 <View className={
                     data?.scheduling?.data.attributes?.valuePayed < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value && isVanquished === false
                         ? 'flex w-max h-80 bg-zinc-900 px-5'
-                        : 'flex w-max h-60 bg-zinc-900 px-5'
+                        : user_id !== data?.scheduling.data.attributes.owner.data.id && isPayed === true
+                            ? 'flex w-max h-48 bg-zinc-900 px-5'
+                            : 'flex w-max h-60 bg-zinc-900 px-5'
                 }>
                     <View className='flex-row items-start justify-start w-max h-max pt-2'>
                         <View>
@@ -324,27 +353,28 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     {
                         data?.scheduling?.data?.attributes?.owner?.data?.id !== user_id ?
                             <>
-
                                 {
-                                    data?.scheduling?.data?.attributes?.valuePayed < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value || isVanquished === false
-                                        ? <View className='h-max w-full flex justify-center items-center pl-2'>
-                                            <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
-                                                <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
-                                                    <View className='w-1'></View>
-                                                    <View className='h-5 w-5 items-center justify-center'>
-                                                        <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} />
+                                    isVanquished === false
+                                        ? data?.scheduling.data.attributes.payedStatus === false
+                                            ? <View className='h-max w-full flex justify-center items-center pl-2'>
+                                                <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
+                                                    <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
+                                                        <View className='w-1'></View>
+                                                        <View className='h-5 w-5 items-center justify-center'>
+                                                            <TextInput.Icon icon={'credit-card-plus-outline'} size={21} color={'#FF6112'} />
+                                                        </View>
+                                                        <View className='item-center justify-center'>
+                                                            <Text className='font-black text-xs text-center text-gray-400 pl-1'>Adicionar Pagamento</Text>
+                                                        </View>
                                                     </View>
-                                                    <View className='item-center justify-center'>
-                                                        <Text className='font-black text-xs text-center text-gray-400 pl-1'>Adicionar Pagamento</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
+                                                    <View className='h-10 w-64 rounded-md bg-orange-500 flex items-center justify-center'>
+                                                        <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
                                                     </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
-                                                <View className='h-10 w-64 rounded-md bg-orange-500 flex items-center justify-center'>
-                                                    <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
-                                                </View>
-                                            </TouchableOpacity>
-                                        </View>
+                                                </TouchableOpacity>
+                                            </View>
+                                            : null
                                         : null
                                 }
                             </>
@@ -400,10 +430,10 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     </View>
                                                 </View>
                                                 <View className='h-max w-full flex justify-between pl-2'>
-                                                    <TouchableOpacity onPress={() => setShowCardPaymentModal(true)}>
+                                                    <TouchableOpacity onPress={() => handleCopiarTexto()}>
                                                         <View className='w-30 h-10 bg-white rounded-sm flex-row items-center justify-between'>
                                                             <Text className='font-semibold text-xs text-black pl-2'>Codigo de ativação:</Text>
-                                                            <Text className='font-black text-sm text-center text-gray-400 pl-1 pr-7'>AVGUP</Text>
+                                                            <Text className='font-black text-sm text-center text-gray-400 pl-1 pr-7'>{data?.scheduling?.data?.attributes?.activationKey}</Text>
                                                         </View>
                                                     </TouchableOpacity>
                                                 </View>
