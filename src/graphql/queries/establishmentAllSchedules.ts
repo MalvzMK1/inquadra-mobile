@@ -9,6 +9,13 @@ export interface IEstablishmentAllSchedulesResponse {
 					data: Array<{
 						id: Court['id'],
 						attributes: {
+							photo: {
+								data: Array<{
+									attributes: {
+										url: string
+									}
+								}>
+							}
 							court_types: {
 								data: Array<{
 									attributes: {
@@ -21,11 +28,15 @@ export interface IEstablishmentAllSchedulesResponse {
 									attributes: {
 										startsAt: string,
 										endsAt: string,
-										schedulings: Array<{
-											attributes: {
-												date: string
-											}
-										}>
+										status: string
+										schedulings: {
+											data: Array<{
+												id: string
+												attributes: {
+													date: string
+												}
+											}>
+										}
 									}
 								}>
 							}
@@ -50,6 +61,13 @@ export const allEstablishmentSchedulesQuery = gql`
                         data {
                             id
                             attributes {
+                                photo {
+                                    data {
+                                        attributes {
+                                            url
+                                        }
+                                    }
+                                }
                                 court_types {
                                     data {
                                         attributes {
@@ -62,8 +80,10 @@ export const allEstablishmentSchedulesQuery = gql`
                                         attributes {
                                             startsAt
                                             endsAt
+		                                        status
                                             schedulings {
                                                 data {
+		                                                id
                                                     attributes {
                                                         date
                                                     }

@@ -8,6 +8,7 @@ export interface IinfoScheduleResponse {
         createdAt: Date
         valuePayed: number
         payDay: Date
+        activationKey: string
         court_availability: {
           data: {
             attributes: {
@@ -69,6 +70,7 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
         createdAt
         valuePayed
         payDay
+        activationKey
         court_availability {
           data {
             attributes {

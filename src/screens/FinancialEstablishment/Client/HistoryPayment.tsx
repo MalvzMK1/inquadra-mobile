@@ -1,8 +1,15 @@
-import { AntDesign, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
-import React from "react";
-import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
+import React, { useState } from "react";
+import { View, Text, ScrollView } from "react-native";
+import CardDetailsPaymentHistoric from "../../../components/CardDetailsPaymentHistoric";
+import { useFocusEffect } from "@react-navigation/native";
+import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function HistoryPayment() {
+interface Props extends NativeStackScreenProps<RootStackParamList, 'HistoryPayment'> {
+    establishmentId: string
+}
+
+export default function HistoryPayment({ route }: Props) {
     const currentDate = new Date();
     const day = String(currentDate.getDate()).padStart(2, '0');
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -12,25 +19,88 @@ export default function HistoryPayment() {
 
     const yesterday = new Date(currentDate);
     yesterday.setDate(currentDate.getDate() - 1);
-
-    const dayOfWeekYesterday = weekdays[yesterday.getDay()];
-
-    const dayYesterday = String(yesterday.getDate()).padStart(2, '0');
-    const monthYesterday = String(yesterday.getMonth() + 1).padStart(2, '0');
-    const formattedDataYesterday = `${dayYesterday}/${monthYesterday}`;
-    
-    // Subtrair 5 dias para obter a data de 5 dias atrás
     const fiveDaysAgo = new Date(currentDate);
     fiveDaysAgo.setDate(currentDate.getDate() - 5);
-    
-    // Obter o dia da semana correspondente a 5 dias atrás
-    const dayOfWeekFiveDaysAgo = weekdays[fiveDaysAgo.getDay()];
-    
-    // Formatar a data de 5 dias atrás
-    const dayFiveDaysAgo = String(fiveDaysAgo.getDate()).padStart(2, '0');
-    const monthFiveDaysAgo = String(fiveDaysAgo.getMonth() + 1).padStart(2, '0');
-    const formattedDataFiveDaysAgo = `${dayFiveDaysAgo}/${monthFiveDaysAgo}`;
-    
+
+    const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
+    const [infosHistoric, setInfosHistoric] = useState<Array<{
+        username: string;
+        valuePayed: number;
+        date: string
+    }>>()
+
+    const establishmentId = route.params.establishmentId
+    const { data, loading, error } = useGetUserHistoricPayment(establishmentId)
+
+
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setInfosHistoric([]);
+            setValueCollected([]);
+
+            const dataHistoric = data?.establishment.data.attributes.courts.data;
+
+            if (!error && !loading) {
+                const infosCard: {
+                    username: string;
+                    valuePayed: number;
+                    date: string;
+                }[] = [];
+
+                const amountPaid: { valuePayment: number, payday: string }[] = []
+
+                dataHistoric?.forEach((court) => {
+                    court.attributes.court_availabilities.data.forEach((availability) => {
+                        availability.attributes.schedulings.data.forEach((schedulings) => {
+                            schedulings.attributes.user_payments.data.forEach((payment) => {
+                                const user = payment.attributes.users_permissions_user.data.attributes;
+                                infosCard.push({
+                                    username: user.username,
+                                    valuePayed: payment.attributes.value,
+                                    date: schedulings.attributes.date,
+                                });
+                                amountPaid.push({
+                                    valuePayment: payment.attributes.value,
+                                    payday: schedulings.attributes.date
+                                });
+                            });
+                        });
+                    });
+                });
+
+                if (infosCard) {
+                    setInfosHistoric(prevState => {
+                        if (prevState === undefined) {
+                            return infosCard;
+                        }
+                        return [...prevState, ...infosCard];
+                    });
+                }
+
+                if (amountPaid) {
+                    setValueCollected(prevState => {
+                        if (prevState === undefined) {
+                            return amountPaid
+                        }
+                        return [...prevState, ...amountPaid]
+                    })
+                }
+            }
+        }, [error, loading])
+    )
+
+    function isAvailableForWithdrawal() {
+        const currentDate = new Date();
+
+        const datesFilter = valueCollected?.filter((item) => {
+            const paydayDate = new Date(item.payday);
+
+            return paydayDate == currentDate;
+        });
+
+        return datesFilter;
+    }
 
 
     return (
@@ -38,112 +108,19 @@ export default function HistoryPayment() {
             <ScrollView>
                 <View>
                     <View className="p-5 flex flex-col justify-between">
-                    <View className="pt-6 flex flex-row justify-between">
-                        <Text className="text-lg font-bold">Saques realizados</Text>
-                    </View>
-                    <View className="mt-2 flex flex-row">
-                        <AntDesign name="calendar" size={20} color="gray" />
-                        <Text className="text-base text-gray-500 underline"> Hoje {formattedData}</Text>
-                    </View>
-                    <View>
-                        <Text className="text-base text-gray-500 mt-1">Saldo do dia: R$ 3.071,70</Text>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row items-center">
-                    <View className="flex-shrink-0">
-                        <MaterialIcons name="sync-alt" size={36} color="orange" />
-                    </View>
-                    <View className="flex-1 pl-4">
-                        <Text className="text-base">Outras transferências</Text>
-                        <Text className="text-xl font-bold">Pix transf.</Text>
-                    </View>
-                    <View className="flex-shrink-0">
-                        <Text className="text-xl font-bold">-R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row items-center">
-                    <View className="flex-shrink-0">
-                        <MaterialIcons name="sync-alt" size={36} color="orange" />
-                    </View>
-                    <View className="flex-1 pl-4">
-                        <Text className="text-base">Outras transferências</Text>
-                        <Text className="text-xl font-bold">Pix transf.</Text>
-                    </View>
-                    <View className="flex-shrink-0">
-                        <Text className="text-xl font-bold">-R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row items-center">
-                    <View className="flex-shrink-0">
-                        <MaterialIcons name="sync-alt" size={36} color="orange" />
-                    </View>
-                    <View className="flex-1 pl-4">
-                        <Text className="text-base">Outras transferências</Text>
-                        <Text className="text-xl font-bold">Pix transf.</Text>
-                    </View>
-                    <View className="flex-shrink-0">
-                        <Text className="text-xl font-bold">-R$150,00</Text>
-                    </View>
-                    </View>
-                    
-
-                    <View className="mt-5 flex flex-row">
-                        <AntDesign name="calendar" size={20} color="gray" />
-                        <Text className="text-base text-gray-500 underline"> {dayOfWeekYesterday} {formattedDataFiveDaysAgo}</Text>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row items-center">
-                    <View className="flex-shrink-0">
-                        <MaterialIcons name="sync-alt" size={36} color="orange" />
-                    </View>
-                    <View className="flex-1 pl-4">
-                        <Text className="text-base">Outras transferências</Text>
-                        <Text className="text-xl font-bold">Pix transf.</Text>
-                    </View>
-                    <View className="flex-shrink-0">
-                        <Text className="text-xl font-bold">-R$150,00</Text>
-                    </View>
-                    </View>
-                    
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row items-center">
-                    <View className="flex-shrink-0">
-                        <MaterialIcons name="sync-alt" size={36} color="orange" />
-                    </View>
-                    <View className="flex-1 pl-4">
-                        <Text className="text-base">Outras transferências</Text>
-                        <Text className="text-xl font-bold">Pix transf.</Text>
-                    </View>
-                    <View className="flex-shrink-0">
-                        <Text className="text-xl font-bold">-R$150,00</Text>
-                    </View>
-                    </View>
-                    <View className="mt-5 flex flex-row">
-                        <AntDesign name="calendar" size={20} color="gray" />
-                        <Text className="text-base text-gray-500 underline"> {dayOfWeekFiveDaysAgo} {formattedDataYesterday}</Text>
-                    </View>
-                    <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row items-center">
-                    <View className="flex-shrink-0">
-                        <MaterialIcons name="sync-alt" size={36} color="orange" />
-                    </View>
-                    <View className="flex-1 pl-4">
-                        <Text className="text-base">Outras transferências</Text>
-                        <Text className="text-xl font-bold">Pix transf.</Text>
-                    </View>
-                    <View className="flex-shrink-0">
-                        <Text className="text-xl font-bold">-R$150,00</Text>
-                    </View>
-                    </View>
-                    
-                    <View className="p-4 flex flex-row justify-center">
-                        <Text className="text-lg text-gray-500">Isso é tudo! </Text>
-                        <View className="p-1">
-                            <FontAwesome5 name="smile-beam" size={18} color="gray" />
+                        <View className="pt-6 flex flex-row justify-between">
+                            <Text className="text-lg font-bold">Saques realizados</Text>
                         </View>
+                        <View className="mt-2 flex flex-row">
+                            <Text className="text-base text-gray-500"> Hoje {formattedData}</Text>
+                        </View>
+                        <View>
+                            <Text className="text-base text-gray-500 mt-1">Saldo do dia: R$ {
+                                isAvailableForWithdrawal()?.reduce((total, current) => total + current.valuePayment, 0)
+                            }</Text>
+                        </View>
+                        <CardDetailsPaymentHistoric />
                     </View>
-                    <View className="p-3 items-center justify-center">
-                        <TouchableOpacity className='w-5/6 h-12 rounded-md bg-[#FF6112] flex items-center justify-center'>
-                            <Text className='text-gray-50 font-bold'>Sacar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
                 </View>
             </ScrollView>
         </View>

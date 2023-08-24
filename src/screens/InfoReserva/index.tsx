@@ -74,7 +74,7 @@ export default function InfoReserva({navigation, route}:NativeStackScreenProps<R
                             {/* Div para criação dos cards de reservas ativas*/}
                             {
                             !error && !loading ?
-                                data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo) =>  
+                                data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map((courtInfo) =>  
                                 courtInfo.attributes.status ?
                                 <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve',{userId: user_id, scheduleId: courtInfo.id})}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
@@ -112,7 +112,7 @@ export default function InfoReserva({navigation, route}:NativeStackScreenProps<R
                                 <Text className='text-lg font-black text-white'>RESERVAS FINALIZADAS</Text>
                             </View>
                             {
-                                !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings_owner?.data.map((courtInfo)=>
+                                !error && !loading ? data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map((courtInfo)=>
                                     !courtInfo.attributes.status ?
                             <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve', {userId: user_id, scheduleId: courtInfo.id})}>
                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
