@@ -7,6 +7,7 @@ import {useEffect, useState} from "react";
 import storage from "../../utils/storage";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 import {addDays} from "date-fns";
+import {HOST_API} from '@env';
 
 interface ScheduleCardInfos {
 	id: string,
@@ -15,6 +16,7 @@ interface ScheduleCardInfos {
 	endsAt: string,
 	status: string,
 	date: Date,
+	image: string
 }
 
 interface ScheduleArray {
@@ -56,6 +58,7 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 							endsAt: availability.attributes.endsAt.slice(0, 5),
 							startsAt: availability.attributes.startsAt.slice(0, 5),
 							date: addDays(new Date(schedule.attributes.date), 1),
+							image: HOST_API + court.attributes.photo.data[0].attributes.url
 						})
 					})
 				})
@@ -105,7 +108,8 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 											name={courtSchedule.name}
 											startsAt={courtSchedule.startsAt}
 											endsAt={courtSchedule.endsAt}
-											status={'Active'}
+											status={true}
+											image={courtSchedule.image}
 										/>
 									))
 								}
