@@ -11,6 +11,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import CourtSlideButton from "../../components/CourtSlideButton";
 import MaskInput, { Masks } from "react-native-mask-input";
+import { TextInputMask } from 'react-native-masked-text';
 import { Button } from "react-native-paper";
 import ScheduleBlockDetails from "../../components/ScheduleBlockDetails";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
@@ -80,6 +81,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         startsAt: string
         endsAt: string
         weekDay: string
+        status: Boolean
     }
     let courtsAvailabilities: ICourtAvailabilities[] = []
     courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
@@ -90,7 +92,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     courtName: courtItem.attributes.name,
                     startsAt: courtAvailabilitieItem.attributes.startsAt,
                     endsAt: courtAvailabilitieItem.attributes.endsAt,
-                    weekDay: courtAvailabilitieItem.attributes.weekDay
+                    weekDay: courtAvailabilitieItem.attributes.weekDay,
+                    status: courtAvailabilitieItem.attributes.status
                 }]
             })
         }
@@ -229,7 +232,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                         name={courtAvailabilityItem.courtName}
                                         startsAt={`${startsAt[0]}:${startsAt[1]}`}
                                         endsAt={`${endsAt[0]}:${endsAt[1]}`}
-                                        isReserved={true}
+                                        isReserved={Boolean(courtAvailabilityItem.status)}
                                     />
                                 )
                             }
@@ -297,17 +300,11 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
                         <View className="flex flex-row flex-wrap w-full justify-evenly">
 
-                            <CourtSlideButton
-                                name="Fênix"
-                            />
-
-                            <CourtSlideButton
-                                name="Clube do Zeca"
-                            />
-
-                            <CourtSlideButton
-                                name="Society 21"
-                            />
+                            {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map(courtItem => (
+                                <CourtSlideButton 
+                                    name={courtItem.attributes.name}
+                                />
+                            ))}
 
                         </View>
 
@@ -316,13 +313,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                 <Text className='text-sm text-[#FF6112]'>A partir de:</Text>
 
                                 <View className="flex flex-row items-center justify-between border border-neutral-400 rounded p-3">
-                                    <MaskInput
+                                    <TextInputMask
                                         className='w-[80%] bg-white'
-                                        placeholder='MM/AA'
+                                        options={{
+                                            format: 'DD/MM'
+                                        }}
+                                        type={'datetime'}
+                                        placeholder='DD/MM'
                                         value={startsAt}
-                                        onChangeText={setStartsAt}
-                                        mask={Masks.DATE_DDMMYYYY}>
-                                    </MaskInput>
+                                        onChangeText={setStartsAt}>
+                                    </TextInputMask>
                                     <Image source={require('../../assets/calendar_gray_icon.png')}></Image>
                                 </View>
 
@@ -332,13 +332,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                 <Text className='text-sm text-[#FF6112]'>Até:</Text>
 
                                 <View className="flex flex-row items-center justify-between border border-neutral-400 rounded p-3">
-                                    <MaskInput
+                                    <TextInputMask
                                         className='w-[80%] bg-white'
-                                        placeholder='MM/AA'
+                                        placeholder='DD/MM'
+                                        options={{
+                                            format: 'DD/MM'
+                                        }}
+                                        type={'datetime'}
                                         value={endsAt}
-                                        onChangeText={setEndsAt}
-                                        mask={Masks.DATE_DDMMYYYY}>
-                                    </MaskInput>
+                                        onChangeText={setEndsAt}>
+                                    </TextInputMask>
                                     <Image source={require('../../assets/calendar_gray_icon.png')}></Image>
                                 </View>
 
