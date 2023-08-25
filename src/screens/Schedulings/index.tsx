@@ -38,7 +38,6 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 		setSelectedDate(date)
 	}
 
-
 	useEffect(() => {
 		storage.load<UserInfos>({
 			key: 'userInfos'
@@ -56,19 +55,16 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 			data.establishment.data?.attributes.courts.data.forEach(court => {
 				court.attributes.court_availabilities.data.forEach(availability => {
 					availability.attributes.schedulings.data.forEach(schedule => {
-						console.log({
-							starts: availability.attributes.startsAt,
-							ends: availability.attributes.endsAt.slice(0, 5)
-						})
-						newSchedules.push({
-							id: schedule.id,
-							name: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
-							status: availability.attributes.status,
-							endsAt: availability.attributes.endsAt.slice(0, 5),
-							startsAt: availability.attributes.startsAt.slice(0, 5),
-							date: addDays(new Date(schedule.attributes.date), 1),
-							image: HOST_API + court.attributes.photo.data[0].attributes.url
-						})
+						if (schedule.attributes.status)
+							newSchedules.push({
+								id: schedule.id,
+								name: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
+								status: availability.attributes.status,
+								endsAt: availability.attributes.endsAt.slice(0, 5),
+								startsAt: availability.attributes.startsAt.slice(0, 5),
+								date: addDays(new Date(schedule.attributes.date), 1),
+								image: HOST_API + court.attributes.photo.data[0].attributes.url
+							})
 					})
 				})
 			})
@@ -88,7 +84,7 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 				}
 			});
 
-			console.log({newSchedulesArray: newSchedulesArray[0].schedules[0].name})
+			// console.log({newSchedulesArray: newSchedulesArray[0]?.schedules[0].name})
 			setSchedules(newSchedulesArray)
 		}
 	}, [data])
@@ -115,30 +111,35 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 					/>
 			}
 
-			<ScrollView className="mt-[15px]">
-
-				{
-					schedules.map(schedule => (
-						<CourtSchedulingContainer date={schedule.date.toISOString()}>
-							<View>
-								{
-									schedule.schedules.map(courtSchedule => (
-										<CourtScheduling
-											id={courtSchedule.id}
-											name={courtSchedule.name}
-											startsAt={courtSchedule.startsAt}
-											endsAt={courtSchedule.endsAt}
-											status={courtSchedule.status}
-											image={courtSchedule.image}
-										/>
-									))
-								}
-							</View>
-						</CourtSchedulingContainer>
-					))
-				}
-
-			</ScrollView>
+			{
+				schedules.length > 0 ?
+					<ScrollView className="mt-[15px] h-full">
+						{
+							schedules.map(schedule => (
+								<CourtSchedulingContainer date={schedule.date.toISOString()}>
+									<View>
+										{
+											schedule.schedules.map(courtSchedule => (
+												<CourtScheduling
+													id={courtSchedule.id}
+													name={courtSchedule.name}
+													startsAt={courtSchedule.startsAt}
+													endsAt={courtSchedule.endsAt}
+													status={courtSchedule.status}
+													image={courtSchedule.image}
+												/>
+											))
+										}
+									</View>
+								</CourtSchedulingContainer>
+							))
+						}
+					</ScrollView>
+					:
+					<View className='flex-1 flex justify-center items-center'>
+						<Text className='text-base font-bold'>Nenhuma reserva encontrada</Text>
+					</View>
+			}
 
 			<BottomNavigationBar
 				establishmentScreen
