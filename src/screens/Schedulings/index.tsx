@@ -8,8 +8,6 @@ import storage from "../../utils/storage";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 import {addDays, format} from "date-fns";
 import {HOST_API} from '@env';
-import DateTimePicker from "@react-native-community/datetimepicker";
-import FilterDate from "../../components/FilterDate";
 import {Calendar, DateData} from "react-native-calendars";
 
 interface ScheduleCardInfos {
@@ -17,7 +15,7 @@ interface ScheduleCardInfos {
 	name: string,
 	startsAt: string,
 	endsAt: string,
-	status: string,
+	status: boolean,
 	date: Date,
 	image: string
 }
@@ -33,14 +31,11 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 	const [displayDatePicker, setDisplayDatePicker] = useState<boolean>();
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 	const {data, loading, error} = useAllEstablishmentSchedules('5') // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
-	const currentDate = new Date().toISOString().split("T")[0];
 
 	function handleCalendarClick(data: DateData) {
 		const date = new Date(data.dateString)
-		// const weekDay = format(addDays(date, 1), 'eeee')
 
 		setSelectedDate(date)
-		// setSelectedWeekDate(weekDay as WeekDays)
 	}
 
 
@@ -116,7 +111,6 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 						onDayPress={handleCalendarClick}
 						markedDates={{
 							[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
-							// '2023-08-02': { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
 						}}
 					/>
 			}
@@ -134,7 +128,7 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 											name={courtSchedule.name}
 											startsAt={courtSchedule.startsAt}
 											endsAt={courtSchedule.endsAt}
-											status={true}
+											status={courtSchedule.status}
 											image={courtSchedule.image}
 										/>
 									))
