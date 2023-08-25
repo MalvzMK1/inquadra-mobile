@@ -34,6 +34,7 @@ export interface IEstablishmentAllSchedulesResponse {
 												id: string
 												attributes: {
 													date: string
+													status: boolean
 												}
 											}>
 										}
@@ -86,6 +87,7 @@ export const allEstablishmentSchedulesQuery = gql`
 		                                                id
                                                     attributes {
                                                         date
+		                                                    status
                                                     }
                                                 }
                                             }
