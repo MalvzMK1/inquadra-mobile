@@ -6,10 +6,8 @@ import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import React, {useEffect, useState} from "react";
 import storage from "../../utils/storage";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
-import {addDays, format} from "date-fns";
+import {addDays} from "date-fns";
 import {HOST_API} from '@env';
-import DateTimePicker from "@react-native-community/datetimepicker";
-import FilterDate from "../../components/FilterDate";
 import {Calendar, DateData} from "react-native-calendars";
 
 interface ScheduleCardInfos {
@@ -17,7 +15,7 @@ interface ScheduleCardInfos {
 	name: string,
 	startsAt: string,
 	endsAt: string,
-	status: string,
+	status: boolean,
 	date: Date,
 	image: string
 }
@@ -30,19 +28,20 @@ interface ScheduleArray {
 export default function Schedulings({navigation}: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
 	const [userId, setUserId] = useState<string>();
 	const [schedules, setSchedules] = useState<Array<ScheduleArray>>([])
+	const [filteredSchedules, setFilteredSchedules] = useState<Array<ScheduleArray>>([])
 	const [displayDatePicker, setDisplayDatePicker] = useState<boolean>();
-	const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 	const {data, loading, error} = useAllEstablishmentSchedules('5') // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
-	const currentDate = new Date().toISOString().split("T")[0];
 
 	function handleCalendarClick(data: DateData) {
 		const date = new Date(data.dateString)
-		// const weekDay = format(addDays(date, 1), 'eeee')
 
 		setSelectedDate(date)
-		// setSelectedWeekDate(weekDay as WeekDays)
 	}
 
+	function clearFilters() {
+		setSelectedDate(null)
+	}
 
 	useEffect(() => {
 		storage.load<UserInfos>({
@@ -61,17 +60,14 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 			data.establishment.data?.attributes.courts.data.forEach(court => {
 				court.attributes.court_availabilities.data.forEach(availability => {
 					availability.attributes.schedulings.data.forEach(schedule => {
-						console.log({
-							starts: availability.attributes.startsAt,
-							ends: availability.attributes.endsAt.slice(0, 5)
-						})
+						console.log({date:new Date(schedule.attributes.date)})
 						newSchedules.push({
 							id: schedule.id,
 							name: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
-							status: availability.attributes.status,
+							status: schedule.attributes.status,
 							endsAt: availability.attributes.endsAt.slice(0, 5),
 							startsAt: availability.attributes.startsAt.slice(0, 5),
-							date: addDays(new Date(schedule.attributes.date), 1),
+							date: new Date(schedule.attributes.date),
 							image: HOST_API + court.attributes.photo.data[0].attributes.url
 						})
 					})
@@ -93,15 +89,29 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 				}
 			});
 
-			console.log({newSchedulesArray: newSchedulesArray[0].schedules[0].name})
 			setSchedules(newSchedulesArray)
+			setFilteredSchedules(newSchedulesArray)
 		}
 	}, [data])
+
+	useEffect(() => {
+		if (selectedDate) {
+			const newFilteredSchedules = schedules.filter(schedule => {
+				return schedule.date.toISOString() === selectedDate.toISOString()
+			})
+			setFilteredSchedules(newFilteredSchedules)
+		} else {
+			setFilteredSchedules(schedules)
+		}
+	}, [selectedDate, schedules])
 
 	return (
 		<View className=" h-full w-full pt-[20px] pl-[30px] pr-[30px]">
 			<View className="w-full h-fit items-center justify-between flex flex-row">
 				<Text className="font-black text-[16px]">Registro de reservas</Text>
+				<TouchableOpacity onPress={clearFilters}>
+					<Text>Limpar filtros</Text>
+				</TouchableOpacity>
 				<TouchableOpacity onPress={() => {
 					setDisplayDatePicker(!displayDatePicker)
 				}}>
@@ -109,42 +119,45 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 				</TouchableOpacity>
 			</View>
 
+
+
 			{
 				displayDatePicker &&
 					<Calendar
-						current={selectedDate.toISOString()}
+						current={new Date().toISOString()}
 						onDayPress={handleCalendarClick}
-						markedDates={{
-							[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
-							// '2023-08-02': { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
-						}}
 					/>
 			}
 
-			<ScrollView className="mt-[15px]">
-
-				{
-					schedules.map(schedule => (
-						<CourtSchedulingContainer date={schedule.date.toISOString()}>
-							<View>
-								{
-									schedule.schedules.map(courtSchedule => (
-										<CourtScheduling
-											id={courtSchedule.id}
-											name={courtSchedule.name}
-											startsAt={courtSchedule.startsAt}
-											endsAt={courtSchedule.endsAt}
-											status={true}
-											image={courtSchedule.image}
-										/>
-									))
-								}
-							</View>
-						</CourtSchedulingContainer>
-					))
-				}
-
-			</ScrollView>
+			{
+				filteredSchedules.length > 0 ?
+					<ScrollView className="mt-[15px] h-full">
+						{
+							filteredSchedules.map(schedule => (
+								<CourtSchedulingContainer date={addDays(schedule.date, 1).toISOString()}>
+									<View>
+										{
+											schedule.schedules.map(courtSchedule => (
+												<CourtScheduling
+													id={courtSchedule.id}
+													name={courtSchedule.name}
+													startsAt={courtSchedule.startsAt}
+													endsAt={courtSchedule.endsAt}
+													status={courtSchedule.status}
+													image={courtSchedule.image}
+												/>
+											))
+										}
+									</View>
+								</CourtSchedulingContainer>
+							))
+						}
+					</ScrollView>
+					:
+					<View className='flex-1 flex justify-center items-center'>
+						<Text className='text-base font-bold'>Nenhuma reserva encontrada</Text>
+					</View>
+			}
 
 			<BottomNavigationBar
 				establishmentScreen

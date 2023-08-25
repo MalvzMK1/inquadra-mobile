@@ -28,12 +28,13 @@ export interface IEstablishmentAllSchedulesResponse {
 									attributes: {
 										startsAt: string,
 										endsAt: string,
-										status: string
+										status: boolean,
 										schedulings: {
 											data: Array<{
 												id: string
 												attributes: {
 													date: string
+													status: boolean
 												}
 											}>
 										}
@@ -86,6 +87,7 @@ export const allEstablishmentSchedulesQuery = gql`
 		                                                id
                                                     attributes {
                                                         date
+		                                                    status
                                                     }
                                                 }
                                             }
