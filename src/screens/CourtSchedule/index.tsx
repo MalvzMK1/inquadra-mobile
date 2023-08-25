@@ -13,6 +13,19 @@ import CourtSlideButton from "../../components/CourtSlideButton";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { Button } from "react-native-paper";
 import ScheduleBlockDetails from "../../components/ScheduleBlockDetails";
+import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
+import useCourtAvailability from "../../hooks/useCourtAvailability";
+import storage from "../../utils/storage";
+import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+
+let userId = ""
+
+storage.load<UserInfos>({
+    key: 'userInfos',
+}).then((data) => {
+    userId = data.userId
+})
 
 const currentDate = new Date()
 const currentDay = currentDate.getDay()
@@ -28,20 +41,10 @@ const courts = [
     { value: 'Society 21' }
 ]
 
-export default function CourtSchedule() {
+export default function CourtSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
     const [showCalendar, setShowCalendar] = useState(false)
-    const [dateSelected, setDateSelected] = useState(new Date())
+    const [dateSelected, setDateSelected] = useState<Date>(new Date())
     const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
-
-    const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
-
-    function handleCalendarClick(data: DateData) {
-        const date = new Date(data.dateString)
-        const weekDay = format(addDays(date, 1), 'eeee')
-
-        setDateSelected(date)
-        setSelectedWeekDate(weekDay as WeekDays)
-    }
 
     const [showAll, setShowAll] = useState(false)
     const [schedulingsFocus, setSchedulingsFocus] = useState(true)
@@ -56,12 +59,79 @@ export default function CourtSchedule() {
     const [blockScheduleDetailsModal, setBlockScheduleDetailsModal] = useState(false)
     const closeBlockScheduleDetailsModal = () => setBlockScheduleDetailsModal(false)
 
+    const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
+    const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
+    // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
+
+    if(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
+        navigation.setParams({
+            establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo
+        })
+    }
+
+    let courtsIds: string[] = []
+    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(item => {
+        courtsIds.push(item.id)
+    })
+
+    interface ICourtAvailabilities {
+        courtId: string
+        courtName: string
+        startsAt: string
+        endsAt: string
+        weekDay: string
+    }
+    let courtsAvailabilities: ICourtAvailabilities[] = []
+    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
+        if (courtItem.attributes.court_availabilities) {
+            courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
+                courtsAvailabilities = [...courtsAvailabilities, {
+                    courtId: courtItem.id,
+                    courtName: courtItem.attributes.name,
+                    startsAt: courtAvailabilitieItem.attributes.startsAt,
+                    endsAt: courtAvailabilitieItem.attributes.endsAt,
+                    weekDay: courtAvailabilitieItem.attributes.weekDay
+                }]
+            })
+        }
+    })
+    
+    const [activeStates, setActiveStates] = useState(Array(courtsAvailabilities.length).fill(false))
+    const [shownAvailabilities, setShownAvailabilities] = useState<ICourtAvailabilities[]>([])
+    const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
+
+    weekDates.map(item => {
+        // console.log(item)
+    })
+
+    function handleWeekDayClick(index: number) {
+		const availabilities = courtsAvailabilities
+
+		const newActiveStates = Array(courtsAvailabilities.length).fill(false);
+		newActiveStates[index] = true;
+		setActiveStates(newActiveStates);
+
+		setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
+		if (availabilities)
+			setShownAvailabilities(courtsAvailabilities.filter(availabilitie =>
+				availabilitie.weekDay === weekDates[index].dayName as unknown as WeekDays
+			))
+	}
+    
+    function handleCalendarClick(data: DateData) {
+		const date = new Date(data.dateString)
+		const weekDay = format(addDays(date, 1), 'eeee')
+
+		setDateSelected(date)
+		setSelectedWeekDate(weekDay as WeekDays)
+	}
+
     return (
         <View className="h-full w-full">
 
             <View className="w-full h-fit flex-col mt-[15px] pl-[25px] pr-[25px]">
                 <View className="flex-row w-full justify-between items-center">
-                    <Text className="font-black text-[20px] text-[#292929]">{dateSelected.getDay()} {portugueseMonths[currentMonth]}</Text>
+                    <Text className="font-black text-[20px] text-[#292929]">{dateSelected.toISOString().split("T")[0].split("-")[2]} {portugueseMonths[dateSelected.getMonth()]}</Text>
                     <TouchableOpacity onPress={() => setBlockScheduleModal(!blockScheduleModal)} className="h-fit w-fit justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]">
                         <Text className="font-bold text-[12px] text-white">Bloquear agenda</Text>
                     </TouchableOpacity>
@@ -69,7 +139,7 @@ export default function CourtSchedule() {
 
                 {!showCalendar && (
                     <View className="h-fit w-full items-center justify-around flex flex-row mt-[30px]">
-                        {/* {
+                        {
                             weekDates.map((date, index) => (
                                 <WeekDayButton
                                     localeDayInitial={date.localeDayInitial}
@@ -80,13 +150,14 @@ export default function CourtSchedule() {
                                     active={activeStates[index]}
                                 />
                             ))
-                        } */}
+                        }
                     </View>
                 )}
 
                 {showCalendar && (
                     <Calendar
                         className="h-fit mt-[30px] p-[12px]"
+                        current={new Date().toDateString()}
                         onDayPress={handleCalendarClick}
                         markedDates={{
                             [dateSelected.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
@@ -119,7 +190,7 @@ export default function CourtSchedule() {
             <View className={`${showAll ? "max-h-[350px]" : "max-h-fit"}`}>
                 <ScrollView className={`pl-[25px] pr-[40px] mt-[15px] w-full`}>
 
-                    <AddCourtSchedule
+                    {/* <AddCourtSchedule
                         name="Quadra Fênix"
                         startsAt="17:00h"
                         endsAt="18:30h"
@@ -143,7 +214,27 @@ export default function CourtSchedule() {
                         startsAt="19:00h"
                         endsAt="21:30h"
                         isReserved={true}
-                    />
+                    /> */}
+
+                    {
+                        shownAvailabilities && shownAvailabilities.map((courtAvailabilityItem) => {
+                            if(!courtAvailabilityItem) console.log("vasco")
+
+                            const startsAt = courtAvailabilityItem.startsAt.split(":")
+                            const endsAt = courtAvailabilityItem.endsAt.split(":")
+
+                            if(shownAvailabilities.length > 0) {
+                                return (
+                                    <AddCourtSchedule
+                                        name={courtAvailabilityItem.courtName}
+                                        startsAt={`${startsAt[0]}:${startsAt[1]}`}
+                                        endsAt={`${endsAt[0]}:${endsAt[1]}`}
+                                        isReserved={true}
+                                    />
+                                )
+                            }
+                        })
+                    }
 
                 </ScrollView>
             </View>

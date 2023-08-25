@@ -1,11 +1,15 @@
 type RootStackParamList = {
 	Login: undefined;
-	HistoryPayment: undefined,
+	HistoryPayment: {
+		establishmentId: string,
+	};
 	DetailsAmountReceivable: {
 		establishmentId: string,
 	};
 	CompletedEstablishmentRegistration: undefined;
-	CourtSchedule: undefined;
+	CourtSchedule: {
+		establishmentPhoto: string | undefined
+	};
 	AmountAvailableWithdrawal: {
 		establishmentId: string,
 	};
