@@ -38,23 +38,23 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="WI564T664" />
-                    <option name="lastUsedInstant" value="1692957507" />
+                    <option name="lastUsedInstant" value="1692963930" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T619" />
+                    <option name="lastUsedInstant" value="1692963875" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1692963822" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="release" />
                     <option name="lastUsedInstant" value="1692885334" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1692884433" />
-                  </RecentBranch>
-                  <RecentBranch>
                     <option name="branchName" value="WI564T685" />
                     <option name="lastUsedInstant" value="1692696892" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T631_SYNC" />
-                    <option name="lastUsedInstant" value="1692625628" />
                   </RecentBranch>
                 </list>
               </option>
@@ -128,7 +128,7 @@
       <workItem from="1692350641231" duration="5513000" />
       <workItem from="1692609285522" duration="11785000" />
       <workItem from="1692870011698" duration="12622000" />
-      <workItem from="1692956607803" duration="6581000" />
+      <workItem from="1692956607803" duration="7592000" />
     </task>
     <servers />
   </component>

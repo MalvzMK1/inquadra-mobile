@@ -95,18 +95,15 @@ export default function Schedulings({navigation}: NativeStackScreenProps<RootSta
 	}, [data])
 
 	useEffect(() => {
-		console.log('caiu')
 		if (selectedDate) {
 			const newFilteredSchedules = schedules.filter(schedule => {
 				return schedule.date.toISOString() === selectedDate.toISOString()
 			})
-			console.log(newFilteredSchedules)
 			setFilteredSchedules(newFilteredSchedules)
-			// setSchedules(filteredSchedules)
 		} else {
 			setFilteredSchedules(schedules)
 		}
-	}, [selectedDate])
+	}, [selectedDate, schedules])
 
 	return (
 		<View className=" h-full w-full pt-[20px] pl-[30px] pr-[30px]">
