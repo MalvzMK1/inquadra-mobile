@@ -19,6 +19,7 @@ import useCourtAvailability from "../../hooks/useCourtAvailability";
 import storage from "../../utils/storage";
 import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 
 let userId = ""
 
@@ -63,44 +64,53 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
     const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
+    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
 
-    if(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
-        navigation.setParams({
-            establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo
-        })
-    }
-
-    let courtsIds: string[] = []
-    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(item => {
-        courtsIds.push(item.id)
-    })
-
-    interface ICourtAvailabilities {
+    interface IEstablishmentSchedules {
         courtId: string
         courtName: string
         startsAt: string
         endsAt: string
         weekDay: string
-        status: Boolean
+        scheduling: {
+            schedulingId: string,
+            schedulingDate: string,
+            schedulingStatus: boolean
+        }
     }
-    let courtsAvailabilities: ICourtAvailabilities[] = []
-    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
-        if (courtItem.attributes.court_availabilities) {
-            courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
-                courtsAvailabilities = [...courtsAvailabilities, {
+
+    let establishmentSchedules: IEstablishmentSchedules[] = []
+    schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
+        courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
+            courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
+                establishmentSchedules = [...establishmentSchedules, {
                     courtId: courtItem.id,
                     courtName: courtItem.attributes.name,
                     startsAt: courtAvailabilitieItem.attributes.startsAt,
                     endsAt: courtAvailabilitieItem.attributes.endsAt,
                     weekDay: courtAvailabilitieItem.attributes.weekDay,
-                    status: courtAvailabilitieItem.attributes.status
+                    scheduling: {
+                        schedulingId: schedulingItem.id,
+                        schedulingDate: schedulingItem.attributes.date,
+                        schedulingStatus: schedulingItem.attributes.status
+                    }
                 }]
             })
-        }
+        })
     })
-    
-    const [activeStates, setActiveStates] = useState(Array(courtsAvailabilities.length).fill(false))
-    const [shownAvailabilities, setShownAvailabilities] = useState<ICourtAvailabilities[]>([])
+
+    establishmentSchedules.map(item => {
+        console.log(item.weekDay)
+    })
+
+    if (userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
+        navigation.setParams({
+            establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo
+        })
+    }
+
+    const [activeStates, setActiveStates] = useState(Array(establishmentSchedules.length).fill(false))
+    const [shownSchedules, setShownScedules] = useState<IEstablishmentSchedules[]>([])
     const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
     weekDates.map(item => {
@@ -108,26 +118,26 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     })
 
     function handleWeekDayClick(index: number) {
-		const availabilities = courtsAvailabilities
+        const schedules = establishmentSchedules
 
-		const newActiveStates = Array(courtsAvailabilities.length).fill(false);
-		newActiveStates[index] = true;
-		setActiveStates(newActiveStates);
+        const newActiveStates = Array(establishmentSchedules.length).fill(false);
+        newActiveStates[index] = true;
+        setActiveStates(newActiveStates);
 
-		setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
-		if (availabilities)
-			setShownAvailabilities(courtsAvailabilities.filter(availabilitie =>
-				availabilitie.weekDay === weekDates[index].dayName as unknown as WeekDays
-			))
-	}
-    
+        setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
+        if (schedules)
+            setShownScedules(establishmentSchedules.filter(availabilitie =>
+                availabilitie.weekDay === weekDates[index].dayName as unknown as WeekDays
+            ))
+    }
+
     function handleCalendarClick(data: DateData) {
-		const date = new Date(data.dateString)
-		const weekDay = format(addDays(date, 1), 'eeee')
+        const date = new Date(data.dateString)
+        const weekDay = format(addDays(date, 1), 'eeee')
 
-		setDateSelected(date)
-		setSelectedWeekDate(weekDay as WeekDays)
-	}
+        setDateSelected(date)
+        setSelectedWeekDate(weekDay as WeekDays)
+    }
 
     return (
         <View className="h-full w-full">
@@ -193,49 +203,19 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             <View className={`${showAll ? "max-h-[350px]" : "max-h-fit"}`}>
                 <ScrollView className={`pl-[25px] pr-[40px] mt-[15px] w-full`}>
 
-                    {/* <AddCourtSchedule
-                        name="Quadra Fênix"
-                        startsAt="17:00h"
-                        endsAt="18:30h"
-                        isReserved={true}
-                    />
-
-                    <AddCourtSchedule
-                        name="Quadra Fênix"
-                        startsAt="19:00h"
-                        endsAt="21:30h"
-                        isReserved={true}
-                    />
-
-                    <AddCourtSchedule
-                        name="Clube do Zeca"
-                        isReserved={false}
-                    />
-
-                    <AddCourtSchedule
-                        name="Society 21"
-                        startsAt="19:00h"
-                        endsAt="21:30h"
-                        isReserved={true}
-                    /> */}
-
                     {
-                        shownAvailabilities && shownAvailabilities.map((courtAvailabilityItem) => {
-                            if(!courtAvailabilityItem) console.log("vasco")
+                        shownSchedules && shownSchedules.map((scheduleItem) => {
+                            const startsAt = scheduleItem.startsAt.split(":")
+                            const endsAt = scheduleItem.endsAt.split(":")
 
-                            const startsAt = courtAvailabilityItem.startsAt.split(":")
-                            const endsAt = courtAvailabilityItem.endsAt.split(":")
-
-                            if(shownAvailabilities.length > 0) {
-                                return (
-                                    <AddCourtSchedule
-                                        name={courtAvailabilityItem.courtName}
-                                        startsAt={`${startsAt[0]}:${startsAt[1]}`}
-                                        endsAt={`${endsAt[0]}:${endsAt[1]}`}
-                                        isReserved={Boolean(courtAvailabilityItem.status)}
-                                    />
-                                )
-                            }
+                            return (
+                                <AddCourtSchedule
+                                    name={scheduleItem.courtName}
+                                    startsAt={`${startsAt[0]}:${startsAt[1]}h`}
+                                    endsAt={`${endsAt[0]}:${endsAt[1]}h`}
+                                    isReserved={true}
+                                />
+                            )
                         })
                     }
 
