@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/establishmentAllSchedules.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/establishmentAllSchedules.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/Schedulings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Schedulings/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -129,7 +128,7 @@
       <workItem from="1692350641231" duration="5513000" />
       <workItem from="1692609285522" duration="11785000" />
       <workItem from="1692870011698" duration="12622000" />
-      <workItem from="1692956607803" duration="2478000" />
+      <workItem from="1692956607803" duration="6581000" />
     </task>
     <servers />
   </component>
