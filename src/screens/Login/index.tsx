@@ -112,18 +112,18 @@ export default function Login() {
 						key: 'userInfos',
 						data: {
 							jwt: undefined,
-							userId: 7,
+							userId: 9,
 						},
 						expires: 1000 * 3600
 					}).then(() => {
 						storage.load<UserInfos>({
 							key: 'userInfos'
 						}).then(response => {
-							navigation.navigate('HomeEstablishment', {
-								// userGeolocation: userGeolocation ? userGeolocation : {
-								// 	latitude: 78.23570781291714,
-								// 	longitude: 15.491400000982967
-								// },
+							navigation.navigate('Home', {
+								userGeolocation: userGeolocation ? userGeolocation : {
+									latitude: 78.23570781291714,
+									longitude: 15.491400000982967
+								},
 								userID: response.userId,
 								userPhoto: undefined
 							})
