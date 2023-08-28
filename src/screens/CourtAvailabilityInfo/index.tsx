@@ -46,46 +46,65 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 		error: isCourtAvailabilityError
 	} = useCourtAvailability(route.params.courtId)
 
-	const [activeStates, setActiveStates] = useState(Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false))
 	const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
 	const [selectedWeekDate, setSelectedWeekDate] = useState<string>()
 	const [availabilities, setAvailabilities] = useState<Array<{
+		id: string
 		startsAt: string,
 		endsAt: string,
 		price: number,
-		busy: boolean,
+		busy: Boolean,
 		weekDays: string,
-		scheduling: string
+		scheduling: Date | undefined
 	}>>([])
 	const [showCalendar, setShowCalendar] = useState(false)
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-	const [selectedWeekDateByDays, setSelectedWeekDateByDay] = useState<number>(new Date().getDay())
+	const [selectedTime, setSelectedTime] = useState<Array<string>>([])
 
 	LocaleConfig.defaultLocale = 'pt-br';
 
+	useEffect(() => {
+		setSelectedDate(new Date());
+	}, [])
+
 	useFocusEffect(
 		React.useCallback(() => {
+			setSelectedDate(new Date())
 			setAvailabilities([])
 			if (!isCourtAvailabilityLoading && !isCourtAvailabilityError) {
 
 				const courtsAvailable = courtAvailability?.court.data.attributes.court_availabilities.data.map((availability) => {
-					// availability.attributes.schedulings.data.map((item) => {
-						// return item
-						console.log(availability.attributes.schedulings.data[0]);
-						
+					if (availability.attributes.schedulings.data.length > 0) {
+						return availability.attributes.schedulings.data.map((item) => {
+							return {
+								id: availability.id,
+								startsAt: availability.attributes.startsAt,
+								endsAt: availability.attributes.endsAt,
+								price: availability.attributes.value,
+								busy: availability.attributes.status,
+								weekDays: availability.attributes.weekDay,
+								scheduling: item.attributes.date
+							};
+						});
+					} else {
 						return {
+							id: availability.id,
 							startsAt: availability.attributes.startsAt,
 							endsAt: availability.attributes.endsAt,
 							price: availability.attributes.value,
 							busy: availability.attributes.status,
 							weekDays: availability.attributes.weekDay,
-							// scheduling: item ? item.attributes.date : ""
-						}
-					// })
-				})
+							scheduling: undefined
+						};
+					}
+				}).flat();
 
-				if (courtAvailability) {
-					setAvailabilities(prevState => [...prevState, ...courtsAvailable])
+				if (courtsAvailable && courtAvailability) {
+					const uniqueCourtsAvailable = courtsAvailable.filter((court, index, self) =>
+						index === self.findIndex((c) => c.id === court.id)
+					);
+					if (uniqueCourtsAvailable.length > 0)
+						setAvailabilities(prevState => [...prevState, ...uniqueCourtsAvailable]);
 				}
 
 			}
@@ -94,7 +113,6 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 
 	function handleCalendarClick(data: DateData) {
 		const date = new Date(data.dateString)
-		setSelectedWeekDateByDay(date.getDay())
 		const dayOfWeek = date.getDay();
 		const dayName = dayNames[dayOfWeek];
 
@@ -102,6 +120,14 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 		setSelectedDate(date)
 		setDateSelector(`${String(date.getDate() + 1).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`)
 	}
+
+	const toggleTimeSelection = (time: string) => {
+		if (selectedTime.includes(time)) {
+			setSelectedTime(selectedTime.filter(selectedTime => selectedTime !== time));
+		} else {
+			setSelectedTime([...selectedTime, time]);
+		}
+	};
 
 	return (
 		<SafeAreaView className="flex flex-col justify-between h-full">
@@ -116,7 +142,7 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 							<Text className="text-xl font-black">{route.params.courtName}</Text>
 							{!showCalendar && (
 								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
-									<FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} />
+									<FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} handleClick={handleCalendarClick} />
 								</View>
 							)}
 							{showCalendar && (
@@ -125,6 +151,7 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 									current={new Date().toISOString().split('T')[0]}
 									onDayPress={handleCalendarClick}
 									minDate={new Date().toISOString()}
+									selectedDate={selectedDate}
 									markedDates={{
 										[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: '#FF6112' }
 									}}
@@ -145,16 +172,34 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 
 							availabilities.length > 0 ? (
 								availabilities.map((item) => {
+
 									const startsAt = item.startsAt.split(':');
 									const endsAt = item.endsAt.split(':');
 
-
 									if (selectedWeekDate == item.weekDays) {
+										if (item.scheduling) {
+											if (selectedDate.toISOString().split("T")[0] == item.scheduling.toString()) {
+												return <CourtAvailibility
+													key={item.id}
+													id={item.id}
+													startsAt={`${startsAt[0]}:${startsAt[1]}`}
+													endsAt={`${endsAt[0]}:${endsAt[1]}`}
+													price={item.price}
+													busy={true}
+													selectedTimes={selectedTime}
+													toggleTimeSelection={toggleTimeSelection}
+												/>
+											}
+										}
 										return <CourtAvailibility
+											key={item.id}
+											id={item.id}
 											startsAt={`${startsAt[0]}:${startsAt[1]}`}
 											endsAt={`${endsAt[0]}:${endsAt[1]}`}
 											price={item.price}
 											busy={!item.busy}
+											selectedTimes={selectedTime}
+											toggleTimeSelection={toggleTimeSelection}
 										/>
 									}
 								})

@@ -1,11 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { format, eachDayOfInterval, startOfDay, getDay, endOfYear, addYears } from 'date-fns';
 
 
-export default function FilterDate(props: { dateSelector: string, setDateSelector: any }) {
-
-
+export default function FilterDate(props: { dateSelector: string, setDateSelector: any, handleClick: Function }) {
 
     const getAbreviacaoDiaSemana = (diaSemana: number) => {
         switch (diaSemana) {
@@ -28,7 +26,11 @@ export default function FilterDate(props: { dateSelector: string, setDateSelecto
         }
     }
 
-    
+    const [dateSelector, setDateSelector] = useState(new Date().toISOString())
+
+    useEffect(() => {
+        setDateSelector(props.dateSelector)
+    }, [])
 
     const today = startOfDay(new Date())
     const [endDate, setEndDate] = useState(endOfYear(new Date()));
@@ -36,13 +38,12 @@ export default function FilterDate(props: { dateSelector: string, setDateSelecto
     const generateYearDates = (start: any, end: any) => {
         const yearDates = eachDayOfInterval({ start, end })
         return yearDates.map(date => ({
-            date: format(date, 'dd/MM/yyyy'),
+            date: format(date, 'yyyy-MM-dd'),
             dayOfWeek: getAbreviacaoDiaSemana(getDay(date)),
         }))
     }
 
     const [yearDates, setYearDates] = useState(generateYearDates(today, endDate));
-    const endOfExtendedRange = endOfYear(new Date().setFullYear(new Date().getFullYear() + 2)); 
 
     const loadMoreYearDates = () => {
         const newEndDate = addYears(endDate, 1);
@@ -52,12 +53,15 @@ export default function FilterDate(props: { dateSelector: string, setDateSelecto
         setYearDates([...yearDates, ...newYearDates]);
     }
 
+    // dateSelector.split("-")[2]
+
     const renderItem = ({ item }: any) => (
-        <TouchableOpacity className={`flex items-center justify-center p-2 rounded ${item.date == props.dateSelector ? "bg-[#FF6112]" : ""}`} onPress={() => {
-            props.setDateSelector(item.date)
+        <TouchableOpacity className={`flex items-center justify-center p-2 rounded ${item.date == dateSelector ? "bg-[#FF6112]" : ""}`} onPress={() => { 
+            props.handleClick({ dateString: item.date })
+            setDateSelector(item.date)
         }}>
-            <Text className={`text-xs font-medium ${item.date == props.dateSelector ? "text-white" : "text-[#BCC1CD]"}`}>{item.dayOfWeek}</Text>
-            <Text className={`text-base font-semibold ${item.date == props.dateSelector ? "text-white" : "text-[#BCC1CD]"}`}>{item.date.split('/')[0]}</Text>
+            <Text className={`text-xs font-medium ${item.date == dateSelector ? "text-white" : "text-[#BCC1CD]"}`}>{item.dayOfWeek}</Text>
+            <Text className={`text-base font-semibold ${item.date == dateSelector ? "text-white" : "text-[#BCC1CD]"}`}>{item.date.split('-')[2]}</Text>
         </TouchableOpacity>
     )
 
