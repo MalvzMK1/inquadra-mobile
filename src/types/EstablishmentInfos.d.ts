@@ -6,4 +6,5 @@ type Establishment = {
 	phoneNumber: string
 	cellphoneNumber: string
 	photo: string
+	logo: string
 }

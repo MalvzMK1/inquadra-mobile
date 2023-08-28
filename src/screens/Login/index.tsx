@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
 import { useGetUserById } from '../../hooks/useUserById';
+import {generateAuthToken} from "../../services/inter";
 
 interface IFormData {
 	identifier: string
@@ -108,27 +109,28 @@ export default function Login() {
 			<View className='h-16 W-max'></View>
 			<View className="flex-1 flex items-center justify-center px-7">
 				<TouchableOpacity onPress={() => {
-					storage.save({
-						key: 'userInfos',
-						data: {
-							jwt: undefined,
-							userId: 9,
-						},
-						expires: 1000 * 3600
-					}).then(() => {
-						storage.load<UserInfos>({
-							key: 'userInfos'
-						}).then(response => {
-							navigation.navigate('Home', {
-								userGeolocation: userGeolocation ? userGeolocation : {
-									latitude: 78.23570781291714,
-									longitude: 15.491400000982967
-								},
-								userID: response.userId,
-								userPhoto: undefined
-							})
-						})
-					})
+					console.log(generateAuthToken());
+					// storage.save({
+					// 	key: 'userInfos',
+					// 	data: {
+					// 		jwt: undefined,
+					// 		userId: 9,
+					// 	},
+					// 	expires: 1000 * 3600
+					// }).then(() => {
+					// 	storage.load<UserInfos>({
+					// 		key: 'userInfos'
+					// 	}).then(response => {
+					// 		navigation.navigate('Home', {
+					// 			userGeolocation: userGeolocation ? userGeolocation : {
+					// 				latitude: 78.23570781291714,
+					// 				longitude: 15.491400000982967
+					// 			},
+					// 			userID: response.userId,
+					// 			userPhoto: undefined
+					// 		})
+					// 	})
+					// })
 				}}>
 					<Text className='text-base text-gray-400 pb-5'>Seja bem vindo</Text>
 				</TouchableOpacity>
@@ -221,7 +223,7 @@ export default function Login() {
 					</View>
 					<View className='flex-row  items-center justify-center pt-11'>
 						<Text className='text-base text-gray-400'>Ainda não tem uma conta?</Text>
-						<TouchableOpacity onPress={() => navigation.navigate('ChooseUserType')}>
+						<TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment')}>
 							<Text className='text-orange-500 text-base'>Clique aqui</Text>
 						</TouchableOpacity>
 					</View>
