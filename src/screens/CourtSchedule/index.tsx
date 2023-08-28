@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Modal, Image } from "react-native"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import WeekDayButton from "../../components/WeekDays";
 import { Calendar } from 'react-native-calendars'
@@ -20,6 +20,7 @@ import storage from "../../utils/storage";
 import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
+import { useGetSchedulingByDate } from "../../hooks/useSchedulingByDate";
 
 let userId = ""
 
@@ -65,7 +66,9 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
     const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
+    const { data: scheduleByDateData, error: scheduleByDateError, loading: scheduleByDateLoading } = useGetSchedulingByDate("2023-12-14", "2")
 
+    // console.log(scheduleByDateData)
     interface IEstablishmentSchedules {
         courtId: string
         courtName: string
@@ -99,9 +102,50 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         })
     })
 
-    establishmentSchedules.map(item => {
-        console.log(item.weekDay)
+    interface ICourts {
+        id: string
+        name: string
+    }
+    let allCourts: ICourts[] = []
+
+    let courtNames: string[] = []
+    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
+        courtNames.push(courtItem.attributes.name)
+        allCourts = [...allCourts, { id: courtItem.id, name: courtItem.attributes.name }]
     })
+
+    const today = new Date()
+    let nextWeekArray: string[] = []
+
+    for (let i = 1; i <= 7; i++) {
+        const nextWeek = addDays(today, i).toISOString().split("T")[0]
+        nextWeekArray = [...nextWeekArray, nextWeek]
+    }
+
+    const [selectedCourtId, setSelectedCourtId] = useState("2")
+
+    const handleNextSchedules = (selectedCourt: string) => {
+        const foundCourt = allCourts.find(courtItem => courtItem.name === selectedCourt)
+        // setSelectedCourtId(foundCourt?.id)
+    }
+    console.log(selectedCourtId)
+
+    interface ISchedulingsByDate {
+        date: string
+        scheduling_quantity: number | undefined
+    }
+    let schedulingsJson: ISchedulingsByDate[] = []
+
+    if (parseFloat(selectedCourtId) > 0) {
+        nextWeekArray.map(item => {
+            const { data: scheduleByDateData, error: scheduleByDateError, loading: scheduleByDateLoading } = useGetSchedulingByDate(item, selectedCourtId)
+            schedulingsJson = [...schedulingsJson, {
+                date: item,
+                scheduling_quantity: scheduleByDateData?.schedulings.data?.length
+            }]
+        })
+    }
+    console.log(schedulingsJson)
 
     if (userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
         navigation.setParams({
@@ -110,7 +154,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     }
 
     const [activeStates, setActiveStates] = useState(Array(establishmentSchedules.length).fill(false))
-    const [shownSchedules, setShownScedules] = useState<IEstablishmentSchedules[]>([])
+    const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
     const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
     weekDates.map(item => {
@@ -126,7 +170,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
         setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
         if (schedules)
-            setShownScedules(establishmentSchedules.filter(availabilitie =>
+            setShownSchedules(establishmentSchedules.filter(availabilitie =>
                 availabilitie.weekDay === weekDates[index].dayName as unknown as WeekDays
             ))
     }
@@ -180,7 +224,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             </View>
 
             <View className="w-full h-fit pl-[25px] pr-[25px] flex flex-row items-center justify-between">
-                <Text className="text-[16px] text-[#292929] font-black">15/04 - Quinta-feira</Text>
+                <Text className="text-[16px] text-[#292929] font-black">{dateSelected.toISOString().split("T")[0].split("-")[2]}/{dateSelected.toISOString().split("T")[0].split("-")[1]} - Quinta-feira</Text>
                 <TouchableOpacity
                     onPress={() => setShowCalendar(!showCalendar)}
                     className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px] ml-[10px]"
@@ -252,10 +296,11 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     </View>
 
                     <SelectList
+                        onSelect={() => handleNextSchedules(selectedCourt)}
                         setSelected={(val: string) => {
                             setSelectedCourt(val)
                         }}
-                        data={courts}
+                        data={courtNames}
                         save="value"
                         placeholder='Selecione uma quadra'
                         searchPlaceholder='Pesquisar...'
@@ -281,7 +326,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         <View className="flex flex-row flex-wrap w-full justify-evenly">
 
                             {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map(courtItem => (
-                                <CourtSlideButton 
+                                <CourtSlideButton
                                     name={courtItem.attributes.name}
                                 />
                             ))}
