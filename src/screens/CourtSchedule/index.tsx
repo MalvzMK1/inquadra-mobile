@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Modal, Image } from "react-native"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import WeekDayButton from "../../components/WeekDays";
 import { Calendar } from 'react-native-calendars'
@@ -11,6 +11,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import CourtSlideButton from "../../components/CourtSlideButton";
 import MaskInput, { Masks } from "react-native-mask-input";
+import { TextInputMask } from 'react-native-masked-text';
 import { Button } from "react-native-paper";
 import ScheduleBlockDetails from "../../components/ScheduleBlockDetails";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
@@ -18,6 +19,8 @@ import useCourtAvailability from "../../hooks/useCourtAvailability";
 import storage from "../../utils/storage";
 import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
+import { useGetSchedulingByDate } from "../../hooks/useSchedulingByDate";
 
 let userId = ""
 
@@ -62,42 +65,96 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
     const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
+    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
+    const { data: scheduleByDateData, error: scheduleByDateError, loading: scheduleByDateLoading } = useGetSchedulingByDate("2023-12-14", "2")
 
-    if(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
-        navigation.setParams({
-            establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo
-        })
-    }
-
-    let courtsIds: string[] = []
-    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(item => {
-        courtsIds.push(item.id)
-    })
-
-    interface ICourtAvailabilities {
+    // console.log(scheduleByDateData)
+    interface IEstablishmentSchedules {
         courtId: string
         courtName: string
         startsAt: string
         endsAt: string
         weekDay: string
+        scheduling: {
+            schedulingId: string,
+            schedulingDate: string,
+            schedulingStatus: boolean
+        }
     }
-    let courtsAvailabilities: ICourtAvailabilities[] = []
-    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
-        if (courtItem.attributes.court_availabilities) {
-            courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
-                courtsAvailabilities = [...courtsAvailabilities, {
+
+    let establishmentSchedules: IEstablishmentSchedules[] = []
+    schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
+        courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
+            courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
+                establishmentSchedules = [...establishmentSchedules, {
                     courtId: courtItem.id,
                     courtName: courtItem.attributes.name,
                     startsAt: courtAvailabilitieItem.attributes.startsAt,
                     endsAt: courtAvailabilitieItem.attributes.endsAt,
-                    weekDay: courtAvailabilitieItem.attributes.weekDay
+                    weekDay: courtAvailabilitieItem.attributes.weekDay,
+                    scheduling: {
+                        schedulingId: schedulingItem.id,
+                        schedulingDate: schedulingItem.attributes.date,
+                        schedulingStatus: schedulingItem.attributes.status
+                    }
                 }]
             })
-        }
+        })
     })
-    
-    const [activeStates, setActiveStates] = useState(Array(courtsAvailabilities.length).fill(false))
-    const [shownAvailabilities, setShownAvailabilities] = useState<ICourtAvailabilities[]>([])
+
+    interface ICourts {
+        id: string
+        name: string
+    }
+    let allCourts: ICourts[] = []
+
+    let courtNames: string[] = []
+    courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
+        courtNames.push(courtItem.attributes.name)
+        allCourts = [...allCourts, { id: courtItem.id, name: courtItem.attributes.name }]
+    })
+
+    const today = new Date()
+    let nextWeekArray: string[] = []
+
+    for (let i = 1; i <= 7; i++) {
+        const nextWeek = addDays(today, i).toISOString().split("T")[0]
+        nextWeekArray = [...nextWeekArray, nextWeek]
+    }
+
+    const [selectedCourtId, setSelectedCourtId] = useState("2")
+
+    const handleNextSchedules = (selectedCourt: string) => {
+        const foundCourt = allCourts.find(courtItem => courtItem.name === selectedCourt)
+        // setSelectedCourtId(foundCourt?.id)
+    }
+    console.log(selectedCourtId)
+
+    interface ISchedulingsByDate {
+        date: string
+        scheduling_quantity: number | undefined
+    }
+    let schedulingsJson: ISchedulingsByDate[] = []
+
+    if (parseFloat(selectedCourtId) > 0) {
+        nextWeekArray.map(item => {
+            const { data: scheduleByDateData, error: scheduleByDateError, loading: scheduleByDateLoading } = useGetSchedulingByDate(item, selectedCourtId)
+            schedulingsJson = [...schedulingsJson, {
+                date: item,
+                scheduling_quantity: scheduleByDateData?.schedulings.data?.length
+            }]
+        })
+    }
+    console.log(schedulingsJson)
+
+    if (userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
+        navigation.setParams({
+            establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo
+        })
+    }
+
+    const [activeStates, setActiveStates] = useState(Array(establishmentSchedules.length).fill(false))
+    const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
     const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
 
     weekDates.map(item => {
@@ -105,26 +162,26 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     })
 
     function handleWeekDayClick(index: number) {
-		const availabilities = courtsAvailabilities
+        const schedules = establishmentSchedules
 
-		const newActiveStates = Array(courtsAvailabilities.length).fill(false);
-		newActiveStates[index] = true;
-		setActiveStates(newActiveStates);
+        const newActiveStates = Array(establishmentSchedules.length).fill(false);
+        newActiveStates[index] = true;
+        setActiveStates(newActiveStates);
 
-		setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
-		if (availabilities)
-			setShownAvailabilities(courtsAvailabilities.filter(availabilitie =>
-				availabilitie.weekDay === weekDates[index].dayName as unknown as WeekDays
-			))
-	}
-    
+        setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
+        if (schedules)
+            setShownSchedules(establishmentSchedules.filter(availabilitie =>
+                availabilitie.weekDay === weekDates[index].dayName as unknown as WeekDays
+            ))
+    }
+
     function handleCalendarClick(data: DateData) {
-		const date = new Date(data.dateString)
-		const weekDay = format(addDays(date, 1), 'eeee')
+        const date = new Date(data.dateString)
+        const weekDay = format(addDays(date, 1), 'eeee')
 
-		setDateSelected(date)
-		setSelectedWeekDate(weekDay as WeekDays)
-	}
+        setDateSelected(date)
+        setSelectedWeekDate(weekDay as WeekDays)
+    }
 
     return (
         <View className="h-full w-full">
@@ -167,7 +224,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             </View>
 
             <View className="w-full h-fit pl-[25px] pr-[25px] flex flex-row items-center justify-between">
-                <Text className="text-[16px] text-[#292929] font-black">15/04 - Quinta-feira</Text>
+                <Text className="text-[16px] text-[#292929] font-black">{dateSelected.toISOString().split("T")[0].split("-")[2]}/{dateSelected.toISOString().split("T")[0].split("-")[1]} - Quinta-feira</Text>
                 <TouchableOpacity
                     onPress={() => setShowCalendar(!showCalendar)}
                     className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px] ml-[10px]"
@@ -190,49 +247,19 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             <View className={`${showAll ? "max-h-[350px]" : "max-h-fit"}`}>
                 <ScrollView className={`pl-[25px] pr-[40px] mt-[15px] w-full`}>
 
-                    {/* <AddCourtSchedule
-                        name="Quadra Fênix"
-                        startsAt="17:00h"
-                        endsAt="18:30h"
-                        isReserved={true}
-                    />
-
-                    <AddCourtSchedule
-                        name="Quadra Fênix"
-                        startsAt="19:00h"
-                        endsAt="21:30h"
-                        isReserved={true}
-                    />
-
-                    <AddCourtSchedule
-                        name="Clube do Zeca"
-                        isReserved={false}
-                    />
-
-                    <AddCourtSchedule
-                        name="Society 21"
-                        startsAt="19:00h"
-                        endsAt="21:30h"
-                        isReserved={true}
-                    /> */}
-
                     {
-                        shownAvailabilities && shownAvailabilities.map((courtAvailabilityItem) => {
-                            if(!courtAvailabilityItem) console.log("vasco")
+                        shownSchedules && shownSchedules.map((scheduleItem) => {
+                            const startsAt = scheduleItem.startsAt.split(":")
+                            const endsAt = scheduleItem.endsAt.split(":")
 
-                            const startsAt = courtAvailabilityItem.startsAt.split(":")
-                            const endsAt = courtAvailabilityItem.endsAt.split(":")
-
-                            if(shownAvailabilities.length > 0) {
-                                return (
-                                    <AddCourtSchedule
-                                        name={courtAvailabilityItem.courtName}
-                                        startsAt={`${startsAt[0]}:${startsAt[1]}`}
-                                        endsAt={`${endsAt[0]}:${endsAt[1]}`}
-                                        isReserved={true}
-                                    />
-                                )
-                            }
+                            return (
+                                <AddCourtSchedule
+                                    name={scheduleItem.courtName}
+                                    startsAt={`${startsAt[0]}:${startsAt[1]}h`}
+                                    endsAt={`${endsAt[0]}:${endsAt[1]}h`}
+                                    isReserved={true}
+                                />
+                            )
                         })
                     }
 
@@ -269,10 +296,11 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     </View>
 
                     <SelectList
+                        onSelect={() => handleNextSchedules(selectedCourt)}
                         setSelected={(val: string) => {
                             setSelectedCourt(val)
                         }}
-                        data={courts}
+                        data={courtNames}
                         save="value"
                         placeholder='Selecione uma quadra'
                         searchPlaceholder='Pesquisar...'
@@ -297,17 +325,11 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
                         <View className="flex flex-row flex-wrap w-full justify-evenly">
 
-                            <CourtSlideButton
-                                name="Fênix"
-                            />
-
-                            <CourtSlideButton
-                                name="Clube do Zeca"
-                            />
-
-                            <CourtSlideButton
-                                name="Society 21"
-                            />
+                            {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map(courtItem => (
+                                <CourtSlideButton
+                                    name={courtItem.attributes.name}
+                                />
+                            ))}
 
                         </View>
 
@@ -316,13 +338,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                 <Text className='text-sm text-[#FF6112]'>A partir de:</Text>
 
                                 <View className="flex flex-row items-center justify-between border border-neutral-400 rounded p-3">
-                                    <MaskInput
+                                    <TextInputMask
                                         className='w-[80%] bg-white'
-                                        placeholder='MM/AA'
+                                        options={{
+                                            format: 'DD/MM'
+                                        }}
+                                        type={'datetime'}
+                                        placeholder='DD/MM'
                                         value={startsAt}
-                                        onChangeText={setStartsAt}
-                                        mask={Masks.DATE_DDMMYYYY}>
-                                    </MaskInput>
+                                        onChangeText={setStartsAt}>
+                                    </TextInputMask>
                                     <Image source={require('../../assets/calendar_gray_icon.png')}></Image>
                                 </View>
 
@@ -332,13 +357,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                 <Text className='text-sm text-[#FF6112]'>Até:</Text>
 
                                 <View className="flex flex-row items-center justify-between border border-neutral-400 rounded p-3">
-                                    <MaskInput
+                                    <TextInputMask
                                         className='w-[80%] bg-white'
-                                        placeholder='MM/AA'
+                                        placeholder='DD/MM'
+                                        options={{
+                                            format: 'DD/MM'
+                                        }}
+                                        type={'datetime'}
                                         value={endsAt}
-                                        onChangeText={setEndsAt}
-                                        mask={Masks.DATE_DDMMYYYY}>
-                                    </MaskInput>
+                                        onChangeText={setEndsAt}>
+                                    </TextInputMask>
                                     <Image source={require('../../assets/calendar_gray_icon.png')}></Image>
                                 </View>
 

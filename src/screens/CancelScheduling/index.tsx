@@ -7,6 +7,7 @@ import { Button } from "react-native-paper";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {useGetSchedulingsDetails} from "../../hooks/useSchedulingDetails";
 import useCancelSchedule from "../../hooks/useCancelSchedule";
+import {client} from "../../lib/apolloClient";
 
 export default function CancelScheduling({route, navigation}: NativeStackScreenProps<RootStackParamList, 'CancelScheduling'>) {
 	const {data, loading, error} = useGetSchedulingsDetails(route.params.scheduleID);
@@ -33,7 +34,8 @@ export default function CancelScheduling({route, navigation}: NativeStackScreenP
 		}).then(response => {
 			closeConfirmCancelModal()
 			setShowSuccessCancel(true)
-			navigation.goBack()
+			client.clearStore()
+				.then(() => navigation.navigate('Schedulings'))
 		}).catch(error => {
 			alert(error)
 		})

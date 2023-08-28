@@ -7,8 +7,9 @@ export interface IEstablishmentAllSchedulesResponse {
 			attributes: {
 				courts: {
 					data: Array<{
-						id: Court['id'],
+						id: Court['id']
 						attributes: {
+							name: Court['name']
 							photo: {
 								data: Array<{
 									attributes: {
@@ -28,12 +29,14 @@ export interface IEstablishmentAllSchedulesResponse {
 									attributes: {
 										startsAt: string,
 										endsAt: string,
-										status: string
+										status: boolean,
+										weekDay: string,
 										schedulings: {
 											data: Array<{
 												id: string
 												attributes: {
 													date: string
+													status: boolean
 												}
 											}>
 										}
@@ -61,6 +64,7 @@ export const allEstablishmentSchedulesQuery = gql`
                         data {
                             id
                             attributes {
+								name
                                 photo {
                                     data {
                                         attributes {
@@ -80,12 +84,14 @@ export const allEstablishmentSchedulesQuery = gql`
                                         attributes {
                                             startsAt
                                             endsAt
-		                                        status
+		                                    status
+											weekDay
                                             schedulings {
                                                 data {
 		                                                id
                                                     attributes {
                                                         date
+		                                                    status
                                                     }
                                                 }
                                             }
