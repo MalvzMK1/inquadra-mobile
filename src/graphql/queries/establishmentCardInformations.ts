@@ -11,6 +11,13 @@ export interface IEstablishmentCardInformationsResponse {
 					latitude: Address['latitude'],
 					longitude: Address['longitude'],
 				},
+				logo: {
+					data: {
+						attributes: {
+							url: string
+						}
+					}
+				}
 				photos: {
 					data?: Array<{
 						attributes: {
@@ -46,6 +53,13 @@ export const establishmentCardInformationsQuery = gql`
                 id
                 attributes {
                     corporateName
+		                logo {
+				                data {
+						                attributes {
+								                url
+						                }
+				                }
+		                }
                     photos {
                         data {
                             attributes {
