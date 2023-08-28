@@ -6,6 +6,15 @@ export interface IEstablishmentSchedulingsByDayResponse {
     data: {
       id: Establishment['id']
       attributes: {
+        fantasyName: Establishment['fantasyName'] | null
+        corporateName: Establishment['corporateName']
+        logo: {
+          data: {
+            attributes: {
+              url: Establishment['logo']
+            }
+          }
+        }
         courts: {
           data: Array<{
             attributes: {
@@ -92,6 +101,15 @@ query getEstablishmentSchedulings(
     data {
       id
       attributes {
+        fantasyName
+        corporateName
+        logo {
+          data {
+            attributes {
+              url
+            }
+          }
+        }
         courts(filters: { fantasy_name: { eq: $fantasyName } }) {
           data {
             attributes {
@@ -112,11 +130,8 @@ query getEstablishmentSchedulings(
                         }
                       }
                     }
-                    schedulings(
-                      filters: { date: { eq: $date } }
-                    ) {
+                    schedulings(filters: { date: { eq: $date } }) {
                       data {
-                        id
                         attributes {
                           date
                           payedStatus
@@ -163,5 +178,4 @@ query getEstablishmentSchedulings(
     }
   }
 }
-
 `
