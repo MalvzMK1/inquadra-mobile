@@ -63,7 +63,9 @@ type RootStackParamList = {
 		phoneNumber: string
 	};
 	RegisterSuccess: undefined;
-	InfoReserva: undefined;
+	InfoReserva: {
+		userId: string
+	};
 	FavoriteCourts: {
 		userPhoto: string | undefined,
 		userID: string
