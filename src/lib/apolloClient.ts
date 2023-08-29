@@ -15,19 +15,19 @@ storage.load<UserInfos>({
 });
 
 const authLink = new ApolloLink((operation, forward) => {
-	const token = jwt;
-	const requiresAuth = operation.operationName === "userLogin";
+    const token = jwt;
+    const requiresAuth = operation.operationName === "userLogin";
 
-	if (!requiresAuth) {
-		return forward(operation);
-	}
+    if (requiresAuth) {
+        return forward(operation);
+    }
 
-	operation.setContext({
-		headers: {
-			Authorization: 'bearer ' + token
-		}
-	});
-	return forward(operation);
+    operation.setContext({
+        headers: {
+            Authorization: 'bearer ' + token
+        }
+    });
+    return forward(operation);
 });
 
 const link = ApolloLink.from([authLink, httpLink]);
