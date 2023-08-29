@@ -130,7 +130,7 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 	};
 
 	return (
-		<SafeAreaView className="flex flex-col justify-between h-full">
+		<SafeAreaView className="flex flex-col justify-between  h-full">
 			{isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
 				<>
 					<ScrollView className=' h-screen flex flex-col'>
@@ -213,12 +213,12 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 						<View className="h-fit w-full p-[15px] mt-[30px]">
 							<TouchableOpacity
 								className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
-							// onPress={() => navigation.navigate('ReservationPaymentSign', {
-							// 	courtName: route.params.courtName,
-							// 	courtImage: route.params.courtImage,
-							// 	courtId: route.params.courtId,
-							// 	userId: route.params.userId
-							// })}
+								onPress={() => navigation.navigate('ReservationPaymentSign', {
+									courtName: route.params.courtName,
+									courtImage: route.params.courtImage,
+									courtId: route.params.courtId,
+									userId: route.params.userId
+								})}
 							>
 								<Text className='text-white'>RESERVAR</Text>
 							</TouchableOpacity>
