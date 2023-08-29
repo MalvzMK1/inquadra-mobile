@@ -161,7 +161,7 @@ export default function Password({route, navigation}: RegisterPasswordProps) {
 						checked={isTermChecked}
 						onPress={() => setIsTermChecked(!isTermChecked)}
 					/>
-					<Text className="text-base flex-wrap flex-1">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap">Termo de Uso e Política de Privacidade</Text> </Text>
+					<Text className="text-base flex-wrap flex-1">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap" onPress={() => navigation.navigate('TermsOfService')}>Termo de Uso e Política de Privacidade</Text> </Text>
 				</View>
 				{isTermCheckedError && <Text className='text-red-400 text-sm'>Leia os termos</Text>}
 

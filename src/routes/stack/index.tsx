@@ -45,6 +45,7 @@ import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
 import storage from "../../utils/storage";
 import CourtSchedule from '../../screens/CourtSchedule';
+import TermsOfService from '../../screens/Register/termsOfService';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -106,6 +107,13 @@ export default function () {
 			<Screen
 				name='ChooseUserType'
 				component={ChooseUserType}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name='TermsOfService'
+				component={TermsOfService}
 				options={{
 					headerShown: false
 				}}
