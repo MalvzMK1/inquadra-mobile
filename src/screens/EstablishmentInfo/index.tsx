@@ -5,14 +5,14 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import Carousel from "react-native-snap-carousel"
 import { CourtCard } from "../../components/CourtCardInfo"
 import useGetEstablishmentByCourtId from "../../hooks/useGetEstablishmentByCourtId"
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
 import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
-import {HOST_API} from '@env';
+import { HOST_API } from '@env';
 import storage from '../../utils/storage'
-import {calculateDistance} from "../../utils/calculateDistance";
-import {EstablishmentByCourtIdQuery} from "../../graphql/queries/EstablishmentByCourtId";
+import { calculateDistance } from "../../utils/calculateDistance";
+import { useFocusEffect } from '@react-navigation/native'
+import React from 'react'
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
@@ -27,7 +27,7 @@ storage.load({
 
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
-    const {data: establishmentData, loading: establishmentLoading, error: establishmentError} = useGetEstablishmentByCourtId(route.params.establishmentID)
+    const { data: establishmentData, loading: establishmentLoading, error: establishmentError } = useGetEstablishmentByCourtId(route.params.establishmentID)
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
 
     const [userLocation, setUserLocation] = useState({
@@ -64,47 +64,51 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         photo: string,
     }>>([])
 
-    useEffect(() => {
-        if (!error && !loading) {
-            if (establishmentData) {
-                const infosEstablishment = establishmentData.establishment.data
-                const courts = infosEstablishment.attributes.courts.data.map(court => {
-                    console.log({COURT_ID: court.attributes.photo.data[0].attributes.url})
-                    return {
-                        id: court.id,
-                        name: court.attributes.name,
-                        rating: court.attributes.rating ? court.attributes.rating : 0,
-                        court_type: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
-                        court_availabilities: court.attributes.court_availabilities.data.length > 0,
-                        photo: HOST_API + court.attributes.photo.data[0].attributes.url,
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourt([])
+            setEstablishment(undefined)
+            if (!error && !loading) {
+                if (establishmentData) {
+                    const infosEstablishment = establishmentData.establishment.data
+                    const courts = infosEstablishment.attributes.courts.data.map(court => {
+                        return {
+                            id: court.id,
+                            name: court.attributes.name,
+                            rating: court.attributes.rating ? court.attributes.rating : 0,
+                            court_type: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
+                            court_availabilities: court.attributes.court_availabilities.data.length > 0,
+                            photo: HOST_API + court.attributes.photo.data[0].attributes.url,
+                        }
+                    })
+
+
+                    let establishment
+
+
+                        establishment = {
+                            id: infosEstablishment.id,
+                            corporateName: infosEstablishment.attributes.corporateName,
+                            cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
+                            streetName: infosEstablishment.attributes.address.streetName,
+                            latitude: Number(infosEstablishment.attributes.address.latitude),
+                            longitude: Number(infosEstablishment.attributes.address.longitude),
+                            photo: infosEstablishment.attributes.logo.data ? HOST_API + infosEstablishment.attributes.logo.data.attributes.url : "",
+                            photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
+                                return HOST_API + photo.attributes.url
+                            }),
+                            type: courts.map(court => court.court_type).join(', ')
+                        }
+                    
+
+                    setEstablishment(establishment)
+                    if (courts) {
+                        setCourt(prevState => [...prevState, ...courts])
                     }
-                })
-
-
-                // TODO: IMPLEMENT LOGO ATTRIBUTE IN THE DATABASE SO IT ISN'T FIXED IN THE LAST INDEX
-                const lastPhotoIndex = infosEstablishment.attributes.photos.data.length - 1;
-
-                const establishment = {
-                    id: infosEstablishment.id,
-                    corporateName: infosEstablishment.attributes.corporateName,
-                    cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
-                    streetName: infosEstablishment.attributes.address.streetName,
-                    latitude: Number(infosEstablishment.attributes.address.latitude),
-                    longitude: Number(infosEstablishment.attributes.address.longitude),
-                    photo: HOST_API + infosEstablishment.attributes.logo.data.attributes.url,
-                    photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
-                        return HOST_API + photo.attributes.url
-                    }),
-                    type: courts.map(court => court.court_type).join(', ')
-                }
-
-                setEstablishment(establishment)
-                if (courts) {
-                    setCourt(prevState => [...prevState, ...courts])
                 }
             }
-        }
-    }, [establishmentData])
+        }, [establishmentData])
+    )
 
     const onShare = async () => {
         try {
@@ -165,10 +169,10 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
 
     if (Establishment) {
         distance = calculateDistance(
-          Establishment?.latitude,
-          Establishment?.longitude,
-          userLocation.latitude,
-          userLocation.longitude
+            Establishment?.latitude,
+            Establishment?.longitude,
+            userLocation.latitude,
+            userLocation.longitude
         ) / 1000
 
         console.log({
@@ -178,7 +182,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 userLocation.latitude,
                 userLocation.longitude,
             ) / 1000,
-            establishment: {lat: Establishment.latitude, long: Establishment.longitude},
+            establishment: { lat: Establishment.latitude, long: Establishment.longitude },
             user: userLocation
         })
     }
@@ -207,9 +211,9 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     }, [Court]);
 
     useEffect(() => {
-        storage.load<{latitude: string, longitude: string}>({
+        storage.load<{ latitude: string, longitude: string }>({
             key: 'userGeolocation'
-        }).then(response => setUserLocation({latitude: Number(response.latitude), longitude: Number(response.longitude)}))
+        }).then(response => setUserLocation({ latitude: Number(response.latitude), longitude: Number(response.longitude) }))
     }, [])
 
     return (

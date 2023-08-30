@@ -114,19 +114,7 @@ export default function () {
 				name='HomeEstablishment'
 				component={HomeEstablishment}
 				options={{
-					headerTitle: "Olá John",
-					headerTitleAlign: "center",
-					headerLeft: () => (<></>),
-					headerRight: () => (
-						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
-							userPhoto: ""
-						})} className='pr-[10px]'>
-							<Image
-								source={require('../../assets/default-user-image.png')}
-								className="rounded-full w-[50px] h-[50px]"
-							/>
-						</TouchableOpacity>
-					)
+					headerShown: false
 				}}
 			/>
 			<Screen

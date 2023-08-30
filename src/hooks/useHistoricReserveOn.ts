@@ -9,6 +9,7 @@ export function useGetHistoricReserveOn(id: string): QueryResult<IgetHistoricOfR
     return useQuery<IgetHistoricOfReserveOnResponse, IHistoricReserveOnVariables>(historicReserveOnQuery, {
         variables: {
             id
-        }
+        },
+        fetchPolicy: 'network-only',
     })
 }
