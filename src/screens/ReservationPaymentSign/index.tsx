@@ -251,13 +251,12 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                 </View>
                 <View className='px-10 py-5'>
                     <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
-                        onPress={() => {
-                            console.log(amountToPay * 4 / 100)
-                            // navigation.navigate('PixScreen', {
-                            //     courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                            //     value: dataReserve?.courtAvailability.data.attributes.minValue ? dataReserve?.courtAvailability.data.attributes.minValue.toString() : "",
-                            //     userID: userId
-                            // })
+                        onPressIn={() => {
+                            navigation.navigate('PixScreen', {
+                                courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                                value: (amountToPay + serviceValue).toString(),
+                                userID: userId
+                            })
                         }}
                     >
                         <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
