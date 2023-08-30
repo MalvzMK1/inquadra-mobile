@@ -277,6 +277,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     <View key={type}>
                         <Text className="text-[18px] leading-[24px] font-black">{type.toUpperCase()}</Text>
                         {Court.filter((court) => court.court_type === type).map((court) => (
+
                             <CourtCard
                                 key={court.id}
                                 id={court.id}
