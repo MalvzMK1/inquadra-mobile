@@ -10,17 +10,22 @@ import AddCourtSchedule from "../../components/AddCourtSchedule";
 import { SelectList } from 'react-native-dropdown-select-list'
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import CourtSlideButton from "../../components/CourtSlideButton";
-import MaskInput, { Masks } from "react-native-mask-input";
 import { TextInputMask } from 'react-native-masked-text';
 import { Button } from "react-native-paper";
 import ScheduleBlockDetails from "../../components/ScheduleBlockDetails";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
-import useCourtAvailability from "../../hooks/useCourtAvailability";
 import storage from "../../utils/storage";
 import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 import { useGetSchedulingByDate } from "../../hooks/useSchedulingByDate";
+import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { schedulingByDateQuery } from "../../graphql/queries/schedulingByDate";
+import { ISchedulingByDateResponse, ISchedulingByDateVariables } from "../../graphql/queries/schedulingByDate";
+
+import { BarChart, Grid } from 'react-native-svg-charts'
+import ScheduleChartLabels from "../../components/ScheduleChartLabels";
+import { useApolloClient } from "@apollo/client";
 
 let userId = ""
 
@@ -68,7 +73,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
     const { data: scheduleByDateData, error: scheduleByDateError, loading: scheduleByDateLoading } = useGetSchedulingByDate("2023-12-14", "2")
 
-    // console.log(scheduleByDateData)
     interface IEstablishmentSchedules {
         courtId: string
         courtName: string
@@ -122,31 +126,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         nextWeekArray = [...nextWeekArray, nextWeek]
     }
 
-    const [selectedCourtId, setSelectedCourtId] = useState("2")
-
-    const handleNextSchedules = (selectedCourt: string) => {
-        const foundCourt = allCourts.find(courtItem => courtItem.name === selectedCourt)
-        // setSelectedCourtId(foundCourt?.id)
-    }
-    console.log(selectedCourtId)
-
-    interface ISchedulingsByDate {
-        date: string
-        scheduling_quantity: number | undefined
-    }
-    let schedulingsJson: ISchedulingsByDate[] = []
-
-    if (parseFloat(selectedCourtId) > 0) {
-        nextWeekArray.map(item => {
-            const { data: scheduleByDateData, error: scheduleByDateError, loading: scheduleByDateLoading } = useGetSchedulingByDate(item, selectedCourtId)
-            schedulingsJson = [...schedulingsJson, {
-                date: item,
-                scheduling_quantity: scheduleByDateData?.schedulings.data?.length
-            }]
-        })
-    }
-    console.log(schedulingsJson)
-
     if (userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
         navigation.setParams({
             establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo
@@ -182,6 +161,58 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         setDateSelected(date)
         setSelectedWeekDate(weekDay as WeekDays)
     }
+
+    interface ISchedulingsByDate {
+        date: string
+        scheduling_quantity: number | undefined
+    }
+    const [selectedCourtId, setSelectedCourtId] = useState("0")
+    const [schedulingsJson, setSchedulingsJson] = useState<ISchedulingsByDate[]>([])
+    const apolloClient = useApolloClient()
+
+    const handleNextSchedules = async (selectedCourt: string) => {
+        const foundCourt = allCourts.find(courtItem => courtItem.name === selectedCourt)
+        if (!foundCourt) return
+        setSelectedCourtId(foundCourt.id)
+
+        if (parseFloat(foundCourt.id) > 0) {
+            let scheduleInfoArray = await Promise.all(nextWeekArray.map(async (item) => {
+                const { data: scheduleByDateData, error: scheduleByDateError, loading: scheduleByDateLoading } = await apolloClient.query<ISchedulingByDateResponse, ISchedulingByDateVariables>({
+                    query: schedulingByDateQuery,
+                    variables: {
+                        date: {
+                            eq: item
+                        },
+                        court_id: {
+                            eq: foundCourt.id
+                        }
+                    }
+                })
+
+                return {
+                    date: item,
+                    scheduling_quantity: scheduleByDateData?.schedulings.data?.length
+                }
+            }))
+
+            setSchedulingsJson(scheduleInfoArray)
+        }
+
+    }
+
+    const fill = 'rgba(255, 97, 18, 1)'
+    let data: number[] = []
+    schedulingsJson.forEach(item => {
+        data.push(item.scheduling_quantity)
+    })
+    const maxValue = Math.max.apply(null, data)
+    const sumValues = (array: number[]): number => {
+        let sum = 0
+        for (let i = 0; i < array.length; i++)
+            sum += array[i]
+        return sum
+    }
+    const sumValuesTotal: number = sumValues(data)
 
     return (
         <View className="h-full w-full">
@@ -290,21 +321,66 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             </View>
 
             {schedulingsFocus && (
-                <View className="pl-[25px] pr-[40px] mt-[15px] mb-[10px] w-full rounded-[4px] bg-[#F0F0F0] flex flex-row items-center justify-between">
-                    <View className="flex flex-row">
-                        <Text className="font-bold text-[12px] text-black">Próximos 7 dias</Text>
+                <View className="pl-[25px] pr-[40px] mt-[15px] mb-[10px] w-fit h-fit">
+                    <View className="w-full rounded-[4px] flex flex-row items-center justify-between">
+                        <View className="flex flex-row">
+                            <Text className="font-bold text-[12px] text-black">Próximos 7 dias</Text>
+                        </View>
+
+                        <SelectList
+                            onSelect={() => handleNextSchedules(selectedCourt)}
+                            setSelected={(val: string) => {
+                                setSelectedCourt(val)
+                            }}
+                            data={courtNames}
+                            save="value"
+                            placeholder='Selecione uma quadra'
+                            searchPlaceholder='Pesquisar...'
+                            dropdownTextStyles={{ color: "#FF6112" }}
+                            inputStyles={{ alignSelf: "center", height: 14, color: "#B8B8B8" }}
+                            closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                            searchicon={<Ionicons name="search" size={18} color="#FF6112" style={{ marginEnd: 10 }} />}
+                            arrowicon={<AntDesign name="down" size={20} color="#FF6112" style={{ alignSelf: "center" }} />}
+                        />
                     </View>
 
-                    <SelectList
-                        onSelect={() => handleNextSchedules(selectedCourt)}
-                        setSelected={(val: string) => {
-                            setSelectedCourt(val)
-                        }}
-                        data={courtNames}
-                        save="value"
-                        placeholder='Selecione uma quadra'
-                        searchPlaceholder='Pesquisar...'
-                    />
+                    <View>
+                        <Text className="font-bold text-[6px] w-[30px]">
+                            Qtd. reservas
+                        </Text>
+
+                        <Text className="font-bold text-[9px]">
+                            {sumValuesTotal}
+                        </Text>
+                    </View>
+
+                    {maxValue > 0 && (
+                        <BarChart
+                            style={{ height: 200 }}
+                            data={data}
+                            svg={{ fill }}
+                            contentInset={{ top: 20, bottom: 10 }}
+                            spacing={0.2}
+                            gridMin={0}
+                        >
+                            <Grid
+                                direction={Grid.Direction.HORIZONTAL}
+                            />
+                            <ScheduleChartLabels
+                                data={data}
+                                maxValue={maxValue}
+                                x={(index) => index}
+                                y={(value) => value}
+                                bandwidth={0}
+                            />
+                        </BarChart>
+                    )}
+
+                    {maxValue == 0 && (
+                        <View className="h-[100px] flex items-center justify-center">
+                            <Text className="text-[16px] font-bold">Não há reservas para os próximos 7 dias.</Text>
+                        </View>
+                    )}
 
                 </View>
             )}
