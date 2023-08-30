@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
 import { useGetUserById } from '../../hooks/useUserById';
-import {generateAuthToken} from "../../services/inter";
+import { generateAuthToken } from "../../services/inter";
 
 interface IFormData {
 	identifier: string
@@ -225,14 +225,11 @@ export default function Login() {
 					<View className='flex-row  items-center justify-center pt-11'>
 						<Text className='text-base text-gray-400'>Ainda não tem uma conta?</Text>
 						<TouchableOpacity onPress={() => navigation.navigate('ChooseUserType')}>
-							userID: userId,
-							userPhoto: undefined
-						})}>
 							<Text className='text-orange-500 text-base'>Clique aqui</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
 			</View>
-		</ScrollView>
+		</ScrollView >
 	);
 }
