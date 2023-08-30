@@ -130,100 +130,102 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 	};
 
 	return (
-		<SafeAreaView className="flex flex-col justify-between h-full">
+		<SafeAreaView className="flex flex-col justify-between  h-full">
 			{isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
-				<ScrollView className='h-screen flex flex-col flex-1'>
-					<ImageBackground className="h-[215px] w-full" source={{
-						uri: route.params.courtImage
-					}} />
+				<>
+					<ScrollView className=' h-screen flex flex-col'>
+						<ImageBackground className="h-[215px] w-full" source={{
+							uri: route.params.courtImage
+						}} />
 
-					<View className="h-fit mt-2.5">
-						<View className="h-fit items-center">
-							<Text className="text-xl font-black">{route.params.courtName}</Text>
-							{!showCalendar && (
-								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
-									<FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} handleClick={handleCalendarClick} />
-								</View>
-							)}
-							{showCalendar && (
-								<Calendar
-									className="h-fit w-96"
-									current={new Date().toISOString().split('T')[0]}
-									onDayPress={handleCalendarClick}
-									minDate={new Date().toISOString()}
-									selectedDate={selectedDate}
-									markedDates={{
-										[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: '#FF6112' }
-									}}
-									theme={{
-										arrowColor: "#FF6112",
-										todayTextColor: "#FF6112"
-									}}
+						<View className=" h-fit mt-2.5">
+							<View className="flex h-fit items-center">
+								<Text className="text-xl font-black">{route.params.courtName}</Text>
+								{!showCalendar && (
+									<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
+										<FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} handleClick={handleCalendarClick} />
+									</View>
+								)}
+								{showCalendar && (
+									<Calendar
+										className="h-fit w-96"
+										current={new Date().toISOString().split('T')[0]}
+										onDayPress={handleCalendarClick}
+										minDate={new Date().toISOString()}
+										selectedDate={selectedDate}
+										markedDates={{
+											[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: '#FF6112' }
+										}}
+										theme={{
+											arrowColor: "#FF6112",
+											todayTextColor: "#FF6112"
+										}}
+									/>
+								)}
+								<TouchableOpacity
+									onPress={() => setShowCalendar(!showCalendar)}
+									className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px]"
 								/>
-							)}
-							<TouchableOpacity
-								onPress={() => setShowCalendar(!showCalendar)}
-								className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px]"
-							/>
+							</View>
 						</View>
-					</View>
-					<ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[30px] flex">
-						{
+						<ScrollView className="  h-full w-full pl-[10px] pr-[10px] mt-[30px] flex">
+							{
 
-							availabilities.length > 0 ? (
-								availabilities.map((item) => {
+								availabilities.length > 0 ? (
+									availabilities.map((item) => {
 
-									const startsAt = item.startsAt.split(':');
-									const endsAt = item.endsAt.split(':');
+										const startsAt = item.startsAt.split(':');
+										const endsAt = item.endsAt.split(':');
 
-									if (selectedWeekDate == item.weekDays) {
-										if (item.scheduling) {
-											if (selectedDate.toISOString().split("T")[0] == item.scheduling.toString()) {
-												return <CourtAvailibility
-													key={item.id}
-													id={item.id}
-													startsAt={`${startsAt[0]}:${startsAt[1]}`}
-													endsAt={`${endsAt[0]}:${endsAt[1]}`}
-													price={item.price}
-													busy={true}
-													selectedTimes={selectedTime}
-													toggleTimeSelection={toggleTimeSelection}
-												/>
+										if (selectedWeekDate == item.weekDays) {
+											if (item.scheduling) {
+												if (selectedDate.toISOString().split("T")[0] == item.scheduling.toString()) {
+													return <CourtAvailibility
+														key={item.id}
+														id={item.id}
+														startsAt={`${startsAt[0]}:${startsAt[1]}`}
+														endsAt={`${endsAt[0]}:${endsAt[1]}`}
+														price={item.price}
+														busy={true}
+														selectedTimes={selectedTime}
+														toggleTimeSelection={toggleTimeSelection}
+													/>
+												}
 											}
+											return <CourtAvailibility
+												key={item.id}
+												id={item.id}
+												startsAt={`${startsAt[0]}:${startsAt[1]}`}
+												endsAt={`${endsAt[0]}:${endsAt[1]}`}
+												price={item.price}
+												busy={!item.busy}
+												selectedTimes={selectedTime}
+												toggleTimeSelection={toggleTimeSelection}
+											/>
 										}
-										return <CourtAvailibility
-											key={item.id}
-											id={item.id}
-											startsAt={`${startsAt[0]}:${startsAt[1]}`}
-											endsAt={`${endsAt[0]}:${endsAt[1]}`}
-											price={item.price}
-											busy={!item.busy}
-											selectedTimes={selectedTime}
-											toggleTimeSelection={toggleTimeSelection}
-										/>
-									}
-								})
+									})
 
-							)
-								:
-								<Text className="text-xl font-black text-center">No momento não é possivel Alugar essa quadra</Text>
-						}
+								)
+									:
+									<Text className="text-xl font-black text-center">No momento não é possivel Alugar essa quadra</Text>
+							}
+						</ScrollView>
+						<View className="h-fit w-full p-[15px] mt-[30px]">
+							<TouchableOpacity
+								className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
+								onPress={() => navigation.navigate('ReservationPaymentSign', {
+									courtName: route.params.courtName,
+									courtImage: route.params.courtImage,
+									courtId: route.params.courtId,
+									userId: route.params.userId
+								})}
+							>
+								<Text className='text-white'>RESERVAR</Text>
+							</TouchableOpacity>
+						</View>
 					</ScrollView>
-					<View className="h-fit w-full p-[15px] mt-[30px]">
-						<TouchableOpacity
-							className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
-						// onPress={() => navigation.navigate('ReservationPaymentSign', {
-						// 	courtName: route.params.courtName,
-						// 	courtImage: route.params.courtImage,
-						// 	courtId: route.params.courtId,
-						// 	userId: route.params.userId
-						// })}
-						>
-							<Text className='text-white'>RESERVAR</Text>
-						</TouchableOpacity>
-					</View>
 					<BottomBlackMenu />
-				</ScrollView>
+				</>
 			}
 		</SafeAreaView>
 	)
