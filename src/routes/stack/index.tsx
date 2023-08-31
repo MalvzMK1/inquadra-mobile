@@ -580,9 +580,37 @@ export default function () {
 			<Screen
 				name='ReservationPaymentSign'
 				component={ReservationPaymentSign}
-				options={{
-					headerShown: false
-				}}
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>SINAL/PIX</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity
+							className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
+							onPress={() => navigation.navigate('ProfileSettings', {
+								userID: userId,
+								userPhoto: params.userPhoto
+							})}>
+							<Image
+								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								className='w-full h-full'
+							/>
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name="CompletedEstablishmentResgistration"
@@ -645,9 +673,9 @@ export default function () {
 					headerStyle: {
 						height: 100,
 						backgroundColor: '#292929',
-					}, 
+					},
 					headerTitleAlign: 'center',
-					title:"Detalhes"
+					title: "Detalhes"
 				}}
 			/>
 			<Screen
@@ -658,9 +686,9 @@ export default function () {
 					headerStyle: {
 						height: 100,
 						backgroundColor: '#292929',
-					}, 
+					},
 					headerTitleAlign: 'center',
-					title:"Histórico"
+					title: "Histórico"
 				}}
 			/>
 			<Screen
@@ -673,9 +701,37 @@ export default function () {
 			<Screen
 				name='CourtAvailabilityInfo'
 				component={CourtAvailabilityInfo}
-				options={{
-					headerShown: false
-				}}
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>SINAL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity
+							className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
+							onPress={() => navigation.navigate('ProfileSettings', {
+								userID: userId,
+								userPhoto: params.userPhoto
+							})}>
+							<Image
+								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								className='w-full h-full'
+							/>
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 		</Navigator>
 	)

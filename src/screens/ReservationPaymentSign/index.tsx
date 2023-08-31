@@ -238,11 +238,9 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                     <Text className="text-base text-center font-bold">
                         Para realizar sua reserva é necessário pagar um sinal.
                     </Text>
-                    <View className="p-1">
-                        <TouchableOpacity onPress={handleRateInformation}>
-                            <FontAwesome name="question-circle-o" size={13} color="black" />
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
+                        <FontAwesome name="question-circle-o" size={13} color="black" />
+                    </TouchableOpacity>
                 </View>
                 <View className="bg-gray-300 p-4">
                     <Text className="text-5xl text-center font-extrabold text-gray-700">

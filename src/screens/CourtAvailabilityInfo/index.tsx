@@ -177,9 +177,13 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 
 										let isBusy = !item.busy;
 
+										
 										if (item.scheduling) {
-											if (selectedDate.split("T")[0] === item.scheduling.toString()) {
-												isBusy = true;
+											const isSameDayWeek = new Date(item.scheduling)
+											if(isSameDayWeek.getDay() === new Date(selectedDate).getDay()){	
+												if (selectedDate.split("T")[0] === item.scheduling.toString()) {
+													isBusy = true;
+												}
 											}
 										}
 
@@ -218,7 +222,8 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 										userId: route.params.userId,
 										amountToPay: selectedTime?.value,
 										courtAvailabilities: selectedTime?.id,
-										courtAvailabilityDate: selectedDate
+										courtAvailabilityDate: selectedDate,
+										userPhoto: route.params.userPhoto
 									})
 								}}
 							>
