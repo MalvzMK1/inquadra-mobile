@@ -12,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
+
 function formatDateTime(dateTimeString: string): string {
     try {
         const parsedDateTime = parseISO(dateTimeString);
@@ -37,8 +38,7 @@ function formatDate(dateTimeString: string): string {
 
 
 export default function InfoReserva({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'InfoReserva'>) {
-    const user_id = '1'
-
+    const user_id = route.params.userId
     
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
     const { data, error, loading, refetch } = useGetHistoricReserveOn(user_id)
@@ -67,7 +67,7 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-max w-max'>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data.attributes.photo?.data.attributes.url }}
+                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -85,11 +85,10 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                     <View className='w-screen h-screen bg-zinc-900'>
                         {/* Div para inserção dos cards*/}
                         <View className='w-max h-max px-3'>
-                            {/* Div para criação dos cards de reservas ativas*/}
                             {
                                 !error && !loading ?
                                     data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map((courtInfo) =>
-                                        courtInfo.attributes.status ?
+                                        courtInfo?.attributes?.status ?
                                             <TouchableOpacity onPress={() => navigation.navigate('DescriptionReserve', { userId: user_id, scheduleId: courtInfo.id })}>
                                                 <View className='flex-row items-start justify-start w-max h-max pt-2'>
                                                     <View>
@@ -104,15 +103,15 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                             <Text className='font-black text-base text-orange-600'>{courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name}</Text>
                                                         </View>
                                                         <View>
-                                                            <Text className='font-normal text-xs text-white'>{courtInfo?.attributes.court_availability?.data.attributes.court.data.attributes.name}</Text>
+                                                            <Text className='font-normal text-xs text-white'>{courtInfo?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.name}</Text>
                                                         </View>
                                                         <View className='w-max h-5 flex-row pt-1'>
                                                             <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo.attributes.valuePayed}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.valuePayed}</Text>
                                                                 <Text className='font-black text-xs text-white'> / </Text>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo.attributes.court_availability.data.attributes.value}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.court_availability?.data?.attributes?.value}</Text>
                                                             </View>
-                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((courtInfo.attributes.valuePayed / courtInfo.attributes.court_availability.data.attributes.value) * 100)}</Text>
+                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((courtInfo?.attributes?.valuePayed / courtInfo?.attributes?.court_availability?.data?.attributes?.value) * 100)}</Text>
                                                         </View>
                                                         <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt)}</Text>
                                                     </View>
@@ -121,7 +120,6 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                             : null
                                     ) : null
                             }
-                            {/* View de texto indicando das reservas finalizadas*/}
                             <View className='flex items-start w-max pt-14'>
                                 <Text className='text-lg font-black text-white'>RESERVAS FINALIZADAS</Text>
                             </View>

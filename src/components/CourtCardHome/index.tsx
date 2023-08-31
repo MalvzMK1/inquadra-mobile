@@ -25,7 +25,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 	const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>([])
 
 	useEffect(() => {
-		userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
+		userByIdData?.usersPermissionsUser.data.attributes.favorite_establishments.data?.map(item => {
 			setUserFavoriteCourts([item.id])
 		})
 	}, [userByIdData])
@@ -48,7 +48,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 			updateLikedCourts({
 				variables: {
 					user_id: userId,
-					favorite_courts: arrayWithoutDeletedItem
+					favorite_establishment: arrayWithoutDeletedItem
 				}
 			}).then(() => alert("Dislike"))
 				.catch((reason) => alert(reason))
@@ -63,7 +63,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 			updateLikedCourts({
 				variables: {
 					user_id: userId,
-					favorite_courts: courtsData
+					favorite_establishment: courtsData
 				}
 			}).then(() => alert("Like"))
 				.catch((reason) => alert(reason))

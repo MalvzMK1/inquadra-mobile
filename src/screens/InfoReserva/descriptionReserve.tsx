@@ -241,7 +241,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             })
 
             !loadingCancelSchedule || !errorCancelSchedule
-                ? navigation.navigate('InfoReserva')
+                ? navigation.navigate('InfoReserva', {userId: user_id})
                 : null
         } catch (error) {
             null
