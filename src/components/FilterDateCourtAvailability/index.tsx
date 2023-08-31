@@ -1,11 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { format, eachDayOfInterval, startOfDay, getDay, endOfYear, addYears } from 'date-fns';
 
 
-export default function FilterDate(props: { dateSelector: string, setDateSelector: any }) {
-
-
+export default function FilterDate(props: { dateSelector: string, setDateSelector: any, handleClick: Function }) {
 
     const getAbreviacaoDiaSemana = (diaSemana: number) => {
         switch (diaSemana) {
@@ -28,38 +26,37 @@ export default function FilterDate(props: { dateSelector: string, setDateSelecto
         }
     }
 
-    
-
-    const today = startOfDay(new Date())
-    const [endDate, setEndDate] = useState(endOfYear(new Date()));
-
     const generateYearDates = (start: any, end: any) => {
         const yearDates = eachDayOfInterval({ start, end })
         return yearDates.map(date => ({
-            date: format(date, 'dd/MM/yyyy'),
+            date: format(date, 'yyyy-MM-dd'),
             dayOfWeek: getAbreviacaoDiaSemana(getDay(date)),
         }))
     }
 
+
+    const today = startOfDay(new Date());
+    const [endDate, setEndDate] = useState(endOfYear(new Date()));
     const [yearDates, setYearDates] = useState(generateYearDates(today, endDate));
-    const endOfExtendedRange = endOfYear(new Date().setFullYear(new Date().getFullYear() + 2)); 
+
 
     const loadMoreYearDates = () => {
         const newEndDate = addYears(endDate, 1);
         const newYearDates = generateYearDates(endDate, newEndDate);
-        
+
         setEndDate(newEndDate);
         setYearDates([...yearDates, ...newYearDates]);
     }
 
-    const renderItem = ({ item }: any) => (
-        <TouchableOpacity className={`flex items-center justify-center p-2 rounded ${item.date == props.dateSelector ? "bg-[#FF6112]" : ""}`} onPress={() => {
+    const renderItem = ({ item }: any) => {
+        return (<TouchableOpacity className={`flex items-center justify-center p-2 rounded ${item.date == props.dateSelector.split("/").reverse().join("-") ? "bg-[#FF6112]" : ""}`} onPress={() => {
+            props.handleClick({ dateString: item.date })
             props.setDateSelector(item.date)
         }}>
-            <Text className={`text-xs font-medium ${item.date == props.dateSelector ? "text-white" : "text-[#BCC1CD]"}`}>{item.dayOfWeek}</Text>
-            <Text className={`text-base font-semibold ${item.date == props.dateSelector ? "text-white" : "text-[#BCC1CD]"}`}>{item.date.split('/')[0]}</Text>
-        </TouchableOpacity>
-    )
+            <Text className={`text-xs font-medium ${item.date == props.dateSelector.split("/").reverse().join("-") ? "text-white" : "text-[#BCC1CD]"}`}>{item.dayOfWeek}</Text>
+            <Text className={`text-base font-semibold ${item.date == props.dateSelector.split("/").reverse().join("-") ? "text-white" : "text-[#BCC1CD]"}`}>{item.date.split('-')[2]}</Text>
+        </TouchableOpacity>)
+    }
 
 
     return (
