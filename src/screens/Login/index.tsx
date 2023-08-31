@@ -224,7 +224,7 @@ export default function Login() {
 					</View>
 					<View className='flex-row  items-center justify-center pt-11'>
 						<Text className='text-base text-gray-400'>Ainda não tem uma conta?</Text>
-						<TouchableOpacity onPress={() => navigation.navigate('ChooseUserType')}>
+						<TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment')}>
 							<Text className='text-orange-500 text-base'>Clique aqui</Text>
 						</TouchableOpacity>
 					</View>

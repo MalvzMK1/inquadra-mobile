@@ -25,7 +25,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 	const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>([])
 
 	useEffect(() => {
-		userByIdData?.usersPermissionsUser.data.attributes.favorite_establishments.data?.map(item => {
+		userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(item => {
 			setUserFavoriteCourts([item.id])
 		})
 	}, [userByIdData])
