@@ -45,6 +45,8 @@ import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
 import storage from "../../utils/storage";
 import CourtSchedule from '../../screens/CourtSchedule';
+import YourComponent from '../../screens/UploadImage';
+import UploadImage from '../../screens/UploadImage';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -75,7 +77,7 @@ export default function () {
 						backgroundColor: '#292929',
 					},
 				}}
-			/>
+			/> */}
 			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}

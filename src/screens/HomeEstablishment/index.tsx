@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Image} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
@@ -13,29 +13,44 @@ import { boolean } from "zod";
 import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
 const { parse, format } = require('date-fns');
 import { HOST_API } from '@env'
+import useEstablishmentIdByUserId from "../../hooks/useEstablishmentByUserId";
 
 export default function HomeEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'HomeEstablishment'>) {
     const [selected, setSelected] = useState('');
     const [userId, setUserId] = useState<string>()
+
+    useEffect(() => {
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            console.log(data)
+            setUserId(data.userId)
+        })
+    }, [])
 
     const actualDate = new Date();
     const dateFormat = "yyyy-MM-dd";
 
     const targetDate = parse(format(actualDate, dateFormat), 'yyyy-MM-dd', new Date());
 
-    const dayOfWeek = format(targetDate, 'EEEE'); 
+    const dayOfWeek = format(targetDate, 'EEEE');
 
-    const establishment_id = userId
+    const {data:dataEstablishmentId, error:errorEstablishmentId, loading:loadingEstablishmentId} = useEstablishmentIdByUserId(userId!)
+
+    const establishment_id = dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.establishment?.data?.id
     const [fantasy_name, setFantasyName] = useState('')
     const day_week = dayOfWeek
     const date = format(actualDate, dateFormat);
 
-    const { data: dataSchedulings, error: errorSchedulings, loading: loadingSchedulings } = useEstablishmentSchedulingsByDay(establishment_id, fantasy_name, day_week, date)
-    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id)
+    const { data: dataSchedulings, error: errorSchedulings, loading: loadingSchedulings } = useEstablishmentSchedulingsByDay(establishment_id!, fantasy_name, day_week, date)
+    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id!)
     const [updateActivatedStatus, { data: dataActivateStatus, error: errorActivateStatus, loading: loadingActivateStatus }] = useUpdateScheduleActivateStatus()
+   
 
     const [selectedDate, setSelectedDate] = useState('');
     const [activationKey, setActivationKey] = useState('');
+
+
 
     // 1 === true / 2 === false / 3 === null
     const [validated, setValidate] = useState(3);
@@ -58,16 +73,9 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
 
 
 
-    useEffect(() => {
-        storage.load<UserInfos>({
-            key: 'userInfos'
-        }).then(data => {
-            console.log(data)
-            setUserId(data.userId)
-        })
-    }, [])
+   
 
-    
+
 
     const getIdByKey = (key: string): string | undefined => {
         const schedulingFound = dataSchedulings?.establishment?.data?.attributes?.courts?.data?.flatMap((courts) =>
@@ -107,12 +115,12 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
             }
         } catch (error) {
             if (errorActivateStatus.graphQLErrors && errorActivateStatus.graphQLErrors[0] && errorActivateStatus.graphQLErrors[0].extensions && errorActivateStatus.graphQLErrors[0].extensions.exception.status === 400) {
-                setValidate(2); 
+                setValidate(2);
                 setTimeout(() => {
                     setValidate(2);
                 }, 100);
             } else {
-                setValidate(2); 
+                setValidate(2);
             }
         }
     };
@@ -120,7 +128,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     return (
         <View className="flex-1">
             <View className=' h-11 w-max  bg-zinc-900'></View>
-             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
+            <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
                     <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva')}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
@@ -132,7 +140,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: HOST_API + dataSchedulings?.establishment.data.attributes.logo.data.attributes.url}}
+                            source={{ uri: HOST_API + dataSchedulings?.establishment.data.attributes.logo.data.attributes.url }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -184,7 +192,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                         <View className="bg-[#292929] border rounded-md p-5 ">
                             <Text className="text-[#FF6112] text-base font-bold">Reservas hoje</Text>
                             <View className="pt-5 gap-2">
-                                { 
+                                {
                                     dataSchedulings?.establishment?.data?.attributes?.courts?.data?.map((courts) =>
                                         courts?.attributes?.court_availabilities?.data?.map((availabilities) =>
                                             availabilities?.attributes?.schedulings?.data?.map((schedulings) =>
@@ -222,102 +230,60 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                         </View>
                         <View className="flex flex-row">
                             <View className="gap-4 pt-3">
-                                <Text className="text-base text-gray-400">14:00hs</Text>
-                                <Text className="text-base text-gray-400">15:00hs</Text>
-                                <Text className="text-base text-gray-400">16:00hs</Text>
-                                <Text className="text-base text-gray-400">17:00hs</Text>
-                                <Text className="text-base text-gray-400">18:00hs</Text>
-                                <Text className="text-base text-gray-400">19:00hs</Text>
-                                <Text className="text-base text-gray-400">20:00hs</Text>
-                                <Text className="text-base text-gray-400">21:00hs</Text>
-                                <Text className="text-base text-gray-400">22:00hs</Text>
-                                <Text className="text-base text-gray-400">23:00hs</Text>
-                                <Text className="text-base text-gray-400">00:00hs</Text>
+                                {
+                                    dataSchedulings?.establishment.data.attributes.courts.data.map((courts) =>
+                                        courts.attributes.court_availabilities.data.map((availabilities) => (
+                                            <View className="flex flex-row" key={availabilities.id}>
+                                                <Text className="text-base text-gray-400">{availabilities.attributes.startsAt.substring(0, 5)}</Text>
+
+                                                {availabilities.attributes.schedulings.data.length !== 0 ? (
+                                                    availabilities.attributes.schedulings.data.map((scheduling) => (
+                                                        <View className="h-16 bg-[#B6B6B633] rounded-2xl" key={scheduling.id}>
+                                                            <Text className="pl-10 pt-1 text-gray-400 text-xs">Info reserva:</Text>
+                                                            <View className="flex flex-row p-2">
+                                                                <View className="h-12 -mt-4 border-2 rounded border-orange-500"></View>
+                                                                <View className="flex">
+                                                                    <View className="flex flex-row">
+                                                                        <View className="flex flex-row ml-5">
+                                                                            <Ionicons name="person-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
+                                                                            <Text>{scheduling.attributes.owner.data.attributes.username}</Text>
+                                                                        </View>
+                                                                        <View className="flex flex-row ml-6">
+                                                                            <Ionicons name="time-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
+                                                                            <Text>{`${scheduling.attributes.date} ${scheduling.attributes.startsAt} - ${scheduling.attributes.endsAt}`}</Text>
+                                                                        </View>
+                                                                    </View>
+                                                                    <View className="flex flex-row">
+                                                                        <View className="flex flex-row ml-5">
+                                                                            <MaterialIcons name="attach-money" size={16} color="#FF6112" />
+                                                                            <Text className="pl-2">{scheduling.attributes.payedStatus ? 'Pago' : 'Não Pago'}</Text>
+                                                                        </View>
+                                                                        <View className="flex flex-row ml-6 pl-12">
+                                                                            <Ionicons name="basketball-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
+                                                                            <Text>{scheduling.attributes.court_availability.data.attributes.court.data.attributes.court_types.data[0].attributes.name}</Text>
+                                                                        </View>
+                                                                    </View>
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                    ))
+                                                ) : (
+                                                    <View className=" h-16">
+                                                        <Text>Livre</Text>
+                                                    </View>
+                                                )}
+                                            </View>
+                                        ))
+                                    )
+                                }
+
                             </View>
                             <View className="border border-gray-300 ml-2 mr-2"></View>
-                            <View className="p-1">
-                                <View className="h-17 bg-[#B6B6B633] rounded-2xl">
-                                    <Text className="pl-10 pt-1 text-gray-400 text-xs">Info reserva:</Text>
-                                    <View className="flex flex-row p-2">
-                                        <View className="h-12 -mt-4 border-2 rounded border-orange-500"></View>
-                                        <View className="flex">
-                                            <View className="flex flex-row">
-                                                <View className="flex flex-row ml-5">
-                                                    <Ionicons name="person-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
-                                                    <Text> Lucas Santos</Text>
-                                                </View>
-                                                <View className="flex flex-row ml-6">
-                                                    <Ionicons name="time-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
-                                                    <Text>14:00h - 15:00h</Text>
-                                                </View>
-                                            </View>
-                                            <View className="flex flex-row">
-                                                <View className="flex flex-row ml-5">
-                                                    <MaterialIcons name="attach-money" size={16} color="#FF6112" />
-                                                    <Text className="pl-2">Pago</Text>
-                                                </View>
-                                                <View className="flex flex-row ml-6 pl-12">
-                                                    <Ionicons name="basketball-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
-                                                    <Text>Basquete</Text>
-                                                </View>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </View>
-                                <View className="pt-4">
-                                    <Text className="text-gray-400">Livre</Text>
-                                </View>
-                                <View className="pt-6">
-                                    <Text className="text-gray-400">Livre</Text>
-                                </View>
-                                <View className="pt-6">
-                                    <Text className="text-gray-400">Livre</Text>
-                                </View>
-                                <View className="pt-5">
-                                    <Text className="text-gray-400">Livre</Text>
-                                </View>
-                                <View className="pt-6">
-                                    <Text className="text-gray-400">Livre</Text>
-                                </View>
-                                <View className="pt-7">
-                                    <View className="h-20 bg-[#B6B6B633] rounded-2xl">
-                                        <Text className="pl-10 pt-1 text-gray-400 text-xs">Info reserva:</Text>
-                                        <View className="flex flex-row p-2">
-                                            <View className="h-14 -mt-4 border-2 rounded border-orange-500"></View>
-                                            <View className="flex">
-                                                <View className="flex flex-row">
-                                                    <View className="flex flex-row ml-5">
-                                                        <Ionicons name="person-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
-                                                        <Text> Lucas Santos</Text>
-                                                    </View>
-                                                    <View className="flex flex-row ml-6">
-                                                        <Ionicons name="time-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
-                                                        <Text>21:00h - 23:00h</Text>
-                                                    </View>
-                                                </View>
-                                                <View className="flex flex-row">
-                                                    <View className="flex flex-row ml-5">
-                                                        <MaterialIcons name="attach-money" size={16} color="#FF6112" />
-                                                        <Text className="pl-2">Pago</Text>
-                                                    </View>
-                                                    <View className="flex flex-row ml-6 pl-12">
-                                                        <Ionicons name="basketball-outline" size={16} color="#FF6112" style={{ marginRight: 6 }} />
-                                                        <Text>Basquete</Text>
-                                                    </View>
-                                                </View>
-                                                <View className="pt-12">
-                                                    <Text className="text-gray-400">Livre</Text>
-                                                </View>
-                                            </View>
-                                        </View>
-                                    </View>
 
-                                </View>
-                            </View>
                         </View>
 
                     </View>
-                   
+
                 </View>
             </ScrollView>
             {

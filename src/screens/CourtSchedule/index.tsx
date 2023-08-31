@@ -132,35 +132,96 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         })
     }
 
-    const [activeStates, setActiveStates] = useState(Array(establishmentSchedules.length).fill(false))
-    const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
-    const weekDates: FormatedWeekDates[] = getWeekDays(dateSelected)
+    let weekDates: FormatedWeekDates[] = []
+    if (dateSelected)
+        weekDates = getWeekDays(dateSelected)
+    else
+        weekDates = getWeekDays(today)
+    interface IActiveState {
+        active: boolean
+        date: string
+    }
+    const [activeStates, setActiveStates] = useState<IActiveState[]>([])
 
-    weekDates.map(item => {
-        // console.log(item)
-    })
+    useEffect(() => {
+        let newActiveStates: IActiveState[] = []
+        weekDates.map(weekDayItem => {
+            newActiveStates = [...newActiveStates, {
+                active: false,
+                date: weekDayItem.date.toISOString().split("T")[0]
+            }]
+        })
+        setActiveStates(newActiveStates)
+    }, [])
+
+    const [teste, setTeste] = useState(Array(courtNames.length).fill(false))
+    const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
 
     function handleWeekDayClick(index: number) {
         const schedules = establishmentSchedules
 
-        const newActiveStates = Array(establishmentSchedules.length).fill(false);
-        newActiveStates[index] = true;
-        setActiveStates(newActiveStates);
+        let newActiveStates: IActiveState[] = []
+        weekDates.map(weekDayItem => {
+            newActiveStates = [...newActiveStates, {
+                active: false,
+                date: weekDayItem.date.toISOString().split("T")[0]
+            }]
+        })
+        newActiveStates[index] = {
+            active: true,
+            date: weekDates[index].date.toISOString().split("T")[0]
+        }
+        setActiveStates(newActiveStates)
+        // const newActiveStates = ;
+        // newActiveStates[index] = true;
+        // setActiveStates(newActiveStates);
+
+        // let teste = weekDates[index].date
+        // console.log(teste)
+        // setDateSelected(new Date(teste))
 
         setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
         if (schedules)
-            setShownSchedules(establishmentSchedules.filter(availabilitie =>
-                availabilitie.weekDay === weekDates[index].dayName as unknown as WeekDays
+            setShownSchedules(establishmentSchedules.filter(scheduleItem =>
+                scheduleItem.scheduling.schedulingDate === weekDates[index].date.toISOString().split("T")[0]
             ))
     }
 
-    function handleCalendarClick(data: DateData) {
+    async function handleCalendarClick(data: DateData) {
         const date = new Date(data.dateString)
         const weekDay = format(addDays(date, 1), 'eeee')
 
         setDateSelected(date)
-        setSelectedWeekDate(weekDay as WeekDays)
+
+        let newActiveStates: IActiveState[] = []
+        await Promise.all(weekDates.map(weekDayItem => {
+            newActiveStates = [...newActiveStates, {
+                active: false,
+                date: weekDayItem.date.toISOString().split("T")[0]
+            }]
+        }))
+
+        const index = newActiveStates.findIndex(activeItem => activeItem.date == date.toISOString().split("T")[0])
+        newActiveStates[index] = {
+            active: true,
+            date: weekDates[index].date.toISOString().split("T")[0]
+        }
+
+        setActiveStates(newActiveStates)
+
+        const schedules = establishmentSchedules
+        if (schedules)
+            setShownSchedules([])
+            setShownSchedules(establishmentSchedules.filter(scheduleItem =>
+                scheduleItem.scheduling.schedulingDate === weekDates[index].date.toISOString().split("T")[0]
+            ))
     }
+
+    // function handle(index: number) {
+    //     const newActiveStates = Array(courtNames.length).fill(false)
+    //     newActiveStates[index] = true
+    //     setTeste(newActiveStates)
+    // }
 
     interface ISchedulingsByDate {
         date: string
@@ -235,7 +296,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     onClick={(isClicked) => {
                                         handleWeekDayClick(index)
                                     }}
-                                    active={activeStates[index]}
+                                    // active={activeStates[index].active}
+                                    active={true}
                                 />
                             ))
                         }
@@ -401,9 +463,13 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
                         <View className="flex flex-row flex-wrap w-full justify-evenly">
 
-                            {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map(courtItem => (
+                            {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => (
                                 <CourtSlideButton
                                     name={courtItem.attributes.name}
+                                    onClick={(isClicked) => {
+                                        // handle(index)
+                                    }}
+                                    active={teste[index]}
                                 />
                             ))}
 
