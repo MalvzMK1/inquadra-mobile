@@ -4,7 +4,7 @@ export interface IgetHistoricOfReserveOnResponse{
     usersPermissionsUser: {
         data: {
             attributes: {
-                schedulings_owner: {
+              schedulings: {
                     data: Array<{
                         id: string
                         attributes: {
@@ -52,7 +52,7 @@ query getHistoricOfReserveOn($id: ID) {
   usersPermissionsUser(id: $id) {
     data {
       attributes {
-        schedulings_owner {
+        schedulings {
           data {
             id
             attributes {

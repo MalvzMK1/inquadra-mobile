@@ -44,6 +44,7 @@ import RegisterNewCourtAdded from '../../screens/RegisterCourt/newCourtAdded';
 import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
 import storage from "../../utils/storage";
+import CourtSchedule from '../../screens/CourtSchedule';
 import YourComponent from '../../screens/UploadImage';
 import UploadImage from '../../screens/UploadImage';
 
@@ -64,20 +65,6 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="sim"
-				component={RegisterCourt}
-				options={{
-					headerTitle: () => (
-						<Image source={require('../../assets/inquadra_logo.png')} />
-					),
-					headerTitleAlign: 'center',
-					headerStyle: {
-						height: 200,
-						backgroundColor: '#292929',
-					},
-				}}
-			/>
-			{/* <Screen
 				name="Login"
 				component={Login}
 				options={{
@@ -129,19 +116,7 @@ export default function () {
 				name='HomeEstablishment'
 				component={HomeEstablishment}
 				options={{
-					headerTitle: "Olá John",
-					headerTitleAlign: "center",
-					headerLeft: () => (<></>),
-					headerRight: () => (
-						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
-							userPhoto: ""
-						})} className='pr-[10px]'>
-							<Image
-								source={require('../../assets/default-user-image.png')}
-								className="rounded-full w-[50px] h-[50px]"
-							/>
-						</TouchableOpacity>
-					)
+					headerShown: false
 				}}
 			/>
 			<Screen
@@ -225,7 +200,33 @@ export default function () {
 					),
 				}}
 			/>
-
+			<Screen
+				name="CourtSchedule"
+				component={CourtSchedule}
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 85,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View className='flex-1 justify-center items-center'>
+							<Text className='text-white text-[18px] font-black'>Agenda</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity className='pr-[10px]'>
+							<Image source={params.establishmentPhoto ? { uri: `${HOST_API}${params.establishmentPhoto}` } : require('../../assets/default-user-image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+						</TouchableOpacity>
+					),
+					headerLeft: ({ navigation }) => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					)
+				})}
+			/>
 			<Screen
 				name='RegisterEstablishmentProfile'
 				component={registerEstablishmentProfile}
@@ -654,6 +655,15 @@ export default function () {
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					}, 
+					headerTitleAlign: 'center',
+					title:"Histórico"
+				}}
 			/>
 			<Screen
 				name='CourtPriceHour'

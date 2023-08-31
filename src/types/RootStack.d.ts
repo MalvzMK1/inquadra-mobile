@@ -1,11 +1,15 @@
 type RootStackParamList = {
 	Login: undefined;
-	HistoryPayment: undefined,
+	HistoryPayment: {
+		establishmentId: string,
+	};
 	DetailsAmountReceivable: {
 		establishmentId: string,
 	};
 	CompletedEstablishmentRegistration: undefined;
-	CourtSchedule: undefined;
+	CourtSchedule: {
+		establishmentPhoto: string | undefined
+	};
 	AmountAvailableWithdrawal: {
 		establishmentId: string,
 	};
@@ -59,7 +63,9 @@ type RootStackParamList = {
 		phoneNumber: string
 	};
 	RegisterSuccess: undefined;
-	InfoReserva: undefined;
+	InfoReserva: {
+		userId: string
+	};
 	FavoriteCourts: {
 		userPhoto: string | undefined,
 		userID: string
@@ -89,6 +95,9 @@ type RootStackParamList = {
 		courtImage: string,
 		courtName: string,
 		userId: string,
+		courtAvailabilities: string,
+		amountToPay: number,
+		courtAvailabilityDate: string
 	}
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
