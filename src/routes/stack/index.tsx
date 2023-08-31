@@ -45,6 +45,8 @@ import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
 import storage from "../../utils/storage";
 import CourtSchedule from '../../screens/CourtSchedule';
+import YourComponent from '../../screens/UploadImage';
+import UploadImage from '../../screens/UploadImage';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -75,7 +77,7 @@ export default function () {
 						backgroundColor: '#292929',
 					},
 				}}
-			/>
+			/> */}
 			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}
@@ -114,19 +116,7 @@ export default function () {
 				name='HomeEstablishment'
 				component={HomeEstablishment}
 				options={{
-					headerTitle: "Olá John",
-					headerTitleAlign: "center",
-					headerLeft: () => (<></>),
-					headerRight: () => (
-						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
-							userPhoto: ""
-						})} className='pr-[10px]'>
-							<Image
-								source={require('../../assets/default-user-image.png')}
-								className="rounded-full w-[50px] h-[50px]"
-							/>
-						</TouchableOpacity>
-					)
+					headerShown: false
 				}}
 			/>
 			<Screen

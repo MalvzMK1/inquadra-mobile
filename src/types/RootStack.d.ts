@@ -63,7 +63,9 @@ type RootStackParamList = {
 		phoneNumber: string
 	};
 	RegisterSuccess: undefined;
-	InfoReserva: undefined;
+	InfoReserva: {
+		userId: string
+	};
 	FavoriteCourts: {
 		userPhoto: string | undefined,
 		userID: string
@@ -93,6 +95,9 @@ type RootStackParamList = {
 		courtImage: string,
 		courtName: string,
 		userId: string,
+		courtAvailabilities: string,
+		amountToPay: number,
+		courtAvailabilityDate: string
 	}
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
