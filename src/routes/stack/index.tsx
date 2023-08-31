@@ -44,6 +44,8 @@ import RegisterNewCourtAdded from '../../screens/RegisterCourt/newCourtAdded';
 import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
 import storage from "../../utils/storage";
+import YourComponent from '../../screens/UploadImage';
+import UploadImage from '../../screens/UploadImage';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -62,6 +64,20 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
+				name="sim"
+				component={RegisterCourt}
+				options={{
+					headerTitle: () => (
+						<Image source={require('../../assets/inquadra_logo.png')} />
+					),
+					headerTitleAlign: 'center',
+					headerStyle: {
+						height: 200,
+						backgroundColor: '#292929',
+					},
+				}}
+			/>
+			{/* <Screen
 				name="Login"
 				component={Login}
 				options={{
@@ -74,7 +90,7 @@ export default function () {
 						backgroundColor: '#292929',
 					},
 				}}
-			/>
+			/> */}
 			<Screen
 				name="InfoProfileEstablishment"
 				component={InfoProfileEstablishment}
