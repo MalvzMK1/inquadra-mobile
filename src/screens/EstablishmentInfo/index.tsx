@@ -282,6 +282,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                                 key={court.id}
                                 id={court.id}
                                 userId={userId}
+                                userPhoto={route.params.userPhoto}
                                 availabilities={court.court_availabilities}
                                 image={court.photo}
                                 name={court.name}

@@ -67,7 +67,6 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 
 	useFocusEffect(
 		React.useCallback(() => {
-			setSelectedDate(new Date().toISOString())
 			setAvailabilities([])
 			if (!isCourtAvailabilityLoading && !isCourtAvailabilityError) {
 
@@ -177,11 +176,9 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 
 										let isBusy = !item.busy;
 
-										if (item.scheduling) {
-											if (selectedDate.split("T")[0] === item.scheduling.toString()) {
+										if (item.scheduling)
+											if (selectedDate.split("T")[0] === item.scheduling.toString())
 												isBusy = true;
-											}
-										}
 
 										if (selectedWeekDate === item.weekDays) {
 											return (
@@ -211,15 +208,16 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
 								disabled={!selectedTime ? availabilities.length <= 0 ? true : true : false}
 								onPress={() => {
 									if (selectedTime)
-									navigation.navigate('ReservationPaymentSign', {
-										courtName: route.params.courtName,
-										courtImage: route.params.courtImage,
-										courtId: route.params.courtId,
-										userId: route.params.userId,
-										amountToPay: selectedTime?.value,
-										courtAvailabilities: selectedTime?.id,
-										courtAvailabilityDate: selectedDate
-									})
+										navigation.navigate('ReservationPaymentSign', {
+											courtName: route.params.courtName,
+											courtImage: route.params.courtImage,
+											courtId: route.params.courtId,
+											userId: route.params.userId,
+											amountToPay: selectedTime?.value,
+											courtAvailabilities: selectedTime?.id,
+											courtAvailabilityDate: selectedDate,
+											userPhoto: route.params.userPhoto
+										})
 								}}
 							>
 								<Text className='text-white'>RESERVAR</Text>

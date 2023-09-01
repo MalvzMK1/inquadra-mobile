@@ -74,6 +74,9 @@ type RootStackParamList = {
 		userPhoto: string | undefined,
 		userID: string
 	};
+	WithdrawScreen: {
+		establishmentId: string,
+	}
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
@@ -89,12 +92,14 @@ type RootStackParamList = {
 		courtImage: string,
 		courtName: string,
 		userId: string
+		userPhoto: string | undefined
 	};
 	ReservationPaymentSign: {
 		courtId: string,
 		courtImage: string,
 		courtName: string,
 		userId: string,
+		userPhoto: string | undefined
 		courtAvailabilities: string,
 		amountToPay: number,
 		courtAvailabilityDate: string

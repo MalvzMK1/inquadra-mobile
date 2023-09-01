@@ -114,6 +114,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                 aspect: [1, 1],
                 quality: 1,
                 allowsMultipleSelection: true,
+                base64: true
             });
 
             if (!result.canceled) {
