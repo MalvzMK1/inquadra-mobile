@@ -428,7 +428,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                         <Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ {(amountToPay + serviceValue).toFixed(2)}</Text>
                     </View>
                 </View>
-                <Modal visible={showRateInformation} animationType="fade" transparent={true}>
+                <Modal visible={showPaymentInformation} animationType="fade" transparent={true}>
                     <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
                         <View className="bg-white rounded-md items-center ">
                             <Text className="bg-white p-8 rounded text-base text-center">Através dessa taxa provemos a tecnologia necessária para você reservar suas quadras com antecedência e rapidez.</Text>
@@ -438,7 +438,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                         </View>
                     </View>
                 </Modal>
-                <Modal visible={showPaymentInformation} animationType="fade" transparent={true}>
+                <Modal visible={showRateInformation} animationType="fade" transparent={true}>
                     <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
                         <View className="bg-white rounded-md items-center">
                             <Text className="bg-white p-8 rounded text-base text-center">Esse valor será deduzido do valor total e não será estornado, mesmo no caso de não comparecimento ao local ou cancelamento da reserva.</Text>

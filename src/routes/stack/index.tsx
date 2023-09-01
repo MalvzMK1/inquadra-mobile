@@ -48,6 +48,7 @@ import CourtSchedule from '../../screens/CourtSchedule';
 import TermsOfService from '../../screens/Register/termsOfService';
 import YourComponent from '../../screens/UploadImage';
 import UploadImage from '../../screens/UploadImage';
+import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawalScreen';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -99,7 +100,7 @@ export default function () {
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -147,7 +148,7 @@ export default function () {
 							<Image source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -174,7 +175,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -201,7 +202,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -228,7 +229,7 @@ export default function () {
 							<Image source={params.establishmentPhoto ? { uri: `${HOST_API}${params.establishmentPhoto}` } : require('../../assets/default-user-image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -668,8 +669,8 @@ export default function () {
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
@@ -742,6 +743,33 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
+			/>
+			<Screen
+				name="WithdrawScreen"
+				component={WithdrawScreen}
+				options={{
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>SAQUE</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				}}
 			/>
 		</Navigator>
 	)

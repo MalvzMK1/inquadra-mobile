@@ -74,6 +74,9 @@ type RootStackParamList = {
 		userPhoto: string | undefined,
 		userID: string
 	};
+	WithdrawScreen: {
+		establishmentId: string,
+	}
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
