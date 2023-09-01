@@ -1,7 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
-import CardPaymentHistoric from "../../components/CardPaymentHistoric";
+import CardFinancialEstablishment from "../../components/CardFinancialEstablishment";
 import { useGetUserHistoricPayment } from "../../hooks/useGetHistoricPayment";
 import { NavigationProp, useNavigation, useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from "@react-native-community/datetimepicker"
@@ -141,7 +141,13 @@ export default function FinancialEstablishment() {
                                 <Text className="text-white text-3xl font-extrabold text-center">R$ {valueCollected ? isAvailableForWithdrawal().pastDates.reduce((total, current) => total + current.valuePayment, 0) : 0}</Text>
                             </View>
                             <View className="p-3 items-center justify-center">
-                                <TouchableOpacity className='h-10 w-40 rounded-md bg-[#FF6112] flex items-center justify-center'>
+                                <TouchableOpacity className='h-10 w-40 rounded-md bg-[#FF6112] flex items-center justify-center'
+                                    onPress={() => {
+                                        navigation.navigate("WithdrawScreen", {
+                                            establishmentId: establishmentId
+                                        })
+                                    }}
+                                >
                                     <Text className='text-gray-50 font-bold'>Retirar</Text>
                                 </TouchableOpacity>
                             </View>
@@ -166,7 +172,11 @@ export default function FinancialEstablishment() {
                         </TouchableOpacity>
                         <View className="pt-6 flex flex-row justify-between">
                             <Text className="text-lg font-bold">Valores recebidos</Text>
-                            <Text className="text-lg font-bold underline text-[#FF6112]">Histórico</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate("HistoryPayment", {
+                                establishmentId: establishmentId
+                            })}>
+                                <Text className="text-lg font-bold underline text-[#FF6112]">Histórico</Text>
+                            </TouchableOpacity>
                         </View>
                         <TouchableOpacity className="mt-2 flex flex-row" onPress={handleDatePicker}>
                             <AntDesign name="calendar" size={20} color="gray" />
@@ -183,11 +193,11 @@ export default function FinancialEstablishment() {
                             <Text className="text-base text-gray-500 mt-1">Saldo recebido do dia: R$
                                 {
                                     valueCollected?.map((item) => {
-                                            if (new Date(item.payday).toISOString().split("T")[0] === date.toISOString().split("T")[0]) {
-                                                return item.valuePayment;
-                                            } else {
-                                                return 0;
-                                            }
+                                        if (new Date(item.payday).toISOString().split("T")[0] === date.toISOString().split("T")[0]) {
+                                            return item.valuePayment;
+                                        } else {
+                                            return 0;
+                                        }
                                     }).reduce((total, current) => total + current, 0)
                                 }
                             </Text>
@@ -201,7 +211,7 @@ export default function FinancialEstablishment() {
 
                                 if (cardDate === formattedDate) {
                                     return (
-                                        <CardPaymentHistoric
+                                        <CardFinancialEstablishment
                                             username={card.username}
                                             valuePayed={card.valuePayed}
                                             photoCourt={card.photoCourt}

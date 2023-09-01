@@ -6,6 +6,7 @@ import {NavigationProp, useNavigation} from "@react-navigation/native";
 interface CourtCardInfo {
   id: string
   userId: string
+  userPhoto: string | undefined
   name: string
   type: string
   rate: number
@@ -23,7 +24,8 @@ export function CourtCard(props: CourtCardInfo) {
               courtName: props.name,
               courtImage: props.image,
               courtId: props.id,
-              userId: props.userId
+              userId: props.userId,
+              userPhoto: props.userPhoto
             })
           }}>
             <Image className="h-[90px] w-[140px] rounded-[5px]" source={{uri: props.image}}></Image>

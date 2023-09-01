@@ -1,137 +1,231 @@
-import {View, Text, ImageBackground, SafeAreaView, ScrollView, ActivityIndicator} from "react-native"
+import { View, Text, ImageBackground, SafeAreaView, ScrollView, ActivityIndicator } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import React, { useState } from 'react'
-import WeekDayButton from "../../components/WeekDays"
+import React, { useState, useEffect } from 'react'
 import CourtAvailibility from "../../components/CourtAvailibility"
 import BottomBlackMenu from "../../components/BottomBlackMenu"
-import {Calendar, DateData} from 'react-native-calendars'
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {addDays, format} from 'date-fns'
+import { Calendar, DateData, LocaleConfig } from 'react-native-calendars'
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCourtAvailability from "../../hooks/useCourtAvailability";
-import { getWeekDays } from "../../utils/getWeekDates"
+import FilterDate from "../../components/FilterDateCourtAvailability"
+import { useFocusEffect } from "@react-navigation/native"
 
-interface ICourtAvailabilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailabilityInfo'> {}
+interface ICourtAvailabilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailabilityInfo'> { }
 
-export default function CourtAvailabilityInfo({navigation, route}: ICourtAvailabilityInfoProps) {
+LocaleConfig.locales['pt-br'] = {
+	monthNames: [
+		'Janeiro',
+		'Fevereiro',
+		'Março',
+		'Abril',
+		'Maio',
+		'Junho',
+		'Julho',
+		'Agosto',
+		'Setembro',
+		'Outubro',
+		'Novembro',
+		'Dezembro'
+	],
+	monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+	dayNames: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+	dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+	today: 'Hoje'
+};
+
+const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvailabilityInfoProps) {
 	const {
 		data: courtAvailability,
 		loading: isCourtAvailabilityLoading,
 		error: isCourtAvailabilityError
 	} = useCourtAvailability(route.params.courtId)
 
-	const [activeStates, setActiveStates] = useState(Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false))
+
+
+	const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
+	const [selectedWeekDate, setSelectedWeekDate] = useState<string>()
+	const [availabilities, setAvailabilities] = useState<Array<{
+		id: string
+		startsAt: string,
+		endsAt: string,
+		price: number,
+		busy: Boolean,
+		weekDays: string,
+		scheduling: Date | undefined
+	}>>([])
 	const [showCalendar, setShowCalendar] = useState(false)
-	const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-	const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
-	const [shownAvailabilities, setShownAvailabilities] = useState<GraphQLCourtAvailability[]>([])
+	const [selectedDate, setSelectedDate] = useState(new Date().toISOString())
+	const [selectedTime, setSelectedTime] = useState<{ id: string, value: number } | null>()
 
-	const weekDates: FormatedWeekDates[] = getWeekDays(selectedDate)
+	LocaleConfig.defaultLocale = 'pt-br';
 
-	function handleWeekDayClick(index: number) {
-		const availabilities = courtAvailability?.court.data.attributes.court_availabilities.data
+	useEffect(() => {
+		setSelectedDate(new Date().toISOString());
+		setSelectedWeekDate(dayNames[new Date().getDay() - 1])
+	}, [])
 
-		const newActiveStates = Array(courtAvailability?.court.data.attributes.court_availabilities.data.length).fill(false);
-		newActiveStates[index] = true;
-		setActiveStates(newActiveStates);
+	useFocusEffect(
+		React.useCallback(() => {
+			setAvailabilities([])
+			if (!isCourtAvailabilityLoading && !isCourtAvailabilityError) {
 
-		setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
-		if (availabilities)
-			setShownAvailabilities(availabilities.filter(availabilitie =>
-				availabilitie.attributes.weekDay === weekDates[index].dayName as unknown as WeekDays
-			))
-	}
+				const courtsAvailable = courtAvailability?.court.data.attributes.court_availabilities.data.map((availability) => {
+					if (availability.attributes.schedulings.data.length > 0) {
+						return availability.attributes.schedulings.data.map((item) => {
+							return {
+								id: availability.id,
+								startsAt: availability.attributes.startsAt,
+								endsAt: availability.attributes.endsAt,
+								price: availability.attributes.value,
+								busy: availability.attributes.status,
+								weekDays: availability.attributes.weekDay,
+								scheduling: item.attributes.date
+							};
+						});
+					} else {
+						return {
+							id: availability.id,
+							startsAt: availability.attributes.startsAt,
+							endsAt: availability.attributes.endsAt,
+							price: availability.attributes.value,
+							busy: availability.attributes.status,
+							weekDays: availability.attributes.weekDay,
+							scheduling: undefined
+						};
+					}
+				}).flat();
+
+				if (courtsAvailable && courtAvailability) {
+					const uniqueCourtsAvailable = courtsAvailable.filter((court, index, self) =>
+						index === self.findIndex((c) => c.id === court.id)
+					);
+					if (uniqueCourtsAvailable.length > 0)
+						setAvailabilities(prevState => [...prevState, ...uniqueCourtsAvailable]);
+				}
+
+			}
+		}, [isCourtAvailabilityLoading, isCourtAvailabilityError])
+	)
 
 	function handleCalendarClick(data: DateData) {
 		const date = new Date(data.dateString)
-		const weekDay = format(addDays(date, 1), 'eeee')
+		const dayOfWeek = date.getDay();
+		const dayName = dayNames[dayOfWeek];
 
-		setSelectedDate(date)
-		setSelectedWeekDate(weekDay as WeekDays)
+		setSelectedWeekDate(dayName)
+		setSelectedDate(date.toISOString())
+		setDateSelector(`${String(date.getDate() + 1).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`)
 	}
 
+	const toggleTimeSelection = (id: string, value: any) => {
+		if (id && value) {
+			if (selectedTime?.id === id) {
+				setSelectedTime(null);
+			} else {
+				setSelectedTime({ id, value });
+			}
+		}
+	};
+
 	return (
-		<SafeAreaView className="flex flex-col justify-between h-full">
+		<SafeAreaView className="flex flex-col justify-between  h-full">
 			{isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
-				<ScrollView className='h-screen flex flex-col flex-1'>
-					<ImageBackground className="h-[215px] w-full" source={{
-						uri: route.params.courtImage
-					}} />
+				<>
+					<ScrollView className=' h-screen flex flex-col'>
+						<ImageBackground className="h-[215px] w-full" source={{
+							uri: route.params.courtImage
+						}} />
 
-					<View className="h-fit mt-2.5">
-						<View className="h-fit items-center">
-							<Text className="text-xl font-black">{route.params.courtName}</Text>
-							{!showCalendar && (
-								<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
-									{
-										weekDates.map((date, index) => (
-											<WeekDayButton
-												localeDayInitial={date.localeDayInitial}
-												day={date.day}
-												onClick={(isClicked) => {
-													handleWeekDayClick(index)
-												}}
-												active={activeStates[index]}
-											/>
-										))
-									}
-								</View>
-							)}
-							{showCalendar && (
-								<Calendar
-									className="h-fit w-96"
-									current={new Date().toDateString()}
-									onDayPress={handleCalendarClick}
-									markedDates={{
-										[selectedDate.toISOString().split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
-										// '2023-08-02': { selected: true, disableTouchEvent: true, selectedColor: 'orange' }
-									}}
+						<View className=" h-fit mt-2.5">
+							<View className="flex h-fit items-center">
+								<Text className="text-xl font-black">{route.params.courtName}</Text>
+								{!showCalendar && (
+									<View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
+										<FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} handleClick={handleCalendarClick} />
+									</View>
+								)}
+								{showCalendar && (
+									<Calendar
+										className="h-fit w-96"
+										current={new Date().toISOString().split('T')[0]}
+										onDayPress={handleCalendarClick}
+										minDate={new Date().toISOString()}
+										selectedDate={selectedDate}
+										markedDates={{
+											[selectedDate.split('T')[0]]: { selected: true, disableTouchEvent: true, selectedColor: '#FF6112' }
+										}}
+										theme={{
+											arrowColor: "#FF6112",
+											todayTextColor: "#FF6112"
+										}}
+									/>
+								)}
+								<TouchableOpacity
+									onPress={() => setShowCalendar(!showCalendar)}
+									className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px]"
 								/>
-							)}
-							<TouchableOpacity
-								onPress={() => setShowCalendar(!showCalendar)}
-								className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px]"
-							/>
+							</View>
 						</View>
-					</View>
-					<ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[30px] flex">
-						{
-							(
-								!isCourtAvailabilityLoading &&
-								!isCourtAvailabilityError &&
-								shownAvailabilities
-							) && shownAvailabilities.map(availability => {
-								if (!availability.attributes) return null
+						<ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[30px] flex">
+							{
+								availabilities.length > 0 ? (
+									availabilities.map((item) => {
+										const startsAt = item.startsAt.split(':');
+										const endsAt = item.endsAt.split(':');
 
-								const startsAt = availability.attributes.startsAt.split(':');
-								const endsAt = availability.attributes.endsAt.split(':');
+										let isBusy = !item.busy;
 
-								if (shownAvailabilities.length > 0)
-									return (
-										<CourtAvailibility
-											startsAt={`${startsAt[0]}:${startsAt[1]}`}
-											endsAt={`${endsAt[0]}:${endsAt[1]}`}
-											price={availability.attributes.value}
-											busy={Boolean(!availability.attributes.status)}
-										/>
-									)
-							})
-						}
+										if (item.scheduling)
+											if (selectedDate.split("T")[0] === item.scheduling.toString())
+												isBusy = true;
+
+										if (selectedWeekDate === item.weekDays) {
+											return (
+												<CourtAvailibility
+													key={item.id}
+													id={item.id}
+													startsAt={`${startsAt[0]}:${startsAt[1]}`}
+													endsAt={`${endsAt[0]}:${endsAt[1]}`}
+													price={item.price}
+													busy={isBusy}
+													selectedTimes={selectedTime}
+													toggleTimeSelection={toggleTimeSelection}
+												/>
+											);
+										}
+
+										return null;
+									})
+								) : (
+									<Text className="text-xl font-black text-center">No momento não é possível Alugar essa quadra</Text>
+								)
+							}
+						</ScrollView>
+						<View className="h-fit w-full p-[15px] mt-[30px]">
+							<TouchableOpacity
+								className={`h-14 w-full rounded-md  ${!selectedTime ? availabilities.length <= 0 ? "bg-[#ffa363]" : "bg-[#ffa363]" : "bg-orange-500"} flex items-center justify-center`}
+								disabled={!selectedTime ? availabilities.length <= 0 ? true : true : false}
+								onPress={() => {
+									if (selectedTime)
+										navigation.navigate('ReservationPaymentSign', {
+											courtName: route.params.courtName,
+											courtImage: route.params.courtImage,
+											courtId: route.params.courtId,
+											userId: route.params.userId,
+											amountToPay: selectedTime?.value,
+											courtAvailabilities: selectedTime?.id,
+											courtAvailabilityDate: selectedDate,
+											userPhoto: route.params.userPhoto
+										})
+								}}
+							>
+								<Text className='text-white'>RESERVAR</Text>
+							</TouchableOpacity>
+						</View>
 					</ScrollView>
-					<View className="h-fit w-full p-[15px] mt-[30px]">
-						<TouchableOpacity
-							className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
-							onPress={() => navigation.navigate('ReservationPaymentSign', {
-								courtName: route.params.courtName,
-								courtImage: route.params.courtImage,
-								courtId: route.params.courtId,
-								userId: route.params.userId
-							})}
-						>
-							<Text className='text-white'>RESERVAR</Text>
-						</TouchableOpacity>
-					</View>
 					<BottomBlackMenu />
-				</ScrollView>
+				</>
 			}
 		</SafeAreaView>
 	)

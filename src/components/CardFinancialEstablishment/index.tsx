@@ -10,7 +10,7 @@ interface InfosPayment {
     endsAt: string
 }
 
-export default function CardPaymentHistoric(props: InfosPayment) {
+export default function CardFinancialEstablishment(props: InfosPayment) {
     const endsAt = props.endsAt.split(":")
     const startsAt = props.startsAt.split(":")
 
