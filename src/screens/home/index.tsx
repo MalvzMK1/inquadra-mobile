@@ -187,7 +187,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					isDisabled={isDisabled}
 					playerScreen={true}
 					establishmentScreen={false}
-					userID={userHookData.usersPermissionsUser.data.id}
+					userID={route.params.userID}
 					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
 				/>
 			}
