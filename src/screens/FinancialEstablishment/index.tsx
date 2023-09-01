@@ -141,7 +141,13 @@ export default function FinancialEstablishment() {
                                 <Text className="text-white text-3xl font-extrabold text-center">R$ {valueCollected ? isAvailableForWithdrawal().pastDates.reduce((total, current) => total + current.valuePayment, 0) : 0}</Text>
                             </View>
                             <View className="p-3 items-center justify-center">
-                                <TouchableOpacity className='h-10 w-40 rounded-md bg-[#FF6112] flex items-center justify-center'>
+                                <TouchableOpacity className='h-10 w-40 rounded-md bg-[#FF6112] flex items-center justify-center'
+                                    onPress={() => {
+                                        navigation.navigate("WithdrawScreen", {
+                                            establishmentId: establishmentId
+                                        })
+                                    }}
+                                >
                                     <Text className='text-gray-50 font-bold'>Retirar</Text>
                                 </TouchableOpacity>
                             </View>

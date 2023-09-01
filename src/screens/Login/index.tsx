@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
 import { useGetUserById } from '../../hooks/useUserById';
+import { generateAuthToken } from "../../services/inter";
 
 interface IFormData {
 	identifier: string
@@ -37,30 +38,33 @@ export default function Login() {
 		resolver: zodResolver(formSchema)
 	})
 
+
 	useEffect(() => {
-		if(userId && userId !== "0")
-		if (userId && userData) {
-			setRoleUser(userData?.usersPermissionsUser.data.attributes.role.data.id);
+		if (userId && userId !== "0") {
+			if (userId && userData) {
+				setRoleUser(userData?.usersPermissionsUser.data.attributes.role.data.id);
+			}
 		}
 	}, [userId, userData]);
 
 	useEffect(() => {
-		if(userId && userId !== "0")
-		if (!isLoading && userData) {
-			console.log(roleUser)
-			if (roleUser === "3") {
-				navigation.navigate('Home', {
-					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-					userID: userId,
-					userPhoto: undefined
-				});
-			} else if (roleUser === "4") {
-				navigation.navigate('HomeEstablishment', {
-					userID: userId,
-					userPhoto: undefined
-				});
+		if (userId && userId !== "0") {
+			if (!isLoading && userId && userData) {
+				if (roleUser === "3") {
+					navigation.navigate('Home', {
+						userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+						userID: userId,
+						userPhoto: undefined
+					});
+				} else if (roleUser === "4") {
+					navigation.navigate('HomeEstablishment', {
+						userID: userId,
+						userPhoto: undefined
+					});
+				}
 			}
 		}
+
 	}, [roleUser, isLoading]);
 
 
@@ -71,7 +75,6 @@ export default function Login() {
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
 	}
-
 
 	const handleLogin = (data: IFormData): void => {
 		setIsLoading(true);
@@ -112,18 +115,18 @@ export default function Login() {
 						key: 'userInfos',
 						data: {
 							jwt: undefined,
-							userId: 7,
+							userId: 9,
 						},
 						expires: 1000 * 3600
 					}).then(() => {
 						storage.load<UserInfos>({
 							key: 'userInfos'
 						}).then(response => {
-							navigation.navigate('HomeEstablishment', {
-								// userGeolocation: userGeolocation ? userGeolocation : {
-								// 	latitude: 78.23570781291714,
-								// 	longitude: 15.491400000982967
-								// },
+							navigation.navigate('Home', {
+								userGeolocation: userGeolocation ? userGeolocation : {
+									latitude: 78.23570781291714,
+									longitude: 15.491400000982967
+								},
 								userID: response.userId,
 								userPhoto: undefined
 							})
@@ -227,6 +230,6 @@ export default function Login() {
 					</View>
 				</View>
 			</View>
-		</ScrollView>
+		</ScrollView >
 	);
 }
