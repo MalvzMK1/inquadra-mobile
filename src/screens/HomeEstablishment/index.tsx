@@ -333,7 +333,10 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
             {
                 userId ?
                     <BottomNavigationBar
+                        playerScreen={false}
                         establishmentScreen
+                        establishmentID={establishment_id}
+                        logo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url}
                         userID={userId}
                         userPhoto={'http'}
                     />

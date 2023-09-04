@@ -133,7 +133,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
-					className='w-screen h-full flex'
+					className='w-screen h-screen flex'
 					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
@@ -161,7 +161,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
-									userId={route.params.userID}
+									userId={route?.params?.userID}
 									liked={true}
 								/>
 							</Marker>
@@ -187,7 +187,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					isDisabled={isDisabled}
 					playerScreen={true}
 					establishmentScreen={false}
-					userID={route.params.userID}
+					userID={route?.params?.userID}
 					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
 				/>
 			}
