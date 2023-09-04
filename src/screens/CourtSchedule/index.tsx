@@ -403,7 +403,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                             }
                         })
                     }))
-                    console.log("FOI KCT")
                     setIsLoading(false)
                 } catch (error) {
                     console.log("Deu ruim patrão", error)
