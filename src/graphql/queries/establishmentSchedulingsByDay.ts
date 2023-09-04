@@ -53,6 +53,7 @@ export interface IEstablishmentSchedulingsByDayResponse {
                               attributes: {
                                 startsAt: CourtAvailability['startsAt']
                                 endsAt: CourtAvailability['endsAt']
+                                dayUseService: CourtAvailability['dayUseService']
                                 court: {
                                   data: {
                                     attributes: {
@@ -132,6 +133,7 @@ query getEstablishmentSchedulings(
                     }
                     schedulings(filters: { date: { eq: $date } }) {
                       data {
+                        id
                         attributes {
                           date
                           payedStatus
@@ -149,6 +151,7 @@ query getEstablishmentSchedulings(
                               attributes {
                                 startsAt
                                 endsAt
+                                dayUseService
                                 court {
                                   data {
                                     attributes {
