@@ -16,11 +16,10 @@ export interface IUserByIdResponse {
           }>
         }
         favorite_courts: {
-          data: [
-            {
-              id: Court["id"]
-            }
-          ]
+          data: Array<{
+            id: Court['id']
+          }>
+          
         }
         role: {
           data: {

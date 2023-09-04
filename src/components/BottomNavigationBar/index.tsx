@@ -42,7 +42,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('FavoriteCourts', {
 								userPhoto: props.userPhoto,
-								userID: props.userID
+								userID: props?.userID
 							})}>
 							<Image
 								source={require('../../assets/black_heart.png')}
