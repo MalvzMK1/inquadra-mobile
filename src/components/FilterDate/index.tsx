@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { Button } from "react-native-paper";
 import { format, eachDayOfInterval, formatDistanceToNow, startOfDay, getDay, endOfYear } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 
 export default function FilterDate( props: {dateSelector: string, setDateSelector: any} ) {
 

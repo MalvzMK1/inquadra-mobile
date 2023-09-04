@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import Animated, {
 	useSharedValue,
@@ -56,13 +56,15 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 
 	let userFavoriteCourts: string[] = []
 
-	userByIdData?.usersPermissionsUser.data.attributes.favorite_courts.data?.map(item => {
-		userFavoriteCourts.push(item.id)
+	userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(item => {
+		userFavoriteCourts?.push(item.id)
 	})
 
 	const verifyCourtLike = (courtId: string) => {
 		return userFavoriteCourts?.includes(courtId)
 	}
+
+	
 
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>

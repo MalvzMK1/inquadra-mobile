@@ -25,7 +25,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form"
 
-import { BarChart, Grid } from 'react-native-svg-charts'
+// import { BarChart, Grid } from 'react-native-svg-charts'
 import ScheduleChartLabels from "../../components/ScheduleChartLabels";
 import { useApolloClient } from "@apollo/client";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
