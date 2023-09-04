@@ -119,7 +119,7 @@ export default function HistoryPayment({ route }: Props) {
                                 isAvailableForWithdrawal()?.reduce((total, current) => total + current.valuePayment, 0)
                             }</Text>
                         </View>
-                        <CardDetailsPaymentHistoric />
+                        <CardDetailsPaymentHistoric username={""} valuePayed={0} />
                     </View>
                 </View>
             </ScrollView>
