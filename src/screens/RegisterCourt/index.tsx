@@ -121,15 +121,9 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
 
     const [photos, setPhotos] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
-
-
-
     const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false)
-
     const [selected, setSelected] = useState<Array<string>>([]);
-
     const [photoIDs, setPhotoIDs] = useState([]);
-
 
     const handleProfilePictureUpload = async () => {
         try {
@@ -187,7 +181,7 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
         } catch (error) {
           console.error('Erro ao enviar imagens:', error);
           setIsLoading(false);  
-          return "VIsh"; 
+          return "Deu erro"; 
         }
       };
 
@@ -300,7 +294,7 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                     </View>
                     <View>
                         <Text className='text-xl p-1'>Valor aluguel/hora</Text>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('')}>
+                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('CourtPriceHour')}>
                             <Text className='text-gray-50'>Clique para Definir</Text>
                         </TouchableOpacity>
                     </View>
