@@ -85,7 +85,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 							Number(establishment.attributes.address.latitude),
 							Number(establishment.attributes.address.longitude)
 						) / 1000,
-						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === establishment.attributes.photos.data!.length - 1)?.attributes.url ?? '',
+						image: HOST_API + establishment.attributes.logo.data.attributes.url,
 						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
 					}
 
@@ -133,7 +133,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					loadingEnabled
-					className='w-screen h-full flex'
+					className='w-screen h-screen flex'
 					onPress={() => setIsDisabled(false)}
 					showsCompass={false}
 					initialRegion={{
@@ -161,7 +161,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
-									userId={userHookData?.usersPermissionsUser.data.id}
+									userId={route.params.userID}
 									liked={true}
 								/>
 							</Marker>
@@ -187,7 +187,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					isDisabled={isDisabled}
 					playerScreen={true}
 					establishmentScreen={false}
-					userID={userHookData.usersPermissionsUser.data.id}
+					userID={route.params.userID}
 					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
 				/>
 			}

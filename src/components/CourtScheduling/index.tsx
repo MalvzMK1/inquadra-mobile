@@ -6,7 +6,9 @@ type CourtSchedulingT = {
     name: string
     startsAt: string
     endsAt: string
-    status: SchedulingStatus
+    status: boolean
+    id: string
+    image: string
 }
 
 export default function CourtScheduling(props: CourtSchedulingT) {
@@ -14,9 +16,9 @@ export default function CourtScheduling(props: CourtSchedulingT) {
 
     let textContent: string
 
-    if (props.status == "Active")
+    if (props.status)
         textContent = "em andamento"
-    else if (props.status == "Canceled")
+    else if (!props.status)
         textContent = "cancelada"
     else
         textContent = "finalizada"
@@ -24,8 +26,8 @@ export default function CourtScheduling(props: CourtSchedulingT) {
     return (
         <View className="flex flex-row h-fit w-full bg-[#D9D9D9] rounded-[8px] mt-[4px] pt-[6px] pb-[6px] pl-[4px] pr-[7px] items-center justify-between">
             <View className="h-fit w-fit flex flex-row">
-                <View className={`h-fit w-fit ${props.status == "Active" ? "grayscale-0" : "grayscale"}`}>
-                    <Image className={`h-[72px] w-[72px] rounded-[3px]`} source={require('../../assets/quadra.png')}></Image>
+                <View className={`h-fit w-fit ${props.status ? "grayscale-0" : "grayscale"}`}>
+                    <Image className={`h-[72px] w-[72px] rounded-[3px]`} source={{uri: props.image}}></Image>
                 </View>
 
                 <View className="ml-[8px] items-start justify-around">
@@ -40,11 +42,13 @@ export default function CourtScheduling(props: CourtSchedulingT) {
 
 
             <TouchableOpacity
-                className={`${props.status == "Active" ? "bg-[#FF6112]" : "bg-button-dull-gray-color"} h-[35px] w-[65px] items-center justify-center rounded-[5px]`}
+                className={`${props.status ? "bg-[#FF6112]" : "bg-button-dull-gray-color"} h-[35px] w-[65px] items-center justify-center rounded-[5px]`}
                 onPress={() => {
-                    props.status == "Active" ? navigation.navigate("CancelScheduling") : ""
+                    props.status ? navigation.navigate("CancelScheduling", {
+                        scheduleID: props.id
+                    }) : ""
                 }}>
-                <Text className={`text-center font-bold text-[11px] text-white ${props.status == "Active" ? "opacity-100" : "opacity-50"}`}>Cancelar reserva</Text>
+                <Text className={`text-center font-bold text-[11px] text-white ${props.status ? "opacity-100" : "opacity-50"}`}>Cancelar reserva</Text>
             </TouchableOpacity>
 
 

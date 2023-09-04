@@ -21,12 +21,12 @@ export interface ISchedulingDetailsResponse {
                                 data?: {
                                     id: Court['id']
                                     attributes: {
-                                        court_type: {
-                                            data?: {
+                                        court_types: {
+                                            data?: Array<{
                                                 attributes: {
                                                     name: CourtCardInfos['type']
                                                 }
-                                            }
+                                            }>
                                         }
                                     }
                                 }
@@ -68,7 +68,7 @@ export const schedulingsDetailsQuery = gql`
                   data {
                     id
                     attributes {
-                      court_type {
+                      court_types {
                         data {
                           attributes {
                             name

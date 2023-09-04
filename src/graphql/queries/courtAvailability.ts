@@ -20,6 +20,15 @@ export interface ICourtAvailabilityResponse {
                             status: CourtAvailability['status']
                             value: CourtAvailability['value']
                             weekDay: WeekDays
+                            schedulings: {
+                                data: [
+                                  {
+                                    attributes: {
+                                      date: Scheduling["date"]
+                                    }
+                                  }
+                                ]
+                              }
                         }
                     }>
                 }
@@ -53,6 +62,13 @@ export const courtAvailabilityQuery = gql`
                                 status
                                 value
                                 weekDay
+                                schedulings{
+                                  data{
+                                    attributes{
+                                      date
+                                    }
+                                  }
+                                }
                             }
                         }
                     }
