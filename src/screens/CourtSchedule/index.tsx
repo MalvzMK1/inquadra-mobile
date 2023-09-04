@@ -245,7 +245,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     }
 
     // const [selectedCourts, setSelectedCourts] = useState("")
-    // const 
+    const [blockedCourtId, setBlockedCourtId] = useState<string>("")
     function handleSelectedCourt(index: number) {
         let newActiveCourts: IActiveCourt[] = []
         allCourts.map(courtItem => {
@@ -259,9 +259,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             id: allCourts[index].id
         }
         const selectedCourtId = newActiveCourts.find(courtItem => courtItem.active === true)
+        setBlockedCourtId(selectedCourtId?.id)
         setActiveCourts(newActiveCourts)
-
-        return selectedCourtId
     }
 
     interface ISchedulingsByDate {
@@ -391,28 +390,34 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         }
 
         const datesRange = getDatesRange(blockScheduleData.initialDate, blockScheduleData.endDate)
-        const courtId = handleSelectedCourt()
-        const schedulingsByDate = await setSchedulingsByDates(datesRange, "2")
+        const courtId = blockedCourtId
+        const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId)
 
-        if (schedulingsByDate.length > 0) {
-            try {
-                await Promise.all(schedulingsByDate.map(async (item) => {
-                    await blockSchedule({
-                        variables: {
-                            scheduling_id: item.schedulingId.toString()
-                        }
-                    })
-                }))
-                console.log("FOI KCT")
-                setIsLoading(false)
-            } catch (error) {
-                console.log("Deu ruim patrão", error)
+        if(courtId != "") {
+            if (schedulingsByDate.length > 0) {
+                try {
+                    await Promise.all(schedulingsByDate.map(async (item) => {
+                        await blockSchedule({
+                            variables: {
+                                scheduling_id: item.schedulingId.toString()
+                            }
+                        })
+                    }))
+                    console.log("FOI KCT")
+                    setIsLoading(false)
+                } catch (error) {
+                    console.log("Deu ruim patrão", error)
+                    setIsLoading(false)
+                }
+            } else {
+                alert("Não há nenhuma reserva nesse intervalo de datas!")
                 setIsLoading(false)
             }
         } else {
-            alert("Não há nenhuma reserva nesse intervalo de datas!")
+            alert("Selecione uma quadra para bloquear a agenda!")
             setIsLoading(false)
         }
+
     }
 
     return (
