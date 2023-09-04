@@ -98,8 +98,7 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
             if (type.value === selectedType) courtIDs.push(type.label);
           });
         });
-      
-        // Verifica se há pelo menos uma foto selecionada
+
         if (photos.length > 0) {
       
           const payload = {
