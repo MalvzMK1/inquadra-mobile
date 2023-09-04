@@ -6,7 +6,7 @@ import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { NavigationProp, useFocusEffect, useNavigation, } from "@react-navigation/native"
 
-interface Props extends NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'> {
+interface Props extends NativeStackScreenProps<RootStackParamList, 'WithdrawScreen'> {
     establishmentId: string
 }
 
@@ -105,7 +105,8 @@ export default function WithdrawScreen({ route }: Props) {
     function withdrawalMade() {
         setIsWithdrawalMade(true)
         setTimeout(() => navigation.navigate("HistoryPayment", {
-            establishmentId: route.params.establishmentId
+            establishmentId: route.params.establishmentId,
+            logo: route.params.logo
         }), 1000)
     }
 
