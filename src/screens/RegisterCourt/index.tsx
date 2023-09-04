@@ -44,25 +44,26 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
   const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
   const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
   const [courts, setCourts] = useState<CourtArrayObject[]>([])
+  const [loadingMessage, setLoadingMessage] = useState("Fazendo upload das imagens");
 
   const addToCourtArray = (court: CourtAdd) => {
     setCourts(prevState => [...prevState, court]);
   }
 
-  function RegisterNewCourt(data: IFormDatasCourt) {
+  async function RegisterNewCourt(data: IFormDatasCourt) {
+
+    setIsLoading(true); 
+
     let courtIDs: Array<string> = [];
+
     selected.forEach(selectedType => {
       courtTypes.forEach(type => {
         if (type.value === selectedType) courtIDs.push(type.label)
       })
     });
 
-    let photoIDs: Array<string> = [];
-    selected.forEach(selectedType => {
-      courtTypes.forEach(type => {
-        if (type.value === selectedType) photoIDs.push(type.label)
-      })
-    });
+
+    const uploadedImageIDs = await uploadImage();
 
     const payload = {
       court_name: `Quadra de ${selected}`,
@@ -74,43 +75,40 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
       currentDate: new Date().toISOString()
     }
     addToCourtArray(payload)
+    if (uploadedImageIDs.length > 0) {
+        navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
+      }
 
-    navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
   }
 
 
-    function finishingCourtsRegisters(data: IFormDatasCourt) {
-        let courtIDs: Array<string> = [];
-
-        selected.forEach(selectedType => {
-            courtTypes.forEach(type => {
-                if (type.value === selectedType) courtIDs.push(type.label)
-            })
-        })
-
-        let photoIDs: Array<string> = [];
-        selected.forEach(selectedType => {
-        courtTypes.forEach(type => {
-            if (type.value === selectedType) photoIDs.push(type.label)
-        })
-        });
-
-        const payload = {
-            court_name: `Quadra de ${selected}`,
-            courtType: courtIDs,
-            fantasyName: data.fantasyName,
-            photos: photoIDs,
-            court_availabilities: ["2"], // tela vinicius
-            minimum_value: Number(data.minimum_value) / 100,
-            currentDate: new Date().toISOString()
-        }
-        addToCourtArray(payload)
-
-        if (photos.length > 0) {
-            uploadImage();
-            navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] }); 
-          } 
+  async function finishingCourtsRegisters(data: IFormDatasCourt) {
+    let courtIDs: Array<string> = [];
+  
+    selected.forEach(selectedType => {
+      courtTypes.forEach(type => {
+        if (type.value === selectedType) courtIDs.push(type.label)
+      })
+    });
+  
+    const uploadedImageIDs = await uploadImage();
+  
+    const payload = {
+      court_name: `Quadra de ${selected}`,
+      courtType: courtIDs,
+      fantasyName: data.fantasyName,
+      photos: uploadedImageIDs, 
+      court_availabilities: ["2"], // tela vinicius
+      minimum_value: Number(data.minimum_value) / 100,
+      currentDate: new Date().toISOString()
+    };
+    addToCourtArray(payload);
+  
+    if (uploadedImageIDs.length > 0) {
+      navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] });
     }
+  }
+  
 
     const formSchema = z.object({
         minimum_value: z.string().nonempty("É necessário determinar um valor mínimo."),
@@ -132,16 +130,9 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
 
     const [photos, setPhotos] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
-
-
-
     const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false)
-
     const [selected, setSelected] = useState<Array<string>>([]);
-
-    const [selectedItems, setSelectedItems] = useState([]);
-    const [uploadedPhotoIds, setUploadedPhotoIds] = useState([]);
-
+    const [photoIDs, setPhotoIDs] = useState([]);
 
     const handleProfilePictureUpload = async () => {
         try {
@@ -169,6 +160,8 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     };
 
     const uploadImage = async () => {
+
+        setIsLoading(true); 
         const apiUrl = 'https://inquadra-api-uat.qodeless.io';
       
         const formData = new FormData();
@@ -186,20 +179,28 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
               'Content-Type': 'multipart/form-data',
             },
           });
-
+      
+          const uploadedImageIDs = response.data.map((image) => image.id);
+      
           console.log('Imagens enviadas com sucesso!', response.data);
+          
+          setIsLoading(false);  
+
+          return uploadedImageIDs;
         } catch (error) {
           console.error('Erro ao enviar imagens:', error);
+          setIsLoading(false);  
+          return "Deu erro"; 
         }
       };
-      
-      
 
     const handleDeletePhoto = (index) => {
         const newPhotos = [...photos];
         newPhotos.splice(index, 1);
         setPhotos(newPhotos);
     };
+    
+    
 
     const dataSports = dataSportType?.courts?.data || [];
 
@@ -299,15 +300,12 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                             />
                             )}
                         />
-                        <View>
-                            {photos.length > 0 && <Button title="Salvar imagens" onPress={uploadImage} />}
-                        </View>
                     </View>
 
                     </View>
                     <View>
                         <Text className='text-xl p-1'>Valor aluguel/hora</Text>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('')}>
+                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('CourtPriceHour')}>
                             <Text className='text-gray-50'>Clique para Definir</Text>
                         </TouchableOpacity>
                     </View>
@@ -335,9 +333,15 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                         <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => {
                             if (selected.length === 0) {
                                 setIsCourtTypeEmpty(true);
+                                
                             } else {
                                 setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
+                                
+                                if (!isLoading) {
+                                    setLoadingMessage("Fazendo upload das imagens..."); 
+                                    setIsLoading(true); 
+                                    handleSubmit(RegisterNewCourt)();
+                                }
                             }
                         }} />
                         <Text className="pl-4 text-lg" onPress={() => {
@@ -345,21 +349,52 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                                 setIsCourtTypeEmpty(true);
                             } else {
                                 setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
+
+                                if (!isLoading) {
+                                    setLoadingMessage("Fazendo upload das imagens..."); 
+                                    setIsLoading(true); 
+                                    handleSubmit(RegisterNewCourt)();
+                                }
                             }
-                        }}>Adicionar uma nova Quadra</Text>
+                        }}> {isLoading ? (
+                            <View style={{ alignItems: "center", paddingTop: 5 }}>
+                                <ActivityIndicator size="small" color='#FFFF' />
+                                <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                            </View>
+                            ) : (
+                            'Adicionar uma nova Quadra'
+                            )}</Text>
                     </View>
                     <View>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => {
-                            if (selected.length === 0) {
-                                setIsCourtTypeEmpty(true);
-                            } else {
-                                setIsCourtTypeEmpty(false);
-                                handleSubmit(finishingCourtsRegisters)();
+                    <View>
+                    <TouchableOpacity
+                        className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center'
+                        onPress={() => {
+                        if (selected.length === 0) {
+                            setIsCourtTypeEmpty(true);
+                        } else {
+                            setIsCourtTypeEmpty(false);
+
+                            if (!isLoading) {
+                            setLoadingMessage("Fazendo upload das imagens..."); 
+                            setIsLoading(true); 
+                            handleSubmit(finishingCourtsRegisters)();
                             }
-                        }}>
-                            <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size="small" color='#F5620F' /> : 'Concluir'}</Text>
-                        </TouchableOpacity>
+                        }
+                        }}
+                    >
+                        <Text>
+                        {isLoading ? (
+                        <View style={{ alignItems: "center", paddingTop: 5 }}>
+                            <ActivityIndicator size="small" color='#FFFF' />
+                            <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                        </View>
+                        ) : (
+                        'Concluir'
+                        )}
+                        </Text>
+                    </TouchableOpacity>
+                    </View>
                     </View>
                 </View>
             </View>

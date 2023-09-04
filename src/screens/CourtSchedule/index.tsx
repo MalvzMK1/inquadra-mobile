@@ -23,7 +23,7 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { schedulingByDateQuery } from "../../graphql/queries/schedulingByDate";
 import { ISchedulingByDateResponse, ISchedulingByDateVariables } from "../../graphql/queries/schedulingByDate";
 
-import { BarChart, Grid } from 'react-native-svg-charts'
+// import { BarChart, Grid } from 'react-native-svg-charts'
 import ScheduleChartLabels from "../../components/ScheduleChartLabels";
 import { useApolloClient } from "@apollo/client";
 
