@@ -12,7 +12,13 @@ import storage from '../../utils/storage'
 import { calculateDistance } from "../../utils/calculateDistance";
 
 export default function FavoriteCourts({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'FavoriteCourts'>) {
-	const USER_ID = '9'; //LEGÍVEL
+	const [userId, setUserId] = useState<string>();
+	useEffect(() => {
+		storage.load<UserInfos>({
+			key: 'userInfos'
+		}).then(data => setUserId(data.userId))
+	}, [])
+	const USER_ID = userId 
 	const { data, error, loading } = useGetFavoritesCourtsById(USER_ID)
 	const [color, setColor] = useState({});
 	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(USER_ID)
@@ -61,7 +67,7 @@ export default function FavoriteCourts({ navigation, route }: NativeStackScreenP
 					[courtId]: "white",
 				}));
 			})
-				
+
 				.finally(() => {
 					setIsLoading(false)
 					setUserFavoriteCourts(arrayWithoutDeletedItem)
@@ -81,7 +87,7 @@ export default function FavoriteCourts({ navigation, route }: NativeStackScreenP
 					[courtId]: "red",
 				}));
 			})
-				
+
 				.finally(() => {
 					setIsLoading(false)
 					setUserFavoriteCourts(courtsData)
@@ -95,19 +101,16 @@ export default function FavoriteCourts({ navigation, route }: NativeStackScreenP
 			{
 				!loading &&
 				data?.courtTypes?.data?.map(courtType => (
-					<InfosCourt.Root category={courtType.attributes.name}>
-						{
-							courtType.attributes.courts.data.map(courtInfo => (
-								<InfosCourt.Court imageUrl={{ uri: HOST_API + courtInfo?.attributes?.photo?.data[0]?.attributes?.url, height: 90, width: 138 }}>
-									<InfosCourt.Content
-										lastScheduling={
+					<InfosCourt.Root category={courtType.attributes.name} key={courtType.attributes.name}>
+						{courtType.attributes.courts.data.map(courtInfo => {
+							const schedulings = courtInfo?.attributes?.court_availabilities?.data[0]?.attributes?.schedulings?.data;
+							const lastScheduling = schedulings && schedulings.length > 0
+								? new Date(schedulings[schedulings.length - 1].attributes.date)
+								: undefined;
 
-											courtInfo?.attributes?.court_availabilities?.data[0]?.attributes?.schedulings?.data[0]?.attributes?.date
-												?
-												new Date(courtInfo?.attributes?.court_availabilities?.data[0]?.attributes?.schedulings?.data[courtInfo?.attributes?.court_availabilities?.data[0]?.attributes?.schedulings?.data?.length - 1]?.attributes?.date)
-												:
-												undefined
-										}>
+							return (
+								<InfosCourt.Court key={courtInfo.id} imageUrl={{ uri: HOST_API + courtInfo?.attributes?.photo?.data[0]?.attributes?.url, height: 90, width: 138 }}>
+									<InfosCourt.Content lastScheduling={lastScheduling}>
 										<InfosCourt.ContentHeader courtName={courtInfo?.attributes?.fantasy_name}>
 											<AntDesign
 												name="heart"
@@ -117,9 +120,7 @@ export default function FavoriteCourts({ navigation, route }: NativeStackScreenP
 											/>
 										</InfosCourt.ContentHeader>
 										<InfosCourt.ContentCourtType courtType={courtInfo?.attributes?.name} />
-										{
 
-										}
 										<InfosCourt.ContentDistance distance={
 											(() => {
 												const distanceInMeters = calculateDistance(
@@ -135,10 +136,9 @@ export default function FavoriteCourts({ navigation, route }: NativeStackScreenP
 										} />
 									</InfosCourt.Content>
 								</InfosCourt.Court>
-							))
-						}
+							);
+						})}
 					</InfosCourt.Root>
-
 				))
 			}
 		</ScrollView>

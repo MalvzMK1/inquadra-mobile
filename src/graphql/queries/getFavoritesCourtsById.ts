@@ -79,10 +79,10 @@ query getFavoriteById($id: ID) {
                   }
                 }
               }
-              court_availabilities {
+              court_availabilities(filters: {schedulings: {users: {id: {eq : $id}}}}) {
                 data {
                   attributes {
-                    schedulings(filters: { owner: { id: { eq: $id } } }) {
+                    schedulings(filters: { users: { id: { eq: $id } } }) {
                       data {
                         attributes {
                           date
