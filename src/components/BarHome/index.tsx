@@ -64,6 +64,13 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 		return userFavoriteCourts?.includes(courtId)
 	}
 
+	const result = courts.filter(item => {
+		if (chosenType) {	
+			const ampersandSeparated = item.type.split(" & ").join(",").split(",")
+			return ampersandSeparated.includes(chosenType)
+		}
+	})
+
 	
 
 	return (
@@ -77,42 +84,42 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 			</View>
 			<ScrollView className='p-5'>
 				{
-					chosenType ?
-						courts !== undefined ?
-							courts.filter(item => {
-								const types = Array.isArray(item.type) ? item.type : item.type.split(" & ")
-								return chosenType ? types.includes(chosenType) : true
-							})
-								.map((item) => {
-									return (
-										<CourtCardHome
-											userId={userId}
-											key={item.id}
-											id={item.id}
-											image={item.image}
-											name={item.name}
-											distance={item.distance}
-											type={item.type}
-											liked={verifyCourtLike(item.id)}
-										/>
-									)
-								})
-							: <ActivityIndicator size='small' color='#fff' />
-						:
-						courts !== undefined ? courts.map((item) => {
-							return (
-								<CourtCardHome
-									userId={userId}
-									key={item.id}
-									id={item.id}
-									image={item.image}
-									name={item.name}
-									distance={item.distance}
-									type={item.type}
-									liked={verifyCourtLike(item.id)}
-								/>
+					courts !== undefined ? (
+						chosenType ? (
+							result.length > 0 ? (courts.filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
+								return (
+									<CourtCardHome
+										userId={userId}
+										key={item.id}
+										id={item.id}
+										image={item.image}
+										name={item.name}
+										distance={item.distance}
+										type={item.type}
+										liked={verifyCourtLike(item.id)}
+									/>
+								)
+							})) : (
+								<Text>Ainda não possuímos nenhum estabelecimento cadastrado para esse esporte na sua área. Contamos com sua ajuda para indicar nossa plataforma a quadras próximas a você!</Text>
 							)
-						}) : <ActivityIndicator size='small' color='#fff' />
+						)
+							: (
+								courts.map(item => (
+									<CourtCardHome
+										userId={userId}
+										key={item.id}
+										id={item.id}
+										image={item.image}
+										name={item.name}
+										distance={item.distance}
+										type={item.type}
+										liked={verifyCourtLike(item.id)}
+									/>
+								))
+							)
+					) : (
+						<ActivityIndicator size="small" color="#fff" />
+					)
 				}
 			</ScrollView>
 		</Animated.View>

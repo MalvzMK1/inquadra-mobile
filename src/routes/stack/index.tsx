@@ -67,8 +67,8 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="telinha"
-				component={RegisterCourt}
+				name="Login"
+				component={Login}
 				options={{
 					headerTitle: () => (
 						<Image source={require('../../assets/inquadra_logo.png')} />
@@ -81,8 +81,8 @@ export default function () {
 				}}
 			/>
 			<Screen
-				name="Login"
-				component={Login}
+				name="telinha"
+				component={RegisterCourt}
 				options={{
 					headerTitle: () => (
 						<Image source={require('../../assets/inquadra_logo.png')} />
