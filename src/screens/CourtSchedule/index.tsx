@@ -404,6 +404,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         })
                     }))
                     setBlockedCourtId("")
+                    setBlockScheduleModal(false)
+                    setConfirmBlockSchedule(true)
                     setIsLoading(false)
                 } catch (error) {
                     console.log("Deu ruim patrão", error)
