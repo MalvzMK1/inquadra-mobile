@@ -154,7 +154,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         date: string
     }
     const [activeStates, setActiveStates] = useState<IActiveState[]>([])
-    // console.log(activeStates)
+    console.log(activeStates)
     interface IActiveCourt {
         active: boolean
         id: string
@@ -498,6 +498,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                 />
                             )
                         })
+                    }
+
+                    {
+                        shownSchedules.length == 0 && (
+                            <View className="h-[50px] items-center justify-center">
+                                <Text className="text-[16px] font-bold">
+                                    Nenhuma reserva para esse dia!
+                                </Text>
+                            </View>
+                        )
                     }
 
                 </ScrollView>
