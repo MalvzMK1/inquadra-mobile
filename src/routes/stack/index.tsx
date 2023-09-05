@@ -45,6 +45,10 @@ import editCourt from '../../screens/AllVeryWell/CourtDetails/editCourt';
 import CourtAvailabilityInfo from "../../screens/CourtAvailabilityInfo";
 import storage from "../../utils/storage";
 import CourtSchedule from '../../screens/CourtSchedule';
+import TermsOfService from '../../screens/Register/termsOfService';
+import YourComponent from '../../screens/UploadImage';
+import UploadImage from '../../screens/UploadImage';
+import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawalScreen';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -96,7 +100,7 @@ export default function () {
 							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -111,22 +115,17 @@ export default function () {
 				}}
 			/>
 			<Screen
+				name='TermsOfService'
+				component={TermsOfService}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
 				name='HomeEstablishment'
 				component={HomeEstablishment}
 				options={{
-					headerTitle: "Olá John",
-					headerTitleAlign: "center",
-					headerLeft: () => (<></>),
-					headerRight: () => (
-						<TouchableOpacity onPress={() => navigation.navigate("InfoProfileEstablishment", {
-							userPhoto: ""
-						})} className='pr-[10px]'>
-							<Image
-								source={require('../../assets/default-user-image.png')}
-								className="rounded-full w-[50px] h-[50px]"
-							/>
-						</TouchableOpacity>
-					)
+					headerShown: false
 				}}
 			/>
 			<Screen
@@ -149,7 +148,7 @@ export default function () {
 							<Image source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -176,7 +175,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -203,7 +202,7 @@ export default function () {
 							<Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -230,7 +229,7 @@ export default function () {
 							<Image source={params.establishmentPhoto ? { uri: `${HOST_API}${params.establishmentPhoto}` } : require('../../assets/default-user-image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
+					headerLeft: () => (
 						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
@@ -412,7 +411,7 @@ export default function () {
 			<Screen
 				name='AmountAvailableWithdrawal'
 				component={AmountAvailableWithdrawal}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTitleAlign: 'center',
 					headerTitle: "Detalhes",
 					headerTintColor: 'white',
@@ -424,14 +423,11 @@ export default function () {
 						marginLeft: 12,
 					},
 					headerRight: () => (
-						<TouchableOpacity className='pr-[10px]'>
-							<Image
-								source={require('../../assets/default-user-image.png')}
-								className="rounded-full w-[50px] h-[50px]"
-							/>
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
-					)
-				}}
+					),
+				})}
 			/>
 			<Screen
 				name="RegisterPassword"
@@ -592,9 +588,37 @@ export default function () {
 			<Screen
 				name='ReservationPaymentSign'
 				component={ReservationPaymentSign}
-				options={{
-					headerShown: false
-				}}
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>SINAL/PIX</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity
+							className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
+							onPress={() => navigation.navigate('ProfileSettings', {
+								userID: userId,
+								userPhoto: params.userPhoto
+							})}>
+							<Image
+								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								className='w-full h-full'
+							/>
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name="CompletedEstablishmentResgistration"
@@ -625,7 +649,7 @@ export default function () {
 			<Screen
 				name="FinancialEstablishment"
 				component={FinancialEstablishment}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
@@ -639,41 +663,78 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
-					headerLeft: ({ navigation }) => (
-						<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
-				}}
+				})}
+			/>
+			<Screen
+				name="WithdrawScreen"
+				component={WithdrawScreen}
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>FINANCEIRO</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name="DetailsAmountReceivable"
 				component={DetailsAmountReceivable}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
 						backgroundColor: '#292929',
-					}, 
+					},
 					headerTitleAlign: 'center',
-					title:"Detalhes"
-				}}
+					title: "Detalhes",
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
 						backgroundColor: '#292929',
-					}, 
+					},
 					headerTitleAlign: 'center',
-					title:"Histórico"
-				}}
+					title: "Histórico",
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name='CourtPriceHour'
@@ -685,9 +746,37 @@ export default function () {
 			<Screen
 				name='CourtAvailabilityInfo'
 				component={CourtAvailabilityInfo}
-				options={{
-					headerShown: false
-				}}
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>SINAL</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity
+							className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
+							onPress={() => navigation.navigate('ProfileSettings', {
+								userID: userId,
+								userPhoto: params.userPhoto
+							})}>
+							<Image
+								source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+								className='w-full h-full'
+							/>
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 		</Navigator>
 	)

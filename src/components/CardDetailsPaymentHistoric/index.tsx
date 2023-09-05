@@ -8,7 +8,7 @@ interface infosCard {
     valuePayed: number
 }
 
-export default function CardDetailsPaymentHistoric() {
+export default function CardDetailsPaymentHistoric(props: infosCard) {
     return (
         <View className="bg-gray-200 mt-3 p-3 rounded-md flex flex-row items-center">
             <View className="flex-shrink-0">
