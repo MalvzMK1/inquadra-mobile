@@ -43,6 +43,10 @@ const portugueseMonths = [
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ]
 
+const portugueseDaysOfWeek = [
+    'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'
+]
+
 interface IBlockScheduleFormData {
     initialDate: string
     endDate: string
@@ -199,13 +203,9 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             date: weekDates[index].date.toISOString().split("T")[0]
         }
         setActiveStates(newActiveStates)
-        // const newActiveStates = ;
-        // newActiveStates[index] = true;
-        // setActiveStates(newActiveStates);
 
-        // let teste = weekDates[index].date
-        // console.log(teste)
-        // setDateSelected(new Date(teste))
+        let newDateSelected = weekDates[index].date
+        setDateSelected(new Date(newDateSelected))
 
         setSelectedWeekDate(weekDates[index].dayName as unknown as WeekDays)
         if (schedules)
@@ -403,6 +403,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                             }
                         })
                     }))
+                    setBlockedCourtId("")
                     setIsLoading(false)
                 } catch (error) {
                     console.log("Deu ruim patrão", error)
@@ -461,7 +462,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             </View>
 
             <View className="w-full h-fit pl-[25px] pr-[25px] flex flex-row items-center justify-between">
-                <Text className="text-[16px] text-[#292929] font-black">{dateSelected.toISOString().split("T")[0].split("-")[2]}/{dateSelected.toISOString().split("T")[0].split("-")[1]} - Quinta-feira</Text>
+                <Text className="text-[16px] text-[#292929] font-black">{dateSelected.toISOString().split("T")[0].split("-")[2]}/{dateSelected.toISOString().split("T")[0].split("-")[1]} - {portugueseDaysOfWeek[dateSelected.getUTCDay()]}</Text>
                 <TouchableOpacity
                     onPress={() => setShowCalendar(!showCalendar)}
                     className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px] ml-[10px]"
