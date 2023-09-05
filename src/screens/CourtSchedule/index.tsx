@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Modal, Image, ActivityIndicator } from "react-native"
+import { View, Text, ScrollView, Modal, Image, ActivityIndicator, Touchable } from "react-native"
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import WeekDayButton from "../../components/WeekDays";
@@ -69,14 +69,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const [schedulingsFocus, setSchedulingsFocus] = useState(true)
     const [schedulingsHistoricFocus, setSchedulingsHistoricFocus] = useState(false)
     const [selectedCourt, setSelectedCourt] = useState("")
-    const [blockScheduleModal, setBlockScheduleModal] = useState(false)
-    const closeBlockScheduleModal = () => setBlockScheduleModal(false)
+    const [blockScheduleByDateModal, setBlockScheduleByDateModal] = useState(false)
+    const closeBlockScheduleByDateModal = () => setBlockScheduleByDateModal(false)
     const [startsAt, setStartsAt] = useState("")
     const [endsAt, setEndsAt] = useState("")
     const [confirmBlockSchedule, setConfirmBlockSchedule] = useState(false)
     const closeConfirmBlockScheduleModal = () => setConfirmBlockSchedule(false)
     const [blockScheduleDetailsModal, setBlockScheduleDetailsModal] = useState(false)
     const closeBlockScheduleDetailsModal = () => setBlockScheduleDetailsModal(false)
+    const [chooseBlockTypeModal, setChooseBlockTypeModal] = useState(false)
+    const closeChooseBlockTypeModal = () => setChooseBlockTypeModal(false)
 
     const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
     const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
@@ -404,7 +406,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         })
                     }))
                     setBlockedCourtId("")
-                    setBlockScheduleModal(false)
+                    setBlockScheduleByDateModal(false)
                     setConfirmBlockSchedule(true)
                     setIsLoading(false)
                 } catch (error) {
@@ -428,7 +430,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             <View className="w-full h-fit flex-col mt-[15px] pl-[25px] pr-[25px]">
                 <View className="flex-row w-full justify-between items-center">
                     <Text className="font-black text-[20px] text-[#292929]">{dateSelected.toISOString().split("T")[0].split("-")[2]} {portugueseMonths[dateSelected.getMonth()]}</Text>
-                    <TouchableOpacity onPress={() => setBlockScheduleModal(!blockScheduleModal)} className="h-fit w-fit justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]">
+                    <TouchableOpacity onPress={() => setChooseBlockTypeModal(!chooseBlockTypeModal)} className="h-fit w-fit justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]">
                         <Text className="font-bold text-[12px] text-white">Bloquear agenda</Text>
                     </TouchableOpacity>
                 </View>
@@ -443,8 +445,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     onClick={(isClicked) => {
                                         handleWeekDayClick(index)
                                     }}
-                                    active={activeStates[index].active}
-                                    // active={false}
+                                    // active={activeStates[index].active}
+                                    active={false}
                                 />
                             ))
                         }
@@ -610,7 +612,31 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                 playerScreen={false}
             />
 
-            <Modal visible={blockScheduleModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleModal}>
+            <Modal visible={chooseBlockTypeModal} animationType="fade" transparent={true} onRequestClose={closeChooseBlockTypeModal}>
+                <View className="h-full w-full justify-center items-center">
+                    <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
+                        <View className="w-full h-[250px] items-center justify-evenly">
+
+                            <Button className="h-[50px] w-[150px] justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]">
+                                <Text className="font-bold text-[12px] text-white">Bloquear por horário</Text>
+                            </Button>
+
+                            <Button
+                                className="h-[50px] w-[150px] justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]"
+                                onPress={() => {
+                                    closeChooseBlockTypeModal()
+                                    setBlockScheduleByDateModal(!blockScheduleByDateModal)
+                                }}
+                            >
+                                <Text className="font-bold text-[12px] text-white">Bloquear por data</Text>
+                            </Button>
+
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal visible={blockScheduleByDateModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleByDateModal}>
                 <View className="h-full w-full justify-center items-center">
                     <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
 
@@ -627,8 +653,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                         onClick={(isClicked) => {
                                             handleSelectedCourt(index)
                                         }}
-                                        active={activeCourts[index].active}
-                                        // active={false}
+                                        // active={activeCourts[index].active}
+                                        active={false}
                                     />
                                 )
                             })}
