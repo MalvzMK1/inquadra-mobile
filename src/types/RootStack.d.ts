@@ -2,9 +2,11 @@ type RootStackParamList = {
 	Login: undefined;
 	HistoryPayment: {
 		establishmentId: string,
+		logo: string
 	};
 	DetailsAmountReceivable: {
 		establishmentId: string,
+		logo: string
 	};
 	CompletedEstablishmentRegistration: undefined;
 	CourtSchedule: {
@@ -12,6 +14,7 @@ type RootStackParamList = {
 	};
 	AmountAvailableWithdrawal: {
 		establishmentId: string,
+		logo: string
 	};
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
@@ -25,7 +28,10 @@ type RootStackParamList = {
 	InfoProfileEstablishment: {
 		userPhoto: string
 	}
-	FinancialEstablishment: undefined;
+	FinancialEstablishment: {
+		establishmentId: string,
+		logo: string
+	};
 	CourtPriceHour: undefined;
 	EditCourt: {
 		courtId: string | undefined,
@@ -76,6 +82,7 @@ type RootStackParamList = {
 	};
 	WithdrawScreen: {
 		establishmentId: string,
+		logo: string
 	}
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {

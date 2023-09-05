@@ -1,44 +1,27 @@
-import {addDays, format} from 'date-fns'
+import {addDays, format, startOfWeek} from 'date-fns'
 import {ptBR} from 'date-fns/locale'
 
-export function getWeekDays(date: Date, weeksOffset: number = 0): Array<FormatedWeekDates> {
+export function getWeekDays(date: Date): Array<FormatedWeekDates> {
 	const daysOfWeek: Array<FormatedWeekDates> = []
-
-	const sundayIndex = date.getDay()
-
+	const startOfCurrentWeek = startOfWeek(date, { locale: ptBR })
+  
 	for (let i = 0; i < 7; i++) {
-		const weekDate = addDays(date, i);
-		const localeDayInitial = format(
-			weekDate,
-			'eee',
-			{
-				locale: ptBR,
-			}).toUpperCase()[0];
-		const localeDayName = format(
-			weekDate,
-			'eeee',
-			{
-				locale: ptBR
-			}
-		)
-		const dayName = format(
-			weekDate,
-			'eeee'
-		)
-
-		const currentIndex = (sundayIndex + i) % 7
-
-		daysOfWeek[currentIndex] = {
-			dayName: dayName.charAt(0).toUpperCase() + dayName.slice(1),
-			localeDayInitial,
-			day: format(weekDate, 'dd'),
-			date: weekDate,
-			localeDayName
-		};
+	  const weekDate = addDays(startOfCurrentWeek, i)
+	  const localeDayInitial = format(weekDate, 'eee', { locale: ptBR }).toUpperCase()[0]
+	  const localeDayName = format(weekDate, 'eeee', { locale: ptBR })
+	  const dayName = format(weekDate, 'eeee')
+  
+	  daysOfWeek.push({
+		dayName: dayName.charAt(0).toUpperCase() + dayName.slice(1),
+		localeDayInitial,
+		day: format(weekDate, 'dd'),
+		date: weekDate,
+		localeDayName
+	  })
 	}
-
+  
 	return daysOfWeek
-}
+  }
 
 export function formatLocaleWeekDayName(weekDays: Array<FormatedWeekDates>): Array<string> {
 	const formattedWeekDays: Array<string> = weekDays.map((day, index) => {

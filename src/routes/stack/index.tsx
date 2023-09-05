@@ -411,7 +411,7 @@ export default function () {
 			<Screen
 				name='AmountAvailableWithdrawal'
 				component={AmountAvailableWithdrawal}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTitleAlign: 'center',
 					headerTitle: "Detalhes",
 					headerTintColor: 'white',
@@ -423,14 +423,11 @@ export default function () {
 						marginLeft: 12,
 					},
 					headerRight: () => (
-						<TouchableOpacity className='pr-[10px]'>
-							<Image
-								source={require('../../assets/default-user-image.png')}
-								className="rounded-full w-[50px] h-[50px]"
-							/>
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
-					)
-				}}
+					),
+				})}
 			/>
 			<Screen
 				name="RegisterPassword"
@@ -652,7 +649,7 @@ export default function () {
 			<Screen
 				name="FinancialEstablishment"
 				component={FinancialEstablishment}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
@@ -666,7 +663,7 @@ export default function () {
 					),
 					headerRight: () => (
 						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
 						</TouchableOpacity>
 					),
 					headerLeft: () => (
@@ -674,33 +671,70 @@ export default function () {
 							<Icon name="arrow-back" size={25} color="white" />
 						</TouchableOpacity>
 					),
-				}}
+				})}
+			/>
+			<Screen
+				name="WithdrawScreen"
+				component={WithdrawScreen}
+				options={({ route: { params } }) => ({
+					headerTintColor: 'white',
+					headerStyle: {
+						height: 100,
+						backgroundColor: '#292929',
+					},
+					headerTitleAlign: 'center',
+					headerTitle: () => (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>FINANCEIRO</Text>
+						</View>
+					),
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+					headerLeft: () => (
+						<TouchableOpacity onPress={() => navigation.goBack()}>
+							<Icon name="arrow-back" size={25} color="white" />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name="DetailsAmountReceivable"
 				component={DetailsAmountReceivable}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
 						backgroundColor: '#292929',
 					},
 					headerTitleAlign: 'center',
-					title: "Detalhes"
-				}}
+					title: "Detalhes",
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name='HistoryPayment'
 				component={HistoryPayment}
-				options={{
+				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
 						height: 100,
 						backgroundColor: '#292929',
 					},
 					headerTitleAlign: 'center',
-					title: "Histórico"
-				}}
+					title: "Histórico",
+					headerRight: () => (
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+						</TouchableOpacity>
+					),
+				})}
 			/>
 			<Screen
 				name='CourtPriceHour'
@@ -743,33 +777,6 @@ export default function () {
 						</TouchableOpacity>
 					),
 				})}
-			/>
-			<Screen
-				name="WithdrawScreen"
-				component={WithdrawScreen}
-				options={{
-					headerTintColor: 'white',
-					headerStyle: {
-						height: 100,
-						backgroundColor: '#292929',
-					},
-					headerTitleAlign: 'center',
-					headerTitle: () => (
-						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>SAQUE</Text>
-						</View>
-					),
-					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 10 }}>
-							<Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
-						</TouchableOpacity>
-					),
-					headerLeft: () => (
-						<TouchableOpacity onPress={() => navigation.goBack()}>
-							<Icon name="arrow-back" size={25} color="white" />
-						</TouchableOpacity>
-					),
-				}}
 			/>
 		</Navigator>
 	)
