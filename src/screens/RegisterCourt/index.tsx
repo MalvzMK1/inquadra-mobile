@@ -50,14 +50,26 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
     setCourts(prevState => [...prevState, court]);
   }
 
-  function RegisterNewCourt(data: IFormDatasCourt) {
+  async function RegisterNewCourt(data: IFormDatasCourt) {
+
+    setIsLoading(true); 
+
     let courtIDs: Array<string> = [];
+
     selected.forEach(selectedType => {
       courtTypes.forEach(type => {
         if (type.value === selectedType) courtIDs.push(type.label)
       })
     });
 
+
+    const uploadedImageIDs = await uploadImage();
+    let photoIDs: Array<string> = [];
+    selected.forEach(selectedType => {
+      courtTypes.forEach(type => {
+        if (type.value === selectedType) photoIDs.push(type.label)
+      })
+    });
     const payload = {
       court_name: `Quadra de ${selected}`,
       courtType: courtIDs,
@@ -68,8 +80,10 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
       currentDate: new Date().toISOString()
     }
     addToCourtArray(payload)
+    if (uploadedImageIDs.length > 0) {
+        navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
+      }
 
-    navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
   }
 
 
@@ -190,6 +204,8 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
         newPhotos.splice(index, 1);
         setPhotos(newPhotos);
     };
+    
+    
 
     const dataSports = dataSportType?.courts?.data || [];
 
@@ -322,9 +338,15 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                         <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => {
                             if (selected.length === 0) {
                                 setIsCourtTypeEmpty(true);
+                                
                             } else {
                                 setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
+                                
+                                if (!isLoading) {
+                                    setLoadingMessage("Fazendo upload das imagens..."); 
+                                    setIsLoading(true); 
+                                    handleSubmit(RegisterNewCourt)();
+                                }
                             }
                         }} />
                         <Text className="pl-4 text-lg" onPress={() => {
@@ -332,9 +354,21 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                                 setIsCourtTypeEmpty(true);
                             } else {
                                 setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
+
+                                if (!isLoading) {
+                                    setLoadingMessage("Fazendo upload das imagens..."); 
+                                    setIsLoading(true); 
+                                    handleSubmit(RegisterNewCourt)();
+                                }
                             }
-                        }}>Adicionar uma nova Quadra</Text>
+                        }}> {isLoading ? (
+                            <View style={{ alignItems: "center", paddingTop: 5 }}>
+                                <ActivityIndicator size="small" color='#FFFF' />
+                                <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                            </View>
+                            ) : (
+                            'Adicionar uma nova Quadra'
+                            )}</Text>
                     </View>
                     <View>
                     <View>

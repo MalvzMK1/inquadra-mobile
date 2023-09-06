@@ -335,12 +335,7 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
                     </View>
                     <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
                         <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => {
-                            if (selected.length === 0) {
-                                setIsCourtTypeEmpty(true);
-                            } else {
-                                setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
-                            }
+                           
                         }} />
                         <Text className="pl-4 text-lg" onPress={() => {
                             if (selected.length === 0) {

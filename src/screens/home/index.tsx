@@ -16,6 +16,7 @@ import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardIn
 import { calculateDistance } from '../../utils/calculateDistance';
 import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSportTypes } from '../../hooks/useSportTypesFixed';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -48,7 +49,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	}>>([]);
 	const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
 	const [sportSelected, setSportSelected] = useState<string>()
-	const { data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError } = useAvailableSportTypes()
+	const { data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError } = useSportTypes()
 
 	const HandleSportSelected = (nameSport: string) => {
 		setSportSelected(nameSport)
@@ -59,45 +60,45 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			setEstablishments([]);
 			if (!error && !loading) {
 				const newEstablishments = data?.establishments.data
-				  .filter(establishment => (
-					establishment.attributes.photos.data &&
-					establishment.attributes.photos.data.length > 0 &&
-					establishment.attributes.courts.data
-				  ))
-				  .map((establishment => {
-					let establishmentObject: EstablishmentObject;
+					.filter(establishment => (
+						establishment.attributes.photos.data &&
+						establishment.attributes.photos.data.length > 0 &&
+						establishment.attributes.courts.data
+					))
+					.map((establishment => {
+						let establishmentObject: EstablishmentObject;
 
-					let courtTypes = establishment.attributes.courts.data!
-						.filter(court => court.attributes.court_types.data.length > 0)
-						.map(court => court.attributes.court_types.data)
-						.map(courtType => courtType.map(type => type.attributes.name))
+						let courtTypes = establishment.attributes.courts.data!
+							.filter(court => court.attributes.court_types.data.length > 0)
+							.map(court => court.attributes.court_types.data)
+							.map(courtType => courtType.map(type => type.attributes.name))
 
-					if (!courtTypes) courtTypes = []
+						if (!courtTypes) courtTypes = []
 
-					establishmentObject = {
-						id: establishment.id,
-						name: establishment.attributes.corporateName,
-						latitude: Number(establishment.attributes.address.latitude),
-						longitude: Number(establishment.attributes.address.longitude),
-						distance: calculateDistance(
-							userGeolocation.latitude,
-							userGeolocation.longitude,
-							Number(establishment.attributes.address.latitude),
-							Number(establishment.attributes.address.longitude)
-						) / 1000,
-						image: HOST_API + establishment.attributes.logo.data.attributes.url,
-						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
-					}
+						establishmentObject = {
+							id: establishment.id,
+							name: establishment.attributes.corporateName,
+							latitude: Number(establishment.attributes.address.latitude),
+							longitude: Number(establishment.attributes.address.longitude),
+							distance: calculateDistance(
+								userGeolocation.latitude,
+								userGeolocation.longitude,
+								Number(establishment.attributes.address.latitude),
+								Number(establishment.attributes.address.longitude)
+							) / 1000,
+							image: HOST_API + establishment.attributes.logo.data.attributes.url,
+							type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
+						}
 
-					return establishmentObject
-				  }));
-		
+						return establishmentObject
+					}));
+
 				if (newEstablishments) {
-				  setEstablishments(newEstablishments);
+					setEstablishments(newEstablishments);
 				}
-		
+
 				navigation.setParams({
-				  userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+					userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
 				});
 			}
 		}, [data, loading, userHookLoading, userHookData, error])
@@ -107,20 +108,16 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	useEffect(() => {
 		const newAvailableSportTypes: SportType[] = [];
 
-		availableSportTypes?.courts.data.forEach(court => {
-			court.attributes.court_types.data.forEach(courtType => {
-				const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
+		availableSportTypes?.courtTypes.data.forEach(courtType => {
+			const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
 
-				if (!sportAlreadyAdded) {
-					newAvailableSportTypes.push({ id: courtType.id, name: courtType.attributes.name });
-				}
-			});
+			if (!sportAlreadyAdded) {
+				newAvailableSportTypes.push({ id: courtType.id, name: courtType.attributes.name });
+			}
 		});
 
 		setSportTypes(newAvailableSportTypes);
 	}, [availableSportTypes, availableSportTypesError]);
-
-	if (!userHookLoading) console.log(userHookData)
 
 	return (
 		<View className="flex-1 flex flex-col">
@@ -161,7 +158,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance={item.distance}
 									image={item.image}
 									type={item.type}
-									userId={route.params.userID}
+									userId={route?.params?.userID}
 									liked={true}
 								/>
 							</Marker>
@@ -189,6 +186,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					establishmentScreen={false}
 					userID={route.params.userID}
 					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+					establishmentID={undefined}
+					logo={undefined}
 				/>
 			}
 		</View >
