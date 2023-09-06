@@ -89,8 +89,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const [endsAt, setEndsAt] = useState("")
     const [confirmBlockSchedule, setConfirmBlockSchedule] = useState(false)
     const closeConfirmBlockScheduleModal = () => setConfirmBlockSchedule(false)
-    const [blockScheduleDetailsModal, setBlockScheduleDetailsModal] = useState(false)
-    const closeBlockScheduleDetailsModal = () => setBlockScheduleDetailsModal(false)
     const [chooseBlockTypeModal, setChooseBlockTypeModal] = useState(false)
     const closeChooseBlockTypeModal = () => setChooseBlockTypeModal(false)
     const [blockScheduleByTimeModal, setBlockScheduleByTimeModal] = useState(false)
@@ -112,13 +110,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     interface IEstablishmentSchedules {
         courtId: string
         courtName: string
+        courtType: string
         startsAt: string
         endsAt: string
         weekDay: string
         scheduling: {
             schedulingId: string,
             schedulingDate: string,
-            schedulingStatus: boolean
+            schedulingStatus: boolean,
+            reservedBy: string,
+            payedStatus: boolean
         }
     }
 
@@ -130,13 +131,16 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     establishmentSchedules = [...establishmentSchedules, {
                         courtId: courtItem.id,
                         courtName: courtItem.attributes.name,
+                        courtType: courtItem.attributes.court_types.data[0].attributes.name,
                         startsAt: courtAvailabilitieItem.attributes.startsAt,
                         endsAt: courtAvailabilitieItem.attributes.endsAt,
                         weekDay: courtAvailabilitieItem.attributes.weekDay,
                         scheduling: {
                             schedulingId: schedulingItem.id,
                             schedulingDate: schedulingItem.attributes.date,
-                            schedulingStatus: schedulingItem.attributes.status
+                            schedulingStatus: schedulingItem.attributes.status,
+                            reservedBy: schedulingItem.attributes.owner?.data?.attributes?.username,
+                            payedStatus: schedulingItem.attributes.payedStatus
                         }
                     }]
                 })
@@ -538,6 +542,9 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     startsAt={`${startsAt[0]}:${startsAt[1]}h`}
                                     endsAt={`${endsAt[0]}:${endsAt[1]}h`}
                                     isReserved={true}
+                                    courtType={scheduleItem.courtType}
+                                    reservedBy={scheduleItem.scheduling.reservedBy}
+                                    payedStatus={scheduleItem.scheduling.payedStatus}
                                 />
                             )
                         })
@@ -891,31 +898,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         <View className=" items-center justify-evenly h-[80%]">
                             <Text className="font-bold text-[14px] text-center">Agenda bloqueada com sucesso</Text>
                             <Image source={require('../../assets/orange_logo_inquadra.png')}></Image>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal visible={blockScheduleDetailsModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleDetailsModal}>
-                <View className="h-full w-full justify-center items-center">
-                    <View className="h-[256px] w-[350px] bg-white rounded-[5px] items-center">
-                        <Text className="font-bold text-[14px] mt-[30px]">DETALHES DA RESERVA</Text>
-
-                        <ScheduleBlockDetails
-                            userName="Lucas Santos"
-                            courtType="Basquete"
-                            startsAt="15:00h"
-                            endsAt="16:00h"
-                            payedStatus={true}
-                        />
-
-                        <View className="w-full h-fit mt-[35px] mb-[20px] justify-center items-center pl-[40px] pr-[40px]">
-                            <Button onPress={() => {
-                                closeBlockScheduleDetailsModal()
-                                setConfirmBlockSchedule(true)
-                            }} className='h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center'>
-                                <Text className="w-full h-full font-medium text-[16px] text-white">Fechar</Text>
-                            </Button>
                         </View>
                     </View>
                 </View>
