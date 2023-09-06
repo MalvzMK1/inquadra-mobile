@@ -643,11 +643,13 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                 </View>
             )}
 
-            <BottomNavigationBar
-                isDisabled={false}
-                establishmentScreen={true}
-                playerScreen={false}
-            />
+            <View className="absolute bottom-0 top-0 left-0 right-0 items-center justify-end">
+                <BottomNavigationBar
+                    isDisabled={false}
+                    establishmentScreen={true}
+                    playerScreen={false}
+                />
+            </View>
 
             <Modal visible={chooseBlockTypeModal} animationType="fade" transparent={true} onRequestClose={closeChooseBlockTypeModal}>
                 <View className="h-full w-full justify-center items-center">
