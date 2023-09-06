@@ -53,6 +53,7 @@ export interface IEstablishmentSchedulingsByDayResponse {
                               attributes: {
                                 startsAt: CourtAvailability['startsAt']
                                 endsAt: CourtAvailability['endsAt']
+                                dayUseService: CourtAvailability['dayUseService']
                                 court: {
                                   data: {
                                     attributes: {
@@ -120,6 +121,7 @@ query getFavoritesCourtsById($id: ID) {
                           }
                           establishment {
                             data {
+                        id
                               attributes {
                                 address {
                                   latitude
@@ -129,6 +131,7 @@ query getFavoritesCourtsById($id: ID) {
                             }
                           }
                           court_availabilities {
+                                dayUseService
                             data {
                               attributes {
                                 schedulings(

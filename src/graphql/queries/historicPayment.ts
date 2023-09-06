@@ -6,6 +6,15 @@ export interface IHistoricPayment {
     data: {
       id: string,
       attributes: {
+        logo: {
+          data: [
+            {
+              attributes: {
+                url: string
+              }
+            }
+          ]
+        },
         pix_keys: {
           data: [
             {
@@ -91,6 +100,13 @@ query getHistoryPayment($ID: ID!) {
       id
       attributes{
         corporateName
+        logo{
+          data{
+						attributes{
+              url
+            }
+          }
+        }
         pix_keys{
           data{
             id
