@@ -179,18 +179,34 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         weekDates = getWeekDays(dateSelected)
     else
         weekDates = getWeekDays(today)
+    
+    const standardActiveStates: IActiveState[] = []
+    weekDates.map(item => {
+        standardActiveStates.push({
+            active: false,
+            date: item.date.toISOString().split("T")[0]
+        })
+    })
+    // console.log(standardActiveStates)
     interface IActiveState {
         active: boolean
         date: string
     }
-    const [activeStates, setActiveStates] = useState<IActiveState[]>([])
-    console.log(activeStates)
+    const [activeStates, setActiveStates] = useState<IActiveState[]>(standardActiveStates)
+
+    const standardActiveCourts: IActiveCourt[] = []
+    allCourts.map(item => {
+        standardActiveCourts.push({
+            active: false,
+            id: item.id
+        })
+    })
+    console.log(standardActiveCourts)
     interface IActiveCourt {
         active: boolean
         id: string
     }
-    const [activeCourts, setActiveCourts] = useState<IActiveCourt[]>([])
-    console.log(activeCourts)
+    const [activeCourts, setActiveCourts] = useState<IActiveCourt[]>(standardActiveCourts)
 
     useEffect(() => {
         let newActiveStates: IActiveState[] = []
@@ -210,6 +226,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             }]
         })
         setActiveCourts(newActiveCourts)
+        console.log(activeCourts)
     }, [])
 
     const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
@@ -487,8 +504,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     onClick={(isClicked) => {
                                         handleWeekDayClick(index)
                                     }}
-                                    // active={activeStates[index].active}
-                                    active={false}
+                                    active={activeStates[index].active}
+                                    // active={false}
                                 />
                             ))
                         }
