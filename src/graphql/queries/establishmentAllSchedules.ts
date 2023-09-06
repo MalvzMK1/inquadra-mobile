@@ -44,6 +44,7 @@ export interface IEstablishmentAllSchedulesResponse {
 															}
 														}
 													}
+													payedStatus: boolean
 												}
 											}>
 										}
@@ -106,6 +107,7 @@ export const allEstablishmentSchedulesQuery = gql`
                               									}
                             								}
                           								}
+														payedStatus
                                                     }
                                                 }
                                             }
