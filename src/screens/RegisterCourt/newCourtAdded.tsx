@@ -23,6 +23,7 @@ import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from '@react-navigation/native'
+import axios from "axios";
 
 interface CourtArrayObject {
     court_name: string,
@@ -89,29 +90,37 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
     }
 
     
-    function finishingCourtsRegisters (data: IFormDatasCourt){
+    function finishingCourtsRegisters(data: IFormDatasCourt) {
         let courtIDs: Array<string> = [];
-
+      
         selected.forEach(selectedType => {
-            courtTypes.forEach(type => {
-                if (type.value === selectedType) courtIDs.push(type.label)
-            })
-        })
-
-        const payload = {
+          courtTypes.forEach(type => {
+            if (type.value === selectedType) courtIDs.push(type.label);
+          });
+        });
+      
+        // Verifica se há pelo menos uma foto selecionada
+        if (photos.length > 0) {
+      
+          const payload = {
             court_name: `Quadra de ${selected}`,
             courtType: courtIDs,
             fantasyName: data.fantasyName,
-            photos: ["2"],
-            court_availabilities: ["2"], // tela vinicius
+            photos: ["2"], 
+            court_availabilities: ["2"], // tela Vinicius
             minimum_value: Number(data.minimum_value) / 100,
             currentDate: new Date().toISOString()
+          };
+      
+          addToCourtArray(payload);
+      
+          uploadImage();
+          navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] }); 
         }
-        addToCourtArray(payload)
-        
-        navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] })
-    }
+      }
+      
 
+    
 
     const formSchema = z.object({
         minimum_value: z.string().nonempty("É necessário determinar um valor mínimo."),
@@ -142,6 +151,7 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
 
     const [selectedItems, setSelectedItems] = useState([]);
 
+   
     const handleProfilePictureUpload = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -165,10 +175,32 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
         } catch (error) {
             console.log('Erro ao carregar a imagem: ', error);
         }
-
-
     };
 
+    const uploadImage = async () => {
+        const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+        
+        const formData = new FormData();
+        photos.forEach((uri, index) => {
+          formData.append(`files`, {
+            uri: uri.uri,
+            name: `image${index}.jpg`, 
+            type: 'image/jpeg', 
+          });
+        });
+    
+        try {
+          const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+    
+          console.log('Imagens enviadas com sucesso!', response.data);
+        } catch (error) {
+          console.error('Erro ao enviar imagens:', error);
+        }
+      };
     const handleDeletePhoto = (index) => {
         const newPhotos = [...photos];
         newPhotos.splice(index, 1);
@@ -244,36 +276,36 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
 
                     </View>
                     <View>
-                        <Text className="text-xl p-1">Fotos da quadra</Text>
+                        <Text className='text-xl p-1'>Fotos da quadra</Text>
                         <View className="border border-dotted border-neutral-400 rounded relative">
-                            <View className="flex flex-row items-center" style={{ justifyContent: "space-between", height: 130 }}>
-                                <Text className="text-base text-gray-300 font-bold m-6 " onPress={handleProfilePictureUpload}>
-                                    Carregue suas fotos aqui.
-                                </Text>
-                                <Ionicons name="star-outline" size={20} color="#FF6112" style={{ marginEnd: 20 }} onPress={handleProfilePictureUpload} />
-                            </View>
-                            <Controller
-                                name='photos'
-                                control={control}
-                                rules={{ required: false }}
-                                render={({ field: { onChange, value } }) => (
-                                    <FlatList
-                                        className="h-max"
-                                        data={photos}
-                                        renderItem={({ item, index }) => (
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, margin: 10 }} />
-                                                <TouchableOpacity style={{ position: 'absolute', right: 0, left: 0, bottom: 0, top: 0, justifyContent: 'center', alignItems: 'center' }} onPress={() => handleDeletePhoto(index)}>
-                                                    <Ionicons name="trash" size={25} color="#FF6112" />
-                                                </TouchableOpacity>
-                                            </View>
-                                        )}
-                                        keyExtractor={(item, index) => index.toString()}
-                                        horizontal
-                                    />
-                                )}
-                            />
+                        <View className="flex flex-row items-center" style={{ justifyContent: "space-between", height: 130 }}>
+                            <Text className="text-base text-gray-300 font-bold m-6 " onPress={handleProfilePictureUpload}>
+                            Carregue suas fotos aqui.
+                            </Text>
+                            <Ionicons name="star-outline" size={20} color="#FF6112" style={{ marginEnd: 20 }} onPress={handleProfilePictureUpload} />
                         </View>
+                        <Controller
+                            name='photos'
+                            control={control}
+                            rules={{ required: false }}
+                            render={({ field: { onChange, value } }) => (
+                            <FlatList
+                                className="h-max"
+                                data={photos}
+                                renderItem={({ item, index }) => (
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, margin: 10 }} />
+                                    <TouchableOpacity style={{ position: 'absolute', right: 0, left: 0, bottom: 0, top: 0, justifyContent: 'center', alignItems: 'center' }} onPress={() => handleDeletePhoto(index)}>
+                                    <Ionicons name="trash" size={25} color="#FF6112" />
+                                    </TouchableOpacity>
+                                </View>
+                                )}
+                                keyExtractor={(item, index) => index.toString()}
+                                horizontal
+                            />
+                            )}
+                        />
+                    </View>
 
                     </View>
                     <View>
@@ -304,12 +336,7 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
                     </View>
                     <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
                         <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => {
-                            if (selected.length === 0) {
-                                setIsCourtTypeEmpty(true);
-                            } else {
-                                setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
-                            }
+                           
                         }} />
                         <Text className="pl-4 text-lg" onPress={() => {
                             if (selected.length === 0) {
