@@ -37,6 +37,13 @@ export interface IEstablishmentAllSchedulesResponse {
 												attributes: {
 													date: string
 													status: boolean
+													owner: {
+														data: {
+															attributes: {
+																username: User['username']
+															}
+														}
+													}
 												}
 											}>
 										}
@@ -88,10 +95,17 @@ export const allEstablishmentSchedulesQuery = gql`
 											weekDay
                                             schedulings {
                                                 data {
-		                                                id
+		                                            id
                                                     attributes {
                                                         date
-		                                                    status
+		                                                status
+														owner {
+                            								data {
+                              									attributes {
+                                									username
+                              									}
+                            								}
+                          								}
                                                     }
                                                 }
                                             }
