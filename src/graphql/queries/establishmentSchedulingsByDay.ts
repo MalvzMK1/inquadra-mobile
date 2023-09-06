@@ -53,6 +53,7 @@ export interface IEstablishmentSchedulingsByDayResponse {
                               attributes: {
                                 startsAt: CourtAvailability['startsAt']
                                 endsAt: CourtAvailability['endsAt']
+                                dayUseService: CourtAvailability['dayUseService']
                                 court: {
                                   data: {
                                     attributes: {
@@ -91,74 +92,54 @@ export interface IEstablishmentSchedulingsByDayVariables {
 }
 
 export const establishmentSchedulingsByDayQuery = gql`
-query getEstablishmentSchedulings(
-  $fantasyName: String
-  $establishmentID: ID
-  $dayWeek: String
-  $date: Date
-) {
-  establishment(id: $establishmentID) {
+query getFavoritesCourtsById($id: ID) {
+  usersPermissionsUser(id: $id) {
     data {
-      id
       attributes {
-        fantasyName
-        corporateName
-        logo {
+        favorite_courts {
           data {
+            id
             attributes {
-              url
-            }
-          }
-        }
-        courts(filters: { fantasy_name: { eq: $fantasyName } }) {
-          data {
-            attributes {
-              fantasy_name
-              court_availabilities(
-                filters: { status: { eq: true }, weekDay: { eq: $dayWeek } }
+              court_types(
+                filters: { courts: { favorited_user: { id: { eq: $id } } } }
               ) {
                 data {
-                  id
                   attributes {
-                    startsAt
-                    endsAt
-                    court {
+                    name
+                    courts(filters: { favorited_user: { id: { eq: $id } } }) {
                       data {
                         id
                         attributes {
                           name
-                        }
-                      }
-                    }
-                    schedulings(filters: { date: { eq: $date } }) {
-                      data {
-                        attributes {
-                          date
-                          payedStatus
-                          activated
-                          activationKey
-                          owner {
+                          fantasy_name
+                          photo {
                             data {
                               attributes {
-                                username
+                                url
                               }
                             }
                           }
-                          court_availability {
+                          establishment {
+                            data {
+                        id
+                              attributes {
+                                address {
+                                  latitude
+                                  longitude
+                                }
+                              }
+                            }
+                          }
+                          court_availabilities {
+                                dayUseService
                             data {
                               attributes {
-                                startsAt
-                                endsAt
-                                court {
+                                schedulings(
+                                  filters: { owner: { id: { eq: $id } } }
+                                ) {
                                   data {
                                     attributes {
-                                      court_types {
-                                        data {
-                                          attributes {
-                                            name
-                                          }
-                                        }
-                                      }
+                                      date
                                     }
                                   }
                                 }
