@@ -49,6 +49,8 @@ import TermsOfService from '../../screens/Register/termsOfService';
 import YourComponent from '../../screens/UploadImage';
 import UploadImage from '../../screens/UploadImage';
 import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawalScreen';
+import updateSchedule from '../../screens/UpdateSchedule';
+import paymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -124,6 +126,13 @@ export default function () {
 			<Screen
 				name='HomeEstablishment'
 				component={HomeEstablishment}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name='UpdateSchedule'
+				component={updateSchedule}
 				options={{
 					headerShown: false
 				}}
@@ -300,6 +309,13 @@ export default function () {
 			<Screen
 				name='CourtDetails'
 				component={CourtDetails}
+				options={{
+					headerShown: false
+				}}
+			/>
+			<Screen
+				name='PaymentScheduleUpdate'
+				component={paymentScheduleUpdate}
 				options={{
 					headerShown: false
 				}}

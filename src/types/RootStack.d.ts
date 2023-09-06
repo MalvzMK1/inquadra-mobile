@@ -87,7 +87,7 @@ type RootStackParamList = {
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
-		scheduleId:string
+		scheduleId: string
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
@@ -113,7 +113,7 @@ type RootStackParamList = {
 	}
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
-		
+
 		photos: string[] | undefined
 		profileInfos: {
 			username: string;
@@ -144,6 +144,27 @@ type RootStackParamList = {
 	editCourt: {
 		courtArray: CourtAdd[]
 		indexCourtArray: number
+	}
+	UpdateSchedule: {
+		userPhoto: string
+		userId: string
+		courtId: string
+		courtImage: string
+		courtName: string
+		valuePayed: number
+		scheduleUpdateID: string
+	}
+	PaymentScheduleUpdate: {
+		courtId: string
+		courtImage: string
+		courtName: string
+		userId: string
+		userPhoto: string | undefined
+		courtAvailabilities: string
+		amountToPay: number
+		courtAvailabilityDate: string
+		scheduleUpdateID: string
+		pricePayed: number
 	}
 
 }

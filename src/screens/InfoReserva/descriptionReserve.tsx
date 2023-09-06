@@ -82,7 +82,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             text1: 'Texto copiado',
             text2: 'O texto foi copiado para a área de transferência.',
             position: 'bottom',
-            visibilityTime: 2000, // tempo em milissegundos que a mensagem ficará visível
+            visibilityTime: 2000,
         });
     };
 
@@ -241,7 +241,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             })
 
             !loadingCancelSchedule || !errorCancelSchedule
-                ? navigation.navigate('InfoReserva', {userId: user_id})
+                ? navigation.navigate('InfoReserva', { userId: user_id })
                 : null
         } catch (error) {
             null
@@ -300,14 +300,24 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                     </View>
                                     {
                                         user_id === data?.scheduling.data.attributes.owner.data.id
-                                            ? <View className='flex-row items-center'>
+                                            ? <TouchableOpacity className='flex-row items-center' onPress={
+                                                () => navigation.navigate('UpdateSchedule', {
+                                                    courtId: data.scheduling.data.attributes.court_availability.data.attributes.court.data.id,
+                                                    courtName: data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name,
+                                                    courtImage: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url,
+                                                    userId: user_id,
+                                                    userPhoto: dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url!,
+                                                    valuePayed: scheduleValuePayed!,
+                                                    scheduleUpdateID: schedule_id                            
+                                                })
+                                            }>
                                                 <View>
                                                     <Text className='font-normal text-xs text-orange-600'>Editar</Text>
                                                 </View>
                                                 <View className='flex items-center justify-center pl-4'>
                                                     <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} />
                                                 </View>
-                                            </View>
+                                            </TouchableOpacity>
                                             : null
                                     }
                                 </View>
