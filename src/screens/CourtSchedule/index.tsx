@@ -123,24 +123,25 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     }
 
     let establishmentSchedules: IEstablishmentSchedules[] = []
-    schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
-        courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
-            courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
-                establishmentSchedules = [...establishmentSchedules, {
-                    courtId: courtItem.id,
-                    courtName: courtItem.attributes.name,
-                    startsAt: courtAvailabilitieItem.attributes.startsAt,
-                    endsAt: courtAvailabilitieItem.attributes.endsAt,
-                    weekDay: courtAvailabilitieItem.attributes.weekDay,
-                    scheduling: {
-                        schedulingId: schedulingItem.id,
-                        schedulingDate: schedulingItem.attributes.date,
-                        schedulingStatus: schedulingItem.attributes.status
-                    }
-                }]
+    if(schedulesData)
+        schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
+            courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
+                courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
+                    establishmentSchedules = [...establishmentSchedules, {
+                        courtId: courtItem.id,
+                        courtName: courtItem.attributes.name,
+                        startsAt: courtAvailabilitieItem.attributes.startsAt,
+                        endsAt: courtAvailabilitieItem.attributes.endsAt,
+                        weekDay: courtAvailabilitieItem.attributes.weekDay,
+                        scheduling: {
+                            schedulingId: schedulingItem.id,
+                            schedulingDate: schedulingItem.attributes.date,
+                            schedulingStatus: schedulingItem.attributes.status
+                        }
+                    }]
+                })
             })
         })
-    })
 
     interface ICourts {
         id: string
@@ -482,8 +483,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     onClick={(isClicked) => {
                                         handleWeekDayClick(index)
                                     }}
-                                    active={activeStates[index].active}
-                                // active={false}
+                                    // active={activeStates[index].active}
+                                    active={false}
                                 />
                             ))
                         }
@@ -697,8 +698,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                         onClick={(isClicked) => {
                                             handleSelectedCourt(index)
                                         }}
-                                        active={activeCourts[index].active}
-                                    // active={false}
+                                        // active={activeCourts[index].active}
+                                    active={false}
                                     />
                                 )
                             })}
@@ -802,8 +803,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                         onClick={(isClicked) => {
                                             handleSelectedCourt(index)
                                         }}
-                                        active={activeCourts[index].active}
-                                    // active={false}
+                                        // active={activeCourts[index].active}
+                                    active={false}
                                     />
                                 )
                             })}
