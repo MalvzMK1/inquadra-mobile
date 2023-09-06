@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native'
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -31,10 +31,11 @@ interface HomeBarProps {
 		distance: number,
 	}>,
 	userName: string | undefined,
-	chosenType: string | undefined
+	chosenType: string | undefined,
+	HandleSportSelected: Function
 }
 
-export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) {
+export default function HomeBar({ courts, userName, chosenType, HandleSportSelected }: HomeBarProps) {
 	const [expanded, setExpanded] = useState(false);
 	const height = useSharedValue('40%');
 
@@ -65,16 +66,16 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 	}
 
 	const result = courts.filter(item => {
-		if (chosenType) {	
+		if (chosenType) {
 			const ampersandSeparated = item.type.split(" & ").join(",").split(",")
 			return ampersandSeparated.includes(chosenType)
 		}
 	})
 
-	
+
 
 	return (
-		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
+		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className="w-full" style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
 			<View
 				className='flex items-center'>
 				<TouchableOpacity className='w-full items-center' onPress={() => { setExpanded((prevState) => !prevState) }}>
@@ -100,7 +101,10 @@ export default function HomeBar({ courts, userName, chosenType }: HomeBarProps) 
 									/>
 								)
 							})) : (
-								<Text>Ainda não possuímos nenhum estabelecimento cadastrado para esse esporte na sua área. Contamos com sua ajuda para indicar nossa plataforma a quadras próximas a você!</Text>
+								Alert.alert("Aviso", "Ainda não possuímos nenhum estabelecimento cadastrado para esse esporte na sua área. Contamos com sua ajuda para indicar nossa plataforma a quadras próximas a você!", [{
+									onPress: () => HandleSportSelected(undefined)
+								}]),
+								<></>
 							)
 						)
 							: (

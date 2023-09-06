@@ -1,6 +1,6 @@
 import { ScrollView, TouchableOpacity } from 'react-native';
 import SportItem from '../SportItem';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 const iconFutebol = require('./icons/iconFutebol.png');
 const iconVoley = require('./icons/iconVoley.png');
 const iconBasquete = require('./icons/iconBasquete.png');
@@ -58,12 +58,15 @@ const arrayIcons = [
 
 interface ISportsMenuProps {
 	sports: SportType[],
-	callBack: Function
+	callBack: Function,
+	sportSelected: string | undefined
 }
 
-export default function SportsMenu({ sports, callBack }: ISportsMenuProps) {
+export default function SportsMenu({ sports, callBack, sportSelected }: ISportsMenuProps) {
 
 	const [selected, setSelected] = useState<string>()
+	
+	// useEffect(())
 
 	return (
 		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className={`flex w-full h-[8%] px-3`}>

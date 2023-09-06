@@ -30,7 +30,7 @@ type RootStackParamList = {
 	}
 	FinancialEstablishment: {
 		establishmentId: string,
-		logo: string
+		logo: string | undefined
 	};
 	CourtPriceHour: undefined;
 	EditCourt: {

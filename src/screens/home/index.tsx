@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
@@ -10,13 +10,13 @@ import CourtBallon from '../../components/CourtBalloon';
 import pointerMap from '../../assets/pointerMap.jpeg';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserById } from "../../hooks/useUserById";
-import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import { HOST_API } from '@env';
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 import { calculateDistance } from '../../utils/calculateDistance';
 import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
+import NoticeCard from '../../components/NoticeCard';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -120,11 +120,12 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	}, [availableSportTypes, availableSportTypesError]);
 
 	return (
-		<View className="flex-1 flex flex-col">
+		<View className="flex-1 flex flex-col justify-center items-center">
 			{
 				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} />
+					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} sportSelected={sportSelected} />
 			}
+
 			<View className='flex-1'>
 
 				<MapView
@@ -172,11 +173,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				)}
 				{menuBurguer && <FilterComponent />}
 			</View>
+
 			{
 				isDisabled && <HomeBar
 					chosenType={sportSelected}
 					courts={establishments}
 					userName={userHookData?.usersPermissionsUser.data.attributes.username}
+					HandleSportSelected={HandleSportSelected}
 				/>
 			}
 			{
@@ -190,6 +193,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 					logo={undefined}
 				/>
 			}
-		</View >
+		</View>
 	);
 }
