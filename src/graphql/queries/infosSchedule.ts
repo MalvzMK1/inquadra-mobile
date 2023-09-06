@@ -15,6 +15,7 @@ export interface IinfoScheduleResponse {
               value: number
               court: {
                 data: {
+                  id: Court['id']
                   attributes: {
                     fantasy_name: string
                     name: string
@@ -77,6 +78,7 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
               value
               court {
                 data {
+                  id
                   attributes {
                     fantasy_name
                     name
