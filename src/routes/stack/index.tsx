@@ -67,20 +67,6 @@ export default function () {
 	return (
 		<Navigator>
 			<Screen
-				name="telinha"
-				component={RegisterCourt}
-				options={{
-					headerTitle: () => (
-						<Image source={require('../../assets/inquadra_logo.png')} />
-					),
-					headerTitleAlign: 'center',
-					headerStyle: {
-						height: 200,
-						backgroundColor: '#292929',
-					},
-				}}
-			/>
-			<Screen
 				name="Login"
 				component={Login}
 				options={{

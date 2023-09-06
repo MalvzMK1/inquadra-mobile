@@ -69,20 +69,20 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
       court_name: `Quadra de ${selected}`,
       courtType: courtIDs,
       fantasyName: data.fantasyName,
-      photos: photoIDs,
+      photos: uploadedImageIDs,
       court_availabilities: ["2"], // tela vinicius
       minimum_value: Number(data.minimum_value) / 100,
       currentDate: new Date().toISOString()
     }
     addToCourtArray(payload)
+
     if (uploadedImageIDs.length > 0) {
         navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
       }
-
   }
 
 
-  async function finishingCourtsRegisters(data: IFormDatasCourt) {
+async function finishingCourtsRegisters(data: IFormDatasCourt) {
     let courtIDs: Array<string> = [];
   
     selected.forEach(selectedType => {
@@ -383,7 +383,7 @@ export default function RegisterCourt({ navigation, route }: NativeStackScreenPr
                         }
                         }}
                     >
-                        <Text>
+                        <Text className="text-white">
                         {isLoading ? (
                         <View style={{ alignItems: "center", paddingTop: 5 }}>
                             <ActivityIndicator size="small" color='#FFFF' />
