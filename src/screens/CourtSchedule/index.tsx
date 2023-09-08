@@ -1,18 +1,17 @@
-import { View, Text, ScrollView, Modal, Image, ActivityIndicator, Touchable } from "react-native"
+import { View, Text, ScrollView, Modal, Image, ActivityIndicator } from "react-native"
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import WeekDayButton from "../../components/WeekDays";
 import { Calendar } from 'react-native-calendars'
 import { getWeekDays } from "../../utils/getWeekDates";
 import { DateData } from "react-native-calendars"
-import { addDays, format, getWeek } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import AddCourtSchedule from "../../components/AddCourtSchedule";
 import { SelectList } from 'react-native-dropdown-select-list'
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import CourtSlideButton from "../../components/CourtSlideButton";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { Button } from "react-native-paper";
-import ScheduleBlockDetails from "../../components/ScheduleBlockDetails";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import storage from "../../utils/storage";
 import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
@@ -24,7 +23,7 @@ import { ISchedulingByDateResponse, ISchedulingByDateVariables } from "../../gra
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form"
-import { TextInputMask, MaskService } from 'react-native-masked-text';
+import { TextInputMask } from 'react-native-masked-text';
 
 import { BarChart, Grid } from 'react-native-svg-charts'
 import ScheduleChartLabels from "../../components/ScheduleChartLabels";
@@ -95,9 +94,14 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const closeBlockScheduleByTimeModal = () => setBlockScheduleByTimeModal(false)
 
     const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
-    const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
+
+    let establishmentId: string | undefined = ""
+    if (!userByEstablishmentLoading)
+        establishmentId = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id
+
+    const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(establishmentId)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
-    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
+    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(establishmentId)
     const [blockSchedule, { data: blockScheduleData, error: blockScheduleError, loading: blockScheduleLoading }] = useBlockSchedule()
 
     const { control, handleSubmit, formState: { errors } } = useForm<IBlockScheduleByDateFormData>({
@@ -124,7 +128,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     }
 
     let establishmentSchedules: IEstablishmentSchedules[] = []
-    if(schedulesData)
+    if (!schedulesLoading)
         schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
             courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
                 courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
@@ -179,7 +183,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         weekDates = getWeekDays(dateSelected)
     else
         weekDates = getWeekDays(today)
-    
+
     const standardActiveStates: IActiveState[] = []
     weekDates.map(item => {
         standardActiveStates.push({
@@ -187,7 +191,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             date: item.date.toISOString().split("T")[0]
         })
     })
-    // console.log(standardActiveStates)
     interface IActiveState {
         active: boolean
         date: string
@@ -201,7 +204,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             id: item.id
         })
     })
-    console.log(standardActiveCourts)
     interface IActiveCourt {
         active: boolean
         id: string
@@ -209,25 +211,9 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const [activeCourts, setActiveCourts] = useState<IActiveCourt[]>(standardActiveCourts)
 
     useEffect(() => {
-        let newActiveStates: IActiveState[] = []
-        weekDates.map(weekDayItem => {
-            newActiveStates = [...newActiveStates, {
-                active: false,
-                date: weekDayItem.date.toISOString().split("T")[0]
-            }]
-        })
-        setActiveStates(newActiveStates)
-
-        let newActiveCourts: IActiveCourt[] = []
-        allCourts.map(courtItem => {
-            newActiveCourts = [...newActiveCourts, {
-                active: false,
-                id: courtItem.id
-            }]
-        })
-        setActiveCourts(newActiveCourts)
-        console.log(activeCourts)
-    }, [])
+        setActiveStates(standardActiveStates)
+        setActiveCourts(standardActiveCourts)
+    }, [courtsByEstablishmentIdData])
 
     const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
 
@@ -408,10 +394,10 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                 return item?.schedulings.data
         })
 
-        interface I {
+        interface ISchedulingId {
             schedulingId: number
         }
-        let schedulingsByDateJson: I[] = []
+        let schedulingsByDateJson: ISchedulingId[] = []
         schedulingsByDateObject?.forEach(item => {
             if (item != undefined) {
                 item.map(item2 => {
@@ -468,16 +454,13 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const [teste, setTeste] = useState("")
 
     const handleTimeChange = (formatted: string, extracted: string) => {
-        // Verifique se as horas e minutos estão dentro dos limites válidos
-        const [hours, minutes] = extracted.split(':').map(Number);
+        const [hours, minutes] = extracted.split(':').map(Number)
         if (hours > 23 || minutes > 59) {
-            // Valores inválidos, não atualize o estado
-            return;
+            return
         }
-
-        // Atualize o estado com o valor formatado
-        setTeste(formatted);
-    };
+        
+        setTeste(formatted)
+    }
 
     async function handleBlockScheduleByTime(data: IBlockScheduleByTimeFormData) {
 
@@ -505,7 +488,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                         handleWeekDayClick(index)
                                     }}
                                     active={activeStates[index].active}
-                                    // active={false}
                                 />
                             ))
                         }
@@ -715,17 +697,18 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
                         <View className="flex flex-row flex-wrap w-full justify-evenly">
 
-                            {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
-                                return (
-                                    <CourtSlideButton
-                                        name={courtItem.attributes.name}
-                                        onClick={(isClicked) => {
-                                            handleSelectedCourt(index)
-                                        }}
-                                        // active={activeCourts[index].active}
-                                    active={false}
-                                    />
-                                )
+                            {activeCourts != undefined && courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
+                                if (activeCourts[index] != undefined) {
+                                    return (
+                                        <CourtSlideButton
+                                            name={courtItem.attributes.name}
+                                            onClick={(isClicked) => {
+                                                handleSelectedCourt(index)
+                                            }}
+                                            active={activeCourts[index].active}
+                                        />
+                                    )
+                                }
                             })}
 
                         </View>
@@ -749,7 +732,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                                     format: '99:99'
                                                 }}
                                                 onChangeText={(text) => {
-                                                    // onChange(formated)
                                                     handleTimeChange(text, text)
                                                 }}
                                                 value={teste}
@@ -820,17 +802,18 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
                         <View className="flex flex-row flex-wrap w-full justify-evenly">
 
-                            {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
-                                return (
-                                    <CourtSlideButton
-                                        name={courtItem.attributes.name}
-                                        onClick={(isClicked) => {
-                                            handleSelectedCourt(index)
-                                        }}
-                                        // active={activeCourts[index].active}
-                                    active={false}
-                                    />
-                                )
+                            {activeCourts != undefined && courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
+                                if (activeCourts[index] != undefined) {
+                                    return (
+                                        <CourtSlideButton
+                                            name={courtItem.attributes.name}
+                                            onClick={(isClicked) => {
+                                                handleSelectedCourt(index)
+                                            }}
+                                            active={activeCourts[index].active}
+                                        />
+                                    )
+                                }
                             })}
 
                         </View>
