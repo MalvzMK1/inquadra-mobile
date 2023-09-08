@@ -153,6 +153,7 @@ type RootStackParamList = {
 		courtName: string
 		valuePayed: number
 		scheduleUpdateID: string
+		activationKey: string | null
 	}
 	PaymentScheduleUpdate: {
 		courtId: string
@@ -165,6 +166,7 @@ type RootStackParamList = {
 		courtAvailabilityDate: string
 		scheduleUpdateID: string
 		pricePayed: number
+		activationKey: string | null
 	}
 
 }

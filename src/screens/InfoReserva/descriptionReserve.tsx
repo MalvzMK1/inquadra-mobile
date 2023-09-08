@@ -1,7 +1,7 @@
 import ProgressBar from 'react-native-progress/Bar'
 import React, { useState, useEffect } from 'react'
 import { View, Text, Image, Modal, ScrollView } from 'react-native';
-import { useNavigation, NavigationProp } from "@react-navigation/native"
+import { useNavigation, NavigationProp, useFocusEffect } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
@@ -51,8 +51,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const [countryId, setCountryId] = useState<string | null>(null)
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
     const currentTime = new Date()
-    const schedulingDate = new Date(data?.scheduling?.data?.attributes?.payDay)
-
+    const schedulingDate = new Date(data?.scheduling?.data?.attributes?.payDay!)
 
     const isVanquishedDate = schedulingDate < currentTime
     const isPayed = data?.scheduling.data.attributes.payedStatus
@@ -86,7 +85,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         });
     };
 
-
     const formSchema = z.object({
         value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value, context) => {
             const schedulingAmount = valueDisponibleToPay;
@@ -113,8 +111,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             return inputDate.getTime() > currentDate.getTime();
         }, "A data de vencimento é inválida"),
     });
-
-
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
         if (countryISOCode && dataCountry) {
@@ -308,7 +304,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     userId: user_id,
                                                     userPhoto: dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url!,
                                                     valuePayed: scheduleValuePayed!,
-                                                    scheduleUpdateID: schedule_id                            
+                                                    scheduleUpdateID: schedule_id,
+                                                    activationKey: data?.scheduling?.data?.attributes?.activationKey || null
                                                 })
                                             }>
                                                 <View>
@@ -469,7 +466,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 <View className='h-max w-full flex justify-between pl-2'>
                                                     <TouchableOpacity onPress={() => handleCopiarTexto()}>
                                                         <View className='w-30 h-10 bg-white rounded-sm flex-row items-center justify-between'>
-                                                            <Text className='font-semibold text-xs text-black pl-2'>Codigo de ativação:</Text>
+                                                            <Text className='font-semibold text-xs text-black pl-2'>Código de ativação:</Text>
                                                             <Text className='font-black text-sm text-center text-gray-400 pl-1 pr-7'>{data?.scheduling?.data?.attributes?.activationKey}</Text>
                                                         </View>
                                                     </TouchableOpacity>

@@ -12,7 +12,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
-
 function formatDateTime(dateTimeString: string): string {
     try {
         const parsedDateTime = parseISO(dateTimeString);
@@ -38,7 +37,7 @@ function formatDate(dateTimeString: string): string {
 
 
 export default function InfoReserva({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'InfoReserva'>) {
-    const user_id = route.params.userId
+    const user_id = '1'
     
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
     const { data, error, loading, refetch } = useGetHistoricReserveOn(user_id)
