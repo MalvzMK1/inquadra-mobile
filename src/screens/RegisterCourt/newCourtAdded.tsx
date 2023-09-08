@@ -420,4 +420,4 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
             </View>
         </ScrollView>
     );
-}    
+}
