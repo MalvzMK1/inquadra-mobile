@@ -30,14 +30,6 @@ import ScheduleChartLabels from "../../components/ScheduleChartLabels";
 import { useApolloClient } from "@apollo/client";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
 
-let userId = ""
-
-storage.load<UserInfos>({
-    key: 'userInfos',
-}).then((data) => {
-    userId = data.userId
-})
-
 const portugueseMonths = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -74,6 +66,9 @@ const blockScheduleByTimeFormSchema = z.object({
 })
 
 export default function CourtSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
+    const [userId, setUserId] = useState<string>()
+    const [establishmentId, setEstablishmentId] = useState<string>()
+
     const [showCalendar, setShowCalendar] = useState(false)
     const [dateSelected, setDateSelected] = useState<Date>(new Date())
     const [selectedWeekDate, setSelectedWeekDate] = useState<WeekDays>()
@@ -94,10 +89,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const closeBlockScheduleByTimeModal = () => setBlockScheduleByTimeModal(false)
 
     const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
-
-    let establishmentId: string | undefined = ""
-    if (!userByEstablishmentLoading)
-        establishmentId = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id
 
     const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(establishmentId)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
@@ -159,10 +150,11 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
     let courtNames: string[] = []
     if (!courtsByEstablishmentIdLoading)
-        courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
-            courtNames.push(courtItem.attributes.name)
-            allCourts = [...allCourts, { id: courtItem.id, name: courtItem.attributes.name }]
-        })
+        if(courtsByEstablishmentIdData != undefined)
+            courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(courtItem => {
+                courtNames.push(courtItem.attributes.name)
+                allCourts = [...allCourts, { id: courtItem.id, name: courtItem.attributes.name }]
+            })
 
     const today = new Date()
     let nextWeekArray: string[] = []
@@ -172,7 +164,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         nextWeekArray = [...nextWeekArray, nextWeek]
     }
 
-    if (userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo) {
+    if (userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes?.photo) {
         navigation.setParams({
             establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photo
         })
@@ -213,7 +205,17 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     useEffect(() => {
         setActiveStates(standardActiveStates)
         setActiveCourts(standardActiveCourts)
-    }, [courtsByEstablishmentIdData])
+
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            setUserId(data.userId)
+        })
+
+        if (!userByEstablishmentLoading)
+            if(userByEstablishmentData?.usersPermissionsUser.data != undefined && userByEstablishmentData?.usersPermissionsUser.data != null)
+                setEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
+    }, [userByEstablishmentData])
 
     const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
 
@@ -458,7 +460,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         if (hours > 23 || minutes > 59) {
             return
         }
-        
+
         setTeste(formatted)
     }
 
