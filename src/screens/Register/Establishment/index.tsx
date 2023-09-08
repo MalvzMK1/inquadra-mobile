@@ -11,6 +11,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from 'zod'
 import useAllAmenities from "../../../hooks/useAllAmenities";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import axios from "axios";
 
 interface IFormSchema {
 	corporateName: string,
@@ -58,10 +59,13 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 	const [selected, setSelected] = React.useState([]);
 	const [selectAmenities, setSelectAmenities] = useState<Array<{key: string, value: string}>>([]);
 	const {data: allAmenitiesData, loading: isAmenitiesLoading, error: isAmenitiesError} = useAllAmenities();
+	const [isLoading, setIsLoading] = useState(false)
+	const [loadingMessage, setLoadingMessage] = useState("Fazendo upload das imagens");
 
 	const [selectedItems, setSelectedItems] = useState([]);
 
-	const handleProfilePictureUpload = async () => {
+	
+    const handleProfilePictureUpload = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -86,13 +90,10 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
         }
     };
 
-	const handleDeletePhoto = (index: number) => {
-		const newPhotos = [...photos];
-		newPhotos.splice(index, 1);
-		setPhotos(newPhotos);
-	};
 
 	const uploadImage = async () => {
+
+        setIsLoading(true); 
         const apiUrl = 'https://inquadra-api-uat.qodeless.io';
       
         const formData = new FormData();
@@ -110,22 +111,39 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
               'Content-Type': 'multipart/form-data',
             },
           });
-
+      
+          const uploadedImageIDs = response.data.map((image) => image.id);
+      
           console.log('Imagens enviadas com sucesso!', response.data);
+          
+          setIsLoading(false);  
+
+          return uploadedImageIDs;
         } catch (error) {
           console.error('Erro ao enviar imagens:', error);
+          setIsLoading(false);  
+          return "Deu erro"; 
         }
       };
 
-	function submitForm(data: IFormSchema) {
+	const handleDeletePhoto = (index: number) => {
+		const newPhotos = [...photos];
+		newPhotos.splice(index, 1);
+		setPhotos(newPhotos);
+	};
+
+
+	async function submitForm(data: IFormSchema) {
+
+	const uploadedImageIDs = await uploadImage();
+
 		console.log({data, amenities: selected, personalInfos: route.params})
 		navigation.navigate('RegisterCourts', {
 			cnpj: data.cnpj,
 			address: data.address,
-			photos: [], 
+			photos: uploadedImageIDs, 
 			corporateName: data.corporateName,
-			phoneNumber: data.phone,
-			photo: '' // TODO: PHOTO INTEGRATION
+			phoneNumber: data.phone
 		}) // TODO: Change to court register screen
 	}
 
