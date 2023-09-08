@@ -7,7 +7,7 @@ import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
-import pointerMap from '../../assets/pointerMap.jpeg';
+import pointerMap from '../../assets/pointerMap.png';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserById } from "../../hooks/useUserById";
 import { HOST_API } from '@env';
@@ -16,7 +16,6 @@ import { calculateDistance } from '../../utils/calculateDistance';
 import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
-import NoticeCard from '../../components/NoticeCard';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -175,7 +174,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			</View>
 
 			{
-				isDisabled && <HomeBar
+				isDisabled && !menuBurguer && <HomeBar
 					chosenType={sportSelected}
 					courts={establishments}
 					userName={userHookData?.usersPermissionsUser.data.attributes.username}

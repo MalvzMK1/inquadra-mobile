@@ -13,20 +13,19 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { TextInputMask } from 'react-native-masked-text';
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {z} from "zod";
-import {useGetUserById} from "../../hooks/useUserById";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useGetUserById } from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
-import {HOST_API} from "@env";
+import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
 
 interface IFormData {
@@ -68,25 +67,25 @@ const paymentCardFormSchema = z.object({
 		.nonempty('Esse campo não pode estar vazio'),
 })
 
-type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string, country: {id: string, name: string}}}
+type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string, country: { id: string, name: string } } }
 
-export default function ProfileSettings({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
+export default function ProfileSettings({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
 	const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
 	const [showCard, setShowCard] = useState(false);
 	const [showCameraIcon, setShowCameraIcon] = useState(false);
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 	const [showExitConfirmation, setShowExitConfirmation] = useState(false);
-	const [countriesArray, setCountriesArray] = useState<Array<{key: string, value: string}>>([])
+	const [countriesArray, setCountriesArray] = useState<Array<{ key: string, value: string }>>([])
 	const [deleteAccountLoading, setDeleteAccountLoading] = useState<boolean>(false);
 
 	const { loading, error, data } = useGetUserById(route.params.userID);
-	const {data: countriesData, loading: countriesLoading, error: countriesError} = useCountries();
-	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
-	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
+	const { data: countriesData, loading: countriesLoading, error: countriesError } = useCountries();
+	const [updateUser, { data: updatedUserData, loading: isUpdateLoading, error: updateUserError }] = useUpdateUser();
+	const [updatePaymentCardInformations, { data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading }] = useUpdatePaymentCardInformations()
 	const [deleteUser] = useDeleteUser();
 
 	useEffect(() => {
-		let newCountriesArray: Array<{key: string, value: string, img: string}> = [];
+		let newCountriesArray: Array<{ key: string, value: string, img: string }> = [];
 		if (!countriesLoading && countriesData) {
 			newCountriesArray = countriesData.countries.data.map(country => {
 				return {
@@ -103,7 +102,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	const {
 		control,
 		handleSubmit,
-		formState: {errors},
+		formState: { errors },
 		getValues,
 		setValue
 	} = useForm<IFormData>({
@@ -113,7 +112,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	const {
 		control: paymentCardControl,
 		handleSubmit: handlePaymentCardSubmit,
-		formState: {errors: paymentCardErrors},
+		formState: { errors: paymentCardErrors },
 		getValues: getPaymentCardValues,
 		setValue: setPaymentCardValue
 	} = useForm<IPaymentCardFormData>({
@@ -250,8 +249,8 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		return newUserInfos;
 	}
 
-	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined): void {
-		if(userData) {
+	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string } } | undefined): void {
+		if (userData) {
 			setValue('name', userData.username)
 			setValue('email', userData.email)
 			setValue('phoneNumber', userData.phoneNumber)
@@ -264,250 +263,249 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	useEffect(() => {
 		// console.log({FUNCAO: loadInformations(), DADOS: data})
 		loadInformations().then((data) => {
-			console.log({data})
+			console.log({ data })
 			defineDefaultFieldValues(data)
 			setUserInfos(data)
 		});
 	}, [loading])
 
 	return (
-				<View className="flex-1 bg-white h-full">
-					 {/*{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}*/}
-					{
-						loading ?
-							<View className='flex-1'>
-								<ActivityIndicator size='large' color='#F5620F' />
-							</View> :
-							<ScrollView className="flex-grow p-1">
-								{/*{(console.log({data}))}*/}
-								<TouchableOpacity className="items-center mt-8">
-									<View style={styles.container}>
-										{profilePicture ? (
-											<Image source={{ uri: profilePicture }} style={styles.profilePicture} />
-										) : (
-											<Ionicons name="person-circle-outline" size={100} color="#bbb" />
-										)}
-										<TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
-											{profilePicture ? (
-												<Ionicons name="pencil-outline" size={30} color="#fff" />
-											) : (
-												<Ionicons name="camera-outline" size={30} color="#fff" />
-											)}
-										</TouchableOpacity>
-									</View>
-								</TouchableOpacity>
-
-								<View className="p-6 space-y-10">
-									<View>
-										<Text className="text-base">Nome</Text>
-										<Controller
-											name='name'
-											control={control}
-											render={({field: {onChange}}) => (
-												<TextInput
-													value={getValues('name')}
-													onChangeText={onChange}
-													className={errors.name ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
-													placeholder='Ex.: João'
-												/>
-											)}
-										/>
-										{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
-									</View>
-									<View>
-										<Text className="text-base">E-mail</Text>
-										<Controller
-											name='email'
-											control={control}
-											render={({field: {onChange}}) => (
-												<TextInput
-													value={getValues('email')}
-													onChangeText={onChange}
-													className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
-													placeholder='email@email.com'
-													maxLength={256}
-												/>
-											)}
-										/>
-										{errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
-									</View>
-									<View>
-										<Text className="text-base">Telefone</Text>
-										<Controller
-											name='phoneNumber'
-											control={control}
-											render={({field: {onChange}}) => (
-												<MaskInput
-													className='p-4 border border-gray-500 rounded-md h-45'
-													placeholder='Ex: 000.000.000-00'
-													value={getValues('phoneNumber')}
-													onChangeText={onChange}
-													mask={Masks.BRL_PHONE}
-													maxLength={15}
-												/>
-											)}
-										/>
-										{errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
-									</View>
-									<View>
-										<Text className="text-base">CPF</Text>
-										<Controller
-											name='cpf'
-											control={control}
-											render={({field: {onChange}}) => (
-												<MaskInput
-													className='p-4 border border-gray-500 rounded-md h-45'
-													placeholder='Ex: 000.000.000-00'
-													value={getValues('cpf')}
-													onChangeText={onChange}
-													mask={Masks.BRL_CPF}
-													maxLength={14}
-												/>
-											)}
-										/>
-										{errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
-									</View>
-									<TouchableOpacity onPress={handleCardClick}>
-										<Text className="text-base">Dados Cartão</Text>
-										<View className="h-30 border border-gray-500 rounded-md">
-											<View className="flex-row justify-center items-center m-2">
-												<FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-												<Text className="flex-1 text-base text-right mb-0">
-													{showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
-												</Text>
-												<Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
-											</View>
-										</View>
-									</TouchableOpacity>
-
-									{showCard && (
-										<View className="border border-gray-500 p-4 mt-10">
-											<View className="flex-row justify-between">
-												<View className="flex-1 mr-5">
-													<Text className="text-base text-[#FF6112]">Data venc.</Text>
-													<Controller
-														name='dueDate'
-														control={paymentCardControl}
-														render={({field: {onChange}}) => (
-															<TextInputMask
-																value={getPaymentCardValues('dueDate')}
-																className={`p-3 border ${paymentCardErrors.dueDate ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
-																type={'datetime'}
-																options={{
-																	format: 'MM/YY',
-																}}
-																onChangeText={onChange}
-																placeholder="MM/YY"
-																keyboardType="numeric"
-															/>
-														)}
-													/>
-													{paymentCardErrors.dueDate && <Text className='text-red-400 text-sm'>{paymentCardErrors.dueDate.message}</Text>}
-												</View>
-												<View className="flex-1 ml-5">
-													<Text className="text-base text-[#FF6112]">CVV</Text>
-													<Controller
-														name='cvv'
-														control={paymentCardControl}
-														render={({ field: {onChange}}) => (
-															<TextInput
-																value={getPaymentCardValues('cvv')}
-																className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
-																onChangeText={onChange}
-																placeholder="CVV"
-																keyboardType="numeric"
-																maxLength={4}
-																secureTextEntry
-															/>
-														)}
-													/>
-													{paymentCardErrors.cvv && <Text className='text-red-400 text-sm'>{paymentCardErrors.cvv.message}</Text>}
-												</View>
-											</View>
-											<View>
-												<Text className='text-base text-[#FF6112]'>País</Text>
-												<View className='flex flex-row items-center' >
-
-													<View style={{ width: '100%' }}>
-														<Controller
-															name='country'
-															control={paymentCardControl}
-															render={({field: {onChange}}) => (
-																<SelectList
-																	setSelected={(val: string) => {
-																		onChange(val)
-																	}}
-																	defaultOption={{key: userInfos?.paymentCardInfos.country.id, value: userInfos?.paymentCardInfos.country.name}}
-																	data={countriesArray}
-																	save='key'
-																	placeholder='Selecione um país...'
-																	searchPlaceholder='Pesquisar...'
-																/>
-															)}
-														/>
-														{paymentCardErrors.country && <Text className='text-red-400 text-sm'>{paymentCardErrors.country.message}</Text>}
-													</View>
-												</View>
-											</View>
-
-											<View className="p-2 justify-center items-center">
-												<TouchableOpacity onPress={handlePaymentCardSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
-													<Text className="text-white">Salvar</Text>
-												</TouchableOpacity>
-											</View>
-										</View>
+		<View className="flex-1 bg-white h-full">
+			{/*{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}*/}
+			{
+				loading ?
+					<View className='flex-1'>
+						<ActivityIndicator size='large' color='#F5620F' />
+					</View> :
+					<ScrollView className="flex-grow p-1">
+						{/*{(console.log({data}))}*/}
+						<TouchableOpacity className="items-center mt-8">
+							<View style={styles.container}>
+								{profilePicture ? (
+									<Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+								) : (
+									<Ionicons name="person-circle-outline" size={100} color="#bbb" />
+								)}
+								<TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
+									{profilePicture ? (
+										<Ionicons name="pencil-outline" size={30} color="#fff" />
+									) : (
+										<Ionicons name="camera-outline" size={30} color="#fff" />
 									)}
-									<View>
-										<View className='p-2'>
-											<TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
-												<Text className='text-gray-50'>Salvar</Text>
-											</TouchableOpacity>
-										</View>
+								</TouchableOpacity>
+							</View>
+						</TouchableOpacity>
 
-										<View className='p-2'>
-											<TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
-												<Text className='text-gray-50'>Excluir essa conta</Text>
-											</TouchableOpacity>
-										</View>
-
-										<View className='p-2'>
-											<TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
-												<Text className='text-gray-50'>Sair do App</Text>
-											</TouchableOpacity>
-										</View>
+						<View className="p-6 space-y-10">
+							<View>
+								<Text className="text-base">Nome</Text>
+								<Controller
+									name='name'
+									control={control}
+									render={({ field: { onChange } }) => (
+										<TextInput
+											value={getValues('name')}
+											onChangeText={onChange}
+											className={errors.name ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+											placeholder='Ex.: João'
+										/>
+									)}
+								/>
+								{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+							</View>
+							<View>
+								<Text className="text-base">E-mail</Text>
+								<Controller
+									name='email'
+									control={control}
+									render={({ field: { onChange } }) => (
+										<TextInput
+											value={getValues('email')}
+											onChangeText={onChange}
+											className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+											placeholder='email@email.com'
+											maxLength={256}
+										/>
+									)}
+								/>
+								{errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
+							</View>
+							<View>
+								<Text className="text-base">Telefone</Text>
+								<Controller
+									name='phoneNumber'
+									control={control}
+									render={({ field: { onChange } }) => (
+										<MaskInput
+											className='p-4 border border-gray-500 rounded-md h-45'
+											placeholder='Ex: (00) 00000-0000'
+											value={getValues('phoneNumber')}
+											onChangeText={onChange}
+											mask={Masks.BRL_PHONE}
+											maxLength={15}
+										/>
+									)}
+								/>
+								{errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
+							</View>
+							<View>
+								<Text className="text-base">CPF</Text>
+								<Controller
+									name='cpf'
+									control={control}
+									render={({ field: { onChange } }) => (
+										<MaskInput
+											className='p-4 border border-gray-500 rounded-md h-45'
+											placeholder='Ex: 000.000.000-00'
+											value={getValues('cpf')}
+											onChangeText={onChange}
+											mask={Masks.BRL_CPF}
+											maxLength={14}
+										/>
+									)}
+								/>
+								{errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
+							</View>
+							<TouchableOpacity onPress={handleCardClick}>
+								<Text className="text-base">Dados Cartão</Text>
+								<View className="h-30 border border-gray-500 rounded-md">
+									<View className="flex-row justify-center items-center m-2">
+										<FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+										<Text className="flex-1 text-base text-right mb-0">
+											{showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
+										</Text>
+										<Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
 									</View>
 								</View>
+							</TouchableOpacity>
 
-								<Modal visible={showDeleteConfirmation} animationType="fade" transparent={true}>
-									<View className="flex-1 justify-center items-center bg-black bg-opacity-10">
-										<View className="bg-white rounded-md p-20 items-center">
-											<Text className=" font-bold text-lg mb-8">Confirmar exclusão da conta?</Text>
-											<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
-												<Text className="text-white">Cancelar</Text>
-											</TouchableOpacity>
-											<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
-												<Text className="text-white">{deleteAccountLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> : 'Confirmar'}</Text>
-											</TouchableOpacity>
+							{showCard && (
+								<View className="border border-gray-500 p-4 mt-10">
+									<View className="flex-row justify-between">
+										<View className="flex-1 mr-5">
+											<Text className="text-base text-[#FF6112]">Data venc.</Text>
+											<Controller
+												name='dueDate'
+												control={paymentCardControl}
+												render={({ field: { onChange } }) => (
+													<TextInputMask
+														value={getPaymentCardValues('dueDate')}
+														className={`p-3 border ${paymentCardErrors.dueDate ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
+														type={'datetime'}
+														options={{
+															format: 'MM/YY',
+														}}
+														onChangeText={onChange}
+														placeholder="MM/YY"
+														keyboardType="numeric"
+													/>
+												)}
+											/>
+											{paymentCardErrors.dueDate && <Text className='text-red-400 text-sm'>{paymentCardErrors.dueDate.message}</Text>}
+										</View>
+										<View className="flex-1 ml-5">
+											<Text className="text-base text-[#FF6112]">CVV</Text>
+											<Controller
+												name='cvv'
+												control={paymentCardControl}
+												render={({ field: { onChange } }) => (
+													<TextInput
+														value={getPaymentCardValues('cvv')}
+														className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
+														onChangeText={onChange}
+														placeholder="CVV"
+														keyboardType="numeric"
+														maxLength={4}
+														secureTextEntry
+													/>
+												)}
+											/>
+											{paymentCardErrors.cvv && <Text className='text-red-400 text-sm'>{paymentCardErrors.cvv.message}</Text>}
 										</View>
 									</View>
-								</Modal>
+									<View>
+										<Text className='text-base text-[#FF6112]'>País</Text>
+										<View className='flex flex-row items-center' >
 
-								<Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
-									<View className="flex-1 justify-center items-center bg-black bg-opacity-10">
-										<View className="bg-white rounded-md p-20 items-center">
-											<Text className=" font-bold text-lg mb-8">Sair do App?</Text>
-											<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
-												<Text className="text-white">Cancelar</Text>
-											</TouchableOpacity>
-											<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit} onPressIn={() => navigation.navigate('Login')}>
-												<Text className="text-white">Confirmar</Text>
-											</TouchableOpacity>
+											<View style={{ width: '100%' }}>
+												<Controller
+													name='country'
+													control={paymentCardControl}
+													render={({ field: { onChange } }) => (
+														<SelectList
+															setSelected={(val: string) => {
+																onChange(val)
+															}}
+															defaultOption={{ key: userInfos?.paymentCardInfos.country.id, value: userInfos?.paymentCardInfos.country.name }}
+															data={countriesArray}
+															save='key'
+															placeholder='Selecione um país...'
+															searchPlaceholder='Pesquisar...'
+														/>
+													)}
+												/>
+												{paymentCardErrors.country && <Text className='text-red-400 text-sm'>{paymentCardErrors.country.message}</Text>}
+											</View>
 										</View>
 									</View>
-								</Modal>
-							</ScrollView>
-					}
-				</View>
+
+									<View className="p-2 justify-center items-center">
+										<TouchableOpacity onPress={handlePaymentCardSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+											<Text className="text-white">Salvar</Text>
+										</TouchableOpacity>
+									</View>
+								</View>
+							)}
+							<View>
+								<View className='p-2'>
+									<TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
+										<Text className='text-gray-50'>Salvar</Text>
+									</TouchableOpacity>
+								</View>
+								<View className='p-2'>
+									<TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex flex-row items-center justify-between px-1'>
+										<Text className='text-gray-50 text-center flex-grow ml-6'>Sair do App</Text>
+										<Ionicons name="exit-outline" size={24} color="white" />
+									</TouchableOpacity>
+								</View>
+								<View className='p-2'>
+									<TouchableOpacity onPress={handleDeleteAccount} className=' flex items-center justify-center'>
+										<Text className='text-gray-400 underline'>Excluir essa conta</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</View>
+
+						<Modal visible={showDeleteConfirmation} animationType="fade" transparent={true}>
+							<View className="flex-1 justify-center items-center bg-black bg-opacity-10">
+								<View className="bg-white rounded-md p-20 items-center">
+									<Text className=" font-bold text-lg mb-8">Confirmar exclusão da conta?</Text>
+									<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
+										<Text className="text-white">Cancelar</Text>
+									</TouchableOpacity>
+									<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
+										<Text className="text-white">{deleteAccountLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> : 'Confirmar'}</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</Modal>
+
+						<Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
+							<View className="flex-1 justify-center items-center bg-black bg-opacity-10">
+								<View className="bg-white rounded-md p-20 items-center">
+									<Text className=" font-bold text-lg mb-8">Sair do App?</Text>
+									<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+										<Text className="text-white">Cancelar</Text>
+									</TouchableOpacity>
+									<TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit} onPressIn={() => navigation.navigate('Login')}>
+										<Text className="text-white">Confirmar</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</Modal>
+					</ScrollView>
+			}
+		</View>
 	);
 }
 
