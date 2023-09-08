@@ -6,10 +6,15 @@ import { useGetUserHistoricPayment } from "../../hooks/useGetHistoricPayment";
 import { NavigationProp, useNavigation, useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { HOST_API } from "@env";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function FinancialEstablishment() {
+
+interface Props extends NativeStackScreenProps<RootStackParamList, 'FinancialEstablishment'> { }
+
+export default function FinancialEstablishment({ route }: Props) {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
     const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [date, setDate] = useState(new Date())
@@ -25,7 +30,8 @@ export default function FinancialEstablishment() {
         endsAt: string
     }>>()
 
-    const establishmentId = "5"
+    const establishmentId = route.params.establishmentId
+    const logo = route.params.logo
     const { data, loading, error } = useGetUserHistoricPayment(establishmentId)
 
     useFocusEffect(
@@ -144,7 +150,8 @@ export default function FinancialEstablishment() {
                                 <TouchableOpacity className='h-10 w-40 rounded-md bg-[#FF6112] flex items-center justify-center'
                                     onPress={() => {
                                         navigation.navigate("WithdrawScreen", {
-                                            establishmentId: establishmentId
+                                            establishmentId: establishmentId,
+                                            logo: logo
                                         })
                                     }}
                                 >
@@ -153,7 +160,8 @@ export default function FinancialEstablishment() {
                             </View>
                         </View>
                         <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("AmountAvailableWithdrawal", {
-                            establishmentId: establishmentId
+                            establishmentId: establishmentId,
+                            logo: logo
                         })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
                         </TouchableOpacity>
@@ -166,14 +174,16 @@ export default function FinancialEstablishment() {
                             </View>
                         </View>
                         <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("DetailsAmountReceivable", {
-                            establishmentId: establishmentId
+                            establishmentId: establishmentId,
+                            logo: logo
                         })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
                         </TouchableOpacity>
                         <View className="pt-6 flex flex-row justify-between">
                             <Text className="text-lg font-bold">Valores recebidos</Text>
                             <TouchableOpacity onPress={() => navigation.navigate("HistoryPayment", {
-                                establishmentId: establishmentId
+                                establishmentId: establishmentId,
+                                logo: logo
                             })}>
                                 <Text className="text-lg font-bold underline text-[#FF6112]">Histórico</Text>
                             </TouchableOpacity>

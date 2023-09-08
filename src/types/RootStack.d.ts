@@ -2,9 +2,11 @@ type RootStackParamList = {
 	Login: undefined;
 	HistoryPayment: {
 		establishmentId: string,
+		logo: string
 	};
 	DetailsAmountReceivable: {
 		establishmentId: string,
+		logo: string
 	};
 	CompletedEstablishmentRegistration: undefined;
 	CourtSchedule: {
@@ -12,6 +14,7 @@ type RootStackParamList = {
 	};
 	AmountAvailableWithdrawal: {
 		establishmentId: string,
+		logo: string
 	};
 	RegisterEstablishmentProfile: undefined;
 	CompletedEstablishmentResgistration: undefined;
@@ -25,7 +28,10 @@ type RootStackParamList = {
 	InfoProfileEstablishment: {
 		userPhoto: string
 	}
-	FinancialEstablishment: undefined;
+	FinancialEstablishment: {
+		establishmentId: string,
+		logo: string | undefined
+	};
 	CourtPriceHour: undefined;
 	EditCourt: {
 		courtId: string | undefined,
@@ -76,11 +82,12 @@ type RootStackParamList = {
 	};
 	WithdrawScreen: {
 		establishmentId: string,
+		logo: string
 	}
 	DeleteAccountSuccess: undefined
 	DescriptionReserve: {
 		userId: string
-		scheduleId:string
+		scheduleId: string
 	};
 	DescriptionInvited: undefined;
 	EstablishmentInfo: {
@@ -106,7 +113,7 @@ type RootStackParamList = {
 	}
 	RegisterCourts: Omit<Establishment, 'id' | 'fantasyName' | 'cellphoneNumber'> & {
 		address: Omit<Address, 'id' | 'longitude' | 'latitude'>
-		
+
 		photos: string[] | undefined
 		profileInfos: {
 			username: string;
@@ -137,6 +144,27 @@ type RootStackParamList = {
 	editCourt: {
 		courtArray: CourtAdd[]
 		indexCourtArray: number
+	}
+	UpdateSchedule: {
+		userPhoto: string
+		userId: string
+		courtId: string
+		courtImage: string
+		courtName: string
+		valuePayed: number
+		scheduleUpdateID: string
+	}
+	PaymentScheduleUpdate: {
+		courtId: string
+		courtImage: string
+		courtName: string
+		userId: string
+		userPhoto: string | undefined
+		courtAvailabilities: string
+		amountToPay: number
+		courtAvailabilityDate: string
+		scheduleUpdateID: string
+		pricePayed: number
 	}
 
 }

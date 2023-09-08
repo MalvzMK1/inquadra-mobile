@@ -1,6 +1,6 @@
 import { ScrollView, TouchableOpacity } from 'react-native';
 import SportItem from '../SportItem';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 const iconFutebol = require('./icons/iconFutebol.png');
 const iconVoley = require('./icons/iconVoley.png');
 const iconBasquete = require('./icons/iconBasquete.png');
@@ -21,41 +21,74 @@ import Animated, {
 const arrayIcons = [
 	{
 		id: 1,
-		name: "Futebol",
 		image: iconFutebol,
 		activeImage: activeIconFutebol
+	},
+	{
+		id: 2,
+		image: iconBTennis,
+		activeImage: activeIconBTennis
+	},
+	{
+		id: 3,
+		image: iconFutebol,
+		activeImage: activeIconFutebol
+	},
+	{
+		id: 4,
+		image: iconVoley,
+		activeImage: activeIconVoley
+	},
+	{
+		id: 5,
+		image: iconFVoley,
+		activeImage: activeIconFVoley
+	},
+	{
+		id: 6,
+		image: iconTennis,
+		activeImage: activeIconTennis
+	},
+	{
+		id: 7,
+		image: iconBasquete,
+		activeImage: activeIconBasquete
 	},
 ]
 
 interface ISportsMenuProps {
 	sports: SportType[],
-	callBack: Function
+	callBack: Function,
+	sportSelected: string | undefined
 }
 
-export default function SportsMenu({ sports, callBack }: ISportsMenuProps) {
+export default function SportsMenu({ sports, callBack, sportSelected }: ISportsMenuProps) {
 
 	const [selected, setSelected] = useState<string>()
+	
+	// useEffect(())
 
 	return (
-		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className={`flex w-full justify-center items-center h-[8%] `}>
-			<ScrollView horizontal={true}>
+		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className={`flex w-full h-[8%] px-3`}>
+			<ScrollView className="flex" horizontal={true}>
 				{
 					sports.map((item) => (
-						<TouchableOpacity className='justify-center' onPress={() => {
-							if(selected === item.id){
-								callBack(undefined)
-								setSelected(undefined)
-							}else{
-								callBack(item.name)
-								setSelected(item.id)
-							}
-						}}>
+						<TouchableOpacity className='flex justify-center items-center pr-4'
+							onPress={() => {
+								if (selected === item.id) {
+									callBack(undefined)
+									setSelected(undefined)
+								} else {
+									callBack(item.name)
+									setSelected(item.id)
+								}
+							}}>
 							{selected !== item.id ? (
-								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].image} />
+								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[parseInt(item.id) - 1].image} />
 							)
 								:
 								(
-									<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[0].activeImage} />
+									<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[parseInt(item.id) - 1].activeImage} />
 								)}
 						</TouchableOpacity>
 					))

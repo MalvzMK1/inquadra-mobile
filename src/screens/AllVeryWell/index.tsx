@@ -75,8 +75,10 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
                     </TouchableOpacity>
 
                     {
-                        courts.map((court) =>
-                            <TouchableOpacity onPress={() => navigation.navigate('CourtDetails', { courtArray: courts })}>
+                        courts.map((court, index) =>
+                            <TouchableOpacity 
+                            key={index}
+                            onPress={() => navigation.navigate('CourtDetails', { courtArray: courts })}>
                                 <View>
                                     <Text className="text-xl p-2">{court.court_name}</Text>
                                     <View className="border rounded border-orange-400 p-5">
