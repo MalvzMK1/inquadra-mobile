@@ -1,5 +1,4 @@
 import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList } from "react-native";
-
 import React, {useEffect, useState} from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
@@ -63,29 +62,29 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 	const [selectedItems, setSelectedItems] = useState([]);
 
 	const handleProfilePictureUpload = async () => {
-		try {
-			const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-			if (status !== 'granted') {
-				alert('Desculpe, precisamos da permissão para acessar a galeria!');
-				return;
-			}
+            if (status !== 'granted') {
+                alert('Desculpe, precisamos da permissão para acessar a galeria!');
+                return;
+            }
 
-			const result = await ImagePicker.launchImageLibraryAsync({
-				mediaTypes: ImagePicker.MediaTypeOptions.Images,
-				allowsEditing: true,
-				aspect: [1, 1],
-				quality: 1,
-				allowsMultipleSelection: true, // Habilita a seleção múltipla de fotos
-			});
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+                allowsMultipleSelection: true,
+            });
 
-			if (!result.canceled) {
-				setPhotos([...photos, { uri: result.uri }]);
-			}
-		} catch (error) {
-			console.log('Erro ao carregar a imagem: ', error);
-		}
-	};
+            if (!result.canceled) {
+                setPhotos([...photos, { uri: result.uri }]);
+            }
+        } catch (error) {
+            console.log('Erro ao carregar a imagem: ', error);
+        }
+    };
 
 	const handleDeletePhoto = (index: number) => {
 		const newPhotos = [...photos];
@@ -93,12 +92,37 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 		setPhotos(newPhotos);
 	};
 
+	const uploadImage = async () => {
+        const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+      
+        const formData = new FormData();
+        photos.forEach((uri, index) => {
+          formData.append(`files`, {
+            uri: uri.uri,
+            name: `image${index}.jpg`,
+            type: 'image/jpeg',
+          });
+        });
+      
+        try {
+          const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+
+          console.log('Imagens enviadas com sucesso!', response.data);
+        } catch (error) {
+          console.error('Erro ao enviar imagens:', error);
+        }
+      };
+
 	function submitForm(data: IFormSchema) {
 		console.log({data, amenities: selected, personalInfos: route.params})
 		navigation.navigate('RegisterCourts', {
 			cnpj: data.cnpj,
 			address: data.address,
-			photos: [], // TODO: PHOTOS INTEGRATION
+			photos: [], 
 			corporateName: data.corporateName,
 			phoneNumber: data.phone,
 			photo: '' // TODO: PHOTO INTEGRATION
@@ -117,9 +141,10 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 		setSelectAmenities(prevState => [...prevState, ...newAmenitiesArray]);
 	}, [allAmenitiesData])
 
+	// estava no return: {errors && <Text>{JSON.stringify(errors)}</Text>}
+
 	return (
 		<ScrollView className="h-fit bg-white flex-1">
-			{errors && <Text>{JSON.stringify(errors)}</Text>}
 			<View className="items-center mt-9 p-4">
 				<Text className="text-3xl text-center font-extrabold text-gray-700">Cadastro{'\n'}Estabelecimento</Text>
 			</View>
@@ -194,7 +219,7 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 						{errors.address?.streetName && <Text className='text-red-400 text-sm'>{errors.address?.streetName.message}</Text>}
 					</View>
 					<View className="flex flex-row justify-between">
-						<View>
+						<View className="w-1/3">
 							<Text className='text-xl p-1'>Número</Text>
 							<Controller
 								name='address.number'
@@ -210,15 +235,15 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 							/>
 							{errors.address?.number && <Text className='text-red-400 text-sm'>{errors.address?.number.message}</Text>}
 						</View>
-						<View>
+						<View className="w-1/3">
 							<Text className='text-xl p-1'>CEP</Text>
 							<Controller
 								name='address.cep'
 								control={control}
 								render={({field: {onChange}}) => (
 									<MaskInput
-										className='p-5 border border-neutral-400 rounded w-44'
-										placeholder='(00) 0000-0000'
+										className='p-5 border border-neutral-400 rounded'
+										placeholder='00000-000'
 										value={getValues('address.cep')}
 										onChangeText={onChange}
 										maxLength={9}
@@ -229,9 +254,9 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 							/>
 							{errors.address?.cep && <Text className='text-red-400 text-sm'>{errors.address?.cep.message}</Text>}
 						</View>
+						
 					</View>
-				</View>
-				<View>
+					<View>
 					<Text className="text-xl p-1">Amenidades do Local</Text>
 					<Controller
 						name='amenities'
@@ -285,6 +310,8 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 						<Text className='text-gray-50'>Continuar</Text>
 					</TouchableOpacity>
 				</View>
+				</View>
+				
 			</View>
 		</ScrollView>
 	);
