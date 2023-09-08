@@ -54,7 +54,7 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
     }>>([])
     const [showCalendar, setShowCalendar] = useState(false)
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString())
-    const [selectedTime, setSelectedTime] = useState<{ id: string, value: number } | null>() \
+    const [selectedTime, setSelectedTime] = useState<{ id: string, value: number } | null>()
     const [price, setPrice] = useState()
 
     LocaleConfig.defaultLocale = 'pt-br';
