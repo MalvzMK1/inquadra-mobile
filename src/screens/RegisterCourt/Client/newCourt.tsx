@@ -417,4 +417,4 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
             </View>
         </ScrollView>
     );
-}    
+}

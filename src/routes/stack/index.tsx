@@ -11,7 +11,7 @@ import Password from '../../screens/Register/Client/password';
 import RegisterSuccess from '../../screens/Register/Client/success';
 import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
 import FavoriteCourts from "../../screens/FavoriteCourts";
 import InfoReserva from "../../screens/InfoReserva";
@@ -332,14 +332,14 @@ export default function () {
 				options={({ route: { params } }) => ({
 					headerTintColor: 'white',
 					headerStyle: {
-						height: 125,
+						height: 105,
 						backgroundColor: '#292929',
 					},
 					headerTitle: () => (
 						<TextInput
 							theme={{ colors: { placeholder: '#e9e9e9' } }}
 							placeholder="O que você está procurando?"
-							className="bg-white rounded-2xl w-full flex items-center justify-center placeholder:text-[#e9e9e9] text-sm outline-none"
+							className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
 							right={<TextInput.Icon icon={'magnify'} />}
 						/>
 					),
@@ -369,10 +369,10 @@ export default function () {
 										color={'white'}
 									/>
 									:
-									<MaterialCommunityIcons
-										name="window-close"
-										size={48}
-										color="white"
+									<MaterialIcons 
+										name="filter-list" 
+										size={48} 
+										color="white" 
 									/>
 
 							}

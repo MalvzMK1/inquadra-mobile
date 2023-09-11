@@ -16,7 +16,7 @@ export default function CourtBalloon(props:CourtCardInfos) {
 			<View className='flex-1' >
 				<Text className='font-black text-[#FF6112] text-[10px]'>{props.name}</Text>
 				<Text className='text-[8px]'>{props.type}</Text>
-				<Text className='font-bold text-[8px]'>{props.distance.toFixed(2)}Km de Distancia</Text>
+				<Text className='font-bold text-[8px]'>{props.distance.toFixed(2)}km</Text>
 			</View>
 		</Callout>
 	)
