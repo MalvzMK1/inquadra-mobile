@@ -31,7 +31,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const user_id = route.params.userId.toString()
     const schedule_id = route.params.scheduleId
 
-   
+
 
     const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
     const schedulePrice = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value
@@ -60,6 +60,15 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
 
     const isWithin24Hours = timeDifferenceHours <= 24;
+
+
+    const timeDifferenceMsPayDate = schedulingPayDate - currentTime;
+
+
+    const oneHourInMs = 60 * 60 * 1000;
+
+
+    const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
 
     const isVanquishedDate = schedulingPayDate < currentTime
     const isPayed = data?.scheduling?.data?.attributes?.payedStatus
@@ -231,8 +240,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
     const countryOptions = dataCountry?.countries?.data.map(country => ({
         value: country?.id,
-        label: country?.attributes?.ISOCode || "", 
-        img: `${HOST_API}${country?.attributes?.flag?.data?.attributes?.url || ""}` 
+        label: country?.attributes?.ISOCode || "",
+        img: `${HOST_API}${country?.attributes?.flag?.data?.attributes?.url || ""}`
     })) || [];
 
 
@@ -339,9 +348,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 </View>
                                 {
                                     user_id === data?.scheduling.data.attributes.owner.data.id
-                                        ? <View className='pt-2'>
-                                            <Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
-                                        </View>
+                                        ?
+                                        !isWithinOneHour
+                                            ? <View className='pt-2'>
+                                                <Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
+                                            </View>
+                                            : null
                                         : null
                                 }
                             </View>
