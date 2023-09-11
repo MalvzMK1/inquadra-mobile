@@ -5,6 +5,7 @@ import Slider from '@react-native-community/slider';
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { NavigationProp, useFocusEffect, useNavigation, } from "@react-navigation/native"
+import NoticeCard from "../../../components/NoticeCard";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'WithdrawScreen'> {
     establishmentId: string
@@ -98,6 +99,8 @@ export default function WithdrawScreen({ route }: Props) {
         }
     }
 
+    
+
     const handleSliderChange = (value: any) => {
         setNumber(value)
     }
@@ -123,7 +126,7 @@ export default function WithdrawScreen({ route }: Props) {
         <View className="flex-1 justify-center items-center ">
             {
                 isWithdrawalMade ?
-                < WithdrawalWarningCard />
+                < NoticeCard text="Saque realizado com sucesso" />
                 :
                 <></>
             }

@@ -15,6 +15,7 @@ import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from '@react-navigation/native'
+import axios from "axios";
 
 
 interface CourtArrayObject {
@@ -55,11 +56,14 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
             })
         });
 
+
+        const uploadedImageIDs = await uploadImage();
+
         const updatedCourt = {
             court_name: `Quadra de ${selected}`,
             courtType: courtIDs,
             fantasyName: data.fantasyName,
-            photos: ["2"],
+            photos: uploadedImageIDs, 
             court_availabilities: ["2"], // tela vinicius
             minimum_value: Number(data.minimum_value) / 100,
             currentDate: new Date().toISOString()
@@ -114,7 +118,6 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                 aspect: [1, 1],
                 quality: 1,
                 allowsMultipleSelection: true,
-                base64: true
             });
 
             if (!result.canceled) {
@@ -123,9 +126,42 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         } catch (error) {
             console.log('Erro ao carregar a imagem: ', error);
         }
-
-
     };
+
+    const uploadImage = async () => {
+
+        setIsLoading(true); 
+        const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+      
+        const formData = new FormData();
+        photos.forEach((uri, index) => {
+          formData.append(`files`, {
+            uri: uri.uri,
+            name: `image${index}.jpg`,
+            type: 'image/jpeg',
+          });
+        });
+      
+        try {
+          const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+      
+          const uploadedImageIDs = response.data.map((image) => image.id);
+      
+          console.log('Imagens enviadas com sucesso!', response.data);
+          
+          setIsLoading(false);  
+
+          return uploadedImageIDs;
+        } catch (error) {
+          console.error('Erro ao enviar imagens:', error);
+          setIsLoading(false);  
+          return "Deu erro"; 
+        }
+      };
 
     const handleDeletePhoto = (index) => {
         const newPhotos = [...photos];

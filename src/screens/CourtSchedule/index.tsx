@@ -24,6 +24,7 @@ import { ISchedulingByDateResponse, ISchedulingByDateVariables } from "../../gra
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form"
+import { TextInputMask, MaskService } from 'react-native-masked-text';
 
 // import { BarChart, Grid } from 'react-native-svg-charts'
 import ScheduleChartLabels from "../../components/ScheduleChartLabels";
@@ -47,17 +48,30 @@ const portugueseDaysOfWeek = [
     'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'
 ]
 
-interface IBlockScheduleFormData {
+interface IBlockScheduleByDateFormData {
     initialDate: string
     endDate: string
 }
 
-const blockScheduleFormSchema = z.object({
+const blockScheduleByDateFormSchema = z.object({
     initialDate: z.string()
         .nonempty("Insira pelo menos uma data inicial!")
         .min(10, "Insira uma data válida!"),
     endDate: z.string()
-    // .min(10, "Insira uma data válida!")
+        .min(10, "Insira uma data válida!")
+})
+
+interface IBlockScheduleByTimeFormData {
+    initialHour: string
+    endHour: string
+}
+
+const blockScheduleByTimeFormSchema = z.object({
+    initialHour: z.string()
+        .nonempty("Insira pelo menos um horário inicial!")
+        .min(5, "Insira um horário válido"),
+    endHour: z.string()
+        .min(5, "Insira um horário válido")
 })
 
 export default function CourtSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
@@ -75,10 +89,10 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const [endsAt, setEndsAt] = useState("")
     const [confirmBlockSchedule, setConfirmBlockSchedule] = useState(false)
     const closeConfirmBlockScheduleModal = () => setConfirmBlockSchedule(false)
-    const [blockScheduleDetailsModal, setBlockScheduleDetailsModal] = useState(false)
-    const closeBlockScheduleDetailsModal = () => setBlockScheduleDetailsModal(false)
     const [chooseBlockTypeModal, setChooseBlockTypeModal] = useState(false)
     const closeChooseBlockTypeModal = () => setChooseBlockTypeModal(false)
+    const [blockScheduleByTimeModal, setBlockScheduleByTimeModal] = useState(false)
+    const closeBlockScheduleByTimeModal = () => setBlockScheduleByTimeModal(false)
 
     const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
     const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
@@ -86,42 +100,52 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id)
     const [blockSchedule, { data: blockScheduleData, error: blockScheduleError, loading: blockScheduleLoading }] = useBlockSchedule()
 
-    const { control, handleSubmit, formState: { errors } } = useForm<IBlockScheduleFormData>({
-        resolver: zodResolver(blockScheduleFormSchema)
+    const { control, handleSubmit, formState: { errors } } = useForm<IBlockScheduleByDateFormData>({
+        resolver: zodResolver(blockScheduleByDateFormSchema)
+    })
+    const { control: blockScheduleByTimeControl, handleSubmit: handleSubmitBlockScheduleByTime, formState: { errors: blockScheduleByTimeErrors } } = useForm<IBlockScheduleByTimeFormData>({
+        resolver: zodResolver(blockScheduleByTimeFormSchema)
     })
 
     interface IEstablishmentSchedules {
         courtId: string
         courtName: string
+        courtType: string
         startsAt: string
         endsAt: string
         weekDay: string
         scheduling: {
             schedulingId: string,
             schedulingDate: string,
-            schedulingStatus: boolean
+            schedulingStatus: boolean,
+            reservedBy: string,
+            payedStatus: boolean
         }
     }
 
     let establishmentSchedules: IEstablishmentSchedules[] = []
-    schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
-        courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
-            courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
-                establishmentSchedules = [...establishmentSchedules, {
-                    courtId: courtItem.id,
-                    courtName: courtItem.attributes.name,
-                    startsAt: courtAvailabilitieItem.attributes.startsAt,
-                    endsAt: courtAvailabilitieItem.attributes.endsAt,
-                    weekDay: courtAvailabilitieItem.attributes.weekDay,
-                    scheduling: {
-                        schedulingId: schedulingItem.id,
-                        schedulingDate: schedulingItem.attributes.date,
-                        schedulingStatus: schedulingItem.attributes.status
-                    }
-                }]
+    if(schedulesData)
+        schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
+            courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
+                courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
+                    establishmentSchedules = [...establishmentSchedules, {
+                        courtId: courtItem.id,
+                        courtName: courtItem.attributes.name,
+                        courtType: courtItem.attributes.court_types.data[0].attributes.name,
+                        startsAt: courtAvailabilitieItem.attributes.startsAt,
+                        endsAt: courtAvailabilitieItem.attributes.endsAt,
+                        weekDay: courtAvailabilitieItem.attributes.weekDay,
+                        scheduling: {
+                            schedulingId: schedulingItem.id,
+                            schedulingDate: schedulingItem.attributes.date,
+                            schedulingStatus: schedulingItem.attributes.status,
+                            reservedBy: schedulingItem.attributes.owner?.data?.attributes?.username,
+                            payedStatus: schedulingItem.attributes.payedStatus
+                        }
+                    }]
+                })
             })
         })
-    })
 
     interface ICourts {
         id: string
@@ -155,18 +179,34 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         weekDates = getWeekDays(dateSelected)
     else
         weekDates = getWeekDays(today)
+    
+    const standardActiveStates: IActiveState[] = []
+    weekDates.map(item => {
+        standardActiveStates.push({
+            active: false,
+            date: item.date.toISOString().split("T")[0]
+        })
+    })
+    // console.log(standardActiveStates)
     interface IActiveState {
         active: boolean
         date: string
     }
-    const [activeStates, setActiveStates] = useState<IActiveState[]>([])
-    console.log(activeStates)
+    const [activeStates, setActiveStates] = useState<IActiveState[]>(standardActiveStates)
+
+    const standardActiveCourts: IActiveCourt[] = []
+    allCourts.map(item => {
+        standardActiveCourts.push({
+            active: false,
+            id: item.id
+        })
+    })
+    console.log(standardActiveCourts)
     interface IActiveCourt {
         active: boolean
         id: string
     }
-    const [activeCourts, setActiveCourts] = useState<IActiveCourt[]>([])
-    console.log(activeCourts)
+    const [activeCourts, setActiveCourts] = useState<IActiveCourt[]>(standardActiveCourts)
 
     useEffect(() => {
         let newActiveStates: IActiveState[] = []
@@ -186,6 +226,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             }]
         })
         setActiveCourts(newActiveCourts)
+        console.log(activeCourts)
     }, [])
 
     const [shownSchedules, setShownSchedules] = useState<IEstablishmentSchedules[]>([])
@@ -384,7 +425,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         return schedulingsByDateJson
     }
 
-    async function handleBlockSchedule(data: IBlockScheduleFormData) {
+    async function handleBlockScheduleByDate(data: IBlockScheduleByDateFormData) {
         setIsLoading(true)
 
         const blockScheduleData = {
@@ -395,7 +436,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         const courtId = blockedCourtId
         const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId)
 
-        if(courtId != "") {
+        if (courtId != "") {
             if (schedulingsByDate.length > 0) {
                 try {
                     await Promise.all(schedulingsByDate.map(async (item) => {
@@ -424,6 +465,24 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
     }
 
+    const [teste, setTeste] = useState("")
+
+    const handleTimeChange = (formatted: string, extracted: string) => {
+        // Verifique se as horas e minutos estão dentro dos limites válidos
+        const [hours, minutes] = extracted.split(':').map(Number);
+        if (hours > 23 || minutes > 59) {
+            // Valores inválidos, não atualize o estado
+            return;
+        }
+
+        // Atualize o estado com o valor formatado
+        setTeste(formatted);
+    };
+
+    async function handleBlockScheduleByTime(data: IBlockScheduleByTimeFormData) {
+
+    }
+
     return (
         <View className="h-full w-full">
 
@@ -445,8 +504,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     onClick={(isClicked) => {
                                         handleWeekDayClick(index)
                                     }}
-                                    // active={activeStates[index].active}
-                                    active={false}
+                                    active={activeStates[index].active}
+                                    // active={false}
                                 />
                             ))
                         }
@@ -500,6 +559,9 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     startsAt={`${startsAt[0]}:${startsAt[1]}h`}
                                     endsAt={`${endsAt[0]}:${endsAt[1]}h`}
                                     isReserved={true}
+                                    courtType={scheduleItem.courtType}
+                                    reservedBy={scheduleItem.scheduling.reservedBy}
+                                    payedStatus={scheduleItem.scheduling.payedStatus}
                                 />
                             )
                         })
@@ -606,32 +668,144 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                 </View>
             )}
 
-            <BottomNavigationBar
-                isDisabled={false}
-                establishmentScreen={true}
-                playerScreen={false}
-            />
+            <View className="absolute bottom-0 top-0 left-0 right-0 items-center justify-end">
+                <BottomNavigationBar
+                    isDisabled={false}
+                    establishmentScreen={true}
+                    playerScreen={false}
+                />
+            </View>
 
             <Modal visible={chooseBlockTypeModal} animationType="fade" transparent={true} onRequestClose={closeChooseBlockTypeModal}>
                 <View className="h-full w-full justify-center items-center">
                     <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
                         <View className="w-full h-[250px] items-center justify-evenly">
 
-                            <Button className="h-[50px] w-[150px] justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]">
-                                <Text className="font-bold text-[12px] text-white">Bloquear por horário</Text>
+                            <Button
+                                className="flex items-center justify-center bg-[#FF6112] h-[50px] w-[200px] rounded-md"
+                                onPress={() => {
+                                    closeChooseBlockTypeModal()
+                                    setBlockScheduleByTimeModal(!blockScheduleByTimeModal)
+                                }}
+                            >
+                                <Text className="w-full h-full font-medium text-[16px] text-white">Bloquear por horário</Text>
                             </Button>
 
                             <Button
-                                className="h-[50px] w-[150px] justify-center items-center bg-[#FF6112] p-[10px] rounded-[4px]"
+                                className="flex items-center justify-center bg-[#FF6112] h-[50px] w-[200px] rounded-md"
                                 onPress={() => {
                                     closeChooseBlockTypeModal()
                                     setBlockScheduleByDateModal(!blockScheduleByDateModal)
                                 }}
                             >
-                                <Text className="font-bold text-[12px] text-white">Bloquear por data</Text>
+                                <Text className="w-full h-full font-medium text-[16px] text-white">Bloquear por data</Text>
                             </Button>
 
                         </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal visible={blockScheduleByTimeModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleByTimeModal}>
+                <View className="h-full w-full justify-center items-center">
+                    <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
+                        <View className="w-[60%] justify-center items-center mt-[15px]">
+                            <Text className="font-bold text-[14px] text-center">Escolha a quadra que deseja bloquear agenda?</Text>
+                        </View>
+
+                        <View className="flex flex-row flex-wrap w-full justify-evenly">
+
+                            {courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
+                                return (
+                                    <CourtSlideButton
+                                        name={courtItem.attributes.name}
+                                        onClick={(isClicked) => {
+                                            handleSelectedCourt(index)
+                                        }}
+                                        // active={activeCourts[index].active}
+                                    active={false}
+                                    />
+                                )
+                            })}
+
+                        </View>
+
+                        <View className='flex flex-row pl-[15px] pr-[15px] w-full'>
+                            <View className='flex-1 mr-[6px]'>
+                                <Text className='text-sm text-[#FF6112]'>A partir de:</Text>
+
+                                <View className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.initialHour ? "border-red-400" : "border-gray-400"} rounded p-3`}>
+                                    <Controller
+                                        name="initialHour"
+                                        control={blockScheduleByTimeControl}
+                                        rules={{
+                                            required: true,
+                                            minLength: 25
+                                        }}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInputMask
+                                                type={'datetime'}
+                                                options={{
+                                                    format: '99:99'
+                                                }}
+                                                onChangeText={(text) => {
+                                                    // onChange(formated)
+                                                    handleTimeChange(text, text)
+                                                }}
+                                                value={teste}
+                                                keyboardType="numeric"
+                                                placeholder="HH:MM"
+                                                className="w-[80%]"
+                                            />
+                                        )}
+                                    />
+                                    <Image source={require('../../assets/calendar_gray_icon.png')}></Image>
+                                </View>
+                                {blockScheduleByTimeErrors.initialHour && <Text className='text-red-400 text-sm -pt-[10px]'>{blockScheduleByTimeErrors.initialHour.message}</Text>}
+
+                            </View>
+
+                            <View className='flex-1 ml-[6px]'>
+                                <Text className='text-sm text-[#FF6112]'>Até:</Text>
+
+                                <View className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.endHour ? "border-red-400" : "border-gray-400"} rounded p-3`}>
+                                    <Controller
+                                        name="endHour"
+                                        control={blockScheduleByTimeControl}
+                                        rules={{
+                                            required: false
+                                        }}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInputMask
+                                                type={'datetime'}
+                                                options={{
+                                                    format: '99:99'
+                                                }}
+                                                onChangeText={(text) => {
+                                                    // onChange(formated)
+                                                    // handleTimeChange(text, text)
+                                                }}
+                                                value={""}
+                                                keyboardType="numeric"
+                                                placeholder="HH:MM"
+                                                className="w-[80%]"
+                                            />
+                                        )}
+                                    />
+                                    <Image source={require('../../assets/calendar_gray_icon.png')}></Image>
+                                </View>
+                                {blockScheduleByTimeErrors.endHour && <Text className='text-red-400 text-sm -pt-[10px]'>{blockScheduleByTimeErrors.endHour.message}</Text>}
+
+                            </View>
+
+                        </View>
+
+                        <View className="w-full h-fit mt-[20px] mb-[20px] justify-center items-center">
+                            <Button onPress={handleSubmitBlockScheduleByTime(handleBlockScheduleByTime)} className='h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center'>
+                                <Text className="w-full h-full font-medium text-[16px] text-white">{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
+                            </Button>
+                        </View>
+
                     </View>
                 </View>
             </Modal>
@@ -654,7 +828,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                             handleSelectedCourt(index)
                                         }}
                                         // active={activeCourts[index].active}
-                                        active={false}
+                                    active={false}
                                     />
                                 )
                             })}
@@ -676,7 +850,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                         render={({ field: { onChange } }) => (
                                             <MaskInput
                                                 className={`w-[80%] bg-white `}
-                                                placeholder='DD/MM'
+                                                placeholder='DD/MM/AAAA'
                                                 value={startsAt}
                                                 onChangeText={(masked, unmasked) => {
                                                     onChange(masked)
@@ -706,7 +880,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                         render={({ field: { onChange } }) => (
                                             <MaskInput
                                                 className={`w-[80%] bg-white `}
-                                                placeholder='DD/MM'
+                                                placeholder='DD/MM/AAAA'
                                                 value={endsAt}
                                                 onChangeText={(masked, unmasked) => {
                                                     onChange(masked)
@@ -726,7 +900,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         </View>
 
                         <View className="w-full h-fit mt-[20px] mb-[20px] justify-center items-center">
-                            <Button onPress={handleSubmit(handleBlockSchedule)} className='h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center'>
+                            <Button onPress={handleSubmit(handleBlockScheduleByDate)} className='h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center'>
                                 <Text className="w-full h-full font-medium text-[16px] text-white">{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
                             </Button>
                         </View>
@@ -741,31 +915,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         <View className=" items-center justify-evenly h-[80%]">
                             <Text className="font-bold text-[14px] text-center">Agenda bloqueada com sucesso</Text>
                             <Image source={require('../../assets/orange_logo_inquadra.png')}></Image>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal visible={blockScheduleDetailsModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleDetailsModal}>
-                <View className="h-full w-full justify-center items-center">
-                    <View className="h-[256px] w-[350px] bg-white rounded-[5px] items-center">
-                        <Text className="font-bold text-[14px] mt-[30px]">DETALHES DA RESERVA</Text>
-
-                        <ScheduleBlockDetails
-                            userName="Lucas Santos"
-                            courtType="Basquete"
-                            startsAt="15:00h"
-                            endsAt="16:00h"
-                            payedStatus={true}
-                        />
-
-                        <View className="w-full h-fit mt-[35px] mb-[20px] justify-center items-center pl-[40px] pr-[40px]">
-                            <Button onPress={() => {
-                                closeBlockScheduleDetailsModal()
-                                setConfirmBlockSchedule(true)
-                            }} className='h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center'>
-                                <Text className="w-full h-full font-medium text-[16px] text-white">Fechar</Text>
-                            </Button>
                         </View>
                     </View>
                 </View>

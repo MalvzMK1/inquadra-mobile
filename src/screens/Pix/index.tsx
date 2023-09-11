@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import { View, Text, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
@@ -6,23 +6,24 @@ import { payload } from '../../components/pix/payLoadGenerator';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
-import { useNavigation } from '@react-navigation/native';
 import { useGetMenuUser } from '../../hooks/useMenuUser';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {useCreateCharge} from "../../services/inter";
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
-
 export default function PixScreen({ navigation, route }: RouteParams) {
-    // const navigation = useNavigation()
-    // const route = useRoute()
     const { courtName, value, userID } = route.params
-    const formatedValue = Number(value).toFixed(2)
+    const formattedValue = Number(value).toFixed(2)
+
+    console.log({courtName, value, userID});
 
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(route.params.userID)
+    const [createCharge, {data: chargeData, loading: chargeLoading, error: chargeError}] = useCreateCharge();
+    const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
 
-    const payLoad = payload('+5511990216755', courtName, 'Enzo Diogenes do Prado', 'OSASCO', formatedValue.toString())
+    // const payLoad = payload('+5511990216755', courtName, 'Enzo Diogenes do Prado', 'OSASCO', formatedValue.toString())
 
     const handleCopiarTexto = () => {
         Clipboard.setStringAsync(payLoad);
@@ -34,6 +35,35 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             visibilityTime: 2000,
         });
     };
+
+    useEffect(() => {
+        if
+        (
+            dataUser &&
+            dataUser.usersPermissionsUser.data &&
+            dataUser.usersPermissionsUser.data.attributes.photo.data
+        )
+            setUserPhotoUri(HOST_API + dataUser.usersPermissionsUser.data.attributes.photo.data.attributes.url)
+        else
+            setUserPhotoUri(null)
+
+        // --------------
+
+        // createCharge({
+        //     variables: {
+        //         value: formattedValue,
+        //         message: '',
+        //         dueDate: '',
+        //         debtorName: '',
+        //         debtorStreet: '',
+        //         debtorUf: '',
+        //         debtorCity: '',
+        //         debtorCpf: '',
+        //         debtorCep: '',
+        //         discountDate: ''
+        //     }
+        // }).then(response => )
+    }, [dataUser])
 
     return (
         <View className='h-full w-max bg-white'>
@@ -50,7 +80,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-max w-max'>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data.attributes.photo?.data.attributes.url }}
+                            source={
+                                userPhotoUri ? {uri: userPhotoUri} : require('../../assets/default-user-image.png')
+                            }
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />

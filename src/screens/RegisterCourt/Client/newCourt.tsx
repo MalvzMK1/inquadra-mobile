@@ -24,6 +24,7 @@ import { useSportTypes } from "../../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from '@react-navigation/native'
 import axios from "axios";
+import { RootStackParamList } from "../../types/RootStack";
 
 interface CourtArrayObject {
     court_name: string,
@@ -39,13 +40,13 @@ type CourtTypes = Array<{ label: string, value: string }>;
 
 export default function RegisterNewCourt({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'RegisterNewCourt'>) {
     
-    
     const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
     const [registerCourt, { data, error, loading }] = useRegisterCourt()
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
     const [loadingMessage, setLoadingMessage] = useState("Fazendo upload das imagens");
+    const [photoIDs, setPhotoIDs] = useState([]);
 
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
@@ -61,7 +62,14 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
 
 
     async function RegisterNewCourt(data: IFormDatasCourt) {
+
+        setSelected([]); 
+        setPhotos([]);
+
+        setIsLoading(true); 
+
         let courtIDs: Array<string> = [];
+
         selected.forEach(selectedType => {
           courtTypes.forEach(type => {
             if (type.value === selectedType) courtIDs.push(type.label)
@@ -80,38 +88,42 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
           currentDate: new Date().toISOString()
         }
         addToCourtArray(payload)
-    
-        navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
+        if (uploadedImageIDs.length > 0) {
+            navigation.navigate("RegisterNewCourtAdded", { courtArray: [...courts, payload] })
+        }
       }
 
-    async  function finishingCourtsRegisters(data: IFormDatasCourt) {
+
+      async function finishingCourtsRegisters(data: IFormDatasCourt) {
+
+        setSelected([]); 
+        setPhotos([]);
+
         let courtIDs: Array<string> = [];
-
+      
         selected.forEach(selectedType => {
-            courtTypes.forEach(type => {
-                if (type.value === selectedType) courtIDs.push(type.label)
-            })
-        })
-
-
-    const uploadedImageIDs = await uploadImage();
-
+          courtTypes.forEach(type => {
+            if (type.value === selectedType) courtIDs.push(type.label)
+          })
+        });
+      
+        const uploadedImageIDs = await uploadImage();
+      
         const payload = {
-            court_name: `Quadra de ${selected}`,
-            courtType: courtIDs,
-            fantasyName: data.fantasyName,
-            photos: uploadedImageIDs,
-            court_availabilities: ["2"], // tela vinicius
-            minimum_value: Number(data.minimum_value) / 100,
-            currentDate: new Date().toISOString()
+          court_name: `Quadra de ${selected}`,
+          courtType: courtIDs,
+          fantasyName: data.fantasyName,
+          photos: uploadedImageIDs, 
+          court_availabilities: ["2"], // tela vinicius
+          minimum_value: Number(data.minimum_value) / 100,
+          currentDate: new Date().toISOString()
+        };
+        addToCourtArray(payload);
+      
+        if (uploadedImageIDs.length > 0) {
+          navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] });
         }
-        addToCourtArray(payload)
-
-        if (photos.length > 0) {
-            uploadImage();
-            navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] }); 
-          } 
-    }
+      }    
 
 
     const formSchema = z.object({
@@ -193,6 +205,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
           setIsLoading(false);  
 
           return uploadedImageIDs;
+
         } catch (error) {
           console.error('Erro ao enviar imagens:', error);
           setIsLoading(false);  
@@ -340,7 +353,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
                                 
                             } else {
                                 setIsCourtTypeEmpty(false);
-
+                                
                                 if (!isLoading) {
                                     setLoadingMessage("Fazendo upload das imagens..."); 
                                     setIsLoading(true); 
@@ -353,22 +366,21 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
                                 setIsCourtTypeEmpty(true);
                             } else {
                                 setIsCourtTypeEmpty(false);
+
                                 if (!isLoading) {
                                     setLoadingMessage("Fazendo upload das imagens..."); 
                                     setIsLoading(true); 
                                     handleSubmit(RegisterNewCourt)();
                                 }
                             }
-                        }}>
-                            {isLoading ? (
-                        <View style={{ alignItems: "center", paddingTop: 5 }}>
-                            <ActivityIndicator size="small" color='#FFFF' />
-                            <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
-                        </View>
-                        ) : (
-                        'Adicionar uma nova quadra'
-                        )}
-                        </Text>
+                        }}> {isLoading ? (
+                            <View style={{ alignItems: "center", paddingTop: 5 }}>
+                                <ActivityIndicator size="small" color='#FFFF' />
+                                <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                            </View>
+                            ) : (
+                            'Adicionar uma nova Quadra'
+                            )}</Text>
                     </View>
                     <View>
                     <View>
@@ -388,7 +400,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
                         }
                         }}
                     >
-                        <Text>
+                        <Text className="text-white">
                         {isLoading ? (
                         <View style={{ alignItems: "center", paddingTop: 5 }}>
                             <ActivityIndicator size="small" color='#FFFF' />
@@ -405,4 +417,4 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
             </View>
         </ScrollView>
     );
-}    
+}
