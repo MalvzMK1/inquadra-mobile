@@ -167,4 +167,5 @@ type RootStackParamList = {
 		pricePayed: number
 	}
 
+
 }
