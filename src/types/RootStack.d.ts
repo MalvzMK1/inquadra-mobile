@@ -128,6 +128,7 @@ type RootStackParamList = {
 		courtName: string,
 		value: string,
 		userID: string,
+		scheduleID: number,
 	}
 	RegisterNewCourt: {
 		courtArray: CourtAdd[]
