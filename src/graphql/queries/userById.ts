@@ -6,7 +6,7 @@ export interface IUserByIdResponse {
         data: {
             id: User['id'];
             attributes: {
-                username: User['username'];
+                username?: User['username'];
                 email: User['email'];
                 phoneNumber: User['phoneNumber'];
                 cpf: User['cpf'];
@@ -53,10 +53,10 @@ export interface IUserByIdResponse {
                         };
                     };
                 };
-        address: {
-          cep: string;
-          streetName: string;
-        };
+                address: {
+                    cep: string;
+                    streetName: string;
+                };
             };
         };
     };
