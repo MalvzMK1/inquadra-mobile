@@ -13,6 +13,10 @@ export default function PriceHour({values}: {values: {startsAt: string, endsAt: 
     setPrice(values.price);
   }, [values.endsAt, values.startsAt, values.price])
 
+
+  
+  console.log(startsAt, endsAt, price)
+
     return (
         <View className='flex-row w-full justify-between items-center mt-[10px]'>
             <View className='flex-row items-center'>

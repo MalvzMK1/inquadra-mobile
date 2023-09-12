@@ -53,6 +53,10 @@ export interface IUserByIdResponse {
             };
           };
         };
+        address: {
+          cep: string;
+          streetName: string;
+        };
       };
     };
   };
@@ -113,6 +117,10 @@ query getUserById($id: ID) {
               url
             }
           }
+        }
+        address {
+          cep
+          streetName
         }
       }
     }
