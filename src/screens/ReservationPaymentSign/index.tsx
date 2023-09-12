@@ -227,7 +227,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         })
     }
 
-
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
             <ScrollView>
@@ -250,10 +249,14 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                 <View className='px-10 py-5'>
                     <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
                         onPressIn={() => {
-                            navigation.navigate('PixScreen', {
-                                courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                                value: (amountToPay + serviceValue).toString(),
-                                userID: userId
+                            createNewSchedule().then(scheduleID => {
+                                if (scheduleID)
+                                    navigation.navigate('PixScreen', {
+                                        courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                                        value: (amountToPay + serviceValue).toString(),
+                                        userID: userId,
+                                        scheduleID,
+                                    })
                             })
                         }}
                     >

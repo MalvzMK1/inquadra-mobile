@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/inter.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/inter.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/scheduleDetails.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/scheduleDetails.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/userById.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/userById.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Pix/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Pix/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +42,11 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="WI564T674" />
-                    <option name="lastUsedInstant" value="1694171833" />
+                    <option name="lastUsedInstant" value="1694514846" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1694512067" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI564T673" />
@@ -52,10 +59,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI564T664" />
                     <option name="lastUsedInstant" value="1692963930" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1692963822" />
                   </RecentBranch>
                 </list>
               </option>
@@ -109,6 +112,11 @@
       <envs />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.start" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -130,6 +138,7 @@
       <workItem from="1692609285522" duration="11785000" />
       <workItem from="1692870011698" duration="12622000" />
       <workItem from="1692956607803" duration="12267000" />
+      <workItem from="1694511377345" duration="11149000" />
     </task>
     <servers />
   </component>
