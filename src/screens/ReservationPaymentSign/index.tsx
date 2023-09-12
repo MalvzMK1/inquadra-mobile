@@ -171,7 +171,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     const pay = async (data: iFormCardPayment) => {
         try {
             const newScheduleId = await createNewSchedule();
-
+            console.log(newScheduleId)
             const countryId = getCountryIdByName(selected);
             if (newScheduleId) {
                 userPaymentCard({
@@ -201,7 +201,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         try {
             const create = await createSchedule({
                 variables: {
-                    title: 'newnew',
+                    title: 'rapaz',
                     court_availability: parseFloat(courtAvailabilities),
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
