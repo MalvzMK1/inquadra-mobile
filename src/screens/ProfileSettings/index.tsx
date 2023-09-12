@@ -286,6 +286,8 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                     cpf: data.cpf,
                     phone_number: data.phoneNumber,
                     username: data.name,
+                    cvv: Number(userInfos.paymentCardInfos.cvv),
+                    dueDate: userInfos.paymentCardInfos.dueDate,
                 }
             }).then(console.log)
                 .catch(console.error)
