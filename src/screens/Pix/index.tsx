@@ -82,23 +82,23 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             const courtName: string = scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', ');
             const establishmentName: string = scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data.attributes.corporateName;
 
-            createCharge({
-                variables: {
-                    value: formattedValue,
-                    message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
-                    dueDate,
-                    debtorName: userData.usersPermissionsUser.data.attributes.username,
-                    debtorStreet: userAddress.address,
-                    debtorUf: userAddress.state,
-                    debtorCity: userAddress.city,
-                    debtorCpf: userData.usersPermissionsUser.data.attributes.cpf,
-                    debtorCep: userAddress.code,
-                    discountDate: new Date().toISOString().split('T')[0]
-                }
-            }).then(response => {
-                console.log(response.data?.txid)
-                // setPixInfos(response.data)
-            })
+            // createCharge({
+            //     variables: {
+            //         value: formattedValue,
+            //         message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
+            //         dueDate,
+            //         debtorName: userData.usersPermissionsUser.data.attributes.username,
+            //         debtorStreet: userAddress.address,
+            //         debtorUf: userAddress.state,
+            //         debtorCity: userAddress.city,
+            //         debtorCpf: userData.usersPermissionsUser.data.attributes.cpf,
+            //         debtorCep: userAddress.code,
+            //         discountDate: new Date().toISOString().split('T')[0]
+            //     }
+            // }).then(response => {
+            //     console.log(response.data?.txid)
+            //     // setPixInfos(response.data)
+            // })
             // console.log(dueDate, courtName, establishmentName)
             // console.log({
             //     variables: {
