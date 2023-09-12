@@ -9,6 +9,15 @@ import {
     Modal,
     StyleSheet,
     ActivityIndicator
+    View,
+    Text,
+    ScrollView,
+    TextInput,
+    TouchableOpacity,
+    Image,
+    Modal,
+    StyleSheet,
+    ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
