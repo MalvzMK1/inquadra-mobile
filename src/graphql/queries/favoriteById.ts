@@ -1,9 +1,5 @@
 import { gql } from "@apollo/client";
-import { Photo } from "../../types/Photo"
-import { Court } from "../../types/Court"
-import { Address } from "../../types/Address";
-import { Establishment } from "../../types/EstablishmentInfos";
-import { CourtCardInfos } from "../../types/Court";
+
 
 export interface IFavoriteByIdResponse {
     usersPermissionsUser: {
@@ -12,8 +8,8 @@ export interface IFavoriteByIdResponse {
             favorite_courts: {
               data: Array<{
                 attributes: {
-                  court_types: Array<{
-                    data: {
+                  court_types: {
+                    data: Array<{
                       attributes: {
                         name: string
                         courts: {
@@ -58,8 +54,8 @@ export interface IFavoriteByIdResponse {
                           }>
                         }
                       }
-                    }
-                  }>
+                    }>
+                  }
                 }
               }>
             }
@@ -75,50 +71,50 @@ export interface IFavoriteByIdVariables {
 
 export const favoriteByIdQuery = gql`
   query getFavoriteById($id: ID) {
-    usersPermissionsUser(id: $id) {
-      data {
-        attributes {
-          favorite_courts {
-            data {
-              attributes {
-                court_types {
-                  data {
-                    attributes {
-                      name
-                      courts {
-                        data {
-                          attributes {
-                            name
-                            fantasy_name
-                            photo {
-                              data {
-                                attributes {
-                                  url
+  usersPermissionsUser(id: $id) {
+    data {
+      attributes {
+        favorite_courts {
+          data {
+            attributes {
+              court_types {
+                data {
+                  attributes {
+                    name
+                    courts {
+                      data {
+                        id
+                        attributes {
+                          name
+                          fantasy_name
+                          photo {
+                            data {
+                              attributes {
+                                url
+                              }
+                            }
+                          }
+                          establishment {
+                            data {
+                              id
+                              attributes {
+                                address {
+                                  latitude
+                                  longitude
+                                  cep
                                 }
                               }
                             }
-                            establishment {
-                              data {
-                                id
-                                attributes {
-                                  address {
-                                    latitude
-                                    longitude
-                                    cep
-                                  }
-                                }
-                              }
-                            }
-                            court_availabilities {
-                              data {
-                                attributes {
-                                  schedulings(
-                                    filters: { owner: { id: { eq: $id } } }
-                                  ) {
-                                    data {
-                                      attributes {
-                                        date
-                                      }
+                          }
+                          court_availabilities {
+                            data {
+                              attributes {
+                                schedulings(
+                                  filters: { owner: { id: { eq: $id } } }
+                                ) {
+                                  data {
+                                    attributes {
+                                      date
                                     }
                                   }
                                 }
@@ -137,4 +133,5 @@ export const favoriteByIdQuery = gql`
       }
     }
   }
+}
 `

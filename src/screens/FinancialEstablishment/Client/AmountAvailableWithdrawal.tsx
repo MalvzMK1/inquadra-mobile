@@ -4,15 +4,18 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 import { SimpleLineIcons } from '@expo/vector-icons';
 import CardDetailsPaymentHistoric from "../../../components/CardDetailsPaymentHistoric";
-import { useFocusEffect } from "@react-navigation/native";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CardAmountAvailableWithdrawal from "../../../components/CardAmountAvailableWithdrawal";
+
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'> {
-	establishmentId: string
+    establishmentId: string
 }
 
-export default function AmountAvailableWithdrawal({route}: Props) {
-    
+export default function AmountAvailableWithdrawal({ route }: Props) {
+
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const currentDate = new Date();
     const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
     const [infosHistoric, setInfosHistoric] = useState<Array<{
@@ -23,8 +26,6 @@ export default function AmountAvailableWithdrawal({route}: Props) {
 
     const establishmentId = route.params.establishmentId
     const { data, loading, error } = useGetUserHistoricPayment(establishmentId)
-
-    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -94,6 +95,7 @@ export default function AmountAvailableWithdrawal({route}: Props) {
         return datesFilter;
     }
     
+
     return (
         <View className="flex-1">
             <ScrollView>
@@ -120,7 +122,7 @@ export default function AmountAvailableWithdrawal({route}: Props) {
                                     const cardDate = new Date(card.date.split("T")[0]);
 
                                     if (cardDate <= currentDate) {
-                                        return <CardDetailsPaymentHistoric
+                                        return <CardAmountAvailableWithdrawal
                                             username={card.username}
                                             valuePayed={card.valuePayed}
                                         />
@@ -134,7 +136,9 @@ export default function AmountAvailableWithdrawal({route}: Props) {
                             <Text className="text-lg flex flex-row items-center text-gray-500">Isso é tudo! <SimpleLineIcons name="emotsmile" size={15} color="gray" /></Text>
                         </View>
                         <View className="p-3 items-center justify-center">
-                            <TouchableOpacity className='w-52 h-12 rounded-md bg-[#FF6112] flex items-center justify-center'>
+                            <TouchableOpacity className='w-52 h-12 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => navigation.navigate("WithdrawScreen", {
+                                establishmentId: route.params.establishmentId
+                            })}>
                                 <Text className='text-gray-50 font-bold'>Sacar</Text>
                             </TouchableOpacity>
                         </View>

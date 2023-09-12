@@ -1,7 +1,7 @@
 import ProgressBar from 'react-native-progress/Bar'
 import React, { useState, useEffect } from 'react'
 import { View, Text, Image, Modal, ScrollView } from 'react-native';
-import { useNavigation, NavigationProp } from "@react-navigation/native"
+import { useNavigation, NavigationProp, useFocusEffect } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
@@ -25,10 +25,13 @@ import { useAllPaymentsSchedulingById } from '../../hooks/useAllPaymentsScheduli
 import { generateRandomKey } from '../../utils/activationKeyGenerate';
 import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
+import useDeleteSchedule from '../../hooks/useDeleteSchedule';
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
-    const user_id = route.params.userId
+    const user_id = route.params.userId.toString()
     const schedule_id = route.params.scheduleId
+
+
 
     const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
     const schedulePrice = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value
@@ -40,7 +43,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const [updateScheduleValue, { data: dataScheduleValue, error: errorScheduleValue, loading: loadingScheduleValue }] = useUpdateScheduleValue()
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
     const { data: dataHistoricPayments, error: errorHistoricPayments, loading: loadingHistoricPayments } = useAllPaymentsSchedulingById(schedule_id)
+    const [cancelSchedule, { data: dataCancelSchedule, loading: loadingCancelSchedule, error: errorCancelSchedule }] = useDeleteSchedule()
 
+    const [showCancelCardModal, setShowCancelCardModal] = useState(false)
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
     const [creditCard, setCreditCard] = useState("")
     const [selected, setSelected] = useState("")
@@ -48,11 +53,25 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const [countryId, setCountryId] = useState<string | null>(null)
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
     const currentTime = new Date()
-    const schedulingDate = new Date(data?.scheduling?.data?.attributes?.payDay)
+    const schedulingPayDate = new Date(data?.scheduling?.data?.attributes?.payDay!)
+    const scheduleDay = new Date(data?.scheduling?.data?.attributes?.date!)
+    const timeDifferenceMs = scheduleDay - currentTime;
+
+    const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
+
+    const isWithin24Hours = timeDifferenceHours <= 24;
 
 
-    const isVanquishedDate = schedulingDate < currentTime
-    const isPayed = data?.scheduling.data.attributes.payedStatus
+    const timeDifferenceMsPayDate = schedulingPayDate - currentTime;
+
+
+    const oneHourInMs = 60 * 60 * 1000;
+
+
+    const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
+
+    const isVanquishedDate = schedulingPayDate < currentTime
+    const isPayed = data?.scheduling?.data?.attributes?.payedStatus
 
     const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
 
@@ -79,10 +98,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             text1: 'Texto copiado',
             text2: 'O texto foi copiado para a área de transferência.',
             position: 'bottom',
-            visibilityTime: 2000, // tempo em milissegundos que a mensagem ficará visível
-          });
-      };
-
+            visibilityTime: 2000,
+        });
+    };
 
     const formSchema = z.object({
         value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value, context) => {
@@ -110,8 +128,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             return inputDate.getTime() > currentDate.getTime();
         }, "A data de vencimento é inválida"),
     });
-
-
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
         if (countryISOCode && dataCountry) {
@@ -185,13 +201,13 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     publishedAt: new Date().toISOString()
                 }
             });
-    
+
             await scheduleValueUpdate(parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')));
-            
+
             setShowCardPaymentModal(false);
 
             alert("Pagamento efetuado com sucesso, recarregue a pagina para visualizar as atualizações!")
-            
+
 
         } catch (error) {
             console.error("Erro durante o pagamento:", error);
@@ -201,7 +217,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const scheduleValueUpdate = async (value: number) => {
         let validatePayment = value + scheduleValuePayed >= schedulePrice ? true : false
         let valuePayedUpdate = value + scheduleValuePayed
-        let activation_key = value + scheduleValuePayed >= schedulePrice? generateRandomKey(4) : null
+        let activation_key = value + scheduleValuePayed >= schedulePrice ? generateRandomKey(4) : null
         try {
             const update = await updateScheduleValue({
                 variables: {
@@ -218,16 +234,32 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     function payPix(info: iFormPixPayment) {
-        navigation.navigate('PixScreen', { courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.')), userID: user_id })
+        navigation.navigate('PixScreen', { courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.')), userID: user_id })
         setShowPixPaymentModal(false)
     }
 
     const countryOptions = dataCountry?.countries?.data.map(country => ({
         value: country?.id,
-        label: country?.attributes?.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
-        img: `${HOST_API}${country?.attributes?.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+        label: country?.attributes?.ISOCode || "",
+        img: `${HOST_API}${country?.attributes?.flag?.data?.attributes?.url || ""}`
     })) || [];
 
+
+    const deleteSchedule = async (idSchedule: number) => {
+        try {
+            await cancelSchedule({
+                variables: {
+                    scheduling_id: idSchedule
+                }
+            })
+
+            !loadingCancelSchedule || !errorCancelSchedule
+                ? navigation.navigate('InfoReserva', { userId: user_id })
+                : null
+        } catch (error) {
+            null
+        }
+    }
 
     function share() {
         console.log('--- SHARE FUNCTION HAS BEEN TRIGGERED ---')
@@ -249,7 +281,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data.attributes.photo?.data.attributes.url }}
+                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -261,14 +293,14 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 <View className={
                     data?.scheduling?.data.attributes?.valuePayed < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value && isVanquished === false
                         ? 'flex w-max h-80 bg-zinc-900 px-5'
-                        : user_id !== data?.scheduling.data.attributes.owner.data.id && isPayed === true
+                        : user_id !== data?.scheduling?.data?.attributes?.owner?.data?.id && isPayed === true
                             ? 'flex w-max h-48 bg-zinc-900 px-5'
                             : 'flex w-max h-60 bg-zinc-900 px-5'
                 }>
                     <View className='flex-row items-start justify-start w-max h-max pt-2'>
                         <View>
                             <Image
-                                source={{ uri: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url }}
+                                source={{ uri: HOST_API + data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
                                 style={{ width: 138, height: 90 }}
                                 borderRadius={5}
                             />
@@ -277,16 +309,34 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <View className='flex justify-start items-start h-max w-max pl-1'>
                                 <View className='flex-row justify-between items-center w-48'>
                                     <View className='flex items-center justify-center'>
-                                        <Text className='font-black text-base text-orange-600'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name}</Text>
+                                        <Text className='font-black text-base text-orange-600'>{data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name}</Text>
                                     </View>
-                                    <View className='flex-row items-center'>
-                                        <View>
-                                            <Text className='font-normal text-xs text-orange-600'>Editar</Text>
-                                        </View>
-                                        <View className='flex items-center justify-center pl-4'>
-                                            <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} />
-                                        </View>
-                                    </View>
+                                    {
+                                        user_id === data?.scheduling?.data?.attributes?.owner?.data?.id
+                                            ?
+                                            !isWithin24Hours
+                                                ? <TouchableOpacity className='flex-row items-center' onPress={
+                                                    () => navigation.navigate('UpdateSchedule', {
+                                                        courtId: data.scheduling.data.attributes.court_availability.data.attributes.court.data.id,
+                                                        courtName: data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name,
+                                                        courtImage: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url,
+                                                        userId: user_id,
+                                                        userPhoto: dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url!,
+                                                        valuePayed: scheduleValuePayed!,
+                                                        scheduleUpdateID: schedule_id,
+                                                        activationKey: data?.scheduling?.data?.attributes?.activationKey || null
+                                                    })
+                                                }>
+                                                    <View>
+                                                        <Text className='font-normal text-xs text-orange-600'>Editar</Text>
+                                                    </View>
+                                                    <View className='flex items-center justify-center pl-4'>
+                                                        <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} />
+                                                    </View>
+                                                </TouchableOpacity>
+                                                : null
+                                            : null
+                                    }
                                 </View>
                                 <View>
                                     <Text className='font-normal text-xs text-white'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.name}</Text>
@@ -296,9 +346,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt)}</Text>
                                     </View>
                                 </View>
-                                <View className='pt-2'>
-                                    <Text className='font-black text-xs text-red-500'>CANCELAR</Text>
-                                </View>
+                                {
+                                    user_id === data?.scheduling.data.attributes.owner.data.id
+                                        ?
+                                        !isWithinOneHour
+                                            ? <View className='pt-2'>
+                                                <Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
+                                            </View>
+                                            : null
+                                        : null
+                                }
                             </View>
                         </View>
                     </View>
@@ -432,7 +489,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 <View className='h-max w-full flex justify-between pl-2'>
                                                     <TouchableOpacity onPress={() => handleCopiarTexto()}>
                                                         <View className='w-30 h-10 bg-white rounded-sm flex-row items-center justify-between'>
-                                                            <Text className='font-semibold text-xs text-black pl-2'>Codigo de ativação:</Text>
+                                                            <Text className='font-semibold text-xs text-black pl-2'>Código de ativação:</Text>
                                                             <Text className='font-black text-sm text-center text-gray-400 pl-1 pr-7'>{data?.scheduling?.data?.attributes?.activationKey}</Text>
                                                         </View>
                                                     </TouchableOpacity>
@@ -477,19 +534,21 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         {
                             dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
                                 ? dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data?.map((paymentInfo) =>
-                                    <View className='w-full pt-5'>
-                                        <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
-                                            <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
-                                            <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt)}</Text>
-                                            <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
+                                    <ScrollView>
+                                        <View className='w-full pt-5'>
+                                            <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
+                                                <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
+                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt)}</Text>
+                                                <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
+                                            </View>
                                         </View>
-                                    </View>
+                                    </ScrollView>
                                 )
                                 : <Text className='text-gray-50 font-semibold text-center'>Compartilhe essa página ! Informações serão mostradas aqui uma vez que outros realisem pagamentos </Text>
                         }
                     </View>
                 </View>
-            </ScrollView>
+            </ScrollView >
             <Modal visible={showCardPaymentModal} animationType="fade" transparent={true} onRequestClose={closeCardPayment}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
@@ -617,8 +676,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             }}
                                             data={dataCountry?.countries?.data.map(country => ({
                                                 value: country?.attributes.ISOCode,
-                                                label: country?.attributes.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
-                                                img: `${HOST_API}${country?.attributes.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+                                                label: country?.attributes.ISOCode || "",
+                                                img: `${HOST_API}${country?.attributes.flag?.data?.attributes?.url || ""}`
                                             })) || []}
                                             save="value"
                                             placeholder='Selecione um país'
@@ -705,6 +764,38 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     </View>
                 </View>
             </Modal>
-        </View>
+            <Modal
+                visible={showCancelCardModal}
+                animationType="fade"
+                transparent={true}
+                onRequestClose={() => setShowCancelCardModal(false)}
+            >
+                <View className='flex-1 justify-center items-center h-screen w-screen'>
+                    <View className='h-40 w-80 bg-gray-700 justify-center items-center border-solid border-4 border-orange-600'>
+                        <Text className='text-base text-white font-black text-center'>
+                            Tem certeza que deseja <Text className='text-red-600 font-black'>cancelar</Text> o agendamento?
+                        </Text>
+                        <View className='justify-center items-center flex-row pt-10'>
+                            <View className='pr-5'>
+                                <Button
+                                    className='h-10 w-14 rounded-md bg-zinc-900 flex items-center justify-center'
+                                    onPress={() => setShowCancelCardModal(false)}
+                                >
+                                    <Text className='text-gray-50'>NÃO</Text>
+                                </Button>
+                            </View>
+                            <View>
+                                <Button
+                                    className='h-10 w-14 rounded-md bg-zinc-900 flex items-center justify-center'
+                                    onPress={() => deleteSchedule(parseFloat(schedule_id))}
+                                >
+                                    <Text className='text-gray-50'>SIM</Text>
+                                </Button>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </View >
     )
 }

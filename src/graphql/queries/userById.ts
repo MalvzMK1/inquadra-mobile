@@ -10,12 +10,16 @@ export interface IUserByIdResponse {
         email: User['email'];
         phoneNumber: User['phoneNumber'];
         cpf: User['cpf'];
+        favorite_establishments: {
+          data: Array<{
+            id: Establishment['id']
+          }>
+        }
         favorite_courts: {
-          data: [
-            {
-              id: Court["id"]
-            }
-          ]
+          data: Array<{
+            id: Court['id']
+          }>
+          
         }
         role: {
           data: {
@@ -49,6 +53,10 @@ export interface IUserByIdResponse {
             };
           };
         };
+        address: {
+          cep: string;
+          streetName: string;
+        };
       };
     };
   };
@@ -59,54 +67,63 @@ export interface IUserByIdVariables {
 }
 
 export const userByIdQuery = gql`
-query getUserById($id: ID){
-    usersPermissionsUser(id: $id){
-      data{
-        id
-        attributes{
-          username
-          email
-          phoneNumber
-          cpf
-          favorite_courts {
+query getUserById($id: ID) {
+  usersPermissionsUser(id: $id) {
+    data {
+      id
+      attributes {
+        username
+        email
+        phoneNumber
+        cpf
+        favorite_establishments {
+          data {
+            id
+          }
+        }
+        favorite_courts {
+          data {
+            id
+          }
+        }
+        role {
+          data {
+            id
+          }
+        }
+        paymentCardInformations {
+          id
+          cvv
+          dueDate
+          country {
             data {
               id
-            }
-          }
-          role{
-            data{
-              id
-            }
-          }
-          paymentCardInformations{
-            id
-            cvv
-            dueDate
-            country{
-              data{
-                id
-                attributes{
-                  name
-                  flag{
-                    data{
-                      attributes{
-                        url
-                      }
+              attributes {
+                name
+                flag {
+                  data {
+                    attributes {
+                      url
                     }
                   }
                 }
               }
             }
           }
-          photo{
-            data{
-              attributes{
-                url
-              }
+        }
+        photo {
+          data {
+            attributes {
+              url
             }
           }
+        }
+        address {
+          cep
+          streetName
         }
       }
     }
   }
+}
 ` 

@@ -2,10 +2,9 @@ import { PaperProvider } from 'react-native-paper';
 import { ApolloProvider } from '@apollo/client';
 import Routes from './src/routes';
 import { client } from './src/lib/apolloClient';
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import * as Location from "expo-location";
 import storage from "./src/utils/storage";
-// import { ComponentProvider } from './src/context/ComponentContext';
 
 export default function App() {
 	useEffect(() => {
