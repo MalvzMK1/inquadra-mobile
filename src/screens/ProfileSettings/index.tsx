@@ -8,18 +8,8 @@ import {
     Image,
     Modal,
     StyleSheet,
-    ActivityIndicator
-    View,
-    Text,
-    ScrollView,
-    TextInput,
-    TouchableOpacity,
-    Image,
-    Modal,
-    StyleSheet,
-    ActivityIndicator
+    ActivityIndicator,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
