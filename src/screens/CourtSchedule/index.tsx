@@ -532,7 +532,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         const hoursRange = getHoursRange(blockScheduleByTimeData.initialHour, blockScheduleByTimeData.endHour)
         const courtId = blockedCourtId
         const schedulingsByHour = await setSchedulingsByHours(hoursRange, courtId)
-        console.log(schedulingsByHour)
 
         if (courtId != "") {
             if (schedulingsByHour.length > 0) {
