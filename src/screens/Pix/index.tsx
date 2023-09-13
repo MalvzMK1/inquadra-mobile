@@ -7,10 +7,15 @@ import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCreateCharge } from "../../services/inter";
 import { useGetUserById } from "../../hooks/useUserById";
-import axios, { AxiosRequestConfig } from "axios";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
+import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
+
+interface IPixInfos {
+    txid: string;
+    pixCode: string;
+}
 
 export default function PixScreen({ navigation, route }: RouteParams) {
     const { courtName, value, userID, scheduleID } = route.params
@@ -22,19 +27,21 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
     const [userAddress, setUserAddress] = useState<APICepResponse>();
-    const [pixInfos, setPixInfos] = useState();
-
-    // const payLoad = payload('+5511990216755', courtName, 'Enzo Diogenes do Prado', 'OSASCO', formatedValue.toString())
+    const [pixInfos, setPixInfos] = useState<IPixInfos | null>(null);
 
     const handleCopiarTexto = () => {
-        // Clipboard.setStringAsync(payLoad);
-        Toast.show({
-            type: 'success',
-            text1: 'Texto copiado',
-            text2: 'O texto foi copiado para a área de transferência.',
-            position: 'bottom',
-            visibilityTime: 2000,
-        });
+        if (pixInfos) {
+            Clipboard.arguments.setStringAsync(pixInfos.pixCode)
+                .finally(() => Toast.show({
+                    type: 'success',
+                    text1: 'Texto copiado',
+                    text2: 'O texto foi copiado para a área de transferência.',
+                    position: 'bottom',
+                    visibilityTime: 2000,
+                })
+                );
+
+        }
     };
 
     useEffect(() => {
@@ -72,86 +79,50 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             scheduleData.scheduling.data.attributes.court_availability.data &&
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data &&
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data &&
-            scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data
+            scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data &&
+            !pixInfos
         ) {
             const dueDate: string = new Date(scheduleData?.scheduling.data?.attributes.date).toISOString().split('T')[0];
             const courtName: string = scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', ');
             const establishmentName: string = scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data.attributes.corporateName;
 
-            // createCharge({
-            //     variables: {
-            //         value: formattedValue,
-            //         message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
-            //         dueDate,
-            //         debtorName: userData.usersPermissionsUser.data.attributes.username,
-            //         debtorStreet: userAddress.address,
-            //         debtorUf: userAddress.state,
-            //         debtorCity: userAddress.city,
-            //         debtorCpf: userData.usersPermissionsUser.data.attributes.cpf,
-            //         debtorCep: userAddress.code,
-            //         discountDate: new Date().toISOString().split('T')[0]
-            //     }
-            // }).then(response => {
-            //     console.log(response.data?.txid)
-            //     // setPixInfos(response.data)
-            // })
-            // console.log(dueDate, courtName, establishmentName)
-            // console.log({
-            //     variables: {
-            //                 value: formattedValue,
-            //                 message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
-            //                 dueDate,
-            //                 debtorName: userData.usersPermissionsUser.data.attributes.username,
-            //                 debtorStreet: userAddress.address,
-            //                 debtorUf: userAddress.state,
-            //                 debtorCity: userAddress.city,
-            //                 debtorCpf: userData.usersPermissionsUser.data.attributes.cpf,
-            //                 debtorCep: userAddress.code,
-            //                 discountDate: new Date().toISOString().split('T')[0]
-            //             }
-            // })
+            console.log(scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data)
+            console.log({ dueDate, courtName, establishmentName })
+            console.log(userAddress.code.split('-').join(''))
+            createCharge({
+                variables: {
+                    value: formattedValue,
+                    message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
+                    dueDate,
+                    debtorName: userData.usersPermissionsUser.data.attributes.username ?? "",
+                    debtorStreet: userAddress.address,
+                    debtorUf: userAddress.state,
+                    debtorCity: userAddress.city,
+                    debtorCpf: userData.usersPermissionsUser.data.attributes.cpf,
+                    debtorCep: userAddress.code.split('-').join(''),
+                    discountDate: new Date().toISOString().split('T')[0]
+                }
+            }).then(response => {
+                if (response.data)
+                    setPixInfos({
+                        txid: response.data.txid,
+                        pixCode: response.data.pixCopiaECola,
+                    })
+                if (response.errors)
+                    Toast.show({
+                        text1: 'Não foi possível gerar o código pix',
+                        text2: response.errors.join('\n'),
+                        position: 'bottom',
+                    })
+            })
         }
     }, [userData, userAddress, scheduleData])
 
-    interface CompleteAddress {
-        zipcode: string;
-        streetName: string;
-        uf: string;
-        city: string;
-    }
+    useEffect(() => {
+        if (pixInfos) {
 
-    class APICepResponse {
-        public code;
-        public state;
-        public city;
-        public district;
-        public address;
-
-        constructor(code: string, state: string, city: string, district: string, address: string) {
-            this.code = code;
-            this.state = state;
-            this.city = city;
-            this.district = district;
-            this.address = address
         }
-    }
-
-    async function getAddress(zipCode: string): Promise<APICepResponse> {
-        const config: AxiosRequestConfig = {
-            method: 'get',
-            url: `https://cdn.apicep.com/file/apicep/${zipCode}.json`
-        }
-
-        try {
-            const response = await axios(config);
-            return response.data as APICepResponse;
-        } catch (err) {
-            if (err instanceof Error) {
-                throw new Error('Cannot find the address\n' + JSON.stringify(err));
-            }
-            throw new Error('Cannot find the address\n' + err);
-        }
-    }
+    }, [pixInfos])
 
     return (
         <View className='h-full w-max bg-white'>

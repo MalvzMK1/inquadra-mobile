@@ -137,11 +137,10 @@ interface Props extends NativeStackScreenProps<RootStackParamList, 'AmountAvaila
                             <Text className="text-lg flex flex-row items-center text-gray-500">Isso é tudo! <SimpleLineIcons name="emotsmile" size={15} color="gray" /></Text>
                         </View>
                         <View className="p-3 items-center justify-center">
-                            <TouchableOpacity className='w-52 h-12 rounded-md bg-[#FF6112] flex items-center justify-center'
-                                onPress={() => navigation.navigate("WithdrawScreen", {
-                                    establishmentId: route.params.establishmentId,
-                                    logo: ""
-                                })}>
+                            <TouchableOpacity className='w-52 h-12 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => navigation.navigate("WithdrawScreen", {
+                                establishmentId: route.params.establishmentId,
+                                logo: route.params.logo
+                            })}>
                                 <Text className='text-gray-50 font-bold'>Sacar</Text>
                             </TouchableOpacity>
                         </View>

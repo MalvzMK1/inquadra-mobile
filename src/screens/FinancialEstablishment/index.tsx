@@ -32,7 +32,7 @@ export default function FinancialEstablishment({ route }: Props) {
 
     const establishmentId = route.params.establishmentId
     const logo = route.params.logo
-    const { data, loading, error } = useGetUserHistoricPayment(establishmentId)
+    const { data, loading, error } = useGetUserHistoricPayment(establishmentId ?? "")
 
     useFocusEffect(
         React.useCallback(() => {
@@ -150,7 +150,7 @@ export default function FinancialEstablishment({ route }: Props) {
                                 <TouchableOpacity className='h-10 w-40 rounded-md bg-[#FF6112] flex items-center justify-center'
                                     onPress={() => {
                                         navigation.navigate("WithdrawScreen", {
-                                            establishmentId: establishmentId,
+                                            establishmentId: establishmentId ?? "",
                                             logo: logo ?? ""
                                         })
                                     }}
@@ -160,7 +160,7 @@ export default function FinancialEstablishment({ route }: Props) {
                             </View>
                         </View>
                         <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("AmountAvailableWithdrawal", {
-                            establishmentId: establishmentId,
+                            establishmentId: establishmentId ?? "",
                             logo: logo ?? ""
                         })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
@@ -174,7 +174,7 @@ export default function FinancialEstablishment({ route }: Props) {
                             </View>
                         </View>
                         <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("DetailsAmountReceivable", {
-                            establishmentId: establishmentId,
+                            establishmentId: establishmentId ?? "",
                             logo: logo ?? ""
                         })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
@@ -182,7 +182,7 @@ export default function FinancialEstablishment({ route }: Props) {
                         <View className="pt-6 flex flex-row justify-between">
                             <Text className="text-lg font-bold">Valores recebidos</Text>
                             <TouchableOpacity onPress={() => navigation.navigate("HistoryPayment", {
-                                establishmentId: establishmentId,
+                                establishmentId: establishmentId ?? "",
                                 logo: logo ?? ""
                             })}>
                                 <Text className="text-lg font-bold underline text-[#FF6112]">Histórico</Text>

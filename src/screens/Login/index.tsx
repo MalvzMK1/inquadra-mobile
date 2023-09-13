@@ -3,7 +3,6 @@ import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-import useUpdateCourt from '../../hooks/useUpdateCourt';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +21,6 @@ const formSchema = z.object({
     password: z.string()
         .nonempty('O campo não pode estar vazio')
 })
-
 
 export default function Login() {
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
@@ -114,7 +112,7 @@ export default function Login() {
                         key: 'userInfos',
                         data: {
                             jwt: undefined,
-                            userId: 9,
+                            userId: 8,
                         },
                         expires: 1000 * 3600
                     }).then(() => {

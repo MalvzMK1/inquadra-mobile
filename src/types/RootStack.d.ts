@@ -19,8 +19,8 @@ type RootStackParamList = {
     RegisterEstablishmentProfile: undefined;
     CompletedEstablishmentResgistration: undefined;
     HomeEstablishment: {
-        userPhoto: string | undefined,
-        userID: string
+        userPhoto?: string | undefined,
+        userID?: string
     }
     DeleteAccountEstablishment: {
         establishmentName: string | undefined
@@ -29,7 +29,7 @@ type RootStackParamList = {
         userPhoto: string
     }
     FinancialEstablishment: {
-        establishmentId: string,
+        establishmentId: string | undefined,
         logo: string | undefined
     };
     CourtPriceHour: undefined;
