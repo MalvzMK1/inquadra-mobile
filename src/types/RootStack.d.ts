@@ -128,6 +128,7 @@ type RootStackParamList = {
 		courtName: string,
 		value: string,
 		userID: string,
+		scheduleID: number,
 	}
 	RegisterNewCourt: {
 		courtArray: CourtAdd[]
@@ -153,6 +154,7 @@ type RootStackParamList = {
 		courtName: string
 		valuePayed: number
 		scheduleUpdateID: string
+		activationKey: string | null
 	}
 	PaymentScheduleUpdate: {
 		courtId: string
@@ -165,6 +167,7 @@ type RootStackParamList = {
 		courtAvailabilityDate: string
 		scheduleUpdateID: string
 		pricePayed: number
+		activationKey: string | null
 	}
 
 }
