@@ -157,8 +157,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const handleDeleteAccount = () => {
         setShowDeleteConfirmation(true);
-    };
-    console.log("dataaaaaaa" + data?.usersPermissionsUser.data.attributes.username)
+    }
 
 
     const handleConfirmDelete = () => {
@@ -321,12 +320,12 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
         });
         if (data) {
-            setValue('name', data.usersPermissionsUser.data.attributes.username);
-            setValue('email', data.usersPermissionsUser.data.attributes.email);
-            setValue('phoneNumber', data.usersPermissionsUser.data.attributes.phoneNumber);
-            setValue('cpf', data.usersPermissionsUser.data.attributes.cpf);
-            setPaymentCardValue('cvv', data.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.cvv?.toString() ?? "");
-            setPaymentCardValue('dueDate', data.usersPermissionsUser?.data.attributes?.paymentCardInformations?.dueDate ?? "");
+            setValue('name', data?.usersPermissionsUser?.data?.attributes?.username ?? "");
+            setValue('email', data?.usersPermissionsUser?.data?.attributes?.email);
+            setValue('phoneNumber', data?.usersPermissionsUser?.data?.attributes?.phoneNumber);
+            setValue('cpf', data?.usersPermissionsUser?.data?.attributes?.cpf);
+            setPaymentCardValue('cvv', data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.cvv?.toString() ?? "");
+            setPaymentCardValue('dueDate', data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.dueDate ?? "");
         }
     }, [loading])
 
