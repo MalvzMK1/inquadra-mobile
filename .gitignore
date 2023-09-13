@@ -139,3 +139,5 @@ build
 
 *.env*
 !.env.example
+
+deploy.sh
