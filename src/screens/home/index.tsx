@@ -16,6 +16,7 @@ import { calculateDistance } from '../../utils/calculateDistance';
 import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
 	menuBurguer: boolean;
@@ -60,32 +61,32 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			if (!error && !loading) {
 				const newEstablishments = data?.establishments.data
 					.filter(establishment => (
-						establishment.attributes.photos.data &&
-						establishment.attributes.photos.data.length > 0 &&
-						establishment.attributes.courts.data
+						establishment?.attributes?.photos?.data &&
+						establishment?.attributes?.photos?.data?.length > 0 &&
+						establishment?.attributes?.courts?.data
 					))
 					.map((establishment => {
 						let establishmentObject: EstablishmentObject;
 
-						let courtTypes = establishment.attributes.courts.data!
-							.filter(court => court.attributes.court_types.data.length > 0)
-							.map(court => court.attributes.court_types.data)
-							.map(courtType => courtType.map(type => type.attributes.name))
+						let courtTypes = establishment?.attributes?.courts?.data!
+							.filter(court => court?.attributes?.court_types?.data?.length > 0)
+							.map(court => court?.attributes?.court_types?.data)
+							.map(courtType => courtType?.map(type => type?.attributes?.name))
 
 						if (!courtTypes) courtTypes = []
 
 						establishmentObject = {
-							id: establishment.id,
-							name: establishment.attributes.corporateName,
-							latitude: Number(establishment.attributes.address.latitude),
-							longitude: Number(establishment.attributes.address.longitude),
+							id: establishment?.id,
+							name: establishment?.attributes?.corporateName,
+							latitude: Number(establishment?.attributes?.address?.latitude),
+							longitude: Number(establishment?.attributes?.address?.longitude),
 							distance: calculateDistance(
 								userGeolocation.latitude,
 								userGeolocation.longitude,
-								Number(establishment.attributes.address.latitude),
-								Number(establishment.attributes.address.longitude)
+								Number(establishment?.attributes?.address?.latitude),
+								Number(establishment?.attributes?.address?.longitude)
 							) / 1000,
-							image: HOST_API + establishment.attributes.logo.data.attributes.url,
+							image: HOST_API + establishment?.attributes?.logo?.data?.attributes?.url,
 							type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
 						}
 
@@ -97,7 +98,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				}
 
 				navigation.setParams({
-					userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
+					userPhoto: userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url
 				});
 			}
 		}, [data, loading, userHookLoading, userHookData, error])
@@ -148,16 +149,16 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									longitude: item.longitude,
 								}}
 								icon={pointerMap}
-								title={item.name}
-								description={item.name}
+								title={item?.name}
+								description={item?.name}
 							>
 								<CourtBallon
-									id={item.id}
-									key={item.id}
-									name={item.name}
-									distance={item.distance}
-									image={item.image}
-									type={item.type}
+									id={item?.id}
+									key={item?.id}
+									name={item?.name}
+									distance={item?.distance}
+									image={item?.image}
+									type={item?.type}
 									userId={route?.params?.userID}
 									liked={true}
 								/>
@@ -177,20 +178,17 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				isDisabled && !menuBurguer && <HomeBar
 					chosenType={sportSelected}
 					courts={establishments}
-					userName={userHookData?.usersPermissionsUser.data.attributes.username}
+					userName={userHookData?.usersPermissionsUser?.data?.attributes?.username}
 					HandleSportSelected={HandleSportSelected}
 				/>
 			}
 			{
-				userHookData && <BottomNavigationBar
-					isDisabled={isDisabled}
-					playerScreen={true}
-					establishmentScreen={false}
-					userID={route.params.userID}
-					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-					establishmentID={undefined}
-					logo={undefined}
-				/>
+				userHookData && <BottomBlackMenu
+				screen={"Home"}
+				userID={route.params.userID}
+				userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+				key={1}
+			/>
 			}
 		</View>
 	);
