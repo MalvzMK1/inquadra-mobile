@@ -1,18 +1,14 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-import { payload } from '../../components/pix/payLoadGenerator';
-import QRCode from 'react-native-qrcode-svg';
-import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
-import { useGetMenuUser } from '../../hooks/useMenuUser';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useCreateCharge} from "../../services/inter";
-import {useGetUserById} from "../../hooks/useUserById";
-import axios, {AxiosRequestConfig} from "axios";
-import {useGetSchedulingsDetails} from "../../hooks/useSchedulingDetails";
+import { useCreateCharge } from "../../services/inter";
+import { useGetUserById } from "../../hooks/useUserById";
+import axios, { AxiosRequestConfig } from "axios";
+import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
@@ -20,9 +16,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     const { courtName, value, userID, scheduleID } = route.params
     const formattedValue = Number(value).toFixed(2)
 
-    const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID.toString());
+    const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
     const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
-    const [createCharge, {data: chargeData, loading: chargeLoading, error: chargeError}] = useCreateCharge();
+    const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
 
     const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
     const [userAddress, setUserAddress] = useState<APICepResponse>();
@@ -47,16 +43,16 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             userData.usersPermissionsUser.data &&
             userData.usersPermissionsUser.data.attributes.address
         )
-        getAddress(userData.usersPermissionsUser.data.attributes.address.cep)
-            .then(response => {
-                console.log({__API_CEP_RESPONSE: response})
-                setUserAddress(response)
-            });
+            getAddress(userData.usersPermissionsUser.data.attributes.address.cep)
+                .then(response => {
+                    console.log({ __API_CEP_RESPONSE: response })
+                    setUserAddress(response)
+                });
     }, [userData])
 
     useEffect(() => {
         if
-        (
+            (
             userData &&
             userData.usersPermissionsUser.data &&
             userData.usersPermissionsUser.data.attributes.photo.data
@@ -66,7 +62,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             setUserPhotoUri(null)
 
         if
-        (
+            (
             userData &&
             userData.usersPermissionsUser.data &&
             userData.usersPermissionsUser.data.attributes.address &&
@@ -173,7 +169,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     <TouchableOpacity className='h-max w-max'>
                         <Image
                             source={
-                                userPhotoUri ? {uri: userPhotoUri} : require('../../assets/default-user-image.png')
+                                userPhotoUri ? { uri: userPhotoUri } : require('../../assets/default-user-image.png')
                             }
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}

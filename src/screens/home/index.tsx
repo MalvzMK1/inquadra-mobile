@@ -86,7 +86,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                 Number(establishment.attributes.address.longitude)
                             ) / 1000,
                             image: HOST_API + establishment?.attributes?.logo?.data?.attributes?.url,
-                            type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
+                            type: courtTypes.length > 0 ? courtTypes.join(' & ') : '',
                         }
 
                         return establishmentObject

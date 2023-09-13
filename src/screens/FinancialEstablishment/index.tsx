@@ -151,7 +151,7 @@ export default function FinancialEstablishment({ route }: Props) {
                                     onPress={() => {
                                         navigation.navigate("WithdrawScreen", {
                                             establishmentId: establishmentId,
-                                            logo: logo
+                                            logo: logo ?? ""
                                         })
                                     }}
                                 >
@@ -161,7 +161,7 @@ export default function FinancialEstablishment({ route }: Props) {
                         </View>
                         <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("AmountAvailableWithdrawal", {
                             establishmentId: establishmentId,
-                            logo: logo
+                            logo: logo ?? ""
                         })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
                         </TouchableOpacity>
@@ -175,7 +175,7 @@ export default function FinancialEstablishment({ route }: Props) {
                         </View>
                         <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate("DetailsAmountReceivable", {
                             establishmentId: establishmentId,
-                            logo: logo
+                            logo: logo ?? ""
                         })}>
                             <Text className="text-center h-4 underline">Ver detalhes</Text>
                         </TouchableOpacity>
@@ -183,7 +183,7 @@ export default function FinancialEstablishment({ route }: Props) {
                             <Text className="text-lg font-bold">Valores recebidos</Text>
                             <TouchableOpacity onPress={() => navigation.navigate("HistoryPayment", {
                                 establishmentId: establishmentId,
-                                logo: logo
+                                logo: logo ?? ""
                             })}>
                                 <Text className="text-lg font-bold underline text-[#FF6112]">Histórico</Text>
                             </TouchableOpacity>

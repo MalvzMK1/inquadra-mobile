@@ -25,10 +25,10 @@ export interface IUpdateUserVariables {
     email: string
     phone_number: string
     cpf: string
-    cvv: number
-    dueDate: string
+    cvv?: number
+    dueDate?: string
     country?: string
-    photo: string
+    photo?: string
 }
 
 export const updateUserMutation = gql`

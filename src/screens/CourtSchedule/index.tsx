@@ -88,11 +88,11 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const [blockScheduleByTimeModal, setBlockScheduleByTimeModal] = useState(false)
     const closeBlockScheduleByTimeModal = () => setBlockScheduleByTimeModal(false)
 
-    const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
+    const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId!)
 
-    const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(establishmentId)
+    const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(establishmentId!)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
-    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(establishmentId)
+    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(establishmentId!)
     const [blockSchedule, { data: blockScheduleData, error: blockScheduleError, loading: blockScheduleLoading }] = useBlockSchedule()
 
     const { control, handleSubmit, formState: { errors } } = useForm<IBlockScheduleByDateFormData>({
@@ -290,7 +290,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             id: allCourts[index].id
         }
         const selectedCourtId = newActiveCourts.find(courtItem => courtItem.active === true)
-        setBlockedCourtId(selectedCourtId?.id)
+        setBlockedCourtId(selectedCourtId?.id!)
         setActiveCourts(newActiveCourts)
     }
 
@@ -335,7 +335,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const fill = 'rgba(255, 97, 18, 1)'
     let data: number[] = []
     schedulingsJson.forEach(item => {
-        data.push(item.scheduling_quantity)
+        data.push(item.scheduling_quantity!)
     })
     const maxValue = Math.max.apply(null, data)
     const sumValues = (array: number[]): number => {
@@ -919,8 +919,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     <BottomNavigationBar
                         establishmentScreen
                         userID={userId}
-                        userPhoto={'http'}
-                    />
+                        userPhoto={'http'} playerScreen={false} establishmentID={undefined} logo={undefined} />
                     :
                     null
             }

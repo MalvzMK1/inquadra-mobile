@@ -9,17 +9,7 @@ import {
     Modal,
     StyleSheet,
     ActivityIndicator
-    View,
-    Text,
-    ScrollView,
-    TextInput,
-    TouchableOpacity,
-    Image,
-    Modal,
-    StyleSheet,
-    ActivityIndicator
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
@@ -36,8 +26,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
-import axios from 'axios';
-import { RootStackParamList } from "../../types/RootStack";
 import { IconButton } from 'react-native-paper';
 
 interface IFormData {
@@ -239,53 +227,54 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 return;
             }
 
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
+            // const result = await ImagePicker.launchImageLibraryAsync({
+            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            //     allowsEditing: true,
+            //     aspect: [1, 1],
+            //     quality: 1,
+            // });
 
-            if (!result.canceled) {
-                setProfilePicture(result.uri);
-                await uploadImage(result.uri);
-            }
+            // if (!result.canceled) {
+            //     setProfilePicture(result.uri);
+            //     await uploadImage(result.uri);
+            // }
         } catch (error) {
             console.log('Erro ao carregar a imagem: ', error);
         }
     };
 
-    const uploadImage = async (selectedImageUri: string) => {
-        setIsLoading(true);
-        const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+    // const uploadImage = async (selectedImageUri: string) => {
+    //     setIsLoading(true);
+    //     const apiUrl = 'https://inquadra-api-uat.qodeless.io';
 
-        const formData = new FormData();
-        formData.append('files', {
-            uri: selectedImageUri,
-            name: 'image.jpg',
-            type: 'image/jpeg',
-        });
+    //     const formData = new FormData();
 
-        try {
-            const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+    //     formData.append('files', {
+    //         uri: selectedImageUri,
+    //         name: 'image.jpg',
+    //         type: 'image/jpeg',
+    //     });
 
-            setUploadedImageId(response.data[0].id);
+    //     try {
+    //         const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data',
+    //             },
+    //         });
 
-            console.log('Imagem enviada com sucesso!', response.data);
+    //         setUploadedImageId(response.data[0].id);
 
-            setIsLoading(false);
+    //         console.log('Imagem enviada com sucesso!', response.data);
 
-            return uploadedImageID;
-        } catch (error) {
-            console.error('Erro ao enviar imagem:', error);
-            setIsLoading(false);
-            return "Deu erro";
-        }
-    };
+    //         setIsLoading(false);
+
+    //         return uploadedImageID;
+    //     } catch (error) {
+    //         console.error('Erro ao enviar imagem:', error);
+    //         setIsLoading(false);
+    //         return "Deu erro";
+    //     }
+    // };
 
     function updateUserInfos(data: IFormData): void {
         console.log(userInfos)
@@ -311,16 +300,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         if (!loading && data) {
             newUserInfos = {
                 id: data.usersPermissionsUser.data.id,
-                username: data.usersPermissionsUser.data.attributes.username,
+                username: data.usersPermissionsUser.data.attributes.username ?? "",
                 cpf: data.usersPermissionsUser.data.attributes.cpf,
                 email: data.usersPermissionsUser.data.attributes.email,
                 phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
                 paymentCardInfos: {
-                    dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
-                    cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
+                    dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ?? "" ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate ?? "" : '',
+                    cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.cvv?.toString() ?? "" : '',
                     country: {
                         id: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id : '',
-                        value: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.attributes.name : ''
+                        name: data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.country?.data ?? "" ? data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.country?.data?.attributes?.name ?? "" : ''
                     }
                 },
             };

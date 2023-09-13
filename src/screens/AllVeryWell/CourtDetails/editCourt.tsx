@@ -63,7 +63,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
             court_name: `Quadra de ${selected}`,
             courtType: courtIDs,
             fantasyName: data.fantasyName,
-            photos: uploadedImageIDs, 
+            photos: uploadedImageIDs,
             court_availabilities: ["2"], // tela vinicius
             minimum_value: Number(data.minimum_value) / 100,
             currentDate: new Date().toISOString()
@@ -112,17 +112,17 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                 return;
             }
 
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-                allowsMultipleSelection: true,
-            });
+            // const result = await ImagePicker.launchImageLibraryAsync({
+            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            //     allowsEditing: true,
+            //     aspect: [1, 1],
+            //     quality: 1,
+            //     allowsMultipleSelection: true,
+            // });
 
-            if (!result.canceled) {
-                setPhotos([...photos, { uri: result.uri }]);
-            }
+            // if (!result.canceled) {
+            //     setPhotos([...photos, { uri: result.uri }]);
+            // }
         } catch (error) {
             console.log('Erro ao carregar a imagem: ', error);
         }
@@ -130,40 +130,40 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
     const uploadImage = async () => {
 
-        setIsLoading(true); 
+        setIsLoading(true);
         const apiUrl = 'https://inquadra-api-uat.qodeless.io';
-      
+
         const formData = new FormData();
         photos.forEach((uri, index) => {
-          formData.append(`files`, {
-            uri: uri.uri,
-            name: `image${index}.jpg`,
-            type: 'image/jpeg',
-          });
+            fetch(uri)
+                .then(response => response.blob())
+                .then(blob => {
+                    formData.append(`files`, blob, `image${index}.jpg`);
+                });
         });
-      
+
         try {
-          const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-      
-          const uploadedImageIDs = response.data.map((image) => image.id);
-      
-          console.log('Imagens enviadas com sucesso!', response.data);
-          
-          setIsLoading(false);  
+            const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
 
-          return uploadedImageIDs;
+            const uploadedImageIDs = response.data.map((image: any) => image.id);
+
+            console.log('Imagens enviadas com sucesso!', response.data);
+
+            setIsLoading(false);
+
+            return uploadedImageIDs;
         } catch (error) {
-          console.error('Erro ao enviar imagens:', error);
-          setIsLoading(false);  
-          return "Deu erro"; 
+            console.error('Erro ao enviar imagens:', error);
+            setIsLoading(false);
+            return "Deu erro";
         }
-      };
+    };
 
-    const handleDeletePhoto = (index) => {
+    const handleDeletePhoto = (index: any) => {
         const newPhotos = [...photos];
         newPhotos.splice(index, 1);
         setPhotos(newPhotos);
@@ -221,7 +221,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                                 />
                             )}
                         />
-                       {
+                        {
                             isCourtTypeEmpty === true
                                 ? <Text className='text-red-400 text-sm'>É necessário inserir pelo menos um tipo de quadra</Text>
                                 : null
@@ -264,7 +264,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                                         data={photos}
                                         renderItem={({ item, index }) => (
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, margin: 10 }} />
+                                                <Image source={{ uri: item }} style={{ width: 100, height: 100, margin: 10 }} />
                                                 <TouchableOpacity style={{ position: 'absolute', right: 0, left: 0, bottom: 0, top: 0, justifyContent: 'center', alignItems: 'center' }} onPress={() => handleDeletePhoto(index)}>
                                                     <Ionicons name="trash" size={25} color="#FF6112" />
                                                 </TouchableOpacity>
@@ -280,7 +280,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                     </View>
                     <View>
                         <Text className='text-xl p-1'>Valor aluguel/hora</Text>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPressIn={() => navigation.navigate('')}>
+                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center'>
                             <Text className='text-gray-50'>Clique para Definir</Text>
                         </TouchableOpacity>
                     </View>

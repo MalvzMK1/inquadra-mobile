@@ -1,169 +1,171 @@
-import {View, Text, Image, ScrollView, TouchableOpacity} from "react-native"
+import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native"
 import CourtSchedulingContainer from "../../components/CourtSchedulingContainer"
 import { BottomNavigationBar } from "../../components/BottomNavigationBar"
 import CourtScheduling from "../../components/CourtScheduling"
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import React, {useEffect, useState} from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useEffect, useState } from "react";
 import storage from "../../utils/storage";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
-import {addDays} from "date-fns";
-import {HOST_API} from '@env';
-import {Calendar, DateData} from "react-native-calendars";
+import { addDays } from "date-fns";
+import { HOST_API } from '@env';
+import { Calendar, DateData } from "react-native-calendars";
 
 interface ScheduleCardInfos {
-	id: string,
-	name: string,
-	startsAt: string,
-	endsAt: string,
-	status: boolean,
-	date: Date,
-	image: string
+    id: string,
+    name: string,
+    startsAt: string,
+    endsAt: string,
+    status: boolean,
+    date: Date,
+    image: string
 }
 
 interface ScheduleArray {
-	date: Date,
-	schedules: Array<ScheduleCardInfos>
+    date: Date,
+    schedules: Array<ScheduleCardInfos>
 }
 
-export default function Schedulings({navigation}: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
-	const [userId, setUserId] = useState<string>();
-	const [schedules, setSchedules] = useState<Array<ScheduleArray>>([])
-	const [filteredSchedules, setFilteredSchedules] = useState<Array<ScheduleArray>>([])
-	const [displayDatePicker, setDisplayDatePicker] = useState<boolean>();
-	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-	const {data, loading, error} = useAllEstablishmentSchedules('5') // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
+export default function Schedulings({ navigation }: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
+    const [userId, setUserId] = useState<string>();
+    const [schedules, setSchedules] = useState<Array<ScheduleArray>>([])
+    const [filteredSchedules, setFilteredSchedules] = useState<Array<ScheduleArray>>([])
+    const [displayDatePicker, setDisplayDatePicker] = useState<boolean>();
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+    const { data, loading, error } = useAllEstablishmentSchedules('5') // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
 
-	function handleCalendarClick(data: DateData) {
-		const date = new Date(data.dateString)
+    function handleCalendarClick(data: DateData) {
+        const date = new Date(data.dateString)
 
-		setSelectedDate(date)
-	}
+        setSelectedDate(date)
+    }
 
-	function clearFilters() {
-		setSelectedDate(null)
-	}
+    function clearFilters() {
+        setSelectedDate(null)
+    }
 
-	useEffect(() => {
-		storage.load<UserInfos>({
-			key: 'userInfos'
-		}).then(data => setUserId(data.userId))
-	}, [])
+    useEffect(() => {
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => setUserId(data.userId))
+    }, [])
 
-	useEffect(() => {
-		if (!loading && data) {
-			let newSchedulesArray: Array<{
-				date: Date,
-				schedules: Array<ScheduleCardInfos>
-			}> = [];
-			let newSchedules: Array<ScheduleCardInfos> = [];
+    useEffect(() => {
+        if (!loading && data) {
+            let newSchedulesArray: Array<{
+                date: Date,
+                schedules: Array<ScheduleCardInfos>
+            }> = [];
+            let newSchedules: Array<ScheduleCardInfos> = [];
 
-			data.establishment.data?.attributes.courts.data.forEach(court => {
-				court.attributes.court_availabilities.data.forEach(availability => {
-					availability.attributes.schedulings.data.forEach(schedule => {
-						console.log({date:new Date(schedule.attributes.date)})
-						newSchedules.push({
-							id: schedule.id,
-							name: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
-							status: schedule.attributes.status,
-							endsAt: availability.attributes.endsAt.slice(0, 5),
-							startsAt: availability.attributes.startsAt.slice(0, 5),
-							date: new Date(schedule.attributes.date),
-							image: HOST_API + court.attributes.photo.data[0].attributes.url
-						})
-					})
-				})
-			})
+            data.establishment.data?.attributes.courts.data.forEach(court => {
+                court.attributes.court_availabilities.data.forEach(availability => {
+                    availability.attributes.schedulings.data.forEach(schedule => {
+                        console.log({ date: new Date(schedule.attributes.date) })
+                        newSchedules.push({
+                            id: schedule.id,
+                            name: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
+                            status: schedule.attributes.status,
+                            endsAt: availability.attributes.endsAt.slice(0, 5),
+                            startsAt: availability.attributes.startsAt.slice(0, 5),
+                            date: new Date(schedule.attributes.date),
+                            image: HOST_API + court.attributes.photo.data[0].attributes.url
+                        })
+                    })
+                })
+            })
 
-			newSchedules.forEach((scheduleCard) => {
-				const existingDateIndex = newSchedulesArray.findIndex(
-					(item) => item.date.getTime() === scheduleCard.date.getTime()
-				);
+            newSchedules.forEach((scheduleCard) => {
+                const existingDateIndex = newSchedulesArray.findIndex(
+                    (item) => item.date.getTime() === scheduleCard.date.getTime()
+                );
 
-				if (existingDateIndex !== -1) {
-					newSchedulesArray[existingDateIndex].schedules.push(scheduleCard);
-				} else {
-					newSchedulesArray.push({
-						date: scheduleCard.date,
-						schedules: [scheduleCard],
-					});
-				}
-			});
+                if (existingDateIndex !== -1) {
+                    newSchedulesArray[existingDateIndex].schedules.push(scheduleCard);
+                } else {
+                    newSchedulesArray.push({
+                        date: scheduleCard.date,
+                        schedules: [scheduleCard],
+                    });
+                }
+            });
 
-			setSchedules(newSchedulesArray)
-			setFilteredSchedules(newSchedulesArray)
-		}
-	}, [data])
+            setSchedules(newSchedulesArray)
+            setFilteredSchedules(newSchedulesArray)
+        }
+    }, [data])
 
-	useEffect(() => {
-		if (selectedDate) {
-			const newFilteredSchedules = schedules.filter(schedule => {
-				return schedule.date.toISOString() === selectedDate.toISOString()
-			})
-			setFilteredSchedules(newFilteredSchedules)
-		} else {
-			setFilteredSchedules(schedules)
-		}
-	}, [selectedDate, schedules])
+    useEffect(() => {
+        if (selectedDate) {
+            const newFilteredSchedules = schedules.filter(schedule => {
+                return schedule.date.toISOString() === selectedDate.toISOString()
+            })
+            setFilteredSchedules(newFilteredSchedules)
+        } else {
+            setFilteredSchedules(schedules)
+        }
+    }, [selectedDate, schedules])
 
-	return (
-		<View className=" h-full w-full pt-[20px] pl-[30px] pr-[30px]">
-			<View className="w-full h-fit items-center justify-between flex flex-row">
-				<Text className="font-black text-[16px]">Registro de reservas</Text>
-				<TouchableOpacity onPress={clearFilters}>
-					<Text>Limpar filtros</Text>
-				</TouchableOpacity>
-				<TouchableOpacity onPress={() => {
-					setDisplayDatePicker(!displayDatePicker)
-				}}>
-					<Image source={require('../../assets/calendar_orange_icon.png')} />
-				</TouchableOpacity>
-			</View>
+    return (
+        <View className=" h-full w-full pt-[20px] pl-[30px] pr-[30px]">
+            <View className="w-full h-fit items-center justify-between flex flex-row">
+                <Text className="font-black text-[16px]">Registro de reservas</Text>
+                <TouchableOpacity onPress={clearFilters}>
+                    <Text>Limpar filtros</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    setDisplayDatePicker(!displayDatePicker)
+                }}>
+                    <Image source={require('../../assets/calendar_orange_icon.png')} />
+                </TouchableOpacity>
+            </View>
 
 
 
-			{
-				displayDatePicker &&
-					<Calendar
-						current={new Date().toISOString()}
-						onDayPress={handleCalendarClick}
-					/>
-			}
+            {
+                displayDatePicker &&
+                <Calendar
+                    current={new Date().toISOString()}
+                    onDayPress={handleCalendarClick}
+                />
+            }
 
-			{
-				filteredSchedules.length > 0 ?
-					<ScrollView className="mt-[15px] h-full">
-						{
-							filteredSchedules.map(schedule => (
-								<CourtSchedulingContainer date={addDays(schedule.date, 1).toISOString()}>
-									<View>
-										{
-											schedule.schedules.map(courtSchedule => (
-												<CourtScheduling
-													id={courtSchedule.id}
-													name={courtSchedule.name}
-													startsAt={courtSchedule.startsAt}
-													endsAt={courtSchedule.endsAt}
-													status={courtSchedule.status}
-													image={courtSchedule.image}
-												/>
-											))
-										}
-									</View>
-								</CourtSchedulingContainer>
-							))
-						}
-					</ScrollView>
-					:
-					<View className='flex-1 flex justify-center items-center'>
-						<Text className='text-base font-bold'>Nenhuma reserva encontrada</Text>
-					</View>
-			}
+            {
+                filteredSchedules.length > 0 ?
+                    <ScrollView className="mt-[15px] h-full">
+                        {
+                            filteredSchedules.map(schedule => (
+                                <CourtSchedulingContainer date={addDays(schedule.date, 1).toISOString()}>
+                                    <View>
+                                        {
+                                            schedule.schedules.map(courtSchedule => (
+                                                <CourtScheduling
+                                                    id={courtSchedule.id}
+                                                    name={courtSchedule.name}
+                                                    startsAt={courtSchedule.startsAt}
+                                                    endsAt={courtSchedule.endsAt}
+                                                    status={courtSchedule.status}
+                                                    image={courtSchedule.image}
+                                                />
+                                            ))
+                                        }
+                                    </View>
+                                </CourtSchedulingContainer>
+                            ))
+                        }
+                    </ScrollView>
+                    :
+                    <View className='flex-1 flex justify-center items-center'>
+                        <Text className='text-base font-bold'>Nenhuma reserva encontrada</Text>
+                    </View>
+            }
 
-			<BottomNavigationBar
-				establishmentScreen
-				userID={userId}
-				userPhoto={'https'}
-			/>
-		</View>
-	)
+            <BottomNavigationBar
+                establishmentScreen
+                userID={userId ?? ""}
+                userPhoto={'https'}
+                playerScreen={false}
+                establishmentID={undefined}
+                logo={undefined} />
+        </View>
+    )
 }
