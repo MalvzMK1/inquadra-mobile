@@ -44,6 +44,7 @@ mutation newSchedule(
       payDay: $pay_day
       valuePayed: $value_payed
       publishedAt: $publishedAt
+      activated: true
     }
   ) {
     data {

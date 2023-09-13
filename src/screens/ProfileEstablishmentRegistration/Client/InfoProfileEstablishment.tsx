@@ -18,6 +18,7 @@ import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablish
 import useUpdateUserPassword from '../../../hooks/useUpdateUserPassword';
 import useRegisterPixKey from '../../../hooks/useRegisterPixKey';
 import useDeleteUser from '../../../hooks/useDeleteUser';
+import axios from 'axios';
 type DateTime = Date;
 
 let userId = ""
@@ -354,28 +355,61 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
 
   const handleProfilePictureUpload = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (status !== 'granted') {
-        alert('Desculpe, precisamos da permissão para acessar a galeria!');
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        setProfilePicture(result.uri);
-      }
-    } catch (error) {
-      console.log('Erro ao carregar a imagem: ', error);
-    }
-  };
+		try {
+		  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+	
+		  if (status !== 'granted') {
+			alert('Desculpe, precisamos da permissão para acessar a galeria!');
+			return;
+		  }
+	
+		  const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		  });
+	
+		  if (!result.canceled) {
+			setProfilePicture(result.uri);
+			await uploadImage(result.uri);
+		  }
+		} catch (error) {
+		  console.log('Erro ao carregar a imagem: ', error);
+		}
+	  };
+	
+	  const uploadImage = async (selectedImageUri: string) => {
+		setIsLoading(true);
+		const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+	
+		const formData = new FormData();
+		formData.append('files', {
+		  uri: selectedImageUri,
+		  name: 'image.jpg',
+		  type: 'image/jpeg',
+		}); 
+	
+		try {
+		  const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+			headers: {
+			  'Content-Type': 'multipart/form-data',
+			},
+		  });
+	
+		  const uploadedImageID = response.data[0].id;
+	
+		  console.log('Imagem enviada com sucesso!', response.data);
+	
+		  setIsLoading(false);
+	
+		  return uploadedImageID;
+		} catch (error) {
+		  console.error('Erro ao enviar imagem:', error);
+		  setIsLoading(false);
+		  return "Deu erro";
+		}
+	  };
 
 
   const [showCard, setShowCard] = useState(false);

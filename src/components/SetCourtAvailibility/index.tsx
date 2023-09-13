@@ -12,27 +12,30 @@ export default function SetCourtAvailibility() {
   const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse } = useComponentContext()
   const [priceHours, setPriceHours] = useState<Array<{startsAt: string, endsAt: string, price: string}>>([])
 
-    const handleAddNewComponentButton = () => {
-      const inputValues = {
-        startsAt: '',
-        endsAt: '',
-        price: ''
-      }
-      setPriceHours(prevState => [...prevState, inputValues])
-        const newComponent = (
-          <InComponentInputsProvider>
-            <PriceHour
-              key={nextIdRef.current++}
-              values={inputValues}
-            />
-          </InComponentInputsProvider>
-        )
-
-        if (addedComponents && addedComponents.length > 0)
-            setAddedComponents((prevState: JSX.Element) => [...prevState, newComponent])
-        else
-            setAddedComponents([newComponent])
-    };
+  const handleAddNewComponentButton = () => {
+    const inputValues = {
+      startsAt: '', // Defina os valores iniciais desejados aqui
+      endsAt: '',   // Defina os valores iniciais desejados aqui
+      price: ''      // Defina os valores iniciais desejados aqui
+    }
+  
+    setPriceHours(prevState => [...prevState, inputValues])
+  
+    // Agora você pode criar o novo componente com os valores iniciais corretos
+    const newComponent = (
+      <InComponentInputsProvider>
+        <PriceHour
+          key={nextIdRef.current++}
+          values={inputValues}
+        />
+      </InComponentInputsProvider>
+    )
+  
+    if (addedComponents && addedComponents.length > 0)
+      setAddedComponents((prevState: JSX.Element) => [...prevState, newComponent])
+    else
+      setAddedComponents([newComponent])
+  };
 
     const [copyButtonClick, setCopyButtonClick] = useState(false)
     const [pasteButtonClick, setPasteButtonClick] = useState(false)
