@@ -5,6 +5,7 @@ export interface ISchedulingDetailsResponse {
         data?: {
             id: Scheduling['id']
             attributes: {
+                date: string;
                 owner: {
                     data?: {
                         id: User['id']
@@ -27,6 +28,13 @@ export interface ISchedulingDetailsResponse {
                                                     name: CourtCardInfos['type']
                                                 }
                                             }>
+                                        }
+                                        establishment: {
+                                          data?: {
+                                            attributes: {
+                                              corporateName: Establishment['corporateName']
+                                            }
+                                          }
                                         }
                                     }
                                 }
@@ -52,6 +60,7 @@ export const schedulingsDetailsQuery = gql`
       data {
         id
         attributes {
+          date
           owner {
             data {
               id
@@ -75,6 +84,13 @@ export const schedulingsDetailsQuery = gql`
                           }
                         }
                       }
+                      establishment {
+                        data {
+                          attributes {
+                            corporateName
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -87,4 +103,5 @@ export const schedulingsDetailsQuery = gql`
         }
       }
     }
-  }`
+  }
+`

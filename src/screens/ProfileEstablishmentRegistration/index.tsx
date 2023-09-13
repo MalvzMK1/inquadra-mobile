@@ -235,7 +235,7 @@ export default function ProfileEstablishmentRegistration() {
                             onPress={() => setIsChecked(!isChecked)}
                         />
                         <View className="flex">
-                            <Text className="text-base">Li e estou de acordo com o <Text className="text-[#3D58DB]">Termo de Uso e Política de Privacidade</Text> </Text>
+                            <Text className="text-base">Li e estou de acordo com o <Text className="text-[#3D58DB]" onPress={() => navigation.navigate('TermsOfService')}>Termo de Uso e Política de Privacidade</Text> </Text>
                         </View>
                     </View>
                     <View className="flex items-center pt-3 pb-4">

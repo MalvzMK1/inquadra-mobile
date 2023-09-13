@@ -9,7 +9,7 @@ interface InfosCourtProps {
 
 export function InfosCourtCard({imageUrl, children, onPress}: InfosCourtProps) {
 	return(
-		<TouchableOpacity className='w-full min-h-28 flex flex-row items-center justify-between overflow-hidden' onPress={onPress}>
+		<TouchableOpacity className='w-full min-h-28 flex flex-row items-center justify-between pb-2 overflow-hidden' onPress={onPress}>
 				<Image source={imageUrl} className='h-max w-34 rounded-md mr-2' />
 				{children}
 		</TouchableOpacity>

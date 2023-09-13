@@ -23,6 +23,8 @@ import MaskInput, { Masks } from "react-native-mask-input";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from '@react-navigation/native'
+import axios from "axios";
+import { RootStackParamList } from "../../types/RootStack";
 
 interface CourtArrayObject {
     court_name: string,
@@ -50,6 +52,10 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
     const { data: dataSportType, loading: sportLoading, error: sportError } = useAvailableSportTypes();
     const { data: dataSportTypeAvaible, loading: loadingSportTypeAvaible, error: errorSportTypeAvaible } = useSportTypes()
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
+    const [loadingMessage, setLoadingMessage] = useState("Fazendo upload das imagens");
+    const [photoIDs, setPhotoIDs] = useState([]);
+
+
 
      const addToCourtArray = async (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
@@ -65,53 +71,62 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
 
     async function RegisterNewCourt(data: IFormDatasCourt) {
 
+        setIsLoading(true); 
+    
         let courtIDs: Array<string> = [];
-
+    
         selected.forEach(selectedType => {
-            courtTypes.forEach(type => {
-                if (type.value === selectedType) courtIDs.push(type.label)
-            })
-        })
-
+          courtTypes.forEach(type => {
+            if (type.value === selectedType) courtIDs.push(type.label)
+          })
+        });
+    
+    
+        const uploadedImageIDs = await uploadImage();
+    
         const payload = {
-            court_name: `Quadra de ${selected}`,
-            courtType: courtIDs,
-            fantasyName: data.fantasyName,
-            photos: ["2"],
-            court_availabilities: ["2"], // tela vinicius
-            minimum_value: Number(data.minimum_value) / 100,
-            currentDate: new Date().toISOString()
+          court_name: `Quadra de ${selected}`,
+          courtType: courtIDs,
+          fantasyName: data.fantasyName,
+          photos: uploadedImageIDs,
+          court_availabilities: ["2"], // tela vinicius
+          minimum_value: Number(data.minimum_value) / 100,
+          currentDate: new Date().toISOString()
         }
-        
         addToCourtArray(payload)
-        
-        navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
-    }
+    
+        if (uploadedImageIDs.length > 0) {
+            navigation.navigate("RegisterNewCourt", { courtArray: [...courts, payload] })
+          }
+      }
 
     
-    function finishingCourtsRegisters (data: IFormDatasCourt){
+      async function finishingCourtsRegisters(data: IFormDatasCourt) {
         let courtIDs: Array<string> = [];
-
+      
         selected.forEach(selectedType => {
-            courtTypes.forEach(type => {
-                if (type.value === selectedType) courtIDs.push(type.label)
-            })
-        })
-
+          courtTypes.forEach(type => {
+            if (type.value === selectedType) courtIDs.push(type.label)
+          })
+        });
+      
+        const uploadedImageIDs = await uploadImage();
+      
         const payload = {
-            court_name: `Quadra de ${selected}`,
-            courtType: courtIDs,
-            fantasyName: data.fantasyName,
-            photos: ["2"],
-            court_availabilities: ["2"], // tela vinicius
-            minimum_value: Number(data.minimum_value) / 100,
-            currentDate: new Date().toISOString()
+          court_name: `Quadra de ${selected}`,
+          courtType: courtIDs,
+          fantasyName: data.fantasyName,
+          photos: uploadedImageIDs, 
+          court_availabilities: ["2"], // tela vinicius
+          minimum_value: Number(data.minimum_value) / 100,
+          currentDate: new Date().toISOString()
+        };
+        addToCourtArray(payload);
+      
+        if (uploadedImageIDs.length > 0) {
+          navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] });
         }
-        addToCourtArray(payload)
-        
-        navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] })
-    }
-
+      }
 
     const formSchema = z.object({
         minimum_value: z.string().nonempty("É necessário determinar um valor mínimo."),
@@ -142,6 +157,7 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
 
     const [selectedItems, setSelectedItems] = useState([]);
 
+   
     const handleProfilePictureUpload = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -165,9 +181,42 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
         } catch (error) {
             console.log('Erro ao carregar a imagem: ', error);
         }
-
-
     };
+
+    const uploadImage = async () => {
+
+        setIsLoading(true); 
+        const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+      
+        const formData = new FormData();
+        photos.forEach((uri, index) => {
+          formData.append(`files`, {
+            uri: uri.uri,
+            name: `image${index}.jpg`,
+            type: 'image/jpeg',
+          });
+        });
+      
+        try {
+          const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+      
+          const uploadedImageIDs = response.data.map((image) => image.id);
+      
+          console.log('Imagens enviadas com sucesso!', response.data);
+          
+          setIsLoading(false);  
+
+          return uploadedImageIDs;
+        } catch (error) {
+          console.error('Erro ao enviar imagens:', error);
+          setIsLoading(false);  
+          return "Deu erro"; 
+        }
+      };
 
     const handleDeletePhoto = (index) => {
         const newPhotos = [...photos];
@@ -244,36 +293,36 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
 
                     </View>
                     <View>
-                        <Text className="text-xl p-1">Fotos da quadra</Text>
+                        <Text className='text-xl p-1'>Fotos da quadra</Text>
                         <View className="border border-dotted border-neutral-400 rounded relative">
-                            <View className="flex flex-row items-center" style={{ justifyContent: "space-between", height: 130 }}>
-                                <Text className="text-base text-gray-300 font-bold m-6 " onPress={handleProfilePictureUpload}>
-                                    Carregue suas fotos aqui.
-                                </Text>
-                                <Ionicons name="star-outline" size={20} color="#FF6112" style={{ marginEnd: 20 }} onPress={handleProfilePictureUpload} />
-                            </View>
-                            <Controller
-                                name='photos'
-                                control={control}
-                                rules={{ required: false }}
-                                render={({ field: { onChange, value } }) => (
-                                    <FlatList
-                                        className="h-max"
-                                        data={photos}
-                                        renderItem={({ item, index }) => (
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, margin: 10 }} />
-                                                <TouchableOpacity style={{ position: 'absolute', right: 0, left: 0, bottom: 0, top: 0, justifyContent: 'center', alignItems: 'center' }} onPress={() => handleDeletePhoto(index)}>
-                                                    <Ionicons name="trash" size={25} color="#FF6112" />
-                                                </TouchableOpacity>
-                                            </View>
-                                        )}
-                                        keyExtractor={(item, index) => index.toString()}
-                                        horizontal
-                                    />
-                                )}
-                            />
+                        <View className="flex flex-row items-center" style={{ justifyContent: "space-between", height: 130 }}>
+                            <Text className="text-base text-gray-300 font-bold m-6 " onPress={handleProfilePictureUpload}>
+                            Carregue suas fotos aqui.
+                            </Text>
+                            <Ionicons name="star-outline" size={20} color="#FF6112" style={{ marginEnd: 20 }} onPress={handleProfilePictureUpload} />
                         </View>
+                        <Controller
+                            name='photos'
+                            control={control}
+                            rules={{ required: false }}
+                            render={({ field: { onChange, value } }) => (
+                            <FlatList
+                                className="h-max"
+                                data={photos}
+                                renderItem={({ item, index }) => (
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, margin: 10 }} />
+                                    <TouchableOpacity style={{ position: 'absolute', right: 0, left: 0, bottom: 0, top: 0, justifyContent: 'center', alignItems: 'center' }} onPress={() => handleDeletePhoto(index)}>
+                                    <Ionicons name="trash" size={25} color="#FF6112" />
+                                    </TouchableOpacity>
+                                </View>
+                                )}
+                                keyExtractor={(item, index) => index.toString()}
+                                horizontal
+                            />
+                            )}
+                        />
+                    </View>
 
                     </View>
                     <View>
@@ -306,9 +355,15 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
                         <MaterialIcons name="add-box" size={38} color="#FF6112" onPress={() => {
                             if (selected.length === 0) {
                                 setIsCourtTypeEmpty(true);
+                                
                             } else {
                                 setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
+                                
+                                if (!isLoading) {
+                                    setLoadingMessage("Fazendo upload das imagens..."); 
+                                    setIsLoading(true); 
+                                    handleSubmit(RegisterNewCourt)();
+                                }
                             }
                         }} />
                         <Text className="pl-4 text-lg" onPress={() => {
@@ -316,24 +371,53 @@ export default function RegisterNewCourtAdded({ navigation, route }: NativeStack
                                 setIsCourtTypeEmpty(true);
                             } else {
                                 setIsCourtTypeEmpty(false);
-                                handleSubmit(RegisterNewCourt)();
+
+                                if (!isLoading) {
+                                    setLoadingMessage("Fazendo upload das imagens..."); 
+                                    setIsLoading(true); 
+                                    handleSubmit(RegisterNewCourt)();
+                                }
                             }
-                        }}>Adicionar uma nova Quadra</Text>
+                        }}> {isLoading ? (
+                            <View style={{ alignItems: "center", paddingTop: 5 }}>
+                                <ActivityIndicator size="small" color='#FFFF' />
+                                <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                            </View>
+                            ) : (
+                            'Adicionar uma nova Quadra'
+                            )}</Text>
                     </View>
                     <View>
-                        <TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => {
-                            if (selected.length === 0) {
-                                setIsCourtTypeEmpty(true);
-                            } else {
-                                setIsCourtTypeEmpty(false);
-                                handleSubmit(finishingCourtsRegisters)();
+                    <TouchableOpacity
+                        className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center'
+                        onPress={() => {
+                        if (selected.length === 0) {
+                            setIsCourtTypeEmpty(true);
+                        } else {
+                            setIsCourtTypeEmpty(false);
+
+                            if (!isLoading) {
+                            setLoadingMessage("Fazendo upload das imagens..."); 
+                            setIsLoading(true); 
+                            handleSubmit(finishingCourtsRegisters)();
                             }
-                        }}>
-                            <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size="small" color='#F5620F' /> : 'Concluir'}</Text>
-                        </TouchableOpacity>
+                        }
+                        }}
+                    >
+                        <Text className="text-white">
+                        {isLoading ? (
+                        <View style={{ alignItems: "center", paddingTop: 5 }}>
+                            <ActivityIndicator size="small" color='#FFFF' />
+                            <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                        </View>
+                        ) : (
+                        'Concluir'
+                        )}
+                        </Text>
+                    </TouchableOpacity>
                     </View>
                 </View>
             </View>
         </ScrollView>
     );
-}    
+}

@@ -3,7 +3,6 @@ import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-import useUpdateCourt from '../../hooks/useUpdateCourt';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +22,6 @@ const formSchema = z.object({
 		.nonempty('O campo não pode estar vazio')
 })
 
-
 export default function Login() {
 	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
 	const [authUser, { data, loading, error }] = useLoginUser()
@@ -37,30 +35,33 @@ export default function Login() {
 		resolver: zodResolver(formSchema)
 	})
 
+
 	useEffect(() => {
-		if(userId && userId !== "0")
-		if (userId && userData) {
-			setRoleUser(userData?.usersPermissionsUser.data.attributes.role.data.id);
+		if (userId && userId !== "0") {
+			if (userId && userData) {
+				setRoleUser(userData?.usersPermissionsUser.data.attributes.role.data.id);
+			}
 		}
 	}, [userId, userData]);
 
 	useEffect(() => {
-		if(userId && userId !== "0")
-		if (!isLoading && userData) {
-			console.log(roleUser)
-			if (roleUser === "3") {
-				navigation.navigate('Home', {
-					userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-					userID: userId,
-					userPhoto: undefined
-				});
-			} else if (roleUser === "4") {
-				navigation.navigate('HomeEstablishment', {
-					userID: userId,
-					userPhoto: undefined
-				});
+		if (userId && userId !== "0") {
+			if (!isLoading && userId && userData) {
+				if (roleUser === "3") {
+					navigation.navigate('Home', {
+						userGeolocation: userGeolocation ? userGeolocation : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+						userID: userId,
+						userPhoto: undefined
+					});
+				} else if (roleUser === "4") {
+					navigation.navigate('HomeEstablishment', {
+						userID: userId,
+						userPhoto: undefined
+					});
+				}
 			}
 		}
+
 	}, [roleUser, isLoading]);
 
 
@@ -71,7 +72,6 @@ export default function Login() {
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
 	}
-
 
 	const handleLogin = (data: IFormData): void => {
 		setIsLoading(true);
@@ -112,18 +112,18 @@ export default function Login() {
 						key: 'userInfos',
 						data: {
 							jwt: undefined,
-							userId: 7,
+							userId: 8,
 						},
 						expires: 1000 * 3600
 					}).then(() => {
 						storage.load<UserInfos>({
 							key: 'userInfos'
 						}).then(response => {
-							navigation.navigate('HomeEstablishment', {
-								// userGeolocation: userGeolocation ? userGeolocation : {
-								// 	latitude: 78.23570781291714,
-								// 	longitude: 15.491400000982967
-								// },
+							navigation.navigate('Home', {
+								userGeolocation: userGeolocation ? userGeolocation : {
+									latitude: 78.23570781291714,
+									longitude: 15.491400000982967
+								},
 								userID: response.userId,
 								userPhoto: undefined
 							})
@@ -227,6 +227,6 @@ export default function Login() {
 					</View>
 				</View>
 			</View>
-		</ScrollView>
+		</ScrollView >
 	);
 }

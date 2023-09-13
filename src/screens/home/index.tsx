@@ -1,196 +1,197 @@
 import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
-import pointerMap from '../../assets/pointerMap.jpeg';
+import pointerMap from '../../assets/pointerMap.png';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserById } from "../../hooks/useUserById";
-import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import { HOST_API } from '@env';
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 import { calculateDistance } from '../../utils/calculateDistance';
 import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSportTypes } from '../../hooks/useSportTypesFixed';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
-	menuBurguer: boolean;
+    menuBurguer: boolean;
 }
 
 interface EstablishmentObject {
-	id: string,
-	latitude: number,
-	longitude: number,
-	name: string,
-	type: string,
-	image: string,
-	distance: number,
+    id: string,
+    latitude: number,
+    longitude: number,
+    name: string,
+    type: string,
+    image: string,
+    distance: number,
 }
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
-	const userGeolocation = route.params.userGeolocation;
+    const userGeolocation = route.params.userGeolocation;
 
-	const { data, loading, error } = useEstablishmentCardInformations()
-	const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
+    const { data, loading, error } = useEstablishmentCardInformations()
+    const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
 
-	const [establishments, setEstablishments] = useState<Array<{
-		id: string,
-		latitude: number,
-		longitude: number,
-		name: string,
-		type: string,
-		image: string,
-		distance: number,
-	}>>([]);
-	const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
-	const [sportSelected, setSportSelected] = useState<string>()
-	const { data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError } = useAvailableSportTypes()
+    const [establishments, setEstablishments] = useState<Array<{
+        id: string,
+        latitude: number,
+        longitude: number,
+        name: string,
+        type: string,
+        image: string,
+        distance: number,
+    }>>([]);
+    const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
+    const [sportSelected, setSportSelected] = useState<string>()
+    const { data: availableSportTypes, loading: availableSportTypesLoading, error: availableSportTypesError } = useSportTypes()
 
-	const HandleSportSelected = (nameSport: string) => {
-		setSportSelected(nameSport)
-	}
+    const HandleSportSelected = (nameSport: string) => {
+        setSportSelected(nameSport)
+    }
 
-	useFocusEffect(
-		React.useCallback(() => {
-			setEstablishments([]);
-			if (!error && !loading) {
-				const newEstablishments = data?.establishments.data
-				  .filter(establishment => (
-					establishment.attributes.photos.data &&
-					establishment.attributes.photos.data.length > 0 &&
-					establishment.attributes.courts.data
-				  ))
-				  .map((establishment => {
-					let establishmentObject: EstablishmentObject;
+    useFocusEffect(
+        React.useCallback(() => {
+            setEstablishments([]);
+            if (!error && !loading) {
+                const newEstablishments = data?.establishments.data
+                    .filter(establishment => (
+                        establishment.attributes.photos.data &&
+                        establishment.attributes.photos.data.length > 0 &&
+                        establishment.attributes.courts.data
+                    ))
+                    .map((establishment => {
+                        let establishmentObject: EstablishmentObject;
 
-					let courtTypes = establishment.attributes.courts.data!
-						.filter(court => court.attributes.court_types.data.length > 0)
-						.map(court => court.attributes.court_types.data)
-						.map(courtType => courtType.map(type => type.attributes.name))
+                        let courtTypes = establishment.attributes.courts.data!
+                            .filter(court => court.attributes.court_types.data.length > 0)
+                            .map(court => court.attributes.court_types.data)
+                            .map(courtType => courtType.map(type => type.attributes.name))
 
-					if (!courtTypes) courtTypes = []
+                        if (!courtTypes) courtTypes = []
 
-					establishmentObject = {
-						id: establishment.id,
-						name: establishment.attributes.corporateName,
-						latitude: Number(establishment.attributes.address.latitude),
-						longitude: Number(establishment.attributes.address.longitude),
-						distance: calculateDistance(
-							userGeolocation.latitude,
-							userGeolocation.longitude,
-							Number(establishment.attributes.address.latitude),
-							Number(establishment.attributes.address.longitude)
-						) / 1000,
-						image: HOST_API + establishment.attributes.photos.data!.find((photo, index) => index === establishment.attributes.photos.data!.length - 1)?.attributes.url ?? '',
-						type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
-					}
+                        establishmentObject = {
+                            id: establishment.id,
+                            name: establishment.attributes.corporateName,
+                            latitude: Number(establishment.attributes.address.latitude),
+                            longitude: Number(establishment.attributes.address.longitude),
+                            distance: calculateDistance(
+                                userGeolocation.latitude,
+                                userGeolocation.longitude,
+                                Number(establishment.attributes.address.latitude),
+                                Number(establishment.attributes.address.longitude)
+                            ) / 1000,
+                            image: HOST_API + establishment?.attributes?.logo?.data?.attributes?.url,
+                            type: courtTypes.length > 0 ? courtTypes.length > 1 ? `${courtTypes[0]} & ${courtTypes[1]}` : courtTypes[0] : '',
+                        }
 
-					return establishmentObject
-				  }));
-		
-				if (newEstablishments) {
-				  setEstablishments(newEstablishments);
-				}
-		
-				navigation.setParams({
-				  userPhoto: userHookData?.usersPermissionsUser.data.attributes.photo.data?.attributes.url
-				});
-			}
-		}, [data, loading, userHookLoading, userHookData, error])
-	);
-	const [isDisabled, setIsDisabled] = useState<boolean>(true);
+                        return establishmentObject
+                    }));
 
-	useEffect(() => {
-		const newAvailableSportTypes: SportType[] = [];
+                if (newEstablishments) {
+                    setEstablishments(newEstablishments);
+                }
 
-		availableSportTypes?.courts.data.forEach(court => {
-			court.attributes.court_types.data.forEach(courtType => {
-				const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
+                navigation.setParams({
+                    userPhoto: userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url
+                });
+            }
+        }, [data, loading, userHookLoading, userHookData, error])
+    );
+    const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
-				if (!sportAlreadyAdded) {
-					newAvailableSportTypes.push({ id: courtType.id, name: courtType.attributes.name });
-				}
-			});
-		});
+    useEffect(() => {
+        const newAvailableSportTypes: SportType[] = [];
 
-		setSportTypes(newAvailableSportTypes);
-	}, [availableSportTypes, availableSportTypesError]);
+        availableSportTypes?.courtTypes.data.forEach(courtType => {
+            const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
 
-	if (!userHookLoading) console.log(userHookData)
+            if (!sportAlreadyAdded) {
+                newAvailableSportTypes.push({ id: courtType.id, name: courtType.attributes.name });
+            }
+        });
 
-	return (
-		<View className="flex-1 flex flex-col">
-			{
-				availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
-					isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} />
-			}
-			<View className='flex-1'>
+        setSportTypes(newAvailableSportTypes);
+    }, [availableSportTypes, availableSportTypesError]);
 
-				<MapView
-					provider={PROVIDER_GOOGLE}
-					loadingEnabled
-					className='w-screen h-full flex'
-					onPress={() => setIsDisabled(false)}
-					showsCompass={false}
-					initialRegion={{
-						latitude: userGeolocation.latitude,
-						longitude: userGeolocation.longitude,
-						latitudeDelta: 0.004,
-						longitudeDelta: 0.004,
-					}}
-				>
-					{
-						establishments.map((item) => (
-							<Marker
-								coordinate={{
-									latitude: item.latitude,
-									longitude: item.longitude,
-								}}
-								icon={pointerMap}
-								title={item.name}
-								description={item.name}
-							>
-								<CourtBallon
-									id={item.id}
-									key={item.id}
-									name={item.name}
-									distance={item.distance}
-									image={item.image}
-									type={item.type}
-									userId={userHookData?.usersPermissionsUser.data.id}
-									liked={true}
-								/>
-							</Marker>
-						))
-					}
-				</MapView>
-				{!isDisabled && (
-					<TouchableOpacity className={`absolute left-3 top-3`} onPress={() => setIsDisabled((prevState) => !prevState)}>
-						<AntDesign name="left" size={30} color="black" />
-					</TouchableOpacity>
-				)}
-				{menuBurguer && <FilterComponent />}
-			</View>
-			{
-				isDisabled && <HomeBar
-					chosenType={sportSelected}
-					courts={establishments}
-					userName={userHookData?.usersPermissionsUser.data.attributes.username}
-				/>
-			}
-			{
-				userHookData && <BottomNavigationBar
-					isDisabled={isDisabled}
-					playerScreen={true}
-					establishmentScreen={false}
-					userID={userHookData.usersPermissionsUser.data.id}
-					userPhoto={userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-				/>
-			}
-		</View >
-	);
+    return (
+        <View className="flex-1 flex flex-col justify-center items-center">
+            {
+                availableSportTypesLoading ? <ActivityIndicator size='small' color='#FF6112' /> :
+                    isDisabled && !menuBurguer && <SportsMenu sports={sportTypes} callBack={HandleSportSelected} sportSelected={sportSelected} />
+            }
+
+            <View className='flex-1'>
+
+                <MapView
+                    provider={PROVIDER_GOOGLE}
+                    loadingEnabled
+                    className='w-screen flex flex-1'
+                    onPress={() => setIsDisabled(false)}
+                    showsCompass={false}
+                    initialRegion={{
+                        latitude: userGeolocation.latitude,
+                        longitude: userGeolocation.longitude,
+                        latitudeDelta: 0.004,
+                        longitudeDelta: 0.004,
+                    }}
+                >
+                    {
+                        establishments.map((item) => (
+                            <Marker
+                                coordinate={{
+                                    latitude: item.latitude,
+                                    longitude: item.longitude,
+                                }}
+                                icon={pointerMap}
+                                title={item.name}
+                                description={item.name}
+                            >
+                                <CourtBallon
+                                    id={item.id}
+                                    key={item.id}
+                                    name={item.name}
+                                    distance={item.distance}
+                                    image={item.image}
+                                    type={item.type}
+                                    userId={route?.params?.userID}
+                                    liked={true}
+                                />
+                            </Marker>
+                        ))
+                    }
+                </MapView>
+                {!isDisabled && (
+                    <TouchableOpacity className={`absolute left-3 top-3`} onPress={() => setIsDisabled((prevState) => !prevState)}>
+                        <AntDesign name="left" size={30} color="black" />
+                    </TouchableOpacity>
+                )}
+                {menuBurguer && <FilterComponent />}
+            </View>
+
+            {
+                isDisabled && !menuBurguer && <HomeBar
+                    chosenType={sportSelected}
+                    courts={establishments}
+                    userName={userHookData?.usersPermissionsUser?.data?.attributes?.username ?? ""}
+                    HandleSportSelected={HandleSportSelected}
+                />
+            }
+            {
+                userHookData && <BottomNavigationBar
+                    isDisabled={isDisabled}
+                    playerScreen={true}
+                    establishmentScreen={false}
+                    userID={route.params.userID}
+                    userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                    establishmentID={undefined}
+                    logo={undefined}
+                />
+            }
+        </View>
+    );
 }
