@@ -8,6 +8,11 @@ export interface IUpdateUserResponse {
                 email: User['email']
                 phoneNumber: User['phoneNumber']
                 cpf: User['cpf']
+        photo: {
+          data: {
+            id: Photo['id']
+          }
+        }
                 role: {
                     data: {
                         id: Role['id']
@@ -25,7 +30,7 @@ export interface IUpdateUserVariables {
     email: string
     phone_number: string
     cpf: string
-    cvv: number
+    photo: string
     dueDate: string
     country?: string
     photo: string
@@ -88,6 +93,7 @@ mutation updateUser(
         email: $email
         phoneNumber: $phone_number
         cpf: $cpf
+      photo: $photo
         paymentCardInformations: {
           cvv: $cvv
           dueDate: $dueDate
@@ -102,6 +108,11 @@ mutation updateUser(
           email
           phoneNumber
           cpf
+        photo {
+          data {
+            id
+          }
+        }
           role {
             data {
               attributes {

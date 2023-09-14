@@ -33,6 +33,7 @@ interface IFormData {
   userName: string
   email: string
   phoneNumber: string
+  userPhoto: string
 }
 
 const formSchema = z.object({
@@ -215,7 +216,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
         username: userDatas.userName,
         email: userDatas.email,
         phone_number: userDatas.phoneNumber,
-        cpf: cpf
+        cpf: cpf,
+        userPhoto: userDatas.userPhoto
       }
     }).then(value => {
       alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
