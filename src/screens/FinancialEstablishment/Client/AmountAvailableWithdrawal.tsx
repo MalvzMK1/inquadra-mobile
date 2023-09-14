@@ -137,7 +137,8 @@ export default function AmountAvailableWithdrawal({ route }: Props) {
                         </View>
                         <View className="p-3 items-center justify-center">
                             <TouchableOpacity className='w-52 h-12 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => navigation.navigate("WithdrawScreen", {
-                                establishmentId: route.params.establishmentId
+                                establishmentId: route.params.establishmentId,
+                                logo: route.params.logo
                             })}>
                                 <Text className='text-gray-50 font-bold'>Sacar</Text>
                             </TouchableOpacity>

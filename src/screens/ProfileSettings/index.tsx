@@ -8,9 +8,8 @@ import {
     Image,
     Modal,
     StyleSheet,
-    ActivityIndicator
+    ActivityIndicator,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
@@ -29,6 +28,7 @@ import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import axios from 'axios';
 import { RootStackParamList } from "../../types/RootStack";
+import { IconButton } from 'react-native-paper';
 
 interface IFormData {
     name: string
@@ -79,13 +79,19 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
     const [countriesArray, setCountriesArray] = useState<Array<{ key: string, value: string }>>([])
     const [deleteAccountLoading, setDeleteAccountLoading] = useState<boolean>(false);
+    const [uploadedImageID, setUploadedImageId] = useState('');
 
     const { loading, error, data } = useGetUserById(route.params.userID);
     const { data: countriesData, loading: countriesLoading, error: countriesError } = useCountries();
     const [updateUser, { data: updatedUserData, loading: isUpdateLoading, error: updateUserError }] = useUpdateUser();
     const [updatePaymentCardInformations, { data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading }] = useUpdatePaymentCardInformations()
     const [deleteUser] = useDeleteUser();
+    const [cardValue, setCardValue] = useState('');
+    const [isCameraOpen, setCameraOpen] = useState(false);
 
+    const handleCardChange = (text: string) => {
+        setCardValue(text);
+    };
     useEffect(() => {
         let newCountriesArray: Array<{ key: string, value: string, img: string }> = [];
         if (!countriesLoading && countriesData) {
@@ -121,11 +127,40 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         resolver: zodResolver(paymentCardFormSchema)
     })
 
+    const handleCameraReadNumberCard = async () => {
+        //     if (isCameraOpen) {
+        //         try {
+        //             const tessOptions = {
+        //                 whitelist: '0123456789', // Caracteres permitidos
+        //             };
+
+        //             const result = await RNTesseractOcr.recognize(
+        //                 'image-path', // Substitua 'image-path' pelo caminho da imagem capturada
+        //                 'LANG_ENGLISH',
+        //                 tessOptions
+        //             );
+
+        //             if (typeof result === 'string') {
+        //                 // O OCR detectou texto como uma string, atualize o valor do cartão com os números lidos
+        //                 setCardValue(result);
+        //             } else {
+        //                 console.warn('Resultado do OCR não possui propriedade "text" válida.');
+        //             }
+
+        //         } catch (error) {
+        //             console.error('Erro ao executar o OCR:', error);
+        //         } finally {
+        //             setCameraOpen(false);
+        //         }
+        //     } else {
+        //         setCameraOpen(true);
+        //     }
+    };
+
     const handleCardClick = () => {
         setShowCard(!showCard);
         setShowCameraIcon(false);
     };
-
     const updateCardInfos = (data: IPaymentCardFormData) => {
         const paymentCardInfos = data
 
@@ -147,8 +182,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const handleDeleteAccount = () => {
         setShowDeleteConfirmation(true);
-    }
-
+    };
 
     const handleConfirmDelete = () => {
         if (userInfos) {
@@ -229,7 +263,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 },
             });
 
-            const uploadedImageID = response.data[0].id;
+            setUploadedImageId(response.data[0].id);
 
             console.log('Imagem enviada com sucesso!', response.data);
 
@@ -243,8 +277,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         }
     };
 
-
-
     function updateUserInfos(data: IFormData): void {
         console.log(userInfos)
         if (userInfos)
@@ -252,16 +284,18 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 variables: {
                     user_id: userInfos.id,
                     email: data.email,
+                    photo: uploadedImageID,
                     cpf: data.cpf,
                     phone_number: data.phoneNumber,
                     username: data.name,
+                    cvv: Number(userInfos.paymentCardInfos.cvv),
+                    dueDate: userInfos.paymentCardInfos.dueDate,
                 }
             }).then(console.log)
                 .catch(console.error)
     }
 
     async function loadInformations() {
-
         let newUserInfos = userInfos;
 
         if (!loading && data) {
@@ -285,37 +319,24 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         return newUserInfos;
     }
 
-    // function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string } } | undefined): void {
-    //     if (userData) {
-
-    //         console.log("name: xxxxxx" + userData?.username)
-
-    //         setValue('name', userData.username)
-    //         setValue('email', userData.email)
-    //         setValue('phoneNumber', userData.phoneNumber)
-    //         setValue('cpf', userData.cpf)
-    //         setPaymentCardValue('cvv', userData.paymentCardInfos.cvv)
-    //         setPaymentCardValue('dueDate', userData.paymentCardInfos.dueDate)
-    //     }
-    //     console.log("name: xxxxxx 2" + userData?.username)
-
-    // }
+    function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string } } | undefined): void {
+        if (userData) {
+            setValue('name', userData.username)
+            setValue('email', userData.email)
+            setValue('phoneNumber', userData.phoneNumber)
+            setValue('cpf', userData.cpf)
+            setPaymentCardValue('cvv', userData.paymentCardInfos.cvv)
+            setPaymentCardValue('dueDate', userData.paymentCardInfos.dueDate)
+        }
+    }
 
     useEffect(() => {
-
+        // console.log({FUNCAO: loadInformations(), DADOS: data})
         loadInformations().then((data) => {
-            // console.log({ data })
+            console.log({ data })
+            defineDefaultFieldValues(data)
             setUserInfos(data)
-
         });
-        if (data) {
-            setValue('name', data?.usersPermissionsUser?.data?.attributes?.username ?? "");
-            setValue('email', data?.usersPermissionsUser?.data?.attributes?.email);
-            setValue('phoneNumber', data?.usersPermissionsUser?.data?.attributes?.phoneNumber);
-            setValue('cpf', data?.usersPermissionsUser?.data?.attributes?.cpf);
-            setPaymentCardValue('cvv', data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.cvv?.toString() ?? "");
-            setPaymentCardValue('dueDate', data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.dueDate ?? "");
-        }
     }, [loading])
 
     return (
@@ -326,7 +347,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         <ActivityIndicator size='large' color='#F5620F' />
                     </View> :
                     <ScrollView className="flex-grow p-1">
-                        {/*{(console.log({data}))}*/}
                         <TouchableOpacity className="items-center mt-8">
                             <View style={styles.container}>
                                 {profilePicture ? (
@@ -345,14 +365,14 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         </TouchableOpacity>
 
                         <View className="p-6 space-y-10">
-                            <View>
-                                <Text className="text-base">Nome</Text>
+                            <View >
+                                <Text className="text-base pb-2">Nome</Text>
                                 <Controller
                                     name='name'
                                     control={control}
                                     render={({ field: { onChange } }) => (
                                         <TextInput
-                                            value={getValues('name') ?? ""}
+                                            value={getValues('name')}
                                             onChangeText={onChange}
                                             className={errors.name ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
                                             placeholder='Ex.: João'
@@ -362,13 +382,13 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
                             </View>
                             <View>
-                                <Text className="text-base">E-mail</Text>
+                                <Text className="text-base  pb-2">E-mail</Text>
                                 <Controller
                                     name='email'
                                     control={control}
                                     render={({ field: { onChange } }) => (
                                         <TextInput
-                                            value={getValues('email') ?? ""}
+                                            value={getValues('email')}
                                             onChangeText={onChange}
                                             className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
                                             placeholder='email@email.com'
@@ -379,7 +399,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 {errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
                             </View>
                             <View>
-                                <Text className="text-base">Telefone</Text>
+                                <Text className="text-base  pb-2">Telefone</Text>
                                 <Controller
                                     name='phoneNumber'
                                     control={control}
@@ -397,7 +417,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 {errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
                             </View>
                             <View>
-                                <Text className="text-base">CPF</Text>
+                                <Text className="text-base  pb-2">CPF</Text>
                                 <Controller
                                     name='cpf'
                                     control={control}
@@ -405,7 +425,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                         <MaskInput
                                             className='p-4 border border-gray-500 rounded-md h-45'
                                             placeholder='Ex: 000.000.000-00'
-                                            value={getValues('cpf') ?? ""}
+                                            value={getValues('cpf')}
                                             onChangeText={onChange}
                                             mask={Masks.BRL_CPF}
                                             maxLength={14}
@@ -414,18 +434,33 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 />
                                 {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
                             </View>
-                            <TouchableOpacity onPress={handleCardClick}>
-                                <Text className="text-base">Dados Cartão</Text>
-                                <View className="h-30 border border-gray-500 rounded-md">
-                                    <View className="flex-row justify-center items-center m-2">
-                                        <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                                        <Text className="flex-1 text-base text-right mb-0">
-                                            {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
-                                        </Text>
-                                        <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+                            <View >
+                                <Text className="text-base  pb-2">
+                                    Dados Cartão
+                                </Text>
+                                <View className=" border border-gray-500 rounded-md">
+                                    <View className="flex-row justify-center items-center m-1">
+
+                                        <FontAwesome name="credit-card-alt" size={20} style={{ marginStart: 10 }} color="#FF6112" />
+                                        <TextInput
+                                            style={{ flex: 1, fontSize: 16, textAlign: 'left', marginStart: 10 }}
+                                            value={cardValue}
+                                            onChangeText={handleCardChange}
+                                            placeholder="Adicionar Cartão "
+                                        />
+                                        <IconButton size={20}
+                                            iconColor="#FF6112"
+                                            icon={"camera"}
+                                            onPress={handleCameraReadNumberCard} />
+                                        <IconButton size={20}
+                                            iconColor="#FF4715"
+                                            icon={showCard ? 'chevron-up' : 'chevron-down'}
+                                            onPress={handleCardClick} />
+
                                     </View>
                                 </View>
-                            </TouchableOpacity>
+                            </View>
+
                             {showCard && (
                                 <View className="border border-gray-500 p-4 mt-10">
                                     <View className="flex-row justify-between">
@@ -436,7 +471,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <TextInputMask
-                                                        value={getPaymentCardValues('dueDate') ?? ""}
+                                                        value={getPaymentCardValues('dueDate')}
                                                         className={`p-3 border ${paymentCardErrors.dueDate ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
                                                         type={'datetime'}
                                                         options={{
@@ -457,7 +492,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <TextInput
-                                                        value={getPaymentCardValues('cvv') ?? ""}
+                                                        value={getPaymentCardValues('cvv')}
                                                         className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
                                                         onChangeText={onChange}
                                                         placeholder="CVV"
@@ -552,7 +587,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         </Modal>
                     </ScrollView>
             }
-        </View>
+        </View >
     );
 }
 
@@ -593,19 +628,3 @@ const styles = StyleSheet.create({
         fontSize: 20
     }
 });
-//
-// const handleCVVChange = (input: any) => {
-// 	const numericInput = input.replace(/\D/g, '');
-//
-// 	const truncatedCVV = numericInput.slice(0, 3);
-//
-// 	setCVV(truncatedCVV);
-// };
-//
-// const [ phoneNumber, setPhoneNumber ] = useState("")
-// const [ cpf, setCpf ] = useState("")
-//
-// const getCountryImage = (countryName: string) => {
-// 	const countryImg = countriesData.find(item => item.value === countryName)?.img
-// 	return countryImg
-// }

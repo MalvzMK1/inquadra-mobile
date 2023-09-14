@@ -3,14 +3,12 @@ import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-import useUpdateCourt from '../../hooks/useUpdateCourt';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
 import { useGetUserById } from '../../hooks/useUserById';
-import { generateAuthToken } from "../../services/inter";
 
 interface IFormData {
 	identifier: string
@@ -23,7 +21,6 @@ const formSchema = z.object({
 	password: z.string()
 		.nonempty('O campo não pode estar vazio')
 })
-
 
 export default function Login() {
 	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
