@@ -2,64 +2,69 @@ import { gql } from "@apollo/client";
 
 
 export interface IUserByIdResponse {
-  usersPermissionsUser: {
-    data: {
-      id: User['id'];
-      attributes: {
-        username: User['username'];
-        email: User['email'];
-        phoneNumber: User['phoneNumber'];
-        cpf: User['cpf'];
-        favorite_establishments: {
-          data: Array<{
-            id: Establishment['id']
-          }>
-        }
-        favorite_courts: {
-          data: Array<{
-            id: Court['id']
-          }>
-          
-        }
-        role: {
-          data: {
-            id: string
-          }
-        }
-        paymentCardInformations: {
-          id: PaymentCardInformations['id']
-          cvv: PaymentCardInformations['cvv']
-          dueDate: string
-          country: {
-            data: {
-              id: string
-              attributes: {
-                name: string
-                flag: {
-                  data: {
-                    attributes: {
-                      url: Flag['url'];
-                    };
-                  };
-                };
-              };
-            };
-          };
-        };
-        photo: {
-          data?: {
+    usersPermissionsUser: {
+        data: {
+            id: User['id'];
             attributes: {
-              url: Photo['url'];
+                username: User['username'];
+                email: User['email'];
+                phoneNumber: User['phoneNumber'];
+                cpf: User['cpf'];
+                favorite_establishments: {
+                    data: Array<{
+                        id: Establishment['id']
+                    }>
+                }
+                favorite_courts: {
+                    data: Array<{
+                        id: Court['id']
+                    }>
+
+                }
+                role: {
+                    data: {
+                        id: string
+                    }
+                }
+                paymentCardInformations: {
+                    id: PaymentCardInformations['id']
+                    cvv?: PaymentCardInformations['cvv']
+                    dueDate?: string
+                    country: {
+                        data: {
+                            id: string
+                            attributes: {
+                                name: string
+                                flag: {
+                                    data: {
+                                        attributes: {
+                                            url: Flag['url'];
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+                photo: {
+                    data?: {
+            id: Photo['id']
+                        attributes: {
+                            url: Photo['url'];
+                        };
+                    };
+                };
+                address: {
+                    cep: string;
+                    streetName: string;
+                };
             };
-          };
         };
-      };
     };
-  };
 }
 
 export interface IUserByIdVariables {
-  id: string
+    id: string
 }
 
 export const userByIdQuery = gql`
@@ -113,6 +118,10 @@ query getUserById($id: ID) {
               url
             }
           }
+        }
+        address {
+          cep
+          streetName
         }
       }
     }
