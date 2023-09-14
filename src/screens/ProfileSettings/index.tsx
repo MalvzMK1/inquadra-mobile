@@ -223,7 +223,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     };
 
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
-    const [isLoading, setIsLoading] = useState(false)
 
     const handleProfilePictureUpload = async () => {
         try {
