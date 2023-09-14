@@ -22,17 +22,35 @@ import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabi
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useUpdateScheduleDay from "../../hooks/useUpdateScheduleDay";
+import useGenerateActivationKey from "../../hooks/useGenerateActivationKey";
+import { generateRandomKey } from "../../utils/activationKeyGenerate";
 
 export default function paymentScheduleUpdate({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PaymentScheduleUpdate'>) {
 
-    const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
+    const { courtId, courtImage, courtName, userId, courtAvailabilityDate, courtAvailabilities } = route.params
+    const ogPrice = route.params.amountToPay
+    let amountToPay = route.params.amountToPay
+    let signalPay = route.params.pricePayed
+    let priceBigger = false
+    let minPriceBigger = false
+    let userMoney = route.params.pricePayed
+    
 
-    const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtId)
+    if (amountToPay > route.params.pricePayed) {
+        priceBigger = true
+        amountToPay = amountToPay - route.params.pricePayed
+    } else {
+        amountToPay = route.params.pricePayed
+    }
+
+
+    const [generateActivationKey, {data:dataGenerateKey, loading:loadingGenerateKey, error:errorGenerateKey}] = useGenerateActivationKey()
+    const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
     const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
     const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
     const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
     const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
-    const [updateSchedule, {data:dataUpdateSchedule, error:errorUpdateSchedule, loading:loadingUpdateSchedule}] = useUpdateScheduleDay()
+    const [updateSchedule, { data: dataUpdateSchedule, error: errorUpdateSchedule, loading: loadingUpdateSchedule }] = useUpdateScheduleDay()
     const [showCard, setShowCard] = useState(false);
     const [cardData, setCardData] = useState({
         cardNumber: '',
@@ -97,6 +115,13 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data));
+
+
+    if (dataReserve?.courtAvailability?.data?.attributes?.minValue! > route.params.pricePayed) {
+        minPriceBigger = true
+        signalPay = dataReserve?.courtAvailability?.data?.attributes?.minValue! - route.params.pricePayed
+        userMoney += signalPay
+    }
 
 
     const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
@@ -171,26 +196,27 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
 
     const pay = async (data: iFormCardPayment) => {
         try {
-            const newScheduleId = await createNewSchedule();
-
             const countryId = getCountryIdByName(selected);
-            if (newScheduleId) {
-                userPaymentCard({
-                    variables: {
-                        value: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                        schedulingId: newScheduleId.toString(),
-                        userId: userId,
-                        name: data.name,
-                        cpf: data.cpf,
-                        cvv: parseInt(data.cvv),
-                        date: convertToAmericanDate(data.date),
-                        countryID: countryId,
-                        publishedAt: new Date().toISOString()
-                    }
-                });
+
+            userPaymentCard({
+                variables: {
+                    value: signalPay,
+                    schedulingId: route.params.scheduleUpdateID,
+                    userId: userId,
+                    name: data.name,
+                    cpf: data.cpf,
+                    cvv: parseInt(data.cvv),
+                    date: convertToAmericanDate(data.date),
+                    countryID: countryId,
+                    publishedAt: new Date().toISOString()
+                }
+            });
+
+
+            if (!userCardLoading && !userCardError) {
+                updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4)))
             }
 
-            updateStatusDisponibleCourt();
             handleSaveCard();
         } catch (error) {
 
@@ -228,53 +254,222 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
         })
     }
 
-    const updateScheduleDay = () => {
-        try{
+    
+
+    const validateKey = (randomKey: string) => {
+        if(route.params.activationKey === null && priceBigger === false){
+            return randomKey
+        }else if(route.params.activationKey !== null && priceBigger === false){
+            route.params.activationKey
+        }else{
+            null
+        }
+    }
+
+    const updateScheduleDay = async (isPayed: boolean, activationKey: string | null) => {
+        try {
             updateSchedule({
                 variables: {
                     availabilityID: courtAvailabilities,
                     newDate: courtAvailabilityDate.split("T")[0],
-                    scheduleID: route.params.scheduleUpdateID
+                    scheduleID: route.params.scheduleUpdateID,
+                    payedStatus: isPayed,
+                    newValue: userMoney,
+                    activationKey: activationKey
                 }
             })
 
             !loadingUpdateSchedule && !errorUpdateSchedule
-                navigation.navigate('InfoReserva', { userId: route.params.userId })
+            navigation.navigate('InfoReserva', { userId: route.params.userId })
 
-        }catch(error){
+        } catch (error) {
             console.log(error)
         }
     }
-
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
             <ScrollView>
                 <View>
                     <Image source={{ uri: courtImage }} className="w-full h-[230]" />
                 </View>
-                <View className="pt-5 pb-4 flex justify-center flex-row">
-                    <Text className="text-base text-center font-bold">
-                        Para realizar sua reserva é necessário pagar um sinal.
-                    </Text>
-                    <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
-                        <FontAwesome name="question-circle-o" size={13} color="black" />
-                    </TouchableOpacity>
-                </View>
-                <View className="bg-gray-300 p-4">
-                    <Text className="text-5xl text-center font-extrabold text-gray-700">
-                        R$ {amountToPay.toFixed(2)}
-                    </Text>
-                </View>
-                <View className='px-10 py-5'>
-                    <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
-                        onPressIn={() => {
-                            updateScheduleDay()
-                        }}
-                    >
-                        <Text className='text-lg text-gray-50 font-bold'>ALTERAR</Text>
-                    </TouchableOpacity>
-                </View>
-                <View className=" px-9">                 
+                {
+                    minPriceBigger
+                        ?
+                        <>
+                            <View className="pt-5 pb-4 flex justify-center flex-row">
+                                <Text className="text-base text-center font-bold">
+                                    Para remarcar sua reserva é necessário pagar um sinal.
+                                </Text>
+                                <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
+                                    <FontAwesome name="question-circle-o" size={13} color="black" />
+                                </TouchableOpacity>
+                            </View>
+                            <View className="bg-gray-300 p-4">
+                                <Text className="text-5xl text-center font-extrabold text-gray-700">
+                                    R$ {signalPay}
+                                </Text>
+                            </View>
+                        </>
+                        :
+                        <>
+                            <View className="pt-5 pb-4 flex justify-center flex-row">
+                                <Text className="text-base text-center font-bold">
+                                   Valor pago maior que o sinal da quadra
+                                </Text>
+                                <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
+                                    <FontAwesome name="question-circle-o" size={13} color="black" />
+                                </TouchableOpacity>
+                            </View>
+                        </>
+                }
+                {
+                    minPriceBigger
+                        ?
+                        <>
+                            <View className='px-10 py-5'>
+                                <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+                                    onPressIn={() => {
+                                        updateScheduleDay(false, null)
+                                    }}
+                                >
+                                    <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View><Text className="text-center font-bold text-base text-gray-700">ou</Text></View>
+                            <View className="pt-5 px-9">
+                                <TouchableOpacity onPress={handleCardClick}>
+                                    <View className="h-30 border border-gray-500 rounded-md">
+                                        <View className="flex-row justify-center items-center m-2">
+                                            <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                                            <Text className="flex-1 text-base text-center mb-0">
+                                                {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Selecionar Cartão'}
+                                            </Text>
+                                            <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                                {showCard && (
+                                    <View className="border border-gray-500 rounded-xl p-4 mt-3">
+                                        <View className="flex-row justify-between">
+                                            <View className='flex-1 mr-[20px]'>
+                                                <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
+                                                <Controller
+                                                    name='date'
+                                                    control={control}
+                                                    render={({ field: { onChange } }) => (
+                                                        <TextInputMask className='p-3 border border-gray-500 rounded-md h-18'
+                                                            options={{
+                                                                format: 'MM/YY',
+                                                            }}
+                                                            type={'datetime'}
+                                                            value={getValues('date')}
+                                                            onChangeText={onChange}
+                                                            placeholder="MM/YY"
+                                                            keyboardType="numeric"
+                                                        />
+                                                    )}
+                                                ></Controller>
+                                                {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
+                                            </View>
+                                            <View className='flex-1 ml-[20px]'>
+                                                <Text className='text-sm text-[#FF6112]'>CVV</Text>
+                                                <Controller
+                                                    name='cvv'
+                                                    control={control}
+                                                    render={({ field: { onChange } }) => (
+                                                        <TextInput
+                                                            className='p-3 border border-gray-500 rounded-md h-18'
+                                                            placeholder='123'
+                                                            onChangeText={onChange}
+                                                            keyboardType='numeric'
+                                                            maxLength={3}>
+                                                        </TextInput>
+                                                    )}
+                                                ></Controller>
+                                                {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
+                                            </View>
+                                        </View>
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>Nome</Text>
+                                            <Controller
+                                                name='name'
+                                                control={control}
+                                                render={({ field: { onChange } }) => (
+                                                    <TextInput
+                                                        className='p-3 border border-gray-500 rounded-md h-18'
+                                                        placeholder='Ex: nome'
+                                                        onChangeText={onChange}>
+                                                    </TextInput>
+                                                )}
+                                            ></Controller>
+                                            {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+                                        </View>
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>CPF</Text>
+                                            <Controller
+                                                name='cpf'
+                                                control={control}
+                                                render={({ field: { onChange } }) => (
+                                                    <MaskInput
+                                                        className='p-3 border border-gray-500 rounded-md h-18'
+                                                        placeholder='Ex: 000.000.000-00'
+                                                        value={getValues('cpf')}
+                                                        onChangeText={onChange}
+                                                        mask={Masks.BRL_CPF}
+                                                        keyboardType='numeric'>
+                                                    </MaskInput>
+                                                )}
+                                            ></Controller>
+                                            {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
+                                        </View>
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>País</Text>
+                                            <View className='flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white'>
+                                                <Image className='h-[21px] w-[30px] mr-[10px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
+                                                <SelectList
+                                                    setSelected={(val: string) => {
+                                                        setSelected(val);
+
+                                                    }}
+                                                    data={dataCountry?.countries?.data.map(country => ({
+                                                        value: country?.attributes.name,
+                                                        label: country?.attributes.name || "",
+                                                        img: `${country?.attributes.flag?.data?.attributes?.url || ""}`
+                                                    })) || []}
+                                                    save="value"
+                                                    placeholder='Selecione um país'
+                                                    searchPlaceholder='Pesquisar...'
+                                                />
+                                            </View>
+                                        </View>
+
+                                        <View className="p-2 justify-center items-center pt-5">
+                                            <TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+                                                <Text className="text-white">Salvar</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                )}
+                                <View>
+                                    <Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
+                                        Detalhes Reserva
+                                    </Text>
+                                </View>
+                            </View>
+
+                        </>
+
+                        : <View className='px-10 py-5'>
+                            <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+                                onPressIn={() => {
+                                    updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4)))
+                                }}
+                            >
+                                <Text className='text-lg text-gray-50 font-bold'>REMARCAR</Text>
+                            </TouchableOpacity>
+                        </View>
+                }
+                <View className=" px-9">
                     <View>
                         <Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
                             Detalhes Reserva
@@ -310,7 +505,13 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
                 <View className="p-4 justify-center items-center border-b ml-8 mr-8">
                     <View className="flex flex-row gap-6">
                         <Text className="font-bold text-xl text-[#717171]">Valor da Reserva</Text>
-                        <Text className="font-bold text-xl text-right text-[#717171]">R$ {amountToPay.toFixed(2)}</Text>
+                        <Text className="font-bold text-xl text-right text-[#717171]">R$ {ogPrice.toFixed(2)}</Text>
+                    </View>
+                    <View className="flex flex-row justify-between gap-6">
+                        <View className="flex flex-row pt-1">
+                            <Text className="font-bold text-xl text-[#717171]">Valor já pago</Text>             
+                        </View>
+                        <Text className="font-bold text-xl text-right text-[#717171]">- R$ {route.params.pricePayed.toFixed(2)}</Text>
                     </View>
                     <View className="flex flex-row gap-6">
                         <View className="flex flex-row pt-1">

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Image, Button, FlatList, ActivityIndicator } from "react-native";
 import React, {useEffect, useState} from "react";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { ScrollView } from "react-native-gesture-handler";
@@ -64,31 +64,6 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 
 	const [selectedItems, setSelectedItems] = useState([]);
 
-	
-    const handleProfilePictureUpload = async () => {
-        try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-            if (status !== 'granted') {
-                alert('Desculpe, precisamos da permissão para acessar a galeria!');
-                return;
-            }
-
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-                allowsMultipleSelection: true,
-            });
-
-            if (!result.canceled) {
-                setPhotos([...photos, { uri: result.uri }]);
-            }
-        } catch (error) {
-            console.log('Erro ao carregar a imagem: ', error);
-        }
-    };
 
 
 	const uploadImage = async () => {
@@ -126,6 +101,31 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
         }
       };
 
+	  const handleProfilePictureUpload = async () => {
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+            if (status !== 'granted') {
+                alert('Desculpe, precisamos da permissão para acessar a galeria!');
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+                allowsMultipleSelection: true,
+            });
+
+            if (!result.canceled) {
+                setPhotos([...photos, { uri: result.uri }]);
+            }
+        } catch (error) {
+            console.log('Erro ao carregar a imagem: ', error);
+        }
+    };  
+
 	const handleDeletePhoto = (index: number) => {
 		const newPhotos = [...photos];
 		newPhotos.splice(index, 1);
@@ -159,9 +159,10 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 		setSelectAmenities(prevState => [...prevState, ...newAmenitiesArray]);
 	}, [allAmenitiesData])
 
-	// estava no return: {errors && <Text>{JSON.stringify(errors)}</Text>}
+	
 
 	return (
+		// {errors && <Text>{JSON.stringify(errors)}</Text>}
 		<ScrollView className="h-fit bg-white flex-1">
 			<View className="items-center mt-9 p-4">
 				<Text className="text-3xl text-center font-extrabold text-gray-700">Cadastro{'\n'}Estabelecimento</Text>
@@ -325,11 +326,19 @@ export default function RegisterEstablishment({navigation, route}: NativeStackSc
 				</View>
 				<View>
 					<TouchableOpacity className='h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center' onPressIn={handleSubmit(submitForm)}>
-						<Text className='text-gray-50'>Continuar</Text>
+					<Text className="text-white">
+                        {isLoading ? (
+                        <View style={{ alignItems: "center", paddingTop: 5 }}>
+							<ActivityIndicator size="small" color='#FFFF' />
+                            <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                        </View>
+                        ) : (
+                        'Concluir'
+                        )}
+                        </Text>
 					</TouchableOpacity>
 				</View>
 				</View>
-				
 			</View>
 		</ScrollView>
 	);

@@ -88,7 +88,7 @@ export default function CourtCardHome(props: CourtCardInfos) {
 								Array.isArray(props.type) ? props.type.join(" & ") : props.type
 							}
 						</Text>
-						<Text className='text-white font-bold text-xs'>{props.distance.toFixed(2).replace('.', ',')}Km de distacia</Text>
+						<Text className='text-white font-bold text-xs'>{props.distance.toFixed(2).replace('.', ',')}km</Text>
 					</View>
 					<TouchableOpacity>
 						<AntDesign name="heart" size={20} color={color}
