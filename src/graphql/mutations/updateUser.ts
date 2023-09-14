@@ -8,6 +8,11 @@ export interface IUpdateUserResponse{
         email: User['email']
         phoneNumber: User['phoneNumber']
         cpf: User['cpf']
+        photo: {
+          data: {
+            id: Photo['id']
+          }
+        }
         role: {
           data: {
             id: Role['id']
@@ -25,6 +30,7 @@ export interface IUpdateUserVariables{
     email: string
     phone_number: string
     cpf: string
+    photo: string
 }
 
 export const updateUserMutation = gql`
@@ -34,6 +40,7 @@ export const updateUserMutation = gql`
   $phone_number: String!
   $cpf: String!
   $user_id: ID!
+  $photo: ID!
 ) {
   updateUsersPermissionsUser(
     id: $user_id
@@ -42,6 +49,7 @@ export const updateUserMutation = gql`
       email: $email
       phoneNumber: $phone_number
       cpf: $cpf
+      photo: $photo
     }
   ) {
     data {
@@ -51,6 +59,11 @@ export const updateUserMutation = gql`
         email
         phoneNumber
         cpf
+        photo {
+          data {
+            id
+          }
+        }
         role {
           data {
             attributes {
@@ -61,5 +74,4 @@ export const updateUserMutation = gql`
       }
     }
   }
-}
-`
+}`

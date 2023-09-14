@@ -48,6 +48,7 @@ export interface IUserByIdResponse {
         };
         photo: {
           data?: {
+            id: Photo['id']
             attributes: {
               url: Photo['url'];
             };

@@ -28,12 +28,14 @@ import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import {HOST_API} from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
+import axios from 'axios';
 
 interface IFormData {
 	name: string
 	email: string
 	phoneNumber: string
 	cpf: string
+	photo: string
 }
 
 interface IPaymentCardFormData {
@@ -78,12 +80,15 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 	const [countriesArray, setCountriesArray] = useState<Array<{key: string, value: string}>>([])
 	const [deleteAccountLoading, setDeleteAccountLoading] = useState<boolean>(false);
+	const [loadingMessage, setLoadingMessage] = useState("Fazendo upload da imagem");
+	const [isLoading, setIsLoading] = useState(false)
 
 	const { loading, error, data } = useGetUserById(route.params.userID);
 	const {data: countriesData, loading: countriesLoading, error: countriesError} = useCountries();
 	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
 	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
 	const [deleteUser] = useDeleteUser();
+	const [photos, setPhotos] = useState([]);
 
 	useEffect(() => {
 		let newCountriesArray: Array<{key: string, value: string, img: string}> = [];
@@ -210,6 +215,44 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 			console.log('Erro ao carregar a imagem: ', error);
 		}
 	};
+	
+
+	
+	const uploadImage = async () => {
+
+        setIsLoading(true); 
+        const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+      
+        const formData = new FormData();
+        photos.forEach((uri, index) => {
+          formData.append(`files`, {
+            uri: uri.uri,
+            name: `image${index}.jpg`,
+            type: 'image/jpeg',
+          });
+        });
+      
+        try {
+          const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+      
+          const uploadedImageIDs = response.data.map((image) => image.id);
+      
+          console.log('Imagens enviadas com sucesso!', response.data);
+          
+          setIsLoading(false);  
+
+          return uploadedImageIDs;
+
+        } catch (error) {
+          console.error('Erro ao enviar imagem:', error);
+          setIsLoading(false);  
+          return "Deu erro"; 
+        }
+      };
 
 	function updateUserInfos(data: IFormData): void {
 		console.log(userInfos)
@@ -220,7 +263,8 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 					email: data.email,
 					cpf: data.cpf,
 					phone_number: data.phoneNumber,
-					username: data.name
+					username: data.name,
+					photo: data.photo
 				}
 			}).then(console.log)
 				.catch(console.error)
@@ -236,6 +280,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 				cpf: data.usersPermissionsUser.data.attributes.cpf,
 				email: data.usersPermissionsUser.data.attributes.email,
 				phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
+				photo: data.usersPermissionsUser.data.attributes.photo.data?.id,
 				paymentCardInfos: {
 					dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
 					cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
@@ -460,7 +505,16 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 									<View>
 										<View className='p-2'>
 											<TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
-												<Text className='text-gray-50'>Salvar</Text>
+												<Text className="text-white">
+												{isLoading ? (
+												<View style={{ alignItems: "center", paddingTop: 5 }}>
+													<ActivityIndicator size="small" color='#FFFF' />
+													<Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+												</View>
+												) : (
+												'Salvar'
+												)}
+												</Text>
 											</TouchableOpacity>
 										</View>
 

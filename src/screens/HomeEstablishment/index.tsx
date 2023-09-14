@@ -48,6 +48,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
 
     const [selectedDate, setSelectedDate] = useState('');
     const [activationKey, setActivationKey] = useState('');
+    const photo = dataEstablishmentId?.usersPermissionsUser.data.attributes.photo
     const username = dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.username;
     const firstName = username ? username.split(' ')[0] : '';
 
