@@ -206,8 +206,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    owner: parseFloat(userId),
-                    users: [parseFloat(userId)],
+                    owner: Number(userId),
+                    users: [Number(userId)],
                     publishedAt: new Date().toISOString()
                 }
             });

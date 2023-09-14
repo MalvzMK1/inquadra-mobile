@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
+import { payload } from '../../components/pix/payLoadGenerator';
+import QRCode from 'react-native-qrcode-svg';
+import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -9,6 +12,7 @@ import { useCreateCharge } from "../../services/inter";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
+import {useCreateStrapiPixCharge} from "../../hooks/useCreateStrapiPixCharge";
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
@@ -24,6 +28,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
     const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
     const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
+    const [createStrapiCharge, {data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError}] = useCreateStrapiPixCharge();
 
     const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
     const [userAddress, setUserAddress] = useState<APICepResponse>();
@@ -80,6 +85,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data &&
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data &&
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data &&
+            scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data &&
             !pixInfos
         ) {
             const dueDate: string = new Date(scheduleData?.scheduling.data?.attributes.date).toISOString().split('T')[0];
@@ -103,11 +109,22 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     discountDate: new Date().toISOString().split('T')[0]
                 }
             }).then(response => {
-                if (response.data)
+                if (response.data) {
                     setPixInfos({
                         txid: response.data.txid,
                         pixCode: response.data.pixCopiaECola,
                     })
+                    createStrapiCharge({
+                        variables: {
+                            code: response.data.pixCopiaECola,
+                            txid: response.data.txid,
+                            userID,
+                            establishmentID: scheduleData.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.establishment.data?.id
+                        }
+                    }).then(response => {
+                        console.log(response.data)
+                    })
+                }
                 if (response.errors)
                     Toast.show({
                         text1: 'Não foi possível gerar o código pix',

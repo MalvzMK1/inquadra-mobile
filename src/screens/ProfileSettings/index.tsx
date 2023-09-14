@@ -26,6 +26,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
+import { set } from 'date-fns';
 import { IconButton } from 'react-native-paper';
 
 interface IFormData {
@@ -33,6 +34,7 @@ interface IFormData {
     email: string
     phoneNumber: string
     cpf: string
+	photo: string
 }
 
 interface IPaymentCardFormData {
@@ -77,13 +79,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
     const [countriesArray, setCountriesArray] = useState<Array<{ key: string, value: string }>>([])
     const [deleteAccountLoading, setDeleteAccountLoading] = useState<boolean>(false);
+	const [loadingMessage, setLoadingMessage] = useState("Fazendo upload da imagem");
     const [uploadedImageID, setUploadedImageId] = useState('');
+	const [isLoading, setIsLoading] = useState(false)
 
     const { loading, error, data } = useGetUserById(route.params.userID);
     const { data: countriesData, loading: countriesLoading, error: countriesError } = useCountries();
     const [updateUser, { data: updatedUserData, loading: isUpdateLoading, error: updateUserError }] = useUpdateUser();
     const [updatePaymentCardInformations, { data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading }] = useUpdatePaymentCardInformations()
     const [deleteUser] = useDeleteUser();
+	const [photos, setPhotos] = useState([]);
     const [cardValue, setCardValue] = useState('');
     const [isCameraOpen, setCameraOpen] = useState(false);
 
@@ -216,24 +221,23 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     };
 
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
-    const [isLoading, setIsLoading] = useState(false)
 
     const handleProfilePictureUpload = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
+	
             if (status !== 'granted') {
                 alert('Desculpe, precisamos da permissão para acessar a galeria!');
                 return;
             }
-
+	
             // const result = await ImagePicker.launchImageLibraryAsync({
             //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
             //     allowsEditing: true,
             //     aspect: [1, 1],
             //     quality: 1,
             // });
-
+	
             // if (!result.canceled) {
             //     setProfilePicture(result.uri);
             //     await uploadImage(result.uri);
@@ -275,24 +279,35 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     //         return "Deu erro";
     //     }
     // };
+	
 
-    function updateUserInfos(data: IFormData): void {
-        console.log(userInfos)
-        if (userInfos)
-            updateUser({
-                variables: {
-                    user_id: userInfos.id,
-                    email: data.email,
+	  async function updateUserInfos(data: IFormData): Promise<void> {
+		console.log(userInfos);
+		if (userInfos) {
+		  const newPhotoId = await uploadImage(data.photo);
+		  const updatedUserInfos = { ...userInfos, photo: newPhotoId }; // Atualize o campo de foto com o novo ID
+		  updateUser({
+			variables: {
+			  user_id: userInfos.id,
+			  email: data.email,
                     photo: uploadedImageID,
-                    cpf: data.cpf,
-                    phone_number: data.phoneNumber,
-                    username: data.name,
+			  cpf: data.cpf,
+			  phone_number: data.phoneNumber,
                     cvv: Number(userInfos.paymentCardInfos.cvv),
                     dueDate: userInfos.paymentCardInfos.dueDate,
-                }
-            }).then(console.log)
-                .catch(console.error)
-    }
+			  username: data.name,
+			  photo: newPhotoId,
+			},
+		  })
+			.then(console.log)
+			.catch(console.error);
+	  
+		  // Atualize o estado local com as informações atualizadas do usuário
+		  setUserInfos(updatedUserInfos);
+		}
+	  }
+	  
+	  
 
     async function loadInformations() {
         let newUserInfos = userInfos;
@@ -304,6 +319,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 cpf: data.usersPermissionsUser.data.attributes.cpf,
                 email: data.usersPermissionsUser.data.attributes.email,
                 phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
+				photo: data.usersPermissionsUser.data.attributes.photo.data?.id,
                 paymentCardInfos: {
                     dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ?? "" ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate ?? "" : '',
                     cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.cvv?.toString() ?? "" : '',
@@ -318,9 +334,10 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         return newUserInfos;
     }
 
-    function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string } } | undefined): void {
+	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined) : void {
         if (userData) {
             setValue('name', userData.username)
+			setValue('photo', userData.photo)
             setValue('email', userData.email)
             setValue('phoneNumber', userData.phoneNumber)
             setValue('cpf', userData.cpf)
@@ -540,7 +557,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                             <View>
                                 <View className='p-2'>
                                     <TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
-                                        <Text className='text-gray-50'>Salvar</Text>
+												<Text className="text-white">
+												{isLoading ? (
+												<View style={{ alignItems: "center", paddingTop: 5 }}>
+													<ActivityIndicator size="small" color='#FFFF' />
+													<Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+												</View>
+												) : (
+												'Salvar'
+												)}
+												</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View className='p-2'>

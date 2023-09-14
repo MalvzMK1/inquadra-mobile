@@ -6,7 +6,7 @@ export interface IUserByIdResponse {
         data: {
             id: User['id'];
             attributes: {
-                username?: User['username'];
+                username: User['username'];
                 email: User['email'];
                 phoneNumber: User['phoneNumber'];
                 cpf: User['cpf'];
@@ -48,6 +48,7 @@ export interface IUserByIdResponse {
                 };
                 photo: {
                     data?: {
+            id: Photo['id']
                         attributes: {
                             url: Photo['url'];
                         };
