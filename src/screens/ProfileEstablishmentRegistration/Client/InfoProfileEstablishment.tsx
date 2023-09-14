@@ -216,8 +216,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 username: userDatas.userName,
                 email: userDatas.email,
                 phone_number: userDatas.phoneNumber,
-                cpf: cpf!
-        userPhoto: userDatas.userPhoto
+                cpf: cpf!,
+                userPhoto: userDatas.userPhoto
             }
         }).then(value => {
             alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
