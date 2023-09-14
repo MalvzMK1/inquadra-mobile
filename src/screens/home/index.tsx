@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { View, TouchableOpacity, ActivityIndicator, Text } from 'react-native';
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
@@ -16,6 +16,7 @@ import { calculateDistance } from '../../utils/calculateDistance';
 import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
+import customMapStyle from '../../utils/customMapStyle';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
@@ -130,8 +131,9 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     loadingEnabled
-                    className='w-screen flex flex-1'
+                    className='w-screen h-screen'
                     onPress={() => setIsDisabled(false)}
+                    customMapStyle={customMapStyle}
                     showsCompass={false}
                     initialRegion={{
                         latitude: userGeolocation.latitude,
@@ -151,16 +153,21 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                 title={item.name}
                                 description={item.name}
                             >
-                                <CourtBallon
-                                    id={item.id}
-                                    key={item.id}
-                                    name={item.name}
-                                    distance={item.distance}
-                                    image={item.image}
-                                    type={item.type}
-                                    userId={route?.params?.userID}
-                                    liked={true}
-                                />
+                                <Callout tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
+                                    establishmentID: item.id,
+                                    userPhoto: undefined
+                                })}>
+                                    <CourtBallon
+                                        id={item.id}
+                                        key={item.id}
+                                        name={item.name}
+                                        distance={item.distance}
+                                        image={item.image}
+                                        type={item.type}
+                                        userId={route?.params?.userID}
+                                        liked={true}
+                                    />
+                                </Callout>
                             </Marker>
                         ))
                     }

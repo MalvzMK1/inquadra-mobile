@@ -87,7 +87,7 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 
 					if (translateYDelta < 0) {
 						translateY.value = translateYDelta + 500;
-						height.value = Math.max(minHeight, Math.min(maxHeight, minHeight - translateYDelta)) + 500;
+						height.value = minHeight - translateYDelta + 500;
 					}
 				}}
 				onHandlerStateChange={(event) => {
