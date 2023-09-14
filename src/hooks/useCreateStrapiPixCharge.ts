@@ -5,6 +5,6 @@ import {
 	ICreatePixChargeVariables
 } from "../graphql/mutations/createPixCharge";
 
-export function useCreatePixCharge(): MutationTuple<ICreatePixChargeResponse, ICreatePixChargeVariables> {
+export function useCreateStrapiPixCharge(): MutationTuple<ICreatePixChargeResponse, ICreatePixChargeVariables> {
 	return useMutation<ICreatePixChargeResponse, ICreatePixChargeVariables>(createPixChargeMutation)
 }
