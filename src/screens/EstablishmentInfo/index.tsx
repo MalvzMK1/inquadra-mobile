@@ -86,20 +86,20 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     let establishment
 
 
-                        establishment = {
-                            id: infosEstablishment.id,
-                            corporateName: infosEstablishment.attributes.corporateName,
-                            cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
-                            streetName: infosEstablishment.attributes.address.streetName,
-                            latitude: Number(infosEstablishment.attributes.address.latitude),
-                            longitude: Number(infosEstablishment.attributes.address.longitude),
-                            photo: infosEstablishment.attributes.logo.data ? HOST_API + infosEstablishment.attributes.logo.data.attributes.url : "",
-                            photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
-                                return HOST_API + photo.attributes.url
-                            }),
-                            type: courts.map(court => court.court_type).join(', ')
-                        }
-                    
+                    establishment = {
+                        id: infosEstablishment.id,
+                        corporateName: infosEstablishment.attributes.corporateName,
+                        cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
+                        streetName: infosEstablishment.attributes.address.streetName,
+                        latitude: Number(infosEstablishment.attributes.address.latitude),
+                        longitude: Number(infosEstablishment.attributes.address.longitude),
+                        photo: infosEstablishment.attributes.logo.data ? HOST_API + infosEstablishment.attributes.logo.data.attributes.url : "",
+                        photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
+                            return HOST_API + photo.attributes.url
+                        }),
+                        type: courts.map(court => court.court_type).join(', ')
+                    }
+
 
                     setEstablishment(establishment)
                     if (courts) {
@@ -242,7 +242,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 <View className="flex flex-row gap-[25] items-center">
                     <Image className='h-20 w-20' source={{ uri: Establishment?.photo }}></Image>
                     <View>
-                        <Text className="font-bold text-[#717171]">{Establishment?.type.split("_").join(" ")}</Text>
+                        <Text className="font-bold text-[#717171]">{Establishment?.type!.split("_").join(" ")}</Text>
                         <Text className="font-bold text-[#717171]">{distance?.toFixed(1).split(".").join(",")} Km de distância</Text>
                         <Text className="font-bold text-[#717171]">Avaliação: {rating?.toFixed(1).split(".").join(",")} <Ionicons name="star-sharp" size={20} color="orange" /></Text>
                         <Text className="font-bold text-[#717171]">{Establishment?.streetName}</Text>

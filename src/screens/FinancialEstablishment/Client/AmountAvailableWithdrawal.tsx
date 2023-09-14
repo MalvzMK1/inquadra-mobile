@@ -11,9 +11,10 @@ import CardAmountAvailableWithdrawal from "../../../components/CardAmountAvailab
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'> {
     establishmentId: string
-}
+}export default function AmountAvailableWithdrawal({ route }: NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'>) {
 
-export default function AmountAvailableWithdrawal({ route }: Props) {
+
+    // export default function AmountAvailableWithdrawal({ route }: Props) {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const currentDate = new Date();
@@ -94,7 +95,7 @@ export default function AmountAvailableWithdrawal({ route }: Props) {
 
         return datesFilter;
     }
-    
+
 
     return (
         <View className="flex-1">

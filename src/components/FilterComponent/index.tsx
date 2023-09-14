@@ -26,7 +26,7 @@ export default function FilterComponent() {
     const handleTimeInitPicker = () => {
         setShowTimeInitPicker(true)
     }
-    const handleTimeInitChange = (event: object, selectedTime) => {
+    const handleTimeInitChange = (event: object, selectedTime: any) => {
         setShowTimeInitPicker(false)
         if (selectedTime) {
             setTimeInit(selectedTime)
@@ -35,7 +35,7 @@ export default function FilterComponent() {
     const handleTimeFinalPicker = () => {
         setShowTimeFinalPicker(true)
     }
-    const handleTimeFinalChange = (event: object, selectedTime) => {
+    const handleTimeFinalChange = (event: object, selectedTime: any) => {
         setShowTimeFinalPicker(false)
         if (selectedTime) {
             setTimeFinal(selectedTime)

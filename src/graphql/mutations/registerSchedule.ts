@@ -11,7 +11,6 @@ export interface IRegisterScheduleResponse{
     }
 }
 
-
 export interface IRegisterScheduleVariables{
     publishedAt: string
     title: string

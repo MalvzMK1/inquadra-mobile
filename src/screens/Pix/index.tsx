@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
@@ -8,10 +8,11 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useCreateCharge} from "../../services/inter";
-import {useGetUserById} from "../../hooks/useUserById";
-import {useGetSchedulingsDetails} from "../../hooks/useSchedulingDetails";
-import getAddress, {APICepResponse} from "../../utils/getAddressByCep";
+import { useCreateCharge } from "../../services/inter";
+import { useGetUserById } from "../../hooks/useUserById";
+import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
+import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
+import {useCreateStrapiPixCharge} from "../../hooks/useCreateStrapiPixCharge";
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
@@ -24,9 +25,10 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     const { courtName, value, userID, scheduleID } = route.params
     const formattedValue = Number(value).toFixed(2)
 
-    const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID.toString());
+    const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
     const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
-    const [createCharge, {data: chargeData, loading: chargeLoading, error: chargeError}] = useCreateCharge();
+    const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
+    const [createStrapiCharge, {data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError}] = useCreateStrapiPixCharge();
 
     const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
     const [userAddress, setUserAddress] = useState<APICepResponse>();
@@ -34,14 +36,14 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     const handleCopiarTexto = () => {
         if (pixInfos) {
-            Clipboard.setStringAsync(pixInfos.pixCode)
+            Clipboard.arguments.setStringAsync(pixInfos.pixCode)
                 .finally(() => Toast.show({
-                        type: 'success',
-                        text1: 'Texto copiado',
-                        text2: 'O texto foi copiado para a área de transferência.',
-                        position: 'bottom',
-                        visibilityTime: 2000,
-                    })
+                    type: 'success',
+                    text1: 'Texto copiado',
+                    text2: 'O texto foi copiado para a área de transferência.',
+                    position: 'bottom',
+                    visibilityTime: 2000,
+                })
                 );
 
         }
@@ -53,16 +55,16 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             userData.usersPermissionsUser.data &&
             userData.usersPermissionsUser.data.attributes.address
         )
-        getAddress(userData.usersPermissionsUser.data.attributes.address.cep)
-            .then(response => {
-                console.log({__API_CEP_RESPONSE: response})
-                setUserAddress(response)
-            });
+            getAddress(userData.usersPermissionsUser.data.attributes.address.cep)
+                .then(response => {
+                    console.log({ __API_CEP_RESPONSE: response })
+                    setUserAddress(response)
+                });
     }, [userData])
 
     useEffect(() => {
         if
-        (
+            (
             userData &&
             userData.usersPermissionsUser.data &&
             userData.usersPermissionsUser.data.attributes.photo.data
@@ -72,7 +74,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             setUserPhotoUri(null)
 
         if
-        (
+            (
             userData &&
             userData.usersPermissionsUser.data &&
             userData.usersPermissionsUser.data.attributes.address &&
@@ -83,6 +85,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data &&
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data &&
             scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data &&
+            scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data &&
             !pixInfos
         ) {
             const dueDate: string = new Date(scheduleData?.scheduling.data?.attributes.date).toISOString().split('T')[0];
@@ -90,14 +93,14 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             const establishmentName: string = scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data.attributes.corporateName;
 
             console.log(scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data)
-            console.log({dueDate, courtName, establishmentName})
+            console.log({ dueDate, courtName, establishmentName })
             console.log(userAddress.code.split('-').join(''))
             createCharge({
                 variables: {
                     value: formattedValue,
                     message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
                     dueDate,
-                    debtorName: userData.usersPermissionsUser.data.attributes.username,
+                    debtorName: userData.usersPermissionsUser.data.attributes.username ?? "",
                     debtorStreet: userAddress.address,
                     debtorUf: userAddress.state,
                     debtorCity: userAddress.city,
@@ -106,11 +109,22 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     discountDate: new Date().toISOString().split('T')[0]
                 }
             }).then(response => {
-                if (response.data)
+                if (response.data) {
                     setPixInfos({
                         txid: response.data.txid,
                         pixCode: response.data.pixCopiaECola,
                     })
+                    createStrapiCharge({
+                        variables: {
+                            code: response.data.pixCopiaECola,
+                            txid: response.data.txid,
+                            userID,
+                            establishmentID: scheduleData.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.establishment.data?.id
+                        }
+                    }).then(response => {
+                        console.log(response.data)
+                    })
+                }
                 if (response.errors)
                     Toast.show({
                         text1: 'Não foi possível gerar o código pix',
@@ -123,7 +137,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     useEffect(() => {
         if (pixInfos) {
-            
+
         }
     }, [pixInfos])
 
@@ -143,7 +157,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     <TouchableOpacity className='h-max w-max'>
                         <Image
                             source={
-                                userPhotoUri ? {uri: userPhotoUri} : require('../../assets/default-user-image.png')
+                                userPhotoUri ? { uri: userPhotoUri } : require('../../assets/default-user-image.png')
                             }
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
