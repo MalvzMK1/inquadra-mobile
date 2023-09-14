@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -8,14 +8,16 @@ import {
     Image,
     Modal,
     StyleSheet,
-    ActivityIndicator
+    ActivityIndicator,
+    Alert,
+    Linking
 } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
-import * as ImagePicker from 'expo-image-picker';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { TextInputMask } from 'react-native-masked-text';
 import { Controller, useForm } from "react-hook-form";
+import ImagePicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetUserById } from "../../hooks/useUserById";
@@ -26,10 +28,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
-import { set } from 'date-fns';
 import { IconButton } from 'react-native-paper';
 import axios from 'axios';
-
+import TextRecognition from 'react-native-text-recognition';
 interface IFormData {
     name: string
     email: string
@@ -84,6 +85,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [uploadedImageID, setUploadedImageId] = useState('');
     const [isLoading, setIsLoading] = useState(false)
 
+    const [hasPermissions, setHasPermissions] = useState<boolean>(false);
     const { loading, error, data } = useGetUserById(route.params.userID);
     const { data: countriesData, loading: countriesLoading, error: countriesError } = useCountries();
     const [updateUser, { data: updatedUserData, loading: isUpdateLoading, error: updateUserError }] = useUpdateUser();
@@ -92,10 +94,15 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [photos, setPhotos] = useState([]);
     const [cardValue, setCardValue] = useState('');
     const [isCameraOpen, setCameraOpen] = useState(false);
-
+    const [processedText, setProcessedText] = React.useState<string>(
+        'Scan a Card to see\nCard Number here',
+    );
+    const [isProcessingText, setIsProcessingText] = useState<boolean>(false);
+    const [cardIsFound, setCardIsFound] = useState<boolean>(false);
     const handleCardChange = (text: string) => {
         setCardValue(text);
     };
+
     useEffect(() => {
         let newCountriesArray: Array<{ key: string, value: string, img: string }> = [];
         if (!countriesLoading && countriesData) {
@@ -131,36 +138,76 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         resolver: zodResolver(paymentCardFormSchema)
     })
 
-    const handleCameraReadNumberCard = async () => {
-        //     if (isCameraOpen) {
-        //         try {
-        //             const tessOptions = {
-        //                 whitelist: '0123456789', // Caracteres permitidos
-        //             };
+    const pickAndRecognize: () => void = useCallback(async () => {
 
-        //             const result = await RNTesseractOcr.recognize(
-        //                 'image-path', // Substitua 'image-path' pelo caminho da imagem capturada
-        //                 'LANG_ENGLISH',
-        //                 tessOptions
-        //             );
+        ImagePicker.openPicker({
+            cropping: false,
+        })
+            .then(async (res: ImageOrVideo) => {
+                setIsProcessingText(true);
+                const result: string[] = await TextRecognition.recognize(res?.path);
+                setIsProcessingText(false);
+                validateCard(result);
+            })
+            .catch(err => {
+                console.log('err:', err);
+                setIsProcessingText(false);
+            });
+    }, []);
 
-        //             if (typeof result === 'string') {
-        //                 // O OCR detectou texto como uma string, atualize o valor do cartão com os números lidos
-        //                 setCardValue(result);
-        //             } else {
-        //                 console.warn('Resultado do OCR não possui propriedade "text" válida.');
-        //             }
-
-        //         } catch (error) {
-        //             console.error('Erro ao executar o OCR:', error);
-        //         } finally {
-        //             setCameraOpen(false);
-        //         }
-        //     } else {
-        //         setCameraOpen(true);
-        //     }
+    // const captureAndRecognize = useCallback(async () => {
+    //     try {
+    //         const image = await camera.current?.takePhoto({
+    //             qualityPrioritization: 'quality',
+    //             enableAutoStabilization: true,
+    //             flash: 'on',
+    //             skipMetadata: true,
+    //         });
+    //         setIsProcessingText(true);
+    //         const result: string[] = await TextRecognition.recognize(
+    //             image?.path as string,
+    //         );
+    //         setIsProcessingText(false);
+    //         validateCard(result);
+    //     } catch (err) {
+    //         console.log('err:', err);
+    //         setIsProcessingText(false);
+    //     }
+    // }, []);
+    const findCardNumberInArray: (arr: string[]) => string = arr => {
+        let creditCardNumber = '';
+        arr.forEach(e => {
+            let numericValues = e.replace(/\D/g, '');
+            const creditCardRegex =
+                /^(?:4\[0-9]{12}(?:[0-9]{3})?|[25\][1-7]\[0-9]{14}|6(?:011|5[0-9\][0-9])\[0-9]{12}|3[47\][0-9]{13}|3(?:0\[0-5]|[68\][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/;
+            if (creditCardRegex.test(numericValues)) {
+                creditCardNumber = numericValues;
+                return;
+            }
+        });
+        return creditCardNumber;
     };
-
+    const getFormattedCreditCardNumber: (cardNo: string) => string = cardNo => {
+        let formattedCardNo = '';
+        for (let i = 0; i < cardNo?.length; i++) {
+            if (i % 4 === 0 && i !== 0) {
+                formattedCardNo += ` • ${cardNo?.[i]}`;
+                continue;
+            }
+            formattedCardNo += cardNo?.[i];
+        }
+        return formattedCardNo;
+    };
+    const validateCard: (result: string[]) => void = result => {
+        const cardNumber = findCardNumberInArray(result);
+        if (cardNumber?.length) {
+            setProcessedText(cardNumber);
+            setCardIsFound(true);
+        } else {
+            setProcessedText('No valid Credit Card found, please try again!!');
+            setCardIsFound(false);
+        }
+    };
     const handleCardClick = () => {
         setShowCard(!showCard);
         setShowCameraIcon(false);
@@ -306,8 +353,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             setUserInfos(updatedUserInfos);
         }
     }
-
-
 
     async function loadInformations() {
         let newUserInfos = userInfos;
@@ -460,14 +505,14 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                         <FontAwesome name="credit-card-alt" size={20} style={{ marginStart: 10 }} color="#FF6112" />
                                         <TextInput
                                             style={{ flex: 1, fontSize: 16, textAlign: 'left', marginStart: 10 }}
-                                            value={cardValue}
+                                            value={getFormattedCreditCardNumber(processedText)}
                                             onChangeText={handleCardChange}
                                             placeholder="Adicionar Cartão "
                                         />
                                         <IconButton size={20}
                                             iconColor="#FF6112"
                                             icon={"camera"}
-                                            onPress={handleCameraReadNumberCard} />
+                                            onPress={pickAndRecognize} />
                                         <IconButton size={20}
                                             iconColor="#FF4715"
                                             icon={showCard ? 'chevron-up' : 'chevron-down'}
@@ -653,3 +698,7 @@ const styles = StyleSheet.create({
         fontSize: 20
     }
 });
+
+function useCameraDevices() {
+    throw new Error('Function not implemented.');
+}
