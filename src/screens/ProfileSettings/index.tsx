@@ -250,21 +250,30 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	  };
 	
 
-	function updateUserInfos(data: IFormData): void {
-		console.log(userInfos)
-		if (userInfos)
-			updateUser({
-				variables: {
-					user_id: userInfos.id,
-					email: data.email,
-					cpf: data.cpf,
-					phone_number: data.phoneNumber,
-					username: data.name,
-					photo: data.photo
-				}
-			}).then(console.log)
-				.catch(console.error)
-	}
+	  async function updateUserInfos(data: IFormData): Promise<void> {
+		console.log(userInfos);
+		if (userInfos) {
+		  const newPhotoId = await uploadImage(data.photo);
+		  const updatedUserInfos = { ...userInfos, photo: newPhotoId }; // Atualize o campo de foto com o novo ID
+		  updateUser({
+			variables: {
+			  user_id: userInfos.id,
+			  email: data.email,
+			  cpf: data.cpf,
+			  phone_number: data.phoneNumber,
+			  username: data.name,
+			  photo: newPhotoId,
+			},
+		  })
+			.then(console.log)
+			.catch(console.error);
+	  
+		  // Atualize o estado local com as informações atualizadas do usuário
+		  setUserInfos(updatedUserInfos);
+		}
+	  }
+	  
+	  
 
 	async function loadInformations() {
 		let newUserInfos = userInfos;
@@ -291,7 +300,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		return newUserInfos;
 	}
 
-	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined): void {
+	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined) : void {
 		if(userData) {
 			setValue('name', userData.username)
 			setValue('photo', userData.photo)
