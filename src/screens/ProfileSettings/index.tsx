@@ -338,7 +338,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         }
 
         // Verifique se data.photo está definido e tem a propriedade id
-        if (!data.photo || !data.photo.id) {
+        if (!data.photo) {
             console.error('Erro: data.photo não está definido ou não tem a propriedade id.');
             return;
         }
@@ -354,7 +354,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         console.log('userInfos:', userInfos);
 
         try {
-            const newPhotoId = await uploadImage(data.photo.id);
+            const newPhotoId = await uploadImage(data.photo);
             console.log('Novo ID da foto:', newPhotoId);
             const updatedUserInfos = { ...userInfos, photo: newPhotoId };
             await updateUser({
