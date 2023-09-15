@@ -12,7 +12,7 @@ import { useCreateCharge } from "../../services/inter";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
-import {useCreateStrapiPixCharge} from "../../hooks/useCreateStrapiPixCharge";
+import { useCreateStrapiPixCharge } from "../../hooks/useCreateStrapiPixCharge";
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
@@ -28,7 +28,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
     const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
     const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
-    const [createStrapiCharge, {data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError}] = useCreateStrapiPixCharge();
+    const [createStrapiCharge, { data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError }] = useCreateStrapiPixCharge();
 
     const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
     const [userAddress, setUserAddress] = useState<APICepResponse>();
@@ -36,7 +36,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     const handleCopiarTexto = () => {
         if (pixInfos) {
-            Clipboard.arguments.setStringAsync(pixInfos.pixCode)
+            Clipboard.setStringAsync(pixInfos.pixCode)
                 .finally(() => Toast.show({
                     type: 'success',
                     text1: 'Texto copiado',
@@ -119,7 +119,8 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                             code: response.data.pixCopiaECola,
                             txid: response.data.txid,
                             userID,
-                            establishmentID: scheduleData.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.establishment.data?.id
+                            establishmentID:
+                                scheduleData.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.establishment.data?.id ?? ""
                         }
                     }).then(response => {
                         console.log(response.data)

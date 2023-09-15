@@ -38,6 +38,7 @@ export interface IUpdateUserVariables {
 
 export const updateUserMutation = gql`
 mutation updateUser(
+  $user_id: ID!
     $username: String!
     $email: String!
     $phone_number: String!
@@ -75,5 +76,5 @@ mutation updateUser(
         }
       }
     }
-  }  
+  }
 `

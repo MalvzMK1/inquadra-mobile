@@ -16,7 +16,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "backgroundColor": "#292929"
+      "backgroundColor": "#292929",
+      "bundleIdentifier": "com.anonymous.mobile"
     },
     "androidStatusBar": {
       "backgroundColor": "#292929"
