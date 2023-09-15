@@ -36,7 +36,7 @@ interface IFormData {
 	email: string
 	phoneNumber: string
 	cpf: string
-	photo: string
+	photo: Photo['id']
 }
 
 interface IPaymentCardFormData {
@@ -224,7 +224,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		const formData = new FormData();
 		formData.append('files', {
 		  uri: selectedImageUri,
-		  name: 'image.jpg',
+		  name: 'prifile.jpg',
 		  type: 'image/jpeg',
 		});
 	
@@ -251,11 +251,36 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	
 
 	  async function updateUserInfos(data: IFormData): Promise<void> {
-		console.log(userInfos);
-		if (userInfos) {
-		  const newPhotoId = await uploadImage(data.photo);
-		  const updatedUserInfos = { ...userInfos, photo: newPhotoId }; // Atualize o campo de foto com o novo ID
-		  updateUser({
+		console.log('Iniciando a atualização das informações do usuário.');
+		console.log(data)
+	  
+		// Verifique se data está definido
+		if (!data) {
+		  console.error('Erro: data não está definido.');
+		  return;
+		}
+	  
+		// Verifique se data.photo está definido e tem a propriedade id
+		if (!data.photo || !data.photo.id) {
+		  console.error('Erro: data.photo não está definido ou não tem a propriedade id.');
+		  return;
+		}
+	  
+		// Verifique se userInfos está definido
+		if (!userInfos) {
+		  console.error('Erro: userInfos não está definido.');
+		  return;
+		}
+	  
+		console.log('Dados de entrada:');
+		console.log('data:', data);
+		console.log('userInfos:', userInfos);
+	  
+		try {
+		  const newPhotoId = await uploadImage(data.photo.id);
+		  console.log('Novo ID da foto:', newPhotoId);
+		  const updatedUserInfos = { ...userInfos, photo: newPhotoId };
+		  await updateUser({
 			variables: {
 			  user_id: userInfos.id,
 			  email: data.email,
@@ -264,17 +289,15 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 			  username: data.name,
 			  photo: newPhotoId,
 			},
-		  })
-			.then(console.log)
-			.catch(console.error);
-	  
-		  // Atualize o estado local com as informações atualizadas do usuário
+		  });
 		  setUserInfos(updatedUserInfos);
+		  console.log('Informações do usuário atualizadas com sucesso!');
+		} catch (error) {
+		  console.error('Erro ao atualizar informações do usuário:', error);
 		}
 	  }
 	  
 	  
-
 	async function loadInformations() {
 		let newUserInfos = userInfos;
 
@@ -285,7 +308,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 				cpf: data.usersPermissionsUser.data.attributes.cpf,
 				email: data.usersPermissionsUser.data.attributes.email,
 				phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
-				photo: data.usersPermissionsUser.data.attributes.photo.data?.id,
+				photo: data.usersPermissionsUser.data.attributes.photo.data.id,
 				paymentCardInfos: {
 					dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
 					cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
