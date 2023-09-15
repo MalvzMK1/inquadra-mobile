@@ -246,5 +246,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
             </View>
 
         </ScrollView>
+
+        
     )
 }

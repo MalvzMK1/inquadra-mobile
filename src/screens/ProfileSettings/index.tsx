@@ -29,6 +29,7 @@ import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import axios from 'axios';
 import { RootStackParamList } from "../../types/RootStack";
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface IFormData {
 	name: string
@@ -188,61 +189,61 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
 	const handleProfilePictureUpload = async () => {
 		try {
-		  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-	
-		  if (status !== 'granted') {
-			alert('Desculpe, precisamos da permissão para acessar a galeria!');
-			return;
-		  }
-	
-		  const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-			allowsEditing: true,
-			aspect: [1, 1],
-			quality: 1,
-		  });
-	
-		  if (!result.canceled) {
-			setProfilePicture(result.uri);
-			await uploadImage(result.uri);
-		  }
+			const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+			if (status !== 'granted') {
+				alert('Desculpe, precisamos da permissão para acessar a galeria!');
+				return;
+			}
+
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ImagePicker.MediaTypeOptions.Images,
+				allowsEditing: true,
+				aspect: [1, 1],
+				quality: 1,
+			});
+
+			if (!result.canceled) {
+				setProfilePicture(result.uri);
+				await uploadImage(result.uri);
+			}
 		} catch (error) {
-		  console.log('Erro ao carregar a imagem: ', error);
+			console.log('Erro ao carregar a imagem: ', error);
 		}
-	  };
-	
-	  const uploadImage = async (selectedImageUri: string) => {
+	};
+
+	const uploadImage = async (selectedImageUri: string) => {
 		setIsLoading(true);
 		const apiUrl = 'https://inquadra-api-uat.qodeless.io';
-	
+
 		const formData = new FormData();
 		formData.append('files', {
-		  uri: selectedImageUri,
-		  name: 'image.jpg',
-		  type: 'image/jpeg',
+			uri: selectedImageUri,
+			name: 'image.jpg',
+			type: 'image/jpeg',
 		});
-	
+
 		try {
-		  const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-			headers: {
-			  'Content-Type': 'multipart/form-data',
-			},
-		  });
-	
-		  const uploadedImageID = response.data[0].id;
-	
-		  console.log('Imagem enviada com sucesso!', response.data);
-	
-		  setIsLoading(false);
-	
-		  return uploadedImageID;
+			const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			});
+
+			const uploadedImageID = response.data[0].id;
+
+			console.log('Imagem enviada com sucesso!', response.data);
+
+			setIsLoading(false);
+
+			return uploadedImageID;
 		} catch (error) {
-		  console.error('Erro ao enviar imagem:', error);
-		  setIsLoading(false);
-		  return "Deu erro";
+			console.error('Erro ao enviar imagem:', error);
+			setIsLoading(false);
+			return "Deu erro";
 		}
-	  };
-	
+	};
+
 
 
 	function updateUserInfos(data: IFormData): void {
@@ -303,6 +304,8 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 			setUserInfos(data)
 		});
 	}, [loading])
+
+	const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(userInfos?.id!)
 
 	return (
 		<View className="flex-1 bg-white h-full">
@@ -538,8 +541,21 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 								</View>
 							</View>
 						</Modal>
+						<View className='h-16'></View>
 					</ScrollView>
+
 			}
+
+			<View className="absolute bottom-0 left-0 right-0">
+				<BottomBlackMenu
+					screen="Any"
+					userID={userInfos?.id!}
+					userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+					key={1}
+					isDisabled={true}
+					paddingTop={2}
+				/>
+			</View>
 		</View>
 	);
 }
