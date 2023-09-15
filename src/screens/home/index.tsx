@@ -18,6 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
 import { ScrollView } from 'react-native-gesture-handler';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
@@ -191,12 +192,12 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			}
 			{
 				userHookData && <BottomBlackMenu
-				screen={"Home"}
-				userID={route?.params?.userID}
-				userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-				key={1}
-				isDisabled ={true}
-				paddingTop={2}
+                    screen={"Home"}
+                    userID={route?.params?.userID}
+                    userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+                    key={1}
+                    isDisabled ={true}
+                    paddingTop={2}
                 />
             }
         </View>
