@@ -20,8 +20,8 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const [showPrincipalButton, setPrincipalButton] = useState(true)
     const [showButtons, setShowButtons] = useState(false)
+    const [statusClickHome, setStatusClickHome] = useState(false)
     const opacityValue = useSharedValue(0)
-
     const buttonsContainerStyle = useAnimatedStyle(() => {
         return {
             opacity: withTiming(opacityValue.value, { duration: 300 }), // Duração da animação (300ms)
@@ -42,10 +42,9 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data))
-
+    
     return (
-        <View className={`items-center ${screen === "Home" ? "bg-[#292929]" : "transparent"} w-full pt-${paddingTop} pb-1`}>
-
+        <View className={`items-center ${!isDisabled ? "bg-[#292929]" : "transparent"} w-full pt-${paddingTop} pb-1`}>
             {
                 showPrincipalButton
                     ? <TouchableOpacity
@@ -56,7 +55,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     </TouchableOpacity>
                     : null
             }
-
             {
                 showButtons &&
                 (
