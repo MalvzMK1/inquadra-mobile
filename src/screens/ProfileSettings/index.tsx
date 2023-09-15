@@ -17,7 +17,7 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { TextInputMask } from 'react-native-masked-text';
 import { Controller, useForm } from "react-hook-form";
-import ImagePicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+// import { ImageOrVideo, openPicker } from 'react-native-image-crop-picker';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetUserById } from "../../hooks/useUserById";
@@ -142,19 +142,19 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const pickAndRecognize: () => void = useCallback(async () => {
 
-        ImagePicker.openPicker({
-            cropping: false,
-        })
-            .then(async (res: ImageOrVideo) => {
-                setIsProcessingText(true);
-                const result: string[] = await TextRecognition.recognize(res?.path);
-                setIsProcessingText(false);
-                validateCard(result);
-            })
-            .catch(err => {
-                console.log('err:', err);
-                setIsProcessingText(false);
-            });
+        // openPicker({
+        //     cropping: false,
+        // })
+        //     .then(async (res: ImageOrVideo) => {
+        //         setIsProcessingText(true);
+        //         const result: string[] = await TextRecognition.recognize(res?.path);
+        //         setIsProcessingText(false);
+        //         validateCard(result);
+        //     })
+        //     .catch(err => {
+        //         console.log('err:', err);
+        //         setIsProcessingText(false);
+        //     });
     }, []);
 
     // const captureAndRecognize = useCallback(async () => {
@@ -317,11 +317,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             });
 
             setUploadedImageId(response.data[0].id);
-			const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				},
-			});
 
             console.log('Imagem enviada com sucesso!', response.data);
 
@@ -334,8 +329,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             return "Deu erro";
         }
     };
-		}
-	};
 
 
     async function updateUserInfos(data: IFormData): Promise<void> {
@@ -343,10 +336,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         if (userInfos) {
             const newPhotoId = await uploadImage(data.photo);
             const updatedUserInfos = { ...userInfos, photo: newPhotoId }; // Atualize o campo de foto com o novo ID
-            updateUser({
-		  console.error('Erro: data não está definido.');
-		  return;
-		}
+        }
 	  
 		// Verifique se data.photo está definido e tem a propriedade id
 		if (!data.photo || !data.photo.id) {
