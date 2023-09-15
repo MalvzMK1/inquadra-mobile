@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Dimensions } from 'react-native'
+import { View, Text, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native'
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -115,41 +114,50 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 			<ScrollView className='p-5'>
 				{
 					courts !== undefined ? (
-						chosenType ? (
-							result.length > 0 ? (courts.filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
-								return (
-									<CourtCardHome
-										userId={userId}
-										key={item.id}
-										id={item.id}
-										image={item.image}
-										name={item.name}
-										distance={item.distance}
-										type={item.type}
-										liked={verifyCourtLike(item.id)}
-									/>
+						courts.filter(item => {
+							return item.distance <= 5
+						}).length > 0 ? (
+							chosenType ? (
+								result.length > 0 ? (courts.filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
+									return (
+										<CourtCardHome
+											userId={userId}
+											key={item.id}
+											id={item.id}
+											image={item.image}
+											name={item.name}
+											distance={item.distance}
+											type={item.type}
+											liked={verifyCourtLike(item.id)}
+										/>
+									)
+								})) : (
+									Alert.alert("Aviso", "Ainda não possuímos nenhum estabelecimento cadastrado para esse esporte na sua área. Contamos com sua ajuda para indicar nossa plataforma a quadras próximas a você!", [{
+										onPress: () => HandleSportSelected(undefined)
+									}]),
+									<></>
 								)
-							})) : (
-								Alert.alert("Aviso", "Ainda não possuímos nenhum estabelecimento cadastrado para esse esporte na sua área. Contamos com sua ajuda para indicar nossa plataforma a quadras próximas a você!", [{
-									onPress: () => HandleSportSelected(undefined)
-								}]),
-								<></>
 							)
+								: (
+									courts.map(item => (
+										<CourtCardHome
+											userId={userId}
+											key={item.id}
+											id={item.id}
+											image={item.image}
+											name={item.name}
+											distance={item.distance}
+											type={item.type}
+											liked={verifyCourtLike(item.id)}
+										/>
+									))
+								)
+						) : (
+							Alert.alert("Aviso", "Ainda não temos estabelecimentos cadastrados em um raio de 5km da sua localização. Contamos com a sua ajuda para recomendar nossa plataforma a quadras próximas a você!", [{
+								onPress: () => HandleSportSelected(undefined)
+							}]),
+							<></>
 						)
-							: (
-								courts.map(item => (
-									<CourtCardHome
-										userId={userId}
-										key={item.id}
-										id={item.id}
-										image={item.image}
-										name={item.name}
-										distance={item.distance}
-										type={item.type}
-										liked={verifyCourtLike(item.id)}
-									/>
-								))
-							)
 					) : (
 						<ActivityIndicator size="small" color="#fff" />
 					)

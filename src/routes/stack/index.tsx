@@ -344,9 +344,8 @@ export default function () {
                     ),
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            console.log({ params })
                             navigation.navigate('ProfileSettings', {
-                                userPhoto: HOST_API + params.userPhoto,
+                                userPhoto: params.userPhoto,
                                 userID: params.userID
                             })
                         }}>
