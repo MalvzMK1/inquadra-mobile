@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, Text, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
@@ -9,9 +8,6 @@ import { HOST_API } from '@env';
 import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack/types';
 import { useGetMenuUser } from '../../hooks/useMenuUser';
 import { useFocusEffect } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import { useIsFocused } from '@react-navigation/native';
-import storage from "../../utils/storage";
 import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 function formatDateTime(dateTimeString: string): string {
@@ -110,13 +106,13 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                         </View>
                                                         <View className='w-max h-5 flex-row pt-1'>
                                                             <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.valuePayed}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.valuePayed.toString()}</Text>
                                                                 <Text className='font-black text-xs text-white'> / </Text>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.court_availability?.data?.attributes?.value}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.court_availability?.data?.attributes?.value.toString()}</Text>
                                                             </View>
-                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((courtInfo?.attributes?.valuePayed / courtInfo?.attributes?.court_availability?.data?.attributes?.value) * 100)}</Text>
+                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((Number(courtInfo?.attributes?.valuePayed) / Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value)) * 100)}</Text>
                                                         </View>
-                                                        <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt)}</Text>
+                                                        <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt.toString())}</Text>
                                                     </View>
                                                 </View>
                                             </TouchableOpacity>
@@ -162,13 +158,13 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                         </View>
 
                                                         <View>
-                                                            <Text className='font-black text-xs text-white'>R${courtInfo.attributes.court_availability.data.attributes.value}</Text>
+                                                            <Text className='font-black text-xs text-white'>R${courtInfo.attributes.court_availability.data.attributes.value.toString()}</Text>
                                                         </View>
 
                                                     </View>
 
                                                     <View>
-                                                        <Text className='font-black text-xs text-white'>Ultima Reserva {formatDateTime(courtInfo?.attributes?.createdAt)}</Text>
+                                                        <Text className='font-black text-xs text-white'>Ultima Reserva {formatDateTime(courtInfo?.attributes?.createdAt.toString())}</Text>
                                                     </View>
                                                 </View>
                                             </View>

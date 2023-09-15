@@ -1,7 +1,7 @@
 import { View, Image, TouchableOpacity } from "react-native"
 import { AntDesign } from "@expo/vector-icons"
 import React, { useState } from 'react'
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 interface IBottomBlackMenuEstablishment {
     screen: string
@@ -11,7 +11,7 @@ interface IBottomBlackMenuEstablishment {
 
 export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEstablishment) {
     const { screen, establishment_id, logo_establishment } = props
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
 
     storage.load<{ latitude: number, longitude: number }>({
@@ -25,7 +25,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                     screen === "Home"
                         ?
                         <>
-                            <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentID: establishment_id, logo: logo_establishment })}>
+                            <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishment_id ?? "", logo: logo_establishment ?? "" })}>
                                 <Image source={require('../../assets/pig_logo.png')}></Image>
                             </TouchableOpacity>
 
@@ -33,7 +33,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                             </TouchableOpacity>
 
-                            <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: logo_establishment })}>
+                            <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: logo_establishment ?? "" })}>
                                 <Image source={require('../../assets/calendar_icon.png')}></Image>
                             </TouchableOpacity>
                         </>
@@ -45,22 +45,22 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                     <Image source={require('../../assets/pig_logo_orange.png')}></Image>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment')}>
+                                <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', {})}>
                                     <Image source={require('../../assets/logo_inquadra_white.png')}></Image>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: logo_establishment })}>
+                                <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: logo_establishment ?? "" })}>
                                     <Image source={require('../../assets/calendar_icon.png')}></Image>
                                 </TouchableOpacity>
                             </>
                             : screen === "Schedule"
                                 ?
                                 <>
-                                    <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentID: establishment_id, logo: logo_establishment })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishment_id ?? "", logo: logo_establishment ?? "" })}>
                                         <Image source={require('../../assets/pig_logo.png')}></Image>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment')}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', {})}>
                                         <Image source={require('../../assets/logo_inquadra_white.png')}></Image>
                                     </TouchableOpacity>
 
@@ -70,16 +70,16 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                 </>
                                 :
                                 <>
-                                    <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentID: establishment_id, logo: logo_establishment })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishment_id, logo: logo_establishment ?? "" })}>
                                         <Image source={require('../../assets/pig_logo.png')}></Image>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment')}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', {})}>
                                         <Image source={require('../../assets/logo_inquadra_white.png')}></Image>
                                     </TouchableOpacity>
 
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: logo_establishment })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: logo_establishment ?? "" })}>
                                         <Image source={require('../../assets/calendar_icon.png')}></Image>
                                     </TouchableOpacity>
                                 </>

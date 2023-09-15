@@ -202,12 +202,12 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             const create = await createSchedule({
                 variables: {
                     title: 'rapaz',
-                    court_availability: parseFloat(courtAvailabilities),
+                    court_availability: courtAvailabilities,
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    owner: parseFloat(userId),
-                    users: [parseFloat(userId)],
+                    owner: userId.toString(),
+                    users: [userId.toString()],
                     publishedAt: new Date().toISOString()
                 }
             });
@@ -226,7 +226,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             }
         })
     }
-
 
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -250,10 +249,14 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                 <View className='px-10 py-5'>
                     <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
                         onPressIn={() => {
-                            navigation.navigate('PixScreen', {
-                                courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                                value: (amountToPay + serviceValue).toString(),
-                                userID: userId
+                            createNewSchedule().then(scheduleID => {
+                                if (scheduleID)
+                                    navigation.navigate('PixScreen', {
+                                        courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                                        value: (amountToPay + serviceValue).toString(),
+                                        userID: userId,
+                                        scheduleID,
+                                    })
                             })
                         }}
                     >

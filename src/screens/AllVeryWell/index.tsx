@@ -17,6 +17,7 @@ interface CourtArrayObject {
 }
 
 export default function AllVeryWell({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'AllVeryWell'>) {
+    const navigate = useNavigation<NavigationProp<RootStackParamList>>()
 
     const [addCourt, { data: dataRegisterCourt, loading: loadingRegisterCourt, error: errorRegisterCourt }] = useRegisterCourt()
 
@@ -64,8 +65,12 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
         <View className="flex-1">
             <ScrollView className="bg-white">
                 <View className="p-4 gap-3">
-                    <TouchableOpacity onPress={() => navigation.navigate('CourtDetails')}>
-                        <View>
+                    <TouchableOpacity onPress={() =>
+                        navigation.navigate('CourtDetails', {
+                            courtArray: courts,
+                        })
+                    }
+                    ><View>
                             <Text className="text-xl p-2">Detalhes Gerais</Text>
                             <View className="border rounded border-orange-400 p-5">
                                 <Text className="text-base">{courts.length} quadras cadastradas</Text>
@@ -76,9 +81,9 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
 
                     {
                         courts.map((court, index) =>
-                            <TouchableOpacity 
-                            key={index}
-                            onPress={() => navigation.navigate('CourtDetails', { courtArray: courts })}>
+                            <TouchableOpacity
+                                key={index}
+                                onPress={() => navigation.navigate('CourtDetails', { courtArray: courts })}>
                                 <View>
                                     <Text className="text-xl p-2">{court.court_name}</Text>
                                     <View className="border rounded border-orange-400 p-5">

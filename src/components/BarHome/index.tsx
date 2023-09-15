@@ -1,13 +1,12 @@
-import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Dimensions } from 'react-native'
+import { View, Text, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native'
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
-	useAnimatedReaction,
 	withTiming,
 	FadeOut,
 	FadeIn,
-	withSpring
+	withSpring,
+	useAnimatedReaction
 } from 'react-native-reanimated'
 import { PanGestureHandler, State as GestureState } from 'react-native-gesture-handler'
 import CourtCardHome from '../CourtCardHome'
@@ -37,23 +36,27 @@ interface HomeBarProps {
 	HandleSportSelected: Function
 }
 
-const screenHeight = Dimensions.get('window').height;
-const minHeightPercentage = 40;
-const maxHeightPercentage = 100;
-const minHeight = (minHeightPercentage / 100) * screenHeight;
-const maxHeight = (maxHeightPercentage / 100) * screenHeight;
-const expandThreshold = 0.2 * maxHeight;
+const screenHeight = Dimensions.get('window').height
+const minHeightPercentage = 33
+const maxHeightPercentage = 100
+const minHeight = (minHeightPercentage / 100) * screenHeight
+const maxHeight = (maxHeightPercentage / 100) * screenHeight
+const expandThreshold = 0.3 * maxHeight
 
 export default function HomeBar({ courts, userName, chosenType, HandleSportSelected }: HomeBarProps) {
-	const translateY = useSharedValue(0);
-	const height = useSharedValue(minHeight);
+	const translateY = useSharedValue(0)
+	const height = useSharedValue(minHeight)
+
 
 	const animatedStyle = useAnimatedStyle(() => {
 		return {
 			transform: [{ translateY: translateY.value }],
 			height: height.value,
-		};
-	});
+			backgroundColor: "#292929",
+			borderTopEndRadius: 20,
+			borderTopStartRadius: 20
+		}
+	})
 
 
 	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
@@ -76,42 +79,44 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 	})
 
 	return (
-		<View className='flex-1 w-full'>
-			<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className="w-full" style={[animatedStyle, { backgroundColor: "#292929", borderTopEndRadius: 20, borderTopStartRadius: 20 }]}>
-				<PanGestureHandler
-					onGestureEvent={(event) => {
-						const translateYDelta = event.nativeEvent.translationY;
+		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className="w-full" style={[animatedStyle, { backgroundColor: "#292929" }]}>
+			<PanGestureHandler
+				onGestureEvent={(event) => {
+					const translateYDelta = event.nativeEvent.translationY;
 
-						translateY.value = translateYDelta;
-
-						height.value = Math.min(Math.max(height.value - translateYDelta, minHeight), maxHeight);
-					}}
-					onHandlerStateChange={(event) => {
-						if (event.nativeEvent.state === GestureState.END) {
-
-							const targetY = translateY.value * -1 >= expandThreshold ? maxHeight : 0;
-							
-							if (targetY === 0) {
-								height.value = withTiming(minHeight);
-								translateY.value = withSpring(targetY * -1);
-							} else {
-								console.log(expandThreshold)
-								height.value = maxHeight;
-								translateY.value = withSpring((targetY - (screenHeight/1.9)) * -1);
-							}
+					if (translateYDelta < 0) {
+						translateY.value = translateYDelta + 500;
+						height.value = minHeight - translateYDelta + 500;
+					}
+				}}
+				onHandlerStateChange={(event) => {
+					if (event.nativeEvent.state === GestureState.END) {
+						const targetY = translateY.value;
+						console.log(targetY)
+						console.log(expandThreshold)
+						if (targetY >= expandThreshold) {
+							height.value = withTiming(maxHeight, { duration: 500 });
+							translateY.value = withSpring(-maxHeight + screenHeight + 45);
+						} else {
+							height.value = withTiming(minHeight, { duration: 500 });
+							translateY.value = withSpring(0);
 						}
-					}}
-				>
-					<View
-						className='flex items-center'>
-						<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
-						<Text className='text-white text-lg font-black mt-3'>Olá{userName ? `, ${userName}` : null}!</Text>
-					</View>
-				</PanGestureHandler>
+					}
+				}}
+			>
 
-				<ScrollView className='p-5'>
-					{
-						courts !== undefined ? (
+
+				<View className='flex items-center'>
+					<View className='w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]'></View>
+					<Text className='text-white text-lg font-black mt-3'>Olá{userName ? `, ${userName}` : null}!</Text>
+				</View>
+			</PanGestureHandler>
+			<ScrollView className='p-5'>
+				{
+					courts !== undefined ? (
+						courts.filter(item => {
+							return item.distance <= 5
+						}).length > 0 ? (
 							chosenType ? (
 								result.length > 0 ? (courts.filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
 									return (
@@ -148,12 +153,16 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 									))
 								)
 						) : (
-							<ActivityIndicator size="small" color="#fff" />
+							Alert.alert("Aviso", "Ainda não temos estabelecimentos cadastrados em um raio de 5km da sua localização. Contamos com a sua ajuda para recomendar nossa plataforma a quadras próximas a você!", [{
+								onPress: () => HandleSportSelected(undefined)
+							}]),
+							<></>
 						)
-					}
-				</ScrollView>
-			</Animated.View>
-
-		</View>
+					) : (
+						<ActivityIndicator size="small" color="#fff" />
+					)
+				}
+			</ScrollView>
+		</Animated.View>
 	)
 }

@@ -1,7 +1,7 @@
 import { View, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from "react-native"
 import { AntDesign, MaterialIcons } from "@expo/vector-icons"
 import React, { useState } from 'react'
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
@@ -16,7 +16,7 @@ interface IBottomBlackMenu {
 
 export default function BottomBlackMenu(props: IBottomBlackMenu) {
     const { screen, userID, userPhoto, isDisabled, paddingTop } = props
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const [showPrincipalButton, setPrincipalButton] = useState(true)
     const [showButtons, setShowButtons] = useState(false)
@@ -113,7 +113,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                                     longitude: 15.491400000982967
                                                 },
                                                 userID: userID,
-                                                userPhoto: userPhoto
+                                        userPhoto: userPhoto ?? ""
                                             })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
@@ -134,7 +134,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                                     longitude: 15.491400000982967
                                                 },
                                                 userID: userID,
-                                                userPhoto: userPhoto
+                                        userPhoto: userPhoto ?? ""
                                             })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>

@@ -20,7 +20,7 @@ export default function AddCourtSchedule(props: AddCourtScheduleCard) {
     const closeShowDetails = () => setShowDetails(false)
     let viewContent: JSX.Element
 
-    if(props.isReserved)
+    if (props.isReserved)
         viewContent = <Text className="font-normal text-black text-[12px]">{props.startsAt} - {props.endsAt}</Text>
     else
         viewContent = <Text className="font-normal text-black text-[12px]">Sem reservas prévias</Text>
@@ -48,8 +48,8 @@ export default function AddCourtSchedule(props: AddCourtScheduleCard) {
                         <ScheduleBlockDetails
                             userName={props.reservedBy}
                             courtType={props.courtType}
-                            startsAt={props.startsAt}
-                            endsAt={props.endsAt}
+                            startsAt={props.startsAt ?? ""}
+                            endsAt={props.endsAt ?? ""}
                             payedStatus={props.payedStatus}
                         />
 
