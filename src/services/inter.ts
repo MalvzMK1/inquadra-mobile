@@ -1,44 +1,44 @@
 import {
-	ApolloClient,
-	gql,
-	HttpLink,
-	InMemoryCache,
-	MutationTuple,
-	QueryResult,
-	useMutation,
-	useQuery
+    ApolloClient,
+    gql,
+    HttpLink,
+    InMemoryCache,
+    MutationTuple,
+    QueryResult,
+    useMutation,
+    useQuery
 } from "@apollo/client";
-import {INTER_API} from '@env';
+import { INTER_API } from '@env';
 
 console.log(INTER_API)
 
 export const interClient = new ApolloClient({
-	link: new HttpLink({
-		uri: INTER_API
-	}),
-	cache: new InMemoryCache(),
+    link: new HttpLink({
+        uri: INTER_API
+    }),
+    cache: new InMemoryCache(),
 })
 
 export interface ICreateChargeResponse {
-	txid: string;
-	pixCopiaECola: string;
-	calendario: {
-		dataDeVencimento: string;
-	},
-	status: string;
+    txid: string;
+    pixCopiaECola: string;
+    calendario: {
+        dataDeVencimento: string;
+    },
+    status: string;
 }
 
 export interface ICreateChargeVariables {
-	dueDate: string
-	discountDate: string
-	value: string
-	debtorCpf: string
-	debtorName: string
-	debtorCep: string
-	debtorStreet: string
-	debtorCity: string
-	debtorUf: string
-	message: string
+    dueDate: string
+    discountDate: string
+    value: string
+    debtorCpf: string
+    debtorName: string
+    debtorCep: string
+    debtorStreet: string
+    debtorCity: string
+    debtorUf: string
+    message: string
 }
 
 export const createChargeQuery = gql`
@@ -86,5 +86,5 @@ export const createChargeQuery = gql`
 `;
 
 export function useCreateCharge(): MutationTuple<ICreateChargeResponse, ICreateChargeVariables> {
-	return useMutation<ICreateChargeResponse, ICreateChargeVariables>(createChargeQuery, {client: interClient});
+    return useMutation<ICreateChargeResponse, ICreateChargeVariables>(createChargeQuery, { client: interClient });
 }

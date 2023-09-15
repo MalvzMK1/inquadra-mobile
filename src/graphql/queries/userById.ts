@@ -2,6 +2,7 @@ import { gql } from "@apollo/client";
 
 
 export interface IUserByIdResponse {
+  photo: (Omit<User, "latitude" | "longitude" | "cep" | "streetName"> & { paymentCardInfos: { dueDate: string; cvv: string; country: { id: string; name: string; }; }; }) | undefined;
     usersPermissionsUser: {
         data: {
             id: User['id'];
@@ -48,8 +49,10 @@ export interface IUserByIdResponse {
                 };
                 photo: {
                     data?: {
+                        id: Photo['id']
                         attributes: {
                             url: Photo['url'];
+                            name: Photo['name'];
                         };
                     };
                 };
@@ -113,8 +116,21 @@ query getUserById($id: ID) {
         }
         photo {
           data {
+            id
             attributes {
               url
+              name
+              alternativeText
+              caption
+              width
+          		height
+              formats
+              hash
+              ext
+              mime
+              size
+              createdAt
+              updatedAt
             }
           }
         }

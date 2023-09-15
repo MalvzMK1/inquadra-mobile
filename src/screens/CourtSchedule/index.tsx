@@ -5,7 +5,7 @@ import WeekDayButton from "../../components/WeekDays";
 import { Calendar } from 'react-native-calendars'
 import { getWeekDays } from "../../utils/getWeekDates";
 import { DateData } from "react-native-calendars"
-import { addDays, format } from 'date-fns'
+import { addDays, format, sub } from 'date-fns'
 import AddCourtSchedule from "../../components/AddCourtSchedule";
 import { SelectList } from 'react-native-dropdown-select-list'
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
@@ -19,6 +19,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { schedulingByDateQuery } from "../../graphql/queries/schedulingByDate";
+import { courtAvailabilityByHourQuery, ICourtAvailabilityByHourResponse, ICourtAvailabilityByHourVariables } from "../../graphql/queries/schedulingByHour";
 import { ISchedulingByDateResponse, ISchedulingByDateVariables } from "../../graphql/queries/schedulingByDate";
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -29,6 +30,7 @@ import { TextInputMask } from 'react-native-masked-text';
 import ScheduleChartLabels from "../../components/ScheduleChartLabels";
 import { useApolloClient } from "@apollo/client";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
+import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 
 const portugueseMonths = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -88,12 +90,13 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const [blockScheduleByTimeModal, setBlockScheduleByTimeModal] = useState(false)
     const closeBlockScheduleByTimeModal = () => setBlockScheduleByTimeModal(false)
 
-    const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
+    const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId!)
 
-    const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(establishmentId)
+    const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(establishmentId!)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
-    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(establishmentId)
+    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(establishmentId!)
     const [blockSchedule, { data: blockScheduleData, error: blockScheduleError, loading: blockScheduleLoading }] = useBlockSchedule()
+    const [blockScheduleByHour, { data: blockScheduleByHourData, error: blockScheduleByHourError, loading: blockScheduleByHourLoading }] = useBlockScheduleByHour()
 
     const { control, handleSubmit, formState: { errors } } = useForm<IBlockScheduleByDateFormData>({
         resolver: zodResolver(blockScheduleByDateFormSchema)
@@ -290,7 +293,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
             id: allCourts[index].id
         }
         const selectedCourtId = newActiveCourts.find(courtItem => courtItem.active === true)
-        setBlockedCourtId(selectedCourtId?.id)
+        setBlockedCourtId(selectedCourtId?.id!)
         setActiveCourts(newActiveCourts)
     }
 
@@ -335,7 +338,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     const fill = 'rgba(255, 97, 18, 1)'
     let data: number[] = []
     schedulingsJson.forEach(item => {
-        data.push(item.scheduling_quantity)
+        data.push(item.scheduling_quantity!)
     })
     const maxValue = Math.max.apply(null, data)
     const sumValues = (array: number[]): number => {
@@ -453,19 +456,109 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
     }
 
-    const [teste, setTeste] = useState("")
+    const [startHour, setStartHour] = useState("")
+    const [endHour, setEndHour] = useState("")
 
-    const handleTimeChange = (formatted: string, extracted: string) => {
-        const [hours, minutes] = extracted.split(':').map(Number)
-        if (hours > 23 || minutes > 59) {
-            return
+    function getHoursRange(startHour: string, endHour: string) {
+        const hours: string[] = []
+
+        const initialHour = new Date(`2023-09-12T${startHour}`)
+        const formatedInitialHour = sub(initialHour, {
+            hours: 3
+        })
+
+        const end = new Date(`2023-09-12T${endHour}`)
+        const formatedEndHour = sub(end, {
+            hours: 3
+        })
+
+        while (formatedInitialHour <= formatedEndHour) {
+            hours.push(new Date(formatedInitialHour).toISOString().split("T")[1].replace("Z", ""))
+            formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 30)
         }
 
-        setTeste(formatted)
+        return hours
+
+
+    }
+
+    async function setSchedulingsByHours(hours: string[], courtId: string) {
+        let courtAvailabilitiesByHourArray = await Promise.all(hours.map(async (hourItem) => {
+            const { data: courtAvailabilityByHourData, error: courtAvailabilityByHourError, loading: courtAvailabilityByHourLoading } = await apolloClient.query<ICourtAvailabilityByHourResponse, ICourtAvailabilityByHourVariables>({
+                query: courtAvailabilityByHourQuery,
+                variables: {
+                    hour: {
+                        eq: hourItem
+                    },
+                    court_id: {
+                        eq: courtId
+                    }
+                }
+            })
+
+            if (courtAvailabilityByHourData != undefined)
+                return courtAvailabilityByHourData
+        }))
+
+        let courtAvailabilitiesByHourObject = courtAvailabilitiesByHourArray.map(item => {
+            if (JSON.stringify(item?.courtAvailabilities.data) != "[]")
+                return item?.courtAvailabilities.data
+        })
+
+        interface ICourtAvailabilityId {
+            courtAvailabilityId: string
+        }
+        let courtAvailabilitiesByHourJson: ICourtAvailabilityId[] = []
+        courtAvailabilitiesByHourObject?.forEach(item => {
+            if (item != undefined) {
+                item.map(item2 => {
+                    courtAvailabilitiesByHourJson = [...courtAvailabilitiesByHourJson, {
+                        courtAvailabilityId: item2?.id
+                    }]
+                })
+            }
+        })
+
+        return courtAvailabilitiesByHourJson
     }
 
     async function handleBlockScheduleByTime(data: IBlockScheduleByTimeFormData) {
+        setIsLoading(true)
 
+        const blockScheduleByTimeData = {
+            ...data
+        }
+
+        const hoursRange = getHoursRange(blockScheduleByTimeData.initialHour, blockScheduleByTimeData.endHour)
+        const courtId = blockedCourtId
+        const schedulingsByHour = await setSchedulingsByHours(hoursRange, courtId)
+
+        if (courtId != "") {
+            if (schedulingsByHour.length > 0) {
+                try {
+                    await Promise.all(schedulingsByHour.map(async (item) => {
+                        await blockScheduleByHour({
+                            variables: {
+                                court_availability_id: item.courtAvailabilityId.toString()
+                            }
+                        })
+                        setBlockScheduleByTimeModal(false)
+                        setConfirmBlockSchedule(true)
+                        setIsLoading(false)
+                        setBlockedCourtId("")
+                    }))
+                } catch(error) {
+                    console.log("Deu erro: ", error)
+                    setIsLoading(false)
+                }
+            } else {
+                alert("Não há nenhuma reserva nesse intervalo de datas!")
+                setIsLoading(false)
+            }
+        } else {
+            alert("Selecione uma quadra para bloquear a agenda!")
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -743,9 +836,10 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                                         format: '99:99'
                                                     }}
                                                     onChangeText={(text) => {
-                                                        handleTimeChange(text, text)
+                                                        onChange(text)
+                                                        setStartHour(text)
                                                     }}
-                                                    value={teste}
+                                                    value={startHour}
                                                     keyboardType="numeric"
                                                     placeholder="HH:MM"
                                                     className="w-[80%]"
@@ -775,10 +869,10 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                                         format: '99:99'
                                                     }}
                                                     onChangeText={(text) => {
-                                                        // onChange(formated)
-                                                        // handleTimeChange(text, text)
+                                                        onChange(text)
+                                                        setEndHour(text)
                                                     }}
-                                                    value={""}
+                                                    value={endHour}
                                                     keyboardType="numeric"
                                                     placeholder="HH:MM"
                                                     className="w-[80%]"
@@ -919,8 +1013,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     <BottomNavigationBar
                         establishmentScreen
                         userID={userId}
-                        userPhoto={'http'}
-                    />
+                        userPhoto={'http'} playerScreen={false} establishmentID={undefined} logo={undefined} />
                     :
                     null
             }

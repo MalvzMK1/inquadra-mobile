@@ -9,9 +9,10 @@ import NoticeCard from "../../../components/NoticeCard";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'WithdrawScreen'> {
     establishmentId: string
-}
 
-export default function WithdrawScreen({ route }: Props) {
+}
+export default function WithdrawScreen({ route }: NativeStackScreenProps<RootStackParamList, "WithdrawScreen">) {
+
     const { data, loading, error } = useGetUserHistoricPayment(route.params.establishmentId)
     const [withdrawalInfo, setWithdrawalInfo] = useState<Array<{
         id: string,
@@ -99,7 +100,7 @@ export default function WithdrawScreen({ route }: Props) {
         }
     }
 
-    
+
 
     const handleSliderChange = (value: any) => {
         setNumber(value)
@@ -126,9 +127,9 @@ export default function WithdrawScreen({ route }: Props) {
         <View className="flex-1 justify-center items-center ">
             {
                 isWithdrawalMade ?
-                < NoticeCard text="Saque realizado com sucesso" />
-                :
-                <></>
+                    < NoticeCard text="Saque realizado com sucesso" />
+                    :
+                    <></>
             }
             <View className={`h-full w-screen flex items-center justify-center z-10 ${isWithdrawalMade ? "opacity-50" : ""}`}>
                 <ScrollView  >

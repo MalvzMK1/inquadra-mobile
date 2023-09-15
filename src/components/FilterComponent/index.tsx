@@ -17,7 +17,7 @@ export default function FilterComponent() {
     const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
     const [amenities, setAmenities] = useState<Array<string> | null>(null)
     const [dayUseYes, setDayUseYes] = useState(false)
-    const [dayUseNot, setDayUseNot] = useState(false)
+    const [dayUseNot, setDayUseNot] = useState(true)
     const [timeFinal, setTimeFinal] = useState(new Date(date.setHours(0, 0, 0, 0)))
     const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
     const [timeInit, setTimeInit] = useState(new Date(date.setHours(0, 0, 0, 0)))
@@ -26,7 +26,7 @@ export default function FilterComponent() {
     const handleTimeInitPicker = () => {
         setShowTimeInitPicker(true)
     }
-    const handleTimeInitChange = (event: object, selectedTime) => {
+    const handleTimeInitChange = (event: object, selectedTime: any) => {
         setShowTimeInitPicker(false)
         if (selectedTime) {
             setTimeInit(selectedTime)
@@ -35,13 +35,12 @@ export default function FilterComponent() {
     const handleTimeFinalPicker = () => {
         setShowTimeFinalPicker(true)
     }
-    const handleTimeFinalChange = (event: object, selectedTime) => {
+    const handleTimeFinalChange = (event: object, selectedTime: any) => {
         setShowTimeFinalPicker(false)
         if (selectedTime) {
             setTimeFinal(selectedTime)
         }
     }
-
 
 
     return (
@@ -104,16 +103,20 @@ export default function FilterComponent() {
                         <Text className='font-semibold text-white text-base'>Day-Use?</Text>
                         <View className='flex flex-row gap-[22px]'>
                             <View className='flex flex-row items-center'>
-                                <Checkbox uncheckedColor='#FF6112' color='#FF6112' status={dayUseYes ? "checked" : "unchecked"} onPress={() => setDayUseYes((prevState) => !prevState)} />
-                                <Text className='text-white'>
-                                    Sim
-                                </Text>
-                            </View>
-                            <View className='flex flex-row items-center'>
-                                <Checkbox uncheckedColor='#FF6112' color='#FF6112' status={dayUseNot ? "checked" : "unchecked"} onPress={() => setDayUseNot((prevState) => !prevState)} />
-                                <Text className='text-white'>
-                                    Não
-                                </Text>
+                                <Checkbox
+                                    uncheckedColor='#FF6112'
+                                    color='#FF6112'
+                                    status={dayUseYes ? "checked" : "unchecked"}
+                                    onPress={() => {
+                                        if (dayUseYes) {
+                                            setDayUseYes(false); // Se dayUse for verdadeiro, defina como falso
+                                            setDayUseNot(true); // Se dayUse for verdadeiro, defina dayUseNot como verdadeiro
+                                        } else {
+                                            setDayUseYes(true); // Se dayUse for falso, defina como verdadeiro
+                                            setDayUseNot(false); // Se dayUse for falso, defina dayUseNot como falso
+                                        }
+                                    }}
+                                />
                             </View>
                         </View>
                     </View>
