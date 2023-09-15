@@ -66,7 +66,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                 ?
                                 showButtons && (<>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto, userID: userID })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
                                         <AntDesign name="heart" size={25} color={"white"} />
                                     </TouchableOpacity>
 
@@ -91,7 +91,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                                 longitude: 15.491400000982967
                                             },
                                             userID: userID,
-                                            userPhoto: userPhoto
+                                            userPhoto: userPhoto ?? ""
                                         })}>
                                             <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                         </TouchableOpacity>
@@ -104,7 +104,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         ?
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto, userID: userID })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
                                                 <AntDesign name="heart" size={25} color={"white"} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => navigation.navigate('Home', {
@@ -113,7 +113,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                                     longitude: 15.491400000982967
                                                 },
                                                 userID: userID,
-                                        userPhoto: userPhoto ?? ""
+                                                userPhoto: userPhoto ?? ""
                                             })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
@@ -125,7 +125,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         :
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto, userID: userID })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
                                                 <AntDesign name="heart" size={25} color={"white"} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => navigation.navigate('Home', {
@@ -134,7 +134,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                                     longitude: 15.491400000982967
                                                 },
                                                 userID: userID,
-                                        userPhoto: userPhoto ?? ""
+                                                userPhoto: userPhoto ?? ""
                                             })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
