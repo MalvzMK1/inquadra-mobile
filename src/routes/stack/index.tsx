@@ -33,7 +33,7 @@ import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import Schedulings from '../../screens/Schedulings';
 import CancelScheduling from '../../screens/CancelScheduling';
-import { HOST_API } from '@env'
+import { HOST_API } from '@env';
 import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
