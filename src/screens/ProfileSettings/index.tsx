@@ -365,7 +365,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         <TouchableOpacity className="items-center mt-8">
                             <View style={styles.container}>
                                 {profilePicture ? (
-                                    <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+                                    <Image source={{ uri: HOST_API + profilePicture }} style={styles.profilePicture} />
                                 ) : (
                                     <Ionicons name="person-circle-outline" size={100} color="#bbb" />
                                 )}
