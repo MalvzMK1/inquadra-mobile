@@ -1,3 +1,4 @@
+
 type User = {
 	id: string
 	username: string
@@ -8,5 +9,5 @@ type User = {
 	latitude: string
 	longitude: string
 	streetName: string
-	photo: string
+	photo: Photo
 }

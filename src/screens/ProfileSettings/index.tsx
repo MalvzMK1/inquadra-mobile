@@ -34,7 +34,7 @@ interface IFormData {
     email: string
     phoneNumber: string
     cpf: string
-    photo: string
+	photo: Photo['id']
 }
 
 interface IPaymentCardFormData {
@@ -222,90 +222,112 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
 
-    const handleProfilePictureUpload = async () => {
-        try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+	const handleProfilePictureUpload = async () => {
+		try {
+		  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+	
+		  if (status !== 'granted') {
+			alert('Desculpe, precisamos da permissão para acessar a galeria!');
+			return;
+		  }
+	
+		  const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		  });
+	
+		  if (!result.canceled) {
+			setProfilePicture(result.uri);
+			await uploadImage(result.uri);
+		  }
+		} catch (error) {
+		  console.log('Erro ao carregar a imagem: ', error);
+		}
+	  };
 
-            if (status !== 'granted') {
-                alert('Desculpe, precisamos da permissão para acessar a galeria!');
-                return;
-            }
-
-            // const result = await ImagePicker.launchImageLibraryAsync({
-            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            //     allowsEditing: true,
-            //     aspect: [1, 1],
-            //     quality: 1,
-            // });
-
-            // if (!result.canceled) {
-            //     setProfilePicture(result.uri);
-            //     await uploadImage(result.uri);
-            // }
-        } catch (error) {
-            console.log('Erro ao carregar a imagem: ', error);
-        }
-    };
-
-    const uploadImage = async (selectedImageUri: string) => {
-        //     setIsLoading(true);
-        //     const apiUrl = 'https://inquadra-api-uat.qodeless.io';
-
-        //     const formData = new FormData();
-
-        //     formData.append('files', {
-        //         uri: selectedImageUri,
-        //         name: 'image.jpg',
-        //         type: 'image/jpeg',
-        //     });
-
-        //     try {
-        //         const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-        //             headers: {
-        //                 'Content-Type': 'multipart/form-data',
-        //             },
-        //         });
-
-        //         setUploadedImageId(response.data[0].id);
-
-        //         console.log('Imagem enviada com sucesso!', response.data);
-
-        //         setIsLoading(false);
-
-        //         return uploadedImageID;
-        //     } catch (error) {
-        //         console.error('Erro ao enviar imagem:', error);
-        //         setIsLoading(false);
-        //         return "Deu erro";
-        //     }
-    };
-
+	
+	
+	  const uploadImage = async (selectedImageUri: string) => {
+		setIsLoading(true);
+		const apiUrl = 'https://inquadra-api-uat.qodeless.io';
+	
+		const formData = new FormData();
+		formData.append('files', {
+		  uri: selectedImageUri,
+		  name: 'profile.jpg',
+		  type: 'image/jpeg',
+		});
+	
+		try {
+		  const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+			headers: {
+			  'Content-Type': 'multipart/form-data',
+			},
+		  });
+	
+		  const uploadedImageID = response.data[0].id;
+	
+		  console.log('Imagem enviada com sucesso!', response.data);
+	
+		  setIsLoading(false);
+	
+		  return uploadedImageID;
+		} catch (error) {
+		  console.error('Erro ao enviar imagem:', error);
+		  setIsLoading(false);
+		  return "Deu erro";
+		}
+	  };
+	
 
     async function updateUserInfos(data: IFormData): Promise<void> {
-        console.log(userInfos);
-        if (userInfos) {
-            const newPhotoId = await uploadImage(data.photo);
-            const updatedUserInfos: UserConfigurationProps = { ...userInfos, photo: uploadedImageID ?? "" };
-            updateUser({
-                variables: {
-                    user_id: userInfos.id,
-                    email: data.email,
-                    photo: uploadedImageID ?? "",
-                    cpf: data.cpf,
-                    phone_number: data.phoneNumber,
-                    cvv: Number(userInfos.paymentCardInfos.cvv),
-                    dueDate: userInfos.paymentCardInfos.dueDate,
-                    username: data.name,
-                },
-            })
-                .then(console.log)
-                .catch(console.error);
-
-            // Atualize o estado local com as informações atualizadas do usuário
+		console.log('Iniciando a atualização das informações do usuário.');
+		console.log(data)
+	  
+		// Verifique se data está definido
+		if (!data) {
+		  console.error('Erro: data não está definido.');
+		  return;
+		}
+	  
+		// Verifique se data.photo está definido e tem a propriedade id
+		if (!data.photo || !data.photo.id) {
+		  console.error('Erro: data.photo não está definido ou não tem a propriedade id.');
+		  return;
+		}
+	  
+		// Verifique se userInfos está definido
+		if (!userInfos) {
+		  console.error('Erro: userInfos não está definido.');
+		  return;
+		}
+	  
+		console.log('Dados de entrada:');
+		console.log('data:', data);
+		console.log('userInfos:', userInfos);
+	  
+		try {
+		  const newPhotoId = await uploadImage(data.photo.id);
+		  console.log('Novo ID da foto:', newPhotoId);
+		  const updatedUserInfos = { ...userInfos, photo: newPhotoId };
+		  await updateUser({
+			variables: {
+			  user_id: userInfos.id,
+			  email: data.email,
+			  cpf: data.cpf,
+			  phone_number: data.phoneNumber,
+			  username: data.name,
+			  photo: newPhotoId,
+			},
+		  });
             setUserInfos(updatedUserInfos);
+		  console.log('Informações do usuário atualizadas com sucesso!');
+		} catch (error) {
+		  console.error('Erro ao atualizar informações do usuário:', error);
         }
     }
-
 
 
     async function loadInformations() {
@@ -318,7 +340,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 cpf: data.usersPermissionsUser.data.attributes.cpf,
                 email: data.usersPermissionsUser.data.attributes.email,
                 phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
-                photo: data.usersPermissionsUser.data.attributes.photo.data?.id ?? "",
+				photo: data.usersPermissionsUser.data.attributes.photo.data.id,
                 paymentCardInfos: {
                     dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ?? "" ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate ?? "" : '',
                     cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.cvv?.toString() ?? "" : '',
