@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, Text, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
 import { useGetHistoricReserveOn } from '../../hooks/useHistoricReserveOn';
@@ -9,9 +8,6 @@ import { HOST_API } from '@env';
 import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack/types';
 import { useGetMenuUser } from '../../hooks/useMenuUser';
 import { useFocusEffect } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import { useIsFocused } from '@react-navigation/native';
-
 
 function formatDateTime(dateTimeString: string): string {
     try {
@@ -38,8 +34,8 @@ function formatDate(dateTimeString: string): string {
 
 
 export default function InfoReserva({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'InfoReserva'>) {
-    const user_id = route.params.userId
-    
+    let user_id = route.params.userId
+
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
     const { data, error, loading, refetch } = useGetHistoricReserveOn(user_id)
 
@@ -52,6 +48,8 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
             refreshData();
         }, [])
     );
+
+
     return (
         <View className='h-full w-max bg-zinc-600'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
@@ -107,13 +105,13 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                         </View>
                                                         <View className='w-max h-5 flex-row pt-1'>
                                                             <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.valuePayed}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.valuePayed.toString()}</Text>
                                                                 <Text className='font-black text-xs text-white'> / </Text>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.court_availability?.data?.attributes?.value}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.court_availability?.data?.attributes?.value.toString()}</Text>
                                                             </View>
-                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((courtInfo?.attributes?.valuePayed / courtInfo?.attributes?.court_availability?.data?.attributes?.value) * 100)}</Text>
+                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((Number(courtInfo?.attributes?.valuePayed) / Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value)) * 100)}</Text>
                                                         </View>
-                                                        <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt)}</Text>
+                                                        <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt.toString())}</Text>
                                                     </View>
                                                 </View>
                                             </TouchableOpacity>
@@ -159,13 +157,13 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                         </View>
 
                                                         <View>
-                                                            <Text className='font-black text-xs text-white'>R${courtInfo.attributes.court_availability.data.attributes.value}</Text>
+                                                            <Text className='font-black text-xs text-white'>R${courtInfo.attributes.court_availability.data.attributes.value.toString()}</Text>
                                                         </View>
 
                                                     </View>
 
                                                     <View>
-                                                        <Text className='font-black text-xs text-white'>Ultima Reserva {formatDateTime(courtInfo?.attributes?.createdAt)}</Text>
+                                                        <Text className='font-black text-xs text-white'>Ultima Reserva {formatDateTime(courtInfo?.attributes?.createdAt.toString())}</Text>
                                                     </View>
                                                 </View>
                                             </View>

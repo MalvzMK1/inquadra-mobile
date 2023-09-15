@@ -1,4 +1,5 @@
-import { Dropdown } from 'react-native-element-dropdown';
+import { useState } from 'react';
+import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 
 const data = [
     { label: 'Vestuários', value: '1' },
@@ -11,11 +12,19 @@ const data = [
     { label: 'Quadras cobertas', value: '8' },
 ];
 
-export default function FilterDropdown(props:{amenities: string | null, setAmenities: any}) {
+export default function FilterDropdown(props: { amenities: string[] | null, setAmenities: any }) {
+
+    const [selectedAmenities, setSelectedAmenities] = useState(props.amenities || []);
+
+    const handleAmenitiesChange = (selectedItems: any) => {
+        setSelectedAmenities(selectedItems);
+        props.setAmenities(selectedItems);
+    };
 
     return (
-        <Dropdown iconColor='#FFFFFF'
-            value={props.amenities}
+        <MultiSelect
+            iconColor='#FFFFFF'
+            value={selectedAmenities}
             iconStyle={{
                 height: 30,
             }}
@@ -37,9 +46,7 @@ export default function FilterDropdown(props:{amenities: string | null, setAmeni
             }}
             data={data}
             placeholder={"Amenidades"}
-            onChange={item => {
-                props.setAmenities(item.label)
-            }}
+            onChange={handleAmenitiesChange}
         />
     )
 }
