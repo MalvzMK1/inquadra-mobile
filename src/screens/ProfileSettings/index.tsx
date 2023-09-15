@@ -28,7 +28,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
+import { set } from 'date-fns';
 import { IconButton } from 'react-native-paper';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 import axios from 'axios';
 import TextRecognition from 'react-native-text-recognition';
 interface IFormData {
@@ -74,7 +76,7 @@ const paymentCardFormSchema = z.object({
 type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string, country: { id: string, name: string } } }
 
 export default function ProfileSettings({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
-    const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
+    const [userInfos, setUserInfos] = useState<UserConfigurationProps | undefined>(undefined);
     const [showCard, setShowCard] = useState(false);
     const [showCameraIcon, setShowCameraIcon] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -270,37 +272,37 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
 
-    const handleProfilePictureUpload = async () => {
-        try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+	const handleProfilePictureUpload = async () => {
+		try {
+			const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-            if (status !== 'granted') {
-                alert('Desculpe, precisamos da permissão para acessar a galeria!');
-                return;
-            }
+			if (status !== 'granted') {
+				alert('Desculpe, precisamos da permissão para acessar a galeria!');
+				return;
+			}
 
-            // const result = await ImagePicker.launchImageLibraryAsync({
-            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            //     allowsEditing: true,
-            //     aspect: [1, 1],
-            //     quality: 1,
-            // });
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ImagePicker.MediaTypeOptions.Images,
+				allowsEditing: true,
+				aspect: [1, 1],
+				quality: 1,
+			});
 
-            // if (!result.canceled) {
-            //     setProfilePicture(result.uri);
-            //     await uploadImage(result.uri);
-            // }
-        } catch (error) {
-            console.log('Erro ao carregar a imagem: ', error);
-        }
-    };
+			if (!result.canceled) {
+				setProfilePicture(result.uri);
+				await uploadImage(result.uri);
+			}
+		} catch (error) {
+			console.log('Erro ao carregar a imagem: ', error);
+		}
+	};
 
     const uploadImage = async (selectedImageUri: string) => {
         setIsLoading(true);
         const apiUrl = 'https://inquadra-api-uat.qodeless.io';
-
+	
         const formData = new FormData();
-
+	
         // formData.append('files', {
         //     uri: selectedImageUri,
         //     name: 'image.jpg',
@@ -315,6 +317,11 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             });
 
             setUploadedImageId(response.data[0].id);
+			const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			});
 
             console.log('Imagem enviada com sucesso!', response.data);
 
@@ -327,6 +334,8 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             return "Deu erro";
         }
     };
+		}
+	};
 
 
     async function updateUserInfos(data: IFormData): Promise<void> {
@@ -335,14 +344,37 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             const newPhotoId = await uploadImage(data.photo);
             const updatedUserInfos = { ...userInfos, photo: newPhotoId }; // Atualize o campo de foto com o novo ID
             updateUser({
+		  console.error('Erro: data não está definido.');
+		  return;
+		}
+	  
+		// Verifique se data.photo está definido e tem a propriedade id
+		if (!data.photo || !data.photo.id) {
+		  console.error('Erro: data.photo não está definido ou não tem a propriedade id.');
+		  return;
+		}
+	  
+		// Verifique se userInfos está definido
+		if (!userInfos) {
+		  console.error('Erro: userInfos não está definido.');
+		  return;
+		}
+	  
+		console.log('Dados de entrada:');
+		console.log('data:', data);
+		console.log('userInfos:', userInfos);
+	  
+		try {
+		  const newPhotoId = await uploadImage(data.photo.id);
+		  console.log('Novo ID da foto:', newPhotoId);
+		  const updatedUserInfos = { ...userInfos, photo: newPhotoId };
+		  await updateUser({
                 variables: {
                     user_id: userInfos.id,
                     email: data.email,
                     // photo: newPhotoId ?? "",
                     cpf: data.cpf,
                     phone_number: data.phoneNumber,
-                    cvv: Number(userInfos.paymentCardInfos.cvv),
-                    dueDate: userInfos.paymentCardInfos.dueDate,
                     username: data.name,
                 },
             })
@@ -351,6 +383,9 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
             // Atualize o estado local com as informações atualizadas do usuário
             setUserInfos(updatedUserInfos);
+		  console.log('Informações do usuário atualizadas com sucesso!');
+		} catch (error) {
+		  console.error('Erro ao atualizar informações do usuário:', error);
         }
     }
 
@@ -400,6 +435,8 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         });
     }, [loading])
 
+	const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(userInfos?.id!)
+
     return (
         <View className="flex-1 bg-white h-full">
             {
@@ -411,7 +448,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         <TouchableOpacity className="items-center mt-8">
                             <View style={styles.container}>
                                 {profilePicture ? (
-                                    <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+                                    <Image source={{ uri: HOST_API + profilePicture }} style={styles.profilePicture} />
                                 ) : (
                                     <Ionicons name="person-circle-outline" size={100} color="#bbb" />
                                 )}
@@ -655,8 +692,21 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 </View>
                             </View>
                         </Modal>
+						<View className='h-16'></View>
                     </ScrollView>
+
             }
+
+			<View className="absolute bottom-0 left-0 right-0">
+				<BottomBlackMenu
+					screen="Any"
+					userID={userInfos?.id!}
+					userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+					key={1}
+					isDisabled={true}
+					paddingTop={2}
+				/>
+			</View>
         </View >
     );
 }
