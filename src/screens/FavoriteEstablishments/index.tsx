@@ -12,7 +12,7 @@ import { calculateDistance } from "../../utils/calculateDistance";
 interface Colors {
     [key: string]: string;
 }
-export default function FavoriteCourts({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'FavoriteCourts'>) {
+export default function FavoriteEstablishments({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'FavoriteEstablishments'>) {
     const [userId, setUserId] = useState<string>();
     useEffect(() => {
         storage.load<UserInfos>({

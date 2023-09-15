@@ -74,7 +74,7 @@ type RootStackParamList = {
     InfoReserva: {
         userId: string
     };
-    FavoriteCourts: {
+    FavoriteEstablishments: {
         userPhoto: string | undefined,
         userID: string
     };

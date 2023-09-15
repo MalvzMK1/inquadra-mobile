@@ -25,7 +25,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     screen === "Home"
                         ?
                         <>
-                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
+                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteEstablishments', { userPhoto: userPhoto ?? "", userID: userID })}>
                                 <AntDesign name="heart" size={20} color={"white"} />
                             </TouchableOpacity>
 
