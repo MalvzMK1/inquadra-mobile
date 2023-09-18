@@ -1013,6 +1013,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     paddingTop={2}
                 />
             </View>
+            </ScrollView>
 
         </View>
     )
