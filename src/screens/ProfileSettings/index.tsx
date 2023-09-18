@@ -143,19 +143,19 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const pickAndRecognize: () => void = useCallback(async () => {
 
-        ImagePicker.openPicker({
-            cropping: false,
-        })
-            .then(async (res: ImageOrVideo) => {
-                setIsProcessingText(true);
-                const result: string[] = await TextRecognition.recognize(res?.path);
-                setIsProcessingText(false);
-                validateCard(result);
-            })
-            .catch(err => {
-                console.log('err:', err);
-                setIsProcessingText(false);
-            });
+        // ImagePicker.openPicker({
+        //     cropping: false,
+        // })
+        //     .then(async (res: ImageOrVideo) => {
+        //         setIsProcessingText(true);
+        //         const result: string[] = await TextRecognition.recognize(res?.path);
+        //         setIsProcessingText(false);
+        //         validateCard(result);
+        //     })
+        //     .catch(err => {
+        //         console.log('err:', err);
+        //         setIsProcessingText(false);
+        //     });
     }, []);
 
     // const captureAndRecognize = useCallback(async () => {
