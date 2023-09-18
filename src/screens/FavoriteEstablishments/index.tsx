@@ -127,8 +127,8 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
                                             Number(item.attributes.address.longitude)
                                         );
                                         return distanceInMeters >= 1000
-                                            ? `${(distanceInMeters / 1000).toFixed(1)} Km`
-                                            : `${distanceInMeters.toFixed(0)} metros`;
+                                            ? `${(distanceInMeters / 1000).toFixed(1)} km`
+                                            : `${distanceInMeters.toFixed(0)} m`;
                                     })()
                                 } />
                             </InfosEstablishment.Content>

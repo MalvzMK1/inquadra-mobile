@@ -8,7 +8,6 @@ interface InfosEstablishmentProps {
 }
 
 export function InfosEstablishmentCard({imageUrl, children, onPress}: InfosEstablishmentProps) {
-	console.log(imageUrl)
 	return(
 		<TouchableOpacity className='w-full min-h-28 flex flex-row items-center justify-between pb-2 overflow-hidden' onPress={onPress}>
 				<Image source={imageUrl} className='h-max w-34 rounded-md mr-2' />
