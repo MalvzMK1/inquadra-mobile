@@ -153,9 +153,6 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 									))
 								)
 						) : (
-							Alert.alert("Aviso", "Ainda não temos estabelecimentos cadastrados em um raio de 5km da sua localização. Contamos com a sua ajuda para recomendar nossa plataforma a quadras próximas a você!", [{
-								onPress: () => HandleSportSelected(undefined)
-							}]),
 							<></>
 						)
 					) : (
