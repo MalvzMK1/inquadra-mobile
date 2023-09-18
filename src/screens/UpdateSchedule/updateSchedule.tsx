@@ -34,7 +34,7 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
     let priceBigger = false
     let minPriceBigger = false
     let userMoney = route.params.pricePayed
-    
+
 
     if (amountToPay > route.params.pricePayed) {
         priceBigger = true
@@ -44,7 +44,7 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
     }
 
 
-    const [generateActivationKey, {data:dataGenerateKey, loading:loadingGenerateKey, error:errorGenerateKey}] = useGenerateActivationKey()
+    const [generateActivationKey, { data: dataGenerateKey, loading: loadingGenerateKey, error: errorGenerateKey }] = useGenerateActivationKey()
     const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
     const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
     const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
@@ -214,7 +214,7 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
 
 
             if (!userCardLoading && !userCardError) {
-                updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4)))
+                updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4))!)
             }
 
             handleSaveCard();
@@ -254,14 +254,14 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
         })
     }
 
-    
+
 
     const validateKey = (randomKey: string) => {
-        if(route.params.activationKey === null && priceBigger === false){
+        if (route.params.activationKey === null && priceBigger === false) {
             return randomKey
-        }else if(route.params.activationKey !== null && priceBigger === false){
+        } else if (route.params.activationKey !== null && priceBigger === false) {
             route.params.activationKey
-        }else{
+        } else {
             null
         }
     }
@@ -314,7 +314,7 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
                         <>
                             <View className="pt-5 pb-4 flex justify-center flex-row">
                                 <Text className="text-base text-center font-bold">
-                                   Valor pago maior que o sinal da quadra
+                                    Valor pago maior que o sinal da quadra
                                 </Text>
                                 <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
                                     <FontAwesome name="question-circle-o" size={13} color="black" />
@@ -462,7 +462,7 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
                         : <View className='px-10 py-5'>
                             <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
                                 onPressIn={() => {
-                                    updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4)))
+                                    updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4))!)
                                 }}
                             >
                                 <Text className='text-lg text-gray-50 font-bold'>REMARCAR</Text>
@@ -509,7 +509,7 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
                     </View>
                     <View className="flex flex-row justify-between gap-6">
                         <View className="flex flex-row pt-1">
-                            <Text className="font-bold text-xl text-[#717171]">Valor já pago</Text>             
+                            <Text className="font-bold text-xl text-[#717171]">Valor já pago</Text>
                         </View>
                         <Text className="font-bold text-xl text-right text-[#717171]">- R$ {route.params.pricePayed.toFixed(2)}</Text>
                     </View>

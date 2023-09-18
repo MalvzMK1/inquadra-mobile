@@ -12,9 +12,10 @@ import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEst
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'WithdrawScreen'> {
     establishmentId: string
-}
 
-export default function WithdrawScreen({ route }: Props) {
+}
+export default function WithdrawScreen({ route }: NativeStackScreenProps<RootStackParamList, "WithdrawScreen">) {
+
     const { data, loading, error } = useGetUserHistoricPayment(route.params.establishmentId)
     const [withdrawalInfo, setWithdrawalInfo] = useState<Array<{
         id: string,

@@ -5,17 +5,14 @@ import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import storage from "../../utils/storage";
-import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSchedulingsByDay";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
-import { boolean } from "zod";
-import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
 const { parse, format } = require('date-fns');
 import { HOST_API } from '@env'
-import useEstablishmentIdByUserId from "../../hooks/useEstablishmentByUserId";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
+import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
 import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
 
 export default function HomeEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'HomeEstablishment'>) {
@@ -45,11 +42,12 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     const date = format(actualDate, dateFormat);
 
     const { data: dataSchedulings, error: errorSchedulings, loading: loadingSchedulings } = useEstablishmentSchedulingsByDay(establishment_id!, fantasy_name, day_week, date)
-    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id!)
+    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id)
     const [updateActivatedStatus, { data: dataActivateStatus, error: errorActivateStatus, loading: loadingActivateStatus }] = useUpdateScheduleActivateStatus()
 
     const [selectedDate, setSelectedDate] = useState('');
     const [activationKey, setActivationKey] = useState('');
+    const photo = dataEstablishmentId?.usersPermissionsUser.data.attributes.photo
     const username = dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.username;
     const firstName = username ? username.split(' ')[0] : '';
 
@@ -76,7 +74,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     };
 
     const handleActivate = async (key: string) => {
-        let scheduleId: string = getIdByKey(key);
+        let scheduleId: string = getIdByKey(key) ?? "";
         console.log(scheduleId)
         console.log(key)
 
@@ -98,7 +96,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                 }
             }
         } catch (error) {
-            if (errorActivateStatus.graphQLErrors && errorActivateStatus.graphQLErrors[0] && errorActivateStatus.graphQLErrors[0].extensions && errorActivateStatus.graphQLErrors[0].extensions.exception.status === 400) {
+            if (errorActivateStatus?.graphQLErrors && errorActivateStatus.graphQLErrors[0] && errorActivateStatus.graphQLErrors[0].extensions && errorActivateStatus?.graphQLErrors[0]?.extensions?.exception === 400) {
                 setValidate(2);
                 setTimeout(() => {
                     setValidate(2);
@@ -123,7 +121,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva')}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva', { userId: userId ?? "" })}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -212,7 +210,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                                 <Text className="font-extrabold text-xl">Por quadra</Text>
                                 <View className="ml-auto flex flex-col items-start">
                                     <SelectList
-                                        setSelected={(val) => setFantasyName(val)}
+                                        setSelected={(val: any) => setFantasyName(val)}
                                         data={dataCourtsEstablishment?.establishment?.data?.attributes?.courts?.data.map((fantasy) => fantasy.attributes.fantasy_name) || []}
                                         save="value"
                                         searchPlaceholder="Pesquisar..."

@@ -1,7 +1,7 @@
 import { View, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from "react-native"
 import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import React, { useState } from 'react'
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
@@ -16,7 +16,7 @@ interface IBottomBlackMenuEstablishment {
 
 export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEstablishment) {
     const { screen, establishmentID, establishmentLogo, paddingTop, userID } = props
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const [showPrincipalButton, setPrincipalButton] = useState(true)
     const [showButtons, setShowButtons] = useState(false)

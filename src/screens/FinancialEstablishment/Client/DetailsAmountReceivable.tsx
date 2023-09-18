@@ -13,8 +13,7 @@ interface Props extends NativeStackScreenProps<RootStackParamList, 'DetailsAmoun
     establishmentId: string
 }
 
-
-export default function DetailsAmountReceivable({ route }: Props) {
+export default function DetailsAmountReceivable({ route }: NativeStackScreenProps<RootStackParamList, "DetailsAmountReceivable">) {
     const currentDate = new Date();
     const day = String(currentDate.getDate()).padStart(2, '0');
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -125,10 +124,10 @@ export default function DetailsAmountReceivable({ route }: Props) {
                             const currentDate = new Date();
                             const cardDate = new Date(card.date);
                             console.log(card);
-                            
+
 
                             if (cardDate > currentDate) {
-                                return <CardDetailsAmountReceivable 
+                                return <CardDetailsAmountReceivable
                                     userName={card.username}
                                     valuePayed={card.valuePayed}
                                     date={card.date}

@@ -1,11 +1,9 @@
-import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { useState, useEffect } from 'react';
 import { View, Image, Text, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
-import { ImageSourcePropType } from "react-native/Libraries/Image/Image"
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
-import { SelectList, MultipleSelectList } from 'react-native-dropdown-select-list'
+import { MultipleSelectList } from 'react-native-dropdown-select-list'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
@@ -36,7 +34,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
     })
 
     const { data: sportTypesData, error: sportTypesError, loading: sportTypesLoading } = useSportTypes()
-    const { data: courtByIdData, error: courtByIdError, loading: courtByIdLoading } = useCourtById(courtId)
+    const { data: courtByIdData, error: courtByIdError, loading: courtByIdLoading } = useCourtById(courtId ?? "")
     const [updateCourtHook, { data, loading, error }] = useUpdateCourt()
 
     let courtTypesData: string[] = []
@@ -129,9 +127,9 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
         updateCourtHook({
             variables: {
-                court_id: courtId,
+                court_id: courtId ?? "",
                 court_availabilities: courtAvailibilites,
-                court_name: courtByIdData?.court.data.attributes.name,
+                court_name: courtByIdData?.court.data.attributes.name ?? "",
                 court_types: courtTypesId,
                 fantasy_name: courtData.fantasyName,
                 minimum_value: courtData.minimumScheduleValue,

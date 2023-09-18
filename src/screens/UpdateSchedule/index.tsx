@@ -178,11 +178,11 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
                                             if (selectedDate.split("T")[0] === item.scheduling.toString())
                                                 isBusy = true;
 
-                                        if ( item.price < route.params.valuePayed)
+                                        if (item.price < route.params.valuePayed)
                                             item.price = route.params.valuePayed
-                                        else 
+                                        else
                                             item.price = ogPrice
-                
+
                                         if (selectedWeekDate === item.weekDays) {
                                             return (
                                                 <CourtAvailibility
@@ -230,7 +230,7 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
                             </TouchableOpacity>
                         </View>
                     </ScrollView>
-                    
+                    <BottomBlackMenu screen={""} userID={""} userPhoto={null} />
                 </>
             }
         </SafeAreaView>

@@ -11,8 +11,8 @@ import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEst
 interface Props extends NativeStackScreenProps<RootStackParamList, 'HistoryPayment'> {
     establishmentId: string
 }
+export default function HistoryPayment({ route }: NativeStackScreenProps<RootStackParamList, "HistoryPayment">) {
 
-export default function HistoryPayment({ route }: Props) {
     const currentDate = new Date();
     const day = String(currentDate.getDate()).padStart(2, '0');
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
