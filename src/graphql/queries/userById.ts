@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 
 export interface IUserByIdResponse {
-  photo: (Omit<User, "latitude" | "longitude" | "cep" | "streetName"> & { paymentCardInfos: { dueDate: string; cvv: string; country: { id: string; name: string; }; }; }) | undefined;
+  //photo: (Omit<User, "latitude" | "longitude" | "cep" | "streetName"> & { paymentCardInfos: { dueDate: string; cvv: string; country: { id: string; name: string; }; }; }) | undefined;
     usersPermissionsUser: {
         data: {
             id: User['id'];

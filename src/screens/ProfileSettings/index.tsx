@@ -33,11 +33,11 @@ import axios from 'axios';
 import TextRecognition from 'react-native-text-recognition';
 
 interface IFormData {
+	photo: string
     name: string
     email: string
     phoneNumber: string
     cpf: string
-    photo: string
 }
 
 interface IPaymentCardFormData {
@@ -45,6 +45,8 @@ interface IPaymentCardFormData {
     cvv: string
     country: string
 }
+
+
 
 const formSchema = z.object({
     name: z.string()
@@ -269,6 +271,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     };
 
+
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
 
     const handleProfilePictureUpload = async () => {
@@ -328,58 +331,60 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             return "Deu erro";
         }
     };
-
+	  
 
     async function updateUserInfos(data: IFormData): Promise<void> {
-        console.log(userInfos);
-        if (userInfos) {
-            const newPhotoId = await uploadImage(data.photo);
-            const updatedUserInfos = { ...userInfos, photo: newPhotoId }; // Atualize o campo de foto com o novo ID
-        }
+		console.log(data);
+	  
+		if (!data) {
+		  console.error('Erro: data não está definido');
+		  return;
+		}
+	  
+		if (!data.photo) {
+		  console.error('Erro: data.photo não está definido ou não tem a propriedade id');
+		  return;
+		}
+	  
+		if (!userInfos) {
+		  console.error('Erro: userInfos não está definido');
+		  return;
+		}
+	  
+		console.log('Dados de entrada:');
+		console.log('data:', data);
+		console.log('userInfos:', userInfos);
+	  
+		try {
+		  const newPhotoId = await uploadImage(data.photo);
+		  console.log('Novo ID da foto:', newPhotoId);
+	  
+		  const updatedUserInfos = { ...userInfos, photo: newPhotoId };
+	  
+		  await updateUser({
+			variables: {
+			  user_id: userInfos.id,
+			  email: data.email,
+			  cpf: data.cpf,
+			  phone_number: data.phoneNumber,
+			  username: data.name,
+			  photo: newPhotoId, 
+			},
+		  });
+	  
+		  setUserInfos(updatedUserInfos);
+		  console.log('Informações do usuário atualizadas com sucesso!');
+		} catch (error) {
+		  console.error('Erro ao atualizar informações do usuário:', error);
+		}
+	  }
+	  
+	  
+	async function loadInformations() {
+		let newUserInfos = userInfos;
 
-        // Verifique se data.photo está definido e tem a propriedade id
-        if (!data.photo) {
-            console.error('Erro: data.photo não está definido ou não tem a propriedade id.');
-            return;
-        }
+		if (!loading && data) {
 
-        // Verifique se userInfos está definido
-        if (!userInfos) {
-            console.error('Erro: userInfos não está definido.');
-            return;
-        }
-
-        console.log('Dados de entrada:');
-        console.log('data:', data);
-        console.log('userInfos:', userInfos);
-
-        try {
-            const newPhotoId = await uploadImage(data.photo);
-            console.log('Novo ID da foto:', newPhotoId);
-            const updatedUserInfos = { ...userInfos, photo: newPhotoId };
-            await updateUser({
-                variables: {
-                    user_id: userInfos.id,
-                    email: data.email,
-                    // photo: newPhotoId ?? "",
-                    cpf: data.cpf,
-                    phone_number: data.phoneNumber,
-                    cvv: Number(userInfos.paymentCardInfos.cvv),
-                    dueDate: userInfos.paymentCardInfos.dueDate,
-                    username: data.name,
-                },
-            })
-                .then(console.log)
-                .catch(console.error);
-
-            setUserInfos(updatedUserInfos!);
-        }
-    }
-
-    async function loadInformations() {
-        let newUserInfos = userInfos;
-
-        if (!loading && data) {
             newUserInfos = {
                 id: data.usersPermissionsUser.data.id,
                 username: data.usersPermissionsUser.data.attributes.username ?? "",
@@ -404,7 +409,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string } } | undefined): void {
         if (userData) {
             setValue('name', userData.username)
-            setValue('photo', userData.photo.toString())
             setValue('email', userData.email)
             setValue('phoneNumber', userData.phoneNumber)
             setValue('cpf', userData.cpf)
@@ -422,30 +426,43 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         });
     }, [loading])
 
-    return (
-        <View className="flex-1 bg-white h-full">
-            {
-                loading ?
-                    <View className='flex-1'>
-                        <ActivityIndicator size='large' color='#F5620F' />
-                    </View> :
-                    <ScrollView className="flex-grow p-1">
-                        <TouchableOpacity className="items-center mt-8">
-                            <View style={styles.container}>
-                                {profilePicture ? (
-                                    <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
-                                ) : (
-                                    <Ionicons name="person-circle-outline" size={100} color="#bbb" />
+
+
+	return (
+				<View className="flex-1 bg-white h-full">
+					 {/*{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}*/}
+					{
+						loading ?
+							<View className='flex-1'>
+								<ActivityIndicator size='large' color='#F5620F' />
+							</View> :
+							<ScrollView className="flex-grow p-1">
+								{/*{(console.log({data}))}*/}
+								
+								<Controller
+								name='photo'
+								control={control}
+								render={({ field: { onChange } }) => (
+									<TouchableOpacity style={{ alignItems: 'center', marginTop: 8 }}>
+									<View style={styles.container}>
+										{profilePicture ? (
+										<Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+										) : (
+										<Ionicons name="person-circle-outline" size={100} color="#bbb" />
                                 )}
+
                                 <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
-                                    {profilePicture ? (
-                                        <Ionicons name="pencil-outline" size={30} color="#fff" />
-                                    ) : (
-                                        <Ionicons name="camera-outline" size={30} color="#fff" />
-                                    )}
+										{profilePicture ? (
+											<Ionicons name="pencil-outline" size={30} color="#fff" />
+										) : (
+											<Ionicons name="camera-outline" size={30} color="#fff" />
+										)}
                                 </TouchableOpacity>
                             </View>
-                        </TouchableOpacity>
+									</TouchableOpacity>
+								)}
+								/>
+
 
                         <View className="p-6 space-y-10">
                             <View >

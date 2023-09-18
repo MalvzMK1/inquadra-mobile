@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, ActivityIndicator, Text } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Text, Alert } from 'react-native';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
@@ -120,6 +120,16 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
         setSportTypes(newAvailableSportTypes);
     }, [availableSportTypes, availableSportTypesError]);
+
+
+    useEffect(() => {
+        if (establishments.filter(item => { return item.distance <= 5 }).length == 0) {
+            console.log("teste")
+            Alert.alert("Aviso", "Ainda não temos estabelecimentos cadastrados em um raio de 5km da sua localização. Contamos com a sua ajuda para recomendar nossa plataforma a quadras próximas a você!", [{
+                onPress: () => HandleSportSelected("")
+            }])
+        }
+    }, [])
 
     return (
         <View className="flex-1 flex flex-col justify-center items-center">
