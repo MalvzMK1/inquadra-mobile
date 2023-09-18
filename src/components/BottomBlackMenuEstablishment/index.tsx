@@ -63,7 +63,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                             screen === "Home"
                                 ?
                                 showButtons && (<>
-                                    <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentID: establishmentID, logo: establishmentLogo })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishmentID, logo: establishmentLogo ?? "" })}>
                                         <MaterialCommunityIcons name="piggy-bank-outline" size={30} color={"white"} />
                                     </TouchableOpacity>
 
@@ -71,7 +71,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                         <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo ?? "" })}>
                                         <MaterialIcons name="calendar-today" color={"white"} size={25} />
                                     </TouchableOpacity>
                                 </>)
@@ -83,11 +83,11 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                             <MaterialCommunityIcons name="piggy-bank-outline" size={38} color="#F5620F" />
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo, userID: userID })}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "", userID: userID })}>
                                             <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo })}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo ?? "" })}>
                                             <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                         </TouchableOpacity>
                                     </>)
@@ -95,10 +95,10 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                         ?
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentID: establishmentID, logo: establishmentLogo })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishmentID ?? "", logo: establishmentLogo ?? "" })}>
                                                 <MaterialCommunityIcons name="piggy-bank-outline" size={30} color={"white"} />
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo, userID: userID })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "", userID: userID })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
                                             <TouchableOpacity>
@@ -108,13 +108,13 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                         :
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentID: establishmentID, logo: establishmentLogo })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishmentID, logo: establishmentLogo ?? "" })}>
                                                 <MaterialCommunityIcons name="piggy-bank-outline" size={30} color={"white"} />
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo, userID: userID })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "", userID: userID })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo ?? "" })}>
                                                 <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                             </TouchableOpacity>
                                         </>)
