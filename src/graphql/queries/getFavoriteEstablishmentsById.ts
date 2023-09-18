@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 export interface IFavoriteEstablishmentsResponse {
     establishments: {
         data: Array<{
+            id: Establishment['id']
             attributes: {
                 address: {
                     latitude: Address['latitude']
