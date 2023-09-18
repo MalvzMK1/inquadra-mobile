@@ -1,11 +1,11 @@
 import ProgressBar from 'react-native-progress/Bar'
 import { Text, View } from "react-native";
 
-interface InfoCourtCardContentPaymentProgressBarProps {
+interface InfoEstablishmentCardContentPaymentProgressBarProps {
     progress: number
 }
 
-export function InfoCourtCardContentPaymentProgressBar({ progress }: InfoCourtCardContentPaymentProgressBarProps) {
+export function InfoEstablishmentCardContentPaymentProgressBar({ progress }: InfoEstablishmentCardContentPaymentProgressBarProps) {
     return (
         <View className='w-full mt-1'>
             <View className='flex flex-row flex-1 gap-0.5'>
