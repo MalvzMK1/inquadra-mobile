@@ -11,13 +11,12 @@ export interface IRegisterScheduleResponse{
     }
 }
 
-
 export interface IRegisterScheduleVariables{
     publishedAt: string
     title: string
-    court_availability: number
-    users: Array<number>
-    owner: number
+    court_availability: string
+    users: Array<string>
+    owner: string
     date: string
     pay_day: string
     value_payed: number
@@ -44,6 +43,7 @@ mutation newSchedule(
       payDay: $pay_day
       valuePayed: $value_payed
       publishedAt: $publishedAt
+      activated: true
     }
   ) {
     data {

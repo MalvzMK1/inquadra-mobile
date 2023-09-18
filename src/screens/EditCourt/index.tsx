@@ -1,11 +1,9 @@
-import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { useState, useEffect } from 'react';
 import { View, Image, Text, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
-import { ImageSourcePropType } from "react-native/Libraries/Image/Image"
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
-import { SelectList, MultipleSelectList } from 'react-native-dropdown-select-list'
+import { MultipleSelectList } from 'react-native-dropdown-select-list'
 import MaskInput, { Masks } from "react-native-mask-input";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
@@ -35,12 +33,12 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
     })
 
     const { data: sportTypesData, error: sportTypesError, loading: sportTypesLoading } = useSportTypes()
-    const { data: courtByIdData, error: courtByIdError, loading: courtByIdLoading } = useCourtById(courtId)
+    const { data: courtByIdData, error: courtByIdError, loading: courtByIdLoading } = useCourtById(courtId ?? "")
     const [updateCourtHook, { data, loading, error }] = useUpdateCourt()
 
     let courtTypesData: string[] = []
     sportTypesData?.courtTypes.data.map(sportItem => courtTypesData.push(sportItem.attributes.name))
-    
+
     interface ICourtTypes {
         id: string
         name: string
@@ -48,7 +46,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
     let allCourtTypesJson: ICourtTypes[] = []
     sportTypesData?.courtTypes.data.map(sportTypeItem => {
-        allCourtTypesJson = [...allCourtTypesJson, {id: sportTypeItem.id, name: sportTypeItem.attributes.name}]
+        allCourtTypesJson = [...allCourtTypesJson, { id: sportTypeItem.id, name: sportTypeItem.attributes.name }]
     })
 
     const fantasyName = courtByIdData?.court.data.attributes.fantasy_name
@@ -73,7 +71,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         courtByIdData?.court.data.attributes.court_types.data.map(courtTypeItem => courtTypes.push(courtTypeItem.id))
     }
 
-    
+
     let courtTypesJson: ICourtTypes[] = []
     courtByIdData?.court.data.attributes.court_types.data.map(courtTypeItem => {
         courtTypesJson = [...courtTypesJson, { id: courtTypeItem.id, name: courtTypeItem.attributes.name }]
@@ -118,19 +116,19 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         }
 
         let courtTypesId: string[] = []
-        if(courtTypeSelected) {
+        if (courtTypeSelected) {
             courtTypeSelected?.map(courtTypeSelectedItem => {
                 const courtTypeIdItem = allCourtTypesJson.find(courtTypeItem => courtTypeItem.name === courtTypeSelectedItem)?.id
-                if(courtTypeIdItem != undefined)
+                if (courtTypeIdItem != undefined)
                     courtTypesId?.push(courtTypeIdItem)
             })
         }
 
         updateCourtHook({
             variables: {
-                court_id: courtId,
+                court_id: courtId ?? "",
                 court_availabilities: courtAvailibilites,
-                court_name: courtByIdData?.court.data.attributes.name,
+                court_name: courtByIdData?.court.data.attributes.name ?? "",
                 court_types: courtTypesId,
                 fantasy_name: courtData.fantasyName,
                 minimum_value: courtData.minimumScheduleValue,
@@ -240,11 +238,12 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                 <BottomNavigationBar
                     isDisabled={false}
                     playerScreen={false}
-                    establishmentScreen={true}
-                />
+                    establishmentScreen={true} establishmentID={undefined} logo={undefined} userID={""} userPhoto={""} />
 
             </View>
 
         </ScrollView>
+
+        
     )
 }
