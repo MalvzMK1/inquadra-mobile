@@ -32,11 +32,11 @@ import axios from 'axios';
 import { set } from 'date-fns';
 
 interface IFormData {
+	photo: string
 	name: string
 	email: string
 	phoneNumber: string
 	cpf: string
-	photo: Photo['id']
 }
 
 interface IPaymentCardFormData {
@@ -44,6 +44,8 @@ interface IPaymentCardFormData {
 	cvv: string
 	country: string
 }
+
+
 
 const formSchema = z.object({
 	name: z.string()
@@ -188,7 +190,8 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 
 	};
 
-	const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
+
+const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
 
 	const handleProfilePictureUpload = async () => {
 		try {
@@ -224,7 +227,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		const formData = new FormData();
 		formData.append('files', {
 		  uri: selectedImageUri,
-		  name: 'prifile.jpg',
+		  name: 'profile.jpg',
 		  type: 'image/jpeg',
 		});
 	
@@ -248,27 +251,23 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		  return "Deu erro";
 		}
 	  };
-	
+	  
 
 	  async function updateUserInfos(data: IFormData): Promise<void> {
-		console.log('Iniciando a atualização das informações do usuário.');
-		console.log(data)
+		console.log(data);
 	  
-		// Verifique se data está definido
 		if (!data) {
-		  console.error('Erro: data não está definido.');
+		  console.error('Erro: data não está definido');
 		  return;
 		}
 	  
-		// Verifique se data.photo está definido e tem a propriedade id
-		if (!data.photo || !data.photo.id) {
-		  console.error('Erro: data.photo não está definido ou não tem a propriedade id.');
+		if (!data.photo) {
+		  console.error('Erro: data.photo não está definido ou não tem a propriedade id');
 		  return;
 		}
 	  
-		// Verifique se userInfos está definido
 		if (!userInfos) {
-		  console.error('Erro: userInfos não está definido.');
+		  console.error('Erro: userInfos não está definido');
 		  return;
 		}
 	  
@@ -277,9 +276,11 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		console.log('userInfos:', userInfos);
 	  
 		try {
-		  const newPhotoId = await uploadImage(data.photo.id);
+		  const newPhotoId = await uploadImage(data.photo);
 		  console.log('Novo ID da foto:', newPhotoId);
+	  
 		  const updatedUserInfos = { ...userInfos, photo: newPhotoId };
+	  
 		  await updateUser({
 			variables: {
 			  user_id: userInfos.id,
@@ -287,9 +288,10 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 			  cpf: data.cpf,
 			  phone_number: data.phoneNumber,
 			  username: data.name,
-			  photo: newPhotoId,
+			  photo: newPhotoId, 
 			},
 		  });
+	  
 		  setUserInfos(updatedUserInfos);
 		  console.log('Informações do usuário atualizadas com sucesso!');
 		} catch (error) {
@@ -302,6 +304,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		let newUserInfos = userInfos;
 
 		if (!loading && data) {
+
 			newUserInfos = {
 				id: data.usersPermissionsUser.data.id,
 				username: data.usersPermissionsUser.data.attributes.username,
@@ -326,7 +329,6 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	function defineDefaultFieldValues(userData: Omit<User, 'id' | 'cep' | 'latitude' | 'longitude' | 'streetName'> & {paymentCardInfos: {dueDate: string, cvv: string}} | undefined) : void {
 		if(userData) {
 			setValue('name', userData.username)
-			setValue('photo', userData.photo)
 			setValue('email', userData.email)
 			setValue('phoneNumber', userData.phoneNumber)
 			setValue('cpf', userData.cpf)
@@ -344,6 +346,8 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 		});
 	}, [loading])
 
+
+
 	return (
 				<View className="flex-1 bg-white h-full">
 					 {/*{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}*/}
@@ -354,22 +358,31 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 							</View> :
 							<ScrollView className="flex-grow p-1">
 								{/*{(console.log({data}))}*/}
-								<TouchableOpacity className="items-center mt-8">
+								
+								<Controller
+								name='photo'
+								control={control}
+								render={({ field: { onChange } }) => (
+									<TouchableOpacity style={{ alignItems: 'center', marginTop: 8 }}>
 									<View style={styles.container}>
 										{profilePicture ? (
-											<Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+										<Image source={{ uri: profilePicture }} style={styles.profilePicture} />
 										) : (
-											<Ionicons name="person-circle-outline" size={100} color="#bbb" />
+										<Ionicons name="person-circle-outline" size={100} color="#bbb" />
 										)}
+
 										<TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
-											{profilePicture ? (
-												<Ionicons name="pencil-outline" size={30} color="#fff" />
-											) : (
-												<Ionicons name="camera-outline" size={30} color="#fff" />
-											)}
+										{profilePicture ? (
+											<Ionicons name="pencil-outline" size={30} color="#fff" />
+										) : (
+											<Ionicons name="camera-outline" size={30} color="#fff" />
+										)}
 										</TouchableOpacity>
 									</View>
-								</TouchableOpacity>
+									</TouchableOpacity>
+								)}
+								/>
+
 
 								<View className="p-6 space-y-10">
 									<View>
