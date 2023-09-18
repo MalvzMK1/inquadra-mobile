@@ -547,7 +547,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         setIsLoading(false)
                         setBlockedCourtId("")
                     }))
-                } catch(error) {
+                } catch (error) {
                     console.log("Deu erro: ", error)
                     setIsLoading(false)
                 }
@@ -735,6 +735,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                 <Grid
                                     direction={Grid.Direction.HORIZONTAL}
                                 />
+
                                 <ScheduleChartLabels
                                     data={data}
                                     maxValue={maxValue}

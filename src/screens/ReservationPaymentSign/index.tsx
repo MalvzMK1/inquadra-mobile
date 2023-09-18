@@ -202,7 +202,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             const create = await createSchedule({
                 variables: {
                     title: 'rapaz',
-                    court_availability: parseFloat(courtAvailabilities),
+                    court_availability: Number(courtAvailabilities),
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
