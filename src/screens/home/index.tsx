@@ -201,14 +201,17 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				/>
 			}
 			{
-				userHookData && <BottomBlackMenu
-                    screen={"Home"}
-                    userID={route?.params?.userID}
-                    userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-                    key={1}
-                    isDisabled ={true}
-                    paddingTop={2}
-                />
+				userHookData &&
+				<View className={`absolute bottom-0 left-0 right-0`}>
+					<BottomBlackMenu
+						screen="Home"
+						userID={route?.params?.userID}
+						userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+						key={1}
+						isDisabled={!isDisabled}
+						paddingTop={2}
+					/>
+				</View>
             }
         </View>
     );

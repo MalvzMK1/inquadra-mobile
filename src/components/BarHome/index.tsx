@@ -159,6 +159,8 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 						<ActivityIndicator size="small" color="#fff" />
 					)
 				}
+
+					<View className='h-10'></View>
 			</ScrollView>
 		</Animated.View>
 	)

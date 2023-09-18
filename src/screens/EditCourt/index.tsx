@@ -13,7 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form";
 import useUpdateCourt from "../../hooks/useUpdateCourt";
 import { HOST_API } from '@env'
-
+import storage from "../../utils/storage";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 interface ICourtFormData {
     fantasyName: string
     minimumScheduleValue: number
@@ -139,6 +140,16 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
             .finally(() => setIsLoading(false))
     }
 
+    let userId = ""
+
+    storage.load<UserInfos>({
+        key: 'userInfos',
+    }).then((data) => {
+        userId = data.userId
+    })
+
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useCourtById(courtId!)
+
     return (
         <ScrollView className="h-full w-full flex flex-col">
 
@@ -235,15 +246,19 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                     <Text className="font-semibold text-white text-[14px]">{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
                 </TouchableOpacity>
 
-                <BottomNavigationBar
-                    isDisabled={false}
-                    playerScreen={false}
-                    establishmentScreen={true} establishmentID={undefined} logo={undefined} userID={""} userPhoto={""} />
 
+                <View className="h-24"></View>
             </View>
-
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={userId}
+                    establishmentLogo={route.params.userPhoto !== undefined || route.params.userPhoto !== null ? HOST_API + route.params.userPhoto : null}
+                    establishmentID={dataUserEstablishment?.court.data.attributes.establishment.data.id!}
+                    key={1}
+                    paddingTop={2}
+                />
+            </View>
         </ScrollView>
-
-        
     )
 }

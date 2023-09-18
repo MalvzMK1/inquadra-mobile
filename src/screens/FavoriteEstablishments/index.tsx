@@ -105,55 +105,9 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
     return (
         <ScrollView className='flex-1 py-4 bg-zinc-600'>
             {
-                // !loading &&
-                // data?.courtTypes?.data?.map(courtType => (
-                //     <InfosEstablishment.Root category={courtType.attributes.name} key={courtType.attributes.name}>
-                //         {courtType.attributes.courts.data.map(courtInfo => {
-                //             const schedulings = courtInfo?.attributes?.court_availabilities?.data[0]?.attributes?.schedulings?.data;
-                //             const lastScheduling = schedulings && schedulings.length > 0
-                //                 ? new Date(schedulings[schedulings.length - 1].attributes.date)
-                //                 : undefined;
-
-                //             return (
-                //                 <InfosEstablishment.Court key={courtInfo.id} imageUrl={{ uri: HOST_API + courtInfo?.attributes?.photo?.data[0]?.attributes?.url, height: 90, width: 138 }}>
-                //                     <InfosEstablishment.Content lastScheduling={lastScheduling}>
-                //                         <InfosEstablishment.ContentHeader courtName={courtInfo?.attributes?.fantasy_name}>
-                //                             <AntDesign
-                //                                 name="heart"
-                //                                 size={20}
-                //                                 color={colors[courtInfo.id] || "red"}
-                //                                 onPress={() => handleUpdateEstablishmentLike(courtInfo.id)}
-                //                             />
-                //                         </InfosEstablishment.ContentHeader>
-                //                         <InfosEstablishment.ContentCourtType courtType={courtInfo?.attributes?.name} />
-
-                //                         <InfosEstablishment.ContentDistance distance={
-                //                             (() => {
-                //                                 const distanceInMeters = calculateDistance(
-                //                                     userLocation.latitude,
-                //                                     userLocation.longitude,
-                //                                     Number(courtInfo.attributes.establishment.data.attributes.address.latitude),
-                //                                     Number(courtInfo.attributes.establishment.data.attributes.address.longitude)
-                //                                 );
-                //                                 return distanceInMeters >= 1000
-                //                                     ? `${(distanceInMeters / 1000).toFixed(1)} Km`
-                //                                     : `${distanceInMeters.toFixed(0)} metros`;
-                //                             })()
-                //                         } />
-                //                     </InfosEstablishment.Content>
-                //                 </InfosEstablishment.Court>
-                //             );
-                //         })}
-                //     </InfosEstablishment.Root>
-                // ))
-
-
-            }
-
-            {
                 !loading && data?.establishments.data.map(item => (
-                    <InfosEstablishment.Root category="">
-                        <InfosEstablishment.Establishment imageUrl={{uri: item.attributes.photos.data[0].attributes.url}}>
+                    <InfosEstablishment.Root category={item.attributes.corporateName}>
+                        <InfosEstablishment.Establishment key={item.id} imageUrl={{uri: HOST_API + item.attributes.photos.data[0].attributes.url, height: 90, width: 138}}>
                             <InfosEstablishment.Content>
                                 <InfosEstablishment.ContentHeader establishmentName={item.attributes.corporateName}>
                                     <AntDesign
@@ -163,7 +117,6 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
                                         onPress={() => handleUpdateEstablishmentLike(item.id)}
                                     />
                                 </InfosEstablishment.ContentHeader>
-                                <Text>TORA GRANDE E GROSSA</Text>
 
                                 <InfosEstablishment.ContentDistance distance={
                                     (() => {

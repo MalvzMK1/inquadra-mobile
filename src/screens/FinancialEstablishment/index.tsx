@@ -7,6 +7,8 @@ import { NavigationProp, useNavigation, useFocusEffect } from '@react-navigation
 import DateTimePicker from "@react-native-community/datetimepicker"
 import { HOST_API } from "@env";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'FinancialEstablishment'> { }
@@ -136,6 +138,8 @@ export default function FinancialEstablishment({ route }: Props) {
         };
     }
 
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId)
+
     return (
         <View className="flex-1">
             <ScrollView>
@@ -238,7 +242,19 @@ export default function FinancialEstablishment({ route }: Props) {
                         }
                     </View>
                 </View>
+                <View className="h-16"></View>
             </ScrollView>
+
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Finance"
+                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
+                    establishmentLogo={route.params.logo!}
+                    establishmentID={route.params.establishmentId}
+                    key={1}
+                    paddingTop={2}
+                />
+            </View>
         </View>
     );
 }
