@@ -46,7 +46,6 @@ interface IPaymentCardFormData {
 }
 
 
-
 const formSchema = z.object({
 	name: z.string()
 		.nonempty('Esse campo não pode estar vazio'),
@@ -91,7 +90,7 @@ export default function ProfileSettings({navigation, route}: NativeStackScreenPr
 	const [updateUser, {data: updatedUserData, loading: isUpdateLoading, error: updateUserError}] = useUpdateUser();
 	const [updatePaymentCardInformations, {data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading}] = useUpdatePaymentCardInformations()
 	const [deleteUser] = useDeleteUser();
-	const [photos, setPhotos] = useState([]);
+	const [photos, setPhotos] = useState(null);
 
 	useEffect(() => {
 		let newCountriesArray: Array<{key: string, value: string, img: string}> = [];
@@ -210,15 +209,16 @@ const [profilePicture, setProfilePicture] = useState<string | undefined>(route.p
 		  });
 	
 		  if (!result.canceled) {
-			setProfilePicture(result.uri);
-			await uploadImage(result.uri);
+			await uploadImage(result.uri).then((uploadedImageID) => {
+			  setProfilePicture(result.uri);
+			  console.log('ID da imagem enviada:', uploadedImageID);
+			});
 		  }
 		} catch (error) {
 		  console.log('Erro ao carregar a imagem: ', error);
 		}
 	  };
 
-	
 	
 	  const uploadImage = async (selectedImageUri: string) => {
 		setIsLoading(true);
@@ -256,48 +256,46 @@ const [profilePicture, setProfilePicture] = useState<string | undefined>(route.p
 	  async function updateUserInfos(data: IFormData): Promise<void> {
 		console.log(data);
 	  
-		if (!data) {
-		  console.error('Erro: data não está definido');
-		  return;
-		}
-	  
-		if (!data.photo) {
-		  console.error('Erro: data.photo não está definido ou não tem a propriedade id');
-		  return;
-		}
-	  
-		if (!userInfos) {
-		  console.error('Erro: userInfos não está definido');
-		  return;
-		}
-	  
-		console.log('Dados de entrada:');
-		console.log('data:', data);
-		console.log('userInfos:', userInfos);
-	  
 		try {
-		  const newPhotoId = await uploadImage(data.photo);
-		  console.log('Novo ID da foto:', newPhotoId);
+		  if (profilePicture) {
+			// Faz o upload da imagem e obtém o ID da imagem enviada
+			const uploadedImageID = await uploadImage(profilePicture);
 	  
-		  const updatedUserInfos = { ...userInfos, photo: newPhotoId };
+			// Atualiza as informações do usuário junto com o ID da imagem
+			await updateUser({
+			  variables: {
+				user_id: userInfos.id,
+				email: data.email,
+				cpf: data.cpf,
+				phone_number: data.phoneNumber,
+				username: data.name,
+				photo: uploadedImageID, // Adiciona o ID da imagem aqui
+			  },
+			});
 	  
-		  await updateUser({
-			variables: {
-			  user_id: userInfos.id,
-			  email: data.email,
-			  cpf: data.cpf,
-			  phone_number: data.phoneNumber,
-			  username: data.name,
-			  photo: newPhotoId, 
-			},
-		  });
+			console.log('Informações do usuário atualizadas com sucesso!');
+		  } else {
+
+			const uploadedImageID = await uploadImage(profilePicture);
+			// Se não houver uma nova imagem, apenas atualize as informações do usuário
+			await updateUser({
+			  variables: {
+				user_id: userInfos.id,
+				email: data.email,
+				cpf: data.cpf,
+				phone_number: data.phoneNumber,
+				username: data.name,
+				photo: uploadedImageID
+			  },
+			});
 	  
-		  setUserInfos(updatedUserInfos);
-		  console.log('Informações do usuário atualizadas com sucesso!');
+			console.log('Informações do usuário atualizadas com sucesso!');
+		  }
 		} catch (error) {
 		  console.error('Erro ao atualizar informações do usuário:', error);
 		}
 	  }
+	  
 	  
 	  
 	async function loadInformations() {
@@ -359,10 +357,6 @@ const [profilePicture, setProfilePicture] = useState<string | undefined>(route.p
 							<ScrollView className="flex-grow p-1">
 								{/*{(console.log({data}))}*/}
 								
-								<Controller
-								name='photo'
-								control={control}
-								render={({ field: { onChange } }) => (
 									<TouchableOpacity style={{ alignItems: 'center', marginTop: 8 }}>
 									<View style={styles.container}>
 										{profilePicture ? (
@@ -380,8 +374,6 @@ const [profilePicture, setProfilePicture] = useState<string | undefined>(route.p
 										</TouchableOpacity>
 									</View>
 									</TouchableOpacity>
-								)}
-								/>
 
 
 								<View className="p-6 space-y-10">

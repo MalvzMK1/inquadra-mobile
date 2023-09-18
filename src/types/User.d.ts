@@ -9,5 +9,4 @@ type User = {
 	latitude: string
 	longitude: string
 	streetName: string
-	photo: Photo['id']
 }
