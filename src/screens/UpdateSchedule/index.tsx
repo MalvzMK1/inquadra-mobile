@@ -230,7 +230,7 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
                             </TouchableOpacity>
                         </View>
                     </ScrollView>
-                    <BottomBlackMenu />
+                    
                 </>
             }
         </SafeAreaView>

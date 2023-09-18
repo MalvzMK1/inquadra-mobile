@@ -15,7 +15,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form";
 import useUpdateCourt from "../../hooks/useUpdateCourt";
 import { HOST_API } from '@env'
-
+import storage from "../../utils/storage";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 interface ICourtFormData {
     fantasyName: string
     minimumScheduleValue: number
@@ -40,7 +41,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
     let courtTypesData: string[] = []
     sportTypesData?.courtTypes.data.map(sportItem => courtTypesData.push(sportItem.attributes.name))
-    
+
     interface ICourtTypes {
         id: string
         name: string
@@ -48,7 +49,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
 
     let allCourtTypesJson: ICourtTypes[] = []
     sportTypesData?.courtTypes.data.map(sportTypeItem => {
-        allCourtTypesJson = [...allCourtTypesJson, {id: sportTypeItem.id, name: sportTypeItem.attributes.name}]
+        allCourtTypesJson = [...allCourtTypesJson, { id: sportTypeItem.id, name: sportTypeItem.attributes.name }]
     })
 
     const fantasyName = courtByIdData?.court.data.attributes.fantasy_name
@@ -73,7 +74,7 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         courtByIdData?.court.data.attributes.court_types.data.map(courtTypeItem => courtTypes.push(courtTypeItem.id))
     }
 
-    
+
     let courtTypesJson: ICourtTypes[] = []
     courtByIdData?.court.data.attributes.court_types.data.map(courtTypeItem => {
         courtTypesJson = [...courtTypesJson, { id: courtTypeItem.id, name: courtTypeItem.attributes.name }]
@@ -118,10 +119,10 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
         }
 
         let courtTypesId: string[] = []
-        if(courtTypeSelected) {
+        if (courtTypeSelected) {
             courtTypeSelected?.map(courtTypeSelectedItem => {
                 const courtTypeIdItem = allCourtTypesJson.find(courtTypeItem => courtTypeItem.name === courtTypeSelectedItem)?.id
-                if(courtTypeIdItem != undefined)
+                if (courtTypeIdItem != undefined)
                     courtTypesId?.push(courtTypeIdItem)
             })
         }
@@ -140,6 +141,16 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
             .catch((reason) => alert(reason))
             .finally(() => setIsLoading(false))
     }
+
+    let userId = ""
+
+    storage.load<UserInfos>({
+        key: 'userInfos',
+    }).then((data) => {
+        userId = data.userId
+    })
+
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useCourtById(courtId!)
 
     return (
         <ScrollView className="h-full w-full flex flex-col">
@@ -237,16 +248,19 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
                     <Text className="font-semibold text-white text-[14px]">{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
                 </TouchableOpacity>
 
-                <BottomNavigationBar
-                    isDisabled={false}
-                    playerScreen={false}
-                    establishmentScreen={true}
-                />
 
+                <View className="h-24"></View>
             </View>
-
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={userId}
+                    establishmentLogo={route.params.userPhoto !== undefined || route.params.userPhoto !== null ? HOST_API + route.params.userPhoto : null}
+                    establishmentID={dataUserEstablishment?.court.data.attributes.establishment.data.id!}
+                    key={1}
+                    paddingTop={2}
+                />
+            </View>
         </ScrollView>
-
-        
     )
 }

@@ -6,6 +6,9 @@ import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { NavigationProp, useFocusEffect, useNavigation, } from "@react-navigation/native"
 import NoticeCard from "../../../components/NoticeCard";
+import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
+import { HOST_API } from "@env";
+import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'WithdrawScreen'> {
     establishmentId: string
@@ -99,7 +102,7 @@ export default function WithdrawScreen({ route }: Props) {
         }
     }
 
-    
+
 
     const handleSliderChange = (value: any) => {
         setNumber(value)
@@ -122,13 +125,16 @@ export default function WithdrawScreen({ route }: Props) {
         );
     }
 
+
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId)
+
     return (
         <View className="flex-1 justify-center items-center ">
             {
                 isWithdrawalMade ?
-                < NoticeCard text="Saque realizado com sucesso" />
-                :
-                <></>
+                    < NoticeCard text="Saque realizado com sucesso" />
+                    :
+                    <></>
             }
             <View className={`h-full w-screen flex items-center justify-center z-10 ${isWithdrawalMade ? "opacity-50" : ""}`}>
                 <ScrollView  >
@@ -214,6 +220,16 @@ export default function WithdrawScreen({ route }: Props) {
                         <Text className='text-gray-50 font-bold'>Enviar</Text>
                     </TouchableOpacity>
                 </View>
+            </View>
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
+                    establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
+                    establishmentID={route.params.establishmentId}
+                    key={1}
+                    paddingTop={2}
+                />
             </View>
         </View>
     )

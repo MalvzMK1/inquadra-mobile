@@ -15,6 +15,8 @@ const { parse, format } = require('date-fns');
 import { HOST_API } from '@env'
 import useEstablishmentIdByUserId from "../../hooks/useEstablishmentByUserId";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
+import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
 
 export default function HomeEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'HomeEstablishment'>) {
     const [selected, setSelected] = useState('');
@@ -115,6 +117,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
         )
     );
 
+
     return (
         <View className="flex-1">
             <View className=' h-11 w-max  bg-zinc-900'></View>
@@ -128,7 +131,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                     <Text className='text-lg font-bold text-white'>Olá, {firstName}!</Text>
                 </View>
                 <View className='h-max w-max flex justify-center items-center'>
-                    <TouchableOpacity className='h-12 W-12 '>
+                    <TouchableOpacity className='h-12 W-12' onPress={() => navigation.navigate('InfoProfileEstablishment', {userPhoto: dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url :null})}>
                         <Image
                             source={{ uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url }}
                             style={{ width: 46, height: 46 }}
@@ -201,7 +204,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                                 }
                             </View>
                         </View>
-                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', {establishmentPhoto: undefined})}>
+                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: undefined })}>
                             <Text className="text-white text-center h-4">Ver detalhes</Text>
                         </TouchableOpacity>
                         <View className="pt-10">
@@ -329,17 +332,20 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                         </View>
                     </View>
                 </View>
+                <View className="h-16"></View>
             </ScrollView>
             {
                 userId ?
-                    <BottomNavigationBar
-                        playerScreen={false}
-                        establishmentScreen
-                        establishmentID={establishment_id}
-                        logo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url}
-                        userID={userId}
-                        userPhoto={'http'}
-                    />
+                    <View className={`absolute bottom-0 left-0 right-0`}>
+                        <BottomBlackMenuEstablishment
+                            screen="Home"
+                            userID={route?.params.userID}
+                            establishmentLogo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url :null}
+                            establishmentID={establishment_id}
+                            key={1}
+                            paddingTop={2}
+                        />
+                    </View>
                     :
                     null
             }

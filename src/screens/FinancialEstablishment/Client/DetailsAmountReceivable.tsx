@@ -5,6 +5,9 @@ import CardDetailsAmountReceivable from "../../../components/CardDetailsAmountRe
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { HOST_API } from "@env";
+import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
+import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'DetailsAmountReceivable'> {
     establishmentId: string
@@ -97,6 +100,8 @@ export default function DetailsAmountReceivable({ route }: Props) {
         return datesFilter;
     }
 
+    const {data:dataUserEstablishment, error:errorUserEstablishment, loading:loadingUserEstablishment} = useGetUserIDByEstablishment(route.params.establishmentId)
+
     return (
         <View className="flex-1">
             <ScrollView>
@@ -141,7 +146,18 @@ export default function DetailsAmountReceivable({ route }: Props) {
                         <FontAwesome5 name="smile-beam" size={18} color="gray" />
                     </View>
                 </View>
+                <View className="h-16"></View>
             </ScrollView >
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
+                    establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
+                    establishmentID={route.params.establishmentId}
+                    key={1}
+                    paddingTop={2}
+                />
+            </View>
         </View >
     );
 }
