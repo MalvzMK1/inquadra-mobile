@@ -13,7 +13,7 @@ import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
-import FavoriteCourts from "../../screens/FavoriteCourts";
+import FavoriteEstablishments from '../../screens/FavoriteEstablishments';
 import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
@@ -33,7 +33,7 @@ import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import Schedulings from '../../screens/Schedulings';
 import CancelScheduling from '../../screens/CancelScheduling';
-import { HOST_API } from '@env'
+import { HOST_API } from '@env';
 import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
@@ -503,8 +503,8 @@ export default function () {
                 }}
             />
             <Screen
-                name="FavoriteCourts"
-                component={FavoriteCourts}
+                name="FavoriteEstablishments"
+                component={FavoriteEstablishments}
                 options={({ route: { params } }) => ({
                     headerTitle: 'Favoritos',
                     headerTitleStyle: {

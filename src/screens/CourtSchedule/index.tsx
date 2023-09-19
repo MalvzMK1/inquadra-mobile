@@ -30,6 +30,7 @@ import { TextInputMask } from 'react-native-masked-text';
 import ScheduleChartLabels from "../../components/ScheduleChartLabels";
 import { useApolloClient } from "@apollo/client";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 
 const portugueseMonths = [
@@ -122,7 +123,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     }
 
     let establishmentSchedules: IEstablishmentSchedules[] = []
-    if (!schedulesLoading)
+    if (schedulesData)
         schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
             courtItem.attributes.court_availabilities.data.map(courtAvailabilitieItem => {
                 courtAvailabilitieItem.attributes.schedulings.data.map(schedulingItem => {
@@ -547,7 +548,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         setIsLoading(false)
                         setBlockedCourtId("")
                     }))
-                } catch(error) {
+                } catch (error) {
                     console.log("Deu erro: ", error)
                     setIsLoading(false)
                 }
@@ -564,7 +565,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     return (
         <View className="h-full w-full">
 
-            <ScrollView>
+            <ScrollView >
                 <View className="w-full h-fit flex-col mt-[15px] pl-[25px] pr-[25px]">
                     <View className="flex-row w-full justify-between items-center">
                         <Text className="font-black text-[20px] text-[#292929]">{dateSelected.toISOString().split("T")[0].split("-")[2]} {portugueseMonths[dateSelected.getMonth()]}</Text>
@@ -735,6 +736,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                 <Grid
                                     direction={Grid.Direction.HORIZONTAL}
                                 />
+
                                 <ScheduleChartLabels
                                     data={data}
                                     maxValue={maxValue}
@@ -754,13 +756,6 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     </View>
                 )}
 
-                {schedulingsHistoricFocus && (
-                    <View className="pl-[25px] pr-[40px] mt-[15px] mb-[10px] w-fit h-fit">
-                        <View className="w-full rounded-[4px] flex flex-row items-center justify-center">
-                            <Text className="text-[16px] font-bold">Aguarde o redirecionamento!</Text>
-                        </View>
-                    </View>
-                )}
 
                 <Modal visible={chooseBlockTypeModal} animationType="fade" transparent={true} onRequestClose={closeChooseBlockTypeModal}>
                     <View className="h-full w-full justify-center items-center">
@@ -1007,17 +1002,19 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         </View>
                     </View>
                 </Modal>
-            </ScrollView>
-            {
-                userId ?
-                    <BottomNavigationBar
-                        establishmentScreen
-                        userID={userId}
-                        userPhoto={'http'} playerScreen={false} establishmentID={undefined} logo={undefined} />
-                    :
-                    null
-            }
 
+                <View className={`absolute bottom-0 left-0 right-0`}>
+                    <BottomBlackMenuEstablishment
+                        screen="Schedule"
+                        userID={userId}
+                        establishmentLogo={route.params.establishmentPhoto!}
+                        establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
+                        key={1}
+                        paddingTop={2}
+                    />
+                </View>
+
+            </ScrollView>
         </View>
     )
 }

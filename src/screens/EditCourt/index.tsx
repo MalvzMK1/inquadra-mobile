@@ -13,7 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from "react-hook-form";
 import useUpdateCourt from "../../hooks/useUpdateCourt";
 import { HOST_API } from '@env'
-
+import storage from "../../utils/storage";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 interface ICourtFormData {
     fantasyName: string
     minimumScheduleValue: number
@@ -139,109 +140,127 @@ export default function EditCourt({ navigation, route }: NativeStackScreenProps<
             .finally(() => setIsLoading(false))
     }
 
+    let userId = ""
+
+    storage.load<UserInfos>({
+        key: 'userInfos',
+    }).then((data) => {
+        userId = data.userId
+    })
+
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useCourtById(courtId!)
+
     return (
-        <ScrollView className="h-full w-full flex flex-col">
+        <View className="h-full w-full flex flex-col">
+            <ScrollView>
+                <View className="pt-[15px] pl-[7px] pr-[7px] flex flex-col items-center justify-center h-fit w-full">
+                    <Image className="h-[210px] w-[375px] rounded-[5px]" source={{ uri: HOST_API + courtByIdData?.court.data.attributes.photo.data[0].attributes.url }}></Image>
 
-            <View className="pt-[15px] pl-[7px] pr-[7px] flex flex-col items-center justify-center h-fit w-full">
-                <Image className="h-[210px] w-[375px] rounded-[5px]" source={{ uri: HOST_API + courtByIdData?.court.data.attributes.photo.data[0].attributes.url }}></Image>
-
-                <View className="flex flex-row items-center justify-center gap-x-[5px]">
-                    <Text className="text-[16px] text-[#FF6112] font-semibold">Editar</Text>
-                    <TouchableOpacity onPress={handleProfilePictureUpload}>
-                        <Image source={require('../../assets/edit_icon.png')}></Image>
-                    </TouchableOpacity>
-                </View>
-
-            </View>
-
-            <View className="pl-[20px] pr-[20px] mt-[30px]">
-
-                <View className="mb-[20px]">
-                    <View className="w-full items-center mb-[5px]">
-                        <Text className="text-[16px] text-[#4E4E4E] font-normal">Selecione a modalidade:</Text>
+                    <View className="flex flex-row items-center justify-center gap-x-[5px]">
+                        <Text className="text-[16px] text-[#FF6112] font-semibold">Editar</Text>
+                        <TouchableOpacity onPress={handleProfilePictureUpload}>
+                            <Image source={require('../../assets/edit_icon.png')}></Image>
+                        </TouchableOpacity>
                     </View>
-                    <MultipleSelectList
-                        setSelected={(val: []) => {
-                            setCourtTypeSelected(val)
-                        }}
-                        // defaultOption={{key: courtTypesJson[0].id, value: courtTypesJson[0].name}}
-                        data={courtTypesData}
-                        save="value"
-                        placeholder='Selecione uma modalidade'
-                        searchPlaceholder='Pesquisar...'
 
-                    />
                 </View>
 
-                <View className="mb-[20px]">
-                    <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Nome fantasia da quadra?</Text>
-                    <Controller
-                        name='fantasyName'
-                        control={control}
-                        rules={{
-                            required: true
-                        }}
-                        render={({ field: { onChange } }) => (
-                            <TextInput
-                                onChangeText={onChange}
-                                defaultValue={fantasyName}
-                                className={`p-4 border ${errors.fantasyName ? "border-red-400" : "border-gray-400"}  rounded-lg h-45`}
-                                placeholder="Ex: Arena Society"
-                            />
-                        )}
-                    />
-                    {errors.fantasyName && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.fantasyName.message}</Text>}
-                </View>
+                <View className="pl-[20px] pr-[20px] mt-[30px]">
 
-                <View className="mb-[20px]">
-                    <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Sinal mínimo para locação</Text>
-                    <Controller
-                        name='minimumScheduleValue'
-                        control={control}
-                        rules={{
-                            required: true
-                        }}
-                        render={({ field: { onChange } }) => (
-                            <MaskInput
-                                className={`p-4 border ${errors.minimumScheduleValue ? "border-red-400" : "border-gray-400"}  rounded-lg h-45`}
-                                placeholder='R$ 00,00'
-                                keyboardType="numeric"
-                                onChangeText={(masked, unmasked) => {
-                                    onChange(parseFloat(unmasked))
-                                    setMinimumSheduleValue(parseFloat(unmasked))
-                                }}
-                                value={minimumScheduleValueState?.toString()}
-                                mask={Masks.BRL_CURRENCY}
-                            />
-                        )}
-                    />
-                    {errors.minimumScheduleValue && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.minimumScheduleValue.message}</Text>}
-                </View>
+                    <View className="mb-[20px]">
+                        <View className="w-full items-center mb-[5px]">
+                            <Text className="text-[16px] text-[#4E4E4E] font-normal">Selecione a modalidade:</Text>
+                        </View>
+                        <MultipleSelectList
+                            setSelected={(val: []) => {
+                                setCourtTypeSelected(val)
+                            }}
+                            // defaultOption={{key: courtTypesJson[0].id, value: courtTypesJson[0].name}}
+                            data={courtTypesData}
+                            save="value"
+                            placeholder='Selecione uma modalidade'
+                            searchPlaceholder='Pesquisar...'
 
-                <View className="">
-                    <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Valor aluguel/hora</Text>
+                        />
+                    </View>
+
+                    <View className="mb-[20px]">
+                        <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Nome fantasia da quadra?</Text>
+                        <Controller
+                            name='fantasyName'
+                            control={control}
+                            rules={{
+                                required: true
+                            }}
+                            render={({ field: { onChange } }) => (
+                                <TextInput
+                                    onChangeText={onChange}
+                                    defaultValue={fantasyName}
+                                    className={`p-4 border ${errors.fantasyName ? "border-red-400" : "border-gray-400"}  rounded-lg h-45`}
+                                    placeholder="Ex: Arena Society"
+                                />
+                            )}
+                        />
+                        {errors.fantasyName && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.fantasyName.message}</Text>}
+                    </View>
+
+                    <View className="mb-[20px]">
+                        <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Sinal mínimo para locação</Text>
+                        <Controller
+                            name='minimumScheduleValue'
+                            control={control}
+                            rules={{
+                                required: true
+                            }}
+                            render={({ field: { onChange } }) => (
+                                <MaskInput
+                                    className={`p-4 border ${errors.minimumScheduleValue ? "border-red-400" : "border-gray-400"}  rounded-lg h-45`}
+                                    placeholder='R$ 00,00'
+                                    keyboardType="numeric"
+                                    onChangeText={(masked, unmasked) => {
+                                        onChange(parseFloat(unmasked))
+                                        setMinimumSheduleValue(parseFloat(unmasked))
+                                    }}
+                                    value={minimumScheduleValueState?.toString()}
+                                    mask={Masks.BRL_CURRENCY}
+                                />
+                            )}
+                        />
+                        {errors.minimumScheduleValue && <Text className='text-red-400 text-sm -pt-[10px]'>{errors.minimumScheduleValue.message}</Text>}
+                    </View>
+
+                    <View className="">
+                        <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">Valor aluguel/hora</Text>
+                        <TouchableOpacity
+                            className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
+                            onPress={() => navigation.navigate("CourtPriceHour")}
+                        >
+                            <Text className="font-semibold text-white text-[14px]">Clique para definir</Text>
+                        </TouchableOpacity>
+                    </View>
+
                     <TouchableOpacity
-                        className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center'
-                        onPress={() => navigation.navigate("CourtPriceHour")}
+                        className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mt-[50px]'
+                        onPress={handleSubmit(handleUpdateCourt)}
                     >
-                        <Text className="font-semibold text-white text-[14px]">Clique para definir</Text>
+                        <Text className="font-semibold text-white text-[14px]">{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
                     </TouchableOpacity>
+
+
+                    <View className="h-24"></View>
                 </View>
 
-                <TouchableOpacity
-                    className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mt-[50px]'
-                    onPress={handleSubmit(handleUpdateCourt)}
-                >
-                    <Text className="font-semibold text-white text-[14px]">{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Salvar'}</Text>
-                </TouchableOpacity>
-
-                <BottomNavigationBar
-                    isDisabled={false}
-                    playerScreen={false}
-                    establishmentScreen={true} establishmentID={undefined} logo={undefined} userID={""} userPhoto={""} />
-
+            </ScrollView>
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={userId}
+                    establishmentLogo={route.params.userPhoto !== undefined || route.params.userPhoto !== null ? HOST_API + route.params.userPhoto : null}
+                    establishmentID={dataUserEstablishment?.court.data.attributes.establishment.data.id!}
+                    key={1}
+                    paddingTop={2}
+                />
             </View>
-
-        </ScrollView>
+        </View>
     )
 }
