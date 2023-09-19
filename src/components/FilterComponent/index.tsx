@@ -109,11 +109,11 @@ export default function FilterComponent() {
                                     status={dayUseYes ? "checked" : "unchecked"}
                                     onPress={() => {
                                         if (dayUseYes) {
-                                            setDayUseYes(false); // Se dayUse for verdadeiro, defina como falso
-                                            setDayUseNot(true); // Se dayUse for verdadeiro, defina dayUseNot como verdadeiro
+                                            setDayUseYes(false); 
+                                            setDayUseNot(true);
                                         } else {
-                                            setDayUseYes(true); // Se dayUse for falso, defina como verdadeiro
-                                            setDayUseNot(false); // Se dayUse for falso, defina dayUseNot como falso
+                                            setDayUseYes(true);
+                                            setDayUseNot(false);
                                         }
                                     }}
                                 />
@@ -136,7 +136,7 @@ export default function FilterComponent() {
                             setTimeFinal(new Date(date.setHours(0, 0, 0, 0)))
                             setDayUseYes(false)
                             setDayUseNot(false)
-                            setAmenities(null)
+                            setAmenities([])
                             setDateSelector(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
                         }}
                     >
