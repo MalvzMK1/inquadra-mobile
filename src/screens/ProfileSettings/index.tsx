@@ -17,7 +17,7 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { TextInputMask } from 'react-native-masked-text';
 import { Controller, useForm } from "react-hook-form";
-import ImagePicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+// import ImagePicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetUserById } from "../../hooks/useUserById";
@@ -143,19 +143,19 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const pickAndRecognize: () => void = useCallback(async () => {
 
-        ImagePicker.openPicker({
-            cropping: false,
-        })
-            .then(async (res: ImageOrVideo) => {
-                setIsProcessingText(true);
-                const result: string[] = await TextRecognition.recognize(res?.path);
-                setIsProcessingText(false);
-                validateCard(result);
-            })
-            .catch(err => {
-                console.log('err:', err);
-                setIsProcessingText(false);
-            });
+        // ImagePicker.openPicker({
+        //     cropping: false,
+        // })
+        //     .then(async (res: ImageOrVideo) => {
+        //         setIsProcessingText(true);
+        //         const result: string[] = await TextRecognition.recognize(res?.path);
+        //         setIsProcessingText(false);
+        //         validateCard(result);
+        //     })
+        //     .catch(err => {
+        //         console.log('err:', err);
+        //         setIsProcessingText(false);
+        //     });
     }, []);
 
 

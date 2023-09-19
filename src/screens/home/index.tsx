@@ -121,16 +121,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         setSportTypes(newAvailableSportTypes);
     }, [availableSportTypes, availableSportTypesError]);
 
-
-    useEffect(() => {
-        if (establishments.filter(item => { return item.distance <= 5 }).length == 0) {
-            console.log("teste")
-            Alert.alert("Aviso", "Ainda não temos estabelecimentos cadastrados em um raio de 5km da sua localização. Contamos com a sua ajuda para recomendar nossa plataforma a quadras próximas a você!", [{
-                onPress: () => HandleSportSelected("")
-            }])
-        }
-    }, [])
-
     return (
         <View className="flex-1 flex flex-col justify-center items-center">
             {
@@ -155,7 +145,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     }}
                 >
                     {
-                        establishments.map((item) => (
+                        establishments.filter(item => {return item.distance <= 5}).map((item) => (
                             <Marker
                                 coordinate={{
                                     latitude: item.latitude,

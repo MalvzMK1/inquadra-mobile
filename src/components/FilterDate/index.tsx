@@ -30,7 +30,7 @@ export default function FilterDate(props: { dateSelector: string, setDateSelecto
                 style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
             >
                 <Text className='text-sm'>
-                    {props.dateSelector.split("T")[0].split("-").reverse().join("/")}
+                    {props.dateSelector.split("T")[0].split("-").reverse().join("/") }
                 </Text>
             </Button>
             {showDatePicker && (

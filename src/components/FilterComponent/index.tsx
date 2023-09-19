@@ -14,7 +14,7 @@ export default function FilterComponent() {
 
     const date = new Date()
 
-    const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
+    const [dateSelector, setDateSelector] = useState(`__/__/____`)
     const [amenities, setAmenities] = useState<Array<string> | null>(null)
     const [dayUseYes, setDayUseYes] = useState(false)
     const [dayUseNot, setDayUseNot] = useState(true)
@@ -99,37 +99,39 @@ export default function FilterComponent() {
                             )}
                         </View>
                     </View>
-                    <View className='items-center pt-3'>
-                        <Text className='font-semibold text-white text-base'>Day-Use?</Text>
-                        <View className='flex flex-row gap-[22px]'>
-                            <View className='flex flex-row items-center'>
-                                <Checkbox
-                                    uncheckedColor='#FF6112'
-                                    color='#FF6112'
-                                    status={dayUseYes ? "checked" : "unchecked"}
-                                    onPress={() => {
-                                        if (dayUseYes) {
-                                            setDayUseYes(false); 
-                                            setDayUseNot(true);
-                                        } else {
-                                            setDayUseYes(true);
-                                            setDayUseNot(false);
-                                        }
-                                    }}
-                                />
+                    <View className='flex flex-row items-center justify-between pt-3 pb-3'>
+                        <View className='flex items-center'>
+                            <Text className='font-semibold text-white text-base'>Day-Use</Text>
+                            <View className='flex flex-row gap-[22px]'>
+                                <View className='flex flex-row items-center'>
+                                    <Checkbox
+                                        uncheckedColor='#FF6112'
+                                        color='#FF6112'
+                                        status={dayUseYes ? "checked" : "unchecked"}
+                                        onPress={() => {
+                                            if (dayUseYes) {
+                                                setDayUseYes(false);
+                                                setDayUseNot(true);
+                                            } else {
+                                                setDayUseYes(true);
+                                                setDayUseNot(false);
+                                            }
+                                        }}
+                                    />
+                                </View>
                             </View>
                         </View>
+                        <Button
+                            className='rounded w-1/2'
+                            buttonColor='#FF6112'
+                            textColor='white'
+                            style={{ marginTop: 20, marginBottom: 15 }}
+                        >
+                            <Text className='font-medium text-base'>
+                                Filtrar
+                            </Text>
+                        </Button>
                     </View>
-                    <Button
-                        className='rounded'
-                        buttonColor='#FF6112'
-                        textColor='white'
-                        style={{ marginTop: 20, marginBottom: 15 }}
-                    >
-                        <Text className='font-medium text-base'>
-                            Filtrar
-                        </Text>
-                    </Button>
                     <TouchableOpacity className='flex flex-row self-center gap-x-3'
                         onPress={() => {
                             setTimeInit(new Date(date.setHours(0, 0, 0, 0)))
@@ -137,7 +139,7 @@ export default function FilterComponent() {
                             setDayUseYes(false)
                             setDayUseNot(false)
                             setAmenities([])
-                            setDateSelector(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
+                            setDateSelector(`__/__/____`)
                         }}
                     >
                         <Text className=' font-semibold mb-5 text-white border-white border-b-[0.5px] mt border-solid'>
