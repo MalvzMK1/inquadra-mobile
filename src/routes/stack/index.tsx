@@ -54,6 +54,7 @@ const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
     const [menuBurguer, setMenuBurguer] = useState(false)
+
     const [userId, setUserId] = useState<string>();
 
     useEffect(() => {

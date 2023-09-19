@@ -480,7 +480,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     }
 
 
-    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId)
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
     return (
         <View className="flex-1 bg-white h-full">
