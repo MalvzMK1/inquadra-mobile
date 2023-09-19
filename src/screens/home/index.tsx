@@ -7,7 +7,6 @@ import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
-import pointerMap from '../../assets/pointerMap.png';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserById } from "../../hooks/useUserById";
 import { HOST_API } from '@env';
@@ -36,6 +35,7 @@ interface EstablishmentObject {
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
     const userGeolocation = route.params.userGeolocation;
+    const pointerMap = require('../../assets/pointerMap.png');
 
     const { data, loading, error } = useEstablishmentCardInformations()
     const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
@@ -145,7 +145,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     }}
                 >
                     {
-                        establishments.filter(item => {return item.distance <= 5}).map((item) => (
+                        establishments.filter(item => { return item.distance <= 5 }).map((item) => (
                             <Marker
                                 coordinate={{
                                     latitude: item.latitude,
@@ -182,26 +182,26 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 {menuBurguer && <FilterComponent />}
             </View>
 
-			{
-				isDisabled && !menuBurguer && <HomeBar
-					chosenType={sportSelected}
-					courts={establishments}
-					userName={userHookData?.usersPermissionsUser?.data?.attributes?.username}
-					HandleSportSelected={HandleSportSelected}
-				/>
-			}
-			{
-				userHookData &&
-				<View className={`absolute bottom-0 left-0 right-0`}>
-					<BottomBlackMenu
-						screen="Home"
-						userID={route?.params?.userID}
-						userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-						key={1}
-						isDisabled={!isDisabled}
-						paddingTop={2}
-					/>
-				</View>
+            {
+                isDisabled && !menuBurguer && <HomeBar
+                    chosenType={sportSelected}
+                    courts={establishments}
+                    userName={userHookData?.usersPermissionsUser?.data?.attributes?.username}
+                    HandleSportSelected={HandleSportSelected}
+                />
+            }
+            {
+                userHookData &&
+                <View className={`absolute bottom-0 left-0 right-0`}>
+                    <BottomBlackMenu
+                        screen="Home"
+                        userID={route?.params?.userID}
+                        userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+                        key={1}
+                        isDisabled={!isDisabled}
+                        paddingTop={2}
+                    />
+                </View>
             }
         </View>
     );

@@ -1,12 +1,10 @@
-import { ScrollView, Text } from "react-native";
+import { ScrollView } from "react-native";
 import { InfosEstablishment } from "../../components/InfosEstablishment";
 import { AntDesign } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import { HOST_API } from '@env'
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserById } from '../../hooks/useUserById';
-import useUpdateFavoriteCourts from "../../hooks/useUpdateFavoriteCourtsMutation";
-import useGetFavoritesCourtsById from "../../hooks/useGetFavoritesCourtsById";
 import storage from '../../utils/storage'
 import { calculateDistance } from "../../utils/calculateDistance";
 import useGetFavoriteEstablishmentsByUserId from "../../hooks/useGetFavoriteEstablishmentsById";
@@ -107,7 +105,7 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
             {
                 !loading && data?.establishments.data.map(item => (
                     <InfosEstablishment.Root category={item.attributes.corporateName}>
-                        <InfosEstablishment.Establishment key={item.id} imageUrl={{uri: HOST_API + item.attributes.photos.data[0].attributes.url, height: 90, width: 138}}>
+                        <InfosEstablishment.Establishment key={item.id} imageUrl={{ uri: HOST_API + item.attributes.photos.data[0].attributes.url, height: 90, width: 138 }}>
                             <InfosEstablishment.Content>
                                 <InfosEstablishment.ContentHeader establishmentName={item.attributes.corporateName}>
                                     <AntDesign

@@ -1,5 +1,5 @@
-import ProgressBar from 'react-native-progress/Bar'
 import { Text, View } from "react-native";
+import ProgressBar from 'react-native-progress/Bar'
 
 interface InfoEstablishmentCardContentPaymentProgressBarProps {
     progress: number
@@ -11,7 +11,7 @@ export function InfoEstablishmentCardContentPaymentProgressBar({ progress }: Inf
             <View className='flex flex-row flex-1 gap-0.5'>
                 <View className='relative flex-1'>
                     <Text className='absolute z-10 self-center text-white font-bold'>R$ 170 / R$ 200</Text>
-                    <ProgressBar progress={progress / 100} width={null} height={20} borderRadius={5} color={'#0FA958'} unfilledColor={'#0FA95866'} />
+                    <ProgressBar progress={progress / 100} width={""} height={20} borderRadius={5} color={'#0FA958'} unfilledColor={'#0FA95866'} />
                 </View>
                 <Text>{progress}%</Text>
             </View>

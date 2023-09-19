@@ -138,7 +138,7 @@ export default function FinancialEstablishment({ route }: Props) {
         };
     }
 
-    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId)
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
     return (
         <View className="flex-1">
@@ -250,7 +250,7 @@ export default function FinancialEstablishment({ route }: Props) {
                     screen="Finance"
                     userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
                     establishmentLogo={route.params.logo!}
-                    establishmentID={route.params.establishmentId}
+                    establishmentID={route.params.establishmentId ?? ""}
                     key={1}
                     paddingTop={2}
                 />
