@@ -27,6 +27,9 @@ import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import { IconButton } from 'react-native-paper';
 import axios from 'axios';
+import * as ImagePicker from 'expo-image-picker';
+import ImagePicker2, { ImageOrVideo } from 'react-native-image-crop-picker';
+// import TextRecognition from 'react-native-text-recognition';
 
 interface IFormData {
     photo: string
@@ -103,6 +106,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     };
 
     useEffect(() => {
+        (async () => {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Desculpe, precisamos da permissão para acessar a galeria!');
+                return;
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
         let newCountriesArray: Array<{ key: string, value: string, img: string }> = [];
         if (!countriesLoading && countriesData) {
             newCountriesArray = countriesData.countries.data.map(country => {
@@ -139,7 +152,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const pickAndRecognize: () => void = useCallback(async () => {
 
-        // ImagePicker.openPicker({
+        // ImagePicker2.openCamera({
         //     cropping: false,
         // })
         //     .then(async (res: ImageOrVideo) => {
@@ -154,25 +167,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         //     });
     }, []);
 
-    // const captureAndRecognize = useCallback(async () => {
-    //     try {
-    //         const image = await camera.current?.takePhoto({
-    //             qualityPrioritization: 'quality',
-    //             enableAutoStabilization: true,
-    //             flash: 'on',
-    //             skipMetadata: true,
-    //         });
-    //         setIsProcessingText(true);
-    //         const result: string[] = await TextRecognition.recognize(
-    //             image?.path as string,
-    //         );
-    //         setIsProcessingText(false);
-    //         validateCard(result);
-    //     } catch (err) {
-    //         console.log('err:', err);
-    //         setIsProcessingText(false);
-    //     }
-    // }, []);
     const findCardNumberInArray: (arr: string[]) => string = arr => {
         let creditCardNumber = '';
         arr.forEach(e => {
@@ -186,6 +180,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         });
         return creditCardNumber;
     };
+
     const getFormattedCreditCardNumber: (cardNo: string) => string = cardNo => {
         let formattedCardNo = '';
         for (let i = 0; i < cardNo?.length; i++) {
@@ -197,6 +192,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         }
         return formattedCardNo;
     };
+
     const validateCard: (result: string[]) => void = result => {
         const cardNumber = findCardNumberInArray(result);
         if (cardNumber?.length) {
@@ -227,7 +223,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 setShowCard(false)
             }).catch(error => console.error(error))
         }
-        // setShowCard(false);
+        setShowCard(false);
     };
 
     const handleDeleteAccount = () => {
@@ -258,7 +254,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     };
 
     const handleConfirmExit = () => {
-        // sair do app
         setShowExitConfirmation(false);
     };
 
@@ -272,24 +267,28 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const handleProfilePictureUpload = async () => {
         try {
-            // const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-            // if (status !== 'granted') {
-            //     alert('Desculpe, precisamos da permissão para acessar a galeria!');
-            //     return;
-            // }
+            if (status !== 'granted') {
+                alert('Desculpe, precisamos da permissão para acessar a galeria!');
+                return;
+            }
 
-            // const result = await ImagePicker.launchImageLibraryAsync({
-            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            //     allowsEditing: true,
-            //     aspect: [1, 1],
-            //     quality: 1,
-            // });
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+            });
 
-            // if (!result.canceled) {
-            //     setProfilePicture(result.uri);
-            //     await uploadImage(result.uri);
-            // }
+            if (!result.canceled) {
+                if (result.assets && result.assets.length > 0) {
+                    const selectedImage = result.assets[0];
+                    setProfilePicture(selectedImage.uri);
+                    await uploadImage(selectedImage.uri);
+                }
+            }
+
         } catch (error) {
             console.log('Erro ao carregar a imagem: ', error);
         }
@@ -301,11 +300,11 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
         const formData = new FormData();
 
-        // formData.append('files', {
-        //     uri: selectedImageUri,
-        //     name: 'image.jpg',
-        //     type: 'image/jpeg',
-        // });
+        const imageBlob = await fetch(selectedImageUri).then((response) =>
+            response.blob()
+        );
+
+        formData.append('files', imageBlob, 'image.jpg');
 
         try {
             const response = await axios.post(`${apiUrl}/api/upload`, formData, {
@@ -355,7 +354,17 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             const newPhotoId = await uploadImage(data.photo);
             console.log('Novo ID da foto:', newPhotoId);
 
-            const updatedUserInfos = { ...userInfos, photo: newPhotoId };
+            const updatedUserInfos: UserConfigurationProps = {
+                ...userInfos, photo: {
+                    id: newPhotoId,
+                    name: 'Nome da Foto',
+                    alternativeText: 'Texto Alternativo',
+                    ext: '.jpg', // ou a extensão apropriada
+                    mime: 'image/jpeg',
+                    size: 0,
+                    url: ""
+                }
+            }
 
             await updateUser({
                 variables: {
@@ -387,7 +396,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 cpf: data.usersPermissionsUser.data.attributes.cpf,
                 email: data.usersPermissionsUser.data.attributes.email,
                 phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
-                // photo: data.usersPermissionsUser.data.attributes.photo.data?.id ?? "",
                 paymentCardInfos: {
                     dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ?? "" ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate ?? "" : '',
                     cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data?.usersPermissionsUser?.data?.attributes?.paymentCardInformations?.cvv?.toString() ?? "" : '',
@@ -414,7 +422,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     }
 
     useEffect(() => {
-        // console.log({FUNCAO: loadInformations(), DADOS: data})
         loadInformations().then((data) => {
             console.log({ data })
             defineDefaultFieldValues(data)
@@ -426,7 +433,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     return (
         <View className="flex-1 bg-white h-full">
-            {/*{errors && <Text>ERRO: {JSON.stringify(errors)}</Text>}*/}
             {
                 loading ?
                     <View className='flex-1'>
