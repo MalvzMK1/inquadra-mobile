@@ -2,7 +2,7 @@
   "expo": {
     "name": "InQuadra",
     "slug": "InQuadra",
-    "version": "2.6.0",
+    "version": "3.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,12 +15,17 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "backgroundColor": "#292929",
+      "bundleIdentifier": "com.anonymous.mobile"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#292929"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#292929"
       },
       "package": "com.anonymous.mobile"
     },

@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/home/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,24 +38,24 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI564T674" />
+                    <option name="lastUsedInstant" value="1695127818" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1694613298" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T636_SYNC" />
+                    <option name="lastUsedInstant" value="1694526708" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI564T673" />
                     <option name="lastUsedInstant" value="1693219640" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI564T619" />
                     <option name="lastUsedInstant" value="1692965401" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T664" />
-                    <option name="lastUsedInstant" value="1692963930" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1692963822" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="release" />
-                    <option name="lastUsedInstant" value="1692885334" />
                   </RecentBranch>
                 </list>
               </option>
@@ -64,6 +65,11 @@
         </option>
       </RecentBranches>
     </option>
+  </component>
+  <component name="JsbtTreeLayoutManager">
+    <layout place="tools.popupnpm">
+      <scroll-view-position x="0" y="0" />
+    </layout>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -84,7 +90,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "release",
+    "git-widget-placeholder": "WI564T674",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -108,6 +114,11 @@
       <envs />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.start" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -129,6 +140,9 @@
       <workItem from="1692609285522" duration="11785000" />
       <workItem from="1692870011698" duration="12622000" />
       <workItem from="1692956607803" duration="12267000" />
+      <workItem from="1694511377345" duration="11735000" />
+      <workItem from="1694687132055" duration="3535000" />
+      <workItem from="1694772214443" duration="4785000" />
     </task>
     <servers />
   </component>

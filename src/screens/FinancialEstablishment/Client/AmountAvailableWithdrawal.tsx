@@ -7,13 +7,16 @@ import CardDetailsPaymentHistoric from "../../../components/CardDetailsPaymentHi
 import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import CardAmountAvailableWithdrawal from "../../../components/CardAmountAvailableWithdrawal";
-
+import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
+import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
+import { HOST_API } from "@env";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'> {
     establishmentId: string
-}
+}export default function AmountAvailableWithdrawal({ route }: NativeStackScreenProps<RootStackParamList, 'AmountAvailableWithdrawal'>) {
 
-export default function AmountAvailableWithdrawal({ route }: Props) {
+
+    // export default function AmountAvailableWithdrawal({ route }: Props) {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const currentDate = new Date();
@@ -94,7 +97,9 @@ export default function AmountAvailableWithdrawal({ route }: Props) {
 
         return datesFilter;
     }
-    
+
+
+    const {data:dataUserEstablishment, error:errorUserEstablishment, loading:loadingUserEstablishment} = useGetUserIDByEstablishment(route.params.establishmentId)
 
     return (
         <View className="flex-1">
@@ -137,14 +142,26 @@ export default function AmountAvailableWithdrawal({ route }: Props) {
                         </View>
                         <View className="p-3 items-center justify-center">
                             <TouchableOpacity className='w-52 h-12 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => navigation.navigate("WithdrawScreen", {
-                                establishmentId: route.params.establishmentId
+                                establishmentId: route.params.establishmentId,
+                                logo: route.params.logo
                             })}>
                                 <Text className='text-gray-50 font-bold'>Sacar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </View>
+                <View className="h-16"></View>
             </ScrollView>
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
+                    establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
+                    establishmentID={route.params.establishmentId}
+                    key={1}
+                    paddingTop={2}
+                />
+            </View>
         </View>
     );
 }

@@ -3,35 +3,39 @@ import React, { useState, useRef } from "react"
 import { CheckBox } from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PriceHour from '../CourtPriceHour';
-import {useComponentContext} from '../../context/ComponentContext';
-import {InComponentInputsProvider} from '../../context/ComponentInputsContext';
+import { useComponentContext } from '../../context/ComponentContext';
+import { InComponentInputsProvider } from '../../context/ComponentInputsContext';
 
 export default function SetCourtAvailibility() {
-  const nextIdRef = useRef(1)
+    const nextIdRef = useRef(1)
 
-  const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse } = useComponentContext()
-  const [priceHours, setPriceHours] = useState<Array<{startsAt: string, endsAt: string, price: string}>>([])
+    const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse } = useComponentContext()
+    const [priceHours, setPriceHours] = useState<Array<{ startsAt: string, endsAt: string, price: string }>>([])
 
     const handleAddNewComponentButton = () => {
-      const inputValues = {
-        startsAt: '',
-        endsAt: '',
-        price: ''
-      }
-      setPriceHours(prevState => [...prevState, inputValues])
+        const inputValues = {
+            startsAt: '', // Defina os valores iniciais desejados aqui
+            endsAt: '',   // Defina os valores iniciais desejados aqui
+            price: ''      // Defina os valores iniciais desejados aqui
+        }
+
+        setPriceHours(prevState => [...prevState, inputValues])
+
+        // Agora você pode criar o novo componente com os valores iniciais corretos
         const newComponent = (
-          <InComponentInputsProvider>
-            <PriceHour
-              key={nextIdRef.current++}
-              values={inputValues}
-            />
-          </InComponentInputsProvider>
+            <InComponentInputsProvider>
+                <PriceHour
+                    key={nextIdRef.current++}
+                    values={inputValues}
+                />
+            </InComponentInputsProvider>
         )
 
-        if (addedComponents && addedComponents.length > 0)
-            setAddedComponents((prevState: JSX.Element) => [...prevState, newComponent])
-        else
-            setAddedComponents([newComponent])
+        if (addedComponents && addedComponents.length > 0) {
+            setAddedComponents((prevState) => [...prevState, newComponent]);
+        } else {
+            setAddedComponents([newComponent]);
+        }
     };
 
     const [copyButtonClick, setCopyButtonClick] = useState(false)

@@ -4,7 +4,8 @@ export interface IinfoScheduleResponse {
   scheduling: {
     data: {
       attributes: {
-        payedStatus: boolean
+        date: Scheduling['date']
+        payedStatus: string
         createdAt: Date
         valuePayed: number
         payDay: Date
@@ -67,6 +68,7 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
   scheduling(id: $idScheduling) {
     data {
       attributes {
+        date
         payedStatus
         createdAt
         valuePayed

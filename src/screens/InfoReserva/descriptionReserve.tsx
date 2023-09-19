@@ -1,7 +1,6 @@
 import ProgressBar from 'react-native-progress/Bar'
 import React, { useState, useEffect } from 'react'
 import { View, Text, Image, Modal, ScrollView } from 'react-native';
-import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
@@ -12,7 +11,6 @@ import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
 import { z } from "zod";
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
 import Countdown from '../../components/countdown/Countdown';
 import useCountries from '../../hooks/useCountries';
 import { HOST_API } from '@env';
@@ -26,15 +24,15 @@ import { generateRandomKey } from '../../utils/activationKeyGenerate';
 import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
 import useDeleteSchedule from '../../hooks/useDeleteSchedule';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
-    const user_id = route.params.userId
+    const user_id = route.params.userId.toString()
     const schedule_id = route.params.scheduleId
 
     const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
     const schedulePrice = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value
     const scheduleValuePayed = data?.scheduling?.data?.attributes?.valuePayed
-
 
     const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
     const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
@@ -47,19 +45,33 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
     const [creditCard, setCreditCard] = useState("")
     const [selected, setSelected] = useState("")
-    const [countriesData, setCountriesData] = useState<CountryAPI[]>([])
-    const [countryId, setCountryId] = useState<string | null>(null)
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
     const currentTime = new Date()
-    const schedulingDate = new Date(data?.scheduling?.data?.attributes?.payDay)
+    const schedulingPayDate = new Date(data?.scheduling?.data?.attributes?.payDay!)
+    const scheduleDay = new Date(data?.scheduling?.data?.attributes?.date!)
+    const timeDifferenceMs = Number(scheduleDay) - Number(currentTime);
+
+    const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
+
+    const isWithin24Hours = timeDifferenceHours <= 24;
 
 
-    const isVanquishedDate = schedulingDate < currentTime
-    const isPayed = data?.scheduling.data.attributes.payedStatus
+    const timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
+
+
+    const oneHourInMs = 60 * 60 * 1000;
+
+
+    const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
+
+    const isVanquishedDate = schedulingPayDate < currentTime
+    const isPayed = data?.scheduling?.data?.attributes?.payedStatus === "payed" ? true : false
 
     const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
 
-    const valueDisponibleToPay = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value - data?.scheduling?.data?.attributes?.valuePayed
+    const valueDisponibleToPay =
+        data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! -
+        data?.scheduling?.data?.attributes?.valuePayed!
 
     interface iFormCardPayment {
         value: string
@@ -76,7 +88,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     const handleCopiarTexto = () => {
-        Clipboard.setStringAsync(data?.scheduling?.data?.attributes?.activationKey);
+        Clipboard.setStringAsync(data?.scheduling?.data?.attributes?.activationKey ?? "");
         Toast.show({
             type: 'success',
             text1: 'Texto copiado',
@@ -86,11 +98,10 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         });
     };
 
-
     const formSchema = z.object({
-        value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value, context) => {
+        value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value) => {
             const schedulingAmount = valueDisponibleToPay;
-            const parsedValue = parseFloat(value.replace(/[^\d,.]/g, '').replace(',', '.'));
+            const parsedValue = parseFloat(value?.replace(/[^\d,.]/g, '').replace(',', '.'));
 
             if (isNaN(parsedValue)) {
                 return false;
@@ -113,8 +124,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             return inputDate.getTime() > currentDate.getTime();
         }, "A data de vencimento é inválida"),
     });
-
-
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
         if (countryISOCode && dataCountry) {
@@ -140,7 +149,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     };
 
     const formSchemaPixPayment = z.object({
-        value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value, context) => {
+        value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value) => {
             const schedulingAmount = valueDisponibleToPay;
             const parsedValue = parseFloat(value.replace(/[^\d,.]/g, '').replace(',', '.'));
 
@@ -179,7 +188,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 variables: {
                     value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
                     schedulingId: schedule_id,
-                    userId: '1',
+                    userId: user_id,
                     name: data.name,
                     cpf: data.cpf,
                     cvv: parseInt(data.cvv),
@@ -202,9 +211,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     const scheduleValueUpdate = async (value: number) => {
-        let validatePayment = value + scheduleValuePayed >= schedulePrice ? true : false
-        let valuePayedUpdate = value + scheduleValuePayed
-        let activation_key = value + scheduleValuePayed >= schedulePrice ? generateRandomKey(4) : null
+        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
+        let valuePayedUpdate = value + scheduleValuePayed!
+        let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
         try {
             const update = await updateScheduleValue({
                 variables: {
@@ -221,14 +230,21 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     function payPix(info: iFormPixPayment) {
-        navigation.navigate('PixScreen', { courtName: data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name, value: parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.')), userID: user_id })
-        setShowPixPaymentModal(false)
+        const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'));
+
+        navigation.navigate('PixScreen', {
+            courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name ?? "",
+            value: parsedValue.toString(),
+            userID: user_id
+        });
+
+        setShowPixPaymentModal(false);
     }
 
     const countryOptions = dataCountry?.countries?.data.map(country => ({
         value: country?.id,
-        label: country?.attributes?.ISOCode || "", // Mostra o ISOCode (ou uma string vazia se não existir)
-        img: `${HOST_API}${country?.attributes?.flag?.data?.attributes?.url || ""}` // Utiliza ? para garantir que a propriedade flag e seus atributos existam
+        label: country?.attributes?.ISOCode || "",
+        img: `${HOST_API}${country?.attributes?.flag?.data?.attributes?.url || ""}`
     })) || [];
 
 
@@ -258,7 +274,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva')}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva', { userId: user_id })}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -268,7 +284,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data.attributes.photo?.data.attributes.url }}
+                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -278,16 +294,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             <ScrollView>
                 <View className='h-6'></View>
                 <View className={
-                    data?.scheduling?.data.attributes?.valuePayed < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value && isVanquished === false
+                    data?.scheduling?.data.attributes?.valuePayed! < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! && isVanquished === false
                         ? 'flex w-max h-80 bg-zinc-900 px-5'
-                        : user_id !== data?.scheduling.data.attributes.owner.data.id && isPayed === true
+                        : user_id !== data?.scheduling?.data?.attributes?.owner?.data?.id && isPayed === true
                             ? 'flex w-max h-48 bg-zinc-900 px-5'
                             : 'flex w-max h-60 bg-zinc-900 px-5'
                 }>
                     <View className='flex-row items-start justify-start w-max h-max pt-2'>
                         <View>
                             <Image
-                                source={{ uri: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url }}
+                                source={{ uri: HOST_API + data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
                                 style={{ width: 138, height: 90 }}
                                 borderRadius={5}
                             />
@@ -296,28 +312,32 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <View className='flex justify-start items-start h-max w-max pl-1'>
                                 <View className='flex-row justify-between items-center w-48'>
                                     <View className='flex items-center justify-center'>
-                                        <Text className='font-black text-base text-orange-600'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name}</Text>
+                                        <Text className='font-black text-base text-orange-600'>{data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name}</Text>
                                     </View>
                                     {
-                                        user_id === data?.scheduling.data.attributes.owner.data.id
-                                            ? <TouchableOpacity className='flex-row items-center' onPress={
-                                                () => navigation.navigate('UpdateSchedule', {
-                                                    courtId: data.scheduling.data.attributes.court_availability.data.attributes.court.data.id,
-                                                    courtName: data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name,
-                                                    courtImage: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url,
-                                                    userId: user_id,
-                                                    userPhoto: dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url!,
-                                                    valuePayed: scheduleValuePayed!,
-                                                    scheduleUpdateID: schedule_id                            
-                                                })
-                                            }>
-                                                <View>
-                                                    <Text className='font-normal text-xs text-orange-600'>Editar</Text>
-                                                </View>
-                                                <View className='flex items-center justify-center pl-4'>
-                                                    <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} />
-                                                </View>
-                                            </TouchableOpacity>
+                                        user_id === data?.scheduling?.data?.attributes?.owner?.data?.id
+                                            ?
+                                            !isWithin24Hours
+                                                ? <TouchableOpacity className='flex-row items-center' onPress={
+                                                    () => navigation.navigate('UpdateSchedule', {
+                                                        courtId: data.scheduling.data.attributes.court_availability.data.attributes.court.data.id,
+                                                        courtName: data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name,
+                                                        courtImage: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url,
+                                                        userId: user_id,
+                                                        userPhoto: dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url!,
+                                                        valuePayed: scheduleValuePayed!,
+                                                        scheduleUpdateID: schedule_id,
+                                                        activationKey: data?.scheduling?.data?.attributes?.activationKey || null
+                                                    })
+                                                }>
+                                                    <View>
+                                                        <Text className='font-normal text-xs text-orange-600'>Editar</Text>
+                                                    </View>
+                                                    <View className='flex items-center justify-center pl-4'>
+                                                        <TextInput.Icon icon={'pencil'} size={15} color={'#FF6112'} />
+                                                    </View>
+                                                </TouchableOpacity>
+                                                : null
                                             : null
                                     }
                                 </View>
@@ -326,14 +346,17 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 </View>
                                 <View className='flex-row pt-2'>
                                     <View>
-                                        <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt)}</Text>
+                                        <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString() ?? "")}</Text>
                                     </View>
                                 </View>
                                 {
                                     user_id === data?.scheduling.data.attributes.owner.data.id
-                                        ? <View className='pt-2'>
-                                            <Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
-                                        </View>
+                                        ?
+                                        !isWithinOneHour
+                                            ? <View className='pt-2'>
+                                                <Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
+                                            </View>
+                                            : null
                                         : null
                                 }
                             </View>
@@ -344,7 +367,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         <Text className='font-black text-xs text-white pb-1'>STATUS :</Text>
                     </View>
                     {
-                        data?.scheduling?.data.attributes?.valuePayed < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value
+                        data?.scheduling?.data.attributes?.valuePayed! < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value!
                             ?
                             <>
                                 <View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
@@ -364,7 +387,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 </View>
                                 <View className=' h-18 w-full flex items-center'>
                                     <View className='w-60 pt-2 item-center'>
-                                        <Countdown targetDate={new Date(data?.scheduling?.data?.attributes?.payDay)} />
+                                        <Countdown targetDate={new Date(data?.scheduling?.data?.attributes?.payDay ?? "")} />
                                     </View>
                                 </View>
                             </>
@@ -392,7 +415,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <>
                                 {
                                     isVanquished === false
-                                        ? data?.scheduling.data.attributes.payedStatus === false
+                                        ? data?.scheduling.data.attributes.payedStatus === "waiting"
                                             ? <View className='h-max w-full flex justify-center items-center pl-2'>
                                                 <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
                                                     <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
@@ -469,7 +492,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 <View className='h-max w-full flex justify-between pl-2'>
                                                     <TouchableOpacity onPress={() => handleCopiarTexto()}>
                                                         <View className='w-30 h-10 bg-white rounded-sm flex-row items-center justify-between'>
-                                                            <Text className='font-semibold text-xs text-black pl-2'>Codigo de ativação:</Text>
+                                                            <Text className='font-semibold text-xs text-black pl-2'>Código de ativação:</Text>
                                                             <Text className='font-black text-sm text-center text-gray-400 pl-1 pr-7'>{data?.scheduling?.data?.attributes?.activationKey}</Text>
                                                         </View>
                                                     </TouchableOpacity>
@@ -480,7 +503,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             </>
                     }
                 </View>
-                <View className='h-screen w-full  px-5 items-center justify-start pt-4'>
+                <View className='h-max w-full  px-5 items-center justify-start pt-4'>
                     {
                         data?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && data?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
                             ?
@@ -493,7 +516,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <View className='w-full pt-5'>
                                             <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
                                                 <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
-                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt)}</Text>
+                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString())}</Text>
                                                 <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
                                             </View>
                                         </View>
@@ -514,20 +537,33 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         {
                             dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
                                 ? dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data?.map((paymentInfo) =>
-                                    <View className='w-full pt-5'>
-                                        <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
-                                            <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
-                                            <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt)}</Text>
-                                            <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
+                                    <ScrollView>
+                                        <View className='w-full pt-5'>
+                                            <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
+                                                <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
+                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString())}</Text>
+                                                <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
+                                            </View>
                                         </View>
-                                    </View>
+                                    </ScrollView>
                                 )
                                 : <Text className='text-gray-50 font-semibold text-center'>Compartilhe essa página ! Informações serão mostradas aqui uma vez que outros realisem pagamentos </Text>
                         }
                     </View>
                 </View>
-            </ScrollView>
-            <Modal visible={showCardPaymentModal} animationType="fade" transparent={true} onRequestClose={closeCardPayment}>
+                <View className='h-20'></View>
+            </ScrollView >
+            <View className="absolute bottom-0 left-0 right-0">
+                <BottomBlackMenu
+                    screen="Any"
+                    userID={user_id}
+                    userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                    key={1}
+                    isDisabled={true}
+                    paddingTop={2}
+                />
+            </View>
+            <Modal visible={showCardPaymentModal} animationType="slide" transparent={true} onRequestClose={closeCardPayment}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                         <ScrollView>
@@ -588,7 +624,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <View className='flex gap-y-[10px]'>
                                 <View className=' w-full flex flex-row p-3 border border-neutral-400 rounded bg-white items-center justify-between'>
                                     <View className='flex flex-row items-center'>
-                                        <TouchableOpacity onPress={() => navigation.navigate('')}>
+                                        <TouchableOpacity >
                                             <Image className="h-5 w-6" source={require('../../assets/new_credit_card.png')}></Image>
                                         </TouchableOpacity>
                                         <MaskInput
@@ -600,7 +636,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             keyboardType='numeric'>
                                         </MaskInput>
                                     </View>
-                                    <TouchableOpacity onPress={() => navigation.navigate('')}>
+                                    <TouchableOpacity>
                                         <Image source={require('../../assets/camera.png')}></Image>
                                     </TouchableOpacity>
                                 </View>
@@ -670,10 +706,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
-
+                                        
                             </View>
                         </ScrollView>
+
                     </View>
+
 
                 </View>
             </Modal>
@@ -774,6 +812,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     </View>
                 </View>
             </Modal>
-        </View>
+        </View >
     )
 }

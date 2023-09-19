@@ -5,16 +5,15 @@ import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import storage from "../../utils/storage";
-import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
 import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSchedulingsByDay";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper';
-import { boolean } from "zod";
-import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
 const { parse, format } = require('date-fns');
 import { HOST_API } from '@env'
-import useEstablishmentIdByUserId from "../../hooks/useEstablishmentByUserId";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
+import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
+import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
 
 export default function HomeEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'HomeEstablishment'>) {
     const [selected, setSelected] = useState('');
@@ -43,7 +42,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     const date = format(actualDate, dateFormat);
 
     const { data: dataSchedulings, error: errorSchedulings, loading: loadingSchedulings } = useEstablishmentSchedulingsByDay(establishment_id!, fantasy_name, day_week, date)
-    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id!)
+    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id)
     const [updateActivatedStatus, { data: dataActivateStatus, error: errorActivateStatus, loading: loadingActivateStatus }] = useUpdateScheduleActivateStatus()
 
     const [selectedDate, setSelectedDate] = useState('');
@@ -75,7 +74,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     };
 
     const handleActivate = async (key: string) => {
-        let scheduleId: string = getIdByKey(key);
+        let scheduleId: string = getIdByKey(key) ?? "";
         console.log(scheduleId)
         console.log(key)
 
@@ -97,7 +96,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                 }
             }
         } catch (error) {
-            if (errorActivateStatus.graphQLErrors && errorActivateStatus.graphQLErrors[0] && errorActivateStatus.graphQLErrors[0].extensions && errorActivateStatus.graphQLErrors[0].extensions.exception.status === 400) {
+            if (errorActivateStatus?.graphQLErrors && errorActivateStatus.graphQLErrors[0] && errorActivateStatus.graphQLErrors[0].extensions && errorActivateStatus?.graphQLErrors[0]?.extensions?.exception === 400) {
                 setValidate(2);
                 setTimeout(() => {
                     setValidate(2);
@@ -116,12 +115,13 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
         )
     );
 
+
     return (
         <View className="flex-1">
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva')}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva', { userId: userId ?? "" })}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -129,7 +129,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                     <Text className='text-lg font-bold text-white'>Olá, {firstName}!</Text>
                 </View>
                 <View className='h-max w-max flex justify-center items-center'>
-                    <TouchableOpacity className='h-12 W-12 '>
+                    <TouchableOpacity className='h-12 W-12' onPress={() => navigation.navigate('InfoProfileEstablishment', {userPhoto: dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url :null})}>
                         <Image
                             source={{ uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url }}
                             style={{ width: 46, height: 46 }}
@@ -202,7 +202,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                                 }
                             </View>
                         </View>
-                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', {establishmentPhoto: undefined})}>
+                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: undefined })}>
                             <Text className="text-white text-center h-4">Ver detalhes</Text>
                         </TouchableOpacity>
                         <View className="pt-10">
@@ -210,7 +210,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                                 <Text className="font-extrabold text-xl">Por quadra</Text>
                                 <View className="ml-auto flex flex-col items-start">
                                     <SelectList
-                                        setSelected={(val) => setFantasyName(val)}
+                                        setSelected={(val: any) => setFantasyName(val)}
                                         data={dataCourtsEstablishment?.establishment?.data?.attributes?.courts?.data.map((fantasy) => fantasy.attributes.fantasy_name) || []}
                                         save="value"
                                         searchPlaceholder="Pesquisar..."
@@ -330,17 +330,20 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                         </View>
                     </View>
                 </View>
+                <View className="h-16"></View>
             </ScrollView>
             {
                 userId ?
-                    <BottomNavigationBar
-                        playerScreen={false}
-                        establishmentScreen
-                        establishmentID={establishment_id}
-                        logo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url}
-                        userID={userId}
-                        userPhoto={'http'}
-                    />
+                    <View className={`absolute bottom-0 left-0 right-0`}>
+                        <BottomBlackMenuEstablishment
+                            screen="Home"
+                            userID={route?.params.userID}
+                            establishmentLogo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url :null}
+                            establishmentID={establishment_id}
+                            key={1}
+                            paddingTop={2}
+                        />
+                    </View>
                     :
                     null
             }
