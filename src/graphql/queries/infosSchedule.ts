@@ -5,7 +5,7 @@ export interface IinfoScheduleResponse {
     data: {
       attributes: {
         date: Scheduling['date']
-        payedStatus: boolean
+        payedStatus: string
         createdAt: Date
         valuePayed: number
         payDay: Date

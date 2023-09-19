@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, ActivityIndicator, Text } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Text, Alert } from 'react-native';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
@@ -17,6 +17,8 @@ import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
+import { ScrollView } from 'react-native-gesture-handler';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
@@ -131,7 +133,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     loadingEnabled
-                    className='w-screen h-screen'
+                    className='w-screen flex-1'
                     onPress={() => setIsDisabled(false)}
                     customMapStyle={customMapStyle}
                     showsCompass={false}
@@ -143,7 +145,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     }}
                 >
                     {
-                        establishments.map((item) => (
+                        establishments.filter(item => {return item.distance <= 5}).map((item) => (
                             <Marker
                                 coordinate={{
                                     latitude: item.latitude,
@@ -180,24 +182,26 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 {menuBurguer && <FilterComponent />}
             </View>
 
-            {
-                isDisabled && !menuBurguer && <HomeBar
-                    chosenType={sportSelected}
-                    courts={establishments}
-                    userName={userHookData?.usersPermissionsUser?.data?.attributes?.username ?? ""}
-                    HandleSportSelected={HandleSportSelected}
-                />
-            }
-            {
-                userHookData && <BottomNavigationBar
-                    isDisabled={isDisabled}
-                    playerScreen={true}
-                    establishmentScreen={false}
-                    userID={route.params.userID}
-                    userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
-                    establishmentID={undefined}
-                    logo={undefined}
-                />
+			{
+				isDisabled && !menuBurguer && <HomeBar
+					chosenType={sportSelected}
+					courts={establishments}
+					userName={userHookData?.usersPermissionsUser?.data?.attributes?.username}
+					HandleSportSelected={HandleSportSelected}
+				/>
+			}
+			{
+				userHookData &&
+				<View className={`absolute bottom-0 left-0 right-0`}>
+					<BottomBlackMenu
+						screen="Home"
+						userID={route?.params?.userID}
+						userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+						key={1}
+						isDisabled={!isDisabled}
+						paddingTop={2}
+					/>
+				</View>
             }
         </View>
     );

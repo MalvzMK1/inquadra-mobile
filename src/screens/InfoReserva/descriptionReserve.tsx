@@ -24,6 +24,7 @@ import { generateRandomKey } from '../../utils/activationKeyGenerate';
 import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
 import useDeleteSchedule from '../../hooks/useDeleteSchedule';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
@@ -64,7 +65,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
 
     const isVanquishedDate = schedulingPayDate < currentTime
-    const isPayed = data?.scheduling?.data?.attributes?.payedStatus
+    const isPayed = data?.scheduling?.data?.attributes?.payedStatus === "payed" ? true : false
 
     const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
 
@@ -187,7 +188,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 variables: {
                     value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
                     schedulingId: schedule_id,
-                    userId: '1',
+                    userId: user_id,
                     name: data.name,
                     cpf: data.cpf,
                     cvv: parseInt(data.cvv),
@@ -210,7 +211,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     const scheduleValueUpdate = async (value: number) => {
-        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? true : false
+        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
         let valuePayedUpdate = value + scheduleValuePayed!
         let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
         try {
@@ -414,7 +415,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <>
                                 {
                                     isVanquished === false
-                                        ? data?.scheduling.data.attributes.payedStatus === false
+                                        ? data?.scheduling.data.attributes.payedStatus === "waiting"
                                             ? <View className='h-max w-full flex justify-center items-center pl-2'>
                                                 <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
                                                     <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
@@ -502,7 +503,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             </>
                     }
                 </View>
-                <View className='h-screen w-full  px-5 items-center justify-start pt-4'>
+                <View className='h-max w-full  px-5 items-center justify-start pt-4'>
                     {
                         data?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && data?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
                             ?
@@ -550,8 +551,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         }
                     </View>
                 </View>
+                <View className='h-20'></View>
             </ScrollView >
-            <Modal visible={showCardPaymentModal} animationType="fade" transparent={true} onRequestClose={closeCardPayment}>
+            <View className="absolute bottom-0 left-0 right-0">
+                <BottomBlackMenu
+                    screen="Any"
+                    userID={user_id}
+                    userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                    key={1}
+                    isDisabled={true}
+                    paddingTop={2}
+                />
+            </View>
+            <Modal visible={showCardPaymentModal} animationType="slide" transparent={true} onRequestClose={closeCardPayment}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                         <ScrollView>
@@ -694,10 +706,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
-
+                                        
                             </View>
                         </ScrollView>
+
                     </View>
+
 
                 </View>
             </Modal>

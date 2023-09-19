@@ -11,7 +11,7 @@ export interface IgetHistoricOfReserveOnResponse{
                             status: boolean
                             createdAt: Date
                             valuePayed: Number
-                            payedStatus: boolean
+                            payedStatus: string
                             court_availability: {
                                 data: {
                                     attributes: {
