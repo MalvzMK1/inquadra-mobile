@@ -1,13 +1,12 @@
-import { View, Text, Image, ImageBackground } from 'react-native';
-import { StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 
 export default function CourtBalloon(props: CourtCardInfos) {
 
 	return (
 		<View className='flex flex-col mb-[3px] justify-center items-center'>
 			<View style={styles.calloutContainer}>
-				<Text className='h-[90px] -mt-4'>
-					<Image source={{ uri: props.image }} className="h-[80px] w-28" resizeMode='cover' />
+				<Text className='h-[90px] rounded overflow-hidden -mt-4'>
+					<Image source={{ uri: props.image }} className="h-[80px] w-28 rounded overflow-hidden" resizeMode='cover' />
 				</Text>
 				<View className='self-start pl-[16px] mb-4 ' >
 					<Text className='font-black text-[#FF6112] text-[10px]'>{props.name}</Text>
@@ -41,7 +40,4 @@ const styles = StyleSheet.create({
 		borderBottomColor: 'white',
 		borderTopColor: 'white',
 	},
-	image: {
-		borderRadius: 500
-	}
 });

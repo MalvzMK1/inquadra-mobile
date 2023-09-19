@@ -65,7 +65,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
 
     const isVanquishedDate = schedulingPayDate < currentTime
-    const isPayed = data?.scheduling?.data?.attributes?.payedStatus
+    const isPayed = data?.scheduling?.data?.attributes?.payedStatus === "payed" ? true : false
 
     const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
 
@@ -188,7 +188,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 variables: {
                     value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
                     schedulingId: schedule_id,
-                    userId: '1',
+                    userId: user_id,
                     name: data.name,
                     cpf: data.cpf,
                     cvv: parseInt(data.cvv),
@@ -211,7 +211,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     const scheduleValueUpdate = async (value: number) => {
-        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? true : false
+        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
         let valuePayedUpdate = value + scheduleValuePayed!
         let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
         try {
@@ -415,7 +415,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <>
                                 {
                                     isVanquished === false
-                                        ? data?.scheduling.data.attributes.payedStatus === false
+                                        ? data?.scheduling.data.attributes.payedStatus === "waiting"
                                             ? <View className='h-max w-full flex justify-center items-center pl-2'>
                                                 <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
                                                     <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
@@ -551,6 +551,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         }
                     </View>
                 </View>
+                <View className='h-20'></View>
             </ScrollView >
             <View className="absolute bottom-0 left-0 right-0">
                 <BottomBlackMenu
@@ -705,7 +706,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
-
+                                        
                             </View>
                         </ScrollView>
 

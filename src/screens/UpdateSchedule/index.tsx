@@ -229,8 +229,18 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
                                 <Text className='text-white'>RESERVAR</Text>
                             </TouchableOpacity>
                         </View>
+                        <View className="h-20"></View>
                     </ScrollView>
-                    <BottomBlackMenu screen={""} userID={""} userPhoto={null} isDisabled={false} paddingTop={0} />
+                    <View className="absolute bottom-0 left-0 right-0">
+                        <BottomBlackMenu
+                            screen="Any"
+                            userID={route.params.userId}
+                            userPhoto={route.params.userPhoto !== null && route.params.userPhoto !== undefined ? route.params.userPhoto : ''}
+                            key={1}
+                            isDisabled={true}
+                            paddingTop={2}
+                        />
+                    </View>
                 </>
             }
         </SafeAreaView>

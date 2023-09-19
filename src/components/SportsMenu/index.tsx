@@ -65,35 +65,44 @@ interface ISportsMenuProps {
 export default function SportsMenu({ sports, callBack, sportSelected }: ISportsMenuProps) {
 
 	const [selected, setSelected] = useState<string>()
-	
-	// useEffect(())
 
 	return (
-		<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className={`flex w-full h-[8%] px-3`}>
-			<ScrollView className="flex" horizontal={true}>
-				{
-					sports.map((item) => (
-						<TouchableOpacity className='flex justify-center items-center pr-4'
-							onPress={() => {
-								if (selected === item.id) {
-									callBack(undefined)
-									setSelected(undefined)
-								} else {
-									callBack(item.name)
-									setSelected(item.id)
-								}
-							}}>
-							{selected !== item.id ? (
-								<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[parseInt(item.id) - 1].image} />
-							)
-								:
-								(
-									<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[parseInt(item.id) - 1].activeImage} />
-								)}
-						</TouchableOpacity>
-					))
-				}
-			</ScrollView>
-		</Animated.View>
+		<>
+			<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className="bg-neutral-200 flex w-full h-[9%] px-3 shadow-lg" style={{
+				shadowColor: 'black',
+				shadowOffset: {
+					width: 0,
+					height: 2,
+				},
+				shadowOpacity: 0.3,
+				shadowRadius: 2,
+			}}>
+				<ScrollView className="flex" horizontal={true}>
+					{
+						sports.map((item) => (
+							<TouchableOpacity className='flex justify-center items-center pr-4'
+								onPress={() => {
+									if (selected === item.id) {
+										callBack(undefined)
+										setSelected(undefined)
+									} else {
+										callBack(item.name)
+										setSelected(item.id)
+									}
+								}}>
+								{selected !== item.id ? (
+									<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[parseInt(item.id) - 1].image} />
+								)
+									:
+									(
+										<SportItem key={item.id} id={item.id} name={item.name} image={arrayIcons[parseInt(item.id) - 1].activeImage} />
+									)}
+							</TouchableOpacity>
+						))
+					}
+				</ScrollView>
+			</Animated.View>
+			<Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className="w-full h-[3px] bg-gradient-to-b from-neutral-700 via-neutral-900 to-black" ></Animated.View>
+		</>
 	)
 }
