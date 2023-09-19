@@ -133,7 +133,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     loadingEnabled
-                    className='w-screen h-screen'
+                    className='w-screen flex-1'
                     onPress={() => setIsDisabled(false)}
                     customMapStyle={customMapStyle}
                     showsCompass={false}
