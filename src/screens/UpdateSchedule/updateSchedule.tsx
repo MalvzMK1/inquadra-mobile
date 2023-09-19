@@ -267,13 +267,14 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
     }
 
     const updateScheduleDay = async (isPayed: boolean, activationKey: string | null) => {
+         const paymentStatus:string = isPayed ? "payed" : "waiting"
         try {
             updateSchedule({
                 variables: {
                     availabilityID: courtAvailabilities,
                     newDate: courtAvailabilityDate.split("T")[0],
                     scheduleID: route.params.scheduleUpdateID,
-                    payedStatus: isPayed,
+                    payedStatus: paymentStatus,
                     newValue: userMoney,
                     activationKey: activationKey
                 }

@@ -21,6 +21,7 @@ import { convertToAmericanDate } from "../../utils/formatDate";
 import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabilityStatus";
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { generateRandomKey } from "../../utils/activationKeyGenerate";
 
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
 
@@ -97,6 +98,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data));
 
+    console.log(dataReserve?.courtAvailability?.data?.attributes?.minValue)
+        console.log(dataReserve?.courtAvailability.data.attributes.value)
 
     const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
     const courtLongitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.longitude ?? '0');
@@ -171,7 +174,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     const pay = async (data: iFormCardPayment) => {
         try {
             const newScheduleId = await createNewSchedule();
-            console.log(newScheduleId)
             const countryId = getCountryIdByName(selected);
             if (newScheduleId) {
                 userPaymentCard({
@@ -198,19 +200,26 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     };
 
     const createNewSchedule = async () => {
+        
+        
+        let isPayed = dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false
+        console.log(`OIA O TESTE AI Ó: ${isPayed}`)
         try {
             const create = await createSchedule({
                 variables: {
-                    title: 'rapaz',
-                    court_availability: Number(courtAvailabilities),
+                    title: 'r',
+                    court_availability: courtAvailabilities,
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    owner: Number(userId),
-                    users: [Number(userId)],
+                    owner: userId,
+                    users: [userId],
+                    activation_key: isPayed ? generateRandomKey(4) : null,
                     publishedAt: new Date().toISOString()
                 }
+                
             });
+            
             return create.data?.createScheduling?.data?.id
 
         } catch (error) {

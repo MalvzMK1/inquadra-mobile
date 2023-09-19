@@ -151,9 +151,11 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                         </View>
 
                                                         <View>
-                                                            {courtInfo.attributes.payedStatus ?
+                                                            {courtInfo.attributes.payedStatus === "payed" ?
                                                                 <Text className='font-normal text-xs text-white'>Finalizado </Text>
-                                                                : <Text className='font-normal text-xs text-white'>Em aberto </Text>
+                                                                : courtInfo.attributes.payedStatus === "waiting"
+                                                                    ? <Text className='font-normal text-xs text-white'>Em aberto </Text>
+                                                                    : <Text className='font-normal text-xs text-white'>Cancelado </Text>
                                                             }
                                                         </View>
 
