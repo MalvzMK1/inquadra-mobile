@@ -109,6 +109,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     discountDate: new Date().toISOString().split('T')[0]
                 }
             }).then(response => {
+                console.log({RESPONSE_API: {
+                        data: response.data
+                    }})
                 if (response.data) {
                     setPixInfos({
                         txid: response.data.txid,
@@ -123,7 +126,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                                 scheduleData.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.establishment.data?.id ?? ""
                         }
                     }).then(response => {
-                        console.log(response.data)
+                        console.log({STRAPI_DATA: response.data})
                     })
                 }
                 if (response.errors)
@@ -138,7 +141,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     useEffect(() => {
         if (pixInfos) {
-
+            console.log({PIX_CODE: pixInfos.pixCode})
         }
     }, [pixInfos])
 
@@ -169,7 +172,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             <View className='h-max w-max flex items-center justify-start pt-16'>
                 <Text className='font-black font text-xl pb-5'>{courtName}</Text>
                 <View>
-                    {/*<QRCode value={payLoad} size={200} />*/}
+                    {
+                        pixInfos && <QRCode value={pixInfos.pixCode} size={200} />
+                    }
                 </View>
                 <Text className='font-black font text-xl pt-2 pb-3'>Pagamento do Sinal</Text>
                 <View className='h-14 w-screen bg-gray-300 justify-center items-center '>
