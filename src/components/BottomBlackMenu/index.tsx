@@ -42,7 +42,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data))
-    
+
     return (
         <View className={`items-center ${!isDisabled ? "bg-[#292929]" : "transparent"} w-full pt-${paddingTop} pb-1`}>
             {
@@ -123,7 +123,8 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         :
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
+                                            <TouchableOpacity
+                                                onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
                                                 <AntDesign name="heart" size={25} color={"white"} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => navigation.navigate('Home', {

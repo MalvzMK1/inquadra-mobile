@@ -565,7 +565,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
     return (
         <View className="h-full w-full">
 
-            <ScrollView>
+            <ScrollView >
                 <View className="w-full h-fit flex-col mt-[15px] pl-[25px] pr-[25px]">
                     <View className="flex-row w-full justify-between items-center">
                         <Text className="font-black text-[20px] text-[#292929]">{dateSelected.toISOString().split("T")[0].split("-")[2]} {portugueseMonths[dateSelected.getMonth()]}</Text>
@@ -756,7 +756,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     </View>
                 )}
 
-                )}
+
                 <Modal visible={chooseBlockTypeModal} animationType="fade" transparent={true} onRequestClose={closeChooseBlockTypeModal}>
                     <View className="h-full w-full justify-center items-center">
                         <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
@@ -1003,18 +1003,19 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                     </View>
                 </Modal>
 
-            <View className={`absolute bottom-0 left-0 right-0`}>
-                <BottomBlackMenuEstablishment
-                    screen="Schedule"
-                    userID={userId}
-                    establishmentLogo={route.params.establishmentPhoto!}
-                    establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
-                    key={1}
-                    paddingTop={2}
-                />
-            </View>
+                <View className={`absolute bottom-0 left-0 right-0`}>
+                    <BottomBlackMenuEstablishment
+                        screen="Schedule"
+                        userID={userId}
+                        establishmentLogo={route.params.establishmentPhoto!}
+                        establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
+                        key={1}
+                        paddingTop={2}
+                    />
+                </View>
             </ScrollView>
 
+            </ScrollView>
         </View>
     )
 }
