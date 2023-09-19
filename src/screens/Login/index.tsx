@@ -54,10 +54,7 @@ export default function Login() {
                         userPhoto: undefined
                     });
                 } else if (roleUser === "4") {
-                    navigation.navigate('HomeEstablishment', {
-                        userID: userId,
-                        userPhoto: undefined
-                    });
+                    navigation.navigate('CourtPriceHour');
                 }
             }
         }

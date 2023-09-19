@@ -4,18 +4,8 @@ import MaskInput, { Masks } from 'react-native-mask-input';
 import React, {useEffect} from "react"
 import {useComponentContext} from "../../context/ComponentInputsContext";
 
-export default function PriceHour({values}: {values: {startsAt: string, endsAt: string, price: string}}) {
+export default function PriceHour() {
   const {startsAt, setStartsAt, endsAt, setEndsAt, price, setPrice} = useComponentContext();
-
-  useEffect(() => {
-    setStartsAt(values.startsAt);
-    setEndsAt(values.endsAt);
-    setPrice(values.price);
-  }, [values.endsAt, values.startsAt, values.price])
-
-
-  
-  console.log(startsAt, endsAt, price)
 
     return (
         <View className='flex-row w-full justify-between items-center mt-[10px]'>
