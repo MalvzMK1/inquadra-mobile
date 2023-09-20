@@ -12,7 +12,6 @@ export interface IRegisterScheduleResponse{
 }
 
 export interface IRegisterScheduleVariables{
-    publishedAt: string
     title: string
     court_availability: string
     users: Array<string>
@@ -20,6 +19,8 @@ export interface IRegisterScheduleVariables{
     date: string
     pay_day: string
     value_payed: number
+    activation_key: string | null
+    publishedAt: string
 }
 
 export const registerScheduleMutation = gql`
@@ -31,6 +32,7 @@ mutation newSchedule(
   $date: Date
   $pay_day: Date
   $value_payed: Float
+  $activation_key: String
   $publishedAt: DateTime
 ) {
   createScheduling(
@@ -44,6 +46,7 @@ mutation newSchedule(
       valuePayed: $value_payed
       publishedAt: $publishedAt
       activated: true
+      activationKey: $activation_key
     }
   ) {
     data {

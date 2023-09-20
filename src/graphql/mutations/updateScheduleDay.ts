@@ -16,7 +16,7 @@ export interface IUpdateScheduleDayVariables {
   availabilityID: string
   newDate: string
   newValue: number
-  payedStatus: boolean
+  payedStatus: string
   activationKey: string | null
 }
 
@@ -26,7 +26,7 @@ mutation updateSchedule(
   $availabilityID: ID
   $newDate: Date
   $newValue: Float
-  $payedStatus: Boolean
+  $payedStatus: ENUM_SCHEDULING_PAYEDSTATUS
   $activationKey: String
 ) {
   updateScheduling(

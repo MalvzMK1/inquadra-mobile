@@ -724,7 +724,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                             </Text>
                         </View>
 
-                        {maxValue > 0 && (
+                        {/* {maxValue > 0 && (
                             <BarChart
                                 style={{ height: 200 }}
                                 data={data}
@@ -745,7 +745,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                                     bandwidth={0}
                                 />
                             </BarChart>
-                        )}
+                        )} */}
 
                         {maxValue == 0 && (
                             <View className="h-[100px] flex items-center justify-center">
@@ -1006,7 +1006,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                 <View className={`absolute bottom-0 left-0 right-0`}>
                     <BottomBlackMenuEstablishment
                         screen="Schedule"
-                        userID={userId}
+                        userID={userId ?? ""}
                         establishmentLogo={route.params.establishmentPhoto!}
                         establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
                         key={1}

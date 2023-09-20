@@ -5,5 +5,5 @@ interface InfoEstablishmentCardContentDistanceProps {
 }
 
 export function InfoEstablishmentCardContentDistance({distance}: InfoEstablishmentCardContentDistanceProps) {
-	return <Text className='text-white text-xs font-bold'>{distance} de distancia</Text>
+	return <Text className='text-white text-xs font-bold'>{distance}</Text>
 }
