@@ -455,24 +455,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     return (
         <View className="flex-1 bg-white h-full">
-            <View className=' h-11 w-max  bg-zinc-900'></View>
-            <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
-                <View className='flex item-center justify-center'>
-                    <MaterialIcons name='arrow-back' color={'white'} size={30} onPress={() => navigation.goBack()} />
-                </View>
-                <View className='flex item-center justify-center'>
-                    <Text className='text-lg font-bold text-white'>EDITAR</Text>
-                </View>
-                <View className='h-max w-max flex justify-center items-center'>
-                    <TouchableOpacity className='h-12 W-12 '>
-                        <Image
-                            source={{ uri: HOST_API + photo }}
-                            style={{ width: 46, height: 46 }}
-                            borderRadius={100}
-                        />
-                    </TouchableOpacity>
-                </View>
-            </View>
+
             {
                 loading ?
                     <View className='flex-1'>
