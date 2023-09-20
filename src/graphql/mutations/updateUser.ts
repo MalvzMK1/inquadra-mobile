@@ -1,7 +1,7 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
-export interface IUpdateUserResponse{
-  updateUsersPermissionsUser:{
+export interface IUpdateUserResponse {
+  updateUsersPermissionsUser: {
     data: {
       attributes: {
         username: User['username']
@@ -24,13 +24,13 @@ export interface IUpdateUserResponse{
   }
 }
 
-export interface IUpdateUserVariables{
-    user_id: string
-    username: string
-    email: string
-    phone_number: string
-    cpf: string
-    photo: string
+export interface IUpdateUserVariables {
+  user_id: string
+  username: string
+  email: string
+  phoneNumber: string
+  cpf: string
+  photo: string
 }
 
 export const updateUserMutation = gql`
