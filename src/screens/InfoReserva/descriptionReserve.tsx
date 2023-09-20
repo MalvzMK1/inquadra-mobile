@@ -704,7 +704,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
-                                        
+
                             </View>
                         </ScrollView>
 

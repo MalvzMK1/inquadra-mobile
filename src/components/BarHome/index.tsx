@@ -37,7 +37,7 @@ interface HomeBarProps {
 }
 
 const screenHeight = Dimensions.get('window').height
-const minHeightPercentage = 33
+const minHeightPercentage = 45
 const maxHeightPercentage = 100
 const minHeight = (minHeightPercentage / 100) * screenHeight
 const maxHeight = (maxHeightPercentage / 100) * screenHeight
@@ -132,9 +132,6 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 										/>
 									)
 								})) : (
-									Alert.alert("Aviso", "Ainda não possuímos nenhum estabelecimento cadastrado para esse esporte na sua área. Contamos com sua ajuda para indicar nossa plataforma a quadras próximas a você!", [{
-										onPress: () => HandleSportSelected(undefined)
-									}]),
 									<></>
 								)
 							)

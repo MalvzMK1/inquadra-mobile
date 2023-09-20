@@ -3,7 +3,6 @@ import { AntDesign, MaterialIcons } from "@expo/vector-icons"
 import React, { useEffect, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 interface IBottomBlackMenu {
@@ -109,7 +108,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         ?
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
+                                            <TouchableOpacity>
                                                 <AntDesign name="heart" size={25} color={"white"} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => navigation.navigate('Home', {
@@ -130,7 +129,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         :
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteCourts', { userPhoto: userPhoto ?? "", userID: userID })}>
+                                            <TouchableOpacity>
                                                 <AntDesign name="heart" size={25} color={"white"} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => navigation.navigate('Home', {
@@ -151,7 +150,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     </View>
                 )
             }
-        </View>
+        </View >
     )
 }
 

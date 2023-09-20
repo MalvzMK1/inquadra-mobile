@@ -480,7 +480,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     }
 
 
-  const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId)
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
     return (
         <View className="flex-1 bg-white h-full">
@@ -996,18 +996,18 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         </View>
                     </View>
                 </Modal>
-        <View className='h-16'></View>
+                <View className='h-16'></View>
             </ScrollView>
-      <View className={`absolute bottom-0 left-0 right-0`}>
-        <BottomBlackMenuEstablishment
-          screen="Any"
-          userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
-          establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
-          establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
-          key={1}
-          paddingTop={10}
-        />
-      </View>
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
+                    establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
+                    establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
+                    key={1}
+                    paddingTop={10}
+                />
+            </View>
         </View>
     )
 }
