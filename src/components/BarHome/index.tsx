@@ -37,7 +37,7 @@ interface HomeBarProps {
 }
 
 const screenHeight = Dimensions.get('window').height
-const minHeightPercentage = 33
+const minHeightPercentage = 45
 const maxHeightPercentage = 100
 const minHeight = (minHeightPercentage / 100) * screenHeight
 const maxHeight = (maxHeightPercentage / 100) * screenHeight

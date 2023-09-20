@@ -137,6 +137,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     onPress={() => setIsDisabled(false)}
                     customMapStyle={customMapStyle}
                     showsCompass={false}
+                    showsMyLocationButton
+                    showsUserLocation
                     initialRegion={{
                         latitude: userGeolocation.latitude,
                         longitude: userGeolocation.longitude,
@@ -193,13 +195,15 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
             {
                 userHookData &&
                 <View className={`absolute bottom-0 left-0 right-0`}>
-                    <BottomBlackMenu
-                        screen="Home"
+                    <BottomNavigationBar
                         userID={route?.params?.userID}
                         userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
                         key={1}
-                        isDisabled={!isDisabled}
-                        paddingTop={2}
+                        isDisabled={isDisabled}
+                        playerScreen={true}
+                        establishmentID={undefined}
+                        establishmentScreen={false}
+                        logo={undefined}
                     />
                 </View>
             }

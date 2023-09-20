@@ -68,7 +68,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                         }
                     }).then(value => {
                         navigation.navigate('RegisterSuccess')
-                        alert(value.data?.createUsersPermissionsUser.data.attributes.email)
                     })
                         .catch((reason) => {
                             if (reason instanceof ApolloError) {
