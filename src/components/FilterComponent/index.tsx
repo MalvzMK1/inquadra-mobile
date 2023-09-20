@@ -99,8 +99,8 @@ export default function FilterComponent() {
                             )}
                         </View>
                     </View>
-                    <View className='flex flex-row items-center justify-between pt-3 pb-3'>
-                        <View className='flex items-center'>
+                    <View className='flex items-center justify-between pt-3 pb-3'>
+                        <View className='flex flex-row items-center'>
                             <Text className='font-semibold text-white text-base'>Day-Use</Text>
                             <View className='flex flex-row gap-[22px]'>
                                 <View className='flex flex-row items-center'>
@@ -122,7 +122,7 @@ export default function FilterComponent() {
                             </View>
                         </View>
                         <Button
-                            className='rounded w-1/2'
+                            className='rounded w-full'
                             buttonColor='#FF6112'
                             textColor='white'
                             style={{ marginTop: 20, marginBottom: 15 }}

@@ -20,12 +20,14 @@ export const interClient = new ApolloClient({
 })
 
 export interface ICreateChargeResponse {
-    txid: string;
-    pixCopiaECola: string;
-    calendario: {
-        dataDeVencimento: string;
-    },
-    status: string;
+    CreateCharge: {
+        txid: string;
+        pixCopiaECola: string;
+        calendario: {
+            dataDeVencimento: string;
+        },
+        status: string;
+    }
 }
 
 export interface ICreateChargeVariables {
@@ -52,7 +54,7 @@ export const createChargeQuery = gql`
         $debtorCity: String!
         $debtorUf: String!
         $message: String!
-		    $discountDate: String!
+        $discountDate: String!
     ) {
         CreateCharge(
             calendario: { dataDeVencimento: $dueDate, validadeAposVencimento: 30 }

@@ -108,9 +108,9 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                             <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
                                                                 <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.valuePayed.toString()}</Text>
                                                                 <Text className='font-black text-xs text-white'> / </Text>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.court_availability?.data?.attributes?.value.toString()}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${`${Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value!) + Number(courtInfo.attributes.serviceRate!)}`}</Text>
                                                             </View>
-                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((Number(courtInfo?.attributes?.valuePayed) / Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value)) * 100)}</Text>
+                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((Number(courtInfo?.attributes?.valuePayed) / (Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value) + Number(courtInfo.attributes.serviceRate!))) * 100)}</Text>
                                                         </View>
                                                         <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt.toString())}</Text>
                                                     </View>

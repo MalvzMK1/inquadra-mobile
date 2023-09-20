@@ -11,7 +11,7 @@ import {
     ActivityIndicator
 } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list'
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import MaskInput, { Masks } from 'react-native-mask-input';
 import { TextInputMask } from 'react-native-masked-text';
 import { Controller, useForm } from "react-hook-form";
@@ -29,6 +29,7 @@ import { IconButton } from 'react-native-paper';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import ImagePicker2, { ImageOrVideo } from 'react-native-image-crop-picker';
+import { useFocusEffect } from '@react-navigation/native';
 // import TextRecognition from 'react-native-text-recognition';
 
 interface IFormData {
@@ -150,12 +151,26 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         resolver: zodResolver(paymentCardFormSchema)
     })
 
-    const pickAndRecognize: () => void = useCallback(async () => {
+    // const pickAndRecognize: () => void = useCallback(async () => {
 
         // ImagePicker2.openCamera({
         //     cropping: false,
         // })
         //     .then(async (res: ImageOrVideo) => {
+    //     ImagePicker.openPicker({
+    //         cropping: false,
+    //     })
+    //         .then(async (res: ImageOrVideo) => {
+    //             setIsProcessingText(true);
+    //             const result: string[] = await TextRecognition.recognize(res?.path);
+    //             setIsProcessingText(false);
+    //             validateCard(result);
+    //         })
+    //         .catch(err => {
+    //             console.log('err:', err);
+    //             setIsProcessingText(false);
+    //         });
+    // }, []);
         //         setIsProcessingText(true);
         //         const result: string[] = await TextRecognition.recognize(res?.path);
         //         setIsProcessingText(false);
@@ -165,7 +180,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         //         console.log('err:', err);
         //         setIsProcessingText(false);
         //     });
-    }, []);
+    // }, []);
 
     const findCardNumberInArray: (arr: string[]) => string = arr => {
         let creditCardNumber = '';
@@ -254,6 +269,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     };
 
     const handleConfirmExit = () => {
+        // sair do app
         setShowExitConfirmation(false);
     };
 
@@ -264,6 +280,9 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
 
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
+    const [photo, setPhoto] = useState('')
+
+    useFocusEffect(() => { setPhoto(data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!) })
 
     const handleProfilePictureUpload = async () => {
         try {
@@ -326,7 +345,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             return "Deu erro";
         }
     };
-
 
     async function updateUserInfos(data: IFormData): Promise<void> {
         console.log(data);
@@ -429,10 +447,35 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         });
     }, [loading])
 
+    let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!
+    let emailDefault    = data?.usersPermissionsUser.data?.attributes.email!
+    let phoneDefault    = data?.usersPermissionsUser.data?.attributes.phoneNumber!
+    let cpfDefault      = data?.usersPermissionsUser.data?.attributes.cpf!
+
+
+
 
 
     return (
         <View className="flex-1 bg-white h-full">
+            <View className=' h-11 w-max  bg-zinc-900'></View>
+            <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
+                <View className='flex item-center justify-center'>
+                        <MaterialIcons name='arrow-back' color={'white'} size={30} onPress={() => navigation.goBack()} />
+                </View>
+                <View className='flex item-center justify-center'>
+                    <Text className='text-lg font-bold text-white'>EDITAR</Text>
+                </View>
+                <View className='h-max w-max flex justify-center items-center'>
+                    <TouchableOpacity className='h-12 W-12 '>
+                        <Image
+                            source={{ uri: HOST_API + photo }}
+                            style={{ width: 46, height: 46 }}
+                            borderRadius={100}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </View>
             {
                 loading ?
                     <View className='flex-1'>
@@ -464,14 +507,13 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 </TouchableOpacity>
                             )}
                         />
-
-
                         <View className="p-6 space-y-10">
                             <View >
                                 <Text className="text-base pb-2">Nome</Text>
                                 <Controller
                                     name='name'
                                     control={control}
+                                    defaultValue={userNameDefault}
                                     render={({ field: { onChange } }) => (
                                         <TextInput
                                             value={getValues('name')}
@@ -488,6 +530,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 <Controller
                                     name='email'
                                     control={control}
+                                    defaultValue={emailDefault}
                                     render={({ field: { onChange } }) => (
                                         <TextInput
                                             value={getValues('email')}
@@ -504,6 +547,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 <Text className="text-base  pb-2">Telefone</Text>
                                 <Controller
                                     name='phoneNumber'
+                                    defaultValue={phoneDefault}
                                     control={control}
                                     render={({ field: { onChange } }) => (
                                         <MaskInput
@@ -522,6 +566,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 <Text className="text-base  pb-2">CPF</Text>
                                 <Controller
                                     name='cpf'
+                                    defaultValue={cpfDefault}
                                     control={control}
                                     render={({ field: { onChange } }) => (
                                         <MaskInput
@@ -536,11 +581,15 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 />
                                 {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
                             </View>
-                            <View >
-                                <Text className="text-base  pb-2">
-                                    Dados Cartão
-                                </Text>
-                                <View className=" border border-gray-500 rounded-md">
+                            <TouchableOpacity onPress={handleCardClick}>
+                                <Text className="text-base">Dados Cartão</Text>
+                                <View className="h-30 border border-gray-500 rounded-md">
+                                    <View className="flex-row justify-center items-center m-2">
+                                        <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                                        <Text className="flex-1 text-base text-right mb-0">
+                                            {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
+                                        </Text>
+                                        <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
                                     <View className="flex-row justify-center items-center m-1">
 
                                         <FontAwesome name="credit-card-alt" size={20} style={{ marginStart: 10 }} color="#FF6112" />
@@ -560,8 +609,9 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                             onPress={handleCardClick} />
 
                                     </View>
+                                    </View>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
 
                             {showCard && (
                                 <View className="border border-gray-500 p-4 mt-10">
@@ -610,7 +660,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                     <View>
                                         <Text className='text-base text-[#FF6112]'>País</Text>
                                         <View className='flex flex-row items-center' >
-
                                             <View style={{ width: '100%' }}>
                                                 <Controller
                                                     name='country'
@@ -656,14 +705,14 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                     </TouchableOpacity>
                                 </View>
                                 <View className='p-2'>
-                                    <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex flex-row items-center justify-between px-1'>
-                                        <Text className='text-gray-50 text-center flex-grow ml-6'>Sair do App</Text>
+                                    <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
+                                        <Text className='text-gray-50'>Excluir essa conta</Text>
                                         <Ionicons name="exit-outline" size={24} color="white" />
                                     </TouchableOpacity>
                                 </View>
                                 <View className='p-2'>
-                                    <TouchableOpacity onPress={handleDeleteAccount} className=' flex items-center justify-center'>
-                                        <Text className='text-gray-400 underline'>Excluir essa conta</Text>
+                                    <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
+                                        <Text className='text-gray-50'>Sair do App</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -698,7 +747,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         </Modal>
                     </ScrollView>
             }
-        </View >
+        </View>
     );
 }
 

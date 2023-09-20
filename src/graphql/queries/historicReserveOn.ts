@@ -1,50 +1,51 @@
 import { gql } from "@apollo/client";
 
-export interface IgetHistoricOfReserveOnResponse{
-    usersPermissionsUser: {
-        data: {
+export interface IgetHistoricOfReserveOnResponse {
+  usersPermissionsUser: {
+    data: {
+      attributes: {
+        schedulings: {
+          data: Array<{
+            id: string
             attributes: {
-              schedulings: {
-                    data: Array<{
+              serviceRate: Number
+              status: boolean
+              createdAt: Date
+              valuePayed: Number
+              payedStatus: string
+              court_availability: {
+                data: {
+                  attributes: {
+                    value: Number
+                    court: {
+                      data: {
                         id: string
                         attributes: {
-                            status: boolean
-                            createdAt: Date
-                            valuePayed: Number
-                            payedStatus: string
-                            court_availability: {
-                                data: {
-                                    attributes: {
-                                        value: Number
-                                        court: {
-                                            data: {
-                                                id: string
-                                                attributes: {
-                                                    name: string
-                                                    fantasy_name: string
-                                                    photo: {
-                                                      data: Array<{
-                                                        attributes: {
-                                                          url: string
-                                                        }
-                                                      }>
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                          name: string
+                          fantasy_name: string
+                          photo: {
+                            data: Array<{
+                              attributes: {
+                                url: string
+                              }
+                            }>
+                          }
                         }
-                    }>
+                      }
+                    }
+                  }
                 }
+              }
             }
+          }>
         }
+      }
     }
+  }
 }
 
-export interface IHistoricReserveOnVariables{
-    id: string
+export interface IHistoricReserveOnVariables {
+  id: string
 }
 
 export const historicReserveOnQuery = gql`
@@ -56,6 +57,7 @@ query getHistoricOfReserveOn($id: ID) {
           data {
             id
             attributes {
+              serviceRate
               status
               createdAt
               valuePayed

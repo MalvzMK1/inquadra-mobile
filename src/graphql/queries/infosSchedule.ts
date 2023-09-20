@@ -7,6 +7,7 @@ export interface IinfoScheduleResponse {
         date: Scheduling['date']
         payedStatus: string
         createdAt: Date
+        serviceRate: number
         valuePayed: number
         payDay: Date
         activationKey: string
@@ -71,6 +72,7 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
         date
         payedStatus
         createdAt
+        serviceRate
         valuePayed
         payDay
         activationKey
@@ -123,4 +125,5 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
     }
   }
 }
+
 `
