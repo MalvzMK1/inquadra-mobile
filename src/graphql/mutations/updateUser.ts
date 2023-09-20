@@ -25,11 +25,11 @@ export interface IUpdateUserResponse {
 }
 
 export interface IUpdateUserVariables {
-  user_id: string
-  username: string
-  email: string
-  phoneNumber: string
-  cpf: string
+    user_id: string
+    username: string
+    email: string
+    phoneNumber: string
+    cpf: string
     cvv?: number
     dueDate?: string
     country?: string

@@ -30,7 +30,8 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import ImagePicker2, { ImageOrVideo } from 'react-native-image-crop-picker';
 import { useFocusEffect } from '@react-navigation/native';
-// import TextRecognition from 'react-native-text-recognition';
+import TextRecognition from 'react-native-text-recognition';
+import { Icon } from 'react-native-elements';
 
 interface IFormData {
     photo: string
@@ -151,36 +152,32 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         resolver: zodResolver(paymentCardFormSchema)
     })
 
-    // const pickAndRecognize: () => void = useCallback(async () => {
+    const pickAndRecognize: () => void = useCallback(async () => {
 
-        // ImagePicker2.openCamera({
-        //     cropping: false,
-        // })
-        //     .then(async (res: ImageOrVideo) => {
-    //     ImagePicker.openPicker({
-    //         cropping: false,
-    //     })
-    //         .then(async (res: ImageOrVideo) => {
-    //             setIsProcessingText(true);
-    //             const result: string[] = await TextRecognition.recognize(res?.path);
-    //             setIsProcessingText(false);
-    //             validateCard(result);
-    //         })
-    //         .catch(err => {
-    //             console.log('err:', err);
-    //             setIsProcessingText(false);
-    //         });
-    // }, []);
-        //         setIsProcessingText(true);
-        //         const result: string[] = await TextRecognition.recognize(res?.path);
-        //         setIsProcessingText(false);
-        //         validateCard(result);
-        //     })
-        //     .catch(err => {
-        //         console.log('err:', err);
-        //         setIsProcessingText(false);
-        //     });
-    // }, []);
+        ImagePicker2.openCamera({
+            cropping: false,
+        }).then(async (res: ImageOrVideo) => {
+            ImagePicker2.openPicker({
+                cropping: false,
+            }).then(async (res: ImageOrVideo) => {
+                setIsProcessingText(true);
+                const result: string[] = await TextRecognition.recognize(res?.path);
+                setIsProcessingText(false);
+                validateCard(result);
+            }).catch(err => {
+                console.log('err:', err);
+                setIsProcessingText(false);
+            });
+            setIsProcessingText(true);
+            const result: string[] = await TextRecognition.recognize(res?.path);
+            setIsProcessingText(false);
+            validateCard(result);
+        })
+            .catch(err => {
+                console.log('err:', err);
+                setIsProcessingText(false);
+            });
+    }, []);
 
     const findCardNumberInArray: (arr: string[]) => string = arr => {
         let creditCardNumber = '';
@@ -389,7 +386,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                     user_id: userInfos.id,
                     email: data.email,
                     cpf: data.cpf,
-                    phone_number: data.phoneNumber,
+                    phoneNumber: data.phoneNumber,
                     username: data.name,
                     photo: newPhotoId,
                 },
@@ -448,9 +445,9 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     }, [loading])
 
     let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!
-    let emailDefault    = data?.usersPermissionsUser.data?.attributes.email!
-    let phoneDefault    = data?.usersPermissionsUser.data?.attributes.phoneNumber!
-    let cpfDefault      = data?.usersPermissionsUser.data?.attributes.cpf!
+    let emailDefault = data?.usersPermissionsUser.data?.attributes.email!
+    let phoneDefault = data?.usersPermissionsUser.data?.attributes.phoneNumber!
+    let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!
 
 
 
@@ -461,7 +458,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                        <MaterialIcons name='arrow-back' color={'white'} size={30} onPress={() => navigation.goBack()} />
+                    <MaterialIcons name='arrow-back' color={'white'} size={30} onPress={() => navigation.goBack()} />
                 </View>
                 <View className='flex item-center justify-center'>
                     <Text className='text-lg font-bold text-white'>EDITAR</Text>
@@ -544,7 +541,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 {errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
                             </View>
                             <View>
-                                <Text className="text-base  pb-2">Telefone</Text>
+                                <Text className="text-base pb-2">Telefone</Text>
                                 <Controller
                                     name='phoneNumber'
                                     defaultValue={phoneDefault}
@@ -563,7 +560,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 {errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
                             </View>
                             <View>
-                                <Text className="text-base  pb-2">CPF</Text>
+                                <Text className="text-base pb-2">CPF</Text>
                                 <Controller
                                     name='cpf'
                                     defaultValue={cpfDefault}
@@ -582,33 +579,29 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
                             </View>
                             <TouchableOpacity onPress={handleCardClick}>
-                                <Text className="text-base">Dados Cartão</Text>
+                                <Text className="text-base pb-2">Dados Cartão</Text>
                                 <View className="h-30 border border-gray-500 rounded-md">
                                     <View className="flex-row justify-center items-center m-2">
-                                        <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                                        <Text className="flex-1 text-base text-right mb-0">
-                                            {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
-                                        </Text>
-                                        <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
-                                    <View className="flex-row justify-center items-center m-1">
 
-                                        <FontAwesome name="credit-card-alt" size={20} style={{ marginStart: 10 }} color="#FF6112" />
-                                        <TextInput
-                                            style={{ flex: 1, fontSize: 16, textAlign: 'left', marginStart: 10 }}
-                                            value={getFormattedCreditCardNumber(processedText)}
-                                            onChangeText={handleCardChange}
-                                            placeholder="Adicionar Cartão "
-                                        />
-                                        <IconButton size={20}
-                                            iconColor="#FF6112"
-                                            icon={"camera"}
-                                            onPress={pickAndRecognize} />
-                                        <IconButton size={20}
-                                            iconColor="#FF4715"
-                                            icon={showCard ? 'chevron-up' : 'chevron-down'}
-                                            onPress={handleCardClick} />
+                                        <View className="flex-row justify-center items-center m-1">
 
-                                    </View>
+                                            <FontAwesome name="credit-card-alt" size={15} style={{ marginStart: 10 }} color="#FF6112" />
+                                            <TextInput
+                                                style={{ flex: 1, fontSize: 16, textAlign: 'left', marginStart: 10 }}
+                                                value={getFormattedCreditCardNumber(processedText)}
+                                                onChangeText={handleCardChange}
+                                                placeholder="Adicionar Cartão "
+                                            />
+                                            <IconButton size={20}
+                                                iconColor="#FF6112"
+                                                icon={"camera"}
+                                                onPress={pickAndRecognize} />
+                                            <IconButton size={20}
+                                                iconColor="#FF4715"
+                                                icon={showCard ? 'chevron-up' : 'chevron-down'}
+                                                onPress={handleCardClick} />
+
+                                        </View>
                                     </View>
                                 </View>
                             </TouchableOpacity>
