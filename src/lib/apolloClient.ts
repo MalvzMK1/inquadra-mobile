@@ -4,6 +4,7 @@ import storage from "../utils/storage";
 
 const httpLink = new HttpLink({
 	uri: HOST_API + "/graphql"
+	
 });
 
 let jwt: string = "";

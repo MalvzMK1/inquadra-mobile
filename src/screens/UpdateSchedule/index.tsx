@@ -39,8 +39,6 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
         error: isCourtAvailabilityError
     } = useCourtAvailability(route.params.courtId)
 
-
-
     const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
     const [selectedWeekDate, setSelectedWeekDate] = useState<string>()
     const [availabilities, setAvailabilities] = useState<Array<{
@@ -173,14 +171,18 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
                                     availabilities.map((item) => {
                                         const startsAt = item.startsAt.split(':');
                                         const endsAt = item.endsAt.split(':');
-
+                                        const ogPrice = item.price
                                         let isBusy = !item.busy;
 
                                         if (item.scheduling)
                                             if (selectedDate.split("T")[0] === item.scheduling.toString())
                                                 isBusy = true;
-                                        if (route.params.valuePayed < item.price)
-                                            item.price = route.params.valuePayed                        
+
+                                        if (item.price < route.params.valuePayed)
+                                            item.price = route.params.valuePayed
+                                        else
+                                            item.price = ogPrice
+
                                         if (selectedWeekDate === item.weekDays) {
                                             return (
                                                 <CourtAvailibility
@@ -219,15 +221,26 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
                                             courtAvailabilityDate: selectedDate,
                                             userPhoto: route.params.userPhoto,
                                             scheduleUpdateID: route.params.scheduleUpdateID,
-                                            pricePayed: route.params.valuePayed
-										})
+                                            pricePayed: route.params.valuePayed,
+                                            activationKey: route.params.activationKey
+                                        })
                                 }}
                             >
                                 <Text className='text-white'>RESERVAR</Text>
                             </TouchableOpacity>
                         </View>
+                        <View className="h-20"></View>
                     </ScrollView>
-                    <BottomBlackMenu />
+                    <View className="absolute bottom-0 left-0 right-0">
+                        <BottomBlackMenu
+                            screen="Any"
+                            userID={route.params.userId}
+                            userPhoto={route.params.userPhoto !== null && route.params.userPhoto !== undefined ? route.params.userPhoto : ''}
+                            key={1}
+                            isDisabled={true}
+                            paddingTop={2}
+                        />
+                    </View>
                 </>
             }
         </SafeAreaView>

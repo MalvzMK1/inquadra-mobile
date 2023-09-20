@@ -1,5 +1,4 @@
-import {gql} from "@apollo/client";
-import { Country } from "../../types/Country";
+import { gql } from "@apollo/client";
 
 export interface ICountriesResponse {
     countries: {

@@ -13,27 +13,22 @@ import storage from '../../utils/storage'
 import { calculateDistance } from "../../utils/calculateDistance";
 import { useFocusEffect } from '@react-navigation/native'
 import React from 'react'
+import { useGetUserById } from '../../hooks/useUserById'
+import BottomBlackMenu from '../../components/BottomBlackMenu'
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
-
-let userId: string
-
-storage.load({
-    key: 'userInfos'
-}).then(data => {
-    userId = data.userId
-})
 
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
     const { data: establishmentData, loading: establishmentLoading, error: establishmentError } = useGetEstablishmentByCourtId(route.params.establishmentID)
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
-
+    
     const [userLocation, setUserLocation] = useState({
         latitude: 0,
         longitude: 0
     })
+    const [userId, setUserId] = useState<string>();
 
     const [Establishment, setEstablishment] = useState<{
         id: string
@@ -86,20 +81,20 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     let establishment
 
 
-                        establishment = {
-                            id: infosEstablishment.id,
-                            corporateName: infosEstablishment.attributes.corporateName,
-                            cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
-                            streetName: infosEstablishment.attributes.address.streetName,
-                            latitude: Number(infosEstablishment.attributes.address.latitude),
-                            longitude: Number(infosEstablishment.attributes.address.longitude),
-                            photo: infosEstablishment.attributes.logo.data ? HOST_API + infosEstablishment.attributes.logo.data.attributes.url : "",
-                            photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
-                                return HOST_API + photo.attributes.url
-                            }),
-                            type: courts.map(court => court.court_type).join(', ')
-                        }
-                    
+                    establishment = {
+                        id: infosEstablishment.id,
+                        corporateName: infosEstablishment.attributes.corporateName,
+                        cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
+                        streetName: infosEstablishment.attributes.address.streetName,
+                        latitude: Number(infosEstablishment.attributes.address.latitude),
+                        longitude: Number(infosEstablishment.attributes.address.longitude),
+                        photo: infosEstablishment.attributes.logo.data ? HOST_API + infosEstablishment.attributes.logo.data.attributes.url : "",
+                        photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
+                            return HOST_API + photo.attributes.url
+                        }),
+                        type: courts.map(court => court.court_type).join(', ')
+                    }
+
 
                     setEstablishment(establishment)
                     if (courts) {
@@ -216,6 +211,17 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         }).then(response => setUserLocation({ latitude: Number(response.latitude), longitude: Number(response.longitude) }))
     }, [])
 
+
+    const {data:dataUser, loading:loadingUser, error:errorUser} = useGetUserById(userId)
+
+    useEffect(() => {
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            setUserId(data.userId)
+        })
+    }, [])
+
     return (
         <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
             <View className="flex flex-col">
@@ -242,7 +248,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 <View className="flex flex-row gap-[25] items-center">
                     <Image className='h-20 w-20' source={{ uri: Establishment?.photo }}></Image>
                     <View>
-                        <Text className="font-bold text-[#717171]">{Establishment?.type.split("_").join(" ")}</Text>
+                        <Text className="font-bold text-[#717171]">{Establishment?.type!.split("_").join(" ")}</Text>
                         <Text className="font-bold text-[#717171]">{distance?.toFixed(1).split(".").join(",")} Km de distância</Text>
                         <Text className="font-bold text-[#717171]">Avaliação: {rating?.toFixed(1).split(".").join(",")} <Ionicons name="star-sharp" size={20} color="orange" /></Text>
                         <Text className="font-bold text-[#717171]">{Establishment?.streetName}</Text>
@@ -272,7 +278,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     />
                 </View>
             </View>
-            <ScrollView>
+            <ScrollView className='pb-10'>
                 {uniqueCourtTypes.map((type) => (
                     <View key={type}>
                         <Text className="text-[18px] leading-[24px] font-black">{type.toUpperCase()}</Text>
@@ -292,14 +298,19 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                         ))}
                     </View>
                 ))}
+                <View className='h-16'></View>
             </ScrollView>
-            <View className="w-full items-center justify-end">
-                <View className="bg-black h-[75px] w-2/3 rounded-[20px] items-center justify-around flex flex-row">
-                    <AntDesign name="heart" size={20} color={footerHeartColor} onPress={() => footerHeartColor == "white" ? setFooterHeartColor("red") : setFooterHeartColor("white")} />
-                    <Image source={require('../../assets/logo_inquadra_white.png')}></Image>
-                    <Image source={require('../../assets/calendar_icon.png')}></Image>
-                </View>
+            <View className="absolute bottom-0 left-0 right-0 pt-10 pb-10">
+                <BottomBlackMenu
+                  screen={"Any"}
+                  userID={userId}
+                  userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                  key={1}
+                  isDisabled ={true}
+                  paddingTop={2}
+                />
             </View>
+            <View className='h-2'></View>
         </View>
     )
 }

@@ -8,4 +8,5 @@ type Scheduling = {
     payedStatus: boolean
     owner: string
     payDay: Date
+    activation_key: string
 }

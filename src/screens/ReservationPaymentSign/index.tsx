@@ -21,12 +21,12 @@ import { convertToAmericanDate } from "../../utils/formatDate";
 import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabilityStatus";
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { generateRandomKey } from "../../utils/activationKeyGenerate";
 
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
 
     const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
-
-    const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtId)
+    const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
     const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
     const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
     const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
@@ -58,7 +58,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     const [cvv, setCVV] = useState('');
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const reserveValue = dataReserve?.courtAvailability?.data?.attributes?.value
-    const serviceValue = amountToPay * 4 / 100
+    const serviceValue = amountToPay * 0.04
 
     const minValue = dataReserve?.courtAvailability?.data?.attributes?.minValue
     let totalValue
@@ -97,6 +97,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data));
 
+    console.log(dataReserve?.courtAvailability?.data?.attributes?.minValue)
+        console.log(dataReserve?.courtAvailability.data.attributes.value)
 
     const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
     const courtLongitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.longitude ?? '0');
@@ -171,7 +173,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     const pay = async (data: iFormCardPayment) => {
         try {
             const newScheduleId = await createNewSchedule();
-
             const countryId = getCountryIdByName(selected);
             if (newScheduleId) {
                 userPaymentCard({
@@ -198,19 +199,27 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     };
 
     const createNewSchedule = async () => {
+        
+        
+        let isPayed = dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false
+        console.log(`OIA O TESTE AI Ó: ${isPayed}`)
         try {
             const create = await createSchedule({
                 variables: {
-                    title: 'newnew',
-                    court_availability: parseFloat(courtAvailabilities),
+                    title: 'r',
+                    court_availability: courtAvailabilities,
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    owner: parseFloat(userId),
-                    users: [parseFloat(userId)],
+                    owner: userId,
+                    users: [userId],
+                    activation_key: isPayed ? generateRandomKey(4) : null,
+                    service_value: serviceValue,
                     publishedAt: new Date().toISOString()
                 }
+                
             });
+            
             return create.data?.createScheduling?.data?.id
 
         } catch (error) {
@@ -226,7 +235,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             }
         })
     }
-
 
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -244,16 +252,20 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                 </View>
                 <View className="bg-gray-300 p-4">
                     <Text className="text-5xl text-center font-extrabold text-gray-700">
-                        R$ {amountToPay.toFixed(2)}
+                        R$ {dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)}
                     </Text>
                 </View>
                 <View className='px-10 py-5'>
                     <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
                         onPressIn={() => {
-                            navigation.navigate('PixScreen', {
-                                courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                                value: (amountToPay + serviceValue).toString(),
-                                userID: userId
+                            createNewSchedule().then(scheduleID => {
+                                if (scheduleID)
+                                    navigation.navigate('PixScreen', {
+                                        courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                                        value: (amountToPay + serviceValue).toString(),
+                                        userID: userId,
+                                        scheduleID,
+                                    })
                             })
                         }}
                     >
