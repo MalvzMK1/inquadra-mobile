@@ -228,7 +228,7 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
                             </TouchableOpacity>
 
                         </View>
-								
+                        <View className="h-20"></View>
                     </ScrollView>
 					<View className="absolute bottom-0 left-0 right-0">
 						<BottomBlackMenu

@@ -48,9 +48,8 @@ export default function Register() {
 	return (
 		<ScrollView className="flex-1 bg-white">
 
-			<View className='h-screen'>
+			<View className='h-full'>
 				<RegisterHeader title='Cadastro' subtitle='Vamos precisar de alguns dados seus...'></RegisterHeader>
-
 				<View className='p-6 gap-2 flex flex-col justify-between'>
 					<View>
 						<Text className='text-xl'>Qual é o seu nome?</Text>

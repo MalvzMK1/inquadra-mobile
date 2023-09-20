@@ -28,7 +28,7 @@ export interface IUpdateUserVariables {
     user_id: string
     username: string
     email: string
-    phone_number: string
+    phoneNumber: string
     cpf: string
     cvv?: number
     dueDate?: string

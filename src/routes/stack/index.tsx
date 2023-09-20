@@ -332,19 +332,19 @@ export default function () {
                 options={({ route: { params } }) => ({
                     headerTintColor: 'white',
                     headerStyle: {
-                        height: 105,
+                        height: 100,
                         backgroundColor: '#292929',
                     },
                     headerTitle: () => (
                         <TextInput
                             theme={{ colors: { placeholder: '#e9e9e9' } }}
                             placeholder="O que você está procurando?"
-                            className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                            className="bg-white rounded-2xl w-full flex items-center justify-center h-[40px] placeholder:text-[#e9e9e9] text-sm outline-none"
                             right={<TextInput.Icon icon={'magnify'} />}
                         />
                     ),
                     headerRight: () => (
-                        <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+                        <TouchableOpacity className="w-10 h-10 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
                             navigation.navigate('ProfileSettings', {
                                 userPhoto: params.userPhoto,
                                 userID: params.userID
@@ -447,6 +447,14 @@ export default function () {
             <Screen
                 name="RegisterPassword"
                 component={Password}
+                options={{
+                    title: "",
+                    headerLeft: () => (
+                        <TouchableOpacity className='ml-1' onPress={() => navigation.goBack()}>
+                            <Icon name="arrow-back" size={25} color="black" />
+                        </TouchableOpacity>
+                    )
+                }}
             />
             <Screen
                 name="DeleteAccountSuccess"
