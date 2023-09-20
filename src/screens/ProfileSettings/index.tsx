@@ -180,7 +180,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         //         console.log('err:', err);
         //         setIsProcessingText(false);
         //     });
-    }, []);
+    // }, []);
 
     const findCardNumberInArray: (arr: string[]) => string = arr => {
         let creditCardNumber = '';
@@ -282,7 +282,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
     const [photo, setPhoto] = useState('')
 
-    useFocusEffect(() => { setPhoto(data?.usersPermissionsUser?.data?.attributes?.photo.data.attributes.url!) })
+    useFocusEffect(() => { setPhoto(data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!) })
 
     const handleProfilePictureUpload = async () => {
         try {
@@ -358,10 +358,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             console.error('Erro: data.photo não está definido ou não tem a propriedade id');
             return;
         }
-                        username: data.name,
-                        photo: uploadedImageID, // Adiciona o ID da imagem aqui
-                    },
-                });
 
         if (!userInfos) {
             console.error('Erro: userInfos não está definido');
