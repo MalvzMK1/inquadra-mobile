@@ -30,7 +30,7 @@ import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import { IconButton } from 'react-native-paper';
 import axios from 'axios';
-import TextRecognition from 'react-native-text-recognition';
+// import TextRecognition from 'react-native-text-recognition';
 
 interface IFormData {
 	photo: string
@@ -141,22 +141,22 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         resolver: zodResolver(paymentCardFormSchema)
     })
 
-    const pickAndRecognize: () => void = useCallback(async () => {
+    // const pickAndRecognize: () => void = useCallback(async () => {
 
-        ImagePicker.openPicker({
-            cropping: false,
-        })
-            .then(async (res: ImageOrVideo) => {
-                setIsProcessingText(true);
-                const result: string[] = await TextRecognition.recognize(res?.path);
-                setIsProcessingText(false);
-                validateCard(result);
-            })
-            .catch(err => {
-                console.log('err:', err);
-                setIsProcessingText(false);
-            });
-    }, []);
+    //     ImagePicker.openPicker({
+    //         cropping: false,
+    //     })
+    //         .then(async (res: ImageOrVideo) => {
+    //             setIsProcessingText(true);
+    //             const result: string[] = await TextRecognition.recognize(res?.path);
+    //             setIsProcessingText(false);
+    //             validateCard(result);
+    //         })
+    //         .catch(err => {
+    //             console.log('err:', err);
+    //             setIsProcessingText(false);
+    //         });
+    // }, []);
 
     // const captureAndRecognize = useCallback(async () => {
     //     try {
