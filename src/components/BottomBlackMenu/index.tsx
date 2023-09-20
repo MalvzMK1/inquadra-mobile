@@ -1,6 +1,6 @@
 import { View, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from "react-native"
 import { AntDesign, MaterialIcons } from "@expo/vector-icons"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -42,6 +42,13 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data))
+
+    useEffect(() => {
+        if(screen === "Home"){
+            setPrincipalButton(false)
+            setShowButtons(true)
+        }
+    }, [])
     
     return (
         <View className={`items-center ${!isDisabled ? "bg-[#292929]" : "transparent"} w-full pt-${paddingTop} pb-1`}>
@@ -68,7 +75,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         <AntDesign name="heart" size={25} color={"white"} />
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => togglePrincipalButton()}>
+                                    <TouchableOpacity>
                                         <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                     </TouchableOpacity>
 
