@@ -1,10 +1,10 @@
 import {MutationTuple, useMutation} from "@apollo/client";
 import {
-	createPixChargeMutation,
-	ICreatePixChargeResponse,
-	ICreatePixChargeVariables
-} from "../graphql/mutations/createPixCharge";
+	createStrapiChargeMutation,
+	ICreateStrapiChargeResponse,
+	ICreateStrapiChargeVariables
+} from "../graphql/mutations/createStrapiCharge";
 
-export function useCreateStrapiPixCharge(): MutationTuple<ICreatePixChargeResponse, ICreatePixChargeVariables> {
-	return useMutation<ICreatePixChargeResponse, ICreatePixChargeVariables>(createPixChargeMutation)
+export function useCreateStrapiPixCharge(): MutationTuple<ICreateStrapiChargeResponse, ICreateStrapiChargeVariables> {
+	return useMutation<ICreateStrapiChargeResponse, ICreateStrapiChargeVariables>(createStrapiChargeMutation);
 }
