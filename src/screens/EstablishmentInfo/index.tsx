@@ -19,14 +19,6 @@ import BottomBlackMenu from '../../components/BottomBlackMenu'
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 
-let userId: string
-
-storage.load({
-    key: 'userInfos'
-}).then(data => {
-    userId = data.userId
-})
-
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
     const { data: establishmentData, loading: establishmentLoading, error: establishmentError } = useGetEstablishmentByCourtId(route.params.establishmentID)
@@ -36,6 +28,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         latitude: 0,
         longitude: 0
     })
+    const [userId, setUserId] = useState<string>();
 
     const [Establishment, setEstablishment] = useState<{
         id: string
@@ -220,6 +213,14 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
 
 
     const {data:dataUser, loading:loadingUser, error:errorUser} = useGetUserById(userId)
+
+    useEffect(() => {
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            setUserId(data.userId)
+        })
+    }, [])
 
     return (
         <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
