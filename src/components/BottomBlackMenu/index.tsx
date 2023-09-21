@@ -18,7 +18,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const [showPrincipalButton, setPrincipalButton] = useState(true)
-    const [showButtons, setShowButtons] = useState(false)
+    const [showButtons, setShowButtons] = useState(true)
     const [statusClickHome, setStatusClickHome] = useState(false)
     const opacityValue = useSharedValue(0)
     const buttonsContainerStyle = useAnimatedStyle(() => {
@@ -27,16 +27,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
         };
     });
 
-    const toogleButton = () => {
-        setShowButtons(!showButtons)
-        setPrincipalButton(false)
-        opacityValue.value = showButtons ? 0 : 1
-    }
 
-    const togglePrincipalButton = () => {
-        setPrincipalButton(true)
-        setShowButtons(false)
-    }
 
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
@@ -51,16 +42,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
     
     return (
         <View className={`items-center ${!isDisabled ? "bg-[#292929]" : "transparent"} w-full pt-${paddingTop} pb-1`}>
-            {
-                showPrincipalButton
-                    ? <TouchableOpacity
-                        className={`flex flex-row items-center justify-center w-[60px] h-[60px] rounded-full overflow-hidden bg-${screen === "Home" && !showButtons ? "bg-[#292929]" : "transparent"} ml-[5px] mr-[5px]`}
-                        onPress={toogleButton}
-                    >
-                        <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
-                    </TouchableOpacity>
-                    : null
-            }
+        
             {
                 showButtons &&
                 (
