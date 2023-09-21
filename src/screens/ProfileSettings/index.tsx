@@ -555,6 +555,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                             value={getValues('cpf')}
                                             onChangeText={onChange}
                                             mask={Masks.BRL_CPF}
+                                            editable={false}
                                             maxLength={14}
                                         />
                                     )}
