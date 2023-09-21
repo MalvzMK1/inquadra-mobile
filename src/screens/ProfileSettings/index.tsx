@@ -148,7 +148,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 setShowCard(false)
             }).catch(error => console.error(error))
         }
-        // setShowCard(false);
     };
 
     const handleDeleteAccount = () => {
