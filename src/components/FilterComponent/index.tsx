@@ -45,11 +45,13 @@ export default function FilterComponent() {
 
     return (
         <>
+      
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 absolute z-10 w-screen h-screen'></Animated.View>
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-full'>
-                <ScrollView className='w-2/3 pt-8'>
+            <ScrollView className=' h-screen w-2/3 pt-4'>
                     <FilterDropdown amenities={amenities} setAmenities={setAmenities} />
                     <FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} />
+                    
                     <View className='flex flex-row justify-between'>
                         <View className='w-[41%]'>
                             <Text className='font-semibold text-white text-base'>
@@ -99,7 +101,7 @@ export default function FilterComponent() {
                             )}
                         </View>
                     </View>
-                    <View className='flex items-center justify-between pt-3 pb-3'>
+                    <View className='flex items-center justify-between pt-3'>
                         <View className='flex flex-row items-center'>
                             <Text className='font-semibold text-white text-base'>Day-Use</Text>
                             <View className='flex flex-row gap-[22px]'>
@@ -125,14 +127,13 @@ export default function FilterComponent() {
                             className='rounded w-full'
                             buttonColor='#FF6112'
                             textColor='white'
-                            style={{ marginTop: 20, marginBottom: 15 }}
+                            style={{ marginTop: 20, marginBottom: 15, paddingBottom:6 }}
                         >
                             <Text className='font-medium text-base'>
                                 Filtrar
                             </Text>
                         </Button>
-                    </View>
-                    <TouchableOpacity className='flex flex-row self-center gap-x-3'
+                        <TouchableOpacity className='flex flex-row self-center gap-x-3'
                         onPress={() => {
                             setTimeInit(new Date(date.setHours(0, 0, 0, 0)))
                             setTimeFinal(new Date(date.setHours(0, 0, 0, 0)))
@@ -142,13 +143,14 @@ export default function FilterComponent() {
                             setDateSelector(`__/__/____`)
                         }}
                     >
-                        <Text className=' font-semibold mb-5 text-white border-white border-b-[0.5px] mt border-solid'>
+                        <Text className='font-semibold mb-5 text-white border-white border-b-[0.5px] mt border-solid'>
                             Limpar Filtros
                         </Text>
                         <Text className='text-white font-semibold'>
                             X
                         </Text>
                     </TouchableOpacity>
+                    </View>
                 </ScrollView>
             </Animated.View>
         </>
