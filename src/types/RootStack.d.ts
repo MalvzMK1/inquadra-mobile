@@ -26,7 +26,8 @@ type RootStackParamList = {
         establishmentName: string | undefined
     };
     InfoProfileEstablishment: {
-        userPhoto: string
+        userPhoto: string,
+        establishmentId: string
     }
     FinancialEstablishment: {
         establishmentId: string | undefined,

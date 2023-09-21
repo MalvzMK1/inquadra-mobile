@@ -337,7 +337,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                     <View className={`absolute bottom-0 left-0 right-0`}>
                         <BottomBlackMenuEstablishment
                             screen="Home"
-                            userID={route?.params.userID}
+                            userID={route?.params.userID ? route?.params.userID : ""}
                             establishmentLogo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url :null}
                             establishmentID={establishment_id}
                             key={1}
