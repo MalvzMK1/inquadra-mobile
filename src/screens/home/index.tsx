@@ -147,7 +147,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     }}
                 >
                     {
-                        establishments.filter(item => { return item.distance <= 5 }).map((item) => (
+                        establishments.filter(item => {return item.distance <= 5 }).filter(item => {
+                            if (sportSelected) {
+                                return item.type.split(" & ").includes(sportSelected)
+                            }else{
+                                return true
+                            }
+                        }).map((item) => (
                             <Marker
                                 coordinate={{
                                     latitude: item.latitude,
