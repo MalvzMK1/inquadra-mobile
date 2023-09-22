@@ -49,6 +49,8 @@ import TermsOfService from '../../screens/Register/termsOfService';
 import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawalScreen';
 import updateSchedule from '../../screens/UpdateSchedule';
 import PaymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
+import ForgotPassword from '../../screens/ForgotPassword'
+import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -817,6 +819,20 @@ export default function () {
                         </TouchableOpacity>
                     ),
                 })}
+            />
+            <Screen
+              name='ForgotPassword'
+              component={ForgotPassword}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Screen
+              name='InsertResetCode'
+              component={InsertResetCode}
+              options={{
+                headerShown: false
+              }}
             />
         </Navigator>
     )
