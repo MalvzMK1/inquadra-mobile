@@ -31,6 +31,7 @@ export default function FilterDropdown(props: { amenities: string[] | null, setA
             labelField={'label'}
             valueField={'label'}
             selectedTextStyle={{ color: "white", textAlign: "center", fontWeight: "600", paddingLeft: 25 }}
+            selectedStyle={{borderColor: "#FF6112"}}
             style={{
                 backgroundColor: "#FF6112",
                 borderRadius: 5,
