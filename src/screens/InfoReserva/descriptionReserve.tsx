@@ -72,11 +72,17 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         data?.scheduling?.data?.attributes?.valuePayed!
 
     interface iFormCardPayment {
-        value: string
-        name: string
-        cpf: string
-        cvv: string
-        date: string
+        value           :       string
+        name            :       string
+        cpf             :       string
+        cvv             :       string
+        date            :       string
+        cep             :       string
+        state           :       string
+        city            :       string
+        number          :       string
+        complement      :       string
+        billingAdress   :       string
     }
 
     interface iFormPixPayment {
@@ -370,7 +376,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <>
                                 <View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
                                     <Text className='absolute z-10 self-center text-white font-bold'>
-                                        R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value!+ serviceRate!}
+                                        R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value! + serviceRate!}
                                     </Text>
                                     {data?.scheduling.data.attributes.valuePayed && data?.scheduling.data.attributes.court_availability.data.attributes.value && (
                                         <ProgressBar
@@ -695,6 +701,98 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             placeholder='Selecione um país'
                                             searchPlaceholder='Pesquisar...'
                                         />
+                                    </View>
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                    <Controller
+                                        name='cep'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: 00000-000'
+                                                value={getValuesPix('value')}
+                                                onChangeText={onChange}
+                                                keyboardType='numeric'>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    {errorsPix.value && <Text className='text-red-400 text-sm'>{errorsPix.value.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Endereço de cobrança</Text>
+                                    <Controller
+                                        name='value'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: R$ 30,00'
+                                                value={getValuesPix('value')}
+                                                onChangeText={onChange}
+                                                mask={Masks.BRL_CURRENCY}
+                                                keyboardType='numeric'>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    {errorsPix.value && <Text className='text-red-400 text-sm'>{errorsPix.value.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Complemento</Text>
+                                    <Controller
+                                        name='value'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: R$ 30,00'
+                                                value={getValuesPix('value')}
+                                                onChangeText={onChange}
+                                                mask={Masks.BRL_CURRENCY}
+                                                keyboardType='numeric'>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    {errorsPix.value && <Text className='text-red-400 text-sm'>{errorsPix.value.message}</Text>}
+                                </View>
+                                <View className='flex flex-row'>
+                                    <View className='flex-1 mr-[20px]'>
+                                        <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                        <Controller
+                                            name='date'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <TextInputMask className='p-3 border border-neutral-400 rounded bg-white'
+                                                    options={{
+                                                        format: 'MM/YY',
+                                                    }}
+                                                    type={'datetime'}
+                                                    value={getValues('date')}
+                                                    onChangeText={onChange}
+                                                    placeholder="MM/YY"
+                                                    keyboardType="numeric"
+                                                />
+                                            )}
+                                        ></Controller>
+                                        {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
+                                    </View>
+                                    <View className='flex-1 ml-[20px]'>
+                                        <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                        <Controller
+                                            name='cvv'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <TextInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='123'
+                                                    onChangeText={onChange}
+                                                    keyboardType='numeric'
+                                                    maxLength={3}>
+                                                </TextInput>
+                                            )}
+                                        ></Controller>
+                                        {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
                                     </View>
                                 </View>
                                 <View>
