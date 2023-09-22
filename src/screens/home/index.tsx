@@ -16,8 +16,6 @@ import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
-import { ScrollView } from 'react-native-gesture-handler';
-import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
@@ -147,7 +145,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     }}
                 >
                     {
-                        establishments.filter(item => { return item.distance <= 5 }).map((item) => (
+                        establishments.filter(item => {return item.distance <= 5 }).filter(item => {
+                            if (sportSelected) {
+                                return item.type.split(" & ").includes(sportSelected)
+                            }else{
+                                return true
+                            }
+                        }).map((item) => (
                             <Marker
                                 coordinate={{
                                     latitude: item.latitude,

@@ -5,8 +5,8 @@ export default function CourtBalloon(props: CourtCardInfos) {
 	return (
 		<View className='flex flex-col mb-[1.5px] justify-center items-center'>
 			<View style={styles.calloutContainer}>
-				<Text className='h-[70px]'>
-					<Image source={{ uri: props.image }} className="h-[60px] w-28" resizeMode='cover' />
+				<Text className='h-[70px] pl-[6px] self-center w-full rounded-xl overflow-hidden'>
+					<Image source={{ uri: props.image }} className="h-[60px] w-28 rounded-xl" resizeMode='cover' />
 				</Text>
 				<View className='flex flex-col gap-y-[-4px] self-start pl-[6px] mb-2 mt-1' >
 					<Text className='font-black text-[#FF6112] text-[10px]'>{props.name}</Text>
@@ -16,7 +16,8 @@ export default function CourtBalloon(props: CourtCardInfos) {
 			</View>
 			<View style={styles.triangle}></View>
 		</View>
-	)
+	);
+
 }
 
 const styles = StyleSheet.create({

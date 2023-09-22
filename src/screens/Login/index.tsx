@@ -201,7 +201,7 @@ export default function Login() {
                     />
                     {errors.password && <Text className='text-red-400 text-sm'>{errors.password.message}</Text>}
                     <View className='flex items-end pt-4 pb-10'>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
                             <Text className='text-gray-400 text-base'>esqueceu a senha?</Text>
                         </TouchableOpacity>
                     </View>
