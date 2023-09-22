@@ -92,8 +92,6 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 				onHandlerStateChange={(event) => {
 					if (event.nativeEvent.state === GestureState.END) {
 						const targetY = translateY.value;
-						console.log(targetY)
-						console.log(maxHeight)
 						if (targetY * -1 >= expandThreshold) {
 							height.value = withTiming(maxHeight, { duration: 500 });
 							translateY.value = withSpring(-maxHeight - 125 + screenHeight );
@@ -115,7 +113,7 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 				{
 					courts !== undefined ? (
 						courts.filter(item => {
-							return item.distance <= 15
+							return item.distance <= 5
 						}).length > 0 ? (
 							chosenType ? (
 								result.length > 0 ? (courts.filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {

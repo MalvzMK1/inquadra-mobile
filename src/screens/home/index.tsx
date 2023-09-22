@@ -16,8 +16,6 @@ import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
-import { ScrollView } from 'react-native-gesture-handler';
-import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
