@@ -1,11 +1,11 @@
 import {Text, View} from "react-native";
 // import SvgUri from "react-native-svg-uri";
 
-interface InfoCourtCardContentRatingProps {
+interface InfoEstablishmentCardContentRatingProps {
 	rating: number
 }
 
-export function InfoCourtCardContentRating({rating}: InfoCourtCardContentRatingProps) {
+export function InfoEstablishmentCardContentRating({rating}: InfoEstablishmentCardContentRatingProps) {
 	return(
 		<View className='flex flex-row items-center'>
 			<Text className='text-white text-xs font-bold'>Avaliação {rating.toString()}</Text>

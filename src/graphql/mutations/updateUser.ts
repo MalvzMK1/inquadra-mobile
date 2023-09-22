@@ -8,11 +8,11 @@ export interface IUpdateUserResponse {
                 email: User['email']
                 phoneNumber: User['phoneNumber']
                 cpf: User['cpf']
-        photo: {
-          data: {
-            id: Photo['id']
-          }
-        }
+                photo: {
+                    data: {
+                        id: Photo['id']
+                    }
+                }
                 role: {
                     data: {
                         id: Role['id']
@@ -28,9 +28,8 @@ export interface IUpdateUserVariables {
     user_id: string
     username: string
     email: string
-    phone_number: string
+    phoneNumber: string
     cpf: string
-    photo: string
     cvv?: number
     dueDate?: string
     country?: string
@@ -39,6 +38,7 @@ export interface IUpdateUserVariables {
 
 export const updateUserMutation = gql`
 mutation updateUser(
+  $user_id: ID!
     $username: String!
     $email: String!
     $phone_number: String!
@@ -76,54 +76,5 @@ mutation updateUser(
         }
       }
     }
-  }  
-mutation updateUser(
-    $username: String!
-    $email: String!
-    $phone_number: String!
-    $cpf: String!
-    $user_id: ID!
-    $cvv: Int!
-    $dueDate: Date!
-    $country: ID!
-  ) {
-    updateUsersPermissionsUser(
-      id: $user_id
-      data: {
-        username: $username
-        email: $email
-        phoneNumber: $phone_number
-        cpf: $cpf
-      photo: $photo
-        paymentCardInformations: {
-          cvv: $cvv
-          dueDate: $dueDate
-          country: $country
-        }
-      }
-    ) {
-      data {
-        id
-        attributes {
-          username
-          email
-          phoneNumber
-          cpf
-        photo {
-          data {
-            id
-          }
-        }
-          role {
-            data {
-              attributes {
-                name
-              }
-            }
-          }
-        }
-      }
-    }
   }
-  
 `

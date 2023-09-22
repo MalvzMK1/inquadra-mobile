@@ -229,12 +229,12 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
             const create = await createSchedule({
                 variables: {
                     title: 'newnew',
-                    court_availability: parseFloat(courtAvailabilities),
+                    court_availability: parseFloat(courtAvailabilities).toString(),
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    owner: parseFloat(userId),
-                    users: [parseFloat(userId)],
+                    owner: parseFloat(userId).toString(),
+                    users: [parseFloat(userId).toString()],
                     publishedAt: new Date().toISOString()
                 }
             });
@@ -267,13 +267,14 @@ export default function paymentScheduleUpdate({ navigation, route }: NativeStack
     }
 
     const updateScheduleDay = async (isPayed: boolean, activationKey: string | null) => {
+         const paymentStatus:string = isPayed ? "payed" : "waiting"
         try {
             updateSchedule({
                 variables: {
                     availabilityID: courtAvailabilities,
                     newDate: courtAvailabilityDate.split("T")[0],
                     scheduleID: route.params.scheduleUpdateID,
-                    payedStatus: isPayed,
+                    payedStatus: paymentStatus,
                     newValue: userMoney,
                     activationKey: activationKey
                 }

@@ -20,6 +20,10 @@ import useRegisterPixKey from '../../../hooks/useRegisterPixKey';
 import useDeleteUser from '../../../hooks/useDeleteUser';
 import axios from 'axios';
 type DateTime = Date;
+import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
+import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
+import { HOST_API } from "@env";
+
 
 let userId = ""
 
@@ -33,7 +37,7 @@ interface IFormData {
     userName: string
     email: string
     phoneNumber: string
-  userPhoto: string
+    userPhoto: string
 }
 
 const formSchema = z.object({
@@ -215,9 +219,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 user_id: userId,
                 username: userDatas.userName,
                 email: userDatas.email,
-                phone_number: userDatas.phoneNumber,
+                phoneNumber: userDatas.phoneNumber,
                 cpf: cpf!,
-                userPhoto: userDatas.userPhoto
+                photo: userDatas.userPhoto
             }
         }).then(value => {
             alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
@@ -474,6 +478,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             userPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url
         })
     }
+
+
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
     return (
         <View className="flex-1 bg-white h-full">
@@ -986,12 +993,21 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                                     <Text className='text-white font-medium text-[14px]'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
                                 </TouchableOpacity>
                             </View>
-
                         </View>
                     </View>
                 </Modal>
-
+                <View className='h-16'></View>
             </ScrollView>
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Any"
+                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
+                    establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
+                    establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
+                    key={1}
+                    paddingTop={10}
+                />
+            </View>
         </View>
     )
 }

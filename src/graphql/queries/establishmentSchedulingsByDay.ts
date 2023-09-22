@@ -92,54 +92,76 @@ export interface IEstablishmentSchedulingsByDayVariables {
 }
 
 export const establishmentSchedulingsByDayQuery = gql`
-query getFavoritesCourtsById($id: ID) {
-  usersPermissionsUser(id: $id) {
+query getEstablishmentSchedulings(
+  $fantasyName: String
+  $establishmentID: ID
+  $dayWeek: String
+  $date: Date
+) {
+  establishment(id: $establishmentID) {
     data {
+      id
       attributes {
-        favorite_courts {
+        fantasyName
+        corporateName
+        logo {
           data {
-            id
             attributes {
-              court_types(
-                filters: { courts: { favorited_user: { id: { eq: $id } } } }
+              url
+            }
+          }
+        }
+        courts(filters: { fantasy_name: { eq: $fantasyName } }) {
+          data {
+            attributes {
+              fantasy_name
+              court_availabilities(
+                filters: { status: { eq: true }, weekDay: { eq: $dayWeek } }
               ) {
                 data {
+                  id
                   attributes {
-                    name
-                    courts(filters: { favorited_user: { id: { eq: $id } } }) {
+                    startsAt
+                    endsAt
+                    court {
                       data {
                         id
                         attributes {
                           name
-                          fantasy_name
-                          photo {
-                            data {
-                              attributes {
-                                url
-                              }
-                            }
-                          }
-                          establishment {
-                            data {
+                        }
+                      }
+                    }
+                    schedulings(filters: { date: { eq: $date } }) {
+                      data {
                         id
+                        attributes {
+                          date
+                          payedStatus
+                          activated
+                          activationKey
+                          owner {
+                            data {
                               attributes {
-                                address {
-                                  latitude
-                                  longitude
-                                }
+                                username
                               }
                             }
                           }
-                          court_availabilities {
-                                dayUseService
+                          court_availability {
                             data {
                               attributes {
-                                schedulings(
-                                  filters: { owner: { id: { eq: $id } } }
-                                ) {
+                                startsAt
+                                endsAt
+                                dayUseService
+                                court {
                                   data {
                                     attributes {
-                                      date
+                                      court_types {
+                                        data {
+                                          attributes {
+                                            name
+                                          }
+                                        }
+                                      }
                                     }
                                   }
                                 }

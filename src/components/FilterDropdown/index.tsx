@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 
 const data = [
@@ -20,6 +20,14 @@ export default function FilterDropdown(props: { amenities: string[] | null, setA
         setSelectedAmenities(selectedItems);
         props.setAmenities(selectedItems);
     };
+
+    useEffect(() => {
+        if (props.amenities === null)
+            setSelectedAmenities([])
+        else
+            setSelectedAmenities(props.amenities)
+
+    }, [props.amenities])
 
     return (
         <MultiSelect

@@ -13,7 +13,7 @@ import Home from '../../screens/home';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
 import ProfileSettings from '../../screens/ProfileSettings';
-import FavoriteCourts from "../../screens/FavoriteCourts";
+import FavoriteEstablishments from '../../screens/FavoriteEstablishments';
 import InfoReserva from "../../screens/InfoReserva";
 import EstablishmentInfo from '../../screens/EstablishmentInfo';
 import DeleteAccountSuccess from '../../screens/ProfileSettings/client/deleteAccount';
@@ -33,7 +33,7 @@ import RegisterCourt from '../../screens/RegisterCourt';
 import ReservationPaymentSign from '../../screens/ReservationPaymentSign';
 import Schedulings from '../../screens/Schedulings';
 import CancelScheduling from '../../screens/CancelScheduling';
-import { HOST_API } from '@env'
+import { HOST_API } from '@env';
 import AllVeryWell from '../../screens/AllVeryWell';
 import CourtDetails from '../../screens/AllVeryWell/CourtDetails';
 import AmountAvailableWithdrawal from '../../screens/FinancialEstablishment/Client/AmountAvailableWithdrawal';
@@ -56,6 +56,7 @@ const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
     const [menuBurguer, setMenuBurguer] = useState(false)
+
     const [userId, setUserId] = useState<string>();
 
     useEffect(() => {
@@ -333,22 +334,21 @@ export default function () {
                 options={({ route: { params } }) => ({
                     headerTintColor: 'white',
                     headerStyle: {
-                        height: 105,
+                        height: 100,
                         backgroundColor: '#292929',
                     },
                     headerTitle: () => (
                         <TextInput
                             theme={{ colors: { placeholder: '#e9e9e9' } }}
                             placeholder="O que você está procurando?"
-                            className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                            className="bg-white rounded-2xl w-full flex items-center justify-center h-[40px] placeholder:text-[#e9e9e9] text-sm outline-none"
                             right={<TextInput.Icon icon={'magnify'} />}
                         />
                     ),
                     headerRight: () => (
-                        <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            console.log({ params })
+                        <TouchableOpacity className="w-10 h-10 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
                             navigation.navigate('ProfileSettings', {
-                                userPhoto: HOST_API + params.userPhoto,
+                                userPhoto: params.userPhoto,
                                 userID: params.userID
                             })
                         }}>
@@ -449,6 +449,14 @@ export default function () {
             <Screen
                 name="RegisterPassword"
                 component={Password}
+                options={{
+                    title: "",
+                    headerLeft: () => (
+                        <TouchableOpacity className='ml-1' onPress={() => navigation.goBack()}>
+                            <Icon name="arrow-back" size={25} color="black" />
+                        </TouchableOpacity>
+                    )
+                }}
             />
             <Screen
                 name="DeleteAccountSuccess"
@@ -506,8 +514,8 @@ export default function () {
                 }}
             />
             <Screen
-                name="FavoriteCourts"
-                component={FavoriteCourts}
+                name="FavoriteEstablishments"
+                component={FavoriteEstablishments}
                 options={({ route: { params } }) => ({
                     headerTitle: 'Favoritos',
                     headerTitleStyle: {
