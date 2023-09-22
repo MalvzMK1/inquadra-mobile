@@ -55,6 +55,11 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         setSportSelected(nameSport)
     }
 
+    useEffect(() => {
+        if(menuBurguer)
+            setIsDisabled(false)
+    }, [menuBurguer])
+
     useFocusEffect(
         React.useCallback(() => {
             setEstablishments([]);
