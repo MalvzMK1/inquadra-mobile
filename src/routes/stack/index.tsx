@@ -50,6 +50,7 @@ import WithdrawScreen from '../../screens/FinancialEstablishment/Client/Withdraw
 import updateSchedule from '../../screens/UpdateSchedule';
 import paymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
 import ForgotPassword from '../../screens/ForgotPassword'
+import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -794,9 +795,19 @@ export default function () {
                     ),
                 })}
             />
-            <Screen 
-                name='ForgotPassword'
-                component={ForgotPassword}
+            <Screen
+              name='ForgotPassword'
+              component={ForgotPassword}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Screen
+              name='InsertResetCode'
+              component={InsertResetCode}
+              options={{
+                headerShown: false
+              }}
             />
         </Navigator>
     )

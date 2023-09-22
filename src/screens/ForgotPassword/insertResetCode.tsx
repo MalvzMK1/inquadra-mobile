@@ -6,7 +6,7 @@ import {Controller, useForm} from "react-hook-form";
 import {TextInput} from "react-native-paper";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 
-export default function ForgotPassword({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>) {
+export function InsertResetCode({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>) {
 	const [showPassword, setShowPassword] = useState(false);
 
 	const {
@@ -21,17 +21,16 @@ export default function ForgotPassword({navigation, route}: NativeStackScreenPro
 
 	function handleLogin(data: any) {
 		console.log(data)
-		navigation.navigate('InsertResetCode')
 	}
 
 	return (
 		<View className='h-full w-screen bg-white flex justify-center items-center px-3'>
-			<Text className='text-2xl font-bold text-black'>Esqueceu a senha?</Text>
-			<Text className='text-base text-black text-center'>Insira o e-mail para receber o código para mudar a senha</Text>
+			<Text className='text-2xl font-bold text-black'>Código de verificação</Text>
+			<Text className='text-base text-black text-center'>Insira o código de verificação que foi enviado no seu e-mail para recuperação da senha</Text>
 			<View className='my-12 w-full h-fit flex'>
 
 				<Controller
-					name='email'
+					name='code'
 					control={control}
 					render={({field: {onChange}}) => (
 						<TextInput
@@ -40,7 +39,7 @@ export default function ForgotPassword({navigation, route}: NativeStackScreenPro
 							onChangeText={onChange}
 							outlineColor='#DCDCDC'
 							mode='outlined'
-							label={<Text style={{ color: '#DCDCDC' }}>E-mail</Text>}
+							label={<Text style={{ color: '#DCDCDC' }}>Código</Text>}
 							left={
 								<TextInput.Icon
 									icon={'lock-outline'}
