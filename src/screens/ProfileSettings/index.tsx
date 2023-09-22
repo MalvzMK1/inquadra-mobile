@@ -28,9 +28,7 @@ import useDeleteUser from "../../hooks/useDeleteUser";
 import { IconButton } from 'react-native-paper';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
-import ImagePicker2, { ImageOrVideo } from 'react-native-image-crop-picker';
 import { useFocusEffect } from '@react-navigation/native';
-import TextRecognition from 'react-native-text-recognition';
 import { Icon } from 'react-native-elements';
 
 interface IFormData {
