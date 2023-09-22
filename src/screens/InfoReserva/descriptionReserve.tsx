@@ -82,7 +82,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         city            :       string
         number          :       string
         complement      :       string
-        billingAdress   :       string
+        billingAddress  :       string
     }
 
     interface iFormPixPayment {
@@ -712,7 +712,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
                                                 placeholder='Ex: 00000-000'
-                                                value={getValuesPix('value')}
+                                                value={getValues('cep')}
                                                 onChangeText={onChange}
                                                 keyboardType='numeric'>
                                             </MaskInput>
@@ -723,15 +723,14 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 <View>
                                     <Text className='text-sm text-[#FF6112]'>Endereço de cobrança</Text>
                                     <Controller
-                                        name='value'
+                                        name='billingAddress'
                                         control={control}
                                         render={({ field: { onChange } }) => (
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='Ex: R$ 30,00'
-                                                value={getValuesPix('value')}
+                                                placeholder='Rua xxxx Jd. xxxxx'
+                                                value={getValues('billingAddress')}
                                                 onChangeText={onChange}
-                                                mask={Masks.BRL_CURRENCY}
                                                 keyboardType='numeric'>
                                             </MaskInput>
                                         )}
@@ -741,15 +740,14 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 <View>
                                     <Text className='text-sm text-[#FF6112]'>Complemento</Text>
                                     <Controller
-                                        name='value'
+                                        name='complement'
                                         control={control}
                                         render={({ field: { onChange } }) => (
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='Ex: R$ 30,00'
-                                                value={getValuesPix('value')}
+                                                placeholder='Ex: '
+                                                value={getValues('complement')}
                                                 onChangeText={onChange}
-                                                mask={Masks.BRL_CURRENCY}
                                                 keyboardType='numeric'>
                                             </MaskInput>
                                         )}
@@ -760,7 +758,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                     <View className='flex-1 mr-[20px]'>
                                         <Text className='text-sm text-[#FF6112]'>Cidade</Text>
                                         <Controller
-                                            name='date'
+                                            name='city'
                                             control={control}
                                             render={({ field: { onChange } }) => (
                                                 <TextInputMask className='p-3 border border-neutral-400 rounded bg-white'
@@ -768,7 +766,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                         format: 'MM/YY',
                                                     }}
                                                     type={'datetime'}
-                                                    value={getValues('date')}
+                                                    value={getValues('city')}
                                                     onChangeText={onChange}
                                                     placeholder="MM/YY"
                                                     keyboardType="numeric"
@@ -780,12 +778,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                     <View className='flex-1 ml-[20px]'>
                                         <Text className='text-sm text-[#FF6112]'>Estado</Text>
                                         <Controller
-                                            name='cvv'
+                                            name='state'
                                             control={control}
                                             render={({ field: { onChange } }) => (
                                                 <TextInput
                                                     className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='123'
+                                                    placeholder='SP'
                                                     onChangeText={onChange}
                                                     keyboardType='numeric'
                                                     maxLength={3}>
