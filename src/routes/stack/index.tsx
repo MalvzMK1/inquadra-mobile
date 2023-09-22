@@ -49,6 +49,7 @@ import TermsOfService from '../../screens/Register/termsOfService';
 import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawalScreen';
 import updateSchedule from '../../screens/UpdateSchedule';
 import paymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
+import ForgotPassword from '../../screens/ForgotPassword'
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -792,6 +793,10 @@ export default function () {
                         </TouchableOpacity>
                     ),
                 })}
+            />
+            <Screen 
+                name='ForgotPassword'
+                component={ForgotPassword}
             />
         </Navigator>
     )

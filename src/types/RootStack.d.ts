@@ -171,6 +171,5 @@ type RootStackParamList = {
         pricePayed: number
         activationKey: string | null
     }
-
-
+    ForgotPassword: undefined
 }
