@@ -191,6 +191,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
     const [photo, setPhoto] = useState('')
+    const [imageEdited, setImageEdited] = useState(false)
 
     useFocusEffect(() => { setPhoto(data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!)})
 
@@ -209,10 +210,12 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 aspect: [1, 1],
                 quality: 1,
             });
+            
 
             if (!result.canceled) {
                 await uploadImage(result.uri).then((uploadedImageID) => {
                     setProfilePicture(result.uri);
+                    setImageEdited(true)
                     console.log('ID da imagem enviada:', uploadedImageID);
                 });
             }
@@ -242,6 +245,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             const uploadedImageID = response.data[0].id;
 
             console.log('Imagem enviada com sucesso!', response.data);
+            
 
             setIsLoading(false);
 
@@ -273,8 +277,9 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                     },
                 });
 
-
+                console.log(profilePicture)
                 setPhoto(profilePicture)
+                console.log(photo)
             } else {
 
                 const uploadedImageID = await uploadImage(profilePicture!)
@@ -296,6 +301,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             console.error('Erro ao atualizar informações do usuário:', error);
         }
     }
+
 
 
 
@@ -350,9 +356,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     let cpfDefault      = data?.usersPermissionsUser.data?.attributes.cpf!
 
 
-
-
-
     return (
         <View className="flex-1 bg-white h-full">
             <View className=' h-11 w-max  bg-zinc-900'></View>
@@ -379,12 +382,10 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         <ActivityIndicator size='large' color='#F5620F' />
                     </View> :
                     <ScrollView className="flex-grow p-1">
-                        {/*{(console.log({data}))}*/}
-
                         <TouchableOpacity style={{ alignItems: 'center', marginTop: 8 }}>
                             <View style={styles.container}>
                                 {profilePicture ? (
-                                    <Image source={{ uri: HOST_API + profilePicture }} style={styles.profilePicture} />
+                                    <Image source={{ uri: imageEdited ? profilePicture : HOST_API + profilePicture }} style={styles.profilePicture} />
                                 ) : (
                                     <Ionicons name="person-circle-outline" size={100} color="#bbb" />
                                 )}
