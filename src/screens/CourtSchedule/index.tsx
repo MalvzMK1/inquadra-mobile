@@ -1002,19 +1002,18 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         </View>
                     </View>
                 </Modal>
-
-                <View className={`absolute bottom-0 left-0 right-0`}>
-                    <BottomBlackMenuEstablishment
-                        screen="Schedule"
-                        userID={userId ?? ""}
-                        establishmentLogo={route.params.establishmentPhoto!}
-                        establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
-                        key={1}
-                        paddingTop={2}
-                    />
-                </View>
-
             </ScrollView>
+
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Schedule"
+                    userID={userId ?? ""}
+                    establishmentLogo={route.params.establishmentPhoto!}
+                    establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
+                    key={1}
+                    paddingTop={2}
+                />
+            </View>
         </View>
     )
 }
