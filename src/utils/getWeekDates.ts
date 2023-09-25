@@ -29,7 +29,6 @@ export function formatLocaleWeekDayName(weekDays: Array<FormatedWeekDates>): Arr
 
         let formattedWord: string;
         words.forEach(word => {
-            console.log(word)
             if (formattedWord)
                 formattedWord = formattedWord + '-' + word.charAt(0).toUpperCase() + word.slice(1)
             else

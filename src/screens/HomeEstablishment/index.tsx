@@ -36,13 +36,13 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     const dayOfWeek = format(targetDate, 'EEEE');
 
     const { data: dataEstablishmentId, error: errorEstablishmentId, loading: loadingEstablishmentId } = useGetUserEstablishmentInfos(userId!)
-    const establishment_id = '5'
+    const establishment_id = dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.establishment?.data?.id!
     const [fantasy_name, setFantasyName] = useState('')
     const day_week = dayOfWeek
     const date = format(actualDate, dateFormat);
 
     const { data: dataSchedulings, error: errorSchedulings, loading: loadingSchedulings } = useEstablishmentSchedulingsByDay(establishment_id!, fantasy_name, day_week, date)
-    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id)
+    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id!)
     const [updateActivatedStatus, { data: dataActivateStatus, error: errorActivateStatus, loading: loadingActivateStatus }] = useUpdateScheduleActivateStatus()
 
     const [selectedDate, setSelectedDate] = useState('');

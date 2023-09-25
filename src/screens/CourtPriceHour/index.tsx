@@ -6,12 +6,13 @@ import SetCourtAvailibility from '../../components/SetCourtAvailibility';
 import {formatLocaleWeekDayName, getWeekDays} from "../../utils/getWeekDates";
 import {addDays} from "date-fns";
 import {ComponentProvider} from "../../context/ComponentContext";
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 interface DayAvailability {
   dayUse: boolean
 }
 
-export default function CourtPriceHour() {
+export default function CourtPriceHour({navigation, route}: NativeStackScreenProps<RootStackParamList, 'CourtPriceHour'>) {
   const weekDays = getWeekDays(new Date())
   weekDays.push({
     dayName: 'Special Day',

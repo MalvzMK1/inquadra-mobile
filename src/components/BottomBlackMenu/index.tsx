@@ -90,7 +90,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         ?
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity>
+                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteEstablishments', { userPhoto: userPhoto ?? "", userID: userID })}>
                                                 <AntDesign name="heart" size={25} color={"white"} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => navigation.navigate('Home', {

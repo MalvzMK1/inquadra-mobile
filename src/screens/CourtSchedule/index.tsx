@@ -69,8 +69,8 @@ const blockScheduleByTimeFormSchema = z.object({
 })
 
 export default function CourtSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
-    const [userId, setUserId] = useState<string>()
-    const [establishmentId, setEstablishmentId] = useState<string>()
+    const [userId, setUserId] = useState<string>(route.params.userId)
+    const [establishmentId, setEstablishmentId] = useState<string>(route.params.establishmentId)
 
     const [showCalendar, setShowCalendar] = useState(false)
     const [dateSelected, setDateSelected] = useState<Date>(new Date())
@@ -95,7 +95,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
     const { data: courtsByEstablishmentIdData, error: courtsByEstablishmentIdError, loading: courtsByEstablishmentIdLoading } = useCourtsByEstablishmentId(establishmentId!)
     // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
-    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(establishmentId!)
+    const { data: schedulesData, error: schedulesError, loading: schedulesLoading } = useAllEstablishmentSchedules(route.params.establishmentId!)
     const [blockSchedule, { data: blockScheduleData, error: blockScheduleError, loading: blockScheduleLoading }] = useBlockSchedule()
     const [blockScheduleByHour, { data: blockScheduleByHourData, error: blockScheduleByHourError, loading: blockScheduleByHourLoading }] = useBlockScheduleByHour()
 
@@ -456,6 +456,8 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         }
 
     }
+
+
 
     const [startHour, setStartHour] = useState("")
     const [endHour, setEndHour] = useState("")
@@ -1002,19 +1004,18 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         </View>
                     </View>
                 </Modal>
-
-                <View className={`absolute bottom-0 left-0 right-0`}>
-                    <BottomBlackMenuEstablishment
-                        screen="Schedule"
-                        userID={userId ?? ""}
-                        establishmentLogo={route.params.establishmentPhoto!}
-                        establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
-                        key={1}
-                        paddingTop={2}
-                    />
-                </View>
-
             </ScrollView>
+
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenuEstablishment
+                    screen="Schedule"
+                    userID={userId ?? ""}
+                    establishmentLogo={route.params.establishmentPhoto!}
+                    establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
+                    key={1}
+                    paddingTop={2}
+                />
+            </View>
         </View>
     )
 }
