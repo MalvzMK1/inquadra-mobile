@@ -10,7 +10,9 @@ type RootStackParamList = {
     };
     CompletedEstablishmentRegistration: undefined;
     CourtSchedule: {
-        establishmentPhoto: string | undefined
+        establishmentPhoto: string | undefined,
+        establishmentId: string,
+        userId: string
     };
     AmountAvailableWithdrawal: {
         establishmentId: string,
@@ -26,7 +28,8 @@ type RootStackParamList = {
         establishmentName: string | undefined
     };
     InfoProfileEstablishment: {
-        userPhoto: string
+        userPhoto: string,
+        establishmentId: string
     }
     FinancialEstablishment: {
         establishmentId: string | undefined,
@@ -171,5 +174,10 @@ type RootStackParamList = {
         pricePayed: number
         activationKey: string | null
     }
-
+    ForgotPassword: undefined
+    InsertResetCode: {
+        email: string
+        username: string
+        id: string
+    }
 }

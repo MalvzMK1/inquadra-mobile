@@ -16,7 +16,6 @@ import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
-import { ScrollView } from 'react-native-gesture-handler';
 import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
@@ -56,6 +55,11 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
     const HandleSportSelected = (nameSport: string) => {
         setSportSelected(nameSport)
     }
+
+    useEffect(() => {
+        if(menuBurguer)
+            setIsDisabled(false)
+    }, [menuBurguer])
 
     useFocusEffect(
         React.useCallback(() => {
@@ -147,7 +151,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     }}
                 >
                     {
-                        establishments.filter(item => { return item.distance <= 5 }).map((item) => (
+                        establishments.filter(item => {return item.distance <= 5 }).filter(item => {
+                            if (sportSelected) {
+                                return item.type.split(" & ").includes(sportSelected)
+                            }else{
+                                return true
+                            }
+                        }).map((item) => (
                             <Marker
                                 coordinate={{
                                     latitude: item.latitude,
@@ -157,7 +167,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                 title={item.name}
                                 description={item.name}
                             >
-                                <Callout tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
+                                <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
                                     establishmentID: item.id,
                                     userPhoto: undefined
                                 })}>
@@ -192,21 +202,19 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     HandleSportSelected={HandleSportSelected}
                 />
             }
-            {
-                userHookData &&
-                <View className={`absolute bottom-0 left-0 right-0`}>
-                    <BottomNavigationBar
-                        userID={route?.params?.userID}
-                        userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-                        key={1}
-                        isDisabled={isDisabled}
-                        playerScreen={true}
-                        establishmentID={undefined}
-                        establishmentScreen={false}
-                        logo={undefined}
-                    />
-                </View>
-            }
+          {
+				userHookData &&
+				<View className={`absolute bottom-0 left-0 right-0`}>
+					<BottomBlackMenu
+						screen="Home"
+						userID={route?.params?.userID}
+						userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+						key={1}
+						isDisabled={!isDisabled}
+						paddingTop={2}
+					/>
+				</View>
+			}
         </View>
     );
 }

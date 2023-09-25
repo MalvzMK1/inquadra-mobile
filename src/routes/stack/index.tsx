@@ -48,20 +48,29 @@ import CourtSchedule from '../../screens/CourtSchedule';
 import TermsOfService from '../../screens/Register/termsOfService';
 import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawalScreen';
 import updateSchedule from '../../screens/UpdateSchedule';
-import paymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
+import PaymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
+import ForgotPassword from '../../screens/ForgotPassword'
+import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
     const [menuBurguer, setMenuBurguer] = useState(false)
-
     const [userId, setUserId] = useState<string>();
+    const [userGeolocation ,setUserGeolocation] = useState<{ latitude: number, longitude: number }>({
+        latitude: 0, 
+        longitude: 0
+    })
 
     useEffect(() => {
         storage.load<UserInfos>({
             key: 'userInfos',
         }).then(response => setUserId(response.userId))
+        storage.load<{ latitude: number, longitude: number }>({
+            key: 'userGeolocation'
+        }).then(data => setUserGeolocation(data))
     }, [])
+
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
@@ -315,7 +324,7 @@ export default function () {
             />
             <Screen
                 name='PaymentScheduleUpdate'
-                component={paymentScheduleUpdate}
+                component={PaymentScheduleUpdate}
                 options={{
                     headerShown: false
                 }}
@@ -546,27 +555,9 @@ export default function () {
             <Screen
                 name="ProfileSettings"
                 component={ProfileSettings}
-                options={({ route: { params } }) => ({
-                    headerTintColor: 'white',
-                    headerStyle: {
-                        height: 100,
-                        backgroundColor: '#292929',
-                    },
-                    headerTitleAlign: 'center',
-                    headerTitle: () => (
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{ color: 'white', fontSize: 18, fontWeight: '900' }}>PERFIL</Text>
-                        </View>
-                    ),
-                    headerRight: () => (
-                        <TouchableOpacity className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'>
-                            <Image
-                                source={params?.userPhoto ? { uri: params.userPhoto } : require('../../assets/default-user-image.png')}
-                                className='w-full h-full'
-                            />
-                        </TouchableOpacity>
-                    ),
-                })}
+                options={{
+                    headerShown: false
+                }}
             />
             <Screen
                 name="EstablishmentInfo"
@@ -800,6 +791,20 @@ export default function () {
                         </TouchableOpacity>
                     ),
                 })}
+            />
+            <Screen
+              name='ForgotPassword'
+              component={ForgotPassword}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Screen
+              name='InsertResetCode'
+              component={InsertResetCode}
+              options={{
+                headerShown: false
+              }}
             />
         </Navigator>
     )

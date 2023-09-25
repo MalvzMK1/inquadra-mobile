@@ -7,7 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useCreateCharge} from "../../services/inter";
+import {useCreateCharge, usePixInfosByTxid} from "../../services/inter";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
@@ -26,6 +26,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
     const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
+    const {} = usePixInfosByTxid()
     const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
     const [createStrapiCharge, { data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError }] = useCreateStrapiPixCharge();
 
@@ -143,7 +144,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => console.log(pixInfos?.txid)}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>

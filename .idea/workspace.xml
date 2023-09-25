@@ -5,8 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/graphql/queries/userByEmail.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Pix/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Pix/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/forgotPassword.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/forgotPassword.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/useForgotPassword.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/useForgotPassword.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ForgotPassword/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ForgotPassword/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ForgotPassword/insertResetCode.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ForgotPassword/insertResetCode.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,8 +44,16 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI564T720" />
+                    <option name="lastUsedInstant" value="1695635180" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1695392354" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI564T674" />
-                    <option name="lastUsedInstant" value="1695204844" />
+                    <option name="lastUsedInstant" value="1695291817" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI564T673" />
@@ -47,14 +62,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI564T619" />
                     <option name="lastUsedInstant" value="1692965401" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T664" />
-                    <option name="lastUsedInstant" value="1692963930" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1692963822" />
                   </RecentBranch>
                 </list>
               </option>
@@ -84,7 +91,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "WI564T674",
+    "git-widget-placeholder": "WI564T720",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -130,6 +137,7 @@
       <workItem from="1692870011698" duration="12622000" />
       <workItem from="1692956607803" duration="12267000" />
       <workItem from="1695204726799" duration="7505000" />
+      <workItem from="1695291162214" duration="3712000" />
     </task>
     <servers />
   </component>

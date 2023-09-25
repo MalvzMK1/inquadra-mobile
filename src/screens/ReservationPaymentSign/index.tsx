@@ -192,6 +192,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
             updateStatusDisponibleCourt();
             handleSaveCard();
+            navigation.navigate('InfoReserva', {userId: userId})
         } catch (error) {
 
             console.error("Erro ao criar o agendamento:", error);
