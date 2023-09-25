@@ -24,14 +24,15 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 	let viewContent = null
 
 	if (props.playerScreen) {
-		viewContent = <View className='className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}'>
+		viewContent = <View className={`h-24 bg-${props.isDisabled ? "[#292929]" : "transparent"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
 			{
 				showButtons && (
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('ProfileSettings', {
-								userPhoto: undefined
+								userPhoto: undefined,
+								userID: props.userID
 							})}>
 							<Image
 								source={require('../../assets/settings_black_icon.png')}
@@ -39,8 +40,9 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('FavoriteCourts', {
-								userPhoto: undefined
+							onPress={() => navigation.navigate('FavoriteEstablishments', {
+								userPhoto:undefined,
+								userID: props?.userID
 							})}>
 							<Image
 								source={require('../../assets/black_heart.png')}
@@ -62,14 +64,14 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							>
+						>
 							<Image
 								source={require('../../assets/house_black_icon.png')}
 							/>
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('InfoReserva')}>
+							onPress={() => navigation.navigate('InfoReserva', { userId: props.userID })}>
 							<Image
 								source={require('../../assets/calendar_black_icon.png')}
 							/>
@@ -79,61 +81,72 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 			}
 		</View>
 	} else {
-		viewContent = <View className='className={`h-24 bg-${props.isDisabled ? "transparent" : "[#292929]"} w-full flex flex-row items-center justify-center gap-y-[5px]`}'>
+		viewContent = <View className={`fixed h-24 ${props.isDisabled ? "bg-transparent" : "bg-transparent"} w-full flex flex-row items-center justify-center gap-y-[5px]`}>
 			{
 				showButtons && (
 					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
+							onPress={() => navigation.navigate('InfoProfileEstablishment', {
+								userPhoto: ''
+							})}>
 							<Image
 								source={require('../../assets/settings_black_icon.png')}
 							/>
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
-							<Image
-								source={require('../../assets/money_safe_icon.png')}
-							/>
-						</TouchableOpacity>
+							onPress={() => {
+								if (props.establishmentID && props.logo) {	
+									navigation.navigate('FinancialEstablishment', {
+										establishmentId: props.establishmentID,
+										logo: props.logo
+									})
+								}
+							}}>
+						<Image
+							source={require('../../assets/money_safe_icon.png')}
+						/>
+					</TouchableOpacity>
 					</Animated.View>
 				)
-			}
-
-			<TouchableOpacity
-				className="flex flex-row items-center justify-center w-[60px] h-[60px] rounded-full overflow-hidden bg-slate-100 ml-[5px] mr-[5px]"
-				onPress={toogleButton}
-			>
-				<Image source={require('../../assets/inquadra_unnamed_logo.png')} />
-			</TouchableOpacity>
-
-			{
-				showButtons && (
-					<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
-						<TouchableOpacity
-							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
-							<Image
-								source={require('../../assets/house_black_icon.png')}
-							/>
-						</TouchableOpacity >
-						<TouchableOpacity
-							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('ChooseUserType')}>
-							<Image
-								source={require('../../assets/calendar_black_icon.png')}
-							/>
-						</TouchableOpacity>
-					</Animated.View>
-				)
-			}
-		</View>
 	}
 
-	return (
-		viewContent
-	)
+	<TouchableOpacity
+		className="flex flex-row items-center justify-center w-[60px] h-[60px] rounded-full overflow-hidden bg-slate-100 ml-[5px] mr-[5px]"
+		onPress={toogleButton}
+	>
+		<Image source={require('../../assets/inquadra_unnamed_logo.png')} />
+	</TouchableOpacity>
+
+	{
+		showButtons && (
+			<Animated.View style={[styles.buttonsContainer, buttonsContainerStyle]}>
+				<TouchableOpacity
+					className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
+				>
+					<Image
+						source={require('../../assets/house_black_icon.png')}
+					/>
+				</TouchableOpacity >
+				<TouchableOpacity
+					className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
+					onPress={() => navigation.navigate('CourtSchedule', {
+						establishmentPhoto: undefined
+					})}>
+					<Image
+						source={require('../../assets/calendar_black_icon.png')}
+					/>
+				</TouchableOpacity>
+			</Animated.View>
+		)
+	}
+		</View >
+	}
+
+return (
+	viewContent
+)
 }
 
 const styles = StyleSheet.create({

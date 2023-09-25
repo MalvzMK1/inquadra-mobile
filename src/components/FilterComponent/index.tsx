@@ -12,19 +12,21 @@ import FilterDate from '../FilterDate'
 
 export default function FilterComponent() {
 
-    const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
-    const [amenities, setAmenities] = useState(null)
+    const date = new Date()
+
+    const [dateSelector, setDateSelector] = useState(`__/__/____`)
+    const [amenities, setAmenities] = useState<Array<string> | null>(null)
     const [dayUseYes, setDayUseYes] = useState(false)
-    const [dayUseNot, setDayUseNot] = useState(false)
-    const [timeFinal, setTimeFinal] = useState(new Date())
+    const [dayUseNot, setDayUseNot] = useState(true)
+    const [timeFinal, setTimeFinal] = useState(new Date(date.setHours(0, 0, 0, 0)))
     const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
-    const [timeInit, setTimeInit] = useState(new Date())
+    const [timeInit, setTimeInit] = useState(new Date(date.setHours(0, 0, 0, 0)))
     const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
 
     const handleTimeInitPicker = () => {
         setShowTimeInitPicker(true)
     }
-    const handleTimeInitChange = (event: object, selectedTime) => {
+    const handleTimeInitChange = (event: object, selectedTime: any) => {
         setShowTimeInitPicker(false)
         if (selectedTime) {
             setTimeInit(selectedTime)
@@ -33,7 +35,7 @@ export default function FilterComponent() {
     const handleTimeFinalPicker = () => {
         setShowTimeFinalPicker(true)
     }
-    const handleTimeFinalChange = (event: object, selectedTime) => {
+    const handleTimeFinalChange = (event: object, selectedTime: any) => {
         setShowTimeFinalPicker(false)
         if (selectedTime) {
             setTimeFinal(selectedTime)
@@ -41,18 +43,18 @@ export default function FilterComponent() {
     }
 
 
-
     return (
         <>
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 absolute z-10 w-screen h-screen'></Animated.View>
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-full'>
-                <ScrollView className='w-2/3 pt-3'>
+            <ScrollView className=' h-screen w-2/3 pt-4'>
                     <FilterDropdown amenities={amenities} setAmenities={setAmenities} />
-                    <FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector}/>
+                    <FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} />
+                    
                     <View className='flex flex-row justify-between'>
                         <View className='w-[41%]'>
                             <Text className='font-semibold text-white text-base'>
-                                Horário de Início
+                                Início
                             </Text>
                             <Button
                                 className='rounded'
@@ -76,7 +78,7 @@ export default function FilterComponent() {
                         </View>
                         <View className='w-[41%]'>
                             <Text className='font-semibold text-white text-base'>
-                                Horário Final
+                                Final
                             </Text>
                             <Button
                                 className='rounded w-full'
@@ -89,7 +91,7 @@ export default function FilterComponent() {
                                     {`${String(timeFinal.getHours()).padStart(2, '0')}:${String(timeFinal.getMinutes()).padStart(2, '0')}`}
                                 </Text>
                             </Button>
-                            {showTimeFinalPicker && ( 
+                            {showTimeFinalPicker && (
                                 <DateTimePicker
                                     value={timeFinal}
                                     mode="time"
@@ -98,50 +100,56 @@ export default function FilterComponent() {
                             )}
                         </View>
                     </View>
-                    <View className='items-center pt-3'>
-                        <Text className='font-semibold text-white text-base'>Day-Use?</Text>
-                        <View className='flex flex-row gap-[22px]'>
-                            <View className='flex flex-row items-center'>
-                                <Checkbox uncheckedColor='#FF6112' color='#FF6112' status={dayUseYes ? "checked" : "unchecked"} onPress={() => setDayUseYes((prevState) => !prevState)} />
-                                <Text className='text-white'>
-                                    Sim
-                                </Text>
-                            </View>
-                            <View className='flex flex-row items-center'>
-                                <Checkbox uncheckedColor='#FF6112' color='#FF6112' status={dayUseNot ? "checked" : "unchecked"} onPress={() => setDayUseNot((prevState) => !prevState)} />
-                                <Text className='text-white'>
-                                    Não
-                                </Text>
+                    <View className='flex items-center justify-between pt-3'>
+                        <View className='flex flex-row items-center'>
+                            <Text className='font-semibold text-white text-base'>Day-Use</Text>
+                            <View className='flex flex-row gap-[22px]'>
+                                <View className='flex flex-row items-center'>
+                                    <Checkbox
+                                        uncheckedColor='#FF6112'
+                                        color='#FF6112'
+                                        status={dayUseYes ? "checked" : "unchecked"}
+                                        onPress={() => {
+                                            if (dayUseYes) {
+                                                setDayUseYes(false);
+                                                setDayUseNot(true);
+                                            } else {
+                                                setDayUseYes(true);
+                                                setDayUseNot(false);
+                                            }
+                                        }}
+                                    />
+                                </View>
                             </View>
                         </View>
-                    </View>
-                    <Button
-                        className='rounded'
-                        buttonColor='#FF6112'
-                        textColor='white'
-                        style={{ marginTop: 20, marginBottom: 15 }}
-                    >
-                        <Text className='font-medium text-base'>
-                            Filtrar
-                        </Text>
-                    </Button>
-                    <TouchableOpacity className='flex flex-row self-center gap-x-3'
+                        <Button
+                            className='rounded w-full'
+                            buttonColor='#FF6112'
+                            textColor='white'
+                            style={{ marginTop: 15, marginBottom: 10 }}
+                        >
+                            <Text className='font-medium text-base'>
+                                Filtrar
+                            </Text>
+                        </Button>
+                        <TouchableOpacity className='flex flex-row self-center gap-x-3'
                         onPress={() => {
-                            setTimeInit(new Date)
-                            setTimeFinal(new Date)
+                            setTimeInit(new Date(date.setHours(0, 0, 0, 0)))
+                            setTimeFinal(new Date(date.setHours(0, 0, 0, 0)))
                             setDayUseYes(false)
                             setDayUseNot(false)
-                            setAmenities(null)
-                            setDateSelector(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
+                            setAmenities([])
+                            setDateSelector(`__/__/____`)
                         }}
                     >
-                        <Text className=' font-semibold mb-5 text-white border-white border-b-[0.5px] mt border-solid'>
+                        <Text className='font-semibold text-white border-white border-b-[0.5px] mt border-solid'>
                             Limpar Filtros
                         </Text>
                         <Text className='text-white font-semibold'>
                             X
                         </Text>
                     </TouchableOpacity>
+                    </View>
                 </ScrollView>
             </Animated.View>
         </>

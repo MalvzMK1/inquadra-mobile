@@ -1,4 +1,5 @@
-import { Dropdown } from 'react-native-element-dropdown';
+import { useEffect, useState } from 'react';
+import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 
 const data = [
     { label: 'Vestuários', value: '1' },
@@ -11,17 +12,34 @@ const data = [
     { label: 'Quadras cobertas', value: '8' },
 ];
 
-export default function FilterDropdown(props:{amenities: string | null, setAmenities: any}) {
+export default function FilterDropdown(props: { amenities: string[] | null, setAmenities: any }) {
+
+    const [selectedAmenities, setSelectedAmenities] = useState(props.amenities || []);
+
+    const handleAmenitiesChange = (selectedItems: any) => {
+        setSelectedAmenities(selectedItems);
+        props.setAmenities(selectedItems);
+    };
+
+    useEffect(() => {
+        if (props.amenities === null)
+            setSelectedAmenities([])
+        else
+            setSelectedAmenities(props.amenities)
+
+    }, [props.amenities])
 
     return (
-        <Dropdown iconColor='#FFFFFF'
-            value={props.amenities}
+        <MultiSelect
+            iconColor='#FFFFFF'
+            value={selectedAmenities}
             iconStyle={{
                 height: 30,
             }}
             labelField={'label'}
             valueField={'label'}
             selectedTextStyle={{ color: "white", textAlign: "center", fontWeight: "600", paddingLeft: 25 }}
+            selectedStyle={{borderColor: "#FF6112"}}
             style={{
                 backgroundColor: "#FF6112",
                 borderRadius: 5,
@@ -37,9 +55,7 @@ export default function FilterDropdown(props:{amenities: string | null, setAmeni
             }}
             data={data}
             placeholder={"Amenidades"}
-            onChange={item => {
-                props.setAmenities(item.label)
-            }}
+            onChange={handleAmenitiesChange}
         />
     )
 }

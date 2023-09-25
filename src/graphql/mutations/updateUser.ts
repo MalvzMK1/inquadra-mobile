@@ -1,13 +1,18 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
-export interface IUpdateUserResponse{
-  updateUsersPermissionsUser:{
+export interface IUpdateUserResponse {
+  updateUsersPermissionsUser: {
     data: {
       attributes: {
         username: User['username']
         email: User['email']
         phoneNumber: User['phoneNumber']
         cpf: User['cpf']
+        photo: {
+          data: {
+            id: Photo['id']
+          }
+        }
         role: {
           data: {
             id: Role['id']
@@ -19,47 +24,50 @@ export interface IUpdateUserResponse{
   }
 }
 
-export interface IUpdateUserVariables{
-    user_id: string
-    username: string
-    email: string
-    phone_number: string
-    cpf: string
+export interface IUpdateUserVariables {
+  username: string
+  email: string
+  phone_number: string
+  cpf: string
+  user_id: string
+  photo?: string
 }
 
 export const updateUserMutation = gql`
-    mutation updateUser(
-  $username: String!
-  $email: String!
-  $phone_number: String!
-  $cpf: String!
-  $user_id: ID!
-) {
-  updateUsersPermissionsUser(
-    id: $user_id
-    data: {
-      username: $username
-      email: $email
-      phoneNumber: $phone_number
-      cpf: $cpf
-    }
+mutation updateUser(
+    $username: String!
+    $email: String!
+    $phone_number: String!
+    $cpf: String!
+    $user_id: ID!
+    $photo: ID!
   ) {
-    data {
-      id
-      attributes {
-        username
-        email
-        phoneNumber
-        cpf
-        role {
-          data {
-            attributes {
-              name
+    updateUsersPermissionsUser(
+      id: $user_id
+      data: {
+        photo: $photo
+        username: $username
+        email: $email
+        phoneNumber: $phone_number
+        cpf: $cpf
+      }
+    ) {
+      data {
+        id
+        attributes {
+          username
+          email
+          phoneNumber
+          cpf
+          role {
+            data {
+              attributes {
+                name
+              }
             }
           }
         }
       }
     }
   }
-}
 `

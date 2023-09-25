@@ -1,19 +1,21 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
 export interface ICountriesResponse {
-	countries: {
-		data: Array<{
-			id: Country['id']
-			attributes: Omit<Country, 'id' | 'flag'> & {
-				flag: {
-					data: {
-						id: Country['flag']['id'],
-						attributes: Omit<Country['flag'], 'id'>
-					}
-				}
-			}
-		}>
-	}
+    countries: {
+        data: Array<{
+            id: Country['id']
+            attributes: Omit<Country, 'id' | 'flag'> & {
+                name: Country['name']
+                ISOCode: Country['ISOCode']
+                flag: {
+                    data: {
+                        id: Country['flag']['id'],
+                        attributes: Omit<Country['flag'], 'id'>
+                    }
+                }
+            }
+        }>
+    }
 }
 
 export const countriesQuery = gql`

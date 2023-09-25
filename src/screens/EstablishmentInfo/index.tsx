@@ -1,39 +1,46 @@
 import { useState, useEffect } from 'react'
-import { View, Text, Image, Dimensions, ScrollView } from "react-native"
+import { View, Text, Image, Dimensions, ScrollView, Share } from "react-native"
 import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons'
 import { TouchableOpacity } from "react-native-gesture-handler"
 import Carousel from "react-native-snap-carousel"
 import { CourtCard } from "../../components/CourtCardInfo"
 import useGetEstablishmentByCourtId from "../../hooks/useGetEstablishmentByCourtId"
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import getDistanceFromLatLonInKm from '../../utils/distanceCalculator'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useGetFavoriteEstablishmentByUserId from '../../hooks/useGetFavoriteEstablishmentByUserId'
 import useUpdateFavoriteEstablishment from '../../hooks/useUpdateFavoriteEstablishment'
+import { HOST_API } from '@env';
+import storage from '../../utils/storage'
+import { calculateDistance } from "../../utils/calculateDistance";
+import { useFocusEffect } from '@react-navigation/native'
+import React from 'react'
+import { useGetUserById } from '../../hooks/useUserById'
+import BottomBlackMenu from '../../components/BottomBlackMenu'
 
 const SLIDER_WIDTH = Dimensions.get('window').width
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4
 
 export default function EstablishmentInfo({ route }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
     let distance
-    const EstablishmentInfos = useGetEstablishmentByCourtId(route.params?.courtID.toString())
+    const { data: establishmentData, loading: establishmentLoading, error: establishmentError } = useGetEstablishmentByCourtId(route.params.establishmentID)
     const [updateFavoriteEstablishment, { data, loading, error }] = useUpdateFavoriteEstablishment()
     
     const [userLocation, setUserLocation] = useState({
         latitude: 0,
         longitude: 0
     })
+    const [userId, setUserId] = useState<string>();
+
     const [Establishment, setEstablishment] = useState<{
-        id: number
+        id: string
         corporateName: string,
+        cellPhoneNumber: string,
         streetName: string,
         photo: string,
         latitude: number,
         longitude: number,
         photosAmenitie: Array<string>,
-        type: string
+        type?: string
     }>()
-    const [userId, setUserId] = useState<string>()
 
     const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(userId)
 
@@ -44,43 +51,70 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
     const [footerHeartColor, setFooterHeartColor] = useState("white")
 
     const [Court, setCourt] = useState<Array<{
-        id: number,
+        id: string,
         name: string,
         rating: number,
         court_type: string,
-        court_availabilities: boolean | undefined
+        court_availabilities: boolean
         photo: string,
     }>>([])
 
-    useEffect(() => {
-        const infosEstablishment = EstablishmentInfos.data?.court.data.attributes.establishment.data
-        if (!EstablishmentInfos.error && !EstablishmentInfos.loading) {
-            const courts = infosEstablishment.attributes.courts.data.map((court: any) => {
-                return {
-                    id: court.id,
-                    name: court.attributes.name,
-                    rating: court.attributes.rating,
-                    court_type: court.attributes.court_type.data.attributes.name,
-                    court_availabilities: court.attributes.court_availabilities.data[0],
-                    photo: 'http://192.168.15.5:1337' + court.attributes.photo.data[0].attributes.url,
+    useFocusEffect(
+        React.useCallback(() => {
+            setCourt([])
+            setEstablishment(undefined)
+            if (!error && !loading) {
+                if (establishmentData) {
+                    const infosEstablishment = establishmentData.establishment.data
+                    const courts = infosEstablishment.attributes.courts.data.map(court => {
+                        return {
+                            id: court.id,
+                            name: court.attributes.name,
+                            rating: court.attributes.rating ? court.attributes.rating : 0,
+                            court_type: court.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', '),
+                            court_availabilities: court.attributes.court_availabilities.data.length > 0,
+                            photo: HOST_API + court.attributes.photo.data[0].attributes.url,
+                        }
+                    })
+
+
+                    let establishment
+
+
+                    establishment = {
+                        id: infosEstablishment.id,
+                        corporateName: infosEstablishment.attributes.corporateName,
+                        cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
+                        streetName: infosEstablishment.attributes.address.streetName,
+                        latitude: Number(infosEstablishment.attributes.address.latitude),
+                        longitude: Number(infosEstablishment.attributes.address.longitude),
+                        photo: infosEstablishment.attributes.logo.data ? HOST_API + infosEstablishment.attributes.logo.data.attributes.url : "",
+                        photosAmenitie: infosEstablishment.attributes.photos.data.map((photo, index) => {
+                            return HOST_API + photo.attributes.url
+                        }),
+                        type: courts.map(court => court.court_type).join(', ')
+                    }
+
+
+                    setEstablishment(establishment)
+                    if (courts) {
+                        setCourt(prevState => [...prevState, ...courts])
+                    }
                 }
-            })
-            const establishment = {
-                id: infosEstablishment.id,
-                corporateName: infosEstablishment.attributes.corporateName,
-                type: infosEstablishment.attributes.type,
-                streetName: infosEstablishment.attributes.address.streetName,
-                latitude: infosEstablishment.attributes.address.latitude,
-                longitude: infosEstablishment.attributes.address.longitude,
-                photo: 'http://192.168.15.5:1337' + infosEstablishment.attributes.photos.data[0].attributes.url,
-                photosAmenitie: infosEstablishment.attributes.photosAmenitie.data.map((photo: { attributes: { url: string } }) => "http://192.168.15.5:1337" + photo.attributes.url)
             }
-            setEstablishment(establishment)
-            if (courts) {
-                setCourt((prevCourts) => [...prevCourts, ...courts])
-            }
+        }, [establishmentData])
+    )
+
+    const onShare = async () => {
+        try {
+            await Share.share({
+                message:
+                    "Estabelecimento: " + Establishment?.corporateName + ", Telefone: " + Establishment?.cellPhoneNumber
+            });
+        } catch (error: any) {
+            console.log(error.message);
         }
-    }, [EstablishmentInfos.data, EstablishmentInfos.loading])
+    };
 
     useEffect(() => {
 
@@ -91,8 +125,10 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 }
             )
             if (favoriteEstablishmentId) {
+                console.log(favoriteEstablishmentId)
                 setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [...prevFavoriteEstablishmentId, ...favoriteEstablishmentId]);
             }
+
         }
 
     }, [FavoriteEstablishment.error, FavoriteEstablishment.loading]);
@@ -102,65 +138,48 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         setHeart(isFavorite);
     }, [arrayfavoriteEstablishment, Establishment?.id]);
 
-    useEffect(() => {
-        async function fetchData() {
-            await AsyncStorage.getItem("userGeolocation").then((value) => {
-                if (value) {
-                    const geolocationData = JSON.parse(value)
-                    const latitude = geolocationData.rawData.latitude
-                    const longitude = geolocationData.rawData.longitude
-                    setUserLocation({
-                        latitude: latitude,
-                        longitude: longitude
-                    })
-                }
-            })
-            await AsyncStorage.getItem("userInfos").then((value) => {
-                if (value) {
-                   const userID = JSON.parse(value)
-                   setUserId(userID.rawData.userId)
-                }
-            })
-            
-        }
-        fetchData()
-    }, [])
-
     const handlePressFavoriteEstablishment = () => {
+        const isCurrentlyFavorite = arrayfavoriteEstablishment.some(item => item.id === Establishment?.id);
 
-        let newArrayfavoriteEstablishment = [""]
+        let newArrayfavoriteEstablishment = [];
 
-        if (!heart) {
-            newArrayfavoriteEstablishment = arrayfavoriteEstablishment.map((item) => {
-                return item.id
-            })
-            if (Establishment) {
-                newArrayfavoriteEstablishment.push(Establishment?.id.toString())
-            }
+        if (!isCurrentlyFavorite) {
+            newArrayfavoriteEstablishment = [...arrayfavoriteEstablishment, { id: Establishment?.id }];
         } else {
-            const filteredArray = arrayfavoriteEstablishment.filter((item) =>
-                item.id !== Establishment?.id
-            );
-            newArrayfavoriteEstablishment = filteredArray.map((item) => {
-                return item.id
-            })
+            newArrayfavoriteEstablishment = arrayfavoriteEstablishment.filter(item => item.id !== Establishment?.id);
         }
 
-        setHeart((prevState) => !prevState);
+        setArrayFavoriteEstablishment(newArrayfavoriteEstablishment);
 
-        if(userId){   
+        if (userId) {
             updateFavoriteEstablishment({
                 variables: {
                     user_id: userId,
-                    favorite_establishments: newArrayfavoriteEstablishment
+                    favorite_establishments: newArrayfavoriteEstablishment.map(item => item.id.toString())
                 }
-            })
+            });
         }
-
     };
 
+
     if (Establishment) {
-        distance = getDistanceFromLatLonInKm(Establishment?.latitude, Establishment?.longitude, userLocation.latitude, userLocation.longitude)
+        distance = calculateDistance(
+            Establishment?.latitude,
+            Establishment?.longitude,
+            userLocation.latitude,
+            userLocation.longitude
+        ) / 1000
+
+        console.log({
+            result: calculateDistance(
+                Establishment.latitude,
+                Establishment.longitude,
+                userLocation.latitude,
+                userLocation.longitude,
+            ) / 1000,
+            establishment: { lat: Establishment.latitude, long: Establishment.longitude },
+            user: userLocation
+        })
     }
 
     const uniqueCourtTypes = [...new Set(Court.map((court) => court.court_type))];
@@ -186,6 +205,23 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
         calculateRating();
     }, [Court]);
 
+    useEffect(() => {
+        storage.load<{ latitude: string, longitude: string }>({
+            key: 'userGeolocation'
+        }).then(response => setUserLocation({ latitude: Number(response.latitude), longitude: Number(response.longitude) }))
+    }, [])
+
+
+    const {data:dataUser, loading:loadingUser, error:errorUser} = useGetUserById(userId)
+
+    useEffect(() => {
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            setUserId(data.userId)
+        })
+    }, [])
+
     return (
         <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
             <View className="flex flex-col">
@@ -200,11 +236,11 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                                     :
                                     < AntDesign name="heart" size={24} color="red" />
                             }
-                        </TouchableOpacity>
-                        <TouchableOpacity>
+                        </TouchableOpacity >
+                        <TouchableOpacity onPress={onShare}>
                             <Ionicons name="share-social" size={30} color="black" />
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={onShare}>
                             <FontAwesome name="phone" size={30} color="black" />
                         </TouchableOpacity>
                     </View>
@@ -212,7 +248,7 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                 <View className="flex flex-row gap-[25] items-center">
                     <Image className='h-20 w-20' source={{ uri: Establishment?.photo }}></Image>
                     <View>
-                        <Text className="font-bold text-[#717171]">{Establishment?.type.split("_").join(" ")}</Text>
+                        <Text className="font-bold text-[#717171]">{Establishment?.type!.split("_").join(" ")}</Text>
                         <Text className="font-bold text-[#717171]">{distance?.toFixed(1).split(".").join(",")} Km de distância</Text>
                         <Text className="font-bold text-[#717171]">Avaliação: {rating?.toFixed(1).split(".").join(",")} <Ionicons name="star-sharp" size={20} color="orange" /></Text>
                         <Text className="font-bold text-[#717171]">{Establishment?.streetName}</Text>
@@ -242,13 +278,17 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                     />
                 </View>
             </View>
-            <ScrollView>
+            <ScrollView className='pb-10'>
                 {uniqueCourtTypes.map((type) => (
                     <View key={type}>
                         <Text className="text-[18px] leading-[24px] font-black">{type.toUpperCase()}</Text>
                         {Court.filter((court) => court.court_type === type).map((court) => (
+
                             <CourtCard
                                 key={court.id}
+                                id={court.id}
+                                userId={userId}
+                                userPhoto={route.params.userPhoto}
                                 availabilities={court.court_availabilities}
                                 image={court.photo}
                                 name={court.name}
@@ -258,14 +298,19 @@ export default function EstablishmentInfo({ route }: NativeStackScreenProps<Root
                         ))}
                     </View>
                 ))}
+                <View className='h-16'></View>
             </ScrollView>
-            <View className="w-full items-center justify-end">
-                <View className="bg-black h-[75px] w-2/3 rounded-[20px] items-center justify-around flex flex-row">
-                    <AntDesign name="heart" size={20} color={footerHeartColor} onPress={() => footerHeartColor == "white" ? setFooterHeartColor("red") : setFooterHeartColor("white")} />
-                    <Image source={require('../../assets/logo_inquadra_white.png')}></Image>
-                    <Image source={require('../../assets/calendar_icon.png')}></Image>
-                </View>
+            <View className="absolute bottom-0 left-0 right-0 pt-10 pb-10">
+                <BottomBlackMenu
+                  screen={"Any"}
+                  userID={userId}
+                  userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                  key={1}
+                  isDisabled ={true}
+                  paddingTop={2}
+                />
             </View>
+            <View className='h-2'></View>
         </View>
     )
 }

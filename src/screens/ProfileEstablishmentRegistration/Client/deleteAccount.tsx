@@ -2,15 +2,15 @@ import { View, Text, Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {useNavigation} from "@react-navigation/native";
 import { Octicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function DeleteAccountEstablishment() {
-const navigation = useNavigation();
+export default function DeleteAccountEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "DeleteAccountEstablishment">) {
 
-const nameCourt = "Fenix Esportes"
+const nameCourt = route.params.establishmentName
 
 return (
     <View className="h-full flex justify-center items-center">
-    <View className="h-2/4 w-full flex flex-col justify-between items-center">
+    <View className="h-3/4 w-full flex flex-col justify-between items-center">
         <View className="flex flex-col justify-center items-center">
         <Text className="text-3xl font-semibold text-center">Pedido de Exclusão de {nameCourt} em Análise</Text>
         </View>

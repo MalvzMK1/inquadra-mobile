@@ -1,9 +1,5 @@
 import { gql } from "@apollo/client";
-import { Photo } from "../../types/Photo"
-import { Court } from "../../types/Court"
-import { Address } from "../../types/Address";
-import { Establishment } from "../../types/EstablishmentInfos";
-import { CourtCardInfos } from "../../types/Court";
+
 
 export interface IFavoriteByIdResponse {
     usersPermissionsUser: {
@@ -12,8 +8,8 @@ export interface IFavoriteByIdResponse {
             favorite_courts: {
               data: Array<{
                 attributes: {
-                  court_type: {
-                    data: {
+                  court_types: {
+                    data: Array<{
                       attributes: {
                         name: string
                         courts: {
@@ -58,7 +54,7 @@ export interface IFavoriteByIdResponse {
                           }>
                         }
                       }
-                    }
+                    }>
                   }
                 }
               }>
@@ -74,19 +70,20 @@ export interface IFavoriteByIdVariables {
 }
 
 export const favoriteByIdQuery = gql`
- query getFavoriteById($id: ID, $userId: ID) {
+  query getFavoriteById($id: ID) {
   usersPermissionsUser(id: $id) {
     data {
       attributes {
         favorite_courts {
           data {
             attributes {
-              court_type {
+              court_types {
                 data {
                   attributes {
                     name
                     courts {
                       data {
+                        id
                         attributes {
                           name
                           fantasy_name
@@ -109,11 +106,11 @@ export const favoriteByIdQuery = gql`
                               }
                             }
                           }
-                           court_availabilities {
+                          court_availabilities {
                             data {
                               attributes {
                                 schedulings(
-                                  filters: { owner: { id: { eq: $userId } } }
+                                  filters: { owner: { id: { eq: $id } } }
                                 ) {
                                   data {
                                     attributes {

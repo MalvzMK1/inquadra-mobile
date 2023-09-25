@@ -1,62 +1,67 @@
 import { gql } from "@apollo/client";
 
-export interface IinfoScheduleResponse{
-    scheduling: {
-        data: {
+export interface IinfoScheduleResponse {
+  scheduling: {
+    data: {
+      attributes: {
+        date: Scheduling['date']
+        payedStatus: string
+        createdAt: Date
+        serviceRate: number
+        valuePayed: number
+        payDay: Date
+        activationKey: string
+        court_availability: {
+          data: {
             attributes: {
-                createdAt: Date
-                valuePayed: number
-                payDay: Date
-                court_availability: {
-                    data: {
+              value: number
+              court: {
+                data: {
+                  id: Court['id']
+                  attributes: {
+                    fantasy_name: string
+                    name: string
+                    photo: {
+                      data: Array<{
                         attributes: {
-                            value: number
-                            court: {
-                                data: {
-                                    attributes: {
-                                        fantasy_name: string
-                                        name: string
-                                        photo: {
-                                          data: Array<{
-                                            attributes: {
-                                              url: string
-                                            }
-                                          }>
-                                        }
-                                    }
-                                }
-                            }
+                          url: string
                         }
+                      }>
                     }
-                }
-                user_payments : {
-                    data: Array<{
-                        attributes: {
-                            users_permissions_user: {
-                                data: {
-                                    attributes: {
-                                        username: string
-                                    }
-                                }
-                            }
-                            value: number
-                            createdAt: Date
-                        }
-                    }>
-                }
-                owner:{
-                  data: {
-                    id: string
                   }
                 }
+              }
             }
+          }
         }
+        user_payments: {
+          data: Array<{
+            attributes: {
+              users_permissions_user: {
+                data: {
+                  attributes: {
+                    username: string
+                  }
+                }
+              }
+              value: number
+              createdAt: Date
+            }
+          }>
+        }
+        owner: {
+          data: {
+            id: string
+          }
+        }
+      }
     }
+  }
 }
 
-export interface IinfoScheduleVariables{
-    idScheduling: string
-    idUser: string
+export interface IinfoScheduleVariables {
+  idScheduling: string
+  idUser: string
 }
 
 export const infoSchedule = gql`
@@ -64,15 +69,20 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
   scheduling(id: $idScheduling) {
     data {
       attributes {
+        date
+        payedStatus
         createdAt
+        serviceRate
         valuePayed
         payDay
+        activationKey
         court_availability {
           data {
             attributes {
               value
               court {
                 data {
+                  id
                   attributes {
                     fantasy_name
                     name
@@ -115,4 +125,5 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
     }
   }
 }
+
 `
