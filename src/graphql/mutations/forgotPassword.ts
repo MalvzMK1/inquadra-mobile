@@ -1,21 +1,21 @@
 import { gql } from "@apollo/client";
 
 export interface IForgotPasswordResponse {
-    forgotPassword: {
-        ok: boolean
-    }
+	forgotPassword: {
+		ok: boolean
+	}
 }
 
 export interface IForgotPasswordVariables {
-    email: string
+	email: string
 }
 
 export const forgotPasswordMutation = gql`
-mutation forgetPassword($email: String!) {
-  forgotPassword(
-    email: $email
-  ) {
-    ok
-  }
-}
+    mutation forgetPassword($email: String!) {
+        forgotPassword(
+            email: $email
+        ) {
+            ok
+        }
+    }
 `
