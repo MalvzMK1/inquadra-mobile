@@ -10,7 +10,9 @@ type RootStackParamList = {
     };
     CompletedEstablishmentRegistration: undefined;
     CourtSchedule: {
-        establishmentPhoto: string | undefined
+        establishmentPhoto: string | undefined,
+        establishmentId: string,
+        userId: string
     };
     AmountAvailableWithdrawal: {
         establishmentId: string,

@@ -166,7 +166,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                 title={item.name}
                                 description={item.name}
                             >
-                                <Callout tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
+                                <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
                                     establishmentID: item.id,
                                     userPhoto: undefined
                                 })}>

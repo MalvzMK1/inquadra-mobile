@@ -34,7 +34,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
 
     return (
         <View className={`items-center bg-transparent w-full pt-${paddingTop} pb-1`}>
-         
+
             {
                 showButtons &&
                 (
@@ -51,7 +51,11 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                         <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo ?? "" })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
+                                        establishmentPhoto: establishmentLogo ?? "",
+                                        establishmentId: establishmentID,
+                                        userId: userID
+                                    })}>
                                         <MaterialIcons name="calendar-today" color={"white"} size={25} />
                                     </TouchableOpacity>
                                 </>)
@@ -67,7 +71,11 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                             <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo ?? "" })}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
+                                            establishmentPhoto: establishmentLogo ?? "",
+                                            establishmentId: establishmentID,
+                                            userId: userID
+                                        })}>
                                             <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                         </TouchableOpacity>
                                     </>)
@@ -94,7 +102,11 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                             <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "", userID: userID })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: establishmentLogo ?? "" })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
+                                                establishmentPhoto: establishmentLogo ?? "",
+                                                establishmentId: establishmentID,
+                                                userId: userID
+                                            })}>
                                                 <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                             </TouchableOpacity>
                                         </>)
