@@ -152,32 +152,32 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         resolver: zodResolver(paymentCardFormSchema)
     })
 
-    const pickAndRecognize: () => void = useCallback(async () => {
+    // const pickAndRecognize: () => void = useCallback(async () => {
 
-        ImagePicker2.openCamera({
-            cropping: false,
-        }).then(async (res: ImageOrVideo) => {
-            ImagePicker2.openPicker({
-                cropping: false,
-            }).then(async (res: ImageOrVideo) => {
-                setIsProcessingText(true);
-                const result: string[] = await TextRecognition.recognize(res?.path);
-                setIsProcessingText(false);
-                validateCard(result);
-            }).catch(err => {
-                console.log('err:', err);
-                setIsProcessingText(false);
-            });
-            setIsProcessingText(true);
-            const result: string[] = await TextRecognition.recognize(res?.path);
-            setIsProcessingText(false);
-            validateCard(result);
-        })
-            .catch(err => {
-                console.log('err:', err);
-                setIsProcessingText(false);
-            });
-    }, []);
+    //     ImagePicker2.openCamera({
+    //         cropping: false,
+    //     }).then(async (res: ImageOrVideo) => {
+    //         ImagePicker2.openPicker({
+    //             cropping: false,
+    //         }).then(async (res: ImageOrVideo) => {
+    //             setIsProcessingText(true);
+    //             const result: string[] = await TextRecognition.recognize(res?.path);
+    //             setIsProcessingText(false);
+    //             validateCard(result);
+    //         }).catch(err => {
+    //             console.log('err:', err);
+    //             setIsProcessingText(false);
+    //         });
+    //         setIsProcessingText(true);
+    //         const result: string[] = await TextRecognition.recognize(res?.path);
+    //         setIsProcessingText(false);
+    //         validateCard(result);
+    //     })
+    //         .catch(err => {
+    //             console.log('err:', err);
+    //             setIsProcessingText(false);
+    //         });
+    // }, []);
 
     const findCardNumberInArray: (arr: string[]) => string = arr => {
         let creditCardNumber = '';
