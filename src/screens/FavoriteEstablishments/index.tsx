@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { InfosEstablishment } from "../../components/InfosEstablishment";
 import { AntDesign } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
@@ -9,6 +9,7 @@ import storage from '../../utils/storage'
 import { calculateDistance } from "../../utils/calculateDistance";
 import useGetFavoriteEstablishmentsByUserId from "../../hooks/useGetFavoriteEstablishmentsById";
 import useUpdateFavoriteEstablishment from "../../hooks/useUpdateFavoriteEstablishment";
+import BottomBlackMenu from "../../components/BottomBlackMenu";
 interface Colors {
     [key: string]: string;
 }
@@ -99,41 +100,55 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
         }
     }
 
+    const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(USER_ID!)
+
 
     return (
-        <ScrollView className='flex-1 py-4 bg-zinc-600'>
-            {
-                !loading && data?.establishments.data.map(item => (
-                    <InfosEstablishment.Root category={item.attributes.corporateName}>
-                        <InfosEstablishment.Establishment key={item.id} imageUrl={{ uri: HOST_API + item.attributes.photos.data[0].attributes.url, height: 90, width: 138 }}>
-                            <InfosEstablishment.Content>
-                                <InfosEstablishment.ContentHeader establishmentName={item.attributes.corporateName}>
-                                    <AntDesign
-                                        name="heart"
-                                        size={20}
-                                        color={colors[item.id] || "red"}
-                                        onPress={() => handleUpdateEstablishmentLike(item.id)}
-                                    />
-                                </InfosEstablishment.ContentHeader>
+        <View className="flex-1 h-max w-max bg-zing-600">
+            <ScrollView className='flex-1 py-4 bg-zinc-600'>
+                {
+                    !loading && data?.establishments.data.map(item => (
+                        <InfosEstablishment.Root category={item.attributes.corporateName}>
+                            <InfosEstablishment.Establishment key={item.id} imageUrl={{ uri: HOST_API + item.attributes.photos.data[0].attributes.url, height: 90, width: 138 }}>
+                                <InfosEstablishment.Content>
+                                    <InfosEstablishment.ContentHeader establishmentName={item.attributes.corporateName}>
+                                        <AntDesign
+                                            name="heart"
+                                            size={20}
+                                            color={colors[item.id] || "red"}
+                                            onPress={() => handleUpdateEstablishmentLike(item.id)}
+                                        />
+                                    </InfosEstablishment.ContentHeader>
 
-                                <InfosEstablishment.ContentDistance distance={
-                                    (() => {
-                                        const distanceInMeters = calculateDistance(
-                                            userLocation.latitude,
-                                            userLocation.longitude,
-                                            Number(item.attributes.address.latitude),
-                                            Number(item.attributes.address.longitude)
-                                        );
-                                        return distanceInMeters >= 1000
-                                            ? `${(distanceInMeters / 1000).toFixed(1)} km`
-                                            : `${distanceInMeters.toFixed(0)} m`;
-                                    })()
-                                } />
-                            </InfosEstablishment.Content>
-                        </InfosEstablishment.Establishment>
-                    </InfosEstablishment.Root>
-                ))
-            }
-        </ScrollView>
+                                    <InfosEstablishment.ContentDistance distance={
+                                        (() => {
+                                            const distanceInMeters = calculateDistance(
+                                                userLocation.latitude,
+                                                userLocation.longitude,
+                                                Number(item.attributes.address.latitude),
+                                                Number(item.attributes.address.longitude)
+                                            );
+                                            return distanceInMeters >= 1000
+                                                ? `${(distanceInMeters / 1000).toFixed(1)} km`
+                                                : `${distanceInMeters.toFixed(0)} m`;
+                                        })()
+                                    } />
+                                </InfosEstablishment.Content>
+                            </InfosEstablishment.Establishment>
+                        </InfosEstablishment.Root>
+                    ))
+                }
+            </ScrollView>
+            <View className="absolute bottom-0 left-0 right-0">
+				<BottomBlackMenu
+					screen="Favorite"
+					userID={USER_ID!}
+					userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+					key={1}
+					isDisabled={true}
+					paddingTop={2}
+				/>
+			</View>
+        </View>
     )
 }

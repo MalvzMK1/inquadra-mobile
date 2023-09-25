@@ -1,28 +1,51 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {View, Text, Image, ActivityIndicator} from 'react-native';
 import {ScrollView, TouchableOpacity} from "react-native-gesture-handler";
 import storage from "../../utils/storage";
 import {Controller, useForm} from "react-hook-form";
 import {TextInput} from "react-native-paper";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useUserByEmail} from "../../hooks/useUserByEmail";
+
+interface IFormData {
+	email: string;
+}
+
+const formSchema = z.object({
+	email: z.string()
+		.nonempty({message: 'Este campo não pode estar vazio'})
+		.max(256, 'Insira um E-mail válido')
+		.email({message: 'Insira um E-mail válido'})
+})
 
 export default function ForgotPassword({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>) {
-	const [showPassword, setShowPassword] = useState(false);
+	const [email, setEmail] = useState<string>();
+	const {data: userData, loading, error} = useUserByEmail(email ?? '')
 
 	const {
 		control,
 		handleSubmit,
 		formState: {errors}
-	} = useForm();
+	} = useForm<IFormData>({
+		resolver: zodResolver(formSchema)
+	});
 
-	function handleShowPassword() {
-		setShowPassword(!showPassword)
+	function handleLogin(data: IFormData) {
+		setEmail(data.email)
 	}
 
-	function handleLogin(data: any) {
-		console.log(data)
-		navigation.navigate('InsertResetCode')
-	}
+	useEffect(() => {
+		if (userData && userData.usersPermissionsUsers.data.length > 0) {
+			const userInfos = userData.usersPermissionsUsers.data[0];
+			navigation.navigate('InsertResetCode', {
+				id: userInfos.id,
+				username: userInfos.attributes.username,
+				email: userInfos.attributes.email,
+			})
+		}
+	}, [userData])
 
 	return (
 		<View className='h-full w-screen bg-white flex justify-center items-center px-3'>
@@ -58,6 +81,7 @@ export default function ForgotPassword({navigation, route}: NativeStackScreenPro
 						/>
 					)}
 				/>
+				{errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
 			</View>
 			<View className={'w-full'}>
 				<TouchableOpacity

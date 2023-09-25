@@ -175,5 +175,9 @@ type RootStackParamList = {
         activationKey: string | null
     }
     ForgotPassword: undefined
-    InsertResetCode: undefined
+    InsertResetCode: {
+        email: string
+        username: string
+        id: string
+    }
 }

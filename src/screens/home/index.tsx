@@ -16,6 +16,7 @@ import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
@@ -201,21 +202,19 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     HandleSportSelected={HandleSportSelected}
                 />
             }
-            {
-                userHookData &&
-                <View className={`absolute bottom-0 left-0 right-0`}>
-                    <BottomNavigationBar
-                        userID={route?.params?.userID}
-                        userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-                        key={1}
-                        isDisabled={isDisabled}
-                        playerScreen={true}
-                        establishmentID={undefined}
-                        establishmentScreen={false}
-                        logo={undefined}
-                    />
-                </View>
-            }
+          {
+				userHookData &&
+				<View className={`absolute bottom-0 left-0 right-0`}>
+					<BottomBlackMenu
+						screen="Home"
+						userID={route?.params?.userID}
+						userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+						key={1}
+						isDisabled={!isDisabled}
+						paddingTop={2}
+					/>
+				</View>
+			}
         </View>
     );
 }
