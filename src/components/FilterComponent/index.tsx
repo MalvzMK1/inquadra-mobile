@@ -45,7 +45,6 @@ export default function FilterComponent() {
 
     return (
         <>
-      
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 absolute z-10 w-screen h-screen'></Animated.View>
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-full'>
             <ScrollView className=' h-screen w-2/3 pt-4'>
@@ -127,7 +126,7 @@ export default function FilterComponent() {
                             className='rounded w-full'
                             buttonColor='#FF6112'
                             textColor='white'
-                            style={{ marginTop: 20, marginBottom: 15, paddingBottom:6 }}
+                            style={{ marginTop: 15, marginBottom: 10 }}
                         >
                             <Text className='font-medium text-base'>
                                 Filtrar
@@ -143,7 +142,7 @@ export default function FilterComponent() {
                             setDateSelector(`__/__/____`)
                         }}
                     >
-                        <Text className='font-semibold mb-5 text-white border-white border-b-[0.5px] mt border-solid'>
+                        <Text className='font-semibold text-white border-white border-b-[0.5px] mt border-solid'>
                             Limpar Filtros
                         </Text>
                         <Text className='text-white font-semibold'>

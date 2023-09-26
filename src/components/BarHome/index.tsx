@@ -5,8 +5,7 @@ import Animated, {
 	withTiming,
 	FadeOut,
 	FadeIn,
-	withSpring,
-	useAnimatedReaction
+	withSpring
 } from 'react-native-reanimated'
 import { PanGestureHandler, State as GestureState } from 'react-native-gesture-handler'
 import CourtCardHome from '../CourtCardHome'
@@ -38,10 +37,10 @@ interface HomeBarProps {
 
 const screenHeight = Dimensions.get('window').height
 const minHeightPercentage = 45
-const maxHeightPercentage = 100
+const maxHeightPercentage = 85
 const minHeight = (minHeightPercentage / 100) * screenHeight
 const maxHeight = (maxHeightPercentage / 100) * screenHeight
-const expandThreshold = 0.3 * maxHeight
+const expandThreshold = 0.015 * maxHeight
 
 export default function HomeBar({ courts, userName, chosenType, HandleSportSelected }: HomeBarProps) {
 	const translateY = useSharedValue(0)
@@ -59,7 +58,7 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 	})
 
 
-	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
+	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId ?? "")
 
 	let userFavoriteCourts: string[] = []
 
@@ -84,19 +83,17 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 				onGestureEvent={(event) => {
 					const translateYDelta = event.nativeEvent.translationY;
 
-					if (translateYDelta < 0) {
-						translateY.value = translateYDelta + 500;
-						height.value = minHeight - translateYDelta + 500;
+					if (translateYDelta < 0 && translateYDelta > -170) {
+						translateY.value = translateYDelta + 100;
+						height.value = minHeight - translateYDelta + 100;
 					}
 				}}
 				onHandlerStateChange={(event) => {
 					if (event.nativeEvent.state === GestureState.END) {
 						const targetY = translateY.value;
-						console.log(targetY)
-						console.log(expandThreshold)
-						if (targetY >= expandThreshold) {
+						if (targetY * -1 >= expandThreshold) {
 							height.value = withTiming(maxHeight, { duration: 500 });
-							translateY.value = withSpring(-maxHeight + screenHeight + 45);
+							translateY.value = withSpring(-maxHeight - 125 + screenHeight );
 						} else {
 							height.value = withTiming(minHeight, { duration: 500 });
 							translateY.value = withSpring(0);
@@ -118,7 +115,9 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 							return item.distance <= 5
 						}).length > 0 ? (
 							chosenType ? (
-								result.length > 0 ? (courts.filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
+								result.length > 0 ? (courts.filter(item => {
+									return item.distance <= 5
+								}).filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
 									return (
 										<CourtCardHome
 											userId={userId}

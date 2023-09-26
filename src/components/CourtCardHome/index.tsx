@@ -7,26 +7,26 @@ import storage from '../../utils/storage';
 import useUpdateFavoriteCourt from '../../hooks/useUpdateFavoriteCourt';
 import { useGetUserById } from '../../hooks/useUserById';
 
-let userId: string
-
-storage.load({
-	key: 'userInfos'
-}).then(data => {
-	userId = data.userId
-})
-
 export default function CourtCardHome(props: CourtCardInfos) {
+	const [userId, setUserId] = useState("")
+
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
 	const [color, setColor] = useState(props.liked ? "red" : "white")
 
-	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
+	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId ?? "")
 
 	const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>([])
 
 	useEffect(() => {
 		userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(item => {
 			setUserFavoriteCourts([item.id])
+		})
+
+		storage.load<UserInfos>({
+			key: 'userInfos'
+		}).then(data => {
+			setUserId(data.userId)
 		})
 	}, [userByIdData])
 
@@ -95,8 +95,12 @@ export default function CourtCardHome(props: CourtCardInfos) {
 				<AntDesign name="heart" size={20} color={color}
 					onPress={
 						() => {
-							color == "white" ? setColor("red") : setColor("white")
-							handleUpdateCourtLike(props.id)
+									if(userId == "")
+										navigation.navigate("Login")
+									else {
+										color == "white" ? setColor("red") : setColor("white")
+										handleUpdateCourtLike(props.id)
+									}
 						}
 					}
 				/>

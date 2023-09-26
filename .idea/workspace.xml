@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Pix/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Pix/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/inter.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/inter.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ForgotPassword/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ForgotPassword/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ForgotPassword/insertResetCode.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ForgotPassword/insertResetCode.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,6 +19,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -38,6 +40,14 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI564T720" />
+                    <option name="lastUsedInstant" value="1695724100" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1695392354" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI564T674" />
                     <option name="lastUsedInstant" value="1695291817" />
                   </RecentBranch>
@@ -48,14 +58,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI564T619" />
                     <option name="lastUsedInstant" value="1692965401" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T664" />
-                    <option name="lastUsedInstant" value="1692963930" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1692963822" />
                   </RecentBranch>
                 </list>
               </option>
@@ -85,7 +87,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;WI564T674&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;WI564T720&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Development/work/inquadra/mobile&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,

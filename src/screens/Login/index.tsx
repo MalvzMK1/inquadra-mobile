@@ -62,6 +62,14 @@ export default function Login() {
             }
         }
 
+        storage.save({
+            key: 'userInfos',
+            data: {
+                token: "",
+                userId: "",
+            },
+            expires: 1000 * 3600,
+        })
     }, [roleUser, isLoading]);
 
 
@@ -112,7 +120,7 @@ export default function Login() {
                         key: 'userInfos',
                         data: {
                             jwt: undefined,
-                            userId: 8,
+                            userId: 11,
                         },
                         expires: 1000 * 3600
                     }).then(() => {
@@ -201,7 +209,7 @@ export default function Login() {
                     />
                     {errors.password && <Text className='text-red-400 text-sm'>{errors.password.message}</Text>}
                     <View className='flex items-end pt-4 pb-10'>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
                             <Text className='text-gray-400 text-base'>esqueceu a senha?</Text>
                         </TouchableOpacity>
                     </View>
