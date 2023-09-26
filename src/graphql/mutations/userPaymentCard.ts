@@ -42,6 +42,12 @@ mutation newUserPayment(
   $date: Date
   $countryID: ID
   $publishedAt: DateTime
+  $cep: String
+  $state: String
+  $city: String
+  $number: String
+  $complement: String
+  $billingAddress: String
 ) {
   createUserPayment(
     data: {
@@ -50,7 +56,17 @@ mutation newUserPayment(
       users_permissions_user: $userId
       name: $name
       cpf: $cpf
-      card: { cvv: $cvv, dueDate: $date, country: $countryID }
+      card: {
+        cvv: $cvv
+        dueDate: $date
+        country: $countryID
+        cep: $cep
+        state: $state
+        city: $city
+        number: $number
+        complement: $complement
+        billingAddress: $billingAddress
+      }
       publishedAt: $publishedAt
     }
   ) {
@@ -69,5 +85,4 @@ mutation newUserPayment(
     }
   }
 }
-
 `

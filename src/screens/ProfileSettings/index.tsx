@@ -45,6 +45,13 @@ interface IPaymentCardFormData {
     dueDate: string
     cvv: string
     country: string
+    cep: string
+    number: string
+    street: string
+    district: string
+    complement: string
+    city: string
+    state: string
 }
 
 
@@ -658,6 +665,118 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                             </View>
                                         </View>
                                     </View>
+                                    <View className='flex flex-row justify-between'>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                        <Controller
+                                            name='cep'
+                                            control={paymentCardControl}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: 00000-000'
+                                                    onChangeText={onChange}
+                                                    keyboardType='numeric'>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        
+                                    </View>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                        <Controller
+                                            name='number'
+                                            control={paymentCardControl}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: 0000'
+                                                    onChangeText={onChange}
+                                                    keyboardType='numeric'>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        
+                                    </View>
+                                </View>
+
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Rua</Text>
+                                    <Controller
+                                        name='street'
+                                        control={paymentCardControl}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: Rua xxxx'
+                                                onChangeText={onChange}>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Bairro</Text>
+                                    <Controller
+                                        name='district'
+                                        control={paymentCardControl}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: Jd. xxxxx'
+                                                onChangeText={onChange}>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Complemento</Text>
+                                    <Controller
+                                        name='complement'
+                                        control={paymentCardControl}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: '
+                                                onChangeText={onChange}>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                   
+                                </View>
+                                <View className='flex flex-row justify-between'>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                        <Controller
+                                            name='city'
+                                            control={paymentCardControl}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: xxxx'
+                                                    onChangeText={onChange}>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        
+                                    </View>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                        <Controller
+                                            name='state'
+                                            control={paymentCardControl}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: xxxx'
+                                                    onChangeText={onChange}>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        
+                                    </View>
+                                </View>
 
                                     <View className="p-2 justify-center items-center">
                                         <TouchableOpacity onPress={handlePaymentCardSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
