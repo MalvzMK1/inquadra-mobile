@@ -17,6 +17,7 @@ import React from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
+import storage from '../../utils/storage';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
@@ -33,10 +34,15 @@ interface EstablishmentObject {
 }
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
-    const userGeolocation = route.params.userGeolocation;
+    const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+    useEffect(() => {
+        storage.load<{ latitude: number, longitude: number }>({
+            key: 'userGeolocation'
+        }).then(data => setUserGeolocation(data))
+    }, [])
 
     const { data, loading, error } = useEstablishmentCardInformations()
-    const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route.params.userID)
+    const { data: userHookData, loading: userHookLoading, error: userHookError } = useGetUserById(route?.params?.userID)
 
     const [establishments, setEstablishments] = useState<Array<{
         id: string,
@@ -61,33 +67,35 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
             if (!error && !loading) {
                 const newEstablishments = data?.establishments.data
                     .filter(establishment => (
-                        establishment.attributes.photos.data &&
-                        establishment.attributes.photos.data.length > 0 &&
-                        establishment.attributes.courts.data
+                        establishment?.attributes?.photos.data &&
+                        establishment?.attributes?.photos.data.length > 0 &&
+                        establishment?.attributes?.courts.data
                     ))
                     .map((establishment => {
                         let establishmentObject: EstablishmentObject;
 
-                        let courtTypes = establishment.attributes.courts.data!
-                            .filter(court => court.attributes.court_types.data.length > 0)
-                            .map(court => court.attributes.court_types.data)
-                            .map(courtType => courtType.map(type => type.attributes.name))
+                        let courtTypes = establishment?.attributes?.courts.data!
+                            .filter(court => court?.attributes?.court_types.data.length > 0)
+                            .map(court => court?.attributes?.court_types.data)
+                            .map(courtType => courtType.map(type => type?.attributes?.name))
 
                         if (!courtTypes) courtTypes = []
 
-                        establishmentObject = {
-                            id: establishment.id,
-                            name: establishment.attributes.corporateName,
-                            latitude: Number(establishment.attributes.address.latitude),
-                            longitude: Number(establishment.attributes.address.longitude),
-                            distance: calculateDistance(
-                                userGeolocation.latitude,
-                                userGeolocation.longitude,
-                                Number(establishment.attributes.address.latitude),
-                                Number(establishment.attributes.address.longitude)
-                            ) / 1000,
-                            image: HOST_API + establishment?.attributes?.logo?.data?.attributes?.url,
-                            type: courtTypes.length > 0 ? courtTypes.join(' & ') : '',
+                        if (userGeolocation) {
+                            establishmentObject = {
+                                id: establishment.id,
+                                name: establishment?.attributes?.corporateName,
+                                latitude: Number(establishment?.attributes?.address.latitude),
+                                longitude: Number(establishment?.attributes?.address.longitude),
+                                distance: calculateDistance(
+                                    userGeolocation.latitude,
+                                    userGeolocation.longitude,
+                                    Number(establishment?.attributes?.address.latitude),
+                                    Number(establishment?.attributes?.address.longitude)
+                                ) / 1000,
+                                image: HOST_API + establishment?.attributes?.logo?.data?.attributes?.url,
+                                type: courtTypes.length > 0 ? courtTypes.join(' & ') : '',
+                            }
                         }
 
                         return establishmentObject
@@ -98,7 +106,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 }
 
                 navigation.setParams({
-                    userPhoto: userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url
+                    userPhoto: userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ?? ""
                 });
             }
         }, [data, loading, userHookLoading, userHookData, error])
@@ -112,7 +120,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
             const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
 
             if (!sportAlreadyAdded) {
-                newAvailableSportTypes.push({ id: courtType.id, name: courtType.attributes.name });
+                newAvailableSportTypes.push({ id: courtType.id, name: courtType?.attributes?.name });
             }
         });
 
@@ -128,50 +136,53 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
             <View className='flex-1'>
 
-                <MapView
-                    provider={PROVIDER_GOOGLE}
-                    loadingEnabled
-                    className='w-screen h-screen'
-                    onPress={() => setIsDisabled(false)}
-                    customMapStyle={customMapStyle}
-                    showsCompass={false}
-                    initialRegion={{
-                        latitude: userGeolocation.latitude,
-                        longitude: userGeolocation.longitude,
-                        latitudeDelta: 0.004,
-                        longitudeDelta: 0.004,
-                    }}
-                >
-                    {
-                        establishments.map((item) => (
-                            <Marker
-                                coordinate={{
-                                    latitude: item.latitude,
-                                    longitude: item.longitude,
-                                }}
-                                icon={pointerMap}
-                                title={item.name}
-                                description={item.name}
-                            >
-                                <Callout tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
-                                    establishmentID: item.id,
-                                    userPhoto: undefined
-                                })}>
-                                    <CourtBallon
-                                        id={item.id}
-                                        key={item.id}
-                                        name={item.name}
-                                        distance={item.distance}
-                                        image={item.image}
-                                        type={item.type}
-                                        userId={route?.params?.userID}
-                                        liked={true}
-                                    />
-                                </Callout>
-                            </Marker>
-                        ))
-                    }
-                </MapView>
+                {userGeolocation && (
+                    <MapView
+                        provider={PROVIDER_GOOGLE}
+                        loadingEnabled
+                        className='w-screen h-screen'
+                        onPress={() => setIsDisabled(false)}
+                        customMapStyle={customMapStyle}
+                        showsCompass={false}
+                        initialRegion={{
+                            latitude: userGeolocation.latitude,
+                            longitude: userGeolocation.longitude,
+                            latitudeDelta: 0.004,
+                            longitudeDelta: 0.004,
+                        }}
+                    >
+                        {
+                            establishments.map((item) => (
+                                <Marker
+                                    coordinate={{
+                                        latitude: item.latitude,
+                                        longitude: item.longitude,
+                                    }}
+                                    icon={pointerMap}
+                                    title={item.name}
+                                    description={item.name}
+                                >
+                                    <Callout tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
+                                        establishmentID: item.id,
+                                        userPhoto: undefined
+                                    })}>
+                                        <CourtBallon
+                                            id={item.id}
+                                            key={item.id}
+                                            name={item.name}
+                                            distance={item.distance}
+                                            image={item.image}
+                                            type={item.type}
+                                            userId={route?.params?.userID ?? ""}
+                                            liked={true}
+                                        />
+                                    </Callout>
+                                </Marker>
+                            ))
+                        }
+                    </MapView>
+                )}
+
                 {!isDisabled && (
                     <TouchableOpacity className={`absolute left-3 top-3`} onPress={() => setIsDisabled((prevState) => !prevState)}>
                         <AntDesign name="left" size={30} color="black" />

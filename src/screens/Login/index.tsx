@@ -62,6 +62,14 @@ export default function Login() {
             }
         }
 
+        storage.save({
+            key: 'userInfos',
+            data: {
+                token: "",
+                userId: "",
+            },
+            expires: 1000 * 3600,
+        })
     }, [roleUser, isLoading]);
 
 

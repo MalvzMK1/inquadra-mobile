@@ -1,13 +1,11 @@
-import { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Dimensions } from 'react-native'
+import { View, Text, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native'
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
 	withTiming,
 	FadeOut,
 	FadeIn,
-	withSpring,
-	useAnimatedReaction
+	withSpring
 } from 'react-native-reanimated'
 import { PanGestureHandler, State as GestureState } from 'react-native-gesture-handler'
 import CourtCardHome from '../CourtCardHome'
@@ -60,7 +58,7 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 	})
 
 
-	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId)
+	const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(userId ?? "")
 
 	let userFavoriteCourts: string[] = []
 
