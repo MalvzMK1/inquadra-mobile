@@ -1,29 +1,29 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
-export interface IUpdateScheduleValueResponse{
-    updateScheduling: {
-        data: {
-            id: Scheduling['id']
-            attributes: {
-                date: Scheduling['date']
-            }
-        }
+export interface IUpdateScheduleValueResponse {
+  updateScheduling: {
+    data: {
+      id: Scheduling['id']
+      attributes: {
+        date: Scheduling['date']
+      }
     }
+  }
 }
 
-export interface IUpdateScheduleValueVariables{
-    scheduling_id: number
-    value_payed: number
-    payed_status: boolean
-    activation_key: string | null
-    activated: boolean
+export interface IUpdateScheduleValueVariables {
+  scheduling_id: number
+  value_payed: number
+  payed_status: string
+  activation_key: string | null
+  activated: boolean
 }
 
 export const updateScheduleValueMutation = gql`
 mutation updateScheduleValue(
   $value_payed: Float
   $scheduling_id: ID!
-  $payed_status: Boolean
+  $payed_status: ENUM_SCHEDULING_PAYEDSTATUS
   $activation_key: String
   $activated: Boolean
 ) {

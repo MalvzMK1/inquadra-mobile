@@ -4,6 +4,7 @@ import storage from "../utils/storage";
 
 const httpLink = new HttpLink({
 	uri: HOST_API + "/graphql"
+	
 });
 
 let jwt: string = "";
@@ -33,6 +34,7 @@ const authLink = new ApolloLink((operation, forward) => {
 const link = ApolloLink.from([authLink, httpLink]);
 
 export const client = new ApolloClient({
-	link: authLink.concat(link),
+	// link: authLink.concat(link),
+	link: httpLink,
 	cache: new InMemoryCache(),
 });

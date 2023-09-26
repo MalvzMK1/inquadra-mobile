@@ -8,6 +8,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import FilterDate from "../../components/FilterDateCourtAvailability"
 import { useFocusEffect } from "@react-navigation/native"
+import { useGetUserById } from "../../hooks/useUserById"
+import { HOST_API } from '@env';
+
 
 interface ICourtAvailabilityInfoProps extends NativeStackScreenProps<RootStackParamList, 'CourtAvailabilityInfo'> { }
 
@@ -128,6 +131,7 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
         }
     };
 
+	const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(route.params.userId)
     return (
         <SafeAreaView className="flex flex-col justify-between  h-full">
             {isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
@@ -222,10 +226,21 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
                             >
                                 <Text className='text-white'>RESERVAR</Text>
                             </TouchableOpacity>
+
                         </View>
+                        <View className="h-20"></View>
                     </ScrollView>
-                    <BottomBlackMenu screen={""} userID={""} userPhoto={null} />
-                </>
+					<View className="absolute bottom-0 left-0 right-0">
+						<BottomBlackMenu
+							screen="any"
+							userID={route.params.userId}
+							userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+							key={1}
+							isDisabled={true}
+							paddingTop={2}
+						/>
+					</View>
+		</>
             }
         </SafeAreaView>
     )

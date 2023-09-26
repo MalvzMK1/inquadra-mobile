@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import FilterComponent from '../../components/FilterComponent';
-import { View, TouchableOpacity, ActivityIndicator, Text } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Text, Alert } from 'react-native';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { BottomNavigationBar } from '../../components/BottomNavigationBar';
 import HomeBar from '../../components/BarHome';
 import SportsMenu from '../../components/SportsMenu';
 import CourtBallon from '../../components/CourtBalloon';
-import pointerMap from '../../assets/pointerMap.png';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserById } from "../../hooks/useUserById";
 import { HOST_API } from '@env';
@@ -18,6 +17,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSportTypes } from '../../hooks/useSportTypesFixed';
 import customMapStyle from '../../utils/customMapStyle';
 import storage from '../../utils/storage';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'Home'> {
     menuBurguer: boolean;
@@ -35,6 +35,7 @@ interface EstablishmentObject {
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+    const pointerMap = require('../../assets/pointerMap.png');
     useEffect(() => {
         storage.load<{ latitude: number, longitude: number }>({
             key: 'userGeolocation'
@@ -60,6 +61,11 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
     const HandleSportSelected = (nameSport: string) => {
         setSportSelected(nameSport)
     }
+
+    useEffect(() => {
+        if(menuBurguer)
+            setIsDisabled(false)
+    }, [menuBurguer])
 
     useFocusEffect(
         React.useCallback(() => {
@@ -140,10 +146,12 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     <MapView
                         provider={PROVIDER_GOOGLE}
                         loadingEnabled
-                        className='w-screen h-screen'
+                    className='w-screen flex-1'
                         onPress={() => setIsDisabled(false)}
                         customMapStyle={customMapStyle}
                         showsCompass={false}
+                    showsMyLocationButton
+                    showsUserLocation
                         initialRegion={{
                             latitude: userGeolocation.latitude,
                             longitude: userGeolocation.longitude,
@@ -152,7 +160,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         }}
                     >
                         {
-                            establishments.map((item) => (
+                        establishments.filter(item => {return item.distance <= 5 }).filter(item => {
+                            if (sportSelected) {
+                                return item.type.split(" & ").includes(sportSelected)
+                            }else{
+                                return true
+                            }
+                        }).map((item) => (
                                 <Marker
                                     coordinate={{
                                         latitude: item.latitude,
@@ -162,7 +176,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                     title={item.name}
                                     description={item.name}
                                 >
-                                    <Callout tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
+                                <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
                                         establishmentID: item.id,
                                         userPhoto: undefined
                                     })}>
@@ -195,21 +209,23 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 isDisabled && !menuBurguer && <HomeBar
                     chosenType={sportSelected}
                     courts={establishments}
-                    userName={userHookData?.usersPermissionsUser?.data?.attributes?.username ?? ""}
+                    userName={userHookData?.usersPermissionsUser?.data?.attributes?.username}
                     HandleSportSelected={HandleSportSelected}
                 />
             }
-            {
-                userHookData && <BottomNavigationBar
-                    isDisabled={isDisabled}
-                    playerScreen={true}
-                    establishmentScreen={false}
-                    userID={route.params.userID}
-                    userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
-                    establishmentID={undefined}
-                    logo={undefined}
-                />
-            }
+          {
+				userHookData &&
+				<View className={`absolute bottom-0 left-0 right-0`}>
+					<BottomBlackMenu
+						screen="Home"
+						userID={route?.params?.userID}
+						userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+						key={1}
+						isDisabled={!isDisabled}
+						paddingTop={2}
+					/>
+				</View>
+			}
         </View>
     );
 }

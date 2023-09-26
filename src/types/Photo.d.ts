@@ -7,3 +7,4 @@ type Photo = {
 	url: string
 	size: number
 }
+

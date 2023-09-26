@@ -8,6 +8,7 @@ import { HOST_API } from '@env';
 import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack/types';
 import { useGetMenuUser } from '../../hooks/useMenuUser';
 import { useFocusEffect } from '@react-navigation/native';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 function formatDateTime(dateTimeString: string): string {
     try {
@@ -51,7 +52,7 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
 
 
     return (
-        <View className='h-full w-max bg-zinc-600'>
+        <View className='h-full w-max bg-zinc-600 flex-1'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
@@ -74,13 +75,13 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
             </View>
 
             {/* Div maior para carregar todos os itens inseridos do historico*/}
-            <View className='h-max w-max bg-zinc-600'>
-                <ScrollView className='pt-10 h-max w-max'>
+            <ScrollView>
+                <View className='h-max w-max bg-zinc-600 flex-1'>
                     <View className='flex items-start w-max pl-3'>
                         <Text className='text-lg font-black text-white'>RESERVAS ATIVAS</Text>
                     </View>
                     {/* Div para carregar todas as informações do histórico*/}
-                    <View className='w-screen h-screen bg-zinc-900'>
+                    <View className='w-screen h-max bg-zinc-900'>
                         {/* Div para inserção dos cards*/}
                         <View className='w-max h-max px-3'>
                             {
@@ -107,9 +108,9 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                             <View className='w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm'>
                                                                 <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.valuePayed.toString()}</Text>
                                                                 <Text className='font-black text-xs text-white'> / </Text>
-                                                                <Text className='font-black text-xs text-white'>R${courtInfo?.attributes?.court_availability?.data?.attributes?.value.toString()}</Text>
+                                                                <Text className='font-black text-xs text-white'>R${`${Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value!) + Number(courtInfo.attributes.serviceRate!)}`}</Text>
                                                             </View>
-                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((Number(courtInfo?.attributes?.valuePayed) / Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value)) * 100)}</Text>
+                                                            <Text className='font-black text-xs text-white pl-1'>%{Math.floor((Number(courtInfo?.attributes?.valuePayed) / (Number(courtInfo?.attributes?.court_availability?.data?.attributes?.value) + Number(courtInfo.attributes.serviceRate!))) * 100)}</Text>
                                                         </View>
                                                         <Text className='font-black text-xs text-white pt-1'>Reserva feita em {formatDateTime(courtInfo?.attributes?.createdAt.toString())}</Text>
                                                     </View>
@@ -150,9 +151,11 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                                         </View>
 
                                                         <View>
-                                                            {courtInfo.attributes.payedStatus ?
+                                                            {courtInfo.attributes.payedStatus === "payed" ?
                                                                 <Text className='font-normal text-xs text-white'>Finalizado </Text>
-                                                                : <Text className='font-normal text-xs text-white'>Em aberto </Text>
+                                                                : courtInfo.attributes.payedStatus === "waiting"
+                                                                    ? <Text className='font-normal text-xs text-white'>Em aberto </Text>
+                                                                    : <Text className='font-normal text-xs text-white'>Cancelado </Text>
                                                             }
                                                         </View>
 
@@ -172,8 +175,19 @@ export default function InfoReserva({ navigation, route }: NativeStackScreenProp
                                 ) : null
                             }
                         </View>
+                        <View className='h-[85px]'></View>
                     </View>
-                </ScrollView>
+                </View>
+            </ScrollView>
+            <View className="absolute bottom-0 left-0 right-0">
+                <BottomBlackMenu
+                    screen="Historic"
+                    userID={user_id}
+                    userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                    key={1}
+                    isDisabled={true}
+                    paddingTop={2}
+                />
             </View>
         </View>
     )

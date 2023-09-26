@@ -5,10 +5,10 @@ import {
 	userEstablishmentQuery
 } from "../graphql/queries/userEstablishmentInfo";
 
-export function useGetUserEstablishmentInfos(id: string): QueryResult<IUserEstablishmentResponse, IUserEstablishmentVariables> {
+export function useGetUserEstablishmentInfos(userId: string): QueryResult<IUserEstablishmentResponse, IUserEstablishmentVariables> {
 	return useQuery<IUserEstablishmentResponse, IUserEstablishmentVariables>(userEstablishmentQuery, {
 		variables: {
-			id
+			id: userId
 		}
 	});
 }
