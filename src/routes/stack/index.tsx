@@ -113,7 +113,7 @@ export default function () {
                     ),
                     headerLeft: () => (
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('Login')}>
+                            onPress={() => navigation.goBack()}>
                             <Icon name="arrow-back" size={25} color="white" />
                         </TouchableOpacity>
                     ),
