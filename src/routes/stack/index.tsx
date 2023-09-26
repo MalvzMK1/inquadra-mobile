@@ -51,6 +51,7 @@ import updateSchedule from '../../screens/UpdateSchedule';
 import PaymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
 import ForgotPassword from '../../screens/ForgotPassword'
 import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
+import {SetNewPassword} from "../../screens/ForgotPassword/setNewPassword";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -802,6 +803,13 @@ export default function () {
             <Screen
               name='InsertResetCode'
               component={InsertResetCode}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Screen
+              name='SetNewPassword'
+              component={SetNewPassword}
               options={{
                 headerShown: false
               }}
