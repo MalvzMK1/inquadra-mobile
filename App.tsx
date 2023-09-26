@@ -11,7 +11,7 @@ export default function App() {
 		async function getUserGeolocation(): Promise<void> {
 			const { status } = await Location.requestForegroundPermissionsAsync();
 			if (status === 'granted') {
-				const {coords} = await Location.getCurrentPositionAsync();
+				const { coords } = await Location.getCurrentPositionAsync();
 				storage.save({
 					key: 'userGeolocation',
 					data: {
@@ -29,7 +29,7 @@ export default function App() {
 		<ApolloProvider client={client}>
 			<PaperProvider>
 				{/*<ComponentProvider>*/}
-					<Routes />
+				<Routes />
 				{/*</ComponentProvider>*/}
 			</PaperProvider>
 		</ApolloProvider>

@@ -1,47 +1,49 @@
 import {
-    ApolloClient,
-    gql,
-    HttpLink,
-    InMemoryCache,
-    MutationTuple,
-    QueryResult,
-    useMutation,
-    useQuery
+	ApolloClient,
+	gql,
+	HttpLink,
+	InMemoryCache,
+	MutationTuple,
+	QueryResult,
+	useMutation,
+	useQuery
 } from "@apollo/client";
 import { INTER_API } from '@env';
 
 console.log(INTER_API)
 
 export const interClient = new ApolloClient({
-    link: new HttpLink({
-        uri: INTER_API
-    }),
-    cache: new InMemoryCache(),
+	link: new HttpLink({
+		uri: INTER_API
+	}),
+	cache: new InMemoryCache(),
 })
 
 export interface ICreateChargeResponse {
-    txid: string;
-    pixCopiaECola: string;
-    calendario: {
-        dataDeVencimento: string;
-    },
-    status: string;
+	CreateCharge: {
+		txid: string;
+		pixCopiaECola: string;
+		calendario: {
+			dataDeVencimento: string;
+		},
+		status: string;
+	}
 }
 
 export interface ICreateChargeVariables {
-    dueDate: string
-    discountDate: string
-    value: string
-    debtorCpf: string
-    debtorName: string
-    debtorCep: string
-    debtorStreet: string
-    debtorCity: string
-    debtorUf: string
-    message: string
+	dueDate: string
+	discountDate: string
+	value: string
+	debtorCpf: string
+	debtorName: string
+	debtorCep: string
+	debtorStreet: string
+	debtorCity: string
+	debtorUf: string
+	message: string
 }
 
-export const createChargeQuery = gql`
+export const createChargeMutation = gql`
     mutation DueCharge(
         $dueDate: String!
         $value: String!
@@ -52,7 +54,7 @@ export const createChargeQuery = gql`
         $debtorCity: String!
         $debtorUf: String!
         $message: String!
-		    $discountDate: String!
+        $discountDate: String!
     ) {
         CreateCharge(
             calendario: { dataDeVencimento: $dueDate, validadeAposVencimento: 30 }
@@ -86,5 +88,35 @@ export const createChargeQuery = gql`
 `;
 
 export function useCreateCharge(): MutationTuple<ICreateChargeResponse, ICreateChargeVariables> {
-    return useMutation<ICreateChargeResponse, ICreateChargeVariables>(createChargeQuery, { client: interClient });
+	return useMutation<ICreateChargeResponse, ICreateChargeVariables>(createChargeMutation, { client: interClient });
+}
+
+enum EPixStatus {
+	ATIVA,
+	CONCLUIDO,
+}
+
+export interface IPixInfosResponse {
+	status: EPixStatus;
+}
+
+export interface IPixInfosVariables {
+	txid: string;
+}
+
+export const pixInfosQuery = gql`
+    query Pix($txid: String!) {
+        ChargeInfos(txid: $txid) {
+            status
+        }
+    }
+`;
+
+export function usePixInfosByTxid(txid: string): QueryResult<IPixInfosResponse, IPixInfosVariables> {
+	return useQuery<IPixInfosResponse, IPixInfosVariables>(pixInfosQuery, {
+		client: interClient,
+		variables: {
+			txid
+		}
+	});
 }

@@ -1,15 +1,14 @@
-import { View, Text, Image } from 'react-native';
-import { StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 
 export default function CourtBalloon(props: CourtCardInfos) {
 
 	return (
-		<View className='relative'>
+		<View className='flex flex-col mb-[1.5px] justify-center items-center'>
 			<View style={styles.calloutContainer}>
-				<Text className='h-[90px] -mt-4'>
-					<Image source={{ uri: props.image }} className="h-[80px] w-28 rounded-xl" resizeMode='cover' />
+				<Text className='h-[70px] pl-[6px] self-center w-full rounded-xl overflow-hidden'>
+					<Image source={{ uri: props.image }} className="h-[60px] w-28 rounded-xl" resizeMode='cover' />
 				</Text>
-				<View className='self-start pl-[16px] mb-4' >
+				<View className='flex flex-col gap-y-[-4px] self-start pl-[6px] mb-2 mt-1' >
 					<Text className='font-black text-[#FF6112] text-[10px]'>{props.name}</Text>
 					<Text className='text-[8px]'>{props.type}</Text>
 					<Text className='font-bold text-[8px]'>{props.distance.toFixed(2)}km</Text>
@@ -17,32 +16,32 @@ export default function CourtBalloon(props: CourtCardInfos) {
 			</View>
 			<View style={styles.triangle}></View>
 		</View>
-	)
+	);
+
 }
 
 const styles = StyleSheet.create({
 	calloutContainer: {
-		width: 144,
-		height: 118,
+		display: "flex",
+		width: 125,
+		height: 90,
 		backgroundColor: 'white',
 		borderRadius: 10,
-		marginBottom: 16,
 		flexDirection: 'column',
 		justifyContent: 'center',
 		alignItems: 'center',
+		paddingBottom: 10
 	},
 	triangle: {
-		width: 0,
-		height: 0,
-		borderLeftWidth: 15,
-		borderRightWidth: 15,
-		borderBottomWidth: 20,
+		width: 10,
+		height: 2,
+		borderLeftWidth: 4,
+		borderRightWidth: 4,
+		borderTopWidth: 8,
 		borderLeftColor: 'transparent',
 		borderRightColor: 'transparent',
 		borderBottomColor: 'white',
-		position: 'absolute',
-		bottom: -20,
-		left: '50%',
-		marginLeft: -15,
-	},
+		borderTopColor: 'white',
+	}
+
 });

@@ -2,17 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-import { payload } from '../../components/pix/payLoadGenerator';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCreateCharge } from "../../services/inter";
+import {useCreateCharge, usePixInfosByTxid} from "../../services/inter";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
-import {useCreateStrapiPixCharge} from "../../hooks/useCreateStrapiPixCharge";
+import { useCreateStrapiPixCharge } from "../../hooks/useCreateStrapiPixCharge";
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
@@ -27,8 +26,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
     const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
+    const {} = usePixInfosByTxid()
     const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
-    const [createStrapiCharge, {data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError}] = useCreateStrapiPixCharge();
+    const [createStrapiCharge, { data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError }] = useCreateStrapiPixCharge();
 
     const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
     const [userAddress, setUserAddress] = useState<APICepResponse>();
@@ -36,7 +36,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     const handleCopiarTexto = () => {
         if (pixInfos) {
-            Clipboard.arguments.setStringAsync(pixInfos.pixCode)
+            Clipboard.setStringAsync(pixInfos.pixCode)
                 .finally(() => Toast.show({
                     type: 'success',
                     text1: 'Texto copiado',
@@ -92,9 +92,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             const courtName: string = scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(courtType => courtType.attributes.name).join(', ');
             const establishmentName: string = scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.establishment.data.attributes.corporateName;
 
-            console.log(scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data)
-            console.log({ dueDate, courtName, establishmentName })
-            console.log(userAddress.code.split('-').join(''))
             createCharge({
                 variables: {
                     value: formattedValue,
@@ -111,18 +108,19 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             }).then(response => {
                 if (response.data) {
                     setPixInfos({
-                        txid: response.data.txid,
-                        pixCode: response.data.pixCopiaECola,
+                        txid: response.data.CreateCharge.txid,
+                        pixCode: response.data.CreateCharge.pixCopiaECola,
                     })
                     createStrapiCharge({
                         variables: {
-                            code: response.data.pixCopiaECola,
-                            txid: response.data.txid,
+                            code: response.data.CreateCharge.pixCopiaECola,
+                            txid: response.data.CreateCharge.txid,
                             userID,
-                            establishmentID: scheduleData.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.establishment.data?.id
+                            establishmentID: scheduleData.scheduling.data!.attributes.court_availability.data!.attributes.court.data!.attributes.establishment.data!.id,
+                            publishedAt: new Date().toISOString()
                         }
                     }).then(response => {
-                        console.log(response.data)
+                        console.log({STRAPI_RESPONSE_DATA: response.data})
                     })
                 }
                 if (response.errors)
@@ -137,7 +135,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     useEffect(() => {
         if (pixInfos) {
-
+            console.log({PIX_CODE: pixInfos.pixCode})
         }
     }, [pixInfos])
 
@@ -146,7 +144,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => console.log(pixInfos?.txid)}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -168,7 +166,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             <View className='h-max w-max flex items-center justify-start pt-16'>
                 <Text className='font-black font text-xl pb-5'>{courtName}</Text>
                 <View>
-                    {/*<QRCode value={payLoad} size={200} />*/}
+                    {
+                        pixInfos && <QRCode value={pixInfos.pixCode} size={200} />
+                    }
                 </View>
                 <Text className='font-black font text-xl pt-2 pb-3'>Pagamento do Sinal</Text>
                 <View className='h-14 w-screen bg-gray-300 justify-center items-center '>

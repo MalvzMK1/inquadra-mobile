@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 
 const data = [
@@ -21,6 +21,14 @@ export default function FilterDropdown(props: { amenities: string[] | null, setA
         props.setAmenities(selectedItems);
     };
 
+    useEffect(() => {
+        if (props.amenities === null)
+            setSelectedAmenities([])
+        else
+            setSelectedAmenities(props.amenities)
+
+    }, [props.amenities])
+
     return (
         <MultiSelect
             iconColor='#FFFFFF'
@@ -31,6 +39,7 @@ export default function FilterDropdown(props: { amenities: string[] | null, setA
             labelField={'label'}
             valueField={'label'}
             selectedTextStyle={{ color: "white", textAlign: "center", fontWeight: "600", paddingLeft: 25 }}
+            selectedStyle={{borderColor: "#FF6112"}}
             style={{
                 backgroundColor: "#FF6112",
                 borderRadius: 5,
