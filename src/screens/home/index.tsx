@@ -160,40 +160,41 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         }}
                     >
                         {
-                        establishments.filter(item => {return item.distance <= 5 }).filter(item => {
-                            if (sportSelected) {
-                                return item.type.split(" & ").includes(sportSelected)
-                            }else{
-                                return true
+                            establishments.length > 0 &&
+                            establishments.filter(item => {return item.distance <= 5 }).filter(item => {
+                                if (sportSelected) {
+                                    return item.type.split(" & ").includes(sportSelected)
+                                }else{
+                                    return true
+                                }
+                            }).map((item) => (
+                                    <Marker
+                                        coordinate={{
+                                            latitude: item.latitude,
+                                            longitude: item.longitude,
+                                        }}
+                                        icon={pointerMap}
+                                        title={item.name}
+                                        description={item.name}
+                                    >
+                                    <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
+                                            establishmentID: item.id,
+                                            userPhoto: undefined
+                                        })}>
+                                            <CourtBallon
+                                                id={item.id}
+                                                key={item.id}
+                                                name={item.name}
+                                                distance={item.distance}
+                                                image={item.image}
+                                                type={item.type}
+                                                userId={route?.params?.userID ?? ""}
+                                                liked={true}
+                                            />
+                                        </Callout>
+                                    </Marker>
+                                ))
                             }
-                        }).map((item) => (
-                                <Marker
-                                    coordinate={{
-                                        latitude: item.latitude,
-                                        longitude: item.longitude,
-                                    }}
-                                    icon={pointerMap}
-                                    title={item.name}
-                                    description={item.name}
-                                >
-                                <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
-                                        establishmentID: item.id,
-                                        userPhoto: undefined
-                                    })}>
-                                        <CourtBallon
-                                            id={item.id}
-                                            key={item.id}
-                                            name={item.name}
-                                            distance={item.distance}
-                                            image={item.image}
-                                            type={item.type}
-                                            userId={route?.params?.userID ?? ""}
-                                            liked={true}
-                                        />
-                                    </Callout>
-                                </Marker>
-                            ))
-                        }
                     </MapView>
                 )}
 
