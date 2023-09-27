@@ -96,11 +96,13 @@ export default function () {
                     ),
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            console.log({ params })
-                            navigation.navigate('ProfileSettings', {
-                                userPhoto: HOST_API + params.userPhoto ?? undefined,
-                                userID: params.userID
-                            })
+                            if(params.userID)
+                                navigation.navigate('ProfileSettings', {
+                                    userPhoto: HOST_API + params.userPhoto ?? undefined,
+                                    userID: params.userID
+                                })
+                            else
+                                navigation.navigate("Login")
                         }}>
                             <Image
                                 source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
@@ -543,10 +545,13 @@ export default function () {
                     },
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            navigation.navigate('ProfileSettings', {
-                                userPhoto: params.userPhoto,
-                                userID: userId ?? ""
-                            })
+                            if(params.userID)
+                                navigation.navigate('ProfileSettings', {
+                                    userPhoto: params.userPhoto,
+                                    userID: userId ?? ""
+                                })
+                            else
+                                navigation.navigate("Login")
                         }}>
                             <Image
                                 source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}

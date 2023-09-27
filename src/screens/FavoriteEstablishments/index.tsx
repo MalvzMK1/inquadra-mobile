@@ -1,4 +1,4 @@
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import { InfosEstablishment } from "../../components/InfosEstablishment";
 import { AntDesign } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
@@ -10,6 +10,7 @@ import { calculateDistance } from "../../utils/calculateDistance";
 import useGetFavoriteEstablishmentsByUserId from "../../hooks/useGetFavoriteEstablishmentsById";
 import useUpdateFavoriteEstablishment from "../../hooks/useUpdateFavoriteEstablishment";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
+import { TouchableOpacity } from "react-native-gesture-handler";
 interface Colors {
     [key: string]: string;
 }
@@ -21,7 +22,7 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
         }).then(data => setUserId(data.userId))
     }, [])
     const USER_ID = userId
-    // const { data, error, loading } = useGetFavoritesCourtsById(USER_ID ?? "")
+
     const { data, error, loading } = useGetFavoriteEstablishmentsByUserId(USER_ID ?? "")
     const [colors, setColors] = useState<Colors>({});
     const { data: userByIdData, error: userByIdError, loading: userByIdLoading } = useGetUserById(USER_ID ?? "")
@@ -36,8 +37,6 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
             setUserFavoriteEstablishments(prevEstablishments => [...prevEstablishments, item.id]);
         });
     }, [userByIdData]);
-
-
 
     const [userLocation, setUserLocation] = useState({
         latitude: 0,
@@ -102,7 +101,6 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
 
     const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(USER_ID!)
 
-
     return (
         <View className="flex-1 h-max w-max bg-zing-600">
             <ScrollView className='flex-1 py-4 bg-zinc-600'>
@@ -138,17 +136,31 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
                         </InfosEstablishment.Root>
                     ))
                 }
+                {
+                    !USER_ID && (
+                        <View className="w-full h-fit flex items-center justify-center">
+                            <Text className="text-[18px] text-center text-white">FAÇA <Text onPress={() => navigation.navigate("Login")} className="text-[18px] text-white flex items-center justify-center underline">LOGIN</Text> NO APP PARA PODER FAVORITAR UM ESTABELECIMENTO!</Text>
+                        </View>
+                    )
+                }
+                {
+                    !data?.establishments.data && USER_ID && (
+                        <View className="w-full h-fit flex items-center justify-center">
+                            <Text className="text-[18px] text-center text-white">VOCÊ NÃO POSSUI NENHUM ESTABELECIMENTO FAVORITO!</Text>
+                        </View>
+                    )
+                }
             </ScrollView>
             <View className="absolute bottom-0 left-0 right-0">
-				<BottomBlackMenu
-					screen="Favorite"
-					userID={USER_ID!}
-					userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
-					key={1}
-					isDisabled={true}
-					paddingTop={2}
-				/>
-			</View>
+                <BottomBlackMenu
+                    screen="Favorite"
+                    userID={USER_ID!}
+                    userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                    key={1}
+                    isDisabled={true}
+                    paddingTop={2}
+                />
+            </View>
         </View>
     )
 }
