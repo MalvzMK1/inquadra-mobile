@@ -219,7 +219,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 user_id: userId,
                 username: userDatas.userName,
                 email: userDatas.email,
-                phoneNumber: userDatas.phoneNumber,
+                phone_number: userDatas.phoneNumber,
                 cpf: cpf!,
                 photo: userDatas.userPhoto
             }

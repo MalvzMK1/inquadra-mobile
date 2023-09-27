@@ -213,8 +213,8 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             
 
             if (!result.canceled) {
-                await uploadImage(result.uri).then((uploadedImageID) => {
-                    setProfilePicture(result.uri);
+                await uploadImage(result.assets[0].uri).then((uploadedImageID) => {
+                    setProfilePicture(result.assets[0].uri);
                     setImageEdited(true)
                     console.log('ID da imagem enviada:', uploadedImageID);
                 });
@@ -289,7 +289,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         user_id: userInfos?.id!,
                         email: data.email,
                         cpf: data.cpf,
-                        phoneNumber: data.phoneNumber,
+                        phone_number: data.phoneNumber,
                         username: data.name,
                         photo: uploadedImageID
                     },
@@ -318,11 +318,11 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
                 photo: data.usersPermissionsUser.data?.attributes.photo.data?.id!,
                 paymentCardInfos: {
-                    dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
-                    cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
+                    dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
+                    cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
                     country: {
                         id: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id : '',
-                        value: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.attributes.name : ''
+                        name: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.attributes.name : ''
                     }
                 },
             };
