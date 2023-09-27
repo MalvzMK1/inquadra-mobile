@@ -18,7 +18,6 @@ import useUpdateEstablishmentFantasyName from '../../../hooks/useUpdateEstablish
 import useUpdateUserPassword from '../../../hooks/useUpdateUserPassword';
 import useRegisterPixKey from '../../../hooks/useRegisterPixKey';
 import useDeleteUser from '../../../hooks/useDeleteUser';
-import axios from 'axios';
 type DateTime = Date;
 import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";

@@ -51,6 +51,7 @@ import updateSchedule from '../../screens/UpdateSchedule';
 import PaymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
 import ForgotPassword from '../../screens/ForgotPassword'
 import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
+import {SetNewPassword} from "../../screens/ForgotPassword/setNewPassword";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -76,6 +77,67 @@ export default function () {
 
     return (
         <Navigator>
+            
+            <Screen
+                name="Home"
+                options={({ route: { params } }) => ({
+                    headerTintColor: 'white',
+                    headerStyle: {
+                        height: 105,
+                        backgroundColor: '#292929',
+                    },
+                    headerTitle: () => (
+                        <TextInput
+                            theme={{ colors: { placeholder: '#e9e9e9' } }}
+                            placeholder="O que você está procurando?"
+                            className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                            right={<TextInput.Icon icon={'magnify'} />}
+                        />
+                    ),
+                    headerRight: () => (
+                        <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
+                            console.log({ params })
+                            navigation.navigate('ProfileSettings', {
+                                userPhoto: HOST_API + params.userPhoto ?? undefined,
+                                userID: params.userID
+                            })
+                        }}>
+                            <Image
+                                source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+                                className="w-full h-full"
+                            />
+                        </TouchableOpacity>
+                    ),
+                    headerLeft: () => (
+                        <TouchableOpacity className="ml-3" onPress={() => {
+                            setMenuBurguer((prevState) => !prevState)
+                        }}>
+                            {
+                                !menuBurguer ?
+                                    <Entypo
+                                        name="menu"
+                                        size={48}
+                                        color={'white'}
+                                    />
+                                    :
+                                    <MaterialIcons
+                                        name="filter-list"
+                                        size={48}
+                                        color="white"
+                                    />
+
+                            }
+                        </TouchableOpacity>
+                    ),
+                })}
+            >
+                {props => (
+                    <Home
+                        {...props}
+                        menuBurguer={menuBurguer}
+                    />
+                )}
+            </Screen>
             <Screen
                 name="Login"
                 component={Login}
@@ -90,6 +152,7 @@ export default function () {
                     },
                 }}
             />
+            
             <Screen
                 name="InfoProfileEstablishment"
                 component={InfoProfileEstablishment}
@@ -112,7 +175,7 @@ export default function () {
                     ),
                     headerLeft: () => (
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('Login')}>
+                            onPress={() => navigation.goBack()}>
                             <Icon name="arrow-back" size={25} color="white" />
                         </TouchableOpacity>
                     ),
@@ -336,65 +399,6 @@ export default function () {
                     headerShown: false
                 }}
             />
-            <Screen
-                name="Home"
-                options={({ route: { params } }) => ({
-                    headerTintColor: 'white',
-                    headerStyle: {
-                        height: 100,
-                        backgroundColor: '#292929',
-                    },
-                    headerTitle: () => (
-                        <TextInput
-                            theme={{ colors: { placeholder: '#e9e9e9' } }}
-                            placeholder="O que você está procurando?"
-                            className="bg-white rounded-2xl w-full flex items-center justify-center h-[40px] placeholder:text-[#e9e9e9] text-sm outline-none"
-                            right={<TextInput.Icon icon={'magnify'} />}
-                        />
-                    ),
-                    headerRight: () => (
-                        <TouchableOpacity className="w-10 h-10 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            navigation.navigate('ProfileSettings', {
-                                userPhoto: params.userPhoto,
-                                userID: params.userID
-                            })
-                        }}>
-                            <Image
-                                source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
-                                className="w-full h-full"
-                            />
-                        </TouchableOpacity>
-                    ),
-                    headerLeft: () => (
-                        <TouchableOpacity className="ml-3" onPress={() => {
-                            setMenuBurguer((prevState) => !prevState)
-                        }}>
-                            {
-                                !menuBurguer ?
-                                    <Entypo
-                                        name="menu"
-                                        size={48}
-                                        color={'white'}
-                                    />
-                                    :
-                                    <MaterialIcons
-                                        name="filter-list"
-                                        size={48}
-                                        color="white"
-                                    />
-
-                            }
-                        </TouchableOpacity>
-                    ),
-                })}
-            >
-                {props => (
-                    <Home
-                        {...props}
-                        menuBurguer={menuBurguer}
-                    />
-                )}
-            </Screen>
             <Screen
                 name="HomeVariant"
                 options={({ route: { params } }) => ({
@@ -802,6 +806,13 @@ export default function () {
             <Screen
               name='InsertResetCode'
               component={InsertResetCode}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Screen
+              name='SetNewPassword'
+              component={SetNewPassword}
               options={{
                 headerShown: false
               }}

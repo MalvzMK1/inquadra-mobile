@@ -180,4 +180,5 @@ type RootStackParamList = {
         username: string
         id: string
     }
+    SetNewPassword: undefined
 }

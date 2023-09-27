@@ -98,7 +98,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     }).then(data => setUserGeolocation(data));
 
     console.log(dataReserve?.courtAvailability?.data?.attributes?.minValue)
-        console.log(dataReserve?.courtAvailability.data.attributes.value)
+    console.log(dataReserve?.courtAvailability.data.attributes.value)
 
     const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
     const courtLongitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.longitude ?? '0');
@@ -113,6 +113,13 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         cpf: string
         cvv: string
         date: string
+        cep: string
+        number: string
+        street: string
+        district: string
+        complement: string
+        city: string
+        state: string
     }
 
     const formSchema = z.object({
@@ -139,6 +146,12 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             }
             return true;
         }, { message: "A data de vencimento é inválida" }),
+        cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(8, "CEP inválido"),
+        number: z.string().nonempty("É necessário inserir o numero da residência"),
+        street: z.string().nonempty("É necessário inserir o nome da rua"),
+        district: z.string().nonempty("É necessário inserir o bairro"),
+        city: z.string().nonempty("É necessário inserir o nome da cidade"),
+        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
     })
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<iFormCardPayment>({
@@ -200,8 +213,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     };
 
     const createNewSchedule = async () => {
-        
-        
+
+
         let isPayed = dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false
         console.log(`OIA O TESTE AI Ó: ${isPayed}`)
         try {
@@ -218,9 +231,9 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                     service_value: serviceValue,
                     publishedAt: new Date().toISOString()
                 }
-                
+
             });
-            
+
             return create.data?.createScheduling?.data?.id
 
         } catch (error) {
@@ -380,7 +393,116 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                                     />
                                 </View>
                             </View>
-
+                            <View className="flex flex-row justify-between">
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                    <Controller
+                                        name='cep'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: 00000-000'
+                                                keyboardType='numeric'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                    <Controller
+                                        name='number'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: nome'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.number && <Text className='text-red-400 text-sm'>{errors.number.message}</Text>}
+                                </View>
+                            </View>
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Rua</Text>
+                                <Controller
+                                    name='street'
+                                    control={control}
+                                    render={({ field: { onChange } }) => (
+                                        <TextInput
+                                            className='p-3 border border-gray-500 rounded-md h-18'
+                                            placeholder='Ex: Rua xxxxxx'
+                                            onChangeText={onChange}>
+                                        </TextInput>
+                                    )}
+                                ></Controller>
+                                {errors.street && <Text className='text-red-400 text-sm'>{errors.street.message}</Text>}
+                            </View>
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Bairro</Text>
+                                <Controller
+                                    name='district'
+                                    control={control}
+                                    render={({ field: { onChange } }) => (
+                                        <TextInput
+                                            className='p-3 border border-gray-500 rounded-md h-18'
+                                            placeholder='Ex: Jd. xxxxxxx'
+                                            onChangeText={onChange}>
+                                        </TextInput>
+                                    )}
+                                ></Controller>
+                                {errors.district && <Text className='text-red-400 text-sm'>{errors.district.message}</Text>}
+                            </View>
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Complemento</Text>
+                                <Controller
+                                    name='complement'
+                                    control={control}
+                                    render={({ field: { onChange } }) => (
+                                        <TextInput
+                                            className='p-3 border border-gray-500 rounded-md h-18'
+                                            placeholder='Ex: nome'
+                                            onChangeText={onChange}>
+                                        </TextInput>
+                                    )}
+                                ></Controller>
+                                {errors.complement && <Text className='text-red-400 text-sm'>{errors.complement.message}</Text>}
+                            </View>
+                            <View className="flex flex-row justify-between">
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                    <Controller
+                                        name='city'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: xxxxx'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                    <Controller
+                                        name='state'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: XX'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.state && <Text className='text-red-400 text-sm'>{errors.state.message}</Text>}
+                                </View>
+                            </View>
                             <View className="p-2 justify-center items-center pt-5">
                                 <TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
                                     <Text className="text-white">Salvar</Text>
