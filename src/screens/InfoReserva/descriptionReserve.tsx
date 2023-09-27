@@ -72,17 +72,18 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         data?.scheduling?.data?.attributes?.valuePayed!
 
     interface iFormCardPayment {
-        value           :       string
-        name            :       string
-        cpf             :       string
-        cvv             :       string
-        date            :       string
-        cep             :       string
-        state           :       string
-        city            :       string
-        number          :       string
-        complement      :       string
-        billingAddress  :       string
+        value: string
+        name: string
+        cpf: string
+        cvv: string
+        date: string
+        cep: string
+        state: string
+        city: string
+        number: string
+        complement: string
+        district: string
+        street: string
     }
 
     interface iFormPixPayment {
@@ -127,6 +128,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
             return inputDate.getTime() > currentDate.getTime();
         }, "A data de vencimento é inválida"),
+        cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(8, "CEP inválido"),
+        number: z.string().nonempty("É necessário inserir o numero da residência"),
+        street: z.string().nonempty("É necessário inserir o nome da rua"),
+        district: z.string().nonempty("É necessário inserir o bairro"),
+        city: z.string().nonempty("É necessário inserir o nome da cidade"),
+        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
     });
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
@@ -703,39 +710,75 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         />
                                     </View>
                                 </View>
+                                <View className='flex flex-row justify-between'>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                        <Controller
+                                            name='cep'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: 00000-000'
+                                                    value={getValues('cep')}
+                                                    maxLength={8}
+                                                    onChangeText={onChange}
+                                                    keyboardType='numeric'>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        {errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
+                                    </View>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                        <Controller
+                                            name='number'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: 0000'
+                                                    value={getValues('number')}
+                                                    onChangeText={onChange}
+                                                    keyboardType='numeric'>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        {errors.number && <Text className='text-red-400 text-sm'>{errors.number.message}</Text>}
+                                    </View>
+                                </View>
+
                                 <View>
-                                    <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                    <Text className='text-sm text-[#FF6112]'>Rua</Text>
                                     <Controller
-                                        name='cep'
+                                        name='street'
                                         control={control}
                                         render={({ field: { onChange } }) => (
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='Ex: 00000-000'
-                                                value={getValues('cep')}
-                                                onChangeText={onChange}
-                                                keyboardType='numeric'>
+                                                placeholder='Ex: Rua xxxx'
+                                                value={getValues('street')}
+                                                onChangeText={onChange}>
                                             </MaskInput>
                                         )}
                                     ></Controller>
-                                    {errorsPix.value && <Text className='text-red-400 text-sm'>{errorsPix.value.message}</Text>}
+                                    {errors.street && <Text className='text-red-400 text-sm'>{errors.street.message}</Text>}
                                 </View>
                                 <View>
-                                    <Text className='text-sm text-[#FF6112]'>Endereço de cobrança</Text>
+                                    <Text className='text-sm text-[#FF6112]'>Bairro</Text>
                                     <Controller
-                                        name='billingAddress'
+                                        name='district'
                                         control={control}
                                         render={({ field: { onChange } }) => (
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='Rua xxxx Jd. xxxxx'
-                                                value={getValues('billingAddress')}
-                                                onChangeText={onChange}
-                                                keyboardType='numeric'>
+                                                placeholder='Ex: Jd. xxxxx'
+                                                value={getValues('district')}
+                                                onChangeText={onChange}>
                                             </MaskInput>
                                         )}
                                     ></Controller>
-                                    {errorsPix.value && <Text className='text-red-400 text-sm'>{errorsPix.value.message}</Text>}
+                                    {errors.district && <Text className='text-red-400 text-sm'>{errors.district.message}</Text>}
                                 </View>
                                 <View>
                                     <Text className='text-sm text-[#FF6112]'>Complemento</Text>
@@ -747,50 +790,43 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 className='p-3 border border-neutral-400 rounded bg-white'
                                                 placeholder='Ex: '
                                                 value={getValues('complement')}
-                                                onChangeText={onChange}
-                                                keyboardType='numeric'>
+                                                onChangeText={onChange}>
                                             </MaskInput>
                                         )}
-                                    ></Controller>
-                                    {errorsPix.value && <Text className='text-red-400 text-sm'>{errorsPix.value.message}</Text>}
+                                    ></Controller>                                  
                                 </View>
-                                <View className='flex flex-row'>
-                                    <View className='flex-1 mr-[20px]'>
+                                <View className='flex flex-row justify-between'>
+                                    <View>
                                         <Text className='text-sm text-[#FF6112]'>Cidade</Text>
                                         <Controller
                                             name='city'
                                             control={control}
                                             render={({ field: { onChange } }) => (
-                                                <TextInputMask className='p-3 border border-neutral-400 rounded bg-white'
-                                                    options={{
-                                                        format: 'MM/YY',
-                                                    }}
-                                                    type={'datetime'}
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: xxxx'
                                                     value={getValues('city')}
-                                                    onChangeText={onChange}
-                                                    placeholder="MM/YY"
-                                                    keyboardType="numeric"
-                                                />
+                                                    onChangeText={onChange}>
+                                                </MaskInput>
                                             )}
                                         ></Controller>
-                                        {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
+                                        {errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
                                     </View>
-                                    <View className='flex-1 ml-[20px]'>
+                                    <View>
                                         <Text className='text-sm text-[#FF6112]'>Estado</Text>
                                         <Controller
                                             name='state'
                                             control={control}
                                             render={({ field: { onChange } }) => (
-                                                <TextInput
+                                                <MaskInput
                                                     className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='SP'
-                                                    onChangeText={onChange}
-                                                    keyboardType='numeric'
-                                                    maxLength={3}>
-                                                </TextInput>
+                                                    placeholder='Ex: xxxx'
+                                                    value={getValues('state')}
+                                                    onChangeText={onChange}>
+                                                </MaskInput>
                                             )}
                                         ></Controller>
-                                        {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
+                                        {errors.state && <Text className='text-red-400 text-sm'>{errors.state.message}</Text>}
                                     </View>
                                 </View>
                                 <View>
@@ -800,13 +836,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
-
                             </View>
                         </ScrollView>
-
                     </View>
-
-
                 </View>
             </Modal>
             <Modal visible={showPixPaymentModal} animationType="fade" transparent={true} onRequestClose={closePixPayment} >

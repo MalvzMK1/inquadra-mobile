@@ -59,8 +59,6 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
             console.log("Erro externo:", error);
         }
     };
-
-
     return (
         <View className="flex-1">
             <ScrollView className="bg-white">
@@ -78,7 +76,6 @@ export default function AllVeryWell({ navigation, route }: NativeStackScreenProp
                             </View>
                         </View>
                     </TouchableOpacity>
-
                     {
                         courts.map((court, index) =>
                             <TouchableOpacity

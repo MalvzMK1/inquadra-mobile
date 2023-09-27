@@ -22,6 +22,7 @@ const formSchema = z.object({
 
 export default function ForgotPassword({navigation, route}: NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>) {
 	const [email, setEmail] = useState<string>();
+	const [noUserFound, setNoUserFound] = useState<boolean>(false);
 	const {data: userData, loading, error} = useUserByEmail(email ?? '')
 
 	const {
@@ -45,6 +46,8 @@ export default function ForgotPassword({navigation, route}: NativeStackScreenPro
 				email: userInfos.attributes.email,
 			})
 		}
+		if (userData && userData.usersPermissionsUsers.data.length === 0)
+			setNoUserFound(true);
 	}, [userData])
 
 	return (
@@ -82,6 +85,7 @@ export default function ForgotPassword({navigation, route}: NativeStackScreenPro
 					)}
 				/>
 				{errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
+				{noUserFound && <Text className='text-red-400 text-sm'>Nenhum usuário encontrado</Text>}
 			</View>
 			<View className={'w-full'}>
 				<TouchableOpacity

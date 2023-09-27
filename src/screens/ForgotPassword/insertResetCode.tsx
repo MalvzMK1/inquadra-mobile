@@ -32,6 +32,7 @@ export function InsertResetCode({navigation, route}: NativeStackScreenProps<Root
 
 	function handleValidateCode(data: IFormData) {
 		console.log(data.code)
+		navigation.navigate('SetNewPassword')
 	}
 
 	useEffect(() => {
