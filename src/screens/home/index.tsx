@@ -63,7 +63,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
     }
 
     useEffect(() => {
-        if(menuBurguer)
+        if (menuBurguer)
             setIsDisabled(false)
     }, [menuBurguer])
 
@@ -146,12 +146,12 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     <MapView
                         provider={PROVIDER_GOOGLE}
                         loadingEnabled
-                    className='w-screen flex-1'
+                        className='w-screen flex-1'
                         onPress={() => setIsDisabled(false)}
                         customMapStyle={customMapStyle}
                         showsCompass={false}
-                    showsMyLocationButton
-                    showsUserLocation
+                        showsMyLocationButton
+                        showsUserLocation
                         initialRegion={{
                             latitude: userGeolocation.latitude,
                             longitude: userGeolocation.longitude,
@@ -160,13 +160,13 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         }}
                     >
                         {
-                        establishments.filter(item => {return item.distance <= 5 }).filter(item => {
-                            if (sportSelected) {
-                                return item.type.split(" & ").includes(sportSelected)
-                            }else{
-                                return true
-                            }
-                        }).map((item) => (
+                            establishments.filter(item => { return item.distance <= 5 }).filter(item => {
+                                if (sportSelected) {
+                                    return item.type.split(" & ").includes(sportSelected)
+                                } else {
+                                    return true
+                                }
+                            }).map((item) => (
                                 <Marker
                                     coordinate={{
                                         latitude: item.latitude,
@@ -176,7 +176,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                     title={item.name}
                                     description={item.name}
                                 >
-                                <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
+                                    <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
                                         establishmentID: item.id,
                                         userPhoto: undefined
                                     })}>
@@ -213,19 +213,18 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     HandleSportSelected={HandleSportSelected}
                 />
             }
-          {
-				userHookData &&
-				<View className={`absolute bottom-0 left-0 right-0`}>
-					<BottomBlackMenu
-						screen="Home"
-						userID={route?.params?.userID}
-						userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-						key={1}
-						isDisabled={!isDisabled}
-						paddingTop={2}
-					/>
-				</View>
-			}
+
+            <View className={`absolute bottom-0 left-0 right-0`}>
+                <BottomBlackMenu
+                    screen="Home"
+                    userID={route?.params?.userID}
+                    userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+                    key={1}
+                    isDisabled={!isDisabled}
+                    paddingTop={2}
+                />
+            </View>
+
         </View>
     );
 }

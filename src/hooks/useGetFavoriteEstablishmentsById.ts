@@ -1,10 +1,10 @@
 import { QueryResult, useQuery } from "@apollo/client";
-import { IFavoriteEstablishmentsResponse, getFavoriteEstablishmentsQuery } from "../graphql/queries/getFavoriteEstablishmentsById";
+import { IFavoriteEstablishmentsResponse, IFavoriteEstablishmentsVariable, getFavoriteEstablishmentsQuery } from "../graphql/queries/getFavoriteEstablishmentsById";
 
-export default function useGetFavoriteEstablishmentsByUserId(userId: string): QueryResult<IFavoriteEstablishmentsResponse> {
-    return useQuery<IFavoriteEstablishmentsResponse>(getFavoriteEstablishmentsQuery, {
+export default function useGetFavoriteEstablishmentsByUserId(user_id: string): QueryResult<IFavoriteEstablishmentsResponse, IFavoriteEstablishmentsVariable> {
+    return useQuery<IFavoriteEstablishmentsResponse, IFavoriteEstablishmentsVariable>(getFavoriteEstablishmentsQuery, {
         variables: {
-            userId
+            user_id
         }
     })
 }

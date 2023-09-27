@@ -35,7 +35,7 @@ function formatDate(dateTimeString: string): string {
 
 
 export default function InfoReserva({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'InfoReserva'>) {
-    let user_id = route.params.userId
+    let user_id = route?.params?.userId
 
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
     const { data, error, loading, refetch } = useGetHistoricReserveOn(user_id)
