@@ -101,14 +101,6 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
 
     const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(USER_ID!)
 
-    const LOGIN_BUTTON = (
-        <View className="w-full h-fit flex items-center justify-center">
-            <TouchableOpacity onPress={() => console.log("TESTE")}>
-                    <Text className="text-[18px] text-center text-white">LOGIN</Text>
-            </TouchableOpacity>
-        </View>
-    )
-
     return (
         <View className="flex-1 h-max w-max bg-zing-600">
             <ScrollView className='flex-1 py-4 bg-zinc-600'>
