@@ -62,14 +62,6 @@ export default function Login() {
             }
         }
 
-        storage.save({
-            key: 'userInfos',
-            data: {
-                token: "",
-                userId: "",
-            },
-            expires: 1000 * 3600,
-        })
     }, [roleUser, isLoading]);
 
 
@@ -120,7 +112,7 @@ export default function Login() {
                         key: 'userInfos',
                         data: {
                             jwt: undefined,
-                            userId: 11,
+                            userId: 8,
                         },
                         expires: 1000 * 3600
                     }).then(() => {

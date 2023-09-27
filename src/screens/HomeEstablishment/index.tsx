@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import storage from "../../utils/storage";
 import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSchedulingsByDay";
@@ -13,7 +12,7 @@ import { HOST_API } from '@env'
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
-import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'HomeEstablishment'>) {
     const [selected, setSelected] = useState('');
@@ -35,6 +34,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     const dayOfWeek = format(targetDate, 'EEEE');
 
     const { data: dataEstablishmentId, error: errorEstablishmentId, loading: loadingEstablishmentId } = useGetUserEstablishmentInfos(userId!)
+    console.log(dataEstablishmentId)
     const establishment_id = dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.establishment?.data?.id!
     const [fantasy_name, setFantasyName] = useState('')
     const day_week = dayOfWeek
@@ -116,7 +116,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
             <View className=' h-11 w-max  bg-[#292929]'></View>
             <View className=' h-16 w-max  bg-[#292929] flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva', { userId: userId ?? "" })}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
