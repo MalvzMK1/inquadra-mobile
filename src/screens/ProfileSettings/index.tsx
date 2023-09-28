@@ -699,14 +699,14 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 </View>
 
                                 <View className='p-2'>
-                                    <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
-                                        <Text className='text-gray-50'>Excluir essa conta</Text>
+                                    <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center' >
+                                        <Text className='text-gray-50'>Sair do App</Text>
                                     </TouchableOpacity>
                                 </View>
 
                                 <View className='p-2'>
-                                    <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
-                                        <Text className='text-gray-50'>Sair do App</Text>
+                                    <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md  flex items-center justify-center'>
+                                        <Text className='text-base text-gray-400'>Excluir essa conta</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
