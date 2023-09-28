@@ -129,7 +129,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                         establishmentId: establishment_id
                     })}>
                         <Image
-                            source={{ uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url }}
+                            source={ dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ? { uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url } : require("../../assets/default-user-image.png")}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
