@@ -34,7 +34,7 @@ mutation newSchedule(
   $pay_day: Date
   $value_payed: Float
   $activation_key: String
-  $service_value: Float
+  $service_value: Float 
   $publishedAt: DateTime
 ) {
   createScheduling(
