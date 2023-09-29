@@ -29,6 +29,13 @@ export interface IUserPaymentCardVariables{
     date: string
     countryID: string
     publishedAt: string
+    cep: string
+    state:string
+    city:string
+    number:string
+    complement:string | null | undefined
+    street: string
+    neighborhood: string
 }
 
 export const userPaymentCardMutation = gql`
@@ -47,7 +54,8 @@ mutation newUserPayment(
   $city: String
   $number: String
   $complement: String
-  $billingAddress: String
+  $street: String
+  $neighborhood: String
 ) {
   createUserPayment(
     data: {
@@ -65,7 +73,8 @@ mutation newUserPayment(
         city: $city
         number: $number
         complement: $complement
-        billingAddress: $billingAddress
+        street: $street
+        neighborhood: $neighborhood
       }
       publishedAt: $publishedAt
     }

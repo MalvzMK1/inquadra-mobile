@@ -25,7 +25,7 @@ import useUpdateScheduleDay from "../../hooks/useUpdateScheduleDay";
 import useGenerateActivationKey from "../../hooks/useGenerateActivationKey";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 
-export default function paymentScheduleUpdate({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PaymentScheduleUpdate'>) {
+export default function PaymentScheduleUpdate({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PaymentScheduleUpdate'>) {
 
     const { courtId, courtImage, courtName, userId, courtAvailabilityDate, courtAvailabilities } = route.params
     const ogPrice = route.params.amountToPay
