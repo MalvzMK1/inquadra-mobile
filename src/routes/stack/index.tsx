@@ -21,7 +21,7 @@ import DescriptionReserve from '../../screens/InfoReserva/descriptionReserve';
 import DescriptionInvited from '../../screens/InfoReserva/descriptionInvited';
 import PixScreen from '../../screens/Pix';
 import HomeEstablishment from '../../screens/HomeEstablishment';
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import CourtPriceHour from '../../screens/CourtPriceHour';
 import EditCourt from '../../screens/EditCourt';
 import CompletedEstablishmentRegistration from '../../screens/CompletedEstablishmentRegistration';
@@ -47,21 +47,49 @@ import storage from "../../utils/storage";
 import CourtSchedule from '../../screens/CourtSchedule';
 import TermsOfService from '../../screens/Register/termsOfService';
 import WithdrawScreen from '../../screens/FinancialEstablishment/Client/WithdrawalScreen';
-import updateSchedule from '../../screens/UpdateSchedule';
+import UpdateSchedule from '../../screens/UpdateSchedule';
 import PaymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
 import ForgotPassword from '../../screens/ForgotPassword'
-import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
-import {SetNewPassword} from "../../screens/ForgotPassword/setNewPassword";
+import { InsertResetCode } from "../../screens/ForgotPassword/insertResetCode";
+import { SetNewPassword } from "../../screens/ForgotPassword/setNewPassword";
+import useGetEstablishmentByCorporateName from '../../hooks/useGetEstablishmentByCorporateName';
+import React from 'react';
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
     const [menuBurguer, setMenuBurguer] = useState(false)
     const [userId, setUserId] = useState<string>();
-    const [userGeolocation ,setUserGeolocation] = useState<{ latitude: number, longitude: number }>({
-        latitude: 0, 
+    const [corporateName, setCorporateName] = useState("")
+    const [EstablishmentsInfos, setEstablishmentsInfos] = useState<Array<{
+        establishmentsId: string
+        corporateName: string
+    }>>([])
+    const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>({
+        latitude: 0,
         longitude: 0
     })
+    const { error, loading, data } = useGetEstablishmentByCorporateName(corporateName)
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setEstablishmentsInfos([])
+            if (!error && !loading && corporateName) {
+                const establishment = data?.establishments.data.map(establishment => {
+                    return {
+                        establishmentsId: establishment.id,
+                        corporateName: establishment.attributes.corporateName
+                    }
+                })
+
+                if (establishment) {
+                    if (corporateName === "") setEstablishmentsInfos([])
+                    else setEstablishmentsInfos(prevState => [...prevState, ...establishment])
+                }
+
+            }
+        }, [error, loading, corporateName])
+    )
 
     useEffect(() => {
         storage.load<UserInfos>({
@@ -72,12 +100,11 @@ export default function () {
         }).then(data => setUserGeolocation(data))
     }, [])
 
-
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
     return (
         <Navigator>
-            
+
             <Screen
                 name="Home"
                 options={({ route: { params } }) => ({
@@ -87,20 +114,49 @@ export default function () {
                         backgroundColor: '#292929',
                     },
                     headerTitle: () => (
-                        <TextInput
-                            theme={{ colors: { placeholder: '#e9e9e9' } }}
-                            placeholder="O que você está procurando?"
-                            className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-                            right={<TextInput.Icon icon={'magnify'} />}
-                        />
+                        <>
+                            <TextInput
+                                theme={{ colors: { placeholder: '#e9e9e9' } }}
+                                placeholder="O que você está procurando?"
+                                underlineColorAndroid="transparent"
+                                underlineColor='transparent'
+                                className="bg-white rounded-t-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                                right={<TextInput.Icon icon={'magnify'} />}
+                                onChangeText={(e) => {
+                                    setCorporateName(e)
+                                }}
+                            />
+                            <View className='absolute top-[55px] w-full'>
+                                {
+                                    EstablishmentsInfos ? EstablishmentsInfos.length > 0 ? EstablishmentsInfos.map(item => {
+                                        return (
+                                            <TouchableOpacity key={item.establishmentsId} className='h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1' onPress={() => {
+                                                navigation.navigate("EstablishmentInfo", {
+                                                    establishmentID: item.establishmentsId,
+                                                    userPhoto: params.userPhoto
+                                                })
+                                            }}>
+                                                <Text className='text-sm outline-none'>{item.corporateName}</Text>
+                                            </TouchableOpacity>
+                                        )
+                                    }) : (
+                                        <></>
+                                    ) : (
+                                        <></>
+                                    )
+                                }
+                            </View>
+                        </>
                     ),
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            console.log({ params })
-                            navigation.navigate('ProfileSettings', {
-                                userPhoto: HOST_API + params.userPhoto ?? undefined,
-                                userID: params.userID
-                            })
+                            if (params.userID)
+                                navigation.navigate('ProfileSettings', {
+                                    userPhoto: HOST_API + params.userPhoto ?? undefined,
+                                    userID: params.userID
+                                })
+                            else
+                                navigation.navigate("Login")
                         }}>
                             <Image
                                 source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
@@ -152,7 +208,7 @@ export default function () {
                     },
                 }}
             />
-            
+
             <Screen
                 name="InfoProfileEstablishment"
                 component={InfoProfileEstablishment}
@@ -204,7 +260,7 @@ export default function () {
             />
             <Screen
                 name='UpdateSchedule'
-                component={updateSchedule}
+                component={UpdateSchedule}
                 options={{
                     headerShown: false
                 }}
@@ -543,10 +599,13 @@ export default function () {
                     },
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            navigation.navigate('ProfileSettings', {
-                                userPhoto: params.userPhoto,
-                                userID: userId ?? ""
-                            })
+                            if (params.userID)
+                                navigation.navigate('ProfileSettings', {
+                                    userPhoto: params.userPhoto,
+                                    userID: userId ?? ""
+                                })
+                            else
+                                navigation.navigate("Login")
                         }}>
                             <Image
                                 source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
@@ -797,25 +856,25 @@ export default function () {
                 })}
             />
             <Screen
-              name='ForgotPassword'
-              component={ForgotPassword}
-              options={{
-                headerShown: false
-              }}
+                name='ForgotPassword'
+                component={ForgotPassword}
+                options={{
+                    headerShown: false
+                }}
             />
             <Screen
-              name='InsertResetCode'
-              component={InsertResetCode}
-              options={{
-                headerShown: false
-              }}
+                name='InsertResetCode'
+                component={InsertResetCode}
+                options={{
+                    headerShown: false
+                }}
             />
             <Screen
-              name='SetNewPassword'
-              component={SetNewPassword}
-              options={{
-                headerShown: false
-              }}
+                name='SetNewPassword'
+                component={SetNewPassword}
+                options={{
+                    headerShown: false
+                }}
             />
         </Navigator>
     )
