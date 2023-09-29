@@ -220,7 +220,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 />
             }
             {
-                userHookData &&
                 <View className={`absolute bottom-0 left-0 right-0`}>
                     <BottomBlackMenu
                         screen="Home"
