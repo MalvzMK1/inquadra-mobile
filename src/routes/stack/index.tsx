@@ -50,16 +50,16 @@ import WithdrawScreen from '../../screens/FinancialEstablishment/Client/Withdraw
 import updateSchedule from '../../screens/UpdateSchedule';
 import PaymentScheduleUpdate from '../../screens/UpdateSchedule/updateSchedule';
 import ForgotPassword from '../../screens/ForgotPassword'
-import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
-import {SetNewPassword} from "../../screens/ForgotPassword/setNewPassword";
+import { InsertResetCode } from "../../screens/ForgotPassword/insertResetCode";
+import { SetNewPassword } from "../../screens/ForgotPassword/setNewPassword";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
     const [menuBurguer, setMenuBurguer] = useState(false)
     const [userId, setUserId] = useState<string>();
-    const [userGeolocation ,setUserGeolocation] = useState<{ latitude: number, longitude: number }>({
-        latitude: 0, 
+    const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>({
+        latitude: 0,
         longitude: 0
     })
 
@@ -77,7 +77,7 @@ export default function () {
 
     return (
         <Navigator>
-            
+
             <Screen
                 name="Home"
                 options={({ route: { params } }) => ({
@@ -96,7 +96,7 @@ export default function () {
                     ),
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            if(params.userID)
+                            if (params.userID)
                                 navigation.navigate('ProfileSettings', {
                                     userPhoto: HOST_API + params.userPhoto ?? undefined,
                                     userID: params.userID
@@ -154,7 +154,7 @@ export default function () {
                     },
                 }}
             />
-            
+
             <Screen
                 name="InfoProfileEstablishment"
                 component={InfoProfileEstablishment}
@@ -545,7 +545,7 @@ export default function () {
                     },
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            if(params.userID)
+                            if (params.userID)
                                 navigation.navigate('ProfileSettings', {
                                     userPhoto: params.userPhoto,
                                     userID: userId ?? ""
@@ -585,10 +585,15 @@ export default function () {
                     headerRight: () => (
                         <TouchableOpacity
                             className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
-                            onPress={() => navigation.navigate('ProfileSettings', {
-                                userID: userId ?? "",
-                                userPhoto: params.userPhoto
-                            })}>
+                            onPress={() => {
+                                if (params.userId)
+                                    navigation.navigate('ProfileSettings', {
+                                        userPhoto: params.userPhoto,
+                                        userID: userId ?? ""
+                                    })
+                                else
+                                    navigation.navigate("Login")
+                            }}>
                             <Image
                                 source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
                                 className='w-full h-full'
@@ -784,10 +789,15 @@ export default function () {
                     headerRight: () => (
                         <TouchableOpacity
                             className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
-                            onPress={() => navigation.navigate('ProfileSettings', {
-                                userID: userId ?? "",
-                                userPhoto: params.userPhoto
-                            })}>
+                            onPress={() => {
+                                if (params.userId)
+                                    navigation.navigate('ProfileSettings', {
+                                        userPhoto: params.userPhoto,
+                                        userID: userId ?? ""
+                                    })
+                                else
+                                    navigation.navigate("Login")
+                            }}>
                             <Image
                                 source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
                                 className='w-full h-full'
@@ -802,25 +812,25 @@ export default function () {
                 })}
             />
             <Screen
-              name='ForgotPassword'
-              component={ForgotPassword}
-              options={{
-                headerShown: false
-              }}
+                name='ForgotPassword'
+                component={ForgotPassword}
+                options={{
+                    headerShown: false
+                }}
             />
             <Screen
-              name='InsertResetCode'
-              component={InsertResetCode}
-              options={{
-                headerShown: false
-              }}
+                name='InsertResetCode'
+                component={InsertResetCode}
+                options={{
+                    headerShown: false
+                }}
             />
             <Screen
-              name='SetNewPassword'
-              component={SetNewPassword}
-              options={{
-                headerShown: false
-              }}
+                name='SetNewPassword'
+                component={SetNewPassword}
+                options={{
+                    headerShown: false
+                }}
             />
         </Navigator>
     )
