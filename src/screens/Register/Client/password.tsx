@@ -166,10 +166,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                 {isTermCheckedError && <Text className='text-red-400 text-sm'>Leia os termos</Text>}
 
                 <CaptchaCard
-                    checked={isCaptchaChecked}
-                    onChange={(checked) => {
-                        console.log(checked)
-                    }}
+                    // checked={true}
+                    // onChange={(checked) => {
+                    //     console.log(checked)
+                    // }}
                 />
                 {/*<View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">*/}
                 {/*    <View className="flex flex-row items-center">*/}
