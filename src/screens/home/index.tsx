@@ -167,7 +167,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         }}
                     >
                         {
-                            establishments.filter(item => { return item.distance <= 5 }).filter(item => {
+                            establishments.filter(item => { return item?.distance <= 5 }).filter(item => {
                                 if (sportSelected) {
                                     return item.type.split(" & ").includes(sportSelected)
                                 } else {
@@ -192,7 +192,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                             id={item.id}
                                             key={item.id}
                                             name={item.name}
-                                            distance={item.distance}
+                                            distance={item.distance ?? ""}
                                             image={item.image}
                                             type={item.type}
                                             userId={route?.params?.userID ?? ""}

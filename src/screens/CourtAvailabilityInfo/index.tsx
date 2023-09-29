@@ -207,7 +207,7 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
                                 )
                             }
                             {
-                                !route.params.userId && availabilities.length > 0 && (
+                                !route.params.userId && (
                                     <Text className="text-xl font-black text-center">FAÇA <Text onPress={() => navigation.navigate("Login")} className="text-xl font-black text-center underline">LOGIN</Text> NO APP PARA PODER FAVORITAR UM ESTABELECIMENTO!</Text>
                                 )
                             }
