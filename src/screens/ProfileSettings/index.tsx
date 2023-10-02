@@ -32,6 +32,7 @@ import axios from 'axios';
 import { set } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import storage from '../../utils/storage'
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Card } from '../../types/Card';
 import CreditCardCard from '../../components/CreditCardInfoCard';
@@ -331,6 +332,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
 
 
+
     async function loadInformations() {
         let newUserInfos = userInfos;
         if (!loading && data) {
@@ -441,8 +443,8 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     return (
         <View className="flex-1 bg-white h-full">
-            <View className=' h-11 w-max  bg-zinc-900'></View>
-            <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
+            <View className=' h-11 w-max  bg-[#292929]'></View>
+            <View className=' h-16 w-max  bg-[#292929] flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
                     <MaterialIcons name='arrow-back' color={'white'} size={30} onPress={() => navigation.goBack()} />
                 </View>
@@ -868,6 +870,13 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         </Modal>
                     </ScrollView>
             }
+            <BottomBlackMenu
+                screen='Home'
+                isDisabled={true}
+                userPhoto={route.params.userPhoto ? route.params.userPhoto : ""}
+                userID={route.params.userID}
+                paddingTop={50}
+            />
         </View >
     );
 }

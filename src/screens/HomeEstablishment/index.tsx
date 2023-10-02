@@ -124,12 +124,12 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                     <Text className='text-lg font-bold text-white'>Olá, {firstName}!</Text>
                 </View>
                 <View className='h-max w-max flex justify-center items-center'>
-                    <TouchableOpacity className='h-12 W-12' onPress={() => navigation.navigate('InfoProfileEstablishment', {
-                        userPhoto: dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null,
-                        establishmentId: establishment_id
+                    <TouchableOpacity className='h-12 w-12' onPress={() => navigation.navigate("InfoProfileEstablishment", {
+                        userPhoto: dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ?? ""
+                    })}>
                     })}>
                         <Image
-                            source={ dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ? { uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url } : require("../../assets/default-user-image.png")}
+                            source={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ? { uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url } : require("../../assets/default-user-image.png")}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />

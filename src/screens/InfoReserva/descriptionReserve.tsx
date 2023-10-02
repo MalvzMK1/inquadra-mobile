@@ -205,7 +205,14 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     cvv: parseInt(data.cvv),
                     date: convertToAmericanDate(data.date),
                     countryID: countryId,
-                    publishedAt: new Date().toISOString()
+                    publishedAt: new Date().toISOString(),
+                    cep: data.cep,
+                    city: data.city,
+                    complement: data.complement,
+                    number: data.number,
+                    state: data.state,
+                    neighborhood: data.district,
+                    street: data.street
                 }
             });
 

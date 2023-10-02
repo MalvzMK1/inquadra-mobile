@@ -32,7 +32,7 @@ LocaleConfig.locales['pt-br'] = {
 
 const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-export default function updateSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'UpdateSchedule'>) {
+export default function UpdateSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'UpdateSchedule'>) {
     const {
         data: courtAvailability,
         loading: isCourtAvailabilityLoading,

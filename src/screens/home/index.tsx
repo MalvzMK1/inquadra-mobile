@@ -35,11 +35,19 @@ interface EstablishmentObject {
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+    const [userGeolocationDelta, setUserGeolocationDelta] = useState<{latDelta: number, longDelta: number }>();
+    const [userId, setUserId] = useState("")
     const pointerMap = require('../../assets/pointerMap.png');
     useEffect(() => {
         storage.load<{ latitude: number, longitude: number }>({
             key: 'userGeolocation'
         }).then(data => setUserGeolocation(data))
+
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            setUserId(data.userId)
+        })
     }, [])
 
     const { data, loading, error } = useEstablishmentCardInformations()
@@ -138,6 +146,26 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         setSportTypes(newAvailableSportTypes);
     }, [availableSportTypes, availableSportTypesError]);
 
+    useEffect(() => {
+        if (userGeolocation) {
+            const radiusKm = 5;
+
+            const earthRadiusKm = 6371; // Raio médio da Terra em quilômetros
+            const deltaLatitude: number = (radiusKm / earthRadiusKm) * (180 / Math.PI);
+            const deltaLongitude: number = (radiusKm / (earthRadiusKm * Math.cos(Math.PI * (userGeolocation?.latitude / 180)))) * (180 / Math.PI);
+
+            const zoomOutFactor = 3;
+
+            const newLatitudeDelta = deltaLatitude * zoomOutFactor;
+            const newLongitudeDelta = deltaLongitude * zoomOutFactor;
+
+            setUserGeolocationDelta({
+                latDelta: newLatitudeDelta,
+                longDelta: newLongitudeDelta
+            })
+        }
+    }, [userGeolocation])
+
     return (
         <View className="flex-1 flex flex-col justify-center items-center">
             {
@@ -147,7 +175,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
             <View className='flex-1'>
 
-                {userGeolocation && (
+                {(userGeolocation && userGeolocationDelta) && (
                     <MapView
                         provider={PROVIDER_GOOGLE}
                         loadingEnabled
@@ -160,9 +188,18 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         initialRegion={{
                             latitude: userGeolocation.latitude,
                             longitude: userGeolocation.longitude,
-                            latitudeDelta: 0.004,
-                            longitudeDelta: 0.004,
+                            latitudeDelta: userGeolocationDelta.latDelta,
+                            longitudeDelta: userGeolocationDelta.longDelta,
                         }}
+                        // initialCamera={{
+                        //     zoom: 0.5,
+                        //     center: {
+                        //         ...userGeolocation
+                        //     },
+                        //     heading: 1,
+                        //     pitch: 1,
+                        //     altitude: 10000
+                        // }}
                     >
                         {
                             establishments.length > 0 &&
@@ -183,14 +220,15 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                         description={item.name}
                                     >
                                     <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
-                                            establishmentID: item.id,
+                                            establishmentId: item.id,
+                                            userId: userId,
                                             userPhoto: undefined
                                         })}>
                                             <CourtBallon
                                                 id={item.id}
                                                 key={item.id}
                                                 name={item.name}
-                                                distance={item.distance}
+                                                distance={item.distance ?? ""}
                                                 image={item.image}
                                                 type={item.type}
                                                 userId={route?.params?.userID ?? ""}
@@ -220,7 +258,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 />
             }
             {
-                userHookData &&
                 <View className={`absolute bottom-0 left-0 right-0`}>
                     <BottomBlackMenu
                         screen="Home"
