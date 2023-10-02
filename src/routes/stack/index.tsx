@@ -104,7 +104,6 @@ export default function () {
 
     return (
         <Navigator>
-
             <Screen
                 name="Home"
                 options={({ route: { params } }) => ({
@@ -132,8 +131,9 @@ export default function () {
                                         return (
                                             <TouchableOpacity key={item.establishmentsId} className='h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1' onPress={() => {
                                                 navigation.navigate("EstablishmentInfo", {
-                                                    establishmentID: item.establishmentsId,
-                                                    userPhoto: params.userPhoto
+                                                    establishmentId: item.establishmentsId,
+                                                    userPhoto: params.userPhoto,
+                                                    userId: params.userID
                                                 })
                                             }}>
                                                 <Text className='text-sm outline-none'>{item.corporateName}</Text>
@@ -206,6 +206,7 @@ export default function () {
                         height: 200,
                         backgroundColor: '#292929',
                     },
+                    headerLeft: (() => (<></>))
                 }}
             />
 
@@ -599,16 +600,18 @@ export default function () {
                     },
                     headerRight: () => (
                         <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => {
-                            if (params.userID)
-                                navigation.navigate('ProfileSettings', {
-                                    userPhoto: params.userPhoto,
-                                    userID: userId ?? ""
-                                })
+                            if (params.userID) {
+                              // const photo: string = params.userPhoto
+                              navigation.navigate('ProfileSettings', {
+                                userPhoto: params.userPhoto,
+                                userID: userId ?? ""
+                              })
+                            }
                             else
                                 navigation.navigate("Login")
                         }}>
                             <Image
-                                source={params.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
+                                source={params.userPhoto ? { uri: `${params.userPhoto}` } : require('../../assets/default-user-image.png')}
                                 className="w-full h-full"
                             />
                         </TouchableOpacity>
@@ -639,10 +642,15 @@ export default function () {
                     headerRight: () => (
                         <TouchableOpacity
                             className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
-                            onPress={() => navigation.navigate('ProfileSettings', {
-                                userID: userId ?? "",
-                                userPhoto: params.userPhoto
-                            })}>
+                            onPress={() => {
+                                if (params.userId)
+                                    navigation.navigate('ProfileSettings', {
+                                        userPhoto: params.userPhoto,
+                                        userID: userId ?? ""
+                                    })
+                                else
+                                    navigation.navigate("Login")
+                            }}>
                             <Image
                                 source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
                                 className='w-full h-full'
@@ -838,10 +846,15 @@ export default function () {
                     headerRight: () => (
                         <TouchableOpacity
                             className='w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden'
-                            onPress={() => navigation.navigate('ProfileSettings', {
-                                userID: userId ?? "",
-                                userPhoto: params.userPhoto
-                            })}>
+                            onPress={() => {
+                                if (params.userId)
+                                    navigation.navigate('ProfileSettings', {
+                                        userPhoto: params.userPhoto,
+                                        userID: userId ?? ""
+                                    })
+                                else
+                                    navigation.navigate("Login")
+                            }}>
                             <Image
                                 source={params?.userPhoto ? { uri: `${HOST_API}${params.userPhoto}` } : require('../../assets/default-user-image.png')}
                                 className='w-full h-full'
