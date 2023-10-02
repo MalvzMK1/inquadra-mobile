@@ -103,7 +103,7 @@ export default function () {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
     return (
-        <Navigator>
+        <Navigator>            
             <Screen
                 name="Home"
                 options={({ route: { params } }) => ({
@@ -209,11 +209,10 @@ export default function () {
                     headerLeft: (() => (<></>))
                 }}
             />
-
             <Screen
                 name="InfoProfileEstablishment"
                 component={InfoProfileEstablishment}
-                options={{
+                options={({ route: { params } }) => ({
                     headerTintColor: 'white',
                     headerStyle: {
                         height: 100,
@@ -227,7 +226,7 @@ export default function () {
                     ),
                     headerRight: () => (
                         <TouchableOpacity style={{ paddingRight: 10 }}>
-                            <Image source={require('../../assets/picture.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+                            <Image source={ params.userPhoto ? { uri: HOST_API + params.userPhoto } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
                         </TouchableOpacity>
                     ),
                     headerLeft: () => (
@@ -236,7 +235,7 @@ export default function () {
                             <Icon name="arrow-back" size={25} color="white" />
                         </TouchableOpacity>
                     ),
-                }}
+                })}
             />
             <Screen
                 name='ChooseUserType'
@@ -323,7 +322,7 @@ export default function () {
             <Screen
                 name='Schedulings'
                 component={Schedulings}
-                options={{
+                options={({ route: { params } }) => ({
                     headerTintColor: 'white',
                     headerStyle: {
                         height: 80,
@@ -336,16 +335,19 @@ export default function () {
                         </View>
                     ),
                     headerRight: () => (
-                        <TouchableOpacity className='pr-[10px]'>
-                            <Image source={require('../../assets/court_image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
+                        <TouchableOpacity className='pr-[10px]' onPress={() => navigation.navigate("InfoProfileEstablishment", {
+                            establishmentId: params.establishmentId,
+                            userPhoto: params.establishmentPhoto ?? ""
+                        })}>
+                            <Image source={params.establishmentPhoto ? { uri: HOST_API + params.establishmentPhoto } : require('../../assets/default-user-image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
                         </TouchableOpacity>
                     ),
                     headerLeft: () => (
-                        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
                             <Icon name="arrow-back" size={25} color="white" />
                         </TouchableOpacity>
                     ),
-                }}
+                })}
             />
             <Screen
                 name="CourtSchedule"

@@ -34,7 +34,6 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     const dayOfWeek = format(targetDate, 'EEEE');
 
     const { data: dataEstablishmentId, error: errorEstablishmentId, loading: loadingEstablishmentId } = useGetUserEstablishmentInfos(userId!)
-    console.log(dataEstablishmentId)
     const establishment_id = dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.establishment?.data?.id!
     const [fantasy_name, setFantasyName] = useState('')
     const day_week = dayOfWeek
@@ -124,12 +123,12 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                     <Text className='text-lg font-bold text-white'>Olá, {firstName}!</Text>
                 </View>
                 <View className='h-max w-max flex justify-center items-center'>
-                    <TouchableOpacity className='h-12 w-12' onPress={() => navigation.navigate("InfoProfileEstablishment", {
-                        userPhoto: dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ?? ""
-                    })}>
+                    <TouchableOpacity className='h-12 W-12' onPress={() => navigation.navigate('InfoProfileEstablishment', {
+                        userPhoto: dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null,
+                        establishmentId: establishment_id
                     })}>
                         <Image
-                            source={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ? { uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url } : require("../../assets/default-user-image.png")}
+                            source={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ? { uri: HOST_API + dataSchedulings.establishment.data.attributes.logo.data.attributes.url } : require("../../assets/default-user-image.png")}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -200,7 +199,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                                 }
                             </View>
                         </View>
-                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: undefined, establishmentId: establishment_id, userId: userId!  })}>
+                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: undefined, establishmentId: establishment_id, userId: userId! })}>
                             <Text className="text-white text-center h-4">Ver detalhes</Text>
                         </TouchableOpacity>
                         <View className="pt-10">
@@ -348,5 +347,3 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
         </View>
     );
 }
-
-
