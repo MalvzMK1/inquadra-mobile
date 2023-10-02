@@ -681,7 +681,10 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         onPress={() => {
                             setSchedulingsHistoricFocus(true)
                             setSchedulingsFocus(false)
-                            navigation.navigate("Schedulings")
+                            navigation.navigate("Schedulings", {
+                                establishmentId: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id ?? "",
+                                establishmentPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url ?? undefined
+                            })
                         }}>
                         <Text
 
