@@ -35,6 +35,7 @@ interface EstablishmentObject {
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+    const [userGeolocationDelta, setUserGeolocationDelta] = useState<{latDelta: number, longDelta: number }>();
     const [userId, setUserId] = useState("")
     const pointerMap = require('../../assets/pointerMap.png');
     useEffect(() => {
@@ -145,6 +146,26 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         setSportTypes(newAvailableSportTypes);
     }, [availableSportTypes, availableSportTypesError]);
 
+    useEffect(() => {
+        if (userGeolocation) {
+            const radiusKm = 5;
+
+            const earthRadiusKm = 6371; // Raio médio da Terra em quilômetros
+            const deltaLatitude: number = (radiusKm / earthRadiusKm) * (180 / Math.PI);
+            const deltaLongitude: number = (radiusKm / (earthRadiusKm * Math.cos(Math.PI * (userGeolocation?.latitude / 180)))) * (180 / Math.PI);
+
+            const zoomOutFactor = 3;
+
+            const newLatitudeDelta = deltaLatitude * zoomOutFactor;
+            const newLongitudeDelta = deltaLongitude * zoomOutFactor;
+
+            setUserGeolocationDelta({
+                latDelta: newLatitudeDelta,
+                longDelta: newLongitudeDelta
+            })
+        }
+    }, [userGeolocation])
+
     return (
         <View className="flex-1 flex flex-col justify-center items-center">
             {
@@ -154,7 +175,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
             <View className='flex-1'>
 
-                {userGeolocation && (
+                {(userGeolocation && userGeolocationDelta) && (
                     <MapView
                         provider={PROVIDER_GOOGLE}
                         loadingEnabled
@@ -167,9 +188,18 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         initialRegion={{
                             latitude: userGeolocation.latitude,
                             longitude: userGeolocation.longitude,
-                            latitudeDelta: 0.004,
-                            longitudeDelta: 0.004,
+                            latitudeDelta: userGeolocationDelta.latDelta,
+                            longitudeDelta: userGeolocationDelta.longDelta,
                         }}
+                        // initialCamera={{
+                        //     zoom: 0.5,
+                        //     center: {
+                        //         ...userGeolocation
+                        //     },
+                        //     heading: 1,
+                        //     pitch: 1,
+                        //     altitude: 10000
+                        // }}
                     >
                         {
                             establishments.length > 0 &&
