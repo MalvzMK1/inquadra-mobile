@@ -77,7 +77,8 @@ export default function CourtCardHome(props: CourtCardInfos) {
 	return (
 		<View className='flex flex-row w-full justify-between'>
 			<TouchableOpacity className='flex flex-row  gap-x-[14px] mb-5 w-full' onPress={() => navigation.navigate('EstablishmentInfo', {
-				establishmentID: props.id,
+				establishmentId: props.id,
+				userId: userId,
 				userPhoto: userByIdData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url,
 			})}>
 				<Image className='w-[45%] max-w-[115px] h-[85px] rounded-[10px]' source={{ uri: props.image }} />
@@ -95,12 +96,12 @@ export default function CourtCardHome(props: CourtCardInfos) {
 				<AntDesign name="heart" size={20} color={color}
 					onPress={
 						() => {
-									if(userId == "")
-										navigation.navigate("Login")
-									else {
-										color == "white" ? setColor("red") : setColor("white")
-										handleUpdateCourtLike(props.id)
-									}
+							if (userId == "")
+								navigation.navigate("Login")
+							else {
+								color == "white" ? setColor("red") : setColor("white")
+								handleUpdateCourtLike(props.id)
+							}
 						}
 					}
 				/>

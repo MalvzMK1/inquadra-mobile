@@ -35,11 +35,18 @@ interface EstablishmentObject {
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+    const [userId, setUserId] = useState("")
     const pointerMap = require('../../assets/pointerMap.png');
     useEffect(() => {
         storage.load<{ latitude: number, longitude: number }>({
             key: 'userGeolocation'
         }).then(data => setUserGeolocation(data))
+
+        storage.load<UserInfos>({
+            key: 'userInfos'
+        }).then(data => {
+            setUserId(data.userId)
+        })
     }, [])
 
     const { data, loading, error } = useEstablishmentCardInformations()
@@ -179,13 +186,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                     >
                                     <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
                                             establishmentID: item.id,
+                                        userId: userId,
                                             userPhoto: undefined
                                         })}>
                                             <CourtBallon
                                                 id={item.id}
                                                 key={item.id}
                                                 name={item.name}
-                                                distance={item.distance}
+                                                distance={item.distance ?? ""}
                                                 image={item.image}
                                                 type={item.type}
                                                 userId={route?.params?.userID ?? ""}
