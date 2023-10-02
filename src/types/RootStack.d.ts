@@ -40,7 +40,10 @@ type RootStackParamList = {
         courtId: string | undefined,
         userPhoto: string | undefined
     };
-    Schedulings: undefined
+    Schedulings: {
+        establishmentId: string
+        establishmentPhoto: string | undefined
+    }
     ChooseUserType: undefined;
     TermsOfService: undefined;
     Register: undefined;
