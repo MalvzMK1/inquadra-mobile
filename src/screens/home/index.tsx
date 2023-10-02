@@ -85,7 +85,15 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         establishment?.attributes?.courts.data
                     ))
                     .map((establishment => {
-                        let establishmentObject: EstablishmentObject;
+                        let establishmentObject: EstablishmentObject = {
+                            id: "",
+                            latitude: 0,
+                            longitude: 0,
+                            name: "",
+                            type: "",
+                            image: "",
+                            distance: 0,
+                        };
 
                         let courtTypes = establishment?.attributes?.courts.data!
                             .filter(court => court?.attributes?.court_types.data.length > 0)
@@ -94,29 +102,27 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
                         if (!courtTypes) courtTypes = []
 
-                        if (userGeolocation) {
-                            establishmentObject = {
-                                id: establishment.id,
-                                name: establishment?.attributes?.corporateName,
-                                latitude: Number(establishment?.attributes?.address.latitude),
-                                longitude: Number(establishment?.attributes?.address.longitude),
-                                distance: calculateDistance(
-                                    userGeolocation.latitude,
-                                    userGeolocation.longitude,
-                                    Number(establishment?.attributes?.address.latitude),
-                                    Number(establishment?.attributes?.address.longitude)
-                                ) / 1000,
-                                image: HOST_API + establishment?.attributes?.logo?.data?.attributes?.url,
-                                type: courtTypes.length > 0 ? courtTypes.join(' & ') : '',
-                            }
+                        if (userGeolocation) establishmentObject = {
+                            id: establishment.id,
+                            name: establishment?.attributes?.corporateName,
+                            latitude: Number(establishment?.attributes?.address.latitude),
+                            longitude: Number(establishment?.attributes?.address.longitude),
+                            distance: calculateDistance(
+                                userGeolocation.latitude,
+                                userGeolocation.longitude,
+                                Number(establishment?.attributes?.address.latitude),
+                                Number(establishment?.attributes?.address.longitude)
+                            ) / 1000,
+                            image: HOST_API + establishment?.attributes?.logo?.data?.attributes?.url,
+                            type: courtTypes.length > 0 ? courtTypes.join(' & ') : '',
                         }
+
 
                         return establishmentObject
                     }));
 
-                if (newEstablishments) {
-                    setEstablishments(newEstablishments);
-                }
+                if (newEstablishments) setEstablishments(newEstablishments);
+
 
                 navigation.setParams({
                     userPhoto: userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ?? ""
@@ -132,9 +138,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         availableSportTypes?.courtTypes.data.forEach(courtType => {
             const sportAlreadyAdded = newAvailableSportTypes.some(sport => sport.id === courtType.id);
 
-            if (!sportAlreadyAdded) {
-                newAvailableSportTypes.push({ id: courtType.id, name: courtType?.attributes?.name });
-            }
+            if (!sportAlreadyAdded) newAvailableSportTypes.push({ id: courtType.id, name: courtType?.attributes?.name });
+            
         });
 
         setSportTypes(newAvailableSportTypes);
@@ -222,18 +227,18 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     HandleSportSelected={HandleSportSelected}
                 />
             }
-
-            <View className={`absolute bottom-0 left-0 right-0`}>
-                <BottomBlackMenu
-                    screen="Home"
-                    userID={route?.params?.userID}
-                    userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
-                    key={1}
-                    isDisabled={!isDisabled}
-                    paddingTop={2}
-                />
-            </View>
-
+            {
+                <View className={`absolute bottom-0 left-0 right-0`}>
+                    <BottomBlackMenu
+                        screen="Home"
+                        userID={route?.params?.userID}
+                        userPhoto={userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + userHookData.usersPermissionsUser.data.attributes.photo.data?.attributes.url : ''}
+                        key={1}
+                        isDisabled={!isDisabled}
+                        paddingTop={2}
+                    />
+                </View>
+            }
         </View>
     );
 }

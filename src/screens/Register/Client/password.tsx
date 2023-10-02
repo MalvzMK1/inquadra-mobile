@@ -42,7 +42,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
     }
 
     const [isTermChecked, setIsTermChecked] = useState(false)
-    const [isCaptchaChecked, setIsCaptchaChecked] = useState(false)
+    const [isCaptchaChecked, setIsCaptchaChecked] = useState(true)
     const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false)
     const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -51,7 +51,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
     function handleSignup(data: IFormData): void {
         setIsLoading(true)
         if (isTermChecked) {
-            if (isCaptchaChecked) {
+            // if (isCaptchaChecked) {
                 // console.log(data)
                 if (data.password === data.confirmPassword) {
                     const userDatas = {
@@ -82,10 +82,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                     setIsLoading(false)
                     setPasswordsMatch(false)
                 }
-            } else {
-                setIsCaptchaCheckedError(true)
-                setIsLoading(false)
-            }
+            // } else {
+            //     setIsCaptchaCheckedError(true)
+            //     setIsLoading(false)
+            // }
         } else {
             setIsTermCheckedError(true)
             setIsLoading(false)
@@ -166,10 +166,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                 {isTermCheckedError && <Text className='text-red-400 text-sm'>Leia os termos</Text>}
 
                 <CaptchaCard
-                    checked={isCaptchaChecked}
-                    onChange={(checked) => {
-                        console.log(checked)
-                    }}
+                    // checked={true}
+                    // onChange={(checked) => {
+                    //     console.log(checked)
+                    // }}
                 />
                 {/*<View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">*/}
                 {/*    <View className="flex flex-row items-center">*/}

@@ -31,6 +31,7 @@ import useDeleteUser from "../../hooks/useDeleteUser";
 import axios from 'axios';
 import { set } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 interface IFormData {
     photo: string
@@ -200,7 +201,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [photo, setPhoto] = useState('')
     const [imageEdited, setImageEdited] = useState(false)
 
-    useFocusEffect(() => { setPhoto(data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!)})
+    useFocusEffect(() => { setPhoto(data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!) })
 
     const handleProfilePictureUpload = async () => {
         try {
@@ -217,11 +218,11 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 aspect: [1, 1],
                 quality: 1,
             });
-            
+
 
             if (!result.canceled) {
-                await uploadImage(result.uri).then((uploadedImageID) => {
-                    setProfilePicture(result.uri);
+                await uploadImage(result.assets[0].uri).then((uploadedImageID) => {
+                    setProfilePicture(result.assets[0].uri);
                     setImageEdited(true)
                     console.log('ID da imagem enviada:', uploadedImageID);
                 });
@@ -252,7 +253,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             const uploadedImageID = response.data[0].id;
 
             console.log('Imagem enviada com sucesso!', response.data);
-            
+
 
             setIsLoading(false);
 
@@ -280,7 +281,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         cpf: data.cpf,
                         phone_number: data.phoneNumber,
                         username: data.name,
-                        photo: uploadedImageID, 
+                        photo: uploadedImageID,
                     },
                 });
 
@@ -296,7 +297,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         user_id: userInfos?.id!,
                         email: data.email,
                         cpf: data.cpf,
-                        phoneNumber: data.phoneNumber,
+                        phone_number: data.phoneNumber,
                         username: data.name,
                         photo: uploadedImageID
                     },
@@ -308,6 +309,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             console.error('Erro ao atualizar informações do usuário:', error);
         }
     }
+
 
 
 
@@ -325,11 +327,11 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
                 photo: data.usersPermissionsUser.data?.attributes.photo.data?.id!,
                 paymentCardInfos: {
-                    dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
-                    cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
+                    dueDate: data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate ? data.usersPermissionsUser.data.attributes.paymentCardInformations.dueDate : '',
+                    cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString() : '',
                     country: {
                         id: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.id : '',
-                        value: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.attributes.name : ''
+                        name: data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data ? data.usersPermissionsUser.data.attributes.paymentCardInformations.country.data.attributes.name : ''
                     }
                 },
             };
@@ -358,17 +360,17 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     }, [loading])
 
     let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!
-    let emailDefault    = data?.usersPermissionsUser.data?.attributes.email!
-    let phoneDefault    = data?.usersPermissionsUser.data?.attributes.phoneNumber!
-    let cpfDefault      = data?.usersPermissionsUser.data?.attributes.cpf!
+    let emailDefault = data?.usersPermissionsUser.data?.attributes.email!
+    let phoneDefault = data?.usersPermissionsUser.data?.attributes.phoneNumber!
+    let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!
 
 
     return (
         <View className="flex-1 bg-white h-full">
-            <View className=' h-11 w-max  bg-zinc-900'></View>
-            <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
+            <View className=' h-11 w-max  bg-[#292929]'></View>
+            <View className=' h-16 w-max  bg-[#292929] flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                        <MaterialIcons name='arrow-back' color={'white'} size={30} onPress={() => navigation.goBack()} />
+                    <MaterialIcons name='arrow-back' color={'white'} size={30} onPress={() => navigation.goBack()} />
                 </View>
                 <View className='flex item-center justify-center'>
                     <Text className='text-lg font-bold text-white'>EDITAR</Text>
@@ -563,117 +565,117 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                         </View>
                                     </View>
                                     <View className='flex flex-row justify-between'>
-                                    <View>
-                                        <Text className='text-sm text-[#FF6112]'>CEP</Text>
-                                        <Controller
-                                            name='cep'
-                                            control={paymentCardControl}
-                                            render={({ field: { onChange } }) => (
-                                                <MaskInput
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='Ex: 00000-000'
-                                                    onChangeText={onChange}
-                                                    keyboardType='numeric'>
-                                                </MaskInput>
-                                            )}
-                                        ></Controller>
-                                        
-                                    </View>
-                                    <View>
-                                        <Text className='text-sm text-[#FF6112]'>Numero</Text>
-                                        <Controller
-                                            name='number'
-                                            control={paymentCardControl}
-                                            render={({ field: { onChange } }) => (
-                                                <MaskInput
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='Ex: 0000'
-                                                    onChangeText={onChange}
-                                                    keyboardType='numeric'>
-                                                </MaskInput>
-                                            )}
-                                        ></Controller>
-                                        
-                                    </View>
-                                </View>
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                            <Controller
+                                                name='cep'
+                                                control={paymentCardControl}
+                                                render={({ field: { onChange } }) => (
+                                                    <MaskInput
+                                                        className='p-3 border border-neutral-400 rounded bg-white'
+                                                        placeholder='Ex: 00000-000'
+                                                        onChangeText={onChange}
+                                                        keyboardType='numeric'>
+                                                    </MaskInput>
+                                                )}
+                                            ></Controller>
 
-                                <View>
-                                    <Text className='text-sm text-[#FF6112]'>Rua</Text>
-                                    <Controller
-                                        name='street'
-                                        control={paymentCardControl}
-                                        render={({ field: { onChange } }) => (
-                                            <MaskInput
-                                                className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='Ex: Rua xxxx'
-                                                onChangeText={onChange}>
-                                            </MaskInput>
-                                        )}
-                                    ></Controller>
-                                    
-                                </View>
-                                <View>
-                                    <Text className='text-sm text-[#FF6112]'>Bairro</Text>
-                                    <Controller
-                                        name='district'
-                                        control={paymentCardControl}
-                                        render={({ field: { onChange } }) => (
-                                            <MaskInput
-                                                className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='Ex: Jd. xxxxx'
-                                                onChangeText={onChange}>
-                                            </MaskInput>
-                                        )}
-                                    ></Controller>
-                                    
-                                </View>
-                                <View>
-                                    <Text className='text-sm text-[#FF6112]'>Complemento</Text>
-                                    <Controller
-                                        name='complement'
-                                        control={paymentCardControl}
-                                        render={({ field: { onChange } }) => (
-                                            <MaskInput
-                                                className='p-3 border border-neutral-400 rounded bg-white'
-                                                placeholder='Ex: '
-                                                onChangeText={onChange}>
-                                            </MaskInput>
-                                        )}
-                                    ></Controller>
-                                   
-                                </View>
-                                <View className='flex flex-row justify-between'>
+                                        </View>
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                            <Controller
+                                                name='number'
+                                                control={paymentCardControl}
+                                                render={({ field: { onChange } }) => (
+                                                    <MaskInput
+                                                        className='p-3 border border-neutral-400 rounded bg-white'
+                                                        placeholder='Ex: 0000'
+                                                        onChangeText={onChange}
+                                                        keyboardType='numeric'>
+                                                    </MaskInput>
+                                                )}
+                                            ></Controller>
+
+                                        </View>
+                                    </View>
+
                                     <View>
-                                        <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                        <Text className='text-sm text-[#FF6112]'>Rua</Text>
                                         <Controller
-                                            name='city'
+                                            name='street'
                                             control={paymentCardControl}
                                             render={({ field: { onChange } }) => (
                                                 <MaskInput
                                                     className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='Ex: xxxx'
+                                                    placeholder='Ex: Rua xxxx'
                                                     onChangeText={onChange}>
                                                 </MaskInput>
                                             )}
                                         ></Controller>
-                                        
+
                                     </View>
                                     <View>
-                                        <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                        <Text className='text-sm text-[#FF6112]'>Bairro</Text>
                                         <Controller
-                                            name='state'
+                                            name='district'
                                             control={paymentCardControl}
                                             render={({ field: { onChange } }) => (
                                                 <MaskInput
                                                     className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='Ex: xxxx'
+                                                    placeholder='Ex: Jd. xxxxx'
                                                     onChangeText={onChange}>
                                                 </MaskInput>
                                             )}
                                         ></Controller>
-                                        
+
                                     </View>
-                                </View>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Complemento</Text>
+                                        <Controller
+                                            name='complement'
+                                            control={paymentCardControl}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: '
+                                                    onChangeText={onChange}>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+
+                                    </View>
+                                    <View className='flex flex-row justify-between'>
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                            <Controller
+                                                name='city'
+                                                control={paymentCardControl}
+                                                render={({ field: { onChange } }) => (
+                                                    <MaskInput
+                                                        className='p-3 border border-neutral-400 rounded bg-white'
+                                                        placeholder='Ex: xxxx'
+                                                        onChangeText={onChange}>
+                                                    </MaskInput>
+                                                )}
+                                            ></Controller>
+
+                                        </View>
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                            <Controller
+                                                name='state'
+                                                control={paymentCardControl}
+                                                render={({ field: { onChange } }) => (
+                                                    <MaskInput
+                                                        className='p-3 border border-neutral-400 rounded bg-white'
+                                                        placeholder='Ex: xxxx'
+                                                        onChangeText={onChange}>
+                                                    </MaskInput>
+                                                )}
+                                            ></Controller>
+
+                                        </View>
+                                    </View>
 
                                     <View className="p-2 justify-center items-center">
                                         <TouchableOpacity onPress={handlePaymentCardSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
@@ -699,14 +701,14 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 </View>
 
                                 <View className='p-2'>
-                                    <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
-                                        <Text className='text-gray-50'>Excluir essa conta</Text>
+                                    <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center' >
+                                        <Text className='text-gray-50'>Sair do App</Text>
                                     </TouchableOpacity>
                                 </View>
 
                                 <View className='p-2'>
-                                    <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
-                                        <Text className='text-gray-50'>Sair do App</Text>
+                                    <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md  flex items-center justify-center'>
+                                        <Text className='text-base text-gray-400'>Excluir essa conta</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -741,6 +743,13 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         </Modal>
                     </ScrollView>
             }
+            <BottomBlackMenu
+                screen='Home'
+                isDisabled={true}
+                userPhoto={route.params.userPhoto ? route.params.userPhoto : ""}
+                userID={route.params.userID}
+                paddingTop={50}
+            />
         </View>
     );
 }

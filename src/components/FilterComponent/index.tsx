@@ -46,11 +46,11 @@ export default function FilterComponent() {
     return (
         <>
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 absolute z-10 w-screen h-screen'></Animated.View>
-            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-full'>
-            <ScrollView className=' h-screen w-2/3 pt-4'>
+            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-5/6'>
+                <ScrollView className='flex flex-col gap-y-4 h-full w-3/4 pt-9'>
                     <FilterDropdown amenities={amenities} setAmenities={setAmenities} />
                     <FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} />
-                    
+
                     <View className='flex flex-row justify-between'>
                         <View className='w-[41%]'>
                             <Text className='font-semibold text-white text-base'>
@@ -132,23 +132,23 @@ export default function FilterComponent() {
                                 Filtrar
                             </Text>
                         </Button>
-                        <TouchableOpacity className='flex flex-row self-center gap-x-3'
-                        onPress={() => {
-                            setTimeInit(new Date(date.setHours(0, 0, 0, 0)))
-                            setTimeFinal(new Date(date.setHours(0, 0, 0, 0)))
-                            setDayUseYes(false)
-                            setDayUseNot(false)
-                            setAmenities([])
-                            setDateSelector(`__/__/____`)
-                        }}
-                    >
-                        <Text className='font-semibold text-white border-white border-b-[0.5px] mt border-solid'>
-                            Limpar Filtros
-                        </Text>
-                        <Text className='text-white font-semibold'>
-                            X
-                        </Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity className='flex flex-row self-center gap-x-1 mb-8'
+                            onPress={() => {
+                                setTimeInit(new Date(date.setHours(0, 0, 0, 0)))
+                                setTimeFinal(new Date(date.setHours(0, 0, 0, 0)))
+                                setDayUseYes(false)
+                                setDayUseNot(false)
+                                setAmenities([])
+                                setDateSelector(`__/__/____`)
+                            }}
+                        >
+                            <Text className='font-semibold text-white border-white border-b-[0.5px] mt border-solid'>
+                                Limpar Filtros
+                            </Text>
+                            <Text className='text-white font-semibold'>
+                                X
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
             </Animated.View>
