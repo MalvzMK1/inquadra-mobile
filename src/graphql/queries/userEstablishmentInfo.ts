@@ -45,6 +45,7 @@ export interface IUserEstablishmentResponse {
                             photos: {
                                 data: Array<{
                                     id: Photo['id']
+                                    url: Photo['url']
                                 }>
                             }
                         }
@@ -94,6 +95,7 @@ export const userEstablishmentQuery = gql`
                                 photos {
                                     data {
                                         id
+                                        url
                                     }
                                 }
                                 address {
