@@ -34,6 +34,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import storage from '../../utils/storage'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Card } from '../../types/Card';
+import CreditCardCard from '../../components/CreditCardInfoCard';
+
+
 interface IFormData {
     photo: string
     name: string
@@ -92,9 +95,11 @@ const paymentCardFormSchema = z.object({
 
 type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string, country: { id: string, name: string } } }
 
+
 export default function ProfileSettings({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
     const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
     const [showCard, setShowCard] = useState(false);
+    const [showCreditCards, setShowCraditCards] = useState(false)
     const [showCameraIcon, setShowCameraIcon] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
@@ -148,6 +153,10 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         setShowCard(!showCard);
         setShowCameraIcon(false);
     };
+
+    const handleOpenCardsModal = () => {
+        setShowCraditCards(!showCreditCards)
+    }
 
 
     const updateCardInfos = (data: IPaymentCardFormData) => {
@@ -381,9 +390,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 console.log('Cartões recuperados com sucesso', parsedCards);
             }
         });
+        // AsyncStorage.removeItem('userCards', (error) => {
+        //     if (error) {
+        //         console.error('Erro ao remover os dados', error);
+        //     } else {
+        //         console.log('Dados removidos com sucesso');
+        //     }
+        // });
     }, []);
 
-    
+
     const addCard = (
         number: string,
         maturityDate: string,
@@ -420,7 +436,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
             }
         });
     };
-
 
 
 
@@ -554,6 +569,18 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                     </View>
                                 </View>
                             </TouchableOpacity>
+                            <TouchableOpacity onPress={handleOpenCardsModal}>
+                                <Text className="text-base">Cartões</Text>
+                                <View className="h-30 border border-gray-500 rounded-md">
+                                    <View className="flex-row justify-center items-center m-2">
+                                        <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                                        <Text className="flex-1 text-base text-right mb-0">
+                                            {showCreditCards ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
+                                        </Text>
+                                        <Icon name={showCreditCards ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
 
                             {showCard && (
                                 <View className="border border-gray-500 p-4 mt-10">
@@ -565,12 +592,12 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                             render={({ field: { onChange } }) => (
                                                 <MaskInput
                                                     value={getPaymentCardValues('cardNumber')}
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
                                                     placeholder='Ex: 0000-0000-0000-0000'
+                                                    className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
                                                     onChangeText={onChange}
-                                                    maxLength={8}
-                                                    keyboardType="numeric">
-                                                </MaskInput>
+                                                    mask={Masks.CREDIT_CARD}
+                                                    keyboardType="numeric"
+                                                />
                                             )}
                                         ></Controller>
                                     </View>
@@ -766,6 +793,23 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                     </View>
                                 </View>
                             )}
+                            {
+                                showCreditCards
+                                    ?
+                                    <View className=" border-gray-500 flex w-max h-max">
+                                        {
+                                            cards.map((card) => 
+                                                <CreditCardCard number={card.number}/>
+                                            )
+                                        }
+
+                                    </View>
+                                    : null
+                            }
+
+
+
+
                             <View>
                                 <View className='p-2'>
                                     <TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
@@ -809,7 +853,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 </View>
                             </View>
                         </Modal>
-
                         <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
                             <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
                                 <View className="bg-white rounded-md p-20 items-center">
@@ -825,7 +868,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                         </Modal>
                     </ScrollView>
             }
-        </View>
+        </View >
     );
 }
 
