@@ -190,8 +190,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                         description={item.name}
                                     >
                                     <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
-                                            establishmentID: item.id,
-                                        userId: userId,
+                                            establishmentId: item.id,
+                                            userId: userId,
                                             userPhoto: undefined
                                         })}>
                                             <CourtBallon
