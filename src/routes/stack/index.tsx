@@ -226,7 +226,7 @@ export default function () {
                     ),
                     headerRight: () => (
                         <TouchableOpacity style={{ paddingRight: 10 }}>
-                            <Image source={ params.userPhoto ? { uri: HOST_API + params.userPhoto } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+                            <Image source={params.userPhoto ? { uri: HOST_API + params.userPhoto } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
                         </TouchableOpacity>
                     ),
                     headerLeft: () => (
@@ -365,7 +365,10 @@ export default function () {
                         </View>
                     ),
                     headerRight: () => (
-                        <TouchableOpacity className='pr-[10px]'>
+                        <TouchableOpacity className='pr-[10px]' onPress={() => navigation.navigate("InfoProfileEstablishment", {
+                            establishmentId: params.establishmentId,
+                            userPhoto: params.establishmentPhoto ?? ""
+                        })}>
                             <Image source={params.establishmentPhoto ? { uri: `${HOST_API}${params.establishmentPhoto}` } : require('../../assets/default-user-image.png')} className='w-[30px] h-[30px] rounded-[15px]' />
                         </TouchableOpacity>
                     ),
@@ -742,8 +745,11 @@ export default function () {
                         </View>
                     ),
                     headerRight: () => (
-                        <TouchableOpacity style={{ paddingRight: 10 }}>
-                            <Image source={params?.logo ? { uri: `${HOST_API}${params?.logo}` } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
+                        <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => navigation.navigate("InfoProfileEstablishment", {
+                            establishmentId: params.establishmentId,
+                            userPhoto: params.logo ?? ""
+                        })}>
+                            <Image source={params?.logo ? { uri: HOST_API + params.logo } : require('../../assets/default-user-image.png')} style={{ width: 30, height: 30, borderRadius: 15 }} />
                         </TouchableOpacity>
                     ),
                     headerLeft: () => (
