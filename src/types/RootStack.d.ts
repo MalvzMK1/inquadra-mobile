@@ -10,7 +10,9 @@ type RootStackParamList = {
     };
     CompletedEstablishmentRegistration: undefined;
     CourtSchedule: {
-        establishmentPhoto: string | undefined
+        establishmentPhoto: string | undefined,
+        establishmentId: string,
+        userId: string
     };
     AmountAvailableWithdrawal: {
         establishmentId: string,
@@ -26,11 +28,12 @@ type RootStackParamList = {
         establishmentName: string | undefined
     };
     InfoProfileEstablishment: {
-        userPhoto: string
+        userPhoto: string,
+        establishmentId: string
     }
     FinancialEstablishment: {
         establishmentId: string | undefined,
-        logo: string | undefined
+		logo: string | undefined,
     };
     CourtPriceHour: undefined;
     EditCourt: {
@@ -74,7 +77,7 @@ type RootStackParamList = {
     InfoReserva: {
         userId: string
     };
-    FavoriteCourts: {
+    FavoriteEstablishments: {
         userPhoto: string | undefined,
         userID: string
     };
@@ -171,5 +174,11 @@ type RootStackParamList = {
         pricePayed: number
         activationKey: string | null
     }
-
+    ForgotPassword: undefined
+    InsertResetCode: {
+        email: string
+        username: string
+        id: string
+    }
+    SetNewPassword: undefined
 }

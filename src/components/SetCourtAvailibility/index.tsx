@@ -9,24 +9,14 @@ import { InComponentInputsProvider } from '../../context/ComponentInputsContext'
 export default function SetCourtAvailibility() {
     const nextIdRef = useRef(1)
 
-    const { inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse } = useComponentContext()
-    const [priceHours, setPriceHours] = useState<Array<{ startsAt: string, endsAt: string, price: string }>>([])
+    const { addedComponents, setAddedComponents, dayUse, setDayUse } = useComponentContext()
 
     const handleAddNewComponentButton = () => {
-        const inputValues = {
-            startsAt: '', // Defina os valores iniciais desejados aqui
-            endsAt: '',   // Defina os valores iniciais desejados aqui
-            price: ''      // Defina os valores iniciais desejados aqui
-        }
 
-        setPriceHours(prevState => [...prevState, inputValues])
-
-        // Agora você pode criar o novo componente com os valores iniciais corretos
-        const newComponent = (
+        const newComponent: JSX.Element = (
             <InComponentInputsProvider>
                 <PriceHour
                     key={nextIdRef.current++}
-                    values={inputValues}
                 />
             </InComponentInputsProvider>
         )
@@ -127,13 +117,6 @@ export default function SetCourtAvailibility() {
             <TouchableOpacity onPress={handleAddNewComponentButton} className='h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]'>
                 <Text className='text-white text-[10px]'>Adicionar horário</Text>
             </TouchableOpacity>
-
-            <Text>Input Value: {inputValue}</Text>
-            <TextInput
-                value={inputValue}
-                onChangeText={setInputValue}
-                placeholder="Enter something"
-            />
 
             {!copyButtonClick && (
                 <View className='flex-row items-center justify-between mt-[35px] mb-[30px]'>

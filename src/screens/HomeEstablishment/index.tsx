@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import storage from "../../utils/storage";
 import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSchedulingsByDay";
@@ -11,7 +10,9 @@ import { TextInput, Button, Provider as PaperProvider } from 'react-native-paper
 const { parse, format } = require('date-fns');
 import { HOST_API } from '@env'
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'HomeEstablishment'>) {
     const [selected, setSelected] = useState('');
@@ -21,7 +22,6 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
         storage.load<UserInfos>({
             key: 'userInfos'
         }).then(data => {
-            console.log(data)
             setUserId(data.userId)
         })
     }, [])
@@ -34,13 +34,14 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
     const dayOfWeek = format(targetDate, 'EEEE');
 
     const { data: dataEstablishmentId, error: errorEstablishmentId, loading: loadingEstablishmentId } = useGetUserEstablishmentInfos(userId!)
-    const establishment_id = '5'
+    console.log(dataEstablishmentId)
+    const establishment_id = dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.establishment?.data?.id!
     const [fantasy_name, setFantasyName] = useState('')
     const day_week = dayOfWeek
     const date = format(actualDate, dateFormat);
 
     const { data: dataSchedulings, error: errorSchedulings, loading: loadingSchedulings } = useEstablishmentSchedulingsByDay(establishment_id!, fantasy_name, day_week, date)
-    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id)
+    const { data: dataCourtsEstablishment, error: errorCourts, loading: loadingCourts } = useAllCourtsEstablishment(establishment_id!)
     const [updateActivatedStatus, { data: dataActivateStatus, error: errorActivateStatus, loading: loadingActivateStatus }] = useUpdateScheduleActivateStatus()
 
     const [selectedDate, setSelectedDate] = useState('');
@@ -73,8 +74,6 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
 
     const handleActivate = async (key: string) => {
         let scheduleId: string = getIdByKey(key) ?? "";
-        console.log(scheduleId)
-        console.log(key)
 
         try {
             const { data } = await updateActivatedStatus({
@@ -83,8 +82,6 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                     activate: true
                 }
             });
-
-            console.log(data);
 
             if (data) {
                 if (!errorActivateStatus || !loadingActivateStatus) {
@@ -113,12 +110,13 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
         )
     );
 
+
     return (
         <View className="flex-1">
-            <View className=' h-11 w-max  bg-zinc-900'></View>
-            <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
+            <View className=' h-11 w-max  bg-[#292929]'></View>
+            <View className=' h-16 w-max  bg-[#292929] flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva', { userId: userId ?? "" })}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -128,6 +126,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 w-12' onPress={() => navigation.navigate("InfoProfileEstablishment", {
                         userPhoto: dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ?? ""
+                    })}>
                     })}>
                         <Image
                             source={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url ? { uri: HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url } : require("../../assets/default-user-image.png")}
@@ -201,7 +200,7 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                                 }
                             </View>
                         </View>
-                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: undefined })}>
+                        <TouchableOpacity className="bg-[#FF6112] h-7 rounded flex items-center justify-center" onPress={() => navigation.navigate('CourtSchedule', { establishmentPhoto: undefined, establishmentId: establishment_id, userId: userId!  })}>
                             <Text className="text-white text-center h-4">Ver detalhes</Text>
                         </TouchableOpacity>
                         <View className="pt-10">
@@ -329,17 +328,20 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                         </View>
                     </View>
                 </View>
+                <View className="h-16"></View>
             </ScrollView>
             {
                 userId ?
-                    <BottomNavigationBar
-                        playerScreen={false}
-                        establishmentScreen
-                        establishmentID={establishment_id}
-                        logo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url}
-                        userID={userId}
-                        userPhoto={'http'}
-                    />
+                    <View className={`absolute bottom-0 left-0 right-0`}>
+                        <BottomBlackMenuEstablishment
+                            screen="Home"
+                            userID={route?.params.userID ? route?.params.userID : ""}
+                            establishmentLogo={dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
+                            establishmentID={establishment_id}
+                            key={1}
+                            paddingTop={2}
+                        />
+                    </View>
                     :
                     null
             }

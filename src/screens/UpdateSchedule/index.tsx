@@ -32,7 +32,7 @@ LocaleConfig.locales['pt-br'] = {
 
 const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-export default function updateSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'UpdateSchedule'>) {
+export default function UpdateSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'UpdateSchedule'>) {
     const {
         data: courtAvailability,
         loading: isCourtAvailabilityLoading,
@@ -229,8 +229,18 @@ export default function updateSchedule({ navigation, route }: NativeStackScreenP
                                 <Text className='text-white'>RESERVAR</Text>
                             </TouchableOpacity>
                         </View>
+                        <View className="h-20"></View>
                     </ScrollView>
-                    <BottomBlackMenu screen={""} userID={""} userPhoto={null} />
+                    <View className="absolute bottom-0 left-0 right-0">
+                        <BottomBlackMenu
+                            screen="Any"
+                            userID={route.params.userId}
+                            userPhoto={route.params.userPhoto !== null && route.params.userPhoto !== undefined ? route.params.userPhoto : ''}
+                            key={1}
+                            isDisabled={true}
+                            paddingTop={2}
+                        />
+                    </View>
                 </>
             }
         </SafeAreaView>

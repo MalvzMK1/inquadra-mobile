@@ -16,18 +16,18 @@ type Flag = {
 interface CountryAPI {
     id: string;
     attributes: {
-      name: string;
-      ISOCode: string;
-      flag: {
-        data: {
-          id: string;
-          attributes: {
-            name: string;
-            alternativeText: string | null;
-            hash: string;
-            url: string;
-          };
+        name: string;
+        ISOCode: string;
+        flag: {
+            data: {
+                id: string;
+                attributes: {
+                    name: string;
+                    alternativeText: string | null;
+                    hash: string;
+                    url: string;
+                };
+            };
         };
-      };
     };
-  }
+}

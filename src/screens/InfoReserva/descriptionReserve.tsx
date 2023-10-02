@@ -24,13 +24,15 @@ import { generateRandomKey } from '../../utils/activationKeyGenerate';
 import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
 import useDeleteSchedule from '../../hooks/useDeleteSchedule';
+import BottomBlackMenu from '../../components/BottomBlackMenu';
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
     const schedule_id = route.params.scheduleId
 
     const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
-    const schedulePrice = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value
+    const serviceRate = data?.scheduling.data.attributes.serviceRate
+    const schedulePrice = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!
     const scheduleValuePayed = data?.scheduling?.data?.attributes?.valuePayed
 
     const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
@@ -54,22 +56,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
     const isWithin24Hours = timeDifferenceHours <= 24;
 
-
     const timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
 
-
     const oneHourInMs = 60 * 60 * 1000;
-
 
     const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
 
     const isVanquishedDate = schedulingPayDate < currentTime
-    const isPayed = data?.scheduling?.data?.attributes?.payedStatus
+    const isPayed = data?.scheduling?.data?.attributes?.payedStatus === "payed" ? true : false
 
     const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
 
     const valueDisponibleToPay =
-        data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! -
+        (data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!) -
         data?.scheduling?.data?.attributes?.valuePayed!
 
     interface iFormCardPayment {
@@ -78,6 +77,13 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         cpf: string
         cvv: string
         date: string
+        cep: string
+        state: string
+        city: string
+        number: string
+        complement: string
+        district: string
+        street: string
     }
 
     interface iFormPixPayment {
@@ -122,6 +128,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
             return inputDate.getTime() > currentDate.getTime();
         }, "A data de vencimento é inválida"),
+        cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(8, "CEP inválido"),
+        number: z.string().nonempty("É necessário inserir o numero da residência"),
+        street: z.string().nonempty("É necessário inserir o nome da rua"),
+        district: z.string().nonempty("É necessário inserir o bairro"),
+        city: z.string().nonempty("É necessário inserir o nome da cidade"),
+        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
     });
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
@@ -187,13 +199,20 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 variables: {
                     value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
                     schedulingId: schedule_id,
-                    userId: '1',
+                    userId: user_id,
                     name: data.name,
                     cpf: data.cpf,
                     cvv: parseInt(data.cvv),
                     date: convertToAmericanDate(data.date),
                     countryID: countryId,
-                    publishedAt: new Date().toISOString()
+                    publishedAt: new Date().toISOString(),
+                    cep: data.cep,
+                    city: data.city,
+                    complement: data.complement,
+                    number: data.number,
+                    state: data.state,
+                    neighborhood: data.district,
+                    street: data.street
                 }
             });
 
@@ -210,7 +229,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     }
 
     const scheduleValueUpdate = async (value: number) => {
-        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? true : false
+        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
         let valuePayedUpdate = value + scheduleValuePayed!
         let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
         try {
@@ -293,7 +312,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             <ScrollView>
                 <View className='h-6'></View>
                 <View className={
-                    data?.scheduling?.data.attributes?.valuePayed! < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! && isVanquished === false
+                    data?.scheduling?.data.attributes?.valuePayed! < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate! && isVanquished === false
                         ? 'flex w-max h-80 bg-zinc-900 px-5'
                         : user_id !== data?.scheduling?.data?.attributes?.owner?.data?.id && isPayed === true
                             ? 'flex w-max h-48 bg-zinc-900 px-5'
@@ -366,16 +385,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         <Text className='font-black text-xs text-white pb-1'>STATUS :</Text>
                     </View>
                     {
-                        data?.scheduling?.data.attributes?.valuePayed! < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value!
+                        data?.scheduling?.data.attributes?.valuePayed! < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!
                             ?
                             <>
                                 <View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
                                     <Text className='absolute z-10 self-center text-white font-bold'>
-                                        R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value}
+                                        R$ {data?.scheduling.data.attributes.valuePayed} / R$ {data?.scheduling.data.attributes.court_availability.data.attributes.value! + serviceRate!}
                                     </Text>
                                     {data?.scheduling.data.attributes.valuePayed && data?.scheduling.data.attributes.court_availability.data.attributes.value && (
                                         <ProgressBar
-                                            progress={Math.floor((data.scheduling.data.attributes.valuePayed / data.scheduling.data.attributes.court_availability.data.attributes.value) * 100)}
+                                            progress={Math.floor((data.scheduling.data.attributes.valuePayed / (data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate!)) * 100)}
                                             width={null}
                                             height={30}
                                             borderRadius={5}
@@ -414,7 +433,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <>
                                 {
                                     isVanquished === false
-                                        ? data?.scheduling.data.attributes.payedStatus === false
+                                        ? data?.scheduling.data.attributes.payedStatus === "waiting"
                                             ? <View className='h-max w-full flex justify-center items-center pl-2'>
                                                 <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
                                                     <View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
@@ -440,7 +459,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             : <>
                                 {
                                     isVanquished === false ?
-                                        data?.scheduling.data.attributes.valuePayed < data?.scheduling.data.attributes.court_availability.data.attributes.value
+                                        data?.scheduling.data.attributes.valuePayed < data?.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate!
                                             ?
                                             <View className='h-28 w-60 flex-row  pr-5'>
                                                 <View className='h-max w-max  justify-center items-start'>
@@ -502,7 +521,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             </>
                     }
                 </View>
-                <View className='h-screen w-full  px-5 items-center justify-start pt-4'>
+                <View className='h-max w-full  px-5 items-center justify-start pt-4'>
                     {
                         data?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && data?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
                             ?
@@ -550,8 +569,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         }
                     </View>
                 </View>
+                <View className='h-20'></View>
             </ScrollView >
-            <Modal visible={showCardPaymentModal} animationType="fade" transparent={true} onRequestClose={closeCardPayment}>
+            <View className="absolute bottom-0 left-0 right-0">
+                <BottomBlackMenu
+                    screen="Any"
+                    userID={user_id}
+                    userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                    key={1}
+                    isDisabled={true}
+                    paddingTop={2}
+                />
+            </View>
+            <Modal visible={showCardPaymentModal} animationType="slide" transparent={true} onRequestClose={closeCardPayment}>
                 <View className='bg-black bg-opacity-10 flex-1 justify-center items-center'>
                     <View className='bg-[#292929] h-fit w-11/12 p-6 justify-center'>
                         <ScrollView>
@@ -687,6 +717,125 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         />
                                     </View>
                                 </View>
+                                <View className='flex flex-row justify-between'>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                        <Controller
+                                            name='cep'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: 00000-000'
+                                                    value={getValues('cep')}
+                                                    maxLength={8}
+                                                    onChangeText={onChange}
+                                                    keyboardType='numeric'>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        {errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
+                                    </View>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                        <Controller
+                                            name='number'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: 0000'
+                                                    value={getValues('number')}
+                                                    onChangeText={onChange}
+                                                    keyboardType='numeric'>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        {errors.number && <Text className='text-red-400 text-sm'>{errors.number.message}</Text>}
+                                    </View>
+                                </View>
+
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Rua</Text>
+                                    <Controller
+                                        name='street'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: Rua xxxx'
+                                                value={getValues('street')}
+                                                onChangeText={onChange}>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.street && <Text className='text-red-400 text-sm'>{errors.street.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Bairro</Text>
+                                    <Controller
+                                        name='district'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: Jd. xxxxx'
+                                                value={getValues('district')}
+                                                onChangeText={onChange}>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.district && <Text className='text-red-400 text-sm'>{errors.district.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Complemento</Text>
+                                    <Controller
+                                        name='complement'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: '
+                                                value={getValues('complement')}
+                                                onChangeText={onChange}>
+                                            </MaskInput>
+                                        )}
+                                    ></Controller>                                  
+                                </View>
+                                <View className='flex flex-row justify-between'>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                        <Controller
+                                            name='city'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: xxxx'
+                                                    value={getValues('city')}
+                                                    onChangeText={onChange}>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        {errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
+                                    </View>
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                        <Controller
+                                            name='state'
+                                            control={control}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                    placeholder='Ex: xxxx'
+                                                    value={getValues('state')}
+                                                    onChangeText={onChange}>
+                                                </MaskInput>
+                                            )}
+                                        ></Controller>
+                                        {errors.state && <Text className='text-red-400 text-sm'>{errors.state.message}</Text>}
+                                    </View>
+                                </View>
                                 <View>
                                     <Button mode="contained" style={{ height: 50, width: '100%', backgroundColor: '#FF6112', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}
                                         onPress={handleSubmit(pay, console.log)}
@@ -694,11 +843,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
                                 </View>
-
                             </View>
                         </ScrollView>
                     </View>
-
                 </View>
             </Modal>
             <Modal visible={showPixPaymentModal} animationType="fade" transparent={true} onRequestClose={closePixPayment} >
@@ -801,3 +948,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         </View >
     )
 }
+
+
+
+

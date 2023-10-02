@@ -2,8 +2,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface ComponentContextType {
-  inputValue: string;
-  setInputValue: (value: string) => void;
   addedComponents: JSX.Element[];
   setAddedComponents: (component: JSX.Element[]) => void;
   dayUse: boolean;
@@ -22,12 +20,11 @@ export const useComponentContext = () => {
 };
 
 export const ComponentProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
-  const [inputValue, setInputValue] = useState('');
   const [addedComponents, setAddedComponents] = useState<JSX.Element[]>([]);
   const [dayUse, setDayUse] = useState(false);
 
   return (
-    <ComponentContext.Provider value={{ inputValue, setInputValue, addedComponents, setAddedComponents, dayUse, setDayUse }}>
+    <ComponentContext.Provider value={{ addedComponents, setAddedComponents, dayUse, setDayUse }}>
       {children}
     </ComponentContext.Provider>
   );

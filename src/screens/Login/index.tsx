@@ -61,7 +61,6 @@ export default function Login() {
                 }
             }
         }
-
     }, [roleUser, isLoading]);
 
 
@@ -200,8 +199,8 @@ export default function Login() {
                         )}
                     />
                     {errors.password && <Text className='text-red-400 text-sm'>{errors.password.message}</Text>}
-                    <View className='flex items-end pt-8'>
-                        <TouchableOpacity>
+                    <View className='flex items-end pt-4 pb-10'>
+                        <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
                             <Text className='text-gray-400 text-base'>esqueceu a senha?</Text>
                         </TouchableOpacity>
                     </View>
@@ -211,12 +210,6 @@ export default function Login() {
                             className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center'
                             onPress={handleSubmit(handleLogin)}>
                             <Text className='text-gray-50'>{isLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Entrar'}</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View className='flex items-center justify-center pt-12'>
-                        <TouchableOpacity className=''>
-                            <Image source={require('../../assets/google.png')} className=''></Image>
                         </TouchableOpacity>
                     </View>
                     <View className='flex-row  items-center justify-center pt-11'>

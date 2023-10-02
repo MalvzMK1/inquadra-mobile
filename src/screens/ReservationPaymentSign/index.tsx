@@ -21,12 +21,12 @@ import { convertToAmericanDate } from "../../utils/formatDate";
 import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabilityStatus";
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { generateRandomKey } from "../../utils/activationKeyGenerate";
 
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
 
     const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
-
-    const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtId)
+    const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
     const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
     const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
     const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
@@ -58,7 +58,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     const [cvv, setCVV] = useState('');
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const reserveValue = dataReserve?.courtAvailability?.data?.attributes?.value
-    const serviceValue = amountToPay * 4 / 100
+    const serviceValue = amountToPay * 0.04
 
     const minValue = dataReserve?.courtAvailability?.data?.attributes?.minValue
     let totalValue
@@ -97,6 +97,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data));
 
+    console.log(dataReserve?.courtAvailability?.data?.attributes?.minValue)
+    console.log(dataReserve?.courtAvailability.data.attributes.value)
 
     const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
     const courtLongitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.longitude ?? '0');
@@ -111,6 +113,13 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         cpf: string
         cvv: string
         date: string
+        cep: string
+        number: string
+        street: string
+        district: string
+        complement: string
+        city: string
+        state: string
     }
 
     const formSchema = z.object({
@@ -137,6 +146,12 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             }
             return true;
         }, { message: "A data de vencimento é inválida" }),
+        cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(8, "CEP inválido"),
+        number: z.string().nonempty("É necessário inserir o numero da residência"),
+        street: z.string().nonempty("É necessário inserir o nome da rua"),
+        district: z.string().nonempty("É necessário inserir o bairro"),
+        city: z.string().nonempty("É necessário inserir o nome da cidade"),
+        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
     })
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<iFormCardPayment>({
@@ -171,7 +186,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     const pay = async (data: iFormCardPayment) => {
         try {
             const newScheduleId = await createNewSchedule();
-            console.log(newScheduleId)
             const countryId = getCountryIdByName(selected);
             if (newScheduleId) {
                 userPaymentCard({
@@ -184,33 +198,45 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                         cvv: parseInt(data.cvv),
                         date: convertToAmericanDate(data.date),
                         countryID: countryId,
-                        publishedAt: new Date().toISOString()
+                        publishedAt: new Date().toISOString(),
+                        cep: data.cep,
+                        city: data.city,
+                        complement: data.complement,
+                        number: data.number,
+                        state: data.state,
+                        neighborhood: data.district,
+                        street: data.street
                     }
                 });
             }
-
             updateStatusDisponibleCourt();
             handleSaveCard();
+            navigation.navigate('InfoReserva', {userId: userId})
         } catch (error) {
-
             console.error("Erro ao criar o agendamento:", error);
         }
     };
 
     const createNewSchedule = async () => {
+        let isPayed = dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false
+        console.log(`OIA O TESTE AI Ó: ${isPayed}`)
         try {
             const create = await createSchedule({
                 variables: {
-                    title: 'rapaz',
-                    court_availability: parseFloat(courtAvailabilities),
+                    title: 'r',
+                    court_availability: courtAvailabilities,
                     date: courtAvailabilityDate.split("T")[0],
                     pay_day: courtAvailabilityDate.split("T")[0],
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    owner: Number(userId),
-                    users: [Number(userId)],
+                    owner: userId,
+                    users: [userId],
+                    activation_key: isPayed ? generateRandomKey(4) : null,
+                    service_value: serviceValue,
                     publishedAt: new Date().toISOString()
                 }
+
             });
+
             return create.data?.createScheduling?.data?.id
 
         } catch (error) {
@@ -226,6 +252,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             }
         })
     }
+
+    
 
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -243,7 +271,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                 </View>
                 <View className="bg-gray-300 p-4">
                     <Text className="text-5xl text-center font-extrabold text-gray-700">
-                        R$ {amountToPay.toFixed(2)}
+                        R$ {dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)}
                     </Text>
                 </View>
                 <View className='px-10 py-5'>
@@ -370,7 +398,116 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                                     />
                                 </View>
                             </View>
-
+                            <View className="flex flex-row justify-between">
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                    <Controller
+                                        name='cep'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: 00000-000'
+                                                keyboardType='numeric'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                    <Controller
+                                        name='number'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: nome'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.number && <Text className='text-red-400 text-sm'>{errors.number.message}</Text>}
+                                </View>
+                            </View>
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Rua</Text>
+                                <Controller
+                                    name='street'
+                                    control={control}
+                                    render={({ field: { onChange } }) => (
+                                        <TextInput
+                                            className='p-3 border border-gray-500 rounded-md h-18'
+                                            placeholder='Ex: Rua xxxxxx'
+                                            onChangeText={onChange}>
+                                        </TextInput>
+                                    )}
+                                ></Controller>
+                                {errors.street && <Text className='text-red-400 text-sm'>{errors.street.message}</Text>}
+                            </View>
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Bairro</Text>
+                                <Controller
+                                    name='district'
+                                    control={control}
+                                    render={({ field: { onChange } }) => (
+                                        <TextInput
+                                            className='p-3 border border-gray-500 rounded-md h-18'
+                                            placeholder='Ex: Jd. xxxxxxx'
+                                            onChangeText={onChange}>
+                                        </TextInput>
+                                    )}
+                                ></Controller>
+                                {errors.district && <Text className='text-red-400 text-sm'>{errors.district.message}</Text>}
+                            </View>
+                            <View>
+                                <Text className='text-sm text-[#FF6112]'>Complemento</Text>
+                                <Controller
+                                    name='complement'
+                                    control={control}
+                                    render={({ field: { onChange } }) => (
+                                        <TextInput
+                                            className='p-3 border border-gray-500 rounded-md h-18'
+                                            placeholder='Ex: nome'
+                                            onChangeText={onChange}>
+                                        </TextInput>
+                                    )}
+                                ></Controller>
+                                {errors.complement && <Text className='text-red-400 text-sm'>{errors.complement.message}</Text>}
+                            </View>
+                            <View className="flex flex-row justify-between">
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                    <Controller
+                                        name='city'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: xxxxx'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                    <Controller
+                                        name='state'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                placeholder='Ex: XX'
+                                                onChangeText={onChange}>
+                                            </TextInput>
+                                        )}
+                                    ></Controller>
+                                    {errors.state && <Text className='text-red-400 text-sm'>{errors.state.message}</Text>}
+                                </View>
+                            </View>
                             <View className="p-2 justify-center items-center pt-5">
                                 <TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
                                     <Text className="text-white">Salvar</Text>
