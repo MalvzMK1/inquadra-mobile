@@ -23,15 +23,12 @@ import { z } from "zod";
 import { useGetUserById } from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
-import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import axios from 'axios';
-import { set } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
-import storage from '../../utils/storage'
 import BottomBlackMenu from '../../components/BottomBlackMenu';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Card } from '../../types/Card';
