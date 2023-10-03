@@ -23,15 +23,6 @@ import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEst
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import { HOST_API } from "@env";
 
-
-let userId = ""
-
-storage.load<UserInfos>({
-    key: 'userInfos',
-}).then((data) => {
-    userId = data.userId
-})
-
 interface IFormData {
     userName: string
     email: string
@@ -95,6 +86,7 @@ const pixKeyFormSchema = z.object({
 
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
+    const [userId, setUserId] = useState("")
     const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
         resolver: zodResolver(formSchema)
     })
@@ -124,7 +116,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     })
 
     let courts: string[] = []
-
     interface ICourts {
         id: string
         courtName: string
@@ -258,8 +249,15 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             .finally(() => setIsLoading(false))
     }
 
-    const fantasyName = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.fantasyName
-    // console.log(fantasyName)
+    const [fantasyName, setFantasyName] = useState<string | undefined>("")
+
+    useEffect(() => {
+        storage.load<UserInfos>({
+            key: 'userInfos',
+        }).then((data) => {
+            setUserId(data.userId)
+        })
+    }, [])
 
     const handleUpdateEstablishmentFantasyName = (data: IFantasyNameFormData): void => {
         setIsLoading(true)
@@ -719,8 +717,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         </View>
 
                         <View className='p-2'>
-                            <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
-                                <Text className='text-gray-50'>Excluir essa conta</Text>
+                            <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md flex items-center justify-center'>
+                                <Text className='text-base text-gray-400'>Excluir essa conta</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

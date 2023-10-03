@@ -32,7 +32,7 @@ type RootStackParamList = {
         establishmentId: string
     }
     FinancialEstablishment: {
-        establishmentId: string | undefined,
+        establishmentId: string,
 		logo: string | undefined,
     };
     CourtPriceHour: undefined;
