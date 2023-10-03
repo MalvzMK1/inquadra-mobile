@@ -20,7 +20,9 @@
       "bundleIdentifier": "com.anonymous.mobile"
     },
     "androidStatusBar": {
-      "backgroundColor": "#292929"
+      "backgroundColor": "#292929",
+      "translucent": true,
+      "barStyle": "light-content"
     },
     "android": {
       "adaptiveIcon": {
