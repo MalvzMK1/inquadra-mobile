@@ -11,8 +11,6 @@ import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentI
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 
 export default function FinancialEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'FinancialEstablishment'>) {
-
-    console.log(route.params.logo)
     const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [date, setDate] = useState(new Date())
