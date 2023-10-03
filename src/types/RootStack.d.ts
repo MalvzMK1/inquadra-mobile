@@ -32,7 +32,7 @@ type RootStackParamList = {
         establishmentId: string
     }
     FinancialEstablishment: {
-        establishmentId: string | undefined,
+        establishmentId: string,
 		logo: string | undefined,
     };
     CourtPriceHour: undefined;
@@ -40,7 +40,10 @@ type RootStackParamList = {
         courtId: string | undefined,
         userPhoto: string | undefined
     };
-    Schedulings: undefined
+    Schedulings: {
+        establishmentId: string
+        establishmentPhoto: string | undefined
+    }
     ChooseUserType: undefined;
     TermsOfService: undefined;
     Register: undefined;
@@ -96,7 +99,8 @@ type RootStackParamList = {
     };
     DescriptionInvited: undefined;
     EstablishmentInfo: {
-        establishmentID: string,
+        establishmentId: string,
+        userId: string,
         userPhoto: string | undefined,
     };
     CourtAvailabilityInfo: {

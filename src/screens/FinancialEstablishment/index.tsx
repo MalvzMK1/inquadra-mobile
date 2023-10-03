@@ -10,13 +10,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 
-
-interface Props extends NativeStackScreenProps<RootStackParamList, 'FinancialEstablishment'> { }
-
-export default function FinancialEstablishment({ route }: Props) {
-
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
+export default function FinancialEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'FinancialEstablishment'>) {
     const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [date, setDate] = useState(new Date())
