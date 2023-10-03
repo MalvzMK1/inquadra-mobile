@@ -65,6 +65,7 @@
         "react-native-element-dropdown": "^2.9.0",
         "react-native-elements": "^3.4.3",
         "react-native-flags": "^1.0.0",
+        "react-native-flash-message": "^0.4.2",
         "react-native-gesture-handler": "~2.9.0",
         "react-native-google-recaptcha": "^1.0.3",
         "react-native-image-crop-picker": "^0.40.0",

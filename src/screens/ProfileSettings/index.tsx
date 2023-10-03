@@ -35,7 +35,8 @@ import storage from '../../utils/storage'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Card } from '../../types/Card';
 import CreditCardCard from '../../components/CreditCardInfoCard';
-
+import { showMessage, hideMessage } from "react-native-flash-message";
+import FlashMessage from 'react-native-flash-message';
 
 interface IFormData {
     photo: string
@@ -113,6 +114,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [updateUser, { data: updatedUserData, loading: isUpdateLoading, error: updateUserError }] = useUpdateUser();
     const [updatePaymentCardInformations, { data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading }] = useUpdatePaymentCardInformations()
     const [deleteUser] = useDeleteUser();
+    const userID  = route.params.userID
 
     useEffect(() => {
         let newCountriesArray: Array<{ key: string, value: string, img: string }> = [];
@@ -381,7 +383,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
 
     useEffect(() => {
-        AsyncStorage.getItem('userCards', (error, result) => {
+        AsyncStorage.getItem(`user${userID}Cards`, (error, result) => {
             if (error) {
                 console.log("Deu ruim mano", error);
             } else {
@@ -428,19 +430,32 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         setCards((prevCards) => [...prevCards, newCard]);
         console.log('log cards', cards);
 
-        AsyncStorage.setItem('userCards', JSON.stringify([...cards, newCard]), (error) => {
+        AsyncStorage.setItem(`user${userID}Cards`, JSON.stringify([...cards, newCard]), (error) => {
             if (error) {
                 console.log('deu ruim paew', error);
             } else {
-                console.log('deu bom paezao');
+                setShowCard(false);
+
+                showMessage({
+                    message: "Cadastro efetuado",
+                    description: "Cartão cadastrado com sucesso",
+                    type: "success",
+                })
             }
         });
     };
 
-
+    const showMessageTest = () => {
+        showMessage({
+            message: "",
+            description: "Cartão cadastrado com sucesso",
+            type: "success",
+        })
+    }
 
     return (
         <View className="flex-1 bg-white h-full">
+            <FlashMessage position="top" floating={false} />
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
@@ -459,414 +474,414 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                     </TouchableOpacity>
                 </View>
             </View>
+            
             {
                 loading ?
                     <View className='flex-1'>
                         <ActivityIndicator size='large' color='#F5620F' />
                     </View> :
-                    <ScrollView className="flex-grow p-1">
-                        <TouchableOpacity style={{ alignItems: 'center', marginTop: 8 }}>
-                            <View style={styles.container}>
-                                {profilePicture ? (
-                                    <Image source={{ uri: imageEdited ? profilePicture : HOST_API + profilePicture }} style={styles.profilePicture} />
-                                ) : (
-                                    <Ionicons name="person-circle-outline" size={100} color="#bbb" />
-                                )}
-
-                                <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
+                    <>
+                        <ScrollView className="flex-grow p-1">
+                            <TouchableOpacity style={{ alignItems: 'center', marginTop: 8 }}>
+                                <View style={styles.container}>
                                     {profilePicture ? (
-                                        <Ionicons name="pencil-outline" size={30} color="#fff" />
+                                        <Image source={{ uri: imageEdited ? profilePicture : HOST_API + profilePicture }} style={styles.profilePicture} />
                                     ) : (
-                                        <Ionicons name="camera-outline" size={30} color="#fff" />
+                                        <Ionicons name="person-circle-outline" size={100} color="#bbb" />
                                     )}
-                                </TouchableOpacity>
-                            </View>
-                        </TouchableOpacity>
-                        <View className="p-6 space-y-10">
-                            <View>
-                                <Text className="text-base">Nome</Text>
-                                <Controller
-                                    name='name'
-                                    control={control}
-                                    defaultValue={userNameDefault}
-                                    render={({ field: { onChange } }) => (
-                                        <TextInput
-                                            value={getValues('name')}
-                                            onChangeText={onChange}
-                                            className={errors.name ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
-                                            placeholder='Ex.: João'
-                                        />
-                                    )}
-                                />
-                                {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
-                            </View>
-                            <View>
-                                <Text className="text-base">E-mail</Text>
-                                <Controller
-                                    name='email'
-                                    control={control}
-                                    defaultValue={emailDefault}
-                                    render={({ field: { onChange } }) => (
-                                        <TextInput
-                                            value={getValues('email')}
-                                            onChangeText={onChange}
-                                            className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
-                                            placeholder='email@email.com'
-                                            maxLength={256}
-                                        />
-                                    )}
-                                />
-                                {errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
-                            </View>
-                            <View>
-                                <Text className="text-base">Telefone</Text>
-                                <Controller
-                                    name='phoneNumber'
-                                    defaultValue={phoneDefault}
-                                    control={control}
-                                    render={({ field: { onChange } }) => (
-                                        <MaskInput
-                                            className='p-4 border border-gray-500 rounded-md h-45'
-                                            placeholder='Ex: 000.000.000-00'
-                                            value={getValues('phoneNumber')}
-                                            onChangeText={onChange}
-                                            mask={Masks.BRL_PHONE}
-                                            maxLength={15}
-                                        />
-                                    )}
-                                />
-                                {errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
-                            </View>
-                            <View>
-                                <Text className="text-base">CPF</Text>
-                                <Controller
-                                    name='cpf'
-                                    defaultValue={cpfDefault}
-                                    control={control}
-                                    render={({ field: { onChange } }) => (
-                                        <MaskInput
-                                            className='p-4 border border-gray-500 rounded-md h-45'
-                                            placeholder='Ex: 000.000.000-00'
-                                            value={getValues('cpf')}
-                                            onChangeText={onChange}
-                                            mask={Masks.BRL_CPF}
-                                            editable={false}
-                                            maxLength={14}
-                                        />
-                                    )}
-                                />
-                                {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
-                            </View>
-                            <TouchableOpacity onPress={handleCardClick}>
-                                <Text className="text-base">Dados Cartão</Text>
-                                <View className="h-30 border border-gray-500 rounded-md">
-                                    <View className="flex-row justify-center items-center m-2">
-                                        <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                                        <Text className="flex-1 text-base text-right mb-0">
-                                            {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
-                                        </Text>
-                                        <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={handleOpenCardsModal}>
-                                <Text className="text-base">Cartões</Text>
-                                <View className="h-30 border border-gray-500 rounded-md">
-                                    <View className="flex-row justify-center items-center m-2">
-                                        <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                                        <Text className="flex-1 text-base text-right mb-0">
-                                            {showCreditCards ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
-                                        </Text>
-                                        <Icon name={showCreditCards ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
 
-                            {showCard && (
-                                <View className="border border-gray-500 p-4 mt-10">
-                                    <View>
-                                        <Text className='text-sm text-[#FF6112]'>Número do cartão</Text>
-                                        <Controller
-                                            name='cardNumber'
-                                            control={paymentCardControl}
-                                            render={({ field: { onChange } }) => (
-                                                <MaskInput
-                                                    value={getPaymentCardValues('cardNumber')}
-                                                    placeholder='Ex: 0000-0000-0000-0000'
-                                                    className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
-                                                    onChangeText={onChange}
-                                                    mask={Masks.CREDIT_CARD}
-                                                    keyboardType="numeric"
-                                                />
-                                            )}
-                                        ></Controller>
-                                    </View>
-                                    {paymentCardErrors.cardNumber && <Text className='text-red-400 text-sm'>{paymentCardErrors.cardNumber.message}</Text>}
-                                    <View className="flex-row justify-between">
-                                        <View className="flex-1 mr-5">
-                                            <Text className="text-base text-[#FF6112]">Data venc.</Text>
-                                            <Controller
-                                                name='dueDate'
-                                                control={paymentCardControl}
-                                                render={({ field: { onChange } }) => (
-                                                    <TextInputMask
-                                                        value={getPaymentCardValues('dueDate')}
-                                                        className={`p-3 border ${paymentCardErrors.dueDate ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
-                                                        type={'datetime'}
-                                                        options={{
-                                                            format: 'MM/YY',
-                                                        }}
-                                                        onChangeText={onChange}
-                                                        placeholder="MM/YY"
-                                                        keyboardType="numeric"
-                                                    />
-                                                )}
+                                    <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
+                                        {profilePicture ? (
+                                            <Ionicons name="pencil-outline" size={30} color="#fff" />
+                                        ) : (
+                                            <Ionicons name="camera-outline" size={30} color="#fff" />
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
+                            </TouchableOpacity>
+                            <View className="p-6 space-y-10">
+                                <View>
+                                    <Text className="text-base">Nome</Text>
+                                    <Controller
+                                        name='name'
+                                        control={control}
+                                        defaultValue={userNameDefault}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                value={getValues('name')}
+                                                onChangeText={onChange}
+                                                className={errors.name ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                                placeholder='Ex.: João'
                                             />
-                                            {paymentCardErrors.dueDate && <Text className='text-red-400 text-sm'>{paymentCardErrors.dueDate.message}</Text>}
+                                        )}
+                                    />
+                                    {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className="text-base">E-mail</Text>
+                                    <Controller
+                                        name='email'
+                                        control={control}
+                                        defaultValue={emailDefault}
+                                        render={({ field: { onChange } }) => (
+                                            <TextInput
+                                                value={getValues('email')}
+                                                onChangeText={onChange}
+                                                className={errors.email ? 'p-4 border border-red-400 rounded' : 'p-4 border border-neutral-400 rounded'}
+                                                placeholder='email@email.com'
+                                                maxLength={256}
+                                            />
+                                        )}
+                                    />
+                                    {errors.email && <Text className='text-red-400 text-sm'>{errors.email.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className="text-base">Telefone</Text>
+                                    <Controller
+                                        name='phoneNumber'
+                                        defaultValue={phoneDefault}
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-4 border border-gray-500 rounded-md h-45'
+                                                placeholder='Ex: 000.000.000-00'
+                                                value={getValues('phoneNumber')}
+                                                onChangeText={onChange}
+                                                mask={Masks.BRL_PHONE}
+                                                maxLength={15}
+                                            />
+                                        )}
+                                    />
+                                    {errors.phoneNumber && <Text className='text-red-400 text-sm'>{errors.phoneNumber.message}</Text>}
+                                </View>
+                                <View>
+                                    <Text className="text-base">CPF</Text>
+                                    <Controller
+                                        name='cpf'
+                                        defaultValue={cpfDefault}
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-4 border border-gray-500 rounded-md h-45'
+                                                placeholder='Ex: 000.000.000-00'
+                                                value={getValues('cpf')}
+                                                onChangeText={onChange}
+                                                mask={Masks.BRL_CPF}
+                                                editable={false}
+                                                maxLength={14}
+                                            />
+                                        )}
+                                    />
+                                    {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
+                                </View>
+                                <TouchableOpacity onPress={handleCardClick}>
+                                    <Text className="text-base">Dados Cartão</Text>
+                                    <View className="h-30 border border-gray-500 rounded-md">
+                                        <View className="flex-row justify-center items-center m-2">
+                                            <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                                            <Text className="flex-1 text-base text-right mb-0">
+                                                {showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
+                                            </Text>
+                                            <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
                                         </View>
-                                        <View className="flex-1 ml-5">
-                                            <Text className="text-base text-[#FF6112]">CVV</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                {showCard && (
+                                    <View className="border border-gray-500 p-4 mt-10">
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>Número do cartão</Text>
                                             <Controller
-                                                name='cvv'
+                                                name='cardNumber'
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
-                                                    <TextInput
-                                                        value={getPaymentCardValues('cvv')}
+                                                    <MaskInput
+                                                        value={getPaymentCardValues('cardNumber')}
+                                                        placeholder='Ex: 0000-0000-0000-0000'
                                                         className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
                                                         onChangeText={onChange}
-                                                        placeholder="CVV"
+                                                        mask={Masks.CREDIT_CARD}
                                                         keyboardType="numeric"
-                                                        maxLength={4}
-                                                        secureTextEntry
                                                     />
                                                 )}
-                                            />
-                                            {paymentCardErrors.cvv && <Text className='text-red-400 text-sm'>{paymentCardErrors.cvv.message}</Text>}
+                                            ></Controller>
                                         </View>
-                                    </View>
-                                    <View>
-                                        <Text className='text-base text-[#FF6112]'>País</Text>
-                                        <View className='flex flex-row items-center' >
-                                            <View style={{ width: '100%' }}>
+                                        {paymentCardErrors.cardNumber && <Text className='text-red-400 text-sm'>{paymentCardErrors.cardNumber.message}</Text>}
+                                        <View className="flex-row justify-between">
+                                            <View className="flex-1 mr-5">
+                                                <Text className="text-base text-[#FF6112]">Data venc.</Text>
                                                 <Controller
-                                                    name='country'
+                                                    name='dueDate'
                                                     control={paymentCardControl}
                                                     render={({ field: { onChange } }) => (
-                                                        <SelectList
-                                                            setSelected={(val: string) => {
-                                                                onChange(val)
+                                                        <TextInputMask
+                                                            value={getPaymentCardValues('dueDate')}
+                                                            className={`p-3 border ${paymentCardErrors.dueDate ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
+                                                            type={'datetime'}
+                                                            options={{
+                                                                format: 'MM/YY',
                                                             }}
-                                                            defaultOption={{ key: userInfos?.paymentCardInfos.country.id, value: userInfos?.paymentCardInfos.country.name }}
-                                                            data={countriesArray}
-                                                            save='key'
-                                                            placeholder='Selecione um país...'
-                                                            searchPlaceholder='Pesquisar...'
+                                                            onChangeText={onChange}
+                                                            placeholder="MM/YY"
+                                                            keyboardType="numeric"
                                                         />
                                                     )}
                                                 />
-                                                {paymentCardErrors.country && <Text className='text-red-400 text-sm'>{paymentCardErrors.country.message}</Text>}
+                                                {paymentCardErrors.dueDate && <Text className='text-red-400 text-sm'>{paymentCardErrors.dueDate.message}</Text>}
+                                            </View>
+                                            <View className="flex-1 ml-5">
+                                                <Text className="text-base text-[#FF6112]">CVV</Text>
+                                                <Controller
+                                                    name='cvv'
+                                                    control={paymentCardControl}
+                                                    render={({ field: { onChange } }) => (
+                                                        <TextInput
+                                                            value={getPaymentCardValues('cvv')}
+                                                            className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
+                                                            onChangeText={onChange}
+                                                            placeholder="CVV"
+                                                            keyboardType="numeric"
+                                                            maxLength={4}
+                                                            secureTextEntry
+                                                        />
+                                                    )}
+                                                />
+                                                {paymentCardErrors.cvv && <Text className='text-red-400 text-sm'>{paymentCardErrors.cvv.message}</Text>}
                                             </View>
                                         </View>
-                                    </View>
-                                    <View className='flex flex-row justify-between'>
                                         <View>
-                                            <Text className='text-sm text-[#FF6112]'>CEP</Text>
-                                            <Controller
-                                                name='cep'
-                                                control={paymentCardControl}
-                                                render={({ field: { onChange } }) => (
-                                                    <MaskInput
-                                                        value={getPaymentCardValues('cep')}
-                                                        className='p-3 border border-neutral-400 rounded bg-white'
-                                                        placeholder='Ex: 00000-000'
-                                                        onChangeText={onChange}
-                                                        keyboardType='numeric'>
-                                                    </MaskInput>
-                                                )}
-                                            ></Controller>
-                                            {paymentCardErrors.cep && <Text className='text-red-400 text-sm'>{paymentCardErrors.cep.message}</Text>}
+                                            <Text className='text-base text-[#FF6112]'>País</Text>
+                                            <View className='flex flex-row items-center' >
+                                                <View style={{ width: '100%' }}>
+                                                    <Controller
+                                                        name='country'
+                                                        control={paymentCardControl}
+                                                        render={({ field: { onChange } }) => (
+                                                            <SelectList
+                                                                setSelected={(val: string) => {
+                                                                    onChange(val)
+                                                                }}
+                                                                defaultOption={{ key: userInfos?.paymentCardInfos.country.id, value: userInfos?.paymentCardInfos.country.name }}
+                                                                data={countriesArray}
+                                                                save='key'
+                                                                placeholder='Selecione um país...'
+                                                                searchPlaceholder='Pesquisar...'
+                                                            />
+                                                        )}
+                                                    />
+                                                    {paymentCardErrors.country && <Text className='text-red-400 text-sm'>{paymentCardErrors.country.message}</Text>}
+                                                </View>
+                                            </View>
+                                        </View>
+                                        <View className='flex flex-row justify-between'>
+                                            <View>
+                                                <Text className='text-sm text-[#FF6112]'>CEP</Text>
+                                                <Controller
+                                                    name='cep'
+                                                    control={paymentCardControl}
+                                                    render={({ field: { onChange } }) => (
+                                                        <MaskInput
+                                                            value={getPaymentCardValues('cep')}
+                                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                                            placeholder='Ex: 00000-000'
+                                                            onChangeText={onChange}
+                                                            keyboardType='numeric'>
+                                                        </MaskInput>
+                                                    )}
+                                                ></Controller>
+                                                {paymentCardErrors.cep && <Text className='text-red-400 text-sm'>{paymentCardErrors.cep.message}</Text>}
+                                            </View>
+                                            <View>
+                                                <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                                <Controller
+                                                    name='houseNumber'
+                                                    control={paymentCardControl}
+                                                    render={({ field: { onChange } }) => (
+                                                        <MaskInput
+                                                            value={getPaymentCardValues('houseNumber')}
+                                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                                            placeholder='Ex: 0000'
+                                                            onChangeText={onChange}
+                                                            keyboardType='numeric'>
+                                                        </MaskInput>
+                                                    )}
+                                                ></Controller>
+                                                {paymentCardErrors.houseNumber && <Text className='text-red-400 text-sm'>{paymentCardErrors.houseNumber.message}</Text>}
+                                            </View>
                                         </View>
                                         <View>
-                                            <Text className='text-sm text-[#FF6112]'>Numero</Text>
+                                            <Text className='text-sm text-[#FF6112]'>Rua</Text>
                                             <Controller
-                                                name='houseNumber'
+                                                name='street'
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <MaskInput
-                                                        value={getPaymentCardValues('houseNumber')}
+                                                        value={getPaymentCardValues('street')}
                                                         className='p-3 border border-neutral-400 rounded bg-white'
-                                                        placeholder='Ex: 0000'
-                                                        onChangeText={onChange}
-                                                        keyboardType='numeric'>
-                                                    </MaskInput>
-                                                )}
-                                            ></Controller>
-                                            {paymentCardErrors.houseNumber && <Text className='text-red-400 text-sm'>{paymentCardErrors.houseNumber.message}</Text>}
-                                        </View>
-                                    </View>
-                                    <View>
-                                        <Text className='text-sm text-[#FF6112]'>Rua</Text>
-                                        <Controller
-                                            name='street'
-                                            control={paymentCardControl}
-                                            render={({ field: { onChange } }) => (
-                                                <MaskInput
-                                                    value={getPaymentCardValues('street')}
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='Ex: Rua xxxx'
-                                                    onChangeText={onChange}>
-                                                </MaskInput>
-                                            )}
-                                        ></Controller>
-                                    </View>
-                                    {paymentCardErrors.street && <Text className='text-red-400 text-sm'>{paymentCardErrors.street.message}</Text>}
-                                    <View>
-                                        <Text className='text-sm text-[#FF6112]'>Bairro</Text>
-                                        <Controller
-                                            name='district'
-                                            control={paymentCardControl}
-                                            render={({ field: { onChange } }) => (
-                                                <MaskInput
-                                                    value={getPaymentCardValues('district')}
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='Ex: Jd. xxxxx'
-                                                    onChangeText={onChange}>
-                                                </MaskInput>
-                                            )}
-                                        ></Controller>
-                                    </View>
-                                    {paymentCardErrors.district && <Text className='text-red-400 text-sm'>{paymentCardErrors.district.message}</Text>}
-                                    <View>
-                                        <Text className='text-sm text-[#FF6112]'>Complemento</Text>
-                                        <Controller
-                                            name='complement'
-                                            control={paymentCardControl}
-                                            render={({ field: { onChange } }) => (
-                                                <MaskInput
-                                                    value={getPaymentCardValues('complement')}
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
-                                                    placeholder='Ex: '
-                                                    onChangeText={onChange}>
-                                                </MaskInput>
-                                            )}
-                                        ></Controller>
-                                    </View>
-                                    {paymentCardErrors.complement && <Text className='text-red-400 text-sm'>{paymentCardErrors.complement.message}</Text>}
-                                    <View className='flex flex-row justify-between'>
-                                        <View>
-                                            <Text className='text-sm text-[#FF6112]'>Cidade</Text>
-                                            <Controller
-                                                name='city'
-                                                control={paymentCardControl}
-                                                render={({ field: { onChange } }) => (
-                                                    <MaskInput
-                                                        value={getPaymentCardValues('city')}
-                                                        className='p-3 border border-neutral-400 rounded bg-white'
-                                                        placeholder='Ex: xxxx'
+                                                        placeholder='Ex: Rua xxxx'
                                                         onChangeText={onChange}>
                                                     </MaskInput>
                                                 )}
                                             ></Controller>
-                                            {paymentCardErrors.city && <Text className='text-red-400 text-sm'>{paymentCardErrors.city.message}</Text>}
                                         </View>
+                                        {paymentCardErrors.street && <Text className='text-red-400 text-sm'>{paymentCardErrors.street.message}</Text>}
                                         <View>
-                                            <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                            <Text className='text-sm text-[#FF6112]'>Bairro</Text>
                                             <Controller
-                                                name='state'
+                                                name='district'
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <MaskInput
-                                                        value={getPaymentCardValues('state')}
+                                                        value={getPaymentCardValues('district')}
                                                         className='p-3 border border-neutral-400 rounded bg-white'
-                                                        placeholder='Ex: xxxx'
+                                                        placeholder='Ex: Jd. xxxxx'
                                                         onChangeText={onChange}>
                                                     </MaskInput>
                                                 )}
                                             ></Controller>
-                                            {paymentCardErrors.state && <Text className='text-red-400 text-sm'>{paymentCardErrors.state.message}</Text>}
+                                        </View>
+                                        {paymentCardErrors.district && <Text className='text-red-400 text-sm'>{paymentCardErrors.district.message}</Text>}
+                                        <View>
+                                            <Text className='text-sm text-[#FF6112]'>Complemento</Text>
+                                            <Controller
+                                                name='complement'
+                                                control={paymentCardControl}
+                                                render={({ field: { onChange } }) => (
+                                                    <MaskInput
+                                                        value={getPaymentCardValues('complement')}
+                                                        className='p-3 border border-neutral-400 rounded bg-white'
+                                                        placeholder='Ex: '
+                                                        onChangeText={onChange}>
+                                                    </MaskInput>
+                                                )}
+                                            ></Controller>
+                                        </View>
+                                        {paymentCardErrors.complement && <Text className='text-red-400 text-sm'>{paymentCardErrors.complement.message}</Text>}
+                                        <View className='flex flex-row justify-between'>
+                                            <View>
+                                                <Text className='text-sm text-[#FF6112]'>Cidade</Text>
+                                                <Controller
+                                                    name='city'
+                                                    control={paymentCardControl}
+                                                    render={({ field: { onChange } }) => (
+                                                        <MaskInput
+                                                            value={getPaymentCardValues('city')}
+                                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                                            placeholder='Ex: xxxx'
+                                                            onChangeText={onChange}>
+                                                        </MaskInput>
+                                                    )}
+                                                ></Controller>
+                                                {paymentCardErrors.city && <Text className='text-red-400 text-sm'>{paymentCardErrors.city.message}</Text>}
+                                            </View>
+                                            <View>
+                                                <Text className='text-sm text-[#FF6112]'>Estado</Text>
+                                                <Controller
+                                                    name='state'
+                                                    control={paymentCardControl}
+                                                    render={({ field: { onChange } }) => (
+                                                        <MaskInput
+                                                            value={getPaymentCardValues('state')}
+                                                            className='p-3 border border-neutral-400 rounded bg-white'
+                                                            placeholder='Ex: xxxx'
+                                                            onChangeText={onChange}>
+                                                        </MaskInput>
+                                                    )}
+                                                ></Controller>
+                                                {paymentCardErrors.state && <Text className='text-red-400 text-sm'>{paymentCardErrors.state.message}</Text>}
+                                            </View>
+                                        </View>
+                                        <View className="p-2 justify-center items-center">
+                                            <TouchableOpacity onPress={handlePaymentCardSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+                                                <Text className="text-white">Salvar</Text>
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
-                                    <View className="p-2 justify-center items-center">
-                                        <TouchableOpacity onPress={handlePaymentCardSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
-                                            <Text className="text-white">Salvar</Text>
+                                )}
+                                <TouchableOpacity onPress={handleOpenCardsModal}>
+                                    <Text className="text-base">Cartões</Text>
+                                    <View className="h-30 border border-gray-500 rounded-md">
+                                        <View className="flex-row justify-center items-center m-2">
+                                            <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                                            <Icon name={showCreditCards ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                                {
+                                    showCreditCards
+                                        ?
+                                        cards.length > 0
+                                            ?
+                                            <View className=" border-gray-500 flex w-max h-max">
+                                                {
+                                                    cards.map((card) =>
+                                                        <>
+                                                            <CreditCardCard number={card.number} id={card.id} userID={userID} />
+                                                            <View className='h-2'></View>
+                                                        </>
+                                                    )
+                                                }
+                                            </View>
+                                            : <Text className='font-bold text-sm text-[#808080] text-center'>Você não possui nenhum cartão cadastrado no momento</Text>
+                                        : null
+                                }
+                                <View>
+                                    <View className='p-2'>
+                                        <TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
+                                            <Text className="text-white">
+                                                {isLoading ? (
+                                                    <View style={{ alignItems: "center", paddingTop: 5 }}>
+                                                        <ActivityIndicator size="small" color='#FFFF' />
+                                                        <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
+                                                    </View>
+                                                ) : (
+                                                    'Salvar'
+                                                )}
+                                            </Text>
                                         </TouchableOpacity>
                                     </View>
-                                </View>
-                            )}
-                            {
-                                showCreditCards
-                                    ?
-                                    <View className=" border-gray-500 flex w-max h-max">
-                                        {
-                                            cards.map((card) => 
-                                                <CreditCardCard number={card.number}/>
-                                            )
-                                        }
 
-                                    </View>
-                                    : null
-                            }
-
-
-
-
-                            <View>
-                                <View className='p-2'>
-                                    <TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
-                                        <Text className="text-white">
-                                            {isLoading ? (
-                                                <View style={{ alignItems: "center", paddingTop: 5 }}>
-                                                    <ActivityIndicator size="small" color='#FFFF' />
-                                                    <Text style={{ marginTop: 6, color: 'white' }}>{loadingMessage}</Text>
-                                                </View>
-                                            ) : (
-                                                'Salvar'
-                                            )}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View className='p-2'>
+                                    <View className='p-2'>
                                     <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center' >
                                         <Text className='text-gray-50'>Sair do App</Text>
                                     </TouchableOpacity>
                                 </View>
 
-                                <View className='p-2'>
-                                    <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md  flex items-center justify-center'>
-                                        <Text className='text-base text-gray-400'>Excluir essa conta</Text>
-                                    </TouchableOpacity>
+                                    <View className='p-2'>
+                                        <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md  flex items-center justify-center'>
+                                            <Text className='text-base text-gray-400'>Excluir essa conta</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
 
-                        <Modal visible={showDeleteConfirmation} animationType="fade" transparent={true}>
-                            <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
-                                <View className="bg-white rounded-md p-20 items-center">
-                                    <Text className=" font-bold text-lg mb-8">Confirmar exclusão da conta?</Text>
-                                    <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
-                                        <Text className="text-white">Cancelar</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
-                                        <Text className="text-white">{deleteAccountLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> : 'Confirmar'}</Text>
-                                    </TouchableOpacity>
+                            <Modal visible={showDeleteConfirmation} animationType="fade" transparent={true}>
+                                <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
+                                    <View className="bg-white rounded-md p-20 items-center">
+                                        <Text className=" font-bold text-lg mb-8">Confirmar exclusão da conta?</Text>
+                                        <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelDelete}>
+                                            <Text className="text-white">Cancelar</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete}>
+                                            <Text className="text-white">{deleteAccountLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> : 'Confirmar'}</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                            </View>
-                        </Modal>
-                        <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
-                            <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
-                                <View className="bg-white rounded-md p-20 items-center">
-                                    <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
-                                    <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
-                                        <Text className="text-white">Cancelar</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit} onPressIn={() => navigation.navigate('Login')}>
-                                        <Text className="text-white">Confirmar</Text>
-                                    </TouchableOpacity>
+                            </Modal>
+                            <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
+                                <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
+                                    <View className="bg-white rounded-md p-20 items-center">
+                                        <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
+                                        <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+                                            <Text className="text-white">Cancelar</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmExit} onPressIn={() => navigation.navigate('Login')}>
+                                            <Text className="text-white">Confirmar</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                            </View>
-                        </Modal>
-                    </ScrollView>
+                            </Modal>
+                        </ScrollView>
+                    </>
             }
         </View >
     );
