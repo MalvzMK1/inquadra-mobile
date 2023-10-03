@@ -237,7 +237,9 @@ export default function Login() {
             <TouchableOpacity
               onPress={() => navigation.navigate("ForgotPassword")}
             >
-              <Text className="text-gray-400 text-base">Esqueceu a senha?</Text>
+              <Text className="text-gray-400 text-base underline">
+                Esqueceu a senha?
+              </Text>
             </TouchableOpacity>
           </View>
           <View className="h-11 pt-4">
@@ -261,7 +263,10 @@ export default function Login() {
             <TouchableOpacity
               onPress={() => navigation.navigate("ChooseUserType")}
             >
-              <Text className="text-orange-500 text-base"> Clique aqui</Text>
+              <Text className="text-orange-500 text-base underline">
+                {" "}
+                Clique aqui
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
