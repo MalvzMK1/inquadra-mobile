@@ -23,15 +23,17 @@ import { z } from "zod";
 import { useGetUserById } from "../../hooks/useUserById";
 import useUpdateUser from "../../hooks/useUpdateUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
-import { transformCardDueDateToParsedString } from "../../utils/transformCardDueDateToParsedString";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCountries from "../../hooks/useCountries";
 import { HOST_API } from "@env";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import axios from 'axios';
-import { set } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import BottomBlackMenu from '../../components/BottomBlackMenu';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Card } from '../../types/Card';
+import CreditCardCard from '../../components/CreditCardInfoCard';
+
 
 interface IFormData {
     photo: string
@@ -46,7 +48,8 @@ interface IPaymentCardFormData {
     cvv: string
     country: string
     cep: string
-    number: string
+    cardNumber: string
+    houseNumber: string
     street: string
     district: string
     complement: string
@@ -75,17 +78,26 @@ const paymentCardFormSchema = z.object({
         .nonempty('Esse campo não pode estar vazio'),
     cvv: z.string()
         .nonempty('Esse campo não pode estar vazio')
-        .min(4, 'Insira um CVV válido')
-        .max(4, 'Insira um CVV válido'),
+        .min(3, 'Insira um CVV válido')
+        .max(3, 'Insira um CVV válido'),
     country: z.string()
         .nonempty('Esse campo não pode estar vazio'),
+    cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(8, "CEP inválido"),
+    houseNumber: z.string().nonempty("É necessário inserir o número da residência"),
+    cardNumber: z.string().nonempty("É necessário inserir o número do cartão"),
+    street: z.string().nonempty("É necessário inserir o nome da rua"),
+    district: z.string().nonempty("É necessário inserir o bairro"),
+    city: z.string().nonempty("É necessário inserir o nome da cidade"),
+    state: z.string().nonempty("É necessário inserir o estado").min(2, "Inválido").max(2, "Inválido")
 })
 
 type UserConfigurationProps = Omit<User, 'cep' | 'latitude' | 'longitude' | 'streetName'> & { paymentCardInfos: { dueDate: string, cvv: string, country: { id: string, name: string } } }
 
+
 export default function ProfileSettings({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ProfileSettings'>) {
     const [userInfos, setUserInfos] = useState<UserConfigurationProps>()
     const [showCard, setShowCard] = useState(false);
+    const [showCreditCards, setShowCraditCards] = useState(false)
     const [showCameraIcon, setShowCameraIcon] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
@@ -140,22 +152,25 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         setShowCameraIcon(false);
     };
 
-    const updateCardInfos = (data: IPaymentCardFormData) => {
-        const paymentCardInfos = data
+    const handleOpenCardsModal = () => {
+        setShowCraditCards(!showCreditCards)
+    }
 
-        if (userInfos && paymentCardInfos) {
-            updatePaymentCardInformations({
-                variables: {
-                    user_id: userInfos.id,
-                    card_cvv: Number(paymentCardInfos.cvv),
-                    card_due_date: transformCardDueDateToParsedString(paymentCardInfos.dueDate),
-                    country_flag_id: data.country.toString()
-                }
-            }).then(data => {
-                console.log(data.data)
-                setShowCard(false)
-            }).catch(error => console.error(error))
-        }
+
+    const updateCardInfos = (data: IPaymentCardFormData) => {
+        addCard(
+            data.cardNumber,
+            data.dueDate,
+            data.country.toString(),
+            data.cep,
+            data.houseNumber,
+            data.street,
+            data.district,
+            data.complement,
+            data.city,
+            data.state
+        )
+
     };
 
     const handleDeleteAccount = () => {
@@ -200,6 +215,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [profilePicture, setProfilePicture] = useState<string | undefined>(route.params.userPhoto);
     const [photo, setPhoto] = useState('')
     const [imageEdited, setImageEdited] = useState(false)
+    const [cards, setCards] = useState<Card[]>([])
 
     useFocusEffect(() => { setPhoto(data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!) })
 
@@ -316,9 +332,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
 
     async function loadInformations() {
         let newUserInfos = userInfos;
-
         if (!loading && data) {
-
             newUserInfos = {
                 id: data.usersPermissionsUser.data.id,
                 username: data.usersPermissionsUser.data.attributes.username,
@@ -363,6 +377,65 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     let emailDefault = data?.usersPermissionsUser.data?.attributes.email!
     let phoneDefault = data?.usersPermissionsUser.data?.attributes.phoneNumber!
     let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!
+
+
+    useEffect(() => {
+        AsyncStorage.getItem('userCards', (error, result) => {
+            if (error) {
+                console.log("Deu ruim mano", error);
+            } else {
+                const parsedCards = JSON.parse(result || '[]');
+                setCards(parsedCards);
+                console.log('Cartões recuperados com sucesso', parsedCards);
+            }
+        });
+        // AsyncStorage.removeItem('userCards', (error) => {
+        //     if (error) {
+        //         console.error('Erro ao remover os dados', error);
+        //     } else {
+        //         console.log('Dados removidos com sucesso');
+        //     }
+        // });
+    }, []);
+
+
+    const addCard = (
+        number: string,
+        maturityDate: string,
+        countryID: string,
+        cep: string,
+        houseNumber: string,
+        street: string,
+        district: string,
+        complement: string,
+        city: string,
+        state: string
+    ) => {
+        const newCard: Card = {
+            id: cards.length, // Use cards.length para obter o próximo ID.
+            number: number,
+            maturityDate: maturityDate,
+            countryID: countryID,
+            cep: cep,
+            houseNumber: houseNumber,
+            street: street,
+            district: district,
+            complement: complement,
+            city: city,
+            state: state,
+        };
+        setCards((prevCards) => [...prevCards, newCard]);
+        console.log('log cards', cards);
+
+        AsyncStorage.setItem('userCards', JSON.stringify([...cards, newCard]), (error) => {
+            if (error) {
+                console.log('deu ruim paew', error);
+            } else {
+                console.log('deu bom paezao');
+            }
+        });
+    };
+
 
 
     return (
@@ -495,9 +568,39 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                     </View>
                                 </View>
                             </TouchableOpacity>
+                            <TouchableOpacity onPress={handleOpenCardsModal}>
+                                <Text className="text-base">Cartões</Text>
+                                <View className="h-30 border border-gray-500 rounded-md">
+                                    <View className="flex-row justify-center items-center m-2">
+                                        <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                                        <Text className="flex-1 text-base text-right mb-0">
+                                            {showCreditCards ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Adicionar Cartão'}
+                                        </Text>
+                                        <Icon name={showCreditCards ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
 
                             {showCard && (
                                 <View className="border border-gray-500 p-4 mt-10">
+                                    <View>
+                                        <Text className='text-sm text-[#FF6112]'>Número do cartão</Text>
+                                        <Controller
+                                            name='cardNumber'
+                                            control={paymentCardControl}
+                                            render={({ field: { onChange } }) => (
+                                                <MaskInput
+                                                    value={getPaymentCardValues('cardNumber')}
+                                                    placeholder='Ex: 0000-0000-0000-0000'
+                                                    className={`p-3 border ${paymentCardErrors.cvv ? "border-red-400" : "border-gray-500"} rounded-md h-18`}
+                                                    onChangeText={onChange}
+                                                    mask={Masks.CREDIT_CARD}
+                                                    keyboardType="numeric"
+                                                />
+                                            )}
+                                        ></Controller>
+                                    </View>
+                                    {paymentCardErrors.cardNumber && <Text className='text-red-400 text-sm'>{paymentCardErrors.cardNumber.message}</Text>}
                                     <View className="flex-row justify-between">
                                         <View className="flex-1 mr-5">
                                             <Text className="text-base text-[#FF6112]">Data venc.</Text>
@@ -572,6 +675,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <MaskInput
+                                                        value={getPaymentCardValues('cep')}
                                                         className='p-3 border border-neutral-400 rounded bg-white'
                                                         placeholder='Ex: 00000-000'
                                                         onChangeText={onChange}
@@ -579,15 +683,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                                     </MaskInput>
                                                 )}
                                             ></Controller>
-
+                                            {paymentCardErrors.cep && <Text className='text-red-400 text-sm'>{paymentCardErrors.cep.message}</Text>}
                                         </View>
                                         <View>
                                             <Text className='text-sm text-[#FF6112]'>Numero</Text>
                                             <Controller
-                                                name='number'
+                                                name='houseNumber'
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <MaskInput
+                                                        value={getPaymentCardValues('houseNumber')}
                                                         className='p-3 border border-neutral-400 rounded bg-white'
                                                         placeholder='Ex: 0000'
                                                         onChangeText={onChange}
@@ -595,10 +700,9 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                                     </MaskInput>
                                                 )}
                                             ></Controller>
-
+                                            {paymentCardErrors.houseNumber && <Text className='text-red-400 text-sm'>{paymentCardErrors.houseNumber.message}</Text>}
                                         </View>
                                     </View>
-
                                     <View>
                                         <Text className='text-sm text-[#FF6112]'>Rua</Text>
                                         <Controller
@@ -606,14 +710,15 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                             control={paymentCardControl}
                                             render={({ field: { onChange } }) => (
                                                 <MaskInput
+                                                    value={getPaymentCardValues('street')}
                                                     className='p-3 border border-neutral-400 rounded bg-white'
                                                     placeholder='Ex: Rua xxxx'
                                                     onChangeText={onChange}>
                                                 </MaskInput>
                                             )}
                                         ></Controller>
-
                                     </View>
+                                    {paymentCardErrors.street && <Text className='text-red-400 text-sm'>{paymentCardErrors.street.message}</Text>}
                                     <View>
                                         <Text className='text-sm text-[#FF6112]'>Bairro</Text>
                                         <Controller
@@ -621,14 +726,15 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                             control={paymentCardControl}
                                             render={({ field: { onChange } }) => (
                                                 <MaskInput
+                                                    value={getPaymentCardValues('district')}
                                                     className='p-3 border border-neutral-400 rounded bg-white'
                                                     placeholder='Ex: Jd. xxxxx'
                                                     onChangeText={onChange}>
                                                 </MaskInput>
                                             )}
                                         ></Controller>
-
                                     </View>
+                                    {paymentCardErrors.district && <Text className='text-red-400 text-sm'>{paymentCardErrors.district.message}</Text>}
                                     <View>
                                         <Text className='text-sm text-[#FF6112]'>Complemento</Text>
                                         <Controller
@@ -636,14 +742,15 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                             control={paymentCardControl}
                                             render={({ field: { onChange } }) => (
                                                 <MaskInput
+                                                    value={getPaymentCardValues('complement')}
                                                     className='p-3 border border-neutral-400 rounded bg-white'
                                                     placeholder='Ex: '
                                                     onChangeText={onChange}>
                                                 </MaskInput>
                                             )}
                                         ></Controller>
-
                                     </View>
+                                    {paymentCardErrors.complement && <Text className='text-red-400 text-sm'>{paymentCardErrors.complement.message}</Text>}
                                     <View className='flex flex-row justify-between'>
                                         <View>
                                             <Text className='text-sm text-[#FF6112]'>Cidade</Text>
@@ -652,13 +759,14 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <MaskInput
+                                                        value={getPaymentCardValues('city')}
                                                         className='p-3 border border-neutral-400 rounded bg-white'
                                                         placeholder='Ex: xxxx'
                                                         onChangeText={onChange}>
                                                     </MaskInput>
                                                 )}
                                             ></Controller>
-
+                                            {paymentCardErrors.city && <Text className='text-red-400 text-sm'>{paymentCardErrors.city.message}</Text>}
                                         </View>
                                         <View>
                                             <Text className='text-sm text-[#FF6112]'>Estado</Text>
@@ -667,16 +775,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                                 control={paymentCardControl}
                                                 render={({ field: { onChange } }) => (
                                                     <MaskInput
+                                                        value={getPaymentCardValues('state')}
                                                         className='p-3 border border-neutral-400 rounded bg-white'
                                                         placeholder='Ex: xxxx'
                                                         onChangeText={onChange}>
                                                     </MaskInput>
                                                 )}
                                             ></Controller>
-
+                                            {paymentCardErrors.state && <Text className='text-red-400 text-sm'>{paymentCardErrors.state.message}</Text>}
                                         </View>
                                     </View>
-
                                     <View className="p-2 justify-center items-center">
                                         <TouchableOpacity onPress={handlePaymentCardSubmit(updateCardInfos)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
                                             <Text className="text-white">Salvar</Text>
@@ -684,6 +792,23 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                     </View>
                                 </View>
                             )}
+                            {
+                                showCreditCards
+                                    ?
+                                    <View className=" border-gray-500 flex w-max h-max">
+                                        {
+                                            cards.map((card) => 
+                                                <CreditCardCard number={card.number}/>
+                                            )
+                                        }
+
+                                    </View>
+                                    : null
+                            }
+
+
+
+
                             <View>
                                 <View className='p-2'>
                                     <TouchableOpacity onPress={handleSubmit(updateUserInfos)} className='h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center' >
@@ -727,7 +852,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                 </View>
                             </View>
                         </Modal>
-
                         <Modal visible={showExitConfirmation} animationType="fade" transparent={true}>
                             <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
                                 <View className="bg-white rounded-md p-20 items-center">
@@ -750,7 +874,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 userID={route.params.userID}
                 paddingTop={50}
             />
-        </View>
+        </View >
     );
 }
 
