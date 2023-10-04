@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import FilterDropdown from '../FilterDropdown'
 import Animated, {
@@ -8,20 +8,45 @@ import Animated, {
 import { Button, Checkbox } from "react-native-paper"
 import DateTimePicker from "@react-native-community/datetimepicker"
 import FilterDate from '../FilterDate'
+import useFilters from '../../hooks/useFilters'
 
 
-export default function FilterComponent() {
+export default function FilterComponent(props:{ setFilter: any }) {
 
     const date = new Date()
 
+    const getWeekDay = (diaSemana: number) => {
+        switch (diaSemana) {
+            case 0:
+                return 'Sunday'
+            case 1:
+                return 'Monday'
+            case 2:
+                return 'Tuesday'
+            case 3:
+                return 'Wednesday'
+            case 4:
+                return 'Thursday'
+            case 5:
+                return 'Friday'
+            case 6:
+                return 'Saturday'
+        }
+    }
+
+
     const [dateSelector, setDateSelector] = useState(`__/__/____`)
     const [amenities, setAmenities] = useState<Array<string> | null>(null)
-    const [dayUseYes, setDayUseYes] = useState(false)
-    const [dayUseNot, setDayUseNot] = useState(true)
+    const [dayUseYes, setDayUseYes] = useState<boolean | undefined>(undefined)
     const [timeFinal, setTimeFinal] = useState(new Date(date.setHours(0, 0, 0, 0)))
+    const [weekDay, setWeekDay] = useState<number| undefined>(undefined)
     const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
     const [timeInit, setTimeInit] = useState(new Date(date.setHours(0, 0, 0, 0)))
     const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
+
+    useEffect(() => {
+
+    }, [amenities, dayUseYes, timeFinal, timeInit, weekDay])
 
     const handleTimeInitPicker = () => {
         setShowTimeInitPicker(true)
@@ -45,11 +70,11 @@ export default function FilterComponent() {
 
     return (
         <>
-            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 absolute z-10 w-screen h-screen'></Animated.View>
+            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 z-10 w-screen h-screen'></Animated.View>
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-5/6'>
                 <ScrollView className='flex flex-col gap-y-4 h-full w-3/4 pt-9'>
                     <FilterDropdown amenities={amenities} setAmenities={setAmenities} />
-                    <FilterDate dateSelector={dateSelector} setDateSelector={setDateSelector} />
+                    <FilterDate setWeekDay={setWeekDay} dateSelector={dateSelector} setDateSelector={setDateSelector} />
 
                     <View className='flex flex-row justify-between'>
                         <View className='w-[41%]'>
@@ -112,10 +137,8 @@ export default function FilterComponent() {
                                         onPress={() => {
                                             if (dayUseYes) {
                                                 setDayUseYes(false);
-                                                setDayUseNot(true);
                                             } else {
                                                 setDayUseYes(true);
-                                                setDayUseNot(false);
                                             }
                                         }}
                                     />
@@ -127,6 +150,15 @@ export default function FilterComponent() {
                             buttonColor='#FF6112'
                             textColor='white'
                             style={{ marginTop: 15, marginBottom: 10 }}
+                            onPress={() => {
+                                props.setFilter({
+                                    amenities: amenities !== null ? amenities : [],
+                                    dayUseService: dayUseYes,
+                                    endsAt: timeFinal.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeFinal.toTimeString().split(" G")[0] + ".00" : undefined,
+                                    startsAt: timeInit.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeInit.toTimeString().split(" G")[0] + ".00" : undefined,
+                                    weekDay: weekDay ? getWeekDay(weekDay) : undefined 
+                                })
+                            }}
                         >
                             <Text className='font-medium text-base'>
                                 Filtrar
@@ -136,13 +168,20 @@ export default function FilterComponent() {
                             onPress={() => {
                                 setTimeInit(new Date(date.setHours(0, 0, 0, 0)))
                                 setTimeFinal(new Date(date.setHours(0, 0, 0, 0)))
-                                setDayUseYes(false)
-                                setDayUseNot(false)
+                                setDayUseYes(undefined)
                                 setAmenities([])
                                 setDateSelector(`__/__/____`)
+                                setWeekDay(undefined)
+                                props.setFilter({
+                                    amenities: [],
+                                    dayUseService: undefined,
+                                    endsAt: undefined,
+                                    startsAt: undefined,
+                                    weekDay: undefined 
+                                })
                             }}
                         >
-                            <Text className='font-semibold text-white border-white border-b-[0.5px] mt border-solid'>
+                            <Text className='font-semibold text-white border-white border-b-[0.5px] border-solid'>
                                 Limpar Filtros
                             </Text>
                             <Text className='text-white font-semibold'>
