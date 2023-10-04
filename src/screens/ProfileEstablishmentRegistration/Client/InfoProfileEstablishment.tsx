@@ -27,7 +27,6 @@ interface IFormData {
     userName: string
     email: string
     phoneNumber: string
-    userPhoto: string
 }
 
 const formSchema = z.object({
@@ -87,7 +86,6 @@ const pixKeyFormSchema = z.object({
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
     const [userId, setUserId] = useState("")
-    console.log(userId)
     const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
         resolver: zodResolver(formSchema)
     })
@@ -196,8 +194,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 username: userDatas.userName,
                 email: userDatas.email,
                 phone_number: userDatas.phoneNumber,
-                cpf: cpf!,
-                photo: userDatas.userPhoto
+                cpf: cpf!
             }
         }).then(value => {
             alert(value.data?.updateUsersPermissionsUser.data?.attributes.username)
