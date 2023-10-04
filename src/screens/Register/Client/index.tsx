@@ -43,6 +43,12 @@ export default function Register({
     formState: { errors },
   } = useForm<IFormDatas>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      cpf: "118484849",
+      email: "email@email.com",
+      name: "yasmin",
+      phoneNumber: "11849849498",
+    },
   });
 
   function handleGoToNextRegisterPage(data: IFormDatas) {
@@ -53,24 +59,25 @@ export default function Register({
   }
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="h-full">
+    <ScrollView className="flex-1 bg-white p-2">
+      <View className="h-full p-4">
         <RegisterHeader
           title="Cadastro"
           subtitle="Vamos precisar de alguns dados seus..."
         />
 
-        <View className="p-6 gap-2 flex flex-col justify-between">
+        <View className="gap-4 flex flex-col  justify-between">
           <View>
-            <Text className="text-xl">Qual é o seu nome?</Text>
+            <Text className="text-base mb-2">Qual é o seu nome?</Text>
             <Controller
               name="name"
               control={control}
               rules={{
                 required: true,
               }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
+                  value={value}
                   onChangeText={onChange}
                   className={
                     errors.name
@@ -89,7 +96,7 @@ export default function Register({
           </View>
 
           <View>
-            <Text className="text-xl">Qual é o seu email?</Text>
+            <Text className="text-base mb-2">Qual é o seu email?</Text>
             <Controller
               name="email"
               control={control}
@@ -120,7 +127,7 @@ export default function Register({
           </View>
 
           <View>
-            <Text className="text-xl">Qual é o número do seu celular?</Text>
+            <Text className="text-base mb-2">Telefone para contato</Text>
             <Controller
               name={"phoneNumber"}
               control={control}
@@ -157,7 +164,7 @@ export default function Register({
           </View>
 
           <View>
-            <Text className="text-xl">Qual é o número do seu CPF?</Text>
+            <Text className="text-base mb-2">CPF</Text>
             <Controller
               name="cpf"
               control={control}
@@ -195,7 +202,7 @@ export default function Register({
           className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6"
           onPress={handleSubmit(handleGoToNextRegisterPage)}
         >
-          <Text className="text-gray-50">Continuar</Text>
+          <Text className="text-white text-base font-semibold">Continuar</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

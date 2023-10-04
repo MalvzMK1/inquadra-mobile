@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Text,
   TextInput,
@@ -40,6 +41,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
     formState: { errors },
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      password: "123456",
+      confirmPassword: "123456",
+    },
   });
   const [registerUser, { data, error, loading }] = useRegisterUser();
 
@@ -81,7 +86,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         username: route.params.data.name,
       };
 
-      await registerUser({ variables: userData });
+      // await registerUser({ variables: userData });
 
       if (route.params.flow === "normal") {
         navigation.navigate("RegisterSuccess");
@@ -91,9 +96,9 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
     } catch (error) {
       if (error instanceof ApolloError) {
         if (error.message === "Email already taken") {
-          alert("O E-mail já está em uso");
+          Alert.alert("Erro", "O e-mail já está em uso.");
         } else if (error.message === "This attribute must be unique") {
-          alert("O cpf já está em uso");
+          Alert.alert("Erro", "O CPF já está em uso.");
         }
       }
 
@@ -105,17 +110,17 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   }
 
   return (
-    <View className=" flex flex-col bg-white h-screen items-center p-5">
+    <View className="flex flex-col bg-white h-screen items-center p-5">
       <View>
         <RegisterHeader
           title="Senha"
-          subtitle="Antes de concluir escolha uma senha de acesso"
+          subtitle="Antes de concluir escolha uma senha de acesso."
         ></RegisterHeader>
       </View>
 
-      <View className="gap-2 flex flex-col justify-between items-center w-full">
+      <View className="gap-2 flex flex-col justify-between items-center w-full mt-2">
         <View className="w-full">
-          <Text className="text-xl">Escolha uma senha</Text>
+          <Text className="text-base mb-2">Escolha uma senha</Text>
           <View
             className={
               errors.password || !passwordsMatch
@@ -142,7 +147,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
             />
             <TouchableOpacity onPress={handleShowPassword}>
               <Image
-                className="h-4 w-4 m-4"
+                className="h-6 w-6 m-4"
                 source={
                   !showPassword
                     ? require("../../../assets/eye.png")
@@ -164,7 +169,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         </View>
 
         <View className="w-full">
-          <Text className="text-xl">Repita a senha escolhida</Text>
+          <Text className="text-base mt-4 mb-2">Repita a senha escolhida</Text>
           <View
             className={
               errors.confirmPassword || !passwordsMatch
@@ -193,7 +198,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
             />
             <TouchableOpacity onPress={handleConfirmShowPassword}>
               <Image
-                className="h-4 w-4 m-4"
+                className="h-6 w-6 m-4"
                 source={
                   !showConfirmedPassword
                     ? require("../../../assets/eye.png")
@@ -258,12 +263,12 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           </Text>
         )}
       </View>
-      <View className="flex-1 flex w-full items-center justify-center">
+      <View className="flex-1 mb-14 flex w-full items-center justify-center">
         <TouchableOpacity
           className="h-14 w-full rounded-md bg-orange-500 flex items-center justify-center"
           onPress={handleSubmit(handleSignup)}
         >
-          <Text className="text-gray-50">
+          <Text className="text-white font-semibold text-base">
             {isLoading ? (
               <ActivityIndicator size="small" color="#F5620F" />
             ) : (

@@ -209,7 +209,7 @@ export default function RegisterEstablishment({
             <View className="border rounded relative">
               <View className="flex flex-row">
                 <Text
-                  className="text-base text-gray-400 font-bold m-6"
+                  className="text-base text-gray-400 m-6"
                   onPress={handleProfilePictureUpload}
                 >
                   Carregue as fotos do Estabelecimento. {"\n"} Ex: frente, o
