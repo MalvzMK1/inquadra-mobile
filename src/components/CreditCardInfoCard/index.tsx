@@ -48,15 +48,6 @@ export default function CreditCardCard(props: CreditCardInfosT) {
         label = "unknow";
     }
 
-    const deleteMessage = () => {
-        Toast.show({
-            type: 'success',
-            text1: 'Deletado',
-            text2: 'Deletado com sucesso 👋'
-        })
-    }
-
-
     const handleDeleteCard = async (cardId: number) => {
         try {
             const userCardsJSON = await AsyncStorage.getItem(`user${props.userID}Cards`);
@@ -87,11 +78,10 @@ export default function CreditCardCard(props: CreditCardInfosT) {
 
 
 
-
     return (
         !cardDeleted
             ?
-            <View className="flex h-[90px] w-[300px] rounded-xl border justify-center items-start border-[#292929]">
+            <View className="flex h-[90px] w-full rounded-xl border justify-center items-start border-[#292929]">
                 <View className="before:absolute before:w-1 before:h-[69px] before:bg-[#F5620F] before:content '' left-[10px] "></View>
                 <View className="flex w-[300px] items-end pr-4 pt-2">
                     <MaterialIcons name="delete" color="#F5620F" size={25} onPress={() => handleDeleteCard(props.id)} />

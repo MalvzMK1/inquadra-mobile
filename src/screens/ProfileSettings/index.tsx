@@ -114,7 +114,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
     const [updateUser, { data: updatedUserData, loading: isUpdateLoading, error: updateUserError }] = useUpdateUser();
     const [updatePaymentCardInformations, { data: updatedPaymentCardInformations, loading: isUpdatePaymentCardLoading }] = useUpdatePaymentCardInformations()
     const [deleteUser] = useDeleteUser();
-    const userID  = route.params.userID
+    const userID = route.params.userID
 
     useEffect(() => {
         let newCountriesArray: Array<{ key: string, value: string, img: string }> = [];
@@ -146,7 +146,8 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         handleSubmit: handlePaymentCardSubmit,
         formState: { errors: paymentCardErrors },
         getValues: getPaymentCardValues,
-        setValue: setPaymentCardValue
+        setValue: setPaymentCardValue,
+        resetField
     } = useForm<IPaymentCardFormData>({
         resolver: zodResolver(paymentCardFormSchema)
     })
@@ -176,6 +177,20 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         )
 
     };
+
+    const resetFieldsCard = () => {
+        resetField('cardNumber')
+        resetField('dueDate')
+        resetField('country')
+        resetField('cep')
+        resetField('houseNumber')
+        resetField('district')
+        resetField('complement')
+        resetField('city')
+        resetField('state')
+        resetField('cvv')
+        resetField('street')
+    }
 
     const handleDeleteAccount = () => {
         setShowDeleteConfirmation(true);
@@ -330,9 +345,6 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         }
     }
 
-
-
-
     async function loadInformations() {
         let newUserInfos = userInfos;
         if (!loading && data) {
@@ -399,7 +411,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
         //         console.log('Dados removidos com sucesso');
         //     }
         // });
-    }, []);
+    }, [showCreditCards]);
 
 
     const addCard = (
@@ -435,23 +447,16 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                 console.log('deu ruim paew', error);
             } else {
                 setShowCard(false);
-
                 showMessage({
-                    message: "Cadastro efetuado",
+                    message: " ",
                     description: "Cartão cadastrado com sucesso",
-                    type: "success",
+                    type: "default",
+                    backgroundColor: "green"
                 })
+                resetFieldsCard()
             }
         });
     };
-
-    const showMessageTest = () => {
-        showMessage({
-            message: "",
-            description: "Cartão cadastrado com sucesso",
-            type: "success",
-        })
-    }
 
     return (
         <View className="flex-1 bg-white h-full">
@@ -474,7 +479,7 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                     </TouchableOpacity>
                 </View>
             </View>
-            
+
             {
                 loading ?
                     <View className='flex-1'>
@@ -812,7 +817,9 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                         cards.length > 0
                                             ?
                                             <View className=" border-gray-500 flex w-max h-max">
+
                                                 {
+
                                                     cards.map((card) =>
                                                         <>
                                                             <CreditCardCard number={card.number} id={card.id} userID={userID} />
@@ -841,10 +848,10 @@ export default function ProfileSettings({ navigation, route }: NativeStackScreen
                                     </View>
 
                                     <View className='p-2'>
-                                    <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center' >
-                                        <Text className='text-gray-50'>Sair do App</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                        <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center' >
+                                            <Text className='text-gray-50'>Sair do App</Text>
+                                        </TouchableOpacity>
+                                    </View>
 
                                     <View className='p-2'>
                                         <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md  flex items-center justify-center'>
