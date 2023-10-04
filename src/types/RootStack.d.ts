@@ -46,7 +46,9 @@ type RootStackParamList = {
   };
   ChooseUserType: undefined;
   TermsOfService: undefined;
-  Register: undefined;
+  Register: {
+    flow: "normal" | "establishment";
+  };
   EstablishmentRegister: {
     username: string;
     cpf: string;
@@ -71,10 +73,13 @@ type RootStackParamList = {
     name: string;
   };
   RegisterPassword: {
-    name: string;
-    email: string;
-    cpf: string;
-    phoneNumber: string;
+    flow: "normal" | "establishment";
+    data: {
+      name: string;
+      email: string;
+      cpf: string;
+      phoneNumber: string;
+    };
   };
   RegisterSuccess: undefined;
   InfoReserva: {
