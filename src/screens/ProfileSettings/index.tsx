@@ -568,7 +568,7 @@ export default function ProfileSettings({
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
-            <View className="p-6 space-y-10">
+            <View className="p-6 space-y-6">
               <View>
                 <Text className="text-base">Nome</Text>
                 <Controller
