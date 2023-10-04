@@ -116,14 +116,7 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
                         <InfosEstablishment.Root category={item.attributes.corporateName}>
                             <InfosEstablishment.Establishment key={item.id} imageUrl={{ uri: HOST_API + item.attributes.photos.data[0].attributes.url, height: 90, width: 138 }}>
                                 <InfosEstablishment.Content>
-                                    <InfosEstablishment.ContentHeader establishmentName={item.attributes.corporateName}>
-                                        <AntDesign
-                                            name="heart"
-                                            size={20}
-                                            color={colors[item.id] || "red"}
-                                            onPress={() => handleUpdateEstablishmentLike(item.id)}
-                                        />
-                                    </InfosEstablishment.ContentHeader>
+                                    <InfosEstablishment.ContentHeader establishmentName={item.attributes.corporateName} />
 
                                     <InfosEstablishment.ContentDistance distance={
                                         (() => {
@@ -139,6 +132,13 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
                                         })()
                                     } />
                                 </InfosEstablishment.Content>
+
+                                <AntDesign
+                                    name="heart"
+                                    size={20}
+                                    color={colors[item.id] || "red"}
+                                    onPress={() => handleUpdateEstablishmentLike(item.id)}
+                                />
                             </InfosEstablishment.Establishment>
                         </InfosEstablishment.Root>
                     ))
