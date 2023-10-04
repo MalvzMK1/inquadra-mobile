@@ -30,7 +30,6 @@ export interface IUpdateUserVariables {
   phone_number: string
   cpf: string
   user_id: string
-  photo?: string
 }
 
 export const updateUserMutation = gql`
@@ -40,12 +39,10 @@ mutation updateUser(
     $phone_number: String!
     $cpf: String!
     $user_id: ID!
-    $photo: ID!
   ) {
     updateUsersPermissionsUser(
       id: $user_id
       data: {
-        photo: $photo
         username: $username
         email: $email
         phoneNumber: $phone_number

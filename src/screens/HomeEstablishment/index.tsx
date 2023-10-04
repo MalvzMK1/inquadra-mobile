@@ -123,13 +123,13 @@ export default function HomeEstablishment({ navigation, route }: NativeStackScre
                     <Text className='text-lg font-bold text-white'>Olá, {firstName}!</Text>
                 </View>
                 <View className='h-max w-max flex justify-center items-center'>
-                    <TouchableOpacity onPress={() => navigation.navigate('InfoProfileEstablishment', {
+                    <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" onPress={() => navigation.navigate('InfoProfileEstablishment', {
                         userPhoto: dataEstablishmentId?.usersPermissionsUser.data.attributes.photo.data.attributes.url ? HOST_API + dataSchedulings?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null,
                         establishmentId: establishment_id
                     })}>
                         <Image
                             source={dataEstablishmentId?.usersPermissionsUser.data.attributes.photo.data.attributes.url ? { uri: HOST_API + dataEstablishmentId?.usersPermissionsUser.data.attributes.photo.data.attributes.url } : require("../../assets/default-user-image.png")}
-                            className='w-[30px] h-[30px] rounded-[15px]'
+                            className='w-full h-full'
                         />
                     </TouchableOpacity>
                 </View>
