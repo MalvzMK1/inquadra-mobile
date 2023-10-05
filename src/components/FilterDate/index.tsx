@@ -4,18 +4,22 @@ import { View, Text } from 'react-native';
 import { Button } from "react-native-paper";
 
 
-export default function FilterDate(props: { dateSelector: string, setDateSelector: Dispatch<SetStateAction<string>> }) {
+export default function FilterDate(props: { dateSelector: string, setDateSelector: Dispatch<SetStateAction<string>>, setWeekDay: (arg0: number) => void }) {
 
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
     const [date, setDate] = useState(new Date())
+
+    console.log(props.dateSelector)
 
     const handleDateChange = (event: object, selectedDate: Date | undefined) => {
         setShowDatePicker(false)
         if (selectedDate) {
             setDate(selectedDate)
             props.setDateSelector(selectedDate.toISOString())
+            props.setWeekDay(selectedDate.getDay())
         }
     }
+
 
     return (
         <View className='flex flex-row items-center mt-6 justify-between pb-3'>

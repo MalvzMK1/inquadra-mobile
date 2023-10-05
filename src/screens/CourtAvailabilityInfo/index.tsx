@@ -131,7 +131,7 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
         }
     };
 
-	const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(route.params.userId)
+    const { data: dataUser, loading: loadingUser, error: errorUser } = useGetUserById(route?.params?.userId)
     return (
         <SafeAreaView className="flex flex-col justify-between  h-full">
             {isCourtAvailabilityLoading ? <ActivityIndicator size='large' color='#F5620F' /> :
@@ -172,51 +172,57 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
                             </View>
                         </View>
                         <ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[30px] flex">
+                            {availabilities.length > 0 && route.params.userId && (
+                                availabilities.map((item) => {
+                                    const startsAt = item.startsAt.split(':');
+                                    const endsAt = item.endsAt.split(':');
+
+                                    let isBusy = !item.busy;
+
+                                    if (item.scheduling)
+                                        if (selectedDate.split("T")[0] === item.scheduling.toString())
+                                            isBusy = true;
+
+                                    if (selectedWeekDate === item.weekDays) {
+                                        return (
+                                            <CourtAvailibility
+                                                key={item.id}
+                                                id={item.id}
+                                                startsAt={`${startsAt[0]}:${startsAt[1]}`}
+                                                endsAt={`${endsAt[0]}:${endsAt[1]}`}
+                                                price={item.price}
+                                                busy={isBusy}
+                                                selectedTimes={selectedTime}
+                                                toggleTimeSelection={toggleTimeSelection}
+                                            />
+                                        );
+                                    }
+
+                                    return null;
+                                })
+                            )}
                             {
-                                availabilities.length > 0 ? (
-                                    availabilities.map((item) => {
-                                        const startsAt = item.startsAt.split(':');
-                                        const endsAt = item.endsAt.split(':');
-
-                                        let isBusy = !item.busy;
-
-                                        if (item.scheduling)
-                                            if (selectedDate.split("T")[0] === item.scheduling.toString())
-                                                isBusy = true;
-
-                                        if (selectedWeekDate === item.weekDays) {
-                                            return (
-                                                <CourtAvailibility
-                                                    key={item.id}
-                                                    id={item.id}
-                                                    startsAt={`${startsAt[0]}:${startsAt[1]}`}
-                                                    endsAt={`${endsAt[0]}:${endsAt[1]}`}
-                                                    price={item.price}
-                                                    busy={isBusy}
-                                                    selectedTimes={selectedTime}
-                                                    toggleTimeSelection={toggleTimeSelection}
-                                                />
-                                            );
-                                        }
-
-                                        return null;
-                                    })
-                                ) : (
+                                availabilities.length == 0 && route.params.userId && (
                                     <Text className="text-xl font-black text-center">No momento não é possível Alugar essa quadra</Text>
+                                )
+                            }
+                            {
+                                !route.params.userId && (
+                                    <Text className="text-xl font-black text-center">FAÇA <Text onPress={() => navigation.navigate("Login")} className="text-xl font-black text-center underline">LOGIN</Text> NO APP PARA PODER FAVORITAR UM ESTABELECIMENTO!</Text>
                                 )
                             }
                         </ScrollView>
                         <View className="h-fit w-full p-[15px] mt-[30px]">
                             <TouchableOpacity
                                 className={`h-14 w-full rounded-md  ${!selectedTime ? availabilities.length <= 0 ? "bg-[#ffa363]" : "bg-[#ffa363]" : "bg-orange-500"} flex items-center justify-center`}
-                                disabled={!selectedTime ? availabilities.length <= 0 ? true : true : false}
+                                disabled={!selectedTime ? availabilities.length <= 0 ? true : true : false} // tora grande
                                 onPress={() => {
                                     if (selectedTime)
                                         navigation.navigate('ReservationPaymentSign', {
                                             courtName: route.params.courtName,
                                             courtImage: route.params.courtImage,
                                             courtId: route.params.courtId,
-                                            userId: route.params.userId,
+                                            userId: route?.params?.userId,
                                             amountToPay: selectedTime?.value,
                                             courtAvailabilities: selectedTime?.id,
                                             courtAvailabilityDate: selectedDate,
@@ -230,17 +236,17 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
                         </View>
                         <View className="h-20"></View>
                     </ScrollView>
-					<View className="absolute bottom-0 left-0 right-0">
-						<BottomBlackMenu
-							screen="any"
-							userID={route.params.userId}
-							userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
-							key={1}
-							isDisabled={true}
-							paddingTop={2}
-						/>
-					</View>
-		</>
+                    <View className="absolute bottom-0 left-0 right-0">
+                        <BottomBlackMenu
+                            screen="any"
+                            userID={route?.params?.userId}
+                            userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
+                            key={1}
+                            isDisabled={true}
+                            paddingTop={2}
+                        />
+                    </View>
+                </>
             }
         </SafeAreaView>
     )
