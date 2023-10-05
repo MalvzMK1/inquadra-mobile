@@ -198,23 +198,26 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                         cvv: parseInt(data.cvv),
                         date: convertToAmericanDate(data.date),
                         countryID: countryId,
-                        publishedAt: new Date().toISOString()
+                        publishedAt: new Date().toISOString(),
+                        cep: data.cep,
+                        city: data.city,
+                        complement: data.complement,
+                        number: data.number,
+                        state: data.state,
+                        neighborhood: data.district,
+                        street: data.street
                     }
                 });
             }
-
             updateStatusDisponibleCourt();
             handleSaveCard();
             navigation.navigate('InfoReserva', {userId: userId})
         } catch (error) {
-
             console.error("Erro ao criar o agendamento:", error);
         }
     };
 
     const createNewSchedule = async () => {
-
-
         let isPayed = dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false
         console.log(`OIA O TESTE AI Ó: ${isPayed}`)
         try {
@@ -249,6 +252,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             }
         })
     }
+
+    
 
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">

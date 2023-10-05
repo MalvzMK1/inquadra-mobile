@@ -9,6 +9,7 @@ import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedul
 import { addDays } from "date-fns";
 import { HOST_API } from '@env';
 import { Calendar, DateData } from "react-native-calendars";
+import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 
 interface ScheduleCardInfos {
     id: string,
@@ -25,7 +26,7 @@ interface ScheduleArray {
     schedules: Array<ScheduleCardInfos>
 }
 
-export default function Schedulings({ navigation }: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
+export default function Schedulings({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'Schedulings'>) {
     const [userId, setUserId] = useState<string>();
     const [schedules, setSchedules] = useState<Array<ScheduleArray>>([])
     const [filteredSchedules, setFilteredSchedules] = useState<Array<ScheduleArray>>([])
@@ -159,13 +160,21 @@ export default function Schedulings({ navigation }: NativeStackScreenProps<RootS
                     </View>
             }
 
-            <BottomNavigationBar
-                establishmentScreen
-                userID={userId ?? ""}
-                userPhoto={'https'}
-                playerScreen={false}
-                establishmentID={undefined}
-                logo={undefined} />
+            {
+                userId ?
+                    <View className={`absolute bottom-0 left-0 right-0`}>
+                        <BottomBlackMenuEstablishment
+                            screen="Schedule"
+                            userID={userId ? userId : ""}
+                            establishmentLogo={route?.params?.establishmentPhoto}
+                            establishmentID={route?.params?.establishmentId}
+                            key={1}
+                            paddingTop={2}
+                        />
+                    </View>
+                    :
+                    null
+            }
         </View>
     )
 }

@@ -42,17 +42,13 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
     }
 
     const [isTermChecked, setIsTermChecked] = useState(false)
-    const [isCaptchaChecked, setIsCaptchaChecked] = useState(true)
     const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false)
-    const [isCaptchaCheckedError, setIsCaptchaCheckedError] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [passwordsMatch, setPasswordsMatch] = useState<boolean>(true)
 
     function handleSignup(data: IFormData): void {
         setIsLoading(true)
         if (isTermChecked) {
-            // if (isCaptchaChecked) {
-                // console.log(data)
                 if (data.password === data.confirmPassword) {
                     const userDatas = {
                         ...route.params,
@@ -82,10 +78,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                     setIsLoading(false)
                     setPasswordsMatch(false)
                 }
-            // } else {
-            //     setIsCaptchaCheckedError(true)
-            //     setIsLoading(false)
-            // }
         } else {
             setIsTermCheckedError(true)
             setIsLoading(false)
@@ -164,27 +156,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                     <Text className="text-base flex-wrap flex-1">Li e estou de acordo com o <Text className="text-[#3D58DB] flex-wrap" onPress={() => navigation.navigate('TermsOfService')}>Termo de Uso e Política de Privacidade</Text> </Text>
                 </View>
                 {isTermCheckedError && <Text className='text-red-400 text-sm'>Leia os termos</Text>}
-
-                <CaptchaCard
-                    checked={isCaptchaChecked}
-                    onChange={(checked) => {
-                        console.log(checked)
-                    }}
-                />
-                {/*<View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">*/}
-                {/*    <View className="flex flex-row items-center">*/}
-                {/*        <CheckBox*/}
-                {/*            checked={isCaptchaChecked}*/}
-                {/*            onPress={() => setIsCaptchaChecked(!isCaptchaChecked)}*/}
-                {/*            containerStyle={{*/}
-                {/*                borderColor: isCaptchaCheckedError ? 'rgb(248 113 113)' : undefined*/}
-                {/*            }}*/}
-                {/*        />*/}
-                {/*        <Text className="text-[#959595] text-base">Não sou um robô</Text>*/}
-                {/*    </View>*/}
-                {/*    <Image source={require('../../../assets/captcha.png')}></Image>*/}
-                {/*</View>*/}
-                {isCaptchaCheckedError && <Text className='text-red-400 text-sm'>Verifique se você é um humano</Text>}
             </View>
             <View className='flex-1 flex w-full items-center justify-center'>
                 <TouchableOpacity

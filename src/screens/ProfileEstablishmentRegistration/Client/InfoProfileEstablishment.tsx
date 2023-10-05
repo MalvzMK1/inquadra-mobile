@@ -23,20 +23,10 @@ import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEst
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import { HOST_API } from "@env";
 
-
-let userId = ""
-
-storage.load<UserInfos>({
-    key: 'userInfos',
-}).then((data) => {
-    userId = data.userId
-})
-
 interface IFormData {
     userName: string
     email: string
     phoneNumber: string
-    userPhoto: string
 }
 
 const formSchema = z.object({
@@ -95,6 +85,7 @@ const pixKeyFormSchema = z.object({
 
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
+    const [userId, setUserId] = useState("")
     const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
         resolver: zodResolver(formSchema)
     })
@@ -119,45 +110,29 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     const [userDelete] = useDeleteUser()
 
     let amenities: string[] = []
-    userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.amenities.data.map(amenitieItem => {
-        amenities.push(amenitieItem.attributes.name)
-    })
+
 
     let courts: string[] = []
-
     interface ICourts {
         id: string
         courtName: string
     }
     let courtsJson: ICourts[] = []
-    userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.courts.data.map(item => {
-        courtsJson = [...courtsJson, { id: item.id, courtName: item.attributes.name }]
-        courts.push(item.attributes.name)
-    })
+
 
     let establishmentPhotos: string[] = []
-    userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data.map(photoItem => {
-        establishmentPhotos.push(photoItem.id)
-    })
+
 
     let pixKeys: string[] = []
-    userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.pix_keys.data.map(pixKeyItem => {
-        pixKeys.push(pixKeyItem.attributes.key)
-    })
 
-    const userName = userByEstablishmentData?.usersPermissionsUser.data.attributes.username
-    const userEmail = userByEstablishmentData?.usersPermissionsUser.data.attributes.email
+
+    const userName = userByEstablishmentData?.usersPermissionsUser.data?.attributes.username
+    const userEmail = userByEstablishmentData?.usersPermissionsUser.data?.attributes.email
 
     const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
-    useEffect(() => {
-        setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data.attributes.phoneNumber)
-        navigation.setParams({
-            userPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url
-        })
-    }, [userByEstablishmentData])
 
 
-    const cpf = userByEstablishmentData?.usersPermissionsUser.data.attributes.cpf
+    const cpf = userByEstablishmentData?.usersPermissionsUser.data?.attributes.cpf
 
     const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
     const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
@@ -198,9 +173,11 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             setAllFalse()
             setEditCNPJModal(true)
         }
-        else {
+        else if (selected == "Alterar Senha") {
             setAllFalse()
             setEditPasswordModal(true)
+        } else {
+            setAllFalse()
         }
     }
 
@@ -219,22 +196,18 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 username: userDatas.userName,
                 email: userDatas.email,
                 phone_number: userDatas.phoneNumber,
-                cpf: cpf!,
-                photo: userDatas.userPhoto
+                cpf: cpf!
             }
         }).then(value => {
-            alert(value.data?.updateUsersPermissionsUser.data.attributes.username)
+            alert(value.data?.updateUsersPermissionsUser.data?.attributes.username)
         })
             .catch((reason) => alert(reason))
             .finally(() => setIsLoading(false))
     }
 
     const [cep, setCep] = useState<string | undefined>()
-    useEffect(() => {
-        setCep(userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.address.cep)
-    })
 
-    const streetName = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.address.streetName
+    const streetName = userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.address.streetName
 
     const handleUpdateEstablishmentAddress = (data: IAddressFormData): void => {
         setIsLoading(true)
@@ -245,21 +218,49 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
         updateEstablishmentAddressHook({
             variables: {
-                establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id ?? "",
+                establishment_id: userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data.id ?? "",
                 cep: addressData.cep,
                 street_name: addressData.streetName,
                 latitude: userGeolocation?.latitude.toString() ?? "",
                 longitude: userGeolocation?.longitude.toString() ?? ""
             }
         }).then(value => {
-            alert(value.data?.updateEstablishment.data.attributes.address.streetName)
+            alert(value.data?.updateEstablishment.data?.attributes.address.streetName)
         })
             .catch((reason) => alert(reason))
             .finally(() => setIsLoading(false))
     }
 
-    const fantasyName = userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.fantasyName
-    // console.log(fantasyName)
+    const [fantasyName, setFantasyName] = useState<string | undefined>("")
+
+    useEffect(() => {
+        setCep(userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.address.cep)
+
+        setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data?.attributes.phoneNumber)
+        navigation.setParams({
+            userPhoto: userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
+        })
+
+        userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.amenities.data.map(amenitieItem => {
+            amenities.push(amenitieItem?.attributes.name)
+        })
+        userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.courts.data.map(item => {
+            courtsJson = [...courtsJson, { id: item.id, courtName: item?.attributes.name }]
+            courts.push(item?.attributes.name)
+        })
+        userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.photos.data.map(photoItem => {
+            establishmentPhotos.push(photoItem.id)
+        })
+        userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.pix_keys.data.map(pixKeyItem => {
+            pixKeys.push(pixKeyItem?.attributes.key)
+        })
+
+        storage.load<UserInfos>({
+            key: 'userInfos',
+        }).then((data) => {
+            setUserId(data.userId)
+        })
+    }, [userByEstablishmentData])
 
     const handleUpdateEstablishmentFantasyName = (data: IFantasyNameFormData): void => {
         setIsLoading(true)
@@ -270,11 +271,11 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
         updateEstablishmentFantasyNameHook({
             variables: {
-                establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id ?? "",
+                establishment_id: userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data.id ?? "",
                 fantasy_name: fantasyNameData.fantasyName
             }
         }).then(value => {
-            alert(value.data?.updateEstablishment.data.attributes.fantasyName)
+            alert(value.data?.updateEstablishment.data?.attributes.fantasyName)
         })
             .catch((reason) => alert(reason))
             .finally(() => setIsLoading(false))
@@ -331,7 +332,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
         newPixKey({
             variables: {
-                establishment_id: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id ?? "",
+                establishment_id: userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data.id ?? "",
                 pix_key: pixKeyData.pixKey,
                 published_at: currentDate
             }
@@ -474,7 +475,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
         navigation.navigate('EditCourt', {
             courtId: findCourt?.id,
-            userPhoto: userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url
+            userPhoto: userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
         })
     }
 
@@ -490,7 +491,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         {profilePicture ? (
                             <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
                         ) : (
-                            <Image source={{ uri: "http://192.168.15.19:1337" + userByEstablishmentData?.usersPermissionsUser.data.attributes.photo.data.attributes.url }} style={styles.profilePicture} />
+                            <Image source={{ uri: "http://192.168.15.19:1337" + userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url }} style={styles.profilePicture} />
                         )}
                         <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
                             {profilePicture ? (
@@ -604,6 +605,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                                 setSelected={(val: string) => setPixKeySelected(val)}
                                 data={pixKeys}
                                 save="value"
+                                notFoundText='Nenhuma chave pix cadastrada'
                                 placeholder='Selecione um dado'
                                 searchPlaceholder="Pesquisar..."
                                 dropdownTextStyles={{ color: "#FF6112" }}
@@ -674,6 +676,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                             setSelected={(val: string) => setAmeniniteSelected(val)}
                             data={amenities}
                             save="value"
+                            notFoundText='Nenhuma amenidade cadastrada'
                             placeholder='Selecione um dado'
                             searchPlaceholder="Pesquisar..."
                             dropdownTextStyles={{ color: "#FF6112" }}
@@ -694,6 +697,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                             }}
                             data={courts}
                             save="value"
+                            notFoundText='Nenhuma quadra cadastrada'
                             placeholder='Selecione um dado'
                             searchPlaceholder="Pesquisar..."
                             dropdownTextStyles={{ color: "#FF6112" }}
@@ -713,14 +717,14 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         </View>
 
                         <View className='p-2'>
-                            <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' >
+                            <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center' >
                                 <Text className='text-gray-50'>Sair do App</Text>
                             </TouchableOpacity>
                         </View>
 
                         <View className='p-2'>
-                            <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center'>
-                                <Text className='text-gray-50'>Excluir essa conta</Text>
+                            <TouchableOpacity onPress={handleDeleteAccount} className='h-14 w-81 rounded-md flex items-center justify-center'>
+                                <Text className='text-base text-gray-400'>Excluir essa conta</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -734,7 +738,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                                 <Text className="text-white">Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center" onPress={handleConfirmDelete} onPressIn={() => navigation.navigate('DeleteAccountEstablishment', {
-                                establishmentName: userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.corporateName
+                                establishmentName: userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.corporateName
                             })}>
                                 <Text className="text-white">Confirmar</Text>
                             </TouchableOpacity>
@@ -874,7 +878,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                                 <Text className='text-[14px] font-bold'>Seu CNPJ:</Text>
                                 <TextInput
                                     className='p-[5px] border border-neutral-400 rounded bg-white'
-                                    value={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.cnpj}
+                                    value={userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.cnpj}
                                     editable={false}
                                 />
                             </View>
@@ -1000,9 +1004,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             <View className={`absolute bottom-0 left-0 right-0`}>
                 <BottomBlackMenuEstablishment
                     screen="Any"
-                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
+                    userID={dataUserEstablishment?.establishment.data?.attributes.owner.data.id!}
                     establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
-                    establishmentID={userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.id!}
+                    establishmentID={userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data.id!}
                     key={1}
                     paddingTop={10}
                 />
