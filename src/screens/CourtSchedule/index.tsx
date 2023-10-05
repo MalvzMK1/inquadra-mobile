@@ -801,7 +801,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
                             <View className="flex flex-row flex-wrap w-full justify-evenly">
 
-                                {activeCourts != undefined && courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
+                                {activeCourts != undefined && !courtsByEstablishmentIdLoading && courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
                                     if (activeCourts[index] != undefined) {
                                         return (
                                             <CourtSlideButton
@@ -907,7 +907,7 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
 
                             <View className="flex flex-row flex-wrap w-full justify-evenly">
 
-                                {activeCourts != undefined && courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
+                                {activeCourts != undefined && !courtsByEstablishmentIdLoading && courtsByEstablishmentIdData && courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map((courtItem, index) => {
                                     if (activeCourts[index] != undefined) {
                                         return (
                                             <CourtSlideButton

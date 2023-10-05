@@ -245,7 +245,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
                 {(userGeolocation && userGeolocationDelta) && (
                     <MapView
-                        provider={PROVIDER_GOOGLE}
                         loadingEnabled
                         className='w-screen flex-1'
                         onPress={() => setIsDisabled(false)}
