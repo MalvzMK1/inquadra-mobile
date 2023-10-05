@@ -416,7 +416,7 @@ export default function RegisterEstablishment({
           <View>
             <TouchableOpacity
               className="h-14 w-full mt-4 mb-4 rounded-md bg-[#FF6112] items-center justify-center"
-              onPressIn={handleSubmit(submitForm)}
+              onPress={handleSubmit(submitForm)}
             >
               <Text className="text-white text-base font-semibold">
                 Continuar

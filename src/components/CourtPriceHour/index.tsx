@@ -1,5 +1,6 @@
+import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Image, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 
@@ -57,13 +58,13 @@ export default function PriceHour({
             mask={Masks.BRL_CURRENCY}
             value={price}
             onChangeText={setPrice}
-            placeholder="Ex.: 250 R$"
+            placeholder="Ex.: R$250"
             inputMode="numeric"
           />
         </View>
 
         <TouchableOpacity onPress={onDelete}>
-          <Image source={require("../../assets/edit_icon.png")}></Image>
+          <Feather name="x" size={20} color="#FF6112" />
         </TouchableOpacity>
       </View>
     </View>

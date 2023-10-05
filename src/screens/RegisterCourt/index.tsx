@@ -1,11 +1,13 @@
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+  Alert,
   FlatList,
   Image,
   Text,
@@ -18,9 +20,37 @@ import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { ActivityIndicator } from "react-native-paper";
 import { z } from "zod";
-import useAvailableSportTypes from "../../hooks/useAvailableSportTypes";
 import useRegisterCourt from "../../hooks/useRegisterCourt";
+import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
+import { Appointment } from "../CourtPriceHour";
+
+const indexToWeekDayMap: Record<number, string> = {
+  0: "Sunday",
+  1: "Monday",
+  2: "Tuesday",
+  3: "Wednesday",
+  4: "Thursday",
+  5: "Friday",
+  6: "Saturday",
+  7: "SpecialDays",
+};
+
+const formSchema = z.object({
+  minimum_value: z
+    .string()
+    .nonempty("É necessário determinar um valor mínimo."),
+  fantasyName: z.string().nonempty("Diga um nome fantasia."),
+});
+
+interface IFormDatasCourt {
+  court_name: string;
+  minimum_value: string;
+  courtType: string;
+  fantasyName: string;
+  photos: string[];
+  court_availabilities?: string[];
+}
 
 interface CourtArrayObject {
   court_name: string;
@@ -38,116 +68,141 @@ export default function RegisterCourt({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "RegisterCourts">) {
+  const [registerCourt] = useRegisterCourt();
   const [isLoading, setIsLoading] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [courts, setCourts] = useState<CourtArrayObject[]>([]);
   const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
-  const [registerCourt, { data, error, loading }] = useRegisterCourt();
-  const {
-    data: dataSportType,
-    loading: sportLoading,
-    error: sportError,
-  } = useAvailableSportTypes();
+  const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false);
+  const [photos, setPhotos] = useState<Array<{ uri: string }>>([]);
+  const [registerCourtAvailability] = useRegisterCourtAvailability();
   const {
     data: dataSportTypeAvaible,
     loading: loadingSportTypeAvaible,
     error: errorSportTypeAvaible,
   } = useSportTypes();
-  const [courts, setCourts] = useState<CourtArrayObject[]>([]);
-  const [loadingMessage, setLoadingMessage] = useState(
-    "Fazendo upload das imagens",
-  );
-
-  const addToCourtArray = (court: CourtAdd) => {
-    setCourts(prevState => [...prevState, court]);
-  };
-
-  async function RegisterNewCourt(data: IFormDatasCourt) {
-    setIsLoading(true);
-
-    let courtIDs: Array<string> = [];
-
-    selected.forEach(selectedType => {
-      courtTypes.forEach(type => {
-        if (type.value === selectedType) courtIDs.push(type.label);
-      });
-    });
-
-    const uploadedImageIDs = await uploadImage();
-
-    const payload = {
-      court_name: `Quadra de ${selected}`,
-      courtType: courtIDs,
-      fantasyName: data.fantasyName,
-      photos: uploadedImageIDs,
-      court_availabilities: ["2"], // tela vinicius
-      minimum_value: Number(data.minimum_value) / 100,
-      currentDate: new Date().toISOString(),
-    };
-    addToCourtArray(payload);
-
-    if (uploadedImageIDs.length > 0) {
-      navigation.navigate("RegisterNewCourt", {
-        courtArray: [...courts, payload],
-      });
-    }
-  }
-
-  async function finishingCourtsRegisters(data: IFormDatasCourt) {
-    let courtIDs: Array<string> = [];
-
-    selected.forEach(selectedType => {
-      courtTypes.forEach(type => {
-        if (type.value === selectedType) courtIDs.push(type.label);
-      });
-    });
-
-    const uploadedImageIDs = await uploadImage();
-
-    const payload = {
-      court_name: `Quadra de ${selected}`,
-      courtType: courtIDs,
-      fantasyName: data.fantasyName,
-      photos: uploadedImageIDs,
-      court_availabilities: ["2"], // tela vinicius
-      minimum_value: Number(data.minimum_value) / 100,
-      currentDate: new Date().toISOString(),
-    };
-    addToCourtArray(payload);
-
-    if (uploadedImageIDs.length > 0) {
-      navigation.navigate("AllVeryWell", { courtArray: [...courts, payload] });
-    }
-  }
-
-  const formSchema = z.object({
-    minimum_value: z
-      .string()
-      .nonempty("É necessário determinar um valor mínimo."),
-    fantasyName: z.string().nonempty("Diga um nome fantasia."),
-  });
 
   const {
+    reset,
     control,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<IFormDatasCourt>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      court_name: "Quadra do seu zeca",
+      fantasyName: "Quadra do seu armando",
+      minimum_value: "10000",
+    },
   });
 
-  interface IFormDatasCourt {
-    court_name: string;
-    minimum_value: string;
-    courtType: string;
-    fantasyName: string;
-    photos: string[];
-    court_availabilities?: string[];
+  async function register(data: IFormDatasCourt, shouldRedirect = false) {
+    setIsLoading(true);
+
+    try {
+      const courtIds: string[] = [];
+
+      selected.forEach(selectedType => {
+        courtTypes.forEach(type => {
+          if (type.value === selectedType) {
+            courtIds.push(type.label);
+          }
+        });
+      });
+
+      const [storageDayUse, storageAvailabilities] = await Promise.all([
+        AsyncStorage.getItem("@inquadra/court-price-hour_day-use"),
+        AsyncStorage.getItem("@inquadra/court-price-hour_all-appointments"),
+      ]);
+
+      let dayUse: boolean[];
+      let allAvailabilities: Appointment[][];
+
+      if (
+        !storageDayUse ||
+        !storageAvailabilities ||
+        !(dayUse = JSON.parse(storageDayUse))?.length ||
+        !(allAvailabilities = JSON.parse(storageAvailabilities))?.some(
+          (availabilities: Appointment[]) => availabilities.length > 0,
+        )
+      ) {
+        return Alert.alert("Erro", "Preencha os valores e horários.");
+      }
+
+      const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
+        uploadImages(),
+        Promise.all(
+          allAvailabilities.flatMap((availabilities, index) => {
+            return availabilities.map(async availability => {
+              // const { data } = await registerCourtAvailability({
+              //   variables: {
+              //     status: true,
+              //     title: "O que deve vir aqui?",
+              //     day_use_service: dayUse[index],
+              //     starts_at: availability.startsAt,
+              //     ends_at: availability.endsAt,
+              //     value: Number(availability.price),
+              //     week_day: indexToWeekDayMap[index],
+              //   },
+              // });
+
+              // if (!data) {
+              //   throw new Error("No data");
+              // }
+
+              // return data.createCourtAvailability.data.id;
+              return "1";
+            });
+          }),
+        ),
+      ]);
+
+      const payload: CourtAdd = {
+        court_name: `Quadra de ${selected}`,
+        courtType: courtIds,
+        fantasyName: data.fantasyName,
+        photos: uploadedImageIds,
+        court_availabilities: courtAvailabilityIds,
+        minimum_value: Number(data.minimum_value) / 100,
+        currentDate: new Date().toISOString(),
+      };
+
+      setCourts(currentCourts => [...currentCourts, payload]);
+
+      await Promise.all([
+        AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
+        AsyncStorage.removeItem("@inquadra/court-price-hour_all-appointments"),
+      ]);
+
+      if (shouldRedirect) {
+        navigation.navigate("AllVeryWell", {
+          courtArray: [...courts, payload],
+        });
+      } else {
+        reset();
+        setCourtTypes([]);
+        setPhotos([]);
+        setSelected([]);
+      }
+    } catch (error) {
+      console.error("Erro ao enviar imagens:", error);
+      Alert.alert("Erro", "Não foi possível registrar a quadra");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  const [photos, setPhotos] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false);
-  const [selected, setSelected] = useState<Array<string>>([]);
-  const [photoIDs, setPhotoIDs] = useState([]);
+  const registerNewCourt = handleSubmit(async (data: IFormDatasCourt) => {
+    // if (!photos.length) {
+    //   return Alert.alert("Erro", "Selecione uma foto.");
+    // }
+
+    await register(data);
+  });
+
+  const finishCourtsRegisters = handleSubmit(async (data: IFormDatasCourt) => {
+    await register(data, true);
+  });
 
   const handleProfilePictureUpload = async () => {
     try {
@@ -155,58 +210,58 @@ export default function RegisterCourt({
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== "granted") {
-        alert("Desculpe, precisamos da permissão para acessar a galeria!");
-        return;
+        return Alert.alert(
+          "Erro",
+          "Desculpe, precisamos da permissão para acessar a galeria!",
+        );
       }
 
-      // const result = await ImagePicker.launchImageLibraryAsync({
-      //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      //     allowsEditing: true,
-      //     aspect: [1, 1],
-      //     quality: 1,
-      //     allowsMultipleSelection: true,
-      // });
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        aspect: [1, 1],
+        quality: 1,
+        allowsMultipleSelection: true,
+      });
 
-      // if (!result.canceled) {
-      //     setPhotos([...photos, { uri: result.uri }]);
-      // }
+      if (!result.canceled) {
+        setPhotos(currentPhotos => {
+          return currentPhotos.concat(
+            result.assets.map(asset => ({ uri: asset.uri })),
+          );
+        });
+      }
     } catch (error) {
       console.log("Erro ao carregar a imagem: ", error);
     }
   };
 
-  const uploadImage = async () => {
-    setIsLoading(true);
+  const uploadImages = async () => {
+    return ["123"];
+
     const apiUrl = "https://inquadra-api-uat.qodeless.io";
 
     const formData = new FormData();
-    photos.forEach((uri, index) => {
-      fetch(uri)
-        .then(response => response.blob())
-        .then(blob => {
-          formData.append(`files`, blob, `image${index}.jpg`);
-        });
-    });
 
-    try {
-      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+    for (let index = 0; index < photos.length; index++) {
+      const { uri } = photos[index];
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      formData.append(`files`, blob, `image${index}.jpg`);
+    }
+
+    const response = await axios.post<Array<{ id: string }>>(
+      `${apiUrl}/api/upload`,
+      formData,
+      {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      });
+      },
+    );
 
-      const uploadedImageIDs = response.data.map((image: any) => image.id);
-
-      console.log("Imagens enviadas com sucesso!", response.data);
-
-      setIsLoading(false);
-
-      return uploadedImageIDs;
-    } catch (error) {
-      console.error("Erro ao enviar imagens:", error);
-      setIsLoading(false);
-      return "Deu erro";
-    }
+    const uploadedImageIDs = response.data.map(image => image.id);
+    console.log("Imagens enviadas com sucesso!", response.data);
+    return uploadedImageIDs;
   };
 
   const handleDeletePhoto = (index: any) => {
@@ -215,17 +270,16 @@ export default function RegisterCourt({
     setPhotos(newPhotos);
   };
 
-  const dataSports = dataSportType?.courts?.data || [];
-
   useEffect(() => {
     let newCourtTypes: Array<{ value: string; label: string }> = [];
-    if (!loadingSportTypeAvaible && !errorSportTypeAvaible)
+    if (!loadingSportTypeAvaible && !errorSportTypeAvaible) {
       dataSportTypeAvaible?.courtTypes.data.forEach(sportType => {
         newCourtTypes.push({
           value: sportType.attributes.name,
           label: sportType.id,
         });
       });
+    }
 
     setCourtTypes(newCourtTypes);
   }, [dataSportTypeAvaible, loadingSportTypeAvaible]);
@@ -301,7 +355,7 @@ export default function RegisterCourt({
                   placeholder="Ex.: Quadra do Zeca"
                   value={value}
                   onChangeText={onChange}
-                ></TextInput>
+                />
               )}
             />
             {errors?.fantasyName?.message && (
@@ -344,7 +398,7 @@ export default function RegisterCourt({
                         style={{ flexDirection: "row", alignItems: "center" }}
                       >
                         <Image
-                          source={{ uri: item }}
+                          source={{ uri: item.uri }}
                           style={{ width: 100, height: 100, margin: 10 }}
                         />
                         <TouchableOpacity
@@ -404,7 +458,17 @@ export default function RegisterCourt({
               </Text>
             )}
           </View>
-          <View className="border-t border-neutral-400 border-b flex flex-row p-5 items-center">
+          <TouchableOpacity
+            className="border-t border-neutral-400 border-b flex flex-row p-5 items-center"
+            onPress={() => {
+              if (selected.length === 0) {
+                setIsCourtTypeEmpty(true);
+              } else {
+                setIsCourtTypeEmpty(false);
+                registerNewCourt();
+              }
+            }}
+          >
             <MaterialIcons
               name="add-box"
               size={38}
@@ -414,44 +478,23 @@ export default function RegisterCourt({
                   setIsCourtTypeEmpty(true);
                 } else {
                   setIsCourtTypeEmpty(false);
-
-                  if (!isLoading) {
-                    setLoadingMessage("Fazendo upload das imagens...");
-                    setIsLoading(true);
-                    handleSubmit(RegisterNewCourt)();
-                  }
+                  registerNewCourt();
                 }
               }}
             />
-            <Text
-              className="pl-4 text-lg"
-              onPress={() => {
-                if (selected.length === 0) {
-                  setIsCourtTypeEmpty(true);
-                } else {
-                  setIsCourtTypeEmpty(false);
-
-                  if (!isLoading) {
-                    setLoadingMessage("Fazendo upload das imagens...");
-                    setIsLoading(true);
-                    handleSubmit(RegisterNewCourt)();
-                  }
-                }
-              }}
-            >
-              {" "}
+            <Text className="pl-4 text-lg">
               {isLoading ? (
                 <View style={{ alignItems: "center", paddingTop: 5 }}>
                   <ActivityIndicator size="small" color="#FFFF" />
                   <Text style={{ marginTop: 6, color: "white" }}>
-                    {loadingMessage}
+                    Fazendo upload das imagens...
                   </Text>
                 </View>
               ) : (
                 "Adicionar uma nova Quadra"
               )}
             </Text>
-          </View>
+          </TouchableOpacity>
           <View>
             <View>
               <TouchableOpacity
@@ -461,27 +504,28 @@ export default function RegisterCourt({
                     setIsCourtTypeEmpty(true);
                   } else {
                     setIsCourtTypeEmpty(false);
-
-                    if (!isLoading) {
-                      setLoadingMessage("Fazendo upload das imagens...");
-                      setIsLoading(true);
-                      handleSubmit(finishingCourtsRegisters)();
-                    }
+                    finishCourtsRegisters();
                   }
                 }}
               >
-                <Text className="text-white font-semibold text-base">
-                  {isLoading ? (
-                    <View style={{ alignItems: "center", paddingTop: 5 }}>
-                      <ActivityIndicator size="small" color="#FFFF" />
-                      <Text style={{ marginTop: 6, color: "white" }}>
-                        {loadingMessage}
-                      </Text>
-                    </View>
-                  ) : (
-                    "Concluir"
-                  )}
-                </Text>
+                {isLoading ? (
+                  <View
+                    style={{
+                      alignItems: "center",
+                      paddingTop: 5,
+                      flexDirection: "row",
+                    }}
+                  >
+                    <ActivityIndicator size="small" color="#FFFF" />
+                    <Text style={{ marginTop: 6, color: "white" }}>
+                      Fazendo upload das imagens...
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="text-white font-semibold text-base">
+                    Concluir
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>

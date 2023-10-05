@@ -94,7 +94,7 @@ export default function SetCourtAvailibility({
         <Text className="text-white text-[10px]">Adicionar horário</Text>
       </TouchableOpacity>
 
-      {!hasCopy && (
+      {!hasCopy && appointments.length > 0 && (
         <View className="flex-row items-center justify-between mt-[35px] mb-[30px]">
           <Text className="text-white text-[16px]">
             Copiar horário e valores?

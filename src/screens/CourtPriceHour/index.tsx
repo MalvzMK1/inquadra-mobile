@@ -1,10 +1,11 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays } from "date-fns";
 import React, { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import CourtAvailibilityDay from "../../components/CourtAvailibilityDay";
 import SetCourtAvailibility from "../../components/SetCourtAvailibility";
+import { useAsyncStorageState } from "../../hooks/useAsyncStorageState";
 import { formatLocaleWeekDayName, getWeekDays } from "../../utils/getWeekDates";
 
 export interface Appointment {
@@ -19,18 +20,24 @@ export default function CourtPriceHour({
 }: NativeStackScreenProps<RootStackParamList, "CourtPriceHour">) {
   const [selectedDay, setSelectedDay] = useState<number | null>(0);
   // todos os horários de todos os dias
-  const [allAppointments, setAllAppointments] = useState<Appointment[][]>([
-    [], // domingo
-    [], // segunda
-    [], // terça
-    [], // quarta
-    [], // quinta
-    [], // sexta
-    [], // sábado
-    [], // dia especial
-  ]);
+  const [allAppointments, setAllAppointments, isLoadingInitialAllAppointments] =
+    useAsyncStorageState<Appointment[][]>(
+      "@inquadra/court-price-hour_all-appointments",
+      [
+        [], // domingo
+        [], // segunda
+        [], // terça
+        [], // quarta
+        [], // quinta
+        [], // sexta
+        [], // sábado
+        [], // dia especial
+      ],
+    );
 
-  const [dayUse, setDayUse] = useState<boolean[]>([
+  const [dayUse, setDayUse, isLoadingInitialDayUse] = useAsyncStorageState<
+    boolean[]
+  >("@inquadra/court-price-hour_day-use", [
     false, // domingo
     false, // segunda
     false, // terça
@@ -44,6 +51,14 @@ export default function CourtPriceHour({
   const [copiedAppointments, setCopiedAppointments] = useState<
     Appointment[] | null
   >(null);
+
+  if (isLoadingInitialAllAppointments || isLoadingInitialDayUse) {
+    return (
+      <View className="justify-center bg-[#292929] flex-1 items-center">
+        <ActivityIndicator size={48} color="#FF6112" />
+      </View>
+    );
+  }
 
   const weekDays = getWeekDays(new Date());
   weekDays.push({
