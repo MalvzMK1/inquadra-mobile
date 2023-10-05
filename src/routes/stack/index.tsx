@@ -6,7 +6,7 @@ import {
   useNavigation,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Image, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Text, TextInput } from "react-native-paper";
@@ -81,7 +81,7 @@ export default function () {
     useGetEstablishmentByCorporateName(corporateName);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       setEstablishmentsInfos([]);
       if (!error && !loading && corporateName) {
         const establishment = data?.establishments.data.map(establishment => {
@@ -117,6 +117,18 @@ export default function () {
   }, []);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  useEffect(() => {
+    storage
+      .load<UserInfos>({
+        key: "userInfos",
+      })
+      .then(response => setUserId(response.userId));
+    storage
+      .load<{ latitude: number; longitude: number }>({
+        key: "userGeolocation",
+      })
+      .then(data => setUserGeolocation(data));
+  }, []);
 
   return (
     <Navigator>

@@ -1,7 +1,6 @@
 type CourtAvailibilityDay = {
-    day: string
-    setAllFalse: () => void
-    children: JSX.Element
-    clicked: boolean
-    onClick: (boolean) => void
-}
+  day: string;
+  children: JSX.Element;
+  isOpen: boolean;
+  onToggleOpen: () => void;
+};
