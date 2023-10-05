@@ -712,7 +712,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         </View>
 
                         <View className='p-2'>
-                            <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center' >
+                            <TouchableOpacity onPress={handleExitApp} className='h-14 w-81 rounded-md bg-red-500 flex items-center justify-center' >
                                 <Text className='text-gray-50'>Sair do App</Text>
                             </TouchableOpacity>
                         </View>
