@@ -93,7 +93,7 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 						const targetY = translateY.value;
 						if (targetY * -1 >= expandThreshold) {
 							height.value = withTiming(maxHeight, { duration: 500 });
-							translateY.value = withSpring(-maxHeight - 125 + screenHeight );
+							translateY.value = withSpring(-maxHeight - 125 + screenHeight);
 						} else {
 							height.value = withTiming(minHeight, { duration: 500 });
 							translateY.value = withSpring(0);
@@ -111,52 +111,45 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 			<ScrollView className='p-5'>
 				{
 					courts !== undefined ? (
-						courts.filter(item => {
-							return item.distance <= 5 && item.distance > 0
-						}).length > 0 ? (
-							chosenType ? (
-								result.length > 0 ? (courts.filter(item => {
-									return item.distance >= 0
-								}).filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
-									return (
-										<CourtCardHome
-											userId={userId}
-											key={item.id}
-											id={item.id}
-											image={item.image}
-											name={item.name}
-											distance={item.distance}
-											type={item.type}
-											liked={verifyCourtLike(item.id)}
-										/>
-									)
-								})) : (
-									<></>
+
+						chosenType ? (
+							result.length > 0 ? (courts.filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
+								return (
+									<CourtCardHome
+										userId={userId}
+										key={item.id}
+										id={item.id}
+										image={item.image}
+										name={item.name}
+										distance={item.distance}
+										type={item.type}
+										liked={verifyCourtLike(item.id)}
+									/>
 								)
+							})) : (
+								<></>
 							)
-								: (
-									courts.map(item => (
-										<CourtCardHome
-											userId={userId}
-											key={item.id}
-											id={item.id}
-											image={item.image}
-											name={item.name}
-											distance={item.distance}
-											type={item.type}
-											liked={verifyCourtLike(item.id)}
-										/>
-									))
-								)
-						) : (
-							<></>
 						)
+							: (
+								courts.map(item => (
+									<CourtCardHome
+										userId={userId}
+										key={item.id}
+										id={item.id}
+										image={item.image}
+										name={item.name}
+										distance={item.distance}
+										type={item.type}
+										liked={verifyCourtLike(item.id)}
+									/>
+								))
+							)
 					) : (
 						<ActivityIndicator size="small" color="#fff" />
 					)
 				}
 
-					<View className='h-10'></View>
+				<View className='h-10'></View>
 			</ScrollView>
 		</Animated.View>
 	)
