@@ -504,8 +504,8 @@ export default function ProfileSettings({
                     message: " ",
             description: "Cartão cadastrado com sucesso",
                     type: "default",
-                    backgroundColor: "green"
-                resetFieldsCard()
+                    backgroundColor: "green",
+                // resetFieldsCard()
           });
         }
       },

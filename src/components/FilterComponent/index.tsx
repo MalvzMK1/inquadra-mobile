@@ -11,7 +11,42 @@ import FilterDate from '../FilterDate'
 import useFilters from '../../hooks/useFilters'
 
 
-export default function FilterComponent(props:{ setFilter: any }) {
+export default function FilterComponent(props: {
+    setFilter: any, 
+    filter: {
+        amenities: string[] | [],
+        dayUseService: boolean | undefined,
+        endsAt: string | undefined,
+        startsAt: string | undefined,
+        weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
+    }
+}) {
+    // const getNumberArrayWeekDay = (diaSemana: string) => {
+    //     switch (diaSemana) {
+    //         case 'Sunday':
+    //             return 0
+    //         case 'Monday':
+    //             return 'Monday'
+    //         case 'Tuesday':
+    //             return 'Tuesday'
+    //         case 3:
+    //             return 'Wednesday'
+    //         case 4:
+    //             return 'Thursday'
+    //         case 5:
+    //             return 'Friday'
+    //         case 6:
+    //             return 'Saturday'
+    //     }
+    // }
+
+
+    // const [dateSelector, setDateSelector] = useState(`__/__/____`)
+    // const [amenities, setAmenities] = useState<Array<string> | null>(props.filter.amenities)
+    // const [dayUseYes, setDayUseYes] = useState<boolean | undefined>(props.filter.dayUseService)
+    // const [timeInit, setTimeInit] = useState(props.filter.startsAt)
+    // const [timeFinal, setTimeFinal] = useState(props.filter.endsAt)
+    // const [weekDay, setWeekDay] = useState<number | undefined>(props.filter.weekDay)
 
     const date = new Date()
 
@@ -39,13 +74,32 @@ export default function FilterComponent(props:{ setFilter: any }) {
     const [amenities, setAmenities] = useState<Array<string> | null>(null)
     const [dayUseYes, setDayUseYes] = useState<boolean | undefined>(undefined)
     const [timeFinal, setTimeFinal] = useState(new Date(date.setHours(0, 0, 0, 0)))
-    const [weekDay, setWeekDay] = useState<number| undefined>(undefined)
+    const [weekDay, setWeekDay] = useState<number | undefined>(undefined)
     const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
     const [timeInit, setTimeInit] = useState(new Date(date.setHours(0, 0, 0, 0)))
     const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
+    const [filter, setFilter] = useState<{
+        amenities: string[] | [],
+        dayUseService: boolean | undefined,
+        endsAt: string | undefined,
+        startsAt: string | undefined,
+        weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
+    }>({
+        amenities: [],
+        dayUseService: undefined,
+        endsAt: undefined,
+        startsAt: undefined,
+        weekDay: undefined
+    })
 
     useEffect(() => {
-
+        setFilter({
+            amenities: amenities !== null ? amenities : [],
+            dayUseService: dayUseYes,
+            endsAt: timeFinal.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeFinal.toTimeString().split(" G")[0] + ".00" : undefined,
+            startsAt: timeInit.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeInit.toTimeString().split(" G")[0] + ".00" : undefined,
+            weekDay: weekDay ? getWeekDay(weekDay) : undefined
+        })
     }, [amenities, dayUseYes, timeFinal, timeInit, weekDay])
 
     const handleTimeInitPicker = () => {
@@ -151,13 +205,7 @@ export default function FilterComponent(props:{ setFilter: any }) {
                             textColor='white'
                             style={{ marginTop: 15, marginBottom: 10 }}
                             onPress={() => {
-                                props.setFilter({
-                                    amenities: amenities !== null ? amenities : [],
-                                    dayUseService: dayUseYes,
-                                    endsAt: timeFinal.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeFinal.toTimeString().split(" G")[0] + ".00" : undefined,
-                                    startsAt: timeInit.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeInit.toTimeString().split(" G")[0] + ".00" : undefined,
-                                    weekDay: weekDay ? getWeekDay(weekDay) : undefined 
-                                })
+                                props.setFilter(filter)
                             }}
                         >
                             <Text className='font-medium text-base'>
@@ -177,7 +225,7 @@ export default function FilterComponent(props:{ setFilter: any }) {
                                     dayUseService: undefined,
                                     endsAt: undefined,
                                     startsAt: undefined,
-                                    weekDay: undefined 
+                                    weekDay: undefined
                                 })
                             }}
                         >

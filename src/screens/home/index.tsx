@@ -96,7 +96,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         React.useCallback(() => {
             setEstablishments([]);
             if (!error && !loading) {
-                if (!filter || filter.amenities.length <= 0 && !filter.dayUseService && !filter.endsAt && !filter.startsAt && !filter.weekDay) {
+                if (loadingFilter && errorFilter && filter.amenities.length <= 0 && !filter.dayUseService && !filter.endsAt && !filter.startsAt && !filter.weekDay) {
                     const newEstablishments = data?.establishments.data
                         .filter(establishment => (
                             establishment?.attributes?.photos.data &&
@@ -142,11 +142,10 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 
                     if (newEstablishments) setEstablishments(newEstablishments);
 
-
                     navigation.setParams({
                         userPhoto: userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ?? ""
                     });
-                }else{
+                } else {
                     const newEstablishments = establishmentsFiltered?.establishments.data
                         .filter(establishment => (
                             establishment?.attributes?.photos.data &&
@@ -198,7 +197,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                     });
                 }
             }
-        }, [data, loading, userHookLoading, userHookData, error, filter])
+        }, [data, loading, userHookLoading, userHookData, error, filter, errorFilter, loadingFilter])
     );
     const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
@@ -278,8 +277,9 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                 } else {
                                     return true
                                 }
-                            }).map((item) => (
-                                <Marker
+                            }).map((item) => {
+                                return <Marker
+                                    key={item.id}
                                     coordinate={{
                                         latitude: item.latitude,
                                         longitude: item.longitude,
@@ -288,14 +288,19 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                     title={item.name}
                                     description={item.name}
                                 >
-                                    <Callout key={item.id} tooltip onPress={() => navigation.navigate('EstablishmentInfo', {
-                                        establishmentId: item.id,
-                                        userId: userId,
-                                        userPhoto: undefined
-                                    })}>
+                                    <Callout
+                                        key={item.id}
+                                        tooltip
+                                        onPress={() =>
+                                            navigation.navigate('EstablishmentInfo', {
+                                                establishmentId: item.id,
+                                                userId: userId,
+                                                userPhoto: undefined,
+                                            })
+                                        }
+                                    >
                                         <CourtBallon
                                             id={item.id}
-                                            key={item.id}
                                             name={item.name}
                                             distance={item.distance ?? ""}
                                             image={item.image}
@@ -305,7 +310,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                                         />
                                     </Callout>
                                 </Marker>
-                            ))
+                            })
                         }
                     </MapView>
                 )}
@@ -315,7 +320,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         <AntDesign name="left" size={30} color="black" />
                     </TouchableOpacity>
                 )}
-                {menuBurguer && <FilterComponent setFilter={setFilter} />}
+                {menuBurguer && <FilterComponent setFilter={setFilter} filter={filter}/>}
             </View>
 
             {
