@@ -173,9 +173,11 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             setAllFalse()
             setEditCNPJModal(true)
         }
-        else {
+        else if (selected == "Alterar Senha") {
             setAllFalse()
             setEditPasswordModal(true)
+        } else {
+            setAllFalse()
         }
     }
 
@@ -603,6 +605,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                                 setSelected={(val: string) => setPixKeySelected(val)}
                                 data={pixKeys}
                                 save="value"
+                                notFoundText='Nenhuma chave pix cadastrada'
                                 placeholder='Selecione um dado'
                                 searchPlaceholder="Pesquisar..."
                                 dropdownTextStyles={{ color: "#FF6112" }}
@@ -673,6 +676,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                             setSelected={(val: string) => setAmeniniteSelected(val)}
                             data={amenities}
                             save="value"
+                            notFoundText='Nenhuma amenidade cadastrada'
                             placeholder='Selecione um dado'
                             searchPlaceholder="Pesquisar..."
                             dropdownTextStyles={{ color: "#FF6112" }}
@@ -693,6 +697,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                             }}
                             data={courts}
                             save="value"
+                            notFoundText='Nenhuma quadra cadastrada'
                             placeholder='Selecione um dado'
                             searchPlaceholder="Pesquisar..."
                             dropdownTextStyles={{ color: "#FF6112" }}
