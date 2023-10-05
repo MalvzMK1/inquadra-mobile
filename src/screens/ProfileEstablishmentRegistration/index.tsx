@@ -51,7 +51,6 @@ export default function ProfileEstablishmentRegistration() {
 
 
     const [isChecked, setIsChecked] = useState(false)
-    const [captchaChecked, setCaptchaChecked] = useState(false)
     const [samePasswords, setSamePasswords] = useState(true)
     const [validCpf, setValidCpf] = useState(true)
 
@@ -59,7 +58,7 @@ export default function ProfileEstablishmentRegistration() {
         let result = false
         if (data.confirmPassword == data.password) {
             result = true
-            if (isChecked && captchaChecked) {
+            if (isChecked) {
                 if (validateCpf(data.cpf)) {
                     navigation.navigate("EstablishmentRegister", {
                         username: data.name,
@@ -72,7 +71,6 @@ export default function ProfileEstablishmentRegistration() {
                 } else setValidCpf(false)
             } else {
                 if (!isChecked) Alert.alert("Termos de Uso e Política de Privacidade", "É necessario aceitar os termos e condições para prosseguir")
-                if (!captchaChecked) Alert.alert("Complete a Verificação de Segurança", "Complete o Captcha para prosseguir")
             }
         }
         setSamePasswords(result)
@@ -236,18 +234,6 @@ export default function ProfileEstablishmentRegistration() {
                         />
                         <View className="flex">
                             <Text className="text-base">Li e estou de acordo com o <Text className="text-[#3D58DB]" onPress={() => navigation.navigate('TermsOfService')}>Termo de Uso e Política de Privacidade</Text> </Text>
-                        </View>
-                    </View>
-                    <View className="flex items-center pt-3 pb-4">
-                        <View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2 mb-[60px]">
-                            <View className="flex flex-row items-center">
-                                <CheckBox
-                                    checked={captchaChecked}
-                                    onPress={() => setCaptchaChecked(!captchaChecked)}
-                                />
-                                <Text className="text-[#959595] text-base">Não sou um robô</Text>
-                            </View>
-                            <Image className="w-8 h-8 mr-5" source={require('../../../assets/captcha.png')}></Image>
                         </View>
                     </View>
                     <TouchableOpacity className='h-14 w-full rounded-md bg-orange-500 flex items-center justify-center mb-3' onPress={handleSubmit(handleGoToNextRegisterPage)}>

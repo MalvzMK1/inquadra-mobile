@@ -48,6 +48,13 @@ export default function FavoriteEstablishments({ navigation, route }: NativeStac
         }).then(response => setUserLocation({ latitude: Number(response.latitude), longitude: Number(response.longitude) }))
     }, [])
 
+    useEffect(() => {
+        if (route.params.userPhoto && route.params.userPhoto !== '')
+            navigation.setParams({
+                userPhoto: route.params.userPhoto
+            })
+    }, [route.params.userPhoto])
+
     const [updateLikedEstablishments, { data: dataLike, error: errorLike, loading: loadingLike }] = useUpdateFavoriteEstablishment()
     const [isLoading, setIsLoading] = useState(false)
     const handleUpdateEstablishmentLike = (establishmentId: string): void => {
