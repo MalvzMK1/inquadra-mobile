@@ -593,14 +593,14 @@ export default function () {
             marginLeft: 10,
           },
           headerRight: () => (
-            <TouchableOpacity style={{ paddingRight: 10 }}>
+            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
               <Image
                 source={
                   params?.logo
                     ? { uri: `${HOST_API}${params?.logo}` }
                     : require("../../assets/default-user-image.png")
                 }
-                style={{ width: 60, height: 60, borderRadius: 50 }}
+                className="w-full h-full"
               />
             </TouchableOpacity>
           ),
@@ -980,14 +980,14 @@ export default function () {
           headerTitleAlign: "center",
           title: "Detalhes",
           headerRight: () => (
-            <TouchableOpacity style={{ paddingRight: 10 }}>
+            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
               <Image
                 source={
                   params?.logo
                     ? { uri: `${HOST_API}${params?.logo}` }
                     : require("../../assets/default-user-image.png")
                 }
-                style={{ width: 30, height: 30, borderRadius: 15 }}
+                className="w-full h-full"
               />
             </TouchableOpacity>
           ),
@@ -1005,14 +1005,14 @@ export default function () {
           headerTitleAlign: "center",
           title: "Histórico",
           headerRight: () => (
-            <TouchableOpacity style={{ paddingRight: 10 }}>
+            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
               <Image
                 source={
                   params?.logo
                     ? { uri: `${HOST_API}${params?.logo}` }
                     : require("../../assets/default-user-image.png")
                 }
-                style={{ width: 30, height: 30, borderRadius: 15 }}
+                className="w-full h-full"
               />
             </TouchableOpacity>
           ),

@@ -11,7 +11,20 @@ import FilterDate from '../FilterDate'
 import useFilters from '../../hooks/useFilters'
 
 
-export default function FilterComponent(props:{ setFilter: any }) {
+export default function FilterComponent(props: {
+    setFilter: any,
+    filter: {
+        amenities: string[] | [],
+        dayUseService: boolean | undefined,
+        endsAt: string | undefined,
+        startsAt: string | undefined,
+        weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined,
+        date: Date | undefined
+    }
+}) {
+
+
+
 
     const date = new Date()
 
@@ -34,18 +47,60 @@ export default function FilterComponent(props:{ setFilter: any }) {
         }
     }
 
+    const getNumberArrayWeekDay = (diaSemana: string): number | undefined => {
+        switch (diaSemana) {
+            case 'Sunday':
+                return 0
+            case 'Monday':
+                return 1
+            case 'Tuesday':
+                return 2
+            case 'Wednesday':
+                return 3
+            case 'Thursday':
+                return 4
+            case 'Friday':
+                return 5
+            case 'Saturday':
+                return 6
+        }
+    }
 
-    const [dateSelector, setDateSelector] = useState(`__/__/____`)
-    const [amenities, setAmenities] = useState<Array<string> | null>(null)
-    const [dayUseYes, setDayUseYes] = useState<boolean | undefined>(undefined)
-    const [timeFinal, setTimeFinal] = useState(new Date(date.setHours(0, 0, 0, 0)))
-    const [weekDay, setWeekDay] = useState<number| undefined>(undefined)
-    const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
-    const [timeInit, setTimeInit] = useState(new Date(date.setHours(0, 0, 0, 0)))
+
+
+    const [dateSelector, setDateSelector] = useState(props.filter.date ? props.filter.date.toISOString() : "__/__/____")
+    const [amenities, setAmenities] = useState<Array<string> | null>(props.filter.amenities)
+    const [dayUseYes, setDayUseYes] = useState<boolean | undefined>(props.filter.dayUseService)
+    const [timeInit, setTimeInit] = useState(props.filter.startsAt ? new Date(props.filter.startsAt) : new Date(date.setHours(0, 0, 0, 0)))
+    const [timeFinal, setTimeFinal] = useState(props.filter.endsAt ? new Date(props.filter.endsAt) : new Date(date.setHours(0, 0, 0, 0)))
+    const [weekDay, setWeekDay] = useState<number | undefined>(props.filter.weekDay ? getNumberArrayWeekDay(props.filter.weekDay) : undefined)
     const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
+    const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
+    const [filter, setFilter] = useState<{
+        amenities: string[] | [],
+        dayUseService: boolean | undefined,
+        endsAt: string | undefined,
+        startsAt: string | undefined,
+        weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
+        date: Date | undefined 
+    }>({
+        amenities: [],
+        dayUseService: undefined,
+        endsAt: undefined,
+        startsAt: undefined,
+        weekDay: undefined,
+        date: undefined
+    })
 
     useEffect(() => {
-
+        setFilter({
+            amenities: amenities !== null ? amenities : [],
+            dayUseService: dayUseYes,
+            startsAt: timeInit.toLocaleTimeString().split(" G")[0] + ".00" !== "00:00:00.00" && timeInit ? timeInit.toLocaleTimeString().split(" G")[0] + ".00" : undefined,
+            endsAt: timeFinal.toLocaleTimeString().split(" G")[0] + ".00" !== "00:00:00.00" && timeFinal ? timeFinal.toLocaleTimeString().split(" G")[0] + ".00" : undefined,
+            weekDay: weekDay ? getWeekDay(weekDay) : undefined,
+            date: new Date(dateSelector)
+        })
     }, [amenities, dayUseYes, timeFinal, timeInit, weekDay])
 
     const handleTimeInitPicker = () => {
@@ -151,13 +206,7 @@ export default function FilterComponent(props:{ setFilter: any }) {
                             textColor='white'
                             style={{ marginTop: 15, marginBottom: 10 }}
                             onPress={() => {
-                                props.setFilter({
-                                    amenities: amenities !== null ? amenities : [],
-                                    dayUseService: dayUseYes,
-                                    endsAt: timeFinal.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeFinal.toTimeString().split(" G")[0] + ".00" : undefined,
-                                    startsAt: timeInit.toTimeString().split(" G")[0] + ".00" !== "00:00:00.00" ? timeInit.toTimeString().split(" G")[0] + ".00" : undefined,
-                                    weekDay: weekDay ? getWeekDay(weekDay) : undefined 
-                                })
+                                props.setFilter(filter)
                             }}
                         >
                             <Text className='font-medium text-base'>
@@ -177,7 +226,7 @@ export default function FilterComponent(props:{ setFilter: any }) {
                                     dayUseService: undefined,
                                     endsAt: undefined,
                                     startsAt: undefined,
-                                    weekDay: undefined 
+                                    weekDay: undefined
                                 })
                             }}
                         >

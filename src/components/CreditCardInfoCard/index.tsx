@@ -83,7 +83,7 @@ export default function CreditCardCard(props: CreditCardInfosT) {
             ?
             <View className="flex h-[90px] w-full rounded-xl border justify-center items-start border-[#292929]">
                 <View className="before:absolute before:w-1 before:h-[69px] before:bg-[#F5620F] before:content '' left-[10px] "></View>
-                <View className="flex w-[300px] items-end pr-4 pt-2">
+                <View className="flex w-full items-end pr-4 pt-2">
                     <MaterialIcons name="delete" color="#F5620F" size={25} onPress={() => handleDeleteCard(props.id)} />
                 </View>
                 <View className="flex-row pl-5 items-center">
