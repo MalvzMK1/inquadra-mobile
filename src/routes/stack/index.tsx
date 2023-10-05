@@ -778,7 +778,10 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              className="ml-4"
+            >
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),
