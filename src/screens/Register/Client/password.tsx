@@ -135,9 +135,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                 required: true,
                 minLength: 6,
               }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
                   textContentType="password"
+                  value={value}
                   secureTextEntry={!showPassword}
                   onChangeText={onChange}
                   className="p-4 flex-1"
@@ -184,9 +185,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                 required: true,
                 minLength: 6,
               }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
                   textContentType="password"
+                  value={value}
                   secureTextEntry={!showConfirmedPassword}
                   onChangeText={onChange}
                   className="p-4 flex-1"

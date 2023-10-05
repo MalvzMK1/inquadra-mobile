@@ -38,15 +38,14 @@ export default function Register({
 }: NativeStackScreenProps<RootStackParamList, "Register">) {
   const {
     control,
-    getValues,
     handleSubmit,
     formState: { errors },
   } = useForm<IFormDatas>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      cpf: "118484849",
+      cpf: "11848484987",
       email: "email@email.com",
-      name: "yasmin",
+      name: "teste",
       phoneNumber: "11849849498",
     },
   });
@@ -104,11 +103,12 @@ export default function Register({
                 required: true,
                 maxLength: 254,
               }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
                   textContentType="emailAddress"
                   keyboardType="email-address"
                   maxLength={254}
+                  value={value}
                   onChangeText={onChange}
                   className={
                     errors.email
@@ -136,11 +136,11 @@ export default function Register({
                 minLength: 11,
                 maxLength: 11,
               }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <MaskInput
                   mask={Masks.BRL_PHONE}
                   maskAutoComplete={true}
-                  value={getValues("phoneNumber")}
+                  value={value}
                   textContentType="telephoneNumber"
                   keyboardType="phone-pad"
                   maxLength={15}
@@ -173,11 +173,11 @@ export default function Register({
                 minLength: 11,
                 maxLength: 11,
               }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <MaskInput
                   mask={Masks.BRL_CPF}
                   maskAutoComplete={true}
-                  value={getValues("cpf")}
+                  value={value}
                   keyboardType="numeric"
                   maxLength={14}
                   onChangeText={(masked, unmasked, obfuscated) =>

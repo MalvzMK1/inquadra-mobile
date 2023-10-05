@@ -257,7 +257,7 @@ export default function RegisterEstablishment({
           <View>
             <TouchableOpacity
               className="h-14 w-81 rounded-md bg-[#FF6112] items-center justify-center"
-              onPress={() => navigation.navigate("RegisterCourts", {})}
+              onPress={() => navigation.navigate("RegisterSuccess")}
             >
               <Text className="text-gray-50">Continuar</Text>
             </TouchableOpacity>

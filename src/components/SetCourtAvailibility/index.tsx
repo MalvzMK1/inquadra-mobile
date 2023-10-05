@@ -1,73 +1,47 @@
-import React, { useRef, useState } from "react";
-import { Alert, Text, View } from "react-native";
+import React from "react";
+import { Text, View } from "react-native";
 import { CheckBox } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useComponentContext } from "../../context/ComponentContext";
-import { InComponentInputsProvider } from "../../context/ComponentInputsContext";
+import { Appointment } from "../../screens/CourtPriceHour";
 import PriceHour from "../CourtPriceHour";
 
-export default function SetCourtAvailibility() {
-  const nextIdRef = useRef(1);
+interface SetCourtAvailibilityProps {
+  appointments: Appointment[];
+  hasCopy: boolean;
+  isDayUse: boolean;
+  setDayUse: (isDayUse: boolean) => void;
+  onCopy: () => void;
+  onPaste: () => void;
+  onAddNewAppointment: () => void;
+  setStartsAt: (value: string, index: number) => void;
+  setEndsAt: (value: string, index: number) => void;
+  setPrice: (value: string, index: number) => void;
+  onDeleteAppointment: (index: number) => void;
+}
 
-  const { addedComponents, setAddedComponents, dayUse, setDayUse } =
-    useComponentContext();
-
-  const handleAddNewComponentButton = () => {
-    const newComponent: JSX.Element = (
-      <InComponentInputsProvider>
-        <PriceHour key={nextIdRef.current++} />
-      </InComponentInputsProvider>
-    );
-
-    if (addedComponents && addedComponents.length > 0) {
-      setAddedComponents(prevState => [...prevState, newComponent]);
-    } else {
-      setAddedComponents([newComponent]);
-    }
-  };
-
-  const [copyButtonClick, setCopyButtonClick] = useState(false);
-  const [pasteButtonClick, setPasteButtonClick] = useState(false);
-  const [copiedComponents, setCopiedComponents] = useState<JSX.Element[]>([]);
-
-  const handleCopyButton = () => {
-    if (addedComponents && addedComponents.length > 0) {
-      addedComponents.map(item => {
-        setCopyButtonClick(!copyButtonClick);
-        setPasteButtonClick(!pasteButtonClick);
-        setCopiedComponents(prevState => [...prevState, item]);
-      });
-    } else {
-      Alert.alert(
-        "ERRO!",
-        "Adicione um horário para que seja possível copiar",
-        [
-          {
-            text: "VOLTAR",
-            style: "cancel",
-          },
-        ],
-        {
-          cancelable: true,
-        },
-      );
-    }
-  };
-
-  const handlePasteButton = () => {
-    setAddedComponents(copiedComponents);
-  };
-
+export default function SetCourtAvailibility({
+  appointments,
+  hasCopy,
+  isDayUse,
+  setDayUse,
+  onCopy,
+  onPaste,
+  onAddNewAppointment,
+  setStartsAt,
+  setEndsAt,
+  setPrice,
+  onDeleteAppointment,
+}: SetCourtAvailibilityProps) {
   return (
     <View className="mt-[10px]">
-      {pasteButtonClick && (
+      {hasCopy && (
         <View className="flex-row items-center justify-between mt-[25px] mb-[25px]">
           <Text className="text-white text-[16px]">
             Colar horário e valores?
           </Text>
 
           <TouchableOpacity
-            onPress={handlePasteButton}
+            onPress={onPaste}
             className="h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center"
           >
             <Text className="text-[11px]">Colar</Text>
@@ -81,22 +55,12 @@ export default function SetCourtAvailibility() {
 
       <View className="flex-row">
         <View className="flex-row items-center justify-center">
-          <CheckBox
-            checked={dayUse}
-            onPress={() => {
-              setDayUse(true);
-            }}
-          />
+          <CheckBox checked={isDayUse} onPress={() => setDayUse(true)} />
           <Text className="text-white text-[16px] -ml-[15px]">Sim</Text>
         </View>
 
         <View className="flex-row items-center justify-center ml-[5px]">
-          <CheckBox
-            checked={!dayUse}
-            onPress={() => {
-              setDayUse(false);
-            }}
-          />
+          <CheckBox checked={!isDayUse} onPress={() => setDayUse(false)} />
           <Text className="text-white text-[16px] -ml-[15px]">Não</Text>
         </View>
       </View>
@@ -108,28 +72,36 @@ export default function SetCourtAvailibility() {
         </View>
 
         <View className="h-fit w-full flex">
-          {addedComponents &&
-            addedComponents.map(component => {
-              return component;
-            })}
+          {appointments.map((appointment, index) => (
+            <PriceHour
+              key={index}
+              startsAt={appointment.startsAt}
+              endsAt={appointment.endsAt}
+              price={appointment.price}
+              setStartsAt={value => setStartsAt(value, index)}
+              setEndsAt={value => setEndsAt(value, index)}
+              setPrice={value => setPrice(value, index)}
+              onDelete={() => onDeleteAppointment(index)}
+            />
+          ))}
         </View>
       </View>
 
       <TouchableOpacity
-        onPress={handleAddNewComponentButton}
+        onPress={onAddNewAppointment}
         className="h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]"
       >
         <Text className="text-white text-[10px]">Adicionar horário</Text>
       </TouchableOpacity>
 
-      {!copyButtonClick && (
+      {!hasCopy && (
         <View className="flex-row items-center justify-between mt-[35px] mb-[30px]">
           <Text className="text-white text-[16px]">
             Copiar horário e valores?
           </Text>
 
           <TouchableOpacity
-            onPress={handleCopyButton}
+            onPress={onCopy}
             className="h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center"
           >
             <Text className="text-[11px]">Copiar</Text>

@@ -67,6 +67,17 @@ export default function RegisterEstablishment({
     getValues,
   } = useForm<IFormSchema>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      corporateName: "Quadra do Zeca",
+      amenities: [],
+      cnpj: "89.498.498/4949-84",
+      phone: "(22) 9 9999-9999",
+      address: {
+        streetName: "Rua teste",
+        cep: "99999-999",
+        number: "30",
+      },
+    },
   });
 
   const [photos, setPhotos] = useState([]);
@@ -102,13 +113,17 @@ export default function RegisterEstablishment({
     });
 
     try {
-      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post<Array<{ id: string }>>(
+        `${apiUrl}/api/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
 
-      const uploadedImageIDs = response.data.map((image: any) => image.id);
+      const uploadedImageIDs = response.data.map(image => image.id);
 
       console.log("Imagens enviadas com sucesso!", response.data);
 
@@ -116,9 +131,8 @@ export default function RegisterEstablishment({
 
       return uploadedImageIDs;
     } catch (error) {
-      console.error("Erro ao enviar imagens:", error);
       setIsLoading(false);
-      return "Deu erro";
+      throw error;
     }
   };
 
@@ -129,22 +143,29 @@ export default function RegisterEstablishment({
   };
 
   async function submitForm(data: IFormSchema) {
-    const uploadedImageIDs = await uploadImage();
+    try {
+      // const uploadedImageIDs = await uploadImage();
+      const uploadedImageIDs: string[] = [];
 
-    console.log({ data, amenities: selected, personalInfos: route.params });
-    navigation.navigate("RegisterCourts", {
-      cnpj: data.cnpj,
-      address: data.address,
-      photos: uploadedImageIDs,
-      corporateName: data.corporateName,
-      phoneNumber: data.phone,
-    }); // TODO: Change to court register screen
+      console.log({ data, amenities: selected, personalInfos: route.params });
+      navigation.navigate("RegisterCourts", {
+        cnpj: data.cnpj,
+        address: data.address,
+        photos: uploadedImageIDs,
+        corporateName: data.corporateName,
+        phoneNumber: data.phone,
+      });
+    } catch (error) {
+      console.error("Erro: ", error);
+      Alert.alert("Erro", "Não foi possível continuar.");
+    }
   }
 
   const amenitiesOptions = useMemo(() => {
     if (!allAmenitiesData) {
       return [];
     }
+
     return allAmenitiesData.amenities.data.map(amenity => {
       return {
         key: amenity.id,
@@ -152,8 +173,6 @@ export default function RegisterEstablishment({
       };
     });
   }, [allAmenitiesData]);
-
-  // estava no return: {errors && <Text>{JSON.stringify(errors)}</Text>}
 
   return (
     <ScrollView className="bg-white flex-1">
@@ -169,8 +188,9 @@ export default function RegisterEstablishment({
             <Controller
               name="corporateName"
               control={control}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
+                  value={value}
                   className="p-5 border border-neutral-400 rounded"
                   placeholder="Ex.: Quadra do Zeca"
                   onChangeText={onChange}
@@ -188,11 +208,11 @@ export default function RegisterEstablishment({
             <Controller
               name="cnpj"
               control={control}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <MaskInput
                   className="p-5 border border-neutral-400 rounded"
                   placeholder="00.000.000/0001-00."
-                  value={getValues("cnpj")}
+                  value={value}
                   maxLength={18}
                   keyboardType={"numeric"}
                   onChangeText={(masked, unmasked) => onChange(unmasked)}
@@ -211,11 +231,11 @@ export default function RegisterEstablishment({
             <Controller
               name="phone"
               control={control}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <MaskInput
                   className="p-5 border border-neutral-400 rounded"
                   placeholder="(00) 0000-0000"
-                  value={getValues("phone")}
+                  value={value}
                   maxLength={15}
                   keyboardType={"numeric"}
                   onChangeText={(masked, unmasked) => onChange(unmasked)}
@@ -234,11 +254,12 @@ export default function RegisterEstablishment({
             <Controller
               name="address.streetName"
               control={control}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-5 border border-neutral-400 rounded"
                   placeholder="Rua Rufus"
                   onChangeText={onChange}
+                  value={value}
                 />
               )}
             />
@@ -254,11 +275,12 @@ export default function RegisterEstablishment({
               <Controller
                 name="address.number"
                 control={control}
-                render={({ field: { onChange } }) => (
+                render={({ field: { onChange, value } }) => (
                   <TextInput
                     className="p-5 border border-neutral-400 rounded"
                     placeholder="123"
                     onChangeText={onChange}
+                    value={value}
                     keyboardType={"numbers-and-punctuation"}
                   />
                 )}
@@ -274,11 +296,11 @@ export default function RegisterEstablishment({
               <Controller
                 name="address.cep"
                 control={control}
-                render={({ field: { onChange } }) => (
+                render={({ field: { onChange, value } }) => (
                   <MaskInput
                     className="p-5 border border-neutral-400 rounded"
                     placeholder="00000-000"
-                    value={getValues("address.cep")}
+                    value={value}
                     onChangeText={onChange}
                     maxLength={9}
                     keyboardType={"numeric"}
@@ -300,7 +322,7 @@ export default function RegisterEstablishment({
               control={control}
               render={({ field: { onChange } }) => (
                 <MultipleSelectList
-                  setSelected={(val: any) => setSelected(val)}
+                  setSelected={(value: any) => setSelected(value)}
                   data={amenitiesOptions}
                   save={"key"}
                   placeholder="Selecione aqui..."

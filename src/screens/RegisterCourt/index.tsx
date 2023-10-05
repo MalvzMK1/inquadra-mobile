@@ -374,7 +374,7 @@ export default function RegisterCourt({
             <Text className="text-base p-1">Valor aluguel/hora</Text>
             <TouchableOpacity
               className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
-              onPressIn={() => navigation.navigate("CourtPriceHour")}
+              onPress={() => navigation.navigate("CourtPriceHour")}
             >
               <Text className="text-white font-semibold text-base">
                 Clique para definir
