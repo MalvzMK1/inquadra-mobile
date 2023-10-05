@@ -42,13 +42,15 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         dayUseService: boolean | undefined,
         endsAt: string | undefined,
         startsAt: string | undefined,
+        date: Date | undefined
         weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
     }>({
         amenities: [],
         dayUseService: undefined,
         endsAt: undefined,
         startsAt: undefined,
-        weekDay: undefined
+        weekDay: undefined,
+        date: undefined
     })
 
     const [userId, setUserId] = useState("")

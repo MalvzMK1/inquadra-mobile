@@ -9,6 +9,8 @@ export default function FilterDate(props: { dateSelector: string, setDateSelecto
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
     const [date, setDate] = useState(new Date())
 
+    console.log(props.dateSelector)
+
     const handleDateChange = (event: object, selectedDate: Date | undefined) => {
         setShowDatePicker(false)
         if (selectedDate) {

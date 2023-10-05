@@ -116,7 +116,7 @@ export default function HomeBar({ courts, userName, chosenType, HandleSportSelec
 						}).length > 0 ? (
 							chosenType ? (
 								result.length > 0 ? (courts.filter(item => {
-									return item.distance <= 5 && item.distance > 0
+									return item.distance >= 0
 								}).filter(item => { return item.type.split(" & ").join(",").split(",").includes(chosenType) }).map(item => {
 									return (
 										<CourtCardHome
