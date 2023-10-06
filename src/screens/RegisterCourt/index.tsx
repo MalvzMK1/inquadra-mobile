@@ -20,7 +20,6 @@ import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { ActivityIndicator } from "react-native-paper";
 import { z } from "zod";
-import useRegisterCourt from "../../hooks/useRegisterCourt";
 import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { Appointment } from "../CourtPriceHour";
@@ -68,7 +67,6 @@ export default function RegisterCourt({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "RegisterCourts">) {
-  const [registerCourt] = useRegisterCourt();
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [courts, setCourts] = useState<CourtArrayObject[]>([]);
@@ -89,11 +87,6 @@ export default function RegisterCourt({
     formState: { errors },
   } = useForm<IFormDatasCourt>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      court_name: "Quadra do seu zeca",
-      fantasyName: "Quadra do seu armando",
-      minimum_value: "10000",
-    },
   });
 
   async function register(data: IFormDatasCourt, shouldRedirect = false) {
@@ -134,24 +127,23 @@ export default function RegisterCourt({
         Promise.all(
           allAvailabilities.flatMap((availabilities, index) => {
             return availabilities.map(async availability => {
-              // const { data } = await registerCourtAvailability({
-              //   variables: {
-              //     status: true,
-              //     title: "O que deve vir aqui?",
-              //     day_use_service: dayUse[index],
-              //     starts_at: availability.startsAt,
-              //     ends_at: availability.endsAt,
-              //     value: Number(availability.price),
-              //     week_day: indexToWeekDayMap[index],
-              //   },
-              // });
+              const { data } = await registerCourtAvailability({
+                variables: {
+                  status: true,
+                  title: "O que deve vir aqui?",
+                  day_use_service: dayUse[index],
+                  starts_at: availability.startsAt,
+                  ends_at: availability.endsAt,
+                  value: Number(availability.price),
+                  week_day: indexToWeekDayMap[index],
+                },
+              });
 
-              // if (!data) {
-              //   throw new Error("No data");
-              // }
+              if (!data) {
+                throw new Error("No data");
+              }
 
-              // return data.createCourtAvailability.data.id;
-              return "1";
+              return data.createCourtAvailability.data.id;
             });
           }),
         ),
@@ -167,22 +159,23 @@ export default function RegisterCourt({
         currentDate: new Date().toISOString(),
       };
 
-      setCourts(currentCourts => [...currentCourts, payload]);
-
-      await Promise.all([
-        AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
-        AsyncStorage.removeItem("@inquadra/court-price-hour_all-appointments"),
-      ]);
-
       if (shouldRedirect) {
         navigation.navigate("AllVeryWell", {
           courtArray: [...courts, payload],
         });
       } else {
+        await Promise.all([
+          AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
+          AsyncStorage.removeItem(
+            "@inquadra/court-price-hour_all-appointments",
+          ),
+        ]);
+
         reset();
-        setCourtTypes([]);
         setPhotos([]);
         setSelected([]);
+        setCourtTypes([]);
+        setCourts(currentCourts => [...currentCourts, payload]);
       }
     } catch (error) {
       console.error("Erro ao enviar imagens:", error);
@@ -193,14 +186,18 @@ export default function RegisterCourt({
   }
 
   const registerNewCourt = handleSubmit(async (data: IFormDatasCourt) => {
-    // if (!photos.length) {
-    //   return Alert.alert("Erro", "Selecione uma foto.");
-    // }
+    if (!photos.length) {
+      return Alert.alert("Erro", "Selecione uma foto.");
+    }
 
     await register(data);
   });
 
   const finishCourtsRegisters = handleSubmit(async (data: IFormDatasCourt) => {
+    if (!photos.length) {
+      return Alert.alert("Erro", "Selecione uma foto.");
+    }
+
     await register(data, true);
   });
 
@@ -236,17 +233,14 @@ export default function RegisterCourt({
   };
 
   const uploadImages = async () => {
-    return ["123"];
-
-    const apiUrl = "https://inquadra-api-uat.qodeless.io";
-
     const formData = new FormData();
+    const apiUrl = "https://inquadra-api-uat.qodeless.io";
 
     for (let index = 0; index < photos.length; index++) {
       const { uri } = photos[index];
       const response = await fetch(uri);
       const blob = await response.blob();
-      formData.append(`files`, blob, `image${index}.jpg`);
+      formData.append("files", blob, `image${index}.jpg`);
     }
 
     const response = await axios.post<Array<{ id: string }>>(

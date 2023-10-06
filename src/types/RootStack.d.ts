@@ -56,6 +56,7 @@ type RootStackParamList = {
     password: string;
     phone_number: string;
     role: string;
+    id: string;
   };
   CancelScheduling: {
     scheduleID: string;

@@ -1,5 +1,6 @@
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
@@ -19,14 +20,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import useAllAmenities from "../../../hooks/useAllAmenities";
-
-interface IFormSchema {
-  corporateName: string;
-  cnpj: string;
-  phone: string;
-  address: Omit<Address, "id" | "latitude" | "longitude">;
-  amenities?: Amenitie[];
-}
+import useRegisterEstablishment from "../../../hooks/useRegisterEstablishment";
+import storage from "../../../utils/storage";
 
 const formSchema = z.object({
   corporateName: z.string().nonempty("Esse campo não pode estar vazio!"),
@@ -46,44 +41,32 @@ const formSchema = z.object({
     number: z.string().nonempty("Esse campo não pode estar vazio!"),
     streetName: z.string().nonempty("Esse campo não pode estar vazio!"),
   }),
-  amenities: z.optional(
-    z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-      }),
-    ),
+  amenities: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+    }),
   ),
 });
+
+type IFormSchema = z.infer<typeof formSchema>;
 
 export default function RegisterEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "EstablishmentRegister">) {
+  const [photos, setPhotos] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { data: allAmenitiesData } = useAllAmenities();
+  const [addEstablishment] = useRegisterEstablishment();
+  const [selected, setSelected] = useState<string[]>([]);
   const {
     control,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<IFormSchema>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      corporateName: "Quadra do Zeca",
-      amenities: [],
-      cnpj: "89.498.498/4949-84",
-      phone: "(22) 9 9999-9999",
-      address: {
-        streetName: "Rua teste",
-        cep: "99999-999",
-        number: "30",
-      },
-    },
   });
-
-  const [photos, setPhotos] = useState([]);
-  const [selected, setSelected] = React.useState([]);
-  const { data: allAmenitiesData } = useAllAmenities();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleProfilePictureUpload = async () => {
     try {
@@ -91,26 +74,28 @@ export default function RegisterEstablishment({
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== "granted") {
-        Alert.alert("Erro", "É necessário permissão para acessar a galeria.");
-        return;
+        return Alert.alert(
+          "Erro",
+          "É necessário permissão para acessar a galeria.",
+        );
       }
     } catch (error) {
       console.log("Erro ao carregar a imagem: ", error);
     }
   };
 
-  const uploadImage = async () => {
+  const uploadImages = async () => {
     setIsLoading(true);
     const apiUrl = "https://inquadra-api-uat.qodeless.io";
 
     const formData = new FormData();
-    photos.forEach((uri, index) => {
-      fetch(uri)
-        .then(response => response.blob())
-        .then(blob => {
-          formData.append(`files`, blob, `image${index}.jpg`);
-        });
-    });
+
+    for (let index = 0; index < photos.length; index++) {
+      const { uri } = photos[index];
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      formData.append("files", blob, `image${index}.jpg`);
+    }
 
     try {
       const response = await axios.post<Array<{ id: string }>>(
@@ -124,11 +109,7 @@ export default function RegisterEstablishment({
       );
 
       const uploadedImageIDs = response.data.map(image => image.id);
-
-      console.log("Imagens enviadas com sucesso!", response.data);
-
       setIsLoading(false);
-
       return uploadedImageIDs;
     } catch (error) {
       setIsLoading(false);
@@ -142,18 +123,46 @@ export default function RegisterEstablishment({
     setPhotos(newPhotos);
   };
 
-  async function submitForm(data: IFormSchema) {
+  async function submitForm(values: IFormSchema) {
     try {
-      // const uploadedImageIDs = await uploadImage();
-      const uploadedImageIDs: string[] = [];
+      const uploadedImageIDs = await uploadImages();
 
-      console.log({ data, amenities: selected, personalInfos: route.params });
+      const userGeolocation = await storage.load<{
+        latitude: number;
+        longitude: number;
+      }>({ key: "userGeolocation" });
+
+      const { data } = await addEstablishment({
+        variables: {
+          amenities: selected,
+          cellphone_number: values.phone,
+          cnpj: values.cnpj,
+          cep: values.address.cep,
+          corporate_name: values.corporateName,
+          phone_number: values.phone,
+          street_name: values.address.streetName,
+          photos: [],
+          latitude: userGeolocation.latitude.toString(),
+          longitude: userGeolocation.longitude.toString(),
+          ownerId: route.params.id,
+        },
+      });
+
+      if (!data) {
+        throw new Error("No data");
+      }
+
+      await AsyncStorage.setItem(
+        "@inquadra/registering-establishment-id",
+        data.createEstablishment.data.id,
+      );
+
       navigation.navigate("RegisterCourts", {
-        cnpj: data.cnpj,
-        address: data.address,
+        cnpj: values.cnpj,
+        address: values.address,
         photos: uploadedImageIDs,
-        corporateName: data.corporateName,
-        phoneNumber: data.phone,
+        corporateName: values.corporateName,
+        phoneNumber: values.phone,
       });
     } catch (error) {
       console.error("Erro: ", error);

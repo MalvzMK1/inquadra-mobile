@@ -42,12 +42,6 @@ export default function Register({
     formState: { errors },
   } = useForm<IFormDatas>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      cpf: "11848484987",
-      email: "email@email.com",
-      name: "teste",
-      phoneNumber: "11849849498",
-    },
   });
 
   function handleGoToNextRegisterPage(data: IFormDatas) {

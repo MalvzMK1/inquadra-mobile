@@ -49,12 +49,8 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
     formState: { errors },
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      password: "123456",
-      confirmPassword: "123456",
-    },
   });
-  const [registerUser, { data, error, loading }] = useRegisterUser();
+  const [registerUser] = useRegisterUser();
   const [authUser] = useLoginUser();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
@@ -67,7 +63,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   };
 
   const [isTermChecked, setIsTermChecked] = useState(false);
-  const [isCaptchaChecked, setIsCaptchaChecked] = useState(true);
   const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false);
   const [isCaptchaCheckedError, setIsCaptchaCheckedError] =
     useState<boolean>(false);
@@ -94,7 +89,11 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         username: route.params.data.name,
       };
 
-      await registerUser({ variables: registerData });
+      const registerResponse = await registerUser({ variables: registerData });
+
+      if (!registerResponse.data) {
+        throw new Error("No register data");
+      }
 
       if (route.params.flow === "normal") {
         const authData = await authUser({
@@ -103,9 +102,11 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
             password: registerData.password,
           },
         });
+
         if (!authData.data) {
           throw new Error("No auth data.");
         }
+
         const { data: userData } = await apolloClient.query<
           IUserByIdResponse,
           IUserByIdVariables
@@ -115,9 +116,11 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
             id: authData.data.login.user.id,
           },
         });
+
         if (!userData) {
           throw new Error("No user data.");
         }
+
         storage.save({
           key: "userInfos",
           data: {
@@ -130,15 +133,15 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         storage.load<UserInfos>({
           key: "userInfos",
         });
+
         if (
           userData.usersPermissionsUser.data.attributes.role.data.id === "3"
         ) {
           const userGeolocation = await storage.load<{
             latitude: number;
             longitude: number;
-          }>({
-            key: "userGeolocation",
-          });
+          }>({ key: "userGeolocation" });
+
           navigation.navigate("RegisterSuccess", {
             nextRoute: "Home",
             routePayload: {
@@ -164,7 +167,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           });
         }
       } else {
-        navigation.navigate("EstablishmentRegister", registerData);
+        navigation.navigate("EstablishmentRegister", {
+          ...registerData,
+          id: registerResponse.data.createUsersPermissionsUser.data.id,
+        });
       }
     } catch (error) {
       if (error instanceof ApolloError) {
