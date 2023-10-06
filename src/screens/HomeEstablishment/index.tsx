@@ -11,6 +11,7 @@ import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSc
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import storage from "../../utils/storage";
+import { useEstablishmentSchedulingsKeys } from "../../hooks/useEstablishmentSchedulingsKeys";
 const { parse, format } = require("date-fns");
 
 export default function HomeEstablishment({
@@ -54,6 +55,12 @@ export default function HomeEstablishment({
   const date = format(actualDate, dateFormat);
 
   const {
+    data: dataSchedulingsKeys,
+    error: errorSchedulingsKeys,
+    loading: loadingSchedulingsKeys
+  } = useEstablishmentSchedulingsKeys(fantasy_name, establishment_id)
+
+  const {
     data: dataSchedulings,
     error: errorSchedulings,
     loading: loadingSchedulings,
@@ -94,7 +101,7 @@ export default function HomeEstablishment({
   const formattedData = `${day}/${month}`;
   const getIdByKey = (key: string): string | undefined => {
     const schedulingFound =
-      dataSchedulings?.establishment?.data?.attributes?.courts?.data?.flatMap(
+      dataSchedulingsKeys?.establishment?.data?.attributes?.courts?.data?.flatMap(
         courts =>
           courts?.attributes?.court_availabilities?.data?.flatMap(
             availabilities =>
@@ -123,12 +130,13 @@ export default function HomeEstablishment({
       });
 
       if (data) {
-        if (!errorActivateStatus || !loadingActivateStatus) {
+        if (!errorActivateStatus && !loadingActivateStatus && scheduleId !== "") {
           setValidate(1);
         } else {
           setValidate(2);
         }
       }
+
     } catch (error) {
       if (
         errorActivateStatus?.graphQLErrors &&
