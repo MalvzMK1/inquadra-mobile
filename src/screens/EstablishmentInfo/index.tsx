@@ -14,6 +14,7 @@ import useUpdateFavoriteEstablishment from "../../hooks/useUpdateFavoriteEstabli
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import storage from "../../utils/storage";
+import SvgUri from "react-native-svg-uri";
 
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4;
@@ -324,9 +325,12 @@ export default function EstablishmentInfo({
       <View className="flex flex-col gap-y-[20]">
         <View className="flex flex-row justify-start items-center gap-x-[10]">
           <Text className="font-black text-lg">AMENIDADES DO LOCAL</Text>
-          <Image source={require("../../assets/cabinet_icon.png")}></Image>
-          <Image source={require("../../assets/food_icon.png")}></Image>
-          <Image source={require("../../assets/car_icon.png")}></Image>
+          {
+            establishmentData?.establishment.data.attributes.amenities.data.map(amenitie => (
+                <SvgUri width={12} height={12} source={{uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url}} />
+              )
+            )
+          }
         </View>
         <View>
           <Carousel

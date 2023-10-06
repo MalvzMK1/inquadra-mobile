@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,6 +38,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI564T752" />
+                    <option name="lastUsedInstant" value="1696599129" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI564T757" />
                     <option name="lastUsedInstant" value="1696594151" />
                   </RecentBranch>
@@ -53,10 +56,6 @@
                   <RecentBranch>
                     <option name="branchName" value="develop" />
                     <option name="lastUsedInstant" value="1696328423" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI564T721" />
-                    <option name="lastUsedInstant" value="1695818357" />
                   </RecentBranch>
                 </list>
               </option>
@@ -86,7 +85,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "WI564T757",
+    "git-widget-placeholder": "WI564T752",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
