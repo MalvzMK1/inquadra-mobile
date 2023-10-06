@@ -374,17 +374,16 @@ export default function EstablishmentInfo({
         ))}
         <View className="h-16"></View>
       </ScrollView>
-      {/* <View className="absolute bottom-0 left-0 right-0 pt-10 pb-20"> */}
-      <View className="bsolute bottom-10">
+      <View className={`absolute bottom-2 left-0 right-0`}>
         <BottomBlackMenu
-          screen={"Any"}
+          screen="EstablishmentInfo"
           userID={userId}
           userPhoto={
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                  ?.attributes?.url
+              dataUser.usersPermissionsUser.data.attributes.photo.data
+                ?.attributes.url
               : ""
           }
           key={1}
