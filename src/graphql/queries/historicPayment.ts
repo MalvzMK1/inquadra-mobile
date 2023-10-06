@@ -132,7 +132,7 @@ query getHistoryPayment($ID: ID!) {
 									attributes{
                     startsAt
                     endsAt
-                    schedulings(filters: {activated: {eq: true}}){
+                    schedulings{
                       data{
                         attributes{
                           date
