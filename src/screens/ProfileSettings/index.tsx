@@ -33,6 +33,7 @@ import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardIn
 import useUpdateUser from "../../hooks/useUpdateUser";
 import { useGetUserById } from "../../hooks/useUserById";
 import { Card } from "../../types/Card";
+import {mask} from "react-native-text-input-mask";
 
 interface IFormData {
   photo: string;
@@ -552,7 +553,7 @@ export default function ProfileSettings({
                     source={{
                       uri: imageEdited
                         ? profilePicture
-                        : HOST_API + profilePicture,
+                        : HOST_API + photo,
                     }}
                     style={styles.profilePicture}
                   />
@@ -720,6 +721,7 @@ export default function ProfileSettings({
                           onChangeText={onChange}
                           mask={Masks.CREDIT_CARD}
                           keyboardType="numeric"
+                          maxLength={19}
                         />
                       )}
                     ></Controller>
@@ -729,8 +731,8 @@ export default function ProfileSettings({
                       {paymentCardErrors.cardNumber.message}
                     </Text>
                   )}
-                  <View className="flex-row justify-between">
-                    <View className="flex-1 mr-5">
+                  <View className="flex flex-row justify-between">
+                    <View className="flex flex-1 mr-5">
                       <Text className="text-base text-[#FF6112]">
                         Data venc.
                       </Text>
@@ -744,7 +746,7 @@ export default function ProfileSettings({
                               paymentCardErrors.dueDate
                                 ? "border-red-400"
                                 : "border-gray-500"
-                            } rounded-md h-18`}
+                            } rounded-md h-18 flex-1`}
                             type={"datetime"}
                             options={{
                               format: "MM/YY",
@@ -752,6 +754,7 @@ export default function ProfileSettings({
                             onChangeText={onChange}
                             placeholder="MM/YY"
                             keyboardType="numeric"
+                            maxLength={5}
                           />
                         )}
                       />
@@ -773,11 +776,11 @@ export default function ProfileSettings({
                               paymentCardErrors.cvv
                                 ? "border-red-400"
                                 : "border-gray-500"
-                            } rounded-md h-18`}
+                            } rounded-md h-18 flex-1`}
                             onChangeText={onChange}
-                            placeholder="CVV"
+                            placeholder="***"
                             keyboardType="numeric"
-                            maxLength={4}
+                            maxLength={3}
                             secureTextEntry
                           />
                         )}
@@ -820,8 +823,8 @@ export default function ProfileSettings({
                       </View>
                     </View>
                   </View>
-                  <View className="flex flex-row justify-between">
-                    <View>
+                  <View className="flex flex-row justify-between gap-8">
+                    <View className='flex-1'>
                       <Text className="text-sm text-[#FF6112]">CEP</Text>
                       <Controller
                         name="cep"
@@ -829,20 +832,22 @@ export default function ProfileSettings({
                         render={({ field: { onChange } }) => (
                           <MaskInput
                             value={getPaymentCardValues("cep")}
-                            className="p-3 border border-neutral-400 rounded bg-white"
+                            className="p-3 border border-neutral-400 rounded bg-white flex-1"
                             placeholder="Ex: 00000-000"
-                            onChangeText={onChange}
+                            onChangeText={(masked, unmasked) => onChange(unmasked)}
                             keyboardType="numeric"
-                          ></MaskInput>
+                            mask={Masks.ZIP_CODE}
+                            maxLength={9}
+                          />
                         )}
-                      ></Controller>
+                      />
                       {paymentCardErrors.cep && (
                         <Text className="text-red-400 text-sm">
                           {paymentCardErrors.cep.message}
                         </Text>
                       )}
                     </View>
-                    <View>
+                    <View className='flex-1'>
                       <Text className="text-sm text-[#FF6112]">Numero</Text>
                       <Controller
                         name="houseNumber"
@@ -850,7 +855,7 @@ export default function ProfileSettings({
                         render={({ field: { onChange } }) => (
                           <MaskInput
                             value={getPaymentCardValues("houseNumber")}
-                            className="p-3 border border-neutral-400 rounded bg-white"
+                            className="p-3 border border-neutral-400 rounded bg-white flex-1"
                             placeholder="Ex: 0000"
                             onChangeText={onChange}
                             keyboardType="numeric"
@@ -924,8 +929,8 @@ export default function ProfileSettings({
                       {paymentCardErrors.complement.message}
                     </Text>
                   )}
-                  <View className="flex flex-row justify-between">
-                    <View>
+                  <View className="flex flex-row justify-between gap-8">
+                    <View className='flex-1'>
                       <Text className="text-sm text-[#FF6112]">Cidade</Text>
                       <Controller
                         name="city"
@@ -945,7 +950,7 @@ export default function ProfileSettings({
                         </Text>
                       )}
                     </View>
-                    <View>
+                    <View className='flex-1'>
                       <Text className="text-sm text-[#FF6112]">Estado</Text>
                       <Controller
                         name="state"

@@ -32,7 +32,7 @@ export default function CreditCardCard(props: CreditCardInfosT) {
     const [cardDeleted, setCardDeleted] = useState(false)
 
     const creditCardNumber = props.number.replace(/\D/g, '')
-    let label = ''
+    let label = '';
 
     const regexVisa = /^4[0-9]{12}(?:[0-9]{3})?$/;
     const regexMasterCard = /^5[1-5][0-9]{14}$/;
@@ -45,7 +45,7 @@ export default function CreditCardCard(props: CreditCardInfosT) {
     } else if (regexElo.test(creditCardNumber)) {
         label = "elo";
     } else {
-        label = "unknow";
+        label = "unknown";
     }
 
     const handleDeleteCard = async (cardId: number) => {
