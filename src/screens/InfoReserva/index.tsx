@@ -93,217 +93,223 @@ export default function InfoReserva({
       <ScrollView>
         {user_id && (
           <View className="h-max w-max bg-zinc-600 flex-1">
-            <View className="flex items-start w-max pl-4">
-              <Text className="text-base font-semibold text-white p-2">
+            <View className="flex items-start w-max pl-4 mt-2">
+              <Text className="text-base font-semibold text-white">
                 Reservas ativas
               </Text>
             </View>
             {/* Div para carregar todas as informações do histórico*/}
-            <View className="w-screen h-max bg-zinc-900">
-              {/* Div para inserção dos cards*/}
-              <View className="w-max h-max px-3">
-                {!error && !loading
-                  ? data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map(
-                      courtInfo =>
-                        courtInfo?.attributes?.status ? (
-                          <TouchableOpacity
-                            onPress={() =>
-                              navigation.navigate("DescriptionReserve", {
-                                userId: user_id,
-                                scheduleId: courtInfo.id,
-                              })
-                            }
-                          >
-                            <View className="flex-row items-start justify-start w-max h-max pt-2">
-                              <View>
-                                <Image
-                                  source={{
-                                    uri:
-                                      HOST_API +
-                                      courtInfo?.attributes?.court_availability
-                                        ?.data?.attributes?.court?.data
-                                        ?.attributes?.photo?.data[0]?.attributes
-                                        ?.url,
-                                  }}
-                                  style={{ width: 138, height: 90 }}
-                                  borderRadius={5}
-                                />
-                              </View>
-                              <View className="flex justify-start items-start h-max w-max pl-1">
+            <View className="items-center p-4">
+              <View
+                className="w-full h-max bg-zinc-900 rounded-lg p-2"
+                style={{ elevation: 8 }}
+              >
+                {/* Div para inserção dos cards*/}
+                <View className="w-max h-max px-3">
+                  {!error && !loading
+                    ? data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map(
+                        courtInfo =>
+                          courtInfo?.attributes?.status ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                navigation.navigate("DescriptionReserve", {
+                                  userId: user_id,
+                                  scheduleId: courtInfo.id,
+                                })
+                              }
+                            >
+                              <View className="flex-row items-start justify-start w-max h-max pt-2">
                                 <View>
-                                  <Text className="font-black text-base text-orange-600">
-                                    {
-                                      courtInfo?.attributes?.court_availability
-                                        ?.data?.attributes?.court?.data
-                                        ?.attributes?.fantasy_name
-                                    }
-                                  </Text>
+                                  <Image
+                                    source={{
+                                      uri:
+                                        HOST_API +
+                                        courtInfo?.attributes
+                                          ?.court_availability?.data?.attributes
+                                          ?.court?.data?.attributes?.photo
+                                          ?.data[0]?.attributes?.url,
+                                    }}
+                                    style={{ width: 138, height: 90 }}
+                                    borderRadius={5}
+                                  />
                                 </View>
-                                <View>
-                                  <Text className="font-normal text-xs text-white">
-                                    {
-                                      courtInfo?.attributes?.court_availability
-                                        ?.data?.attributes?.court?.data
-                                        ?.attributes?.name
-                                    }
-                                  </Text>
-                                </View>
-                                <View className="w-max h-5 flex-row pt-1">
-                                  <View className="w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm">
-                                    <Text className="font-black text-xs text-white">
-                                      R$
-                                      {courtInfo?.attributes?.valuePayed.toString()}
-                                    </Text>
-                                    <Text className="font-black text-xs text-white">
-                                      {" "}
-                                      /{" "}
-                                    </Text>
-                                    <Text className="font-black text-xs text-white">
-                                      R$
-                                      {`${
-                                        Number(
-                                          courtInfo?.attributes
-                                            ?.court_availability?.data
-                                            ?.attributes?.value!,
-                                        ) +
-                                        Number(
-                                          courtInfo.attributes.serviceRate!,
-                                        )
-                                      }`}
+                                <View className="flex justify-start items-start h-max w-max pl-1">
+                                  <View>
+                                    <Text className="font-black text-base text-orange-600">
+                                      {
+                                        courtInfo?.attributes
+                                          ?.court_availability?.data?.attributes
+                                          ?.court?.data?.attributes
+                                          ?.fantasy_name
+                                      }
                                     </Text>
                                   </View>
-                                  <Text className="font-black text-xs text-white pl-1">
-                                    %
-                                    {Math.floor(
-                                      (Number(
-                                        courtInfo?.attributes?.valuePayed,
-                                      ) /
-                                        (Number(
-                                          courtInfo?.attributes
-                                            ?.court_availability?.data
-                                            ?.attributes?.value,
-                                        ) +
-                                          Number(
-                                            courtInfo.attributes.serviceRate!,
-                                          ))) *
-                                        100,
-                                    )}
-                                  </Text>
-                                </View>
-                                <Text className="font-black text-xs text-white pt-1">
-                                  Reserva feita em{" "}
-                                  {formatDateTime(
-                                    courtInfo?.attributes?.createdAt.toString(),
-                                  )}
-                                </Text>
-                              </View>
-                            </View>
-                          </TouchableOpacity>
-                        ) : null,
-                    )
-                  : null}
-                <View className="flex items-start w-max pt-14">
-                  <Text className="text-lg text-white">
-                    Reservas finalizadas
-                  </Text>
-                </View>
-                {!error && !loading
-                  ? data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map(
-                      courtInfo =>
-                        !courtInfo.attributes.status ? (
-                          <TouchableOpacity
-                            onPress={() =>
-                              navigation.navigate("DescriptionReserve", {
-                                userId: user_id,
-                                scheduleId: courtInfo.id,
-                              })
-                            }
-                          >
-                            <View className="flex-row items-start justify-start w-max h-max pt-2">
-                              <View>
-                                <Image
-                                  source={{
-                                    uri:
-                                      HOST_API +
-                                      courtInfo?.attributes?.court_availability
-                                        ?.data?.attributes?.court?.data
-                                        ?.attributes?.photo?.data[0]?.attributes
-                                        ?.url,
-                                  }}
-                                  style={{ width: 138, height: 90 }}
-                                  borderRadius={5}
-                                />
-                              </View>
-                              <View className="h-max w-max pl-1">
-                                <View>
-                                  <Text className="font-black text-base text-orange-600">
-                                    {
-                                      courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
-                                        .fantasy_name
-                                    }
-                                  </Text>
-                                </View>
-
-                                <View>
-                                  <Text className="font-normal text-xs text-white">
-                                    {
-                                      courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
-                                        .name
-                                    }
-                                  </Text>
-                                </View>
-
-                                <View className="w-max h-5 flex-row">
                                   <View>
                                     <Text className="font-normal text-xs text-white">
-                                      Status:{" "}
+                                      {
+                                        courtInfo?.attributes
+                                          ?.court_availability?.data?.attributes
+                                          ?.court?.data?.attributes?.name
+                                      }
                                     </Text>
                                   </View>
-
-                                  <View>
-                                    {courtInfo.attributes.payedStatus ===
-                                    "payed" ? (
-                                      <Text className="font-normal text-xs text-white">
-                                        Finalizado{" "}
+                                  <View className="w-max h-5 flex-row pt-1">
+                                    <View className="w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm">
+                                      <Text className="font-black text-xs text-white">
+                                        R$
+                                        {courtInfo?.attributes?.valuePayed.toString()}
                                       </Text>
-                                    ) : courtInfo.attributes.payedStatus ===
-                                      "waiting" ? (
-                                      <Text className="font-normal text-xs text-white">
-                                        Em aberto{" "}
+                                      <Text className="font-black text-xs text-white">
+                                        {" "}
+                                        /{" "}
                                       </Text>
-                                    ) : (
-                                      <Text className="font-normal text-xs text-white">
-                                        Cancelado{" "}
+                                      <Text className="font-black text-xs text-white">
+                                        R$
+                                        {`${
+                                          Number(
+                                            courtInfo?.attributes
+                                              ?.court_availability?.data
+                                              ?.attributes?.value!,
+                                          ) +
+                                          Number(
+                                            courtInfo.attributes.serviceRate!,
+                                          )
+                                        }`}
                                       </Text>
-                                    )}
-                                  </View>
-
-                                  <View>
-                                    <Text className="font-black text-xs text-white">
-                                      R$
-                                      {courtInfo.attributes.court_availability.data.attributes.value.toString()}
+                                    </View>
+                                    <Text className="font-black text-xs text-white pl-1">
+                                      %
+                                      {Math.floor(
+                                        (Number(
+                                          courtInfo?.attributes?.valuePayed,
+                                        ) /
+                                          (Number(
+                                            courtInfo?.attributes
+                                              ?.court_availability?.data
+                                              ?.attributes?.value,
+                                          ) +
+                                            Number(
+                                              courtInfo.attributes.serviceRate!,
+                                            ))) *
+                                          100,
+                                      )}
                                     </Text>
                                   </View>
-                                </View>
-
-                                <View>
-                                  <Text className="font-black text-xs text-white">
-                                    Ultima Reserva{" "}
+                                  <Text className="font-black text-xs text-white pt-1">
+                                    Reserva feita em{" "}
                                     {formatDateTime(
                                       courtInfo?.attributes?.createdAt.toString(),
                                     )}
                                   </Text>
                                 </View>
                               </View>
-                            </View>
-                          </TouchableOpacity>
-                        ) : null,
-                    )
-                  : null}
+                            </TouchableOpacity>
+                          ) : null,
+                      )
+                    : null}
+                  <View className="flex items-start w-max mt-6 p-4">
+                    <Text className="text-lg text-white">
+                      Reservas finalizadas
+                    </Text>
+                  </View>
+                  {!error && !loading
+                    ? data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map(
+                        courtInfo =>
+                          !courtInfo.attributes.status ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                navigation.navigate("DescriptionReserve", {
+                                  userId: user_id,
+                                  scheduleId: courtInfo.id,
+                                })
+                              }
+                            >
+                              <View className="flex-row items-start justify-start w-max h-max pt-2">
+                                <View>
+                                  <Image
+                                    source={{
+                                      uri:
+                                        HOST_API +
+                                        courtInfo?.attributes
+                                          ?.court_availability?.data?.attributes
+                                          ?.court?.data?.attributes?.photo
+                                          ?.data[0]?.attributes?.url,
+                                    }}
+                                    style={{ width: 138, height: 90 }}
+                                    borderRadius={5}
+                                  />
+                                </View>
+                                <View className="h-max w-max pl-1">
+                                  <View>
+                                    <Text className="font-black text-base text-orange-600">
+                                      {
+                                        courtInfo.attributes.court_availability
+                                          .data.attributes.court.data.attributes
+                                          .fantasy_name
+                                      }
+                                    </Text>
+                                  </View>
+
+                                  <View>
+                                    <Text className="font-normal text-xs text-white">
+                                      {
+                                        courtInfo.attributes.court_availability
+                                          .data.attributes.court.data.attributes
+                                          .name
+                                      }
+                                    </Text>
+                                  </View>
+
+                                  <View className="w-max h-5 flex-row">
+                                    <View>
+                                      <Text className="font-normal text-xs text-white">
+                                        Status:{" "}
+                                      </Text>
+                                    </View>
+
+                                    <View>
+                                      {courtInfo.attributes.payedStatus ===
+                                      "payed" ? (
+                                        <Text className="font-normal text-xs text-white">
+                                          Finalizado{" "}
+                                        </Text>
+                                      ) : courtInfo.attributes.payedStatus ===
+                                        "waiting" ? (
+                                        <Text className="font-normal text-xs text-white">
+                                          Em aberto{" "}
+                                        </Text>
+                                      ) : (
+                                        <Text className="font-normal text-xs text-white">
+                                          Cancelado{" "}
+                                        </Text>
+                                      )}
+                                    </View>
+
+                                    <View>
+                                      <Text className="font-black text-xs text-white">
+                                        R$
+                                        {courtInfo.attributes.court_availability.data.attributes.value.toString()}
+                                      </Text>
+                                    </View>
+                                  </View>
+
+                                  <View>
+                                    <Text className="font-black text-xs text-white">
+                                      Ultima Reserva{" "}
+                                      {formatDateTime(
+                                        courtInfo?.attributes?.createdAt.toString(),
+                                      )}
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                            </TouchableOpacity>
+                          ) : null,
+                      )
+                    : null}
+                </View>
+                <View className="h-[85px]"></View>
               </View>
-              <View className="h-[85px]"></View>
             </View>
           </View>
         )}

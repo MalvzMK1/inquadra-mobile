@@ -1,3 +1,4 @@
+import { useApolloClient } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
@@ -6,8 +7,12 @@ import { ActivityIndicator, Text, View } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { z } from "zod";
+import {
+  IUserByIdResponse,
+  IUserByIdVariables,
+  userByIdQuery,
+} from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
-import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
 
 interface IFormData {
@@ -21,20 +26,14 @@ const formSchema = z.object({
 });
 
 export default function Login() {
+  const apolloClient = useApolloClient();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
   }>();
-  const [authUser, { data, loading, error }] = useLoginUser();
-  const [userId, setUserId] = useState<string>("0");
-  const [roleUser, setRoleUser] = useState<string>();
+  const [authUser] = useLoginUser();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const {
-    data: userData,
-    loading: userLoading,
-    error: userError,
-  } = useGetUserById(userId);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {
     control,
@@ -45,82 +44,79 @@ export default function Login() {
   });
 
   useEffect(() => {
-    if (userId && userId !== "0") {
-      if (userId && userData) {
-        setRoleUser(
-          userData?.usersPermissionsUser.data.attributes.role.data.id,
-        );
-      }
-    }
-  }, [userId, userData]);
-
-  useEffect(() => {
-    if (userId && userId !== "0") {
-      if (!isLoading && userId && userData) {
-        if (roleUser === "3") {
-          navigation.navigate("Home", {
-            userGeolocation: userGeolocation
-              ? userGeolocation
-              : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-            userID: userId,
-            userPhoto: undefined,
-          });
-        } else if (roleUser === "4") {
-          navigation.navigate("HomeEstablishment", {
-            userID: userId,
-            userPhoto: undefined,
-          });
-        }
-      }
-    }
-  }, [roleUser, isLoading]);
-
-  storage
-    .load<{ latitude: number; longitude: number }>({
-      key: "userGeolocation",
-    })
-    .then(data => setUserGeolocation(data));
+    storage
+      .load<{ latitude: number; longitude: number }>({
+        key: "userGeolocation",
+      })
+      .then(data => setUserGeolocation(data));
+  }, []);
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = (data: IFormData): void => {
+  const handleLogin = async (data: IFormData) => {
     setIsLoading(true);
-    authUser({
-      variables: {
-        identifier: data.identifier.trim(),
-        password: data.password.trim(),
-      },
-    })
-      .then(authData => {
-        if (authData.data) {
-          storage.save({
-            key: "userInfos",
-            data: {
-              token: authData.data.login.jwt,
-              userId: authData.data.login.user.id,
-            },
-            expires: 1000 * 3600,
-          });
+    try {
+      const authData = await authUser({
+        variables: {
+          identifier: data.identifier.trim(),
+          password: data.password.trim(),
+        },
+      });
+      if (!authData.data) {
+        throw new Error("No auth data.");
+      }
+      const { data: userData } = await apolloClient.query<
+        IUserByIdResponse,
+        IUserByIdVariables
+      >({
+        query: userByIdQuery,
+        variables: {
+          id: authData.data.login.user.id,
+        },
+      });
+      if (!userData) {
+        throw new Error("No user data.");
+      }
+      storage.save({
+        key: "userInfos",
+        data: {
+          token: authData.data.login.jwt,
+          userId: authData.data.login.user.id,
+        },
+        expires: 1000 * 3600,
+      });
 
-          setUserId(authData.data.login.user.id);
-
-          storage.load<UserInfos>({
-            key: "userInfos",
-          });
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        setUserId("0");
-      })
-      .finally(() => setIsLoading(false));
+      storage.load<UserInfos>({
+        key: "userInfos",
+      });
+      if (userData.usersPermissionsUser.data.attributes.role.data.id === "3") {
+        navigation.navigate("Home", {
+          userGeolocation: userGeolocation
+            ? userGeolocation
+            : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+          userID: authData.data.login.user.id,
+          userPhoto: undefined,
+        });
+      } else if (
+        userData.usersPermissionsUser.data.attributes.role.data.id === "4"
+      ) {
+        navigation.navigate("HomeEstablishment", {
+          userID: authData.data.login.user.id,
+          userPhoto: undefined,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <ScrollView className="flex-1 h-max w-max bg-white">
-      <View className="h-16 W-max"></View>
+      <View className="h-16 W-max" />
       <View className="flex-1 flex items-center justify-center px-7">
         <TouchableOpacity
           onPress={() => {
@@ -258,13 +254,12 @@ export default function Login() {
           </View>
           <View className="flex-row  items-center justify-center pt-11">
             <Text className="text-base text-gray-400">
-              Ainda não tem uma conta?
+              Ainda não tem uma conta?{" "}
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate("ChooseUserType")}
             >
               <Text className="text-orange-500 text-base underline">
-                {" "}
                 Clique aqui
               </Text>
             </TouchableOpacity>

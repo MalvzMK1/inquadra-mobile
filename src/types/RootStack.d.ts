@@ -46,7 +46,9 @@ type RootStackParamList = {
   };
   ChooseUserType: undefined;
   TermsOfService: undefined;
-  Register: undefined;
+  Register: {
+    flow: "normal" | "establishment";
+  };
   EstablishmentRegister: {
     username: string;
     cpf: string;
@@ -54,6 +56,7 @@ type RootStackParamList = {
     password: string;
     phone_number: string;
     role: string;
+    id: string;
   };
   CancelScheduling: {
     scheduleID: string;
@@ -71,12 +74,18 @@ type RootStackParamList = {
     name: string;
   };
   RegisterPassword: {
-    name: string;
-    email: string;
-    cpf: string;
-    phoneNumber: string;
+    flow: "normal" | "establishment";
+    data: {
+      name: string;
+      email: string;
+      cpf: string;
+      phoneNumber: string;
+    };
   };
-  RegisterSuccess: undefined;
+  RegisterSuccess: {
+    nextRoute: "Home" | "HomeEstablishment";
+    routePayload: any;
+  };
   InfoReserva: {
     userId: string;
   };

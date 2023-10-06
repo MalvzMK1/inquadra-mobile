@@ -1,111 +1,142 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import React, { useState, useEffect } from "react";
-import { ScrollView } from "react-native-gesture-handler";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
 import useRegisterCourt from "../../hooks/useRegisterCourt";
-import { useFocusEffect } from '@react-navigation/native';
 
-interface CourtArrayObject {
-    court_name: string,
-    courtType: string[],
-    fantasyName: string,
-    photos: string[],
-    court_availabilities: string[], // tela vinicius
-    minimum_value: number,
-    currentDate: string
-}
+export default function AllVeryWell({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, "AllVeryWell">) {
+  const { goBack } = useNavigation();
+  const [addCourt] = useRegisterCourt();
 
-export default function AllVeryWell({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'AllVeryWell'>) {
-    const navigate = useNavigation<NavigationProp<RootStackParamList>>()
+  const courts = route.params.courtArray;
 
-    const [addCourt, { data: dataRegisterCourt, loading: loadingRegisterCourt, error: errorRegisterCourt }] = useRegisterCourt()
+  async function handleComplete() {
+    try {
+      const establishmentId = await AsyncStorage.getItem(
+        "@inquadra/registering-establishment-id",
+      );
 
-    const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
-    useEffect(() => {
-        setCourts(route.params.courtArray);
-    }, [route.params.courtArray]);
+      if (!establishmentId) {
+        throw new Error("Could not find establishment id in async storage");
+      }
 
-    useFocusEffect(
-        React.useCallback(() => {
-            setCourts(route.params.courtArray);
-        }, [route.params.courtArray])
-    );
+      await Promise.all(
+        courts.map(court => {
+          return addCourt({
+            variables: {
+              court_name: court.court_name,
+              courtTypes: court.courtType,
+              fantasyName: court.fantasyName,
+              photos: court.photos,
+              court_availabilities: court.court_availabilities,
+              minimum_value: court.minimum_value,
+              current_date: new Date().toISOString(),
+              establishmentId,
+            },
+          });
+        }),
+      );
 
+      navigation.navigate("CompletedEstablishmentRegistration");
+    } catch (error) {
+      console.log("Erro externo:", error);
+      Alert.alert("Erro", "Não foi possível cadastrar as quadras");
+    }
+  }
 
-    const registerCourts = async (courts: CourtArrayObject[]) => {
-        try {
-            await Promise.all(courts.map(async (court) => {
-                try {
-                    await addCourt({
-                        variables: {
-                            court_name: court.court_name,
-                            courtTypes: court.courtType,
-                            fantasyName: court.fantasyName,
-                            photos: court.photos,
-                            court_availabilities: court.court_availabilities,
-                            minimum_value: court.minimum_value,
-                            current_date: new Date().toISOString(),
-                            establishmentId: '6'
-                        }
-                    });
-                    console.log("Deu bom");
-                    navigation.navigate('CompletedEstablishmentRegistration')
-                } catch (error) {
-                    console.log("Deu ruim patrão", error);
-                }
-            }));
-        } catch (error) {
-            console.log("Erro externo:", error);
-        }
-    };
-    return (
-        <View className="flex-1">
-            <ScrollView className="bg-white">
-                <View className="p-4 gap-3">
-                    <TouchableOpacity onPress={() =>
-                        navigation.navigate('CourtDetails', {
-                            courtArray: courts,
-                        })
-                    }
-                    ><View>
-                            <Text className="text-xl p-2">Detalhes Gerais</Text>
-                            <View className="border rounded border-orange-400 p-5">
-                                <Text className="text-base">{courts.length} quadras cadastradas</Text>
-                                <Text className="text-base">Total de {courts.reduce((totalPhotos, court) => totalPhotos + court.photos.length, 0)} fotos</Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                    {
-                        courts.map((court, index) =>
-                            <TouchableOpacity
-                                key={index}
-                                onPress={() => navigation.navigate('CourtDetails', { courtArray: courts })}>
-                                <View>
-                                    <Text className="text-xl p-2">{court.court_name}</Text>
-                                    <View className="border rounded border-orange-400 p-5">
-                                        {
-                                            court.photos.length > 1
-                                                ? <Text className="text-base">Total de {court.photos.length} fotos cadastradas</Text>
-                                                : <Text className="text-base">Total de {court.photos.length} foto cadastrada</Text>
-                                        }
-                                        {
-                                            court.court_availabilities.length > 0
-                                                ? <Text className="text-base">Valores e horários editados</Text>
-                                                : <Text className="text-base">Valores e horarios não editados</Text>
-                                        }
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        )
-                    }
-                </View>
-            </ScrollView>
-            <View className="bg-white">
-                <TouchableOpacity className='h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center' onPress={() => registerCourts(courts)}>
-                    <Text className='text-gray-50'>Concluir</Text>
-                </TouchableOpacity>
-            </View>
+  return (
+    <View className="flex-1 pt-12">
+      <View className="px-4 gap-3 flex-1 bg-white">
+        <View className="flex-row justify-between items-center">
+          <TouchableOpacity onPress={goBack}>
+            <Icon name="arrow-back" size={24} color="#4E4E4E" />
+          </TouchableOpacity>
+
+          <Text className="text-[32px] text-[#4E4E4E] font-semibold -translate-x-3">
+            Tudo Certo ?
+          </Text>
+
+          <View />
         </View>
-    )
+
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("CourtDetails", {
+              courtArray: courts,
+            });
+          }}
+        >
+          <View>
+            <Text className="text-xl p-2">Detalhes Gerais</Text>
+
+            <View className="border rounded border-orange-400 p-5">
+              <Text className="text-base">
+                {courts.length} quadras cadastradas
+              </Text>
+
+              <Text className="text-base">
+                Total de{" "}
+                {courts.reduce(
+                  (totalPhotos, court) => totalPhotos + court.photos.length,
+                  0,
+                )}{" "}
+                fotos
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        <FlatList
+          data={courts}
+          keyExtractor={(_, index) => index.toString()}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          renderItem={({ item: court }) => (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("CourtDetails", { courtArray: courts });
+              }}
+            >
+              <View>
+                <Text className="text-xl p-2">{court.court_name}</Text>
+
+                <View className="border rounded border-orange-400 p-5">
+                  {court.photos.length > 1 ? (
+                    <Text className="text-base">
+                      Total de {court.photos.length} fotos cadastradas
+                    </Text>
+                  ) : (
+                    <Text className="text-base">
+                      Total de {court.photos.length} foto cadastrada
+                    </Text>
+                  )}
+                  {court.court_availabilities.length > 0 ? (
+                    <Text className="text-base">
+                      Valores e horários editados
+                    </Text>
+                  ) : (
+                    <Text className="text-base">
+                      Valores e horarios não editados
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
+      <View className="bg-white">
+        <TouchableOpacity
+          className="h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center"
+          onPress={handleComplete}
+        >
+          <Text className="text-gray-50">Concluir</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
