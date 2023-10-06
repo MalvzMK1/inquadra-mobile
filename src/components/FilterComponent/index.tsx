@@ -23,9 +23,6 @@ export default function FilterComponent(props: {
     }
 }) {
 
-
-
-
     const date = new Date()
 
     const getWeekDay = (diaSemana: number) => {
@@ -66,13 +63,11 @@ export default function FilterComponent(props: {
         }
     }
 
-
-
     const [dateSelector, setDateSelector] = useState(props.filter.date ? props.filter.date.toISOString() : "__/__/____")
     const [amenities, setAmenities] = useState<Array<string> | null>(props.filter.amenities)
     const [dayUseYes, setDayUseYes] = useState<boolean | undefined>(props.filter.dayUseService)
-    const [timeInit, setTimeInit] = useState(props.filter.startsAt ? new Date(props.filter.startsAt) : new Date(date.setHours(0, 0, 0, 0)))
-    const [timeFinal, setTimeFinal] = useState(props.filter.endsAt ? new Date(props.filter.endsAt) : new Date(date.setHours(0, 0, 0, 0)))
+    const [timeInit, setTimeInit] = useState(props.filter.startsAt ? new Date(date.setHours(parseInt(props.filter.startsAt.split(":")[0]), parseInt(props.filter.startsAt.split(":")[1]))) : new Date(date.setHours(0, 0, 0, 0)))
+    const [timeFinal, setTimeFinal] = useState(props.filter.endsAt ? new Date(date.setHours(parseInt(props.filter.endsAt.split(":")[0]), parseInt(props.filter.endsAt.split(":")[1]))) : new Date(date.setHours(0, 0, 0, 0)))
     const [weekDay, setWeekDay] = useState<number | undefined>(props.filter.weekDay ? getNumberArrayWeekDay(props.filter.weekDay) : undefined)
     const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
     const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
@@ -96,10 +91,10 @@ export default function FilterComponent(props: {
         setFilter({
             amenities: amenities !== null ? amenities : [],
             dayUseService: dayUseYes,
-            startsAt: timeInit.toLocaleTimeString().split(" G")[0] + ".00" !== "00:00:00.00" && timeInit ? timeInit.toLocaleTimeString().split(" G")[0] + ".00" : undefined,
-            endsAt: timeFinal.toLocaleTimeString().split(" G")[0] + ".00" !== "00:00:00.00" && timeFinal ? timeFinal.toLocaleTimeString().split(" G")[0] + ".00" : undefined,
+            startsAt: timeInit.toLocaleTimeString() + ".00" !== "00:00:00.00" && timeInit ? timeInit.toLocaleTimeString() + ".00" : undefined,
+            endsAt: timeFinal.toLocaleTimeString() + ".00" !== "00:00:00.00" && timeFinal ? timeFinal.toLocaleTimeString() + ".00" : undefined,
             weekDay: weekDay ? getWeekDay(weekDay) : undefined,
-            date: new Date(dateSelector)
+            date: dateSelector !== "__/__/____" ? new Date(dateSelector.split("T")[0]) : undefined
         })
     }, [amenities, dayUseYes, timeFinal, timeInit, weekDay])
 
@@ -144,7 +139,7 @@ export default function FilterComponent(props: {
                                 style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
                             >
                                 <Text className='text-sm'>
-                                    {`${String(timeInit.getHours()).padStart(2, '0')}:${String(timeInit.getMinutes()).padStart(2, '0')}`}
+                                    {timeInit.toLocaleTimeString().slice(0, 5)}
                                 </Text>
                             </Button>
                             {showTimeInitPicker && (
@@ -168,7 +163,7 @@ export default function FilterComponent(props: {
                                 style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
                             >
                                 <Text className='text-sm'>
-                                    {`${String(timeFinal.getHours()).padStart(2, '0')}:${String(timeFinal.getMinutes()).padStart(2, '0')}`}
+                                    {timeFinal.toLocaleTimeString().slice(0, 5)}
                                 </Text>
                             </Button>
                             {showTimeFinalPicker && (

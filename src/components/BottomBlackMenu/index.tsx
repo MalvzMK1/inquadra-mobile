@@ -108,26 +108,49 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                                 <MaterialIcons name="calendar-today" color="#F5620F" size={33} />
                                             </TouchableOpacity>
                                         </>)
-                                        :
-                                        showButtons &&
-                                        (<>
-                                            <TouchableOpacity>
-                                                <AntDesign name="heart" size={25} color={"white"} />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('Home', {
-                                                userGeolocation: userGeolocation ? userGeolocation : {
-                                                    latitude: 78.23570781291714,
-                                                    longitude: 15.491400000982967
-                                                },
-                                                userID: userID,
-                                                userPhoto: userPhoto ?? ""
-                                            })}>
-                                                <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('InfoReserva', { userId: userID })}>
-                                                <MaterialIcons name="calendar-today" color={"white"} size={26} />
-                                            </TouchableOpacity>
-                                        </>)
+                                        : screen === 'EstablishmentInfo' ?
+                                            showButtons &&
+                                            (<>
+                                                <TouchableOpacity onPress={() => navigation.navigate('FavoriteEstablishments', {
+                                                    userPhoto: userPhoto ? userPhoto : undefined,
+                                                    userID: userID
+                                                })}>
+                                                    <AntDesign name="heart" size={25} color={"white"} />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => navigation.navigate('Home', {
+                                                    userGeolocation: userGeolocation ? userGeolocation : {
+                                                        latitude: 78.23570781291714,
+                                                        longitude: 15.491400000982967
+                                                    },
+                                                    userID: userID,
+                                                    userPhoto: userPhoto ?? ""
+                                                })}>
+                                                    <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => navigation.navigate('InfoReserva', { userId: userID })}>
+                                                    <MaterialIcons name="calendar-today" color={"white"} size={26} />
+                                                </TouchableOpacity>
+                                            </>)
+                                        : showButtons && (
+                                            <>
+                                                <TouchableOpacity>
+                                                    <AntDesign name="heart" size={25} color={"white"} />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => navigation.navigate('Home', {
+                                                    userGeolocation: userGeolocation ? userGeolocation : {
+                                                        latitude: 78.23570781291714,
+                                                        longitude: 15.491400000982967
+                                                    },
+                                                    userID: userID,
+                                                    userPhoto: userPhoto ?? ""
+                                                })}>
+                                                    <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => navigation.navigate('InfoReserva', { userId: userID })}>
+                                                    <MaterialIcons name="calendar-today" color={"white"} size={26} />
+                                                </TouchableOpacity>
+                                            </>
+                                        )
                         }
                     </View>
                 )
@@ -135,12 +158,3 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
         </View >
     )
 }
-
-const styles = StyleSheet.create({
-    buttonsContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 5
-    }
-})

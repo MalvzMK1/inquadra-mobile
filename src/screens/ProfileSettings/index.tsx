@@ -553,7 +553,7 @@ export default function ProfileSettings({
                     source={{
                       uri: imageEdited
                         ? profilePicture
-                        : HOST_API + profilePicture,
+                        : HOST_API + photo,
                     }}
                     style={styles.profilePicture}
                   />
