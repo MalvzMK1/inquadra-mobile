@@ -1,9 +1,11 @@
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Image, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-export default function RegisterSuccess() {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+export default function RegisterSuccess({
+  route,
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, "RegisterSuccess">) {
   return (
     <View className="h-full flex justify-center items-center">
       <View className="h-2/5 w-full flex flex-col justify-between items-center">
@@ -18,7 +20,12 @@ export default function RegisterSuccess() {
         </View>
         <TouchableOpacity
           className="h-14 w-80 rounded-md bg-orange-500 flex items-center justify-center"
-          onPress={() => navigation.navigate("Login")}
+          onPress={() =>
+            navigation.navigate(
+              route.params.nextRoute,
+              route.params.routePayload,
+            )
+          }
         >
           <Text className="text-gray-50">Continuar</Text>
         </TouchableOpacity>

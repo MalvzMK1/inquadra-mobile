@@ -81,7 +81,10 @@ type RootStackParamList = {
       phoneNumber: string;
     };
   };
-  RegisterSuccess: undefined;
+  RegisterSuccess: {
+    nextRoute: "Home" | "HomeEstablishment";
+    routePayload: any;
+  };
   InfoReserva: {
     userId: string;
   };

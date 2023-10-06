@@ -1,4 +1,4 @@
-import { ApolloError } from "@apollo/client";
+import { ApolloError, useApolloClient } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
@@ -17,7 +17,14 @@ import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
 import { CaptchaCard } from "../../../components/captchaCard";
 import { IRegisterUserVariables } from "../../../graphql/mutations/register";
+import {
+  IUserByIdResponse,
+  IUserByIdVariables,
+  userByIdQuery,
+} from "../../../graphql/queries/userById";
+import useLoginUser from "../../../hooks/useLoginUser";
 import useRegisterUser from "../../../hooks/useRegisterUser";
+import storage from "../../../utils/storage";
 
 type RegisterPasswordProps = NativeStackScreenProps<
   RootStackParamList,
@@ -35,6 +42,7 @@ const formSchema = z.object({
 });
 
 export default function Password({ route, navigation }: RegisterPasswordProps) {
+  const apolloClient = useApolloClient();
   const {
     control,
     handleSubmit,
@@ -47,7 +55,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
     },
   });
   const [registerUser, { data, error, loading }] = useRegisterUser();
-
+  const [authUser] = useLoginUser();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
 
@@ -77,7 +85,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         return setPasswordsMatch(false);
       }
 
-      const userData: IRegisterUserVariables = {
+      const registerData: IRegisterUserVariables = {
         password: data.password,
         cpf: route.params.data.cpf,
         email: route.params.data.email,
@@ -86,12 +94,77 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         username: route.params.data.name,
       };
 
-      // await registerUser({ variables: userData });
+      await registerUser({ variables: registerData });
 
       if (route.params.flow === "normal") {
-        navigation.navigate("RegisterSuccess");
+        const authData = await authUser({
+          variables: {
+            identifier: registerData.email,
+            password: registerData.password,
+          },
+        });
+        if (!authData.data) {
+          throw new Error("No auth data.");
+        }
+        const { data: userData } = await apolloClient.query<
+          IUserByIdResponse,
+          IUserByIdVariables
+        >({
+          query: userByIdQuery,
+          variables: {
+            id: authData.data.login.user.id,
+          },
+        });
+        if (!userData) {
+          throw new Error("No user data.");
+        }
+        storage.save({
+          key: "userInfos",
+          data: {
+            token: authData.data.login.jwt,
+            userId: authData.data.login.user.id,
+          },
+          expires: 1000 * 3600,
+        });
+
+        storage.load<UserInfos>({
+          key: "userInfos",
+        });
+        if (
+          userData.usersPermissionsUser.data.attributes.role.data.id === "3"
+        ) {
+          const userGeolocation = await storage.load<{
+            latitude: number;
+            longitude: number;
+          }>({
+            key: "userGeolocation",
+          });
+          navigation.navigate("RegisterSuccess", {
+            nextRoute: "Home",
+            routePayload: {
+              userGeolocation: userGeolocation
+                ? userGeolocation
+                : {
+                    latitude: 78.23570781291714,
+                    longitude: 15.491400000982967,
+                  },
+              userID: authData.data.login.user.id,
+              userPhoto: undefined,
+            },
+          });
+        } else if (
+          userData.usersPermissionsUser.data.attributes.role.data.id === "4"
+        ) {
+          navigation.navigate("RegisterSuccess", {
+            nextRoute: "HomeEstablishment",
+            routePayload: {
+              userID: authData.data.login.user.id,
+              userPhoto: undefined,
+            },
+          });
+        }
       } else {
-        navigation.navigate("EstablishmentRegister", userData);
+        navigation.navigate("EstablishmentRegister", registerData);
       }
     } catch (error) {
       if (error instanceof ApolloError) {
@@ -115,7 +188,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         <RegisterHeader
           title="Senha"
           subtitle="Antes de concluir escolha uma senha de acesso."
-        ></RegisterHeader>
+        />
       </View>
 
       <View className="gap-2 flex flex-col justify-between items-center w-full mt-2">
@@ -206,7 +279,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                     ? require("../../../assets/eye.png")
                     : require("../../../assets/eye-slash.png")
                 }
-              ></Image>
+              />
             </TouchableOpacity>
           </View>
           {errors.confirmPassword && (
