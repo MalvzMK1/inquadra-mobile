@@ -179,7 +179,7 @@ export default function ProfileSettings({
     formState: { errors: paymentCardErrors },
     getValues: getPaymentCardValues,
     setValue: setPaymentCardValue,
-        resetField
+    resetField,
   } = useForm<IPaymentCardFormData>({
     resolver: zodResolver(paymentCardFormSchema),
   });
@@ -208,19 +208,19 @@ export default function ProfileSettings({
     );
   };
 
-    const resetFieldsCard = () => {
-        resetField('cardNumber')
-        resetField('dueDate')
-        resetField('country')
-        resetField('cep')
-        resetField('houseNumber')
-        resetField('district')
-        resetField('complement')
-        resetField('city')
-        resetField('state')
-        resetField('cvv')
-        resetField('street')
-    }
+  const resetFieldsCard = () => {
+    resetField("cardNumber");
+    resetField("dueDate");
+    resetField("country");
+    resetField("cep");
+    resetField("houseNumber");
+    resetField("district");
+    resetField("complement");
+    resetField("city");
+    resetField("state");
+    resetField("cvv");
+    resetField("street");
+  };
 
   const handleDeleteAccount = () => {
     setShowDeleteConfirmation(true);
@@ -462,7 +462,7 @@ export default function ProfileSettings({
     //         console.log('Dados removidos com sucesso');
     //     }
     // });
-    }, [showCreditCards]);
+  }, [showCreditCards]);
 
   const addCard = (
     number: string,
@@ -501,11 +501,11 @@ export default function ProfileSettings({
         } else {
           setShowCard(false);
           showMessage({
-                    message: " ",
-                    description: "Cartão cadastrado com sucesso",
-                    type: "default",
-                    backgroundColor: "green",
-                // resetFieldsCard()
+            message: " ",
+            description: "Cartão cadastrado com sucesso",
+            type: "default",
+            backgroundColor: "green",
+            // resetFieldsCard()
           });
         }
       },
@@ -996,9 +996,7 @@ export default function ProfileSettings({
               {showCreditCards ? (
                 cards.length > 0 ? (
                   <View className=" border-gray-500 flex w-max h-max">
-
                     {cards.map(card => (
-
                       <>
                         <CreditCardCard
                           number={card.number}
