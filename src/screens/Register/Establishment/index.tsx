@@ -1,20 +1,10 @@
-import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import axios from "axios";
-import * as ImagePicker from "expo-image-picker";
 import React, { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  Alert,
-  FlatList,
-  Image,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { MultipleSelectList } from "react-native-dropdown-select-list";
 import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
@@ -24,29 +14,29 @@ import useRegisterEstablishment from "../../../hooks/useRegisterEstablishment";
 import storage from "../../../utils/storage";
 
 const formSchema = z.object({
-  corporateName: z.string().nonempty("Esse campo não pode estar vazio!"),
+  corporateName: z
+    .string({ required_error: "Esse campo não pode estar vazio!" })
+    .nonempty("Esse campo não pode estar vazio!"),
   cnpj: z
-    .string()
+    .string({ required_error: "Informe um CNPJ válido!" })
     .nonempty("Esse campo não pode estar vazio!")
     .min(14, "Deve ser informado um CNPJ válido!"),
   phone: z
-    .string()
+    .string({ required_error: "Informe um número de telefone válido!" })
     .nonempty("Esse campo não pode estar vazio!")
     .min(11, "Deve ser informado um número de telefone válido!"),
   address: z.object({
     cep: z
-      .string()
+      .string({ required_error: "Informe um CEP válido!" })
       .nonempty("Esse campo não pode estar vazio!")
       .min(8, "Deve ser informado um CEP válido!"),
-    number: z.string().nonempty("Esse campo não pode estar vazio!"),
-    streetName: z.string().nonempty("Esse campo não pode estar vazio!"),
+    number: z
+      .string({ required_error: "Esse campo não pode estar vazio!" })
+      .nonempty("Esse campo não pode estar vazio!"),
+    streetName: z
+      .string({ required_error: "Esse campo não pode estar vazio!" })
+      .nonempty("Esse campo não pode estar vazio!"),
   }),
-  amenities: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-    }),
-  ),
 });
 
 type IFormSchema = z.infer<typeof formSchema>;
@@ -55,11 +45,11 @@ export default function RegisterEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "EstablishmentRegister">) {
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState<{ uri: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { data: allAmenitiesData } = useAllAmenities();
   const [addEstablishment] = useRegisterEstablishment();
-  const [selected, setSelected] = useState<string[]>([]);
+  const [amenities, setAmenities] = useState<string[]>([]);
   const {
     control,
     handleSubmit,
@@ -68,65 +58,11 @@ export default function RegisterEstablishment({
     resolver: zodResolver(formSchema),
   });
 
-  const handleProfilePictureUpload = async () => {
-    try {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (status !== "granted") {
-        return Alert.alert(
-          "Erro",
-          "É necessário permissão para acessar a galeria.",
-        );
-      }
-    } catch (error) {
-      console.log("Erro ao carregar a imagem: ", error);
-    }
-  };
-
-  const uploadImages = async () => {
-    setIsLoading(true);
-    const apiUrl = "https://inquadra-api-uat.qodeless.io";
-
-    const formData = new FormData();
-
-    for (let index = 0; index < photos.length; index++) {
-      const { uri } = photos[index];
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      formData.append("files", blob, `image${index}.jpg`);
-    }
-
-    try {
-      const response = await axios.post<Array<{ id: string }>>(
-        `${apiUrl}/api/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-
-      const uploadedImageIDs = response.data.map(image => image.id);
-      setIsLoading(false);
-      return uploadedImageIDs;
-    } catch (error) {
-      setIsLoading(false);
-      throw error;
-    }
-  };
-
-  const handleDeletePhoto = (index: number) => {
-    const newPhotos = [...photos];
-    newPhotos.splice(index, 1);
-    setPhotos(newPhotos);
-  };
-
   async function submitForm(values: IFormSchema) {
+    if (amenities.length === 0) {
+      return Alert.alert("Erro", "Cadastre uma amenidade antes de continuar.");
+    }
     try {
-      const uploadedImageIDs = await uploadImages();
-
       const userGeolocation = await storage.load<{
         latitude: number;
         longitude: number;
@@ -134,7 +70,7 @@ export default function RegisterEstablishment({
 
       const { data } = await addEstablishment({
         variables: {
-          amenities: selected,
+          amenities: amenities,
           cellphone_number: values.phone,
           cnpj: values.cnpj,
           cep: values.address.cep,
@@ -160,7 +96,6 @@ export default function RegisterEstablishment({
       navigation.navigate("RegisterCourts", {
         cnpj: values.cnpj,
         address: values.address,
-        photos: uploadedImageIDs,
         corporateName: values.corporateName,
         phoneNumber: values.phone,
       });
@@ -278,8 +213,8 @@ export default function RegisterEstablishment({
               </Text>
             )}
           </View>
-          <View className="flex-row w-full justify-center space-x-6">
-            <View className="w-40">
+          <View className="flex-row justify-between space-x-6">
+            <View className="flex-1">
               <Text className="text-base mb-2 p-1">Número</Text>
               <Controller
                 name="address.number"
@@ -300,7 +235,7 @@ export default function RegisterEstablishment({
                 </Text>
               )}
             </View>
-            <View className="w-40">
+            <View className="flex-1">
               <Text className="text-base mb-2 p-1">CEP</Text>
               <Controller
                 name="address.cep"
@@ -326,53 +261,41 @@ export default function RegisterEstablishment({
           </View>
           <View>
             <Text className="text-base mb-2 p-1">Amenidades do local</Text>
-            <Controller
-              name="amenities"
-              control={control}
-              render={({ field: { onChange } }) => (
-                <MultipleSelectList
-                  setSelected={(value: any) => setSelected(value)}
-                  data={amenitiesOptions}
-                  save={"key"}
-                  placeholder="Selecione aqui..."
-                  label="Amenidades escolhidas:"
-                  boxStyles={{ borderRadius: 4, minHeight: 55 }}
-                  inputStyles={{
-                    color: "#FF6112",
-                    alignSelf: "center",
-                    fontWeight: "400",
-                  }}
-                  searchPlaceholder="Procurar"
-                  badgeStyles={{ backgroundColor: "#FF6112" }}
-                  closeicon={
-                    <Ionicons name="close" size={20} color="#FF6112" />
-                  }
-                  searchicon={
-                    <Ionicons
-                      name="search"
-                      size={18}
-                      color="#FF6112"
-                      style={{ marginEnd: 10 }}
-                    />
-                  }
-                  arrowicon={
-                    <AntDesign
-                      name="down"
-                      size={13}
-                      color="#FF6112"
-                      style={{ marginEnd: 2, alignSelf: "center" }}
-                    />
-                  }
+
+            <MultipleSelectList
+              setSelected={(value: any) => setAmenities(value)}
+              data={amenitiesOptions}
+              save={"key"}
+              placeholder="Selecione aqui..."
+              label="Amenidades escolhidas:"
+              boxStyles={{ borderRadius: 4, minHeight: 55 }}
+              inputStyles={{
+                color: "#FF6112",
+                alignSelf: "center",
+                fontWeight: "400",
+              }}
+              searchPlaceholder="Procurar"
+              badgeStyles={{ backgroundColor: "#FF6112" }}
+              closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+              searchicon={
+                <Ionicons
+                  name="search"
+                  size={18}
+                  color="#FF6112"
+                  style={{ marginEnd: 10 }}
                 />
-              )}
+              }
+              arrowicon={
+                <AntDesign
+                  name="down"
+                  size={13}
+                  color="#FF6112"
+                  style={{ marginEnd: 2, alignSelf: "center" }}
+                />
+              }
             />
-            {errors.amenities && (
-              <Text className="text-red-400 text-sm">
-                {errors.amenities.message}
-              </Text>
-            )}
           </View>
-          <View>
+          {/* <View>
             <Text className="text-base mb-2 p-1">Fotos do estabelecimento</Text>
 
             <View className="border-dashed border border-gray-400 relative">
@@ -398,7 +321,7 @@ export default function RegisterEstablishment({
                 renderItem={({ item, index }) => (
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Image
-                      source={{ uri: item }}
+                      source={{ uri: item.uri }}
                       style={{ width: 100, height: 100, margin: 10 }}
                     />
                     <TouchableOpacity
@@ -421,7 +344,7 @@ export default function RegisterEstablishment({
                 horizontal
               />
             </View>
-          </View>
+          </View> */}
           <View>
             <TouchableOpacity
               className="h-14 w-full mt-4 mb-4 rounded-md bg-[#FF6112] items-center justify-center"
