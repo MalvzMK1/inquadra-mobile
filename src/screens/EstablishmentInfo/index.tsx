@@ -274,8 +274,8 @@ export default function EstablishmentInfo({
   }, []);
 
   const handleTelefoneClick = () => {
-    const numeroTelefone = `tel:${Establishment?.cellPhoneNumber}`;
-    Linking.openURL(numeroTelefone);
+    const cellPhoneNumber = `tel:${Establishment?.cellPhoneNumber}`;
+    Linking.openURL(cellPhoneNumber);
   };
 
   return (
