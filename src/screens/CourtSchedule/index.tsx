@@ -40,7 +40,6 @@ import storage from "../../utils/storage";
 
 // import { BarChart, Grid } from 'react-native-svg-charts'
 import { useApolloClient } from "@apollo/client";
-import useBlockSchedule from "../../hooks/useBlockSchedule";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";

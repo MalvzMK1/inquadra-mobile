@@ -50,6 +50,7 @@ export interface IHistoricPayment {
                             {
                               attributes: {
                                 date: string,
+                                activated: boolean,                               
                                 user_payments: {
                                   data: [{
                                     attributes: {
@@ -131,7 +132,7 @@ query getHistoryPayment($ID: ID!) {
 									attributes{
                     startsAt
                     endsAt
-                    schedulings{
+                    schedulings(filters: {activated: {eq: true}}){
                       data{
                         attributes{
                           date

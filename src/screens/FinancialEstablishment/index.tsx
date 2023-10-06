@@ -15,7 +15,7 @@ export default function FinancialEstablishment({
   route,
 }: NativeStackScreenProps<RootStackParamList, "FinancialEstablishment">) {
   const [valueCollected, setValueCollected] =
-    useState<Array<{ valuePayment: number; payday: string }>>();
+    useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
 
@@ -57,7 +57,7 @@ export default function FinancialEstablishment({
           endsAt: string;
         }[] = [];
 
-        const amountPaid: { valuePayment: number; payday: string }[] = [];
+        const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
         dataHistoric?.forEach(court => {
           let courtPhoto = court.attributes.photo.data[0].attributes.url;
@@ -83,6 +83,7 @@ export default function FinancialEstablishment({
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
                 });
               });
             });
@@ -122,8 +123,8 @@ export default function FinancialEstablishment({
   function isAvailableForWithdrawal() {
     const currentDate = new Date();
 
-    const futureDates: { valuePayment: number; payday: string }[] = [];
-    const pastDates: { valuePayment: number; payday: string }[] = [];
+    const futureDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
+    const pastDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
     valueCollected?.forEach(item => {
       const paydayDate = new Date(item.payday);
@@ -160,10 +161,10 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().pastDates.reduce(
-                        (total, current) => total + current.valuePayment,
-                        0,
-                      )
+                    ? isAvailableForWithdrawal().pastDates.filter(item => { return item.activated }).reduce(
+                      (total, current) => total + current.valuePayment,
+                      0,
+                    )
                     : 0}
                 </Text>
               </View>
@@ -205,9 +206,9 @@ export default function FinancialEstablishment({
                   R${" "}
                   {valueCollected
                     ? isAvailableForWithdrawal().futureDates.reduce(
-                        (total, current) => total + current.valuePayment,
-                        0,
-                      )
+                      (total, current) => total + current.valuePayment,
+                      0,
+                    )
                     : 0}
                 </Text>
               </View>
@@ -281,9 +282,9 @@ export default function FinancialEstablishment({
               )
                 .toString()
                 .padStart(2, "0")}-${currentDate
-                .getDate()
-                .toString()
-                .padStart(2, "0")}`;
+                  .getDate()
+                  .toString()
+                  .padStart(2, "0")}`;
 
               const cardDate = card.date;
 
