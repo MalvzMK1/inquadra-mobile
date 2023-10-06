@@ -767,6 +767,10 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                         <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
                             <View className="w-full h-[250px] items-center justify-evenly">
 
+                                <Button onPress={closeChooseBlockTypeModal} className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center">
+                                    <Image className="" source={require("../../assets/back_arrow.png")}></Image>
+                                </Button>
+
                                 <Button
                                     className="flex items-center justify-center bg-[#FF6112] h-[50px] w-[200px] rounded-md"
                                     onPress={() => {
@@ -795,6 +799,11 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                 <Modal visible={blockScheduleByTimeModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleByTimeModal}>
                     <View className="h-full w-full justify-center items-center">
                         <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
+
+                            <Button onPress={closeBlockScheduleByTimeModal} className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center">
+                                <Image className="" source={require("../../assets/back_arrow.png")}></Image>
+                            </Button>
+
                             <View className="w-[60%] justify-center items-center mt-[15px]">
                                 <Text className="font-bold text-[14px] text-center">Escolha a quadra que deseja bloquear agenda?</Text>
                             </View>
@@ -900,6 +909,10 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
                 <Modal visible={blockScheduleByDateModal} animationType="fade" transparent={true} onRequestClose={closeBlockScheduleByDateModal}>
                     <View className="h-full w-full justify-center items-center">
                         <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
+
+                            <Button onPress={closeBlockScheduleByDateModal} className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center">
+                                <Image className="" source={require("../../assets/back_arrow.png")}></Image>
+                            </Button>
 
                             <View className="w-[60%] justify-center items-center mt-[15px]">
                                 <Text className="font-bold text-[14px] text-center">Escolha a quadra que deseja bloquear agenda?</Text>
