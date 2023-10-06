@@ -135,12 +135,3 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
         </View >
     )
 }
-
-const styles = StyleSheet.create({
-    buttonsContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 5
-    }
-})
