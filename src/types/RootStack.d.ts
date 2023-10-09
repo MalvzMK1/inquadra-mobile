@@ -17,6 +17,7 @@ type RootStackParamList = {
   AmountAvailableWithdrawal: {
     establishmentId: string;
     logo: string;
+    valueDisponible: number
   };
   RegisterEstablishmentProfile: undefined;
   CompletedEstablishmentResgistration: undefined;
@@ -100,6 +101,7 @@ type RootStackParamList = {
   WithdrawScreen: {
     establishmentId: string;
     logo: string;
+    valueDisponible: number;
   };
   DeleteAccountSuccess: undefined;
   DescriptionReserve: {
@@ -134,8 +136,6 @@ type RootStackParamList = {
     "id" | "fantasyName" | "cellphoneNumber"
   > & {
     address: Omit<Address, "id" | "longitude" | "latitude">;
-
-    photos: string[] | undefined;
     profileInfos?: {
       username: string;
       cpf: string;

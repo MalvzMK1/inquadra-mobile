@@ -121,24 +121,23 @@ export default function FinancialEstablishment({
   };
 
   function isAvailableForWithdrawal() {
-    const currentDate = new Date();
-
+    const creditValue: { valuePayment: number; payday: string; activated: boolean }[] = [];
+    const cashout: { valuePayment: number; payday: string; activated: boolean }[] = [];
     const futureDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
     const pastDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
     valueCollected?.forEach(item => {
-      const paydayDate = new Date(item.payday);
-
-      if (paydayDate > currentDate) {
-        futureDates.push(item);
+      if (!item.activated) {
+        creditValue.push(item);
       } else {
-        pastDates.push(item);
+        cashout.push(item);
       }
     });
 
+
     return {
-      futureDates: futureDates,
-      pastDates: pastDates,
+      creditValue: creditValue,
+      cashout: cashout,
     };
   }
 
@@ -161,7 +160,7 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().pastDates.filter(item => { return item.activated }).reduce(
+                    ? isAvailableForWithdrawal().cashout.reduce(
                       (total, current) => total + current.valuePayment,
                       0,
                     )
@@ -175,6 +174,12 @@ export default function FinancialEstablishment({
                     navigation.navigate("WithdrawScreen", {
                       establishmentId: establishmentId ?? "",
                       logo: logo ?? "",
+                      valueDisponible: valueCollected
+                        ? isAvailableForWithdrawal().cashout.reduce(
+                          (total, current) => total + current.valuePayment,
+                          0,
+                        )
+                        : 0
                     });
                   }}
                 >
@@ -188,6 +193,12 @@ export default function FinancialEstablishment({
                 navigation.navigate("AmountAvailableWithdrawal", {
                   establishmentId: establishmentId ?? "",
                   logo: logo ?? "",
+                  valueDisponible: valueCollected
+                    ? isAvailableForWithdrawal().cashout.reduce(
+                      (total, current) => total + current.valuePayment,
+                      0,
+                    )
+                    : 0
                 })
               }
             >
@@ -205,7 +216,7 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().futureDates.reduce(
+                    ? isAvailableForWithdrawal().creditValue.reduce(
                       (total, current) => total + current.valuePayment,
                       0,
                     )
@@ -218,7 +229,7 @@ export default function FinancialEstablishment({
               onPress={() =>
                 navigation.navigate("DetailsAmountReceivable", {
                   establishmentId: establishmentId ?? "",
-                  logo: logo ?? "",
+                  logo: logo ?? ""
                 })
               }
             >

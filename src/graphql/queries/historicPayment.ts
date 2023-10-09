@@ -49,8 +49,9 @@ export interface IHistoricPayment {
                           data: [
                             {
                               attributes: {
-                                date: string,
-                                activated: boolean,                               
+                                activated: boolean
+                                date: string
+                                valuePayed: number
                                 user_payments: {
                                   data: [{
                                     attributes: {
@@ -96,58 +97,59 @@ export interface VariableHistoricPayment {
 
 export const historicPaymentonQuery = gql`
 query getHistoryPayment($ID: ID!) {
-  establishment(id: $ID){
-    data{
+  establishment(id: $ID) {
+    data {
       id
-      attributes{
+      attributes {
         corporateName
-        logo{
-          data{
-						attributes{
+        logo {
+          data {
+            attributes {
               url
             }
           }
         }
-        pix_keys{
-          data{
+        pix_keys {
+          data {
             id
-            attributes{
+            attributes {
               key
             }
           }
         }
-      	courts{
-          data{
-            attributes{
+        courts {
+          data {
+            attributes {
               name
-              photo{
-                data{
-                  attributes{
+              photo {
+                data {
+                  attributes {
                     url
                   }
                 }
               }
-              court_availabilities{
-                data{
-									attributes{
+              court_availabilities {
+                data {
+                  attributes {
                     startsAt
                     endsAt
-                    schedulings{
-                      data{
-                        attributes{
+                    schedulings {
+                      data {
+                        attributes {
+                          activated
                           date
                           valuePayed
-                          user_payments{
-                            data{
-                              attributes{
+                          user_payments {
+                            data {
+                              attributes {
                                 value
-                                users_permissions_user{
-                                  data{
-                                    attributes{
+                                users_permissions_user {
+                                  data {
+                                    attributes {
                                       username
-                                      photo{
-                                        data{
-																					attributes{
+                                      photo {
+                                        data {
+                                          attributes {
                                             url
                                           }
                                         }
@@ -168,6 +170,7 @@ query getHistoryPayment($ID: ID!) {
           }
         }
       }
-    } 
+    }
   }
-}`
+}
+`

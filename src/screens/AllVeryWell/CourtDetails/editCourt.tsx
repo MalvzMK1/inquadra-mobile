@@ -193,8 +193,6 @@ export default function EditCourt({
     setPhotos(newPhotos);
   };
 
-  const dataSports = dataSportType?.courts?.data || [];
-
   useEffect(() => {
     let newCourtTypes: Array<{ value: string; label: string }> = [];
     if (!loadingSportTypeAvaible && !errorSportTypeAvaible)
@@ -224,7 +222,7 @@ export default function EditCourt({
       <View className="h-fit">
         <View className="p-5 gap-7 flex flex-col justify-between">
           <View>
-            <Text className="text-xl p-1">Selecione a modalidade:</Text>
+            <Text className="text-xl p-1">Selecione a modalidadse:</Text>
             <Controller
               name="courtType"
               control={control}

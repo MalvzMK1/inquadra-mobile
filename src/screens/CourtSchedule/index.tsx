@@ -42,6 +42,7 @@ import storage from "../../utils/storage";
 import { useApolloClient } from "@apollo/client";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
+// import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 
 const portugueseMonths = [
@@ -75,12 +76,12 @@ interface IBlockScheduleByDateFormData {
 }
 
 const blockScheduleByDateFormSchema = z.object({
-    initialDate: z.string()
-        .nonempty("Insira pelo menos uma data inicial!")
-        .min(10, "Insira uma data válida!"),
-    endDate: z.string()
-        .min(10, "Insira uma data válida!")
-})
+  initialDate: z
+    .string()
+    .nonempty("Insira pelo menos uma data inicial!")
+    .min(10, "Insira uma data válida!"),
+  endDate: z.string().min(10, "Insira uma data válida!"),
+});
 
 interface IBlockScheduleByTimeFormData {
   initialHour: string;
@@ -88,16 +89,21 @@ interface IBlockScheduleByTimeFormData {
 }
 
 const blockScheduleByTimeFormSchema = z.object({
-    initialHour: z.string()
-        .nonempty("Insira pelo menos um horário inicial!")
-        .min(5, "Insira um horário válido"),
-    endHour: z.string()
-        .min(5, "Insira um horário válido")
-})
+  initialHour: z
+    .string()
+    .nonempty("Insira pelo menos um horário inicial!")
+    .min(5, "Insira um horário válido"),
+  endHour: z.string().min(5, "Insira um horário válido"),
+});
 
-export default function CourtSchedule({ navigation, route }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
-    const [userId, setUserId] = useState<string>(route.params.userId)
-    const [establishmentId, setEstablishmentId] = useState<string>(route.params.establishmentId)
+export default function CourtSchedule({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
+  const [userId, setUserId] = useState<string>(route.params.userId);
+  const [establishmentId, setEstablishmentId] = useState<string>(
+    route.params.establishmentId,
+  );
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [dateSelected, setDateSelected] = useState<Date>(new Date());
@@ -981,9 +987,15 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
           <View className="h-full w-full justify-center items-center">
             <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
               <View className="w-full h-[250px] items-center justify-evenly">
-                                <Button onPress={closeChooseBlockTypeModal} className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center">
-                                    <Image className="" source={require("../../assets/back_arrow.png")}></Image>
-                                </Button>
+                <Button
+                  onPress={closeChooseBlockTypeModal}
+                  className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center"
+                >
+                  <Image
+                    className=""
+                    source={require("../../assets/back_arrow.png")}
+                  ></Image>
+                </Button>
 
                 <Button
                   className="flex items-center justify-center bg-[#FF6112] h-[50px] w-[200px] rounded-md"
@@ -1021,10 +1033,15 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         >
           <View className="h-full w-full justify-center items-center">
             <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
-
-                            <Button onPress={closeBlockScheduleByTimeModal} className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center">
-                                <Image className="" source={require("../../assets/back_arrow.png")}></Image>
-                            </Button>
+              <Button
+                onPress={closeBlockScheduleByTimeModal}
+                className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center"
+              >
+                <Image
+                  className=""
+                  source={require("../../assets/back_arrow.png")}
+                ></Image>
+              </Button>
 
               <View className="w-[60%] justify-center items-center mt-[15px]">
                 <Text className="font-bold text-[14px] text-center">
@@ -1172,10 +1189,15 @@ export default function CourtSchedule({ navigation, route }: NativeStackScreenPr
         >
           <View className="h-full w-full justify-center items-center">
             <View className="h-fit w-[350px] bg-white rounded-[5px] items-center">
-
-                            <Button onPress={closeBlockScheduleByDateModal} className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center">
-                                <Image className="" source={require("../../assets/back_arrow.png")}></Image>
-                            </Button>
+              <Button
+                onPress={closeBlockScheduleByDateModal}
+                className="w-[50px] h-[50px] absolute bottom-0 top-0 left-0 right-0 items-center justify-center"
+              >
+                <Image
+                  className=""
+                  source={require("../../assets/back_arrow.png")}
+                ></Image>
+              </Button>
               <View className="w-[60%] justify-center items-center mt-[15px]">
                 <Text className="font-bold text-[14px] text-center">
                   Escolha a quadra que deseja bloquear agenda?

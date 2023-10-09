@@ -132,9 +132,15 @@ export default function RegisterCourt({
                   status: true,
                   title: "O que deve vir aqui?",
                   day_use_service: dayUse[index],
-                  starts_at: availability.startsAt,
-                  ends_at: availability.endsAt,
-                  value: Number(availability.price),
+                  starts_at: `${availability.startsAt}:00.000`,
+                  ends_at: `${availability.endsAt}:00.000`,
+                  value: Number(
+                    availability.price
+                      .replace("R$", "")
+                      .replace(".", "")
+                      .replace(",", ".")
+                      .trim(),
+                  ),
                   week_day: indexToWeekDayMap[index],
                 },
               });
@@ -178,7 +184,7 @@ export default function RegisterCourt({
         setCourts(currentCourts => [...currentCourts, payload]);
       }
     } catch (error) {
-      console.error("Erro ao enviar imagens:", error);
+      console.error(JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível registrar a quadra");
     } finally {
       setIsLoading(false);
@@ -240,7 +246,11 @@ export default function RegisterCourt({
       const { uri } = photos[index];
       const response = await fetch(uri);
       const blob = await response.blob();
-      formData.append("files", blob, `image${index}.jpg`);
+      formData.append("files", {
+        uri,
+        type: blob.type,
+        name: `image${index}.jpg`,
+      } as any);
     }
 
     const response = await axios.post<Array<{ id: string }>>(

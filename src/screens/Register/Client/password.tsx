@@ -15,7 +15,6 @@ import {
 import { CheckBox } from "react-native-elements";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
-import { CaptchaCard } from "../../../components/captchaCard";
 import { IRegisterUserVariables } from "../../../graphql/mutations/register";
 import {
   IUserByIdResponse,
@@ -317,31 +316,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         </View>
         {isTermCheckedError && (
           <Text className="text-red-400 text-sm">Leia os termos</Text>
-        )}
-
-        <CaptchaCard
-        // checked={true}
-        // onChange={(checked) => {
-        //     console.log(checked)
-        // }}
-        />
-        {/*<View className="flex flex-row justify-between items-center w-5/6 border rounded-md border-[#CACACA] bg-[#F2F2F2] font-normal p-2">*/}
-        {/*    <View className="flex flex-row items-center">*/}
-        {/*        <CheckBox*/}
-        {/*            checked={isCaptchaChecked}*/}
-        {/*            onPress={() => setIsCaptchaChecked(!isCaptchaChecked)}*/}
-        {/*            containerStyle={{*/}
-        {/*                borderColor: isCaptchaCheckedError ? 'rgb(248 113 113)' : undefined*/}
-        {/*            }}*/}
-        {/*        />*/}
-        {/*        <Text className="text-[#959595] text-base">Não sou um robô</Text>*/}
-        {/*    </View>*/}
-        {/*    <Image source={require('../../../assets/captcha.png')}></Image>*/}
-        {/*</View>*/}
-        {isCaptchaCheckedError && (
-          <Text className="text-red-400 text-sm">
-            Verifique se você é um humano
-          </Text>
         )}
       </View>
       <View className="flex-1 mb-14 flex w-full items-center justify-center">

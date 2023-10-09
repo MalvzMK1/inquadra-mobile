@@ -3,7 +3,7 @@ import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { Dimensions, Image, ScrollView, Share, Text, View } from "react-native";
+import { Dimensions, Image, ScrollView, Share, Text, View, Linking } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Carousel from "react-native-snap-carousel";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
@@ -14,6 +14,7 @@ import useUpdateFavoriteEstablishment from "../../hooks/useUpdateFavoriteEstabli
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import storage from "../../utils/storage";
+import SvgUri from "react-native-svg-uri";
 
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4;
@@ -48,7 +49,7 @@ export default function EstablishmentInfo({
     type?: string;
   }>();
 
-  const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(userId);
+  const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(userId ? userId : "0");
 
   const [arrayfavoriteEstablishment, setArrayFavoriteEstablishment] = useState<
     Array<{ id: any }>
@@ -261,7 +262,7 @@ export default function EstablishmentInfo({
     data: dataUser,
     loading: loadingUser,
     error: errorUser,
-  } = useGetUserById(userId);
+  } = useGetUserById(userId ? userId : "0");
 
   useEffect(() => {
     storage
@@ -272,6 +273,11 @@ export default function EstablishmentInfo({
         setUserId(data.userId);
       });
   }, []);
+
+  const handleTelefoneClick = () => {
+    const cellPhoneNumber = `tel:${Establishment?.cellPhoneNumber}`;
+    Linking.openURL(cellPhoneNumber);
+  };
 
   return (
     <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
@@ -294,7 +300,7 @@ export default function EstablishmentInfo({
             <TouchableOpacity onPress={onShare}>
               <Ionicons name="share-social" size={30} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={onShare}>
+            <TouchableOpacity onPress={handleTelefoneClick}>
               <FontAwesome name="phone" size={30} color="black" />
             </TouchableOpacity>
           </View>
@@ -324,9 +330,12 @@ export default function EstablishmentInfo({
       <View className="flex flex-col gap-y-[20]">
         <View className="flex flex-row justify-start items-center gap-x-[10]">
           <Text className="font-black text-lg">AMENIDADES DO LOCAL</Text>
-          <Image source={require("../../assets/cabinet_icon.png")}></Image>
-          <Image source={require("../../assets/food_icon.png")}></Image>
-          <Image source={require("../../assets/car_icon.png")}></Image>
+          {
+            establishmentData?.establishment.data.attributes.amenities.data.map(amenitie => (
+                <SvgUri width={12} height={12} source={{uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url}} />
+              )
+            )
+          }
         </View>
         <View>
           <Carousel
@@ -361,7 +370,7 @@ export default function EstablishmentInfo({
               <CourtCard
                 key={court.id}
                 id={court.id}
-                userId={userId}
+                userId={userId ? userId : "0"}
                 userPhoto={route.params.userPhoto}
                 availabilities={court.court_availabilities}
                 image={court.photo}
@@ -374,17 +383,16 @@ export default function EstablishmentInfo({
         ))}
         <View className="h-16"></View>
       </ScrollView>
-      {/* <View className="absolute bottom-0 left-0 right-0 pt-10 pb-20"> */}
-      <View className="bsolute bottom-10">
+      <View className={`absolute bottom-2 left-0 right-0`}>
         <BottomBlackMenu
-          screen={"Any"}
-          userID={userId}
+          screen="EstablishmentInfo"
+          userID={userId ? userId : "0"}
           userPhoto={
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                  ?.attributes?.url
+              dataUser.usersPermissionsUser.data.attributes.photo.data
+                ?.attributes.url
               : ""
           }
           key={1}

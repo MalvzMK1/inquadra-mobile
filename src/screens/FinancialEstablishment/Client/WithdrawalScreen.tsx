@@ -23,27 +23,28 @@ export default function WithdrawScreen({
   const { data, loading, error } = useGetUserHistoricPayment(
     route.params.establishmentId,
   );
-  const [withdrawalInfo, setWithdrawalInfo] = useState<
+  const [xwithdrawalInfo, setWithdrawalInfo] = useState<
     Array<{
       id: string;
       key: string;
     }>
   >([]);
   const [valueCollected, setValueCollected] =
-    useState<Array<{ valuePayment: number; payday: string }>>();
+    useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
   const [isWithdrawalMade, setIsWithdrawalMade] = useState(false);
   const [selectedPixKey, setSelectedPixKey] = useState<string>("0");
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [number, setNumber] = useState(0);
+  const avaibleToCashOut = route.params.valueDisponible
 
   useFocusEffect(
     React.useCallback(() => {
       setWithdrawalInfo([]);
       setValueCollected([]);
       if (!error && !loading) {
-        const amountPaid: { valuePayment: number; payday: string }[] = [];
+        const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
         data?.establishment.data.attributes.courts.data.forEach(court => {
           court.attributes.court_availabilities.data.forEach(availability => {
@@ -52,6 +53,7 @@ export default function WithdrawScreen({
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
                 });
               });
             });
@@ -74,7 +76,7 @@ export default function WithdrawScreen({
         if (amountPaid) {
           setValueCollected(prevState => {
             if (prevState === undefined) {
-              return amountPaid;
+              return amountPaid;            
             }
             return [...prevState, ...amountPaid];
           });
@@ -84,19 +86,16 @@ export default function WithdrawScreen({
   );
 
   function isAvailableForWithdrawal() {
-    const currentDate = new Date();
-
-    const datesFilter = valueCollected?.filter(item => {
-      const paydayDate = new Date(item.payday);
-
-      return paydayDate <= currentDate;
+    const validateActivatedStatus = valueCollected?.filter(item => {
+      return item.activated === true
     });
 
-    if (datesFilter)
-      return datesFilter.reduce(
+    if (validateActivatedStatus) {   
+      return validateActivatedStatus!.reduce(
         (total, current) => total + current.valuePayment,
         0,
       );
+    }
     else return 0;
   }
 
@@ -130,18 +129,6 @@ export default function WithdrawScreen({
       1000,
     );
   }
-
-  function WithdrawalWarningCard() {
-    return (
-      <View className="bg-white w-4/5 h-1/3 rounded-md absolute flex justify-center items-center z-20">
-        <Text className="text-center font-bold text-sm mb-5">
-          Saque realizado com sucesso
-        </Text>
-        <Image source={require("../../../assets/orange_logo_inquadra.png")} />
-      </View>
-    );
-  }
-
   const {
     data: dataUserEstablishment,
     error: errorUserEstablishment,
@@ -156,9 +143,8 @@ export default function WithdrawScreen({
         <></>
       )}
       <View
-        className={`flex-1 pb-8 items-center justify-center z-10 ${
-          isWithdrawalMade ? "opacity-50" : ""
-        }`}
+        className={`flex-1 pb-8 items-center justify-center z-10 ${isWithdrawalMade ? "opacity-50" : ""
+          }`}
       >
         <View>
           <View
@@ -191,7 +177,7 @@ export default function WithdrawScreen({
               <Slider
                 style={{ width: "100%", height: 40 }}
                 minimumValue={0}
-                maximumValue={isAvailableForWithdrawal()}
+                maximumValue={avaibleToCashOut}
                 step={0.1}
                 value={number}
                 onValueChange={handleSliderChange}
@@ -207,20 +193,18 @@ export default function WithdrawScreen({
                 renderItem={({ item: value }) => {
                   return (
                     <TouchableOpacity
-                      disabled={isAvailableForWithdrawal() < value}
-                      className={`p-4 flex-row rounded-lg ${
-                        isAvailableForWithdrawal() >= value
-                          ? "bg-gray-400"
-                          : "bg-gray-300"
-                      }`}
+                      disabled={avaibleToCashOut < value}
+                      className={`p-4 flex-row rounded-lg ${avaibleToCashOut >= value
+                        ? "bg-gray-400"
+                        : "bg-gray-300"
+                        }`}
                       onPress={() => setNumber(value)}
                     >
                       <Text
-                        className={`${
-                          isAvailableForWithdrawal() >= value
-                            ? "text-white"
-                            : "text-gray-400"
-                        }`}
+                        className={`${avaibleToCashOut >= value
+                          ? "text-white"
+                          : "text-gray-400"
+                          }`}
                       >
                         R$ {value.toFixed(2)}
                       </Text>
@@ -239,11 +223,10 @@ export default function WithdrawScreen({
                   renderItem={({ item: card }) => {
                     return (
                       <TouchableOpacity
-                        className={`p-5 flex-row rounded-lg mt-5 ${
-                          card.id == selectedPixKey
-                            ? "bg-slate-300"
-                            : "bg-gray-300"
-                        }`}
+                        className={`p-5 flex-row rounded-lg mt-5 ${card.id == selectedPixKey
+                          ? "bg-slate-300"
+                          : "bg-gray-300"
+                          }`}
                         onPress={() => {
                           if (card.id !== selectedPixKey)
                             setSelectedPixKey(card.id);
@@ -269,11 +252,10 @@ export default function WithdrawScreen({
               <Text className="font-bold text-gray-400">Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`w-40 h-14 rounded-md flex items-center justify-center ${
-                selectedPixKey === "0" || number === 0
-                  ? "bg-[#ffa363]"
-                  : "bg-[#FF6112]"
-              }`}
+              className={`w-40 h-14 rounded-md flex items-center justify-center ${selectedPixKey === "0" || number === 0
+                ? "bg-[#ffa363]"
+                : "bg-[#FF6112]"
+                }`}
               disabled={selectedPixKey === "0" ? true : false}
               onPress={withdrawalMade}
             >
@@ -291,11 +273,11 @@ export default function WithdrawScreen({
           establishmentLogo={
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined ||
-            dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-              ?.attributes?.url !== null
+              dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
+                ?.attributes?.url !== null
               ? HOST_API +
-                dataUserEstablishment?.establishment?.data?.attributes?.logo
-                  ?.data?.attributes?.url
+              dataUserEstablishment?.establishment?.data?.attributes?.logo
+                ?.data?.attributes?.url
               : null
           }
           establishmentID={route.params.establishmentId}
