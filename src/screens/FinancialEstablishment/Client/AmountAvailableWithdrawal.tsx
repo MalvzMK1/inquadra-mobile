@@ -28,7 +28,7 @@ export default function AmountAvailableWithdrawal({
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const currentDate = new Date();
   const [valueCollected, setValueCollected] =
-    useState<Array<{ valuePayment: number; payday: string }>>();
+    useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
   const [infosHistoric, setInfosHistoric] = useState<
     Array<{
       username: string;
@@ -54,7 +54,7 @@ export default function AmountAvailableWithdrawal({
           date: string;
         }[] = [];
 
-        const amountPaid: { valuePayment: number; payday: string }[] = [];
+        const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
         dataHistoric?.forEach(court => {
           court.attributes.court_availabilities.data.forEach(availability => {
@@ -70,6 +70,7 @@ export default function AmountAvailableWithdrawal({
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
                 });
               });
             });
@@ -98,15 +99,13 @@ export default function AmountAvailableWithdrawal({
   );
 
   function isAvailableForWithdrawal() {
-    const currentDate = new Date();
 
-    const datesFilter = valueCollected?.filter(item => {
-      const paydayDate = new Date(item.payday);
+    const activatedFilter = valueCollected?.filter(item => {
 
-      return paydayDate <= currentDate;
+      return item.activated === true
     });
 
-    return datesFilter;
+    return activatedFilter;
   }
 
   const {
@@ -171,6 +170,7 @@ export default function AmountAvailableWithdrawal({
                   navigation.navigate("WithdrawScreen", {
                     establishmentId: route.params.establishmentId,
                     logo: route.params.logo,
+                    valueDisponible: route.params.valueDisponible
                   })
                 }
               >
@@ -190,11 +190,11 @@ export default function AmountAvailableWithdrawal({
           establishmentLogo={
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined ||
-            dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-              ?.attributes?.url !== null
+              dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
+                ?.attributes?.url !== null
               ? HOST_API +
-                dataUserEstablishment?.establishment?.data?.attributes?.logo
-                  ?.data?.attributes?.url
+              dataUserEstablishment?.establishment?.data?.attributes?.logo
+                ?.data?.attributes?.url
               : null
           }
           establishmentID={route.params.establishmentId}

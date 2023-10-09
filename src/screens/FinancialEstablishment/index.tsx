@@ -15,7 +15,7 @@ export default function FinancialEstablishment({
   route,
 }: NativeStackScreenProps<RootStackParamList, "FinancialEstablishment">) {
   const [valueCollected, setValueCollected] =
-    useState<Array<{ valuePayment: number; payday: string }>>();
+    useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
 
@@ -57,7 +57,7 @@ export default function FinancialEstablishment({
           endsAt: string;
         }[] = [];
 
-        const amountPaid: { valuePayment: number; payday: string }[] = [];
+        const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
         dataHistoric?.forEach(court => {
           let courtPhoto = court.attributes.photo.data[0].attributes.url;
@@ -83,6 +83,7 @@ export default function FinancialEstablishment({
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
                 });
               });
             });
@@ -120,24 +121,21 @@ export default function FinancialEstablishment({
   };
 
   function isAvailableForWithdrawal() {
-    const currentDate = new Date();
-
-    const futureDates: { valuePayment: number; payday: string }[] = [];
-    const pastDates: { valuePayment: number; payday: string }[] = [];
+    const creditValue: { valuePayment: number; payday: string; activated: boolean }[] = [];
+    const cashout: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
     valueCollected?.forEach(item => {
-      const paydayDate = new Date(item.payday);
-
-      if (paydayDate > currentDate) {
-        futureDates.push(item);
+      if (!item.activated) {
+        creditValue.push(item);
       } else {
-        pastDates.push(item);
+        cashout.push(item);
       }
     });
 
+
     return {
-      futureDates: futureDates,
-      pastDates: pastDates,
+      creditValue: creditValue,
+      cashout: cashout,
     };
   }
 
@@ -160,10 +158,10 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().pastDates.reduce(
-                        (total, current) => total + current.valuePayment,
-                        0,
-                      )
+                    ? isAvailableForWithdrawal().cashout.reduce(
+                      (total, current) => total + current.valuePayment,
+                      0,
+                    )
                     : 0}
                 </Text>
               </View>
@@ -174,6 +172,12 @@ export default function FinancialEstablishment({
                     navigation.navigate("WithdrawScreen", {
                       establishmentId: establishmentId ?? "",
                       logo: logo ?? "",
+                      valueDisponible: valueCollected
+                        ? isAvailableForWithdrawal().cashout.reduce(
+                          (total, current) => total + current.valuePayment,
+                          0,
+                        )
+                        : 0
                     });
                   }}
                 >
@@ -187,6 +191,12 @@ export default function FinancialEstablishment({
                 navigation.navigate("AmountAvailableWithdrawal", {
                   establishmentId: establishmentId ?? "",
                   logo: logo ?? "",
+                  valueDisponible: valueCollected
+                    ? isAvailableForWithdrawal().cashout.reduce(
+                      (total, current) => total + current.valuePayment,
+                      0,
+                    )
+                    : 0
                 })
               }
             >
@@ -204,10 +214,10 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().futureDates.reduce(
-                        (total, current) => total + current.valuePayment,
-                        0,
-                      )
+                    ? isAvailableForWithdrawal().creditValue.reduce(
+                      (total, current) => total + current.valuePayment,
+                      0,
+                    )
                     : 0}
                 </Text>
               </View>
@@ -217,7 +227,7 @@ export default function FinancialEstablishment({
               onPress={() =>
                 navigation.navigate("DetailsAmountReceivable", {
                   establishmentId: establishmentId ?? "",
-                  logo: logo ?? "",
+                  logo: logo ?? ""
                 })
               }
             >
@@ -281,9 +291,9 @@ export default function FinancialEstablishment({
               )
                 .toString()
                 .padStart(2, "0")}-${currentDate
-                .getDate()
-                .toString()
-                .padStart(2, "0")}`;
+                  .getDate()
+                  .toString()
+                  .padStart(2, "0")}`;
 
               const cardDate = card.date;
 
