@@ -103,7 +103,6 @@ export default function FinancialEstablishment({
             if (prevState === undefined) {
               return amountPaid;
             }
-            console.log("deu bom: ", amountPaid)
             return [...prevState, ...amountPaid];
           });
         }
@@ -133,7 +132,7 @@ export default function FinancialEstablishment({
       }
     });
 
-    
+
     return {
       creditValue: creditValue,
       cashout: cashout,
@@ -159,7 +158,7 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().cashout.reduce( 
+                    ? isAvailableForWithdrawal().cashout.reduce(
                       (total, current) => total + current.valuePayment,
                       0,
                     )
@@ -173,6 +172,12 @@ export default function FinancialEstablishment({
                     navigation.navigate("WithdrawScreen", {
                       establishmentId: establishmentId ?? "",
                       logo: logo ?? "",
+                      valueDisponible: valueCollected
+                        ? isAvailableForWithdrawal().cashout.reduce(
+                          (total, current) => total + current.valuePayment,
+                          0,
+                        )
+                        : 0
                     });
                   }}
                 >
@@ -186,6 +191,12 @@ export default function FinancialEstablishment({
                 navigation.navigate("AmountAvailableWithdrawal", {
                   establishmentId: establishmentId ?? "",
                   logo: logo ?? "",
+                  valueDisponible: valueCollected
+                    ? isAvailableForWithdrawal().cashout.reduce(
+                      (total, current) => total + current.valuePayment,
+                      0,
+                    )
+                    : 0
                 })
               }
             >
@@ -216,7 +227,7 @@ export default function FinancialEstablishment({
               onPress={() =>
                 navigation.navigate("DetailsAmountReceivable", {
                   establishmentId: establishmentId ?? "",
-                  logo: logo ?? "",
+                  logo: logo ?? ""
                 })
               }
             >
