@@ -4,8 +4,7 @@ import {
 	CIELO_API_URL,
 	CIELO_QUERY_API_URL
 } from '@env';
-import {AxiosRequestConfig} from "axios/index";
-import axios, {AxiosError} from 'axios';
+import axios, {AxiosError, AxiosRequestConfig} from 'axios';
 
 export class CieloRequestManager {
 	private BASE_URL: string = CIELO_API_URL
@@ -41,6 +40,28 @@ export class CieloRequestManager {
 		const axiosConfig: AxiosRequestConfig = {
 			baseURL: `${this.BASE_URL}/1/sales/${paymentId}/capture`,
 			method: 'PUT',
+			headers: {
+				merchantId: this.MERCHANT_ID,
+				merchantKey: this.MERCHANT_KEY,
+			},
+		}
+
+		try {
+			const {data} = await axios<ConfirmCreditCardPaymentResponse>(axiosConfig);
+			return data;
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err.toJSON())
+				throw new Error(err.message)
+			}
+			throw new Error('An error ocurred while trying to create a payment with CIELO\n' + String(err));
+		}
+	}
+
+	async getPaymentInformations(paymentId: string) {
+		const axiosConfig: AxiosRequestConfig = {
+			baseURL: `${this.BASE_QUERY_URL}/1/sales/${paymentId}`,
+			method: 'GET',
 			headers: {
 				merchantId: this.MERCHANT_ID,
 				merchantKey: this.MERCHANT_KEY,
