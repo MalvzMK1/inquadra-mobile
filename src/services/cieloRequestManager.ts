@@ -6,18 +6,16 @@ import {
 } from '@env';
 import {AxiosRequestConfig} from "axios/index";
 import axios, {AxiosError} from 'axios';
-import * as https from "https";
 
 export class CieloRequestManager {
-	BASE_URL: string = CIELO_API_URL
-	BASE_QUERY_URL: string = CIELO_QUERY_API_URL
-	MERCHANT_ID: string = CIELO_MERCHANT_ID
-	MERCHANT_KEY: string = CIELO_MERCHANT_KEY
-	// axios = new Axios()
+	private BASE_URL: string = CIELO_API_URL
+	private BASE_QUERY_URL: string = CIELO_QUERY_API_URL
+	private MERCHANT_ID: string = CIELO_MERCHANT_ID
+	private MERCHANT_KEY: string = CIELO_MERCHANT_KEY
 
-	async authorizePayment(data: IAuthorizeCreditCardPaymentResponse): Promise<IAuthorizeCreditCardPaymentResponse> {
+	public async authorizePayment(data: AuthorizeCreditCardPaymentResponse): Promise<AuthorizeCreditCardPaymentResponse> {
 		const axiosConfig: AxiosRequestConfig = {
-			baseURL: this.BASE_URL,
+			baseURL: `${this.BASE_URL}/1/sales`,
 			method: 'POST',
 			headers: {
 				"Content-Type": 'application/json',
@@ -28,8 +26,30 @@ export class CieloRequestManager {
 		}
 
 		try {
-			const {data: authorizeCreditCard} = await axios<IAuthorizeCreditCardPaymentResponse>(axiosConfig)
+			const {data: authorizeCreditCard} = await axios<AuthorizeCreditCardPaymentResponse>(axiosConfig)
 			return authorizeCreditCard
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err.toJSON())
+				throw new Error(err.message)
+			}
+			throw new Error('An error ocurred while trying to create a payment with CIELO\n' + String(err));
+		}
+	}
+
+	async confirmPayment(paymentId: string) {
+		const axiosConfig: AxiosRequestConfig = {
+			baseURL: `${this.BASE_URL}/1/sales/${paymentId}/capture`,
+			method: 'PUT',
+			headers: {
+				merchantId: this.MERCHANT_ID,
+				merchantKey: this.MERCHANT_KEY,
+			},
+		}
+
+		try {
+			const {data} = await axios<ConfirmCreditCardPaymentResponse>(axiosConfig);
+			return data;
 		} catch (err) {
 			if (err instanceof AxiosError) {
 				console.log(err.toJSON())

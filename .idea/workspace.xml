@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/Cielo.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Cielo.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +140,7 @@
       <workItem from="1695291162214" duration="3712000" />
       <workItem from="1696328341602" duration="10222000" />
       <workItem from="1696499741544" duration="658000" />
-      <workItem from="1697020525733" duration="4120000" />
+      <workItem from="1697020525733" duration="4679000" />
     </task>
     <servers />
   </component>
