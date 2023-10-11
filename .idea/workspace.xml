@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,15 +15,15 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="TypeScript File" />
         <option value="TypeScript JSX File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="WI564T620" />
+        <entry key="$PROJECT_DIR$" value="release" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -37,6 +36,10 @@
             <RecentBranchesForRepo>
               <option name="branches">
                 <list>
+                  <RecentBranch>
+                    <option name="branchName" value="WI564T761" />
+                    <option name="lastUsedInstant" value="1697026224" />
+                  </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI564T752" />
                     <option name="lastUsedInstant" value="1696599129" />
@@ -52,10 +55,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI564T740" />
                     <option name="lastUsedInstant" value="1696328488" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1696328423" />
                   </RecentBranch>
                 </list>
               </option>
@@ -85,7 +84,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "WI564T752",
+    "git-widget-placeholder": "WI564T761",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -139,6 +138,7 @@
       <workItem from="1695291162214" duration="3712000" />
       <workItem from="1696328341602" duration="10222000" />
       <workItem from="1696499741544" duration="658000" />
+      <workItem from="1697020525733" duration="4120000" />
     </task>
     <servers />
   </component>
