@@ -1,4 +1,4 @@
-type Address = {
+type CieloAddress = {
 	Street: string;
 	Number: string;
 	Complement: string;
@@ -6,7 +6,7 @@ type Address = {
 	City: string;
 	State: string;
 	Country: string;
-	AddressType: number;
+	AddressType?: number;
 };
 
 type Customer = {
@@ -15,8 +15,8 @@ type Customer = {
 	IdentityType: string;
 	Email: string;
 	Birthdate: string;
-	Address: Address;
-	DeliveryAddress: Address;
+	Address: CieloAddress;
+	DeliveryAddress: CieloAddress;
 };
 
 type CreditCard = {
@@ -25,34 +25,35 @@ type CreditCard = {
 	ExpirationDate: string;
 	SaveCard: boolean;
 	Brand: string;
-	PaymentAccountReference: string;
+	PaymentAccountReference?: string;
+	SecurityCode?: string;
 };
 
 type Payment = {
 	ServiceTaxAmount: number;
 	Installments: number;
-	Interest: number;
+	Interest: string | number;
 	Capture: boolean;
 	Authenticate: boolean;
 	Recurrent: boolean;
 	CreditCard: CreditCard;
-	Tid: string;
-	ProofOfSale: string;
-	AuthorizationCode: string;
+	Tid?: string;
+	ProofOfSale?: string;
+	AuthorizationCode?: string;
 	SoftDescriptor: string;
 	Provider: string;
-	IsQrCode: boolean;
+	IsQrCode?: boolean;
 	Amount: number;
-	ReceivedDate: string;
-	Status: number;
-	IsSplitted: boolean;
-	ReturnMessage: string;
-	ReturnCode: string;
-	PaymentId: string;
+	ReceivedDate?: string;
+	Status?: number;
+	IsSplitted?: boolean;
+	ReturnMessage?: string;
+	ReturnCode?: string;
+	PaymentId?: string;
 	Type: string;
 	Currency: string;
 	Country: string;
-	Links: Link[];
+	Links?: Link[];
 };
 
 type Link = {
@@ -79,4 +80,18 @@ type ConfirmCreditCardPaymentResponse = {
 	ProofOfSale: string;
 	AuthorizationCode: string;
 	Links: Link[];
+}
+
+type TransactionResponse = {
+	MerchantOrderId: string;
+	AcquirerOrderId: string;
+	Customer: Customer;
+	Payment: Payment & {
+		PaymentId: string;
+		Type: string;
+		ReceivedDate: string;
+		Currency: string;
+		Provider: string;
+		Status: number;
+	};
 }
