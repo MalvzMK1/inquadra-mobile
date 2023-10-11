@@ -136,8 +136,6 @@ type RootStackParamList = {
     "id" | "fantasyName" | "cellphoneNumber"
   > & {
     address: Omit<Address, "id" | "longitude" | "latitude">;
-
-    photos: string[] | undefined;
     profileInfos?: {
       username: string;
       cpf: string;

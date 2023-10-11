@@ -123,6 +123,8 @@ export default function FinancialEstablishment({
   function isAvailableForWithdrawal() {
     const creditValue: { valuePayment: number; payday: string; activated: boolean }[] = [];
     const cashout: { valuePayment: number; payday: string; activated: boolean }[] = [];
+    const futureDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
+    const pastDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
     valueCollected?.forEach(item => {
       if (!item.activated) {
