@@ -61,8 +61,22 @@ type Link = {
 	Href: string;
 };
 
-type IAuthorizeCreditCardPaymentResponse = {
+type AuthorizeCreditCardPaymentResponse = {
 	MerchantOrderId: string;
 	Customer: Customer;
 	Payment: Payment;
 };
+
+type ConfirmCreditCardPaymentResponse = {
+	Status: number;
+	ReasonCode: number;
+	ReasonMessage: string;
+	ProviderReturnCode: string;
+	ProviderReturnMessage: string;
+	ReturnCode: string;
+	ReturnMessage: string;
+	Tid: string;
+	ProofOfSale: string;
+	AuthorizationCode: string;
+	Links: Link[];
+}
