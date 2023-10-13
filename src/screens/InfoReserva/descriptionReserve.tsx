@@ -25,6 +25,7 @@ import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
 import useDeleteSchedule from '../../hooks/useDeleteSchedule';
 import BottomBlackMenu from '../../components/BottomBlackMenu';
+import { generatePix } from '../../services/pixCielo';
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
@@ -42,6 +43,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const { data: dataHistoricPayments, error: errorHistoricPayments, loading: loadingHistoricPayments } = useAllPaymentsSchedulingById(schedule_id)
     const [cancelSchedule, { data: dataCancelSchedule, loading: loadingCancelSchedule, error: errorCancelSchedule }] = useDeleteSchedule()
 
+    const [paymentID, setPaymentID] = useState('')
     const [showCancelCardModal, setShowCancelCardModal] = useState(false)
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
     const [creditCard, setCreditCard] = useState("")
@@ -133,7 +135,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         street: z.string().nonempty("É necessário inserir o nome da rua"),
         district: z.string().nonempty("É necessário inserir o bairro"),
         city: z.string().nonempty("É necessário inserir o nome da cidade"),
-        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
+        state: z.string().nonempty("É necessário inserir o estado").min(2, "Inválido").max(2, "Inválido")
     });
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
@@ -247,13 +249,30 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         }
     }
 
-    function payPix(info: iFormPixPayment) {
+    async function payPix(info: iFormPixPayment) {
         const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'));
+
+        const generatePixJSON: RequestGeneratePix = {
+            MerchantOrderId: schedule_id + user_id + generateRandomKey(3),
+            Customer: {
+                Name: info.name,
+                Identity: info.cpf,
+                IdentityType: "CPF",
+            },
+            Payment: {
+                Type: "Pix",
+                Amount: parsedValue * 100
+            }
+        }
+
+        const pixGenerated = await generatePix(generatePixJSON)
 
         navigation.navigate('PixScreen', {
             courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name ?? "",
             value: parsedValue.toString(),
-            userID: user_id
+            userID: user_id,
+            QRcodeURL: pixGenerated.Payment.QrCodeString,
+            paymentID: pixGenerated.Payment.PaymentId
         });
 
         setShowPixPaymentModal(false);
@@ -800,7 +819,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 onChangeText={onChange}>
                                             </MaskInput>
                                         )}
-                                    ></Controller>                                  
+                                    ></Controller>
                                 </View>
                                 <View className='flex flex-row justify-between'>
                                     <View>
@@ -838,7 +857,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 </View>
                                 <View>
                                     <Button mode="contained" style={{ height: 50, width: '100%', backgroundColor: '#FF6112', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}
-                                        onPress={handleSubmit(pay, console.log)}
+                                        onPress={handleSubmit(pay)}
                                     >
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
@@ -906,7 +925,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         </View>
                         <View>
                             <Button mode="contained" style={{ height: 50, width: '100%', backgroundColor: '#FF6112', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}
-                                onPress={handleSubmitPix(payPix, console.log)}>
+                                onPress={handleSubmitPix(payPix)}>
                                 <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                             </Button>
                         </View>
@@ -948,7 +967,3 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         </View >
     )
 }
-
-
-
-

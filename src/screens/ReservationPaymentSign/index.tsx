@@ -22,6 +22,8 @@ import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabi
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
+import { useGetUserById } from "../../hooks/useUserById";
+import { generatePix } from "../../services/pixCielo";
 
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
 
@@ -31,6 +33,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
     const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
     const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
     const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
+    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
 
     const [showCard, setShowCard] = useState(false);
     const [cardData, setCardData] = useState({
@@ -151,7 +154,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         street: z.string().nonempty("É necessário inserir o nome da rua"),
         district: z.string().nonempty("É necessário inserir o bairro"),
         city: z.string().nonempty("É necessário inserir o nome da cidade"),
-        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
+        state: z.string().nonempty("É necessário inserir o estado").min(2, "Inválido").max(2, "Inválido")
     })
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm<iFormCardPayment>({
@@ -211,7 +214,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
             }
             updateStatusDisponibleCourt();
             handleSaveCard();
-            navigation.navigate('InfoReserva', {userId: userId})
+            navigation.navigate('InfoReserva', { userId: userId })
         } catch (error) {
             console.error("Erro ao criar o agendamento:", error);
         }
@@ -253,7 +256,34 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
         })
     }
 
-    
+    const generatePixSignal = async () => {
+        const signalValue = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!) * 100
+
+        const generatePixJSON: RequestGeneratePix = {
+            MerchantOrderId: userId + generateRandomKey(3),
+            Customer: {
+                Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
+                Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
+                IdentityType: "CPF",
+            },
+            Payment: {
+                Type: "Pix",
+                Amount: signalValue
+            }
+        }
+
+        const pixGenerated = await generatePix(generatePixJSON)
+
+        navigation.navigate('PixScreen', {
+            courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+            value: (amountToPay + serviceValue).toString(),
+            userID: userId,
+            QRcodeURL: pixGenerated.Payment.QrCodeString,
+            paymentID: pixGenerated.Payment.PaymentId
+        });
+    }
+
+
 
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -277,18 +307,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                 <View className='px-10 py-5'>
                     <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
                         onPressIn={() => {
-                            createNewSchedule().then(scheduleID => {
-                                if (scheduleID)
-                                    navigation.navigate('PixScreen', {
-                                        courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                                        value: (amountToPay + serviceValue).toString(),
-                                        userID: userId,
-                                        scheduleID,
-                                    })
-                            })
+                            generatePixSignal()
                         }}
                     >
-                        <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
+                        <Text className='text-lg text-gray-50 font-bold'>Gerar código PIX</Text>
                     </TouchableOpacity>
                 </View>
                 <View><Text className="text-center font-bold text-base text-gray-700">ou</Text></View>

@@ -83,7 +83,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         password: data.password,
         cpf: route.params.data.cpf,
         email: route.params.data.email,
-        role: "3",
+        role:
+          route.params.flow === "normal"
+            ? "3"
+            : "4",
         phone_number: route.params.data.phoneNumber,
         username: route.params.data.name,
       };
@@ -147,9 +150,9 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
               userGeolocation: userGeolocation
                 ? userGeolocation
                 : {
-                    latitude: 78.23570781291714,
-                    longitude: 15.491400000982967,
-                  },
+                  latitude: 78.23570781291714,
+                  longitude: 15.491400000982967,
+                },
               userID: authData.data.login.user.id,
               userPhoto: undefined,
             },

@@ -150,6 +150,8 @@ type RootStackParamList = {
     value: string;
     userID: string;
     scheduleID?: number;
+    QRcodeURL: string;
+    paymentID: string;
   };
   RegisterNewCourt: {
     courtArray: CourtAdd[];

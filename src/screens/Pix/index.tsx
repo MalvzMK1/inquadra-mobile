@@ -7,7 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useCreateCharge, usePixInfosByTxid} from "../../services/inter";
+import { useCreateCharge, usePixInfosByTxid } from "../../services/inter";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
@@ -21,12 +21,11 @@ interface IPixInfos {
 }
 
 export default function PixScreen({ navigation, route }: RouteParams) {
-    const { courtName, value, userID, scheduleID } = route.params
+    const { courtName, value, userID, scheduleID, QRcodeURL, paymentID } = route.params
     const formattedValue = Number(value).toFixed(2)
 
     const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
     const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
-    const {} = usePixInfosByTxid()
     const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
     const [createStrapiCharge, { data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError }] = useCreateStrapiPixCharge();
 
@@ -34,19 +33,15 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     const [userAddress, setUserAddress] = useState<APICepResponse>();
     const [pixInfos, setPixInfos] = useState<IPixInfos | null>(null);
 
-    const handleCopiarTexto = () => {
-        if (pixInfos) {
-            Clipboard.setStringAsync(pixInfos.pixCode)
-                .finally(() => Toast.show({
-                    type: 'success',
-                    text1: 'Texto copiado',
-                    text2: 'O texto foi copiado para a área de transferência.',
-                    position: 'bottom',
-                    visibilityTime: 2000,
-                })
-                );
-
-        }
+    const handleCopiarTexto = async () => {
+        await Clipboard.setStringAsync(QRcodeURL);
+        Toast.show({
+            type: 'success',
+            text1: 'Texto copiado',
+            text2: 'O texto foi copiado para a área de transferência.',
+            position: 'bottom',
+            visibilityTime: 2000,
+        });
     };
 
     useEffect(() => {
@@ -120,7 +115,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                             publishedAt: new Date().toISOString()
                         }
                     }).then(response => {
-                        console.log({STRAPI_RESPONSE_DATA: response.data})
+                        console.log({ STRAPI_RESPONSE_DATA: response.data })
                     })
                 }
                 if (response.errors)
@@ -133,18 +128,12 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         }
     }, [userData, userAddress, scheduleData])
 
-    useEffect(() => {
-        if (pixInfos) {
-            console.log({PIX_CODE: pixInfos.pixCode})
-        }
-    }, [pixInfos])
-
     return (
         <View className='h-full w-max bg-white'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => console.log(pixInfos?.txid)}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -166,9 +155,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             <View className='h-max w-max flex items-center justify-start pt-16'>
                 <Text className='font-black font text-xl pb-5'>{courtName}</Text>
                 <View>
-                    {
-                        pixInfos && <QRCode value={pixInfos.pixCode} size={200} />
-                    }
+                    <QRCode value={QRcodeURL} size={200} />
                 </View>
                 <Text className='font-black font text-xl pt-2 pb-3'>Pagamento do Sinal</Text>
                 <View className='h-14 w-screen bg-gray-300 justify-center items-center '>

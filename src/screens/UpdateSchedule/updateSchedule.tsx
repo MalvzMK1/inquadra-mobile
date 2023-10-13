@@ -24,6 +24,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useUpdateScheduleDay from "../../hooks/useUpdateScheduleDay";
 import useGenerateActivationKey from "../../hooks/useGenerateActivationKey";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
+import { generatePix } from "../../services/pixCielo";
+import { useGetUserById } from "../../hooks/useUserById";
+
 
 export default function PaymentScheduleUpdate({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PaymentScheduleUpdate'>) {
 
@@ -59,6 +62,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
         country: ''
     });
     const [showCameraIcon, setShowCameraIcon] = useState(false);
+    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
     const handleCardClick = () => {
         setShowCard(!showCard);
         setShowCameraIcon(false);
@@ -267,7 +271,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     }
 
     const updateScheduleDay = async (isPayed: boolean, activationKey: string | null) => {
-         const paymentStatus:string = isPayed ? "payed" : "waiting"
+        const paymentStatus: string = isPayed ? "payed" : "waiting"
         try {
             updateSchedule({
                 variables: {
@@ -286,6 +290,33 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
         } catch (error) {
             console.log(error)
         }
+    }
+
+    const generatePixSignal = async () => {
+        const signalValue = signalPay 
+
+        const generatePixJSON: RequestGeneratePix = {
+            MerchantOrderId: userId + generateRandomKey(3),
+            Customer: {
+                Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
+                Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
+                IdentityType: "CPF",
+            },
+            Payment: {
+                Type: "Pix",
+                Amount: signalValue * 100
+            }
+        }
+
+        const pixGenerated = await generatePix(generatePixJSON)
+
+        navigation.navigate('PixScreen', {
+            courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+            value: signalValue.toString(),
+            userID: userId,
+            QRcodeURL: pixGenerated.Payment.QrCodeString,
+            paymentID: pixGenerated.Payment.PaymentId
+        });
     }
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -330,7 +361,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                             <View className='px-10 py-5'>
                                 <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
                                     onPressIn={() => {
-                                        updateScheduleDay(false, null)
+                                        generatePixSignal()
                                     }}
                                 >
                                     <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
