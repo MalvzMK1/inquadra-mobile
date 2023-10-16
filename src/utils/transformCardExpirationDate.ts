@@ -7,7 +7,7 @@ export function transformCardExpirationDate(expirationDate: string): string {
 		const [month, year] = splittedDate;
 
 		if (month.length === 2 && year.length === 2) {
-			const completeYear = '20' + year; // Assumindo que o ano é sempre em 2 dígitos e representando o século atual.
+			const completeYear = '20' + year;
 			return month + '/' + completeYear;
 		}
 	} else {
