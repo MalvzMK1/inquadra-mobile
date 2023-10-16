@@ -258,7 +258,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					if (newScheduleId) {
 						userPaymentCard({
 							variables: {
-								value: response.Payment.Amount,
+								value: Number(response.Payment.Amount / 100),
 								schedulingId: newScheduleId.toString(),
 								userId: userId,
 								name: data.name,
@@ -274,7 +274,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								state: data.state,
 								neighborhood: data.district,
 								street: data.street,
-								paymentId: response.Payment.PaymentId!
+								paymentId: response.Payment.PaymentId!,
+								payedStatus: response.Payment.Status === 2 ? 'Payed' : 'Waiting',
 							}
 						}).then((response) => {
 							console.log({strapi_response: response})

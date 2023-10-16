@@ -19,6 +19,12 @@ export interface IUserPaymentCardResponse{
     }
 }
 
+enum EPayedStatus {
+  Waiting,
+  Payed,
+  Canceled
+}
+
 export interface IUserPaymentCardVariables{
     value: number
     schedulingId: string
@@ -37,6 +43,7 @@ export interface IUserPaymentCardVariables{
     street: string
     neighborhood: string
     paymentId: string
+    payedStatus: keyof typeof EPayedStatus
 }
 
 export const userPaymentCardMutation = gql`
@@ -58,6 +65,7 @@ mutation newUserPayment(
   $street: String
   $neighborhood: String
   $paymentId: String
+  $payedStatus: ENUM_USERPAYMENT_PAYEDSTATUS
 ) {
   createUserPayment(
     data: {
@@ -80,6 +88,7 @@ mutation newUserPayment(
         neighborhood: $neighborhood
       }
       publishedAt: $publishedAt
+      payedStatus: $payedStatus
     }
   ) {
     data {
