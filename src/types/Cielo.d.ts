@@ -1,3 +1,14 @@
+enum StringedBoolean {
+	true,
+	false
+}
+
+enum EIdentityType {
+	cpf,
+	rg,
+	cnpj
+}
+
 type CieloAddress = {
 	Street: string;
 	Number: string;
@@ -11,8 +22,8 @@ type CieloAddress = {
 
 type Customer = {
 	Name: string;
-	Identity: string;
-	IdentityType: string;
+	Identity?: string;
+	IdentityType?: keyof typeof EIdentityType;
 	Email: string;
 	Birthdate: string;
 	Address: CieloAddress;
@@ -33,15 +44,15 @@ type Payment = {
 	ServiceTaxAmount: number;
 	Installments: number;
 	Interest: string | number;
-	Capture: boolean;
-	Authenticate: boolean;
-	Recurrent: boolean;
+	Capture: keyof typeof StringedBoolean;
+	Authenticate: keyof typeof StringedBoolean;
+	Recurrent: keyof typeof StringedBoolean;
 	CreditCard: CreditCard;
 	Tid?: string;
 	ProofOfSale?: string;
 	AuthorizationCode?: string;
-	SoftDescriptor: string;
-	Provider: string;
+	SoftDescriptor?: string;
+	Provider?: string;
 	IsQrCode?: boolean;
 	Amount: number;
 	ReceivedDate?: string;
@@ -54,6 +65,7 @@ type Payment = {
 	Currency: string;
 	Country: string;
 	Links?: Link[];
+	IsCryptoCurrencyNegotiation?: boolean
 };
 
 type Link = {
