@@ -25,6 +25,9 @@ import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
 import useDeleteSchedule from '../../hooks/useDeleteSchedule';
 import BottomBlackMenu from '../../components/BottomBlackMenu';
+import {CieloRequestManager} from "../../services/cieloRequestManager";
+import {transformCardExpirationDate} from "../../utils/transformCardExpirationDate";
+import {useGetUserById} from "../../hooks/useUserById";
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
@@ -39,6 +42,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
     const [updateScheduleValue, { data: dataScheduleValue, error: errorScheduleValue, loading: loadingScheduleValue }] = useUpdateScheduleValue()
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
+    const { data: allUserData, loading: allUserDataLoading, error: allUserDataError } = useGetUserById(user_id)
     const { data: dataHistoricPayments, error: errorHistoricPayments, loading: loadingHistoricPayments } = useAllPaymentsSchedulingById(schedule_id)
     const [cancelSchedule, { data: dataCancelSchedule, loading: loadingCancelSchedule, error: errorCancelSchedule }] = useDeleteSchedule()
 
@@ -84,6 +88,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         complement: string
         district: string
         street: string
+        cardNumber: string
     }
 
     interface iFormPixPayment {
@@ -133,7 +138,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         street: z.string().nonempty("É necessário inserir o nome da rua"),
         district: z.string().nonempty("É necessário inserir o bairro"),
         city: z.string().nonempty("É necessário inserir o nome da cidade"),
-        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
+        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido"),
+        cardNumber: z.string().nonempty('É necessário inserir o número do cartão').min(16, 'Inválido')
     });
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
@@ -193,38 +199,111 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
 
     async function pay(data: iFormCardPayment) {
-        const countryId = getCountryIdByISOCode(selected);
         try {
-            await userPaymentCard({
-                variables: {
-                    value: parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')),
-                    schedulingId: schedule_id,
-                    userId: user_id,
-                    name: data.name,
-                    cpf: data.cpf,
-                    cvv: parseInt(data.cvv),
-                    date: convertToAmericanDate(data.date),
-                    countryID: countryId,
-                    publishedAt: new Date().toISOString(),
-                    cep: data.cep,
-                    city: data.city,
-                    complement: data.complement,
-                    number: data.number,
-                    state: data.state,
-                    neighborhood: data.district,
-                    street: data.street
+            const totalValue = data.value.split('R$ ')[1]
+            let parsedValue: number;
+
+            // Transformar de reais pra centavos
+            if (totalValue.includes(',')) {
+                if (totalValue.includes('.')) {
+                    parsedValue = Number(totalValue.split('.').join('').split(',').join(''));
+                } else {
+                    parsedValue = Number(totalValue.split(',').join(''))
                 }
-            });
+            } else parsedValue = Number(Number(totalValue) * 100)
 
-            await scheduleValueUpdate(parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')));
+            console.log(parsedValue)
+            if (allUserData && allUserData.usersPermissionsUser.data) {
+                const cieloRequestManager = new CieloRequestManager();
+                // const totalValue = (Number(parsedValue.toFixed(2)) + Number(serviceValue.toFixed(2))) * 100;
 
-            setShowCardPaymentModal(false);
+                // console.log({totalValue})
 
-            alert("Pagamento efetuado com sucesso, recarregue a pagina para visualizar as atualizações!")
+                const body: AuthorizeCreditCardPaymentResponse = {
+                    MerchantOrderId: "2014111701",
+                    Customer: {
+                        Name: data.name,
+                        Identity: data.cpf,
+                        IdentityType: "CPF",
+                        Email: allUserData.usersPermissionsUser.data.attributes.email,
+                        Birthdate: "1991-01-02",
+                        Address: {
+                            Street: data.street,
+                            Number: data.number,
+                            Complement: data.complement ? data.complement : '',
+                            ZipCode: data.cep,
+                            City: data.city,
+                            State: data.state,
+                            Country: "BRA",
+                        },
+                        DeliveryAddress: {
+                            Street: data.street,
+                            Number: data.number,
+                            Complement: data.complement ? data.complement : '',
+                            ZipCode: data.cep,
+                            City: data.city,
+                            State: data.state,
+                            Country: "BRA",
+                        },
+                    },
+                    Payment: {
+                        Type: "CreditCard",
+                        Amount: parsedValue,
+                        Currency: "BRL",
+                        Country: "BRA",
+                        Provider: "Simulado",
+                        ServiceTaxAmount: 0,
+                        Installments: 1,
+                        Interest: "ByMerchant",
+                        Capture: 'true',
+                        Authenticate: 'false',
+                        Recurrent: 'false',
+                        CreditCard: {
+                            CardNumber: data.cardNumber.split(' ').join(''),
+                            Holder: data.name,
+                            ExpirationDate: transformCardExpirationDate(data.date),
+                            SecurityCode: data.cvv,
+                            SaveCard: "false",
+                            Brand: "Visa",
+                        },
+                    },
+                };
 
-
+                cieloRequestManager.authorizePayment(body).then(async (response) => {
+                    console.log(response)
+                    if (schedule_id) {
+                        userPaymentCard({
+                            variables: {
+                                value: Number(response.Payment.Amount / 100),
+                                schedulingId: schedule_id,
+                                userId: user_id,
+                                name: data.name,
+                                cpf: data.cpf,
+                                cvv: parseInt(data.cvv),
+                                date: convertToAmericanDate(data.date),
+                                countryID: '1',
+                                publishedAt: new Date().toISOString(),
+                                cep: data.cep,
+                                city: data.city,
+                                complement: data.complement,
+                                number: data.number,
+                                state: data.state,
+                                neighborhood: data.district,
+                                street: data.street,
+                                paymentId: response.Payment.PaymentId!,
+                                payedStatus: response.Payment.Status === 2 ? 'Payed' : 'Waiting',
+                            }
+                        }).then(async (response) => {
+                            console.log('pronto, agora descansa filho')
+                            await scheduleValueUpdate(parseFloat(data.value.replace(/[^\d.,]/g, '').replace(',', '.')));
+                            setShowCardPaymentModal(false);
+                            alert("Pagamento efetuado com sucesso, recarregue a pagina para visualizar as atualizações!")
+                        });
+                    }
+                })
+            }
         } catch (error) {
-            console.error("Erro durante o pagamento:", error);
+            console.error("Erro ao criar o agendamento:", error);
         }
     }
 
@@ -602,6 +681,25 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                     {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
                                 </View>
                                 <View>
+                                    <Text className='text-sm text-[#FF6112]'>Número do cartão</Text>
+                                    <Controller
+                                      name='cardNumber'
+                                      control={control}
+                                      render={({ field: { onChange } }) => (
+                                        <MaskInput
+                                          className='p-3 border border-neutral-400 rounded bg-white'
+                                          placeholder='Ex: 0000 0000 0000 0000'
+                                          mask={Masks.CREDIT_CARD}
+                                          keyboardType={'numeric'}
+                                          value={getValues('cardNumber')}
+                                          maxLength={19}
+                                          onChangeText={onChange}>
+                                        </MaskInput>
+                                      )}
+                                    ></Controller>
+                                    {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+                                </View>
+                                <View>
                                     <Text className='text-sm text-[#FF6112]'>CPF</Text>
                                     <Controller
                                         name='cpf'
@@ -665,7 +763,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             name='date'
                                             control={control}
                                             render={({ field: { onChange } }) => (
-                                                <TextInputMask className='p-3 border border-neutral-400 rounded bg-white'
+                                                <TextInputMask
+                                                  className='p-3 border border-neutral-400 rounded bg-white'
                                                     options={{
                                                         format: 'MM/YY',
                                                     }}
@@ -674,6 +773,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     onChangeText={onChange}
                                                     placeholder="MM/YY"
                                                     keyboardType="numeric"
+                                                  maxLength={5}
                                                 />
                                             )}
                                         ></Controller>
@@ -728,7 +828,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     className='p-3 border border-neutral-400 rounded bg-white'
                                                     placeholder='Ex: 00000-000'
                                                     value={getValues('cep')}
-                                                    maxLength={8}
+                                                    maxLength={9}
+                                                    mask={Masks.ZIP_CODE}
                                                     onChangeText={onChange}
                                                     keyboardType='numeric'>
                                                 </MaskInput>

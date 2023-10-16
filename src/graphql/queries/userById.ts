@@ -8,6 +8,7 @@ export interface IUserByIdResponse {
             id: User['id'];
             attributes: {
                 username: User['username'];
+                birthDate: User['birthDate']
                 email: User['email'];
                 phoneNumber: User['phoneNumber'];
                 cpf: User['cpf'];
@@ -76,6 +77,7 @@ query getUserById($id: ID) {
       id
       attributes {
         username
+        birthDate
         email
         phoneNumber
         cpf
