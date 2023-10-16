@@ -201,53 +201,58 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
 				console.log({totalValue})
 
-				cieloRequestManager.authorizePayment({
-					MerchantOrderId: Math.random().toString().split('.')[1],
-					Payment: {
-						Type: 'CreditCard',
-						Amount: totalValue,
-						Country: 'BRA',
-						CreditCard: {
-							CardNumber: data.cardNumber,
-							SaveCard: false,
-							Brand: 'Visa',
-							Holder: data.name,
-							SecurityCode: data.cvv,
-							ExpirationDate: transformCardExpirationDate(data.date),
-						},
-						Recurrent: 'false',
-						Capture: 'false',
-						Authenticate: 'false',
-						Installments: 1,
-						ServiceTaxAmount: 0,
-						Currency: 'BRL',
-					},
+				const body: AuthorizeCreditCardPaymentResponse = {
+					MerchantOrderId: "2014111701",
 					Customer: {
 						Name: data.name,
+						Identity: data.cpf,
+						IdentityType: "CPF",
+						Email: userData.usersPermissionsUser.data.attributes.email,
+						Birthdate: "1991-01-02",
 						Address: {
 							Street: data.street,
-							Country: 'BRA',
-							City: data.city,
-							ZipCode: data.cep,
 							Number: data.number,
-							Complement: data.complement,
-							State: data.state
+							Complement: data.complement ? data.complement : '',
+							ZipCode: data.cep,
+							City: data.city,
+							State: data.state,
+							Country: "BRA",
 						},
 						DeliveryAddress: {
 							Street: data.street,
-							Country: 'BRA',
-							City: data.city,
-							ZipCode: data.cep,
 							Number: data.number,
-							Complement: data.complement,
-							State: data.state
+							Complement: data.complement ? data.complement : '',
+							ZipCode: data.cep,
+							City: data.city,
+							State: data.state,
+							Country: "BRA",
 						},
-						Birthdate: '1991-10-10',
-						Email: userData.usersPermissionsUser.data.attributes.email,
-						// Identity: userData.usersPermissionsUser.data.attributes.cpf,
-						// IdentityType: 'cpf'
 					},
-				}).then(async (response) => {
+					Payment: {
+						Type: "CreditCard",
+						Amount: totalValue,
+						Currency: "BRL",
+						Country: "BRA",
+						Provider: "Simulado",
+						ServiceTaxAmount: 0,
+						Installments: 1,
+						Interest: "ByMerchant",
+						Capture: 'true',
+						Authenticate: 'false',
+						Recurrent: 'false',
+						CreditCard: {
+							CardNumber: data.cardNumber.split(' ').join(''),
+							Holder: data.name,
+							ExpirationDate: transformCardExpirationDate(data.date),
+							SecurityCode: data.cvv,
+							SaveCard: "false",
+							Brand: "Visa",
+						},
+					},
+				};
+
+				cieloRequestManager.authorizePayment(body).then(async (response) => {
+					console.log(response)
 					const newScheduleId = await createNewSchedule();
 					const countryId = getCountryIdByName(selected);
 					if (newScheduleId) {
@@ -268,13 +273,16 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								number: data.number,
 								state: data.state,
 								neighborhood: data.district,
-								street: data.street
+								street: data.street,
+								paymentId: response.Payment.PaymentId!
 							}
+						}).then((response) => {
+							console.log({strapi_response: response})
+							updateStatusDisponibleCourt();
+							handleSaveCard();
+							navigation.navigate('InfoReserva', {userId: userId})
 						});
 					}
-					updateStatusDisponibleCourt();
-					handleSaveCard();
-					navigation.navigate('InfoReserva', {userId: userId})
 				})
 			}
 		} catch (error) {
