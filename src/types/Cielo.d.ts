@@ -43,7 +43,7 @@ type CreditCard = {
 type Payment = {
 	ServiceTaxAmount: number;
 	Installments: number;
-	Interest: string | number;
+	Interest?: string | number;
 	Capture: keyof typeof StringedBoolean;
 	Authenticate: keyof typeof StringedBoolean;
 	Recurrent: keyof typeof StringedBoolean;

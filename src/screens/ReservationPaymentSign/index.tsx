@@ -17,7 +17,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { isValidCPF } from "../../utils/isValidCpf";
 import MaskInput, { Masks } from 'react-native-mask-input';
 import useCountries from '../../hooks/useCountries'
-import { convertToAmericanDate } from "../../utils/formatDate";
 import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabilityStatus";
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -25,9 +24,11 @@ import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import {useGetUserById} from "../../hooks/useUserById";
 import getAddress from "../../utils/getAddressByCep";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {CieloRequestManager} from "../../services/cieloRequestManager";
+import {transformCardExpirationDate} from "../../utils/transformCardExpirationDate";
+import {convertToAmericanDate} from "../../utils/formatDate";
 
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
-
 	const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
 	const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
 	const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
@@ -48,7 +49,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		setShowCard(!showCard);
 		setShowCameraIcon(false);
 	};
-
 
 	const handleSaveCard = () => {
 		setShowCard(false);
@@ -124,6 +124,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		complement: string
 		city: string
 		state: string
+		cardNumber: string
 	}
 
 	const formSchema = z.object({
@@ -150,12 +151,13 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			}
 			return true;
 		}, { message: "A data de vencimento é inválida" }),
-		cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(8, "CEP inválido"),
+		cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(9, "CEP inválido"),
 		number: z.string().nonempty("É necessário inserir o numero da residência"),
 		street: z.string().nonempty("É necessário inserir o nome da rua"),
 		district: z.string().nonempty("É necessário inserir o bairro"),
 		city: z.string().nonempty("É necessário inserir o nome da cidade"),
-		state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido")
+		state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido"),
+		cardNumber: z.string().nonempty('É necessário inserir o número do cartão'),
 	})
 
 	const {
@@ -193,34 +195,88 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
 	const pay = async (data: iFormCardPayment) => {
 		try {
-			console.log(data)
-			// const newScheduleId = await createNewSchedule();
-			// const countryId = getCountryIdByName(selected);
-			// if (newScheduleId) {
-			//     userPaymentCard({
-			//         variables: {
-			//             value: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-			//             schedulingId: newScheduleId.toString(),
-			//             userId: userId,
-			//             name: data.name,
-			//             cpf: data.cpf,
-			//             cvv: parseInt(data.cvv),
-			//             date: convertToAmericanDate(data.date),
-			//             countryID: countryId,
-			//             publishedAt: new Date().toISOString(),
-			//             cep: data.cep,
-			//             city: data.city,
-			//             complement: data.complement,
-			//             number: data.number,
-			//             state: data.state,
-			//             neighborhood: data.district,
-			//             street: data.street
-			//         }
-			//     });
-			// }
-			// updateStatusDisponibleCourt();
-			// handleSaveCard();
-			// navigation.navigate('InfoReserva', {userId: userId})
+			if (userData) {
+				const cieloRequestManager = new CieloRequestManager();
+				const totalValue = (Number(amountToPay.toFixed(2)) + Number(serviceValue.toFixed(2))) * 100;
+
+				console.log({totalValue})
+
+				cieloRequestManager.authorizePayment({
+					MerchantOrderId: Math.random().toString().split('.')[1],
+					Payment: {
+						Type: 'CreditCard',
+						Amount: totalValue,
+						Country: 'BRA',
+						CreditCard: {
+							CardNumber: data.cardNumber,
+							SaveCard: false,
+							Brand: 'Visa',
+							Holder: data.name,
+							SecurityCode: data.cvv,
+							ExpirationDate: transformCardExpirationDate(data.date),
+						},
+						Recurrent: 'false',
+						Capture: 'false',
+						Authenticate: 'false',
+						Installments: 1,
+						ServiceTaxAmount: 0,
+						Currency: 'BRL',
+					},
+					Customer: {
+						Name: data.name,
+						Address: {
+							Street: data.street,
+							Country: 'BRA',
+							City: data.city,
+							ZipCode: data.cep,
+							Number: data.number,
+							Complement: data.complement,
+							State: data.state
+						},
+						DeliveryAddress: {
+							Street: data.street,
+							Country: 'BRA',
+							City: data.city,
+							ZipCode: data.cep,
+							Number: data.number,
+							Complement: data.complement,
+							State: data.state
+						},
+						Birthdate: '1991-10-10',
+						Email: userData.usersPermissionsUser.data.attributes.email,
+						// Identity: userData.usersPermissionsUser.data.attributes.cpf,
+						// IdentityType: 'cpf'
+					},
+				}).then(async (response) => {
+					const newScheduleId = await createNewSchedule();
+					const countryId = getCountryIdByName(selected);
+					if (newScheduleId) {
+						userPaymentCard({
+							variables: {
+								value: response.Payment.Amount,
+								schedulingId: newScheduleId.toString(),
+								userId: userId,
+								name: data.name,
+								cpf: data.cpf,
+								cvv: parseInt(data.cvv),
+								date: convertToAmericanDate(data.date),
+								countryID: countryId,
+								publishedAt: new Date().toISOString(),
+								cep: data.cep,
+								city: data.city,
+								complement: data.complement,
+								number: data.number,
+								state: data.state,
+								neighborhood: data.district,
+								street: data.street
+							}
+						});
+					}
+					updateStatusDisponibleCourt();
+					handleSaveCard();
+					navigation.navigate('InfoReserva', {userId: userId})
+				})
+			}
 		} catch (error) {
 			console.error("Erro ao criar o agendamento:", error);
 		}
@@ -390,6 +446,25 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
 							</View>
 							<View>
+								<Text className='text-sm text-[#FF6112]'>Número do Cartão</Text>
+								<Controller
+									name='cardNumber'
+									control={control}
+									render={({ field: { onChange } }) => (
+										<MaskInput
+											className='p-3 border border-gray-500 rounded-md h-18'
+											placeholder='Ex: 0000 0000 0000 0000'
+											mask={Masks.CREDIT_CARD}
+											maxLength={19}
+											keyboardType={'numeric'}
+											value={getValues('cardNumber')}
+											onChangeText={onChange}>
+										</MaskInput>
+									)}
+								></Controller>
+								{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+							</View>
+							<View>
 								<Text className='text-sm text-[#FF6112]'>CPF</Text>
 								<Controller
 									name='cpf'
@@ -434,13 +509,15 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 										name='cep'
 										control={control}
 										render={({ field: { onChange } }) => (
-											<TextInput
+											<MaskInput
 												className='p-3 border border-gray-500 rounded-md h-18'
 												placeholder='Ex: 00000-000'
 												value={getValues('cep')}
 												keyboardType='numeric'
-												onChangeText={onChange}>
-											</TextInput>
+												mask={Masks.ZIP_CODE}
+												maxLength={9}
+												onChangeText={(masked, unmasked) => onChange(unmasked)}>
+											</MaskInput>
 										)}
 									></Controller>
 									{errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
@@ -535,6 +612,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 												className='p-3 border border-gray-500 rounded-md h-18'
 												placeholder='Ex: XX'
 												value={getValues('state')}
+												maxLength={2}
 												onChangeText={onChange}>
 											</TextInput>
 										)}

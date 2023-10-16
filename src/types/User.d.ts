@@ -10,4 +10,5 @@ type User = {
     longitude: string
     streetName: string
     photo?: Photo
+    birthDate?: string
 }
