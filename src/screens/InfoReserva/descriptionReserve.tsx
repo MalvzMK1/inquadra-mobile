@@ -133,7 +133,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
             return inputDate.getTime() > currentDate.getTime();
         }, "A data de vencimento é inválida"),
-        cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(9, "CEP inválido"),
+        cep: z.string().nonempty("É necessário inserir o CEP").min(9, "CEP inválido").max(9, "CEP inválido"),
         number: z.string().nonempty("É necessário inserir o numero da residência"),
         street: z.string().nonempty("É necessário inserir o nome da rua"),
         district: z.string().nonempty("É necessário inserir o bairro"),
