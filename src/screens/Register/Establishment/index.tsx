@@ -68,32 +68,28 @@ export default function RegisterEstablishment({
         longitude: number;
       }>({ key: "userGeolocation" });
 
-      const { data } = await addEstablishment({
-        variables: {
-          amenities: amenities,
-          cellphone_number: values.phone,
-          cnpj: values.cnpj,
-          cep: values.address.cep,
-          corporate_name: values.corporateName,
-          phone_number: values.phone,
-          street_name: values.address.streetName,
-          photos: [],
-          latitude: userGeolocation.latitude.toString(),
-          longitude: userGeolocation.longitude.toString(),
-          ownerId: route.params.id,
-        },
-      });
-
-      if (!data) {
-        throw new Error("No data");
+      const establishmentRegisterData = {
+        amenities: amenities,
+        cellphone_number: values.phone,
+        cnpj: values.cnpj,
+        cep: values.address.cep,
+        corporate_name: values.corporateName,
+        phone_number: values.phone,
+        street_name: values.address.streetName,
+        photos: [],
+        latitude: userGeolocation.latitude.toString(),
+        longitude: userGeolocation.longitude.toString(),
+        // ownerId: route.params.id,
       }
 
-      await AsyncStorage.setItem(
-        "@inquadra/registering-establishment-id",
-        data.createEstablishment.data.id,
-      );
+      // await AsyncStorage.setItem(
+      //   "@inquadra/registering-establishment-id",
+      //   data.createEstablishment.data.id,
+      // );
 
       navigation.navigate("RegisterCourts", {
+        profileInfos: route.params,
+        establishmentInfos: establishmentRegisterData,
         cnpj: values.cnpj,
         address: values.address,
         corporateName: values.corporateName,

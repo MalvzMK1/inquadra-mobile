@@ -27,3 +27,20 @@ type CourtAdd = {
   minimum_value: number;
   currentDate: string;
 };
+
+type CourtAddRawPayload = {
+  court_name: string;
+  courtType: string[];
+  fantasyName: string;
+  photos: { uri: string }[];
+  court_availabilities: TAppointment[][];
+  minimum_value: number;
+  currentDate: string;
+  dayUse: boolean[];
+};
+
+type TAppointment = {
+  startsAt: string;
+  endsAt: string;
+  price: string;
+}

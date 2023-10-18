@@ -23,6 +23,7 @@ import { z } from "zod";
 import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { Appointment } from "../CourtPriceHour";
+import { HOST_API } from '@env';
 
 const indexToWeekDayMap: Record<number, string> = {
   0: "Sunday",
@@ -68,8 +69,8 @@ export default function RegisterCourt({
   route,
 }: NativeStackScreenProps<RootStackParamList, "RegisterCourts">) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [courts, setCourts] = useState<CourtArrayObject[]>([]);
+  const [selectedCourtTypes, setSelectedCourtTypes] = useState<string[]>([]);
+  const [courts, setCourts] = useState<CourtAddRawPayload[]>([]);
   const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
   const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false);
   const [photos, setPhotos] = useState<Array<{ uri: string }>>([]);
@@ -90,105 +91,149 @@ export default function RegisterCourt({
   });
 
   async function register(data: IFormDatasCourt, shouldRedirect = false) {
-    setIsLoading(true);
+    setIsLoading(true)
+
+    const [storageDayUse, storageAvailabilities] = await Promise.all([
+      AsyncStorage.getItem('@inquadra/court-price-hour_day-use'),
+      AsyncStorage.getItem('@inquadra/court-price-hour_all-appointments'),
+    ])
+
+    const selectedCourtTypeIds: string[] = [];
+
+    selectedCourtTypes.forEach(selectedType => {
+      courtTypes.forEach(type => {
+        if (type.value === selectedType) {
+          selectedCourtTypeIds.push(type.label);
+        }
+      });
+    });
 
     try {
-      const courtIds: string[] = [];
-
-      selected.forEach(selectedType => {
-        courtTypes.forEach(type => {
-          if (type.value === selectedType) {
-            courtIds.push(type.label);
-          }
-        });
-      });
-
-      const [storageDayUse, storageAvailabilities] = await Promise.all([
-        AsyncStorage.getItem("@inquadra/court-price-hour_day-use"),
-        AsyncStorage.getItem("@inquadra/court-price-hour_all-appointments"),
-      ]);
-
       let dayUse: boolean[];
       let allAvailabilities: Appointment[][];
 
       if (
-        !storageDayUse ||
-        !storageAvailabilities ||
-        !(dayUse = JSON.parse(storageDayUse))?.length ||
-        !(allAvailabilities = JSON.parse(storageAvailabilities))?.some(
+        storageDayUse &&
+        storageAvailabilities &&
+        (dayUse = JSON.parse(storageDayUse)).length &&
+        (allAvailabilities = JSON.parse(storageAvailabilities)).some(
           (availabilities: Appointment[]) => availabilities.length > 0,
         )
       ) {
-        return Alert.alert("Erro", "Preencha os valores e horários.");
-      }
+        const payload: CourtAddRawPayload = {
+          court_name: data.court_name,
+          courtType: selectedCourtTypeIds,
+          minimum_value: Number(data.minimum_value) / 100,
+          fantasyName: data.fantasyName,
+          photos,
+          court_availabilities: allAvailabilities,
+          dayUse,
+          currentDate: new Date().toISOString(),
+        }
 
-      const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
-        uploadImages(),
-        Promise.all(
-          allAvailabilities.flatMap((availabilities, index) => {
-            return availabilities.map(async availability => {
-              const { data } = await registerCourtAvailability({
-                variables: {
-                  status: true,
-                  title: "O que deve vir aqui?",
-                  day_use_service: dayUse[index],
-                  starts_at: `${availability.startsAt}:00.000`,
-                  ends_at: `${availability.endsAt}:00.000`,
-                  value: Number(
-                    availability.price
-                      .replace("R$", "")
-                      .replace(".", "")
-                      .replace(",", ".")
-                      .trim(),
-                  ),
-                  week_day: indexToWeekDayMap[index],
-                },
-              });
+        if (shouldRedirect) {
+          navigation.navigate("AllVeryWell", {
+            courtArray: [...courts, payload],
+          });
+        } else {
+          await Promise.all([
+            AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
+            AsyncStorage.removeItem(
+              "@inquadra/court-price-hour_all-appointments",
+            ),
+          ]);
 
-              if (!data) {
-                throw new Error("No data");
-              }
+          reset()
+          setPhotos([]);
+          setSelectedCourtTypes([]);
+          setCourtTypes([]);
+          setCourts(prevState => [...prevState, payload]);
 
-              return data.createCourtAvailability.data.id;
-            });
-          }),
-        ),
-      ]);
-
-      const payload: CourtAdd = {
-        court_name: `Quadra de ${selected}`,
-        courtType: courtIds,
-        fantasyName: data.fantasyName,
-        photos: uploadedImageIds,
-        court_availabilities: courtAvailabilityIds,
-        minimum_value: Number(data.minimum_value) / 100,
-        currentDate: new Date().toISOString(),
-      };
-
-      if (shouldRedirect) {
-        navigation.navigate("AllVeryWell", {
-          courtArray: [...courts, payload],
-        });
-      } else {
-        await Promise.all([
-          AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
-          AsyncStorage.removeItem(
-            "@inquadra/court-price-hour_all-appointments",
-          ),
-        ]);
-
-        reset();
-        setPhotos([]);
-        setSelected([]);
-        setCourtTypes([]);
-        setCourts(currentCourts => [...currentCourts, payload]);
-      }
+          console.log(courts)
+        }
+      } else Alert.alert('Erro', 'Preencha os valores e horários.');
     } catch (error) {
       console.error(JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível registrar a quadra");
     } finally {
       setIsLoading(false);
     }
+
+
+
+
+    // console.log(`${data}\n${photos}\n${selectedCourtTypes}\n${storageDayUse}\n${storageAvailabilities}\n${route.params.establishmentInfos.cnpj}`)
+
+    // setIsLoading(true);
+    //
+    // try {
+
+    //
+    //   let dayUse: boolean[];
+    //   let allAvailabilities: Appointment[][];
+    //
+    //   if (
+    //     !storageDayUse ||
+    //     !storageAvailabilities ||
+    //     !(dayUse = JSON.parse(storageDayUse))?.length ||
+    //     !(allAvailabilities = JSON.parse(storageAvailabilities))?.some(
+    //       (availabilities: Appointment[]) => availabilities.length > 0,
+    //     )
+    //   ) {
+    //     return Alert.alert("Erro", "Preencha os valores e horários.");
+    //   }
+    //
+    //   const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
+    //     uploadImages(),
+    //     Promise.all(
+    //       allAvailabilities.flatMap((availabilities, index) => {
+    //         return availabilities.map(async availability => {
+    //           const { data } = await registerCourtAvailability({
+    //             variables: {
+    //               status: true,
+    //               title: "O que deve vir aqui?",
+    //               day_use_service: dayUse[index],
+    //               starts_at: `${availability.startsAt}:00.000`,
+    //               ends_at: `${availability.endsAt}:00.000`,
+    //               value: Number(
+    //                 availability.price
+    //                   .replace("R$", "")
+    //                   .replace(".", "")
+    //                   .replace(",", ".")
+    //                   .trim(),
+    //               ),
+    //               week_day: indexToWeekDayMap[index],
+    //             },
+    //           });
+    //
+    //           if (!data) {
+    //             throw new Error("No data");
+    //           }
+    //
+    //           return data.createCourtAvailability.data.id;
+    //         });
+    //       }),
+    //     ),
+    //   ]);
+    //
+    //   const payload: CourtAdd = {
+    //     court_name: `Quadra de ${selected}`,
+    //     courtType: courtIds,
+    //     fantasyName: data.fantasyName,
+    //     photos: uploadedImageIds,
+    //     court_availabilities: courtAvailabilityIds,
+    //     minimum_value: Number(data.minimum_value) / 100,
+    //     currentDate: new Date().toISOString(),
+    //   };
+    //
+    //   if (shouldRedirect) {
+
+    //   } else {
+
+    //
+    //     reset();
+    //     setCourts(currentCourts => [...currentCourts, payload]);
+    //   }
   }
 
   const registerNewCourt = handleSubmit(async (data: IFormDatasCourt) => {
@@ -240,7 +285,6 @@ export default function RegisterCourt({
 
   const uploadImages = async () => {
     const formData = new FormData();
-    const apiUrl = "https://inquadra-api-uat.qodeless.io";
 
     for (let index = 0; index < photos.length; index++) {
       const { uri } = photos[index];
@@ -254,7 +298,7 @@ export default function RegisterCourt({
     }
 
     const response = await axios.post<Array<{ id: string }>>(
-      `${apiUrl}/api/upload`,
+      `${HOST_API}/api/upload`,
       formData,
       {
         headers: {
@@ -305,7 +349,7 @@ export default function RegisterCourt({
               render={({ field: { onChange } }) => (
                 <MultipleSelectList
                   setSelected={(val: []) => {
-                    setSelected(val);
+                    setSelectedCourtTypes(val);
                     onChange([val]);
                   }}
                   data={courtTypes}
@@ -465,7 +509,7 @@ export default function RegisterCourt({
           <TouchableOpacity
             className="border-t border-neutral-400 border-b flex flex-row p-5 items-center"
             onPress={() => {
-              if (selected.length === 0) {
+              if (selectedCourtTypes.length === 0) {
                 setIsCourtTypeEmpty(true);
               } else {
                 setIsCourtTypeEmpty(false);
@@ -478,7 +522,7 @@ export default function RegisterCourt({
               size={38}
               color="#FF6112"
               onPress={() => {
-                if (selected.length === 0) {
+                if (selectedCourtTypes.length === 0) {
                   setIsCourtTypeEmpty(true);
                 } else {
                   setIsCourtTypeEmpty(false);
@@ -504,7 +548,7 @@ export default function RegisterCourt({
               <TouchableOpacity
                 className="h-14 w-full rounded-md bg-[#FF6112] flex items-center justify-center"
                 onPress={() => {
-                  if (selected.length === 0) {
+                  if (selectedCourtTypes.length === 0) {
                     setIsCourtTypeEmpty(true);
                   } else {
                     setIsCourtTypeEmpty(false);
