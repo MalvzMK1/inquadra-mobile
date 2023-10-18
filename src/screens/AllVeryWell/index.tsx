@@ -146,6 +146,7 @@ export default function AllVeryWell({
                         .trim(),
                     ),
                     week_day: indexToWeekDayMap[index],
+                    publishedAt: new Date().toISOString(),
                   },
                 });
 
