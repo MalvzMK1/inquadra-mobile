@@ -6,10 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Register/Establishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Establishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/registerEstablishment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/registerEstablishment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/AllVeryWell/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/AllVeryWell/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/RegisterCourt/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/RegisterCourt/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/Court.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Court.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -90,6 +89,7 @@
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "WI564T770",
+    "js.last.introduce.type": "CONST",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -145,7 +145,7 @@
       <workItem from="1696499741544" duration="658000" />
       <workItem from="1697020525733" duration="4679000" />
       <workItem from="1697541465668" duration="1917000" />
-      <workItem from="1697620663349" duration="9513000" />
+      <workItem from="1697620663349" duration="15623000" />
     </task>
     <servers />
   </component>

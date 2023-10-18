@@ -145,14 +145,14 @@ type RootStackParamList = {
       role: string;
     };
     establishmentInfos: {
-      amenities: string[]; // Substitua o tipo "string[]" pelo tipo correto dos itens em "amenities".
+      amenities: string[];
       cellphone_number: string;
       cnpj: string;
       cep: string;
       corporate_name: string;
       phone_number: string;
       street_name: string;
-      photos: string[]; // Substitua o tipo "string[]" pelo tipo correto dos itens em "photos".
+      photos: string[];
       latitude: string;
       longitude: string;
     }
@@ -170,6 +170,26 @@ type RootStackParamList = {
     courtArray: CourtAdd[];
   };
   AllVeryWell: {
+    profileInfos: {
+      username: string;
+      cpf: string;
+      email: string;
+      password: string;
+      phone_number: string;
+      role: string;
+    };
+    establishmentInfos: {
+      amenities: string[];
+      cellphone_number: string;
+      cnpj: string;
+      cep: string;
+      corporate_name: string;
+      phone_number: string;
+      street_name: string;
+      photos: string[];
+      latitude: string;
+      longitude: string;
+    };
     courtArray: CourtAddRawPayload[];
   };
   CourtDetails: {
