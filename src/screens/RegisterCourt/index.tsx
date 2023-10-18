@@ -25,17 +25,6 @@ import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { Appointment } from "../CourtPriceHour";
 import { HOST_API } from '@env';
 
-const indexToWeekDayMap: Record<number, string> = {
-  0: "Sunday",
-  1: "Monday",
-  2: "Tuesday",
-  3: "Wednesday",
-  4: "Thursday",
-  5: "Friday",
-  6: "Saturday",
-  7: "SpecialDays",
-};
-
 const formSchema = z.object({
   minimum_value: z
     .string()
@@ -74,7 +63,6 @@ export default function RegisterCourt({
   const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
   const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false);
   const [photos, setPhotos] = useState<Array<{ uri: string }>>([]);
-  const [registerCourtAvailability] = useRegisterCourtAvailability();
   const {
     data: dataSportTypeAvaible,
     loading: loadingSportTypeAvaible,
@@ -134,6 +122,8 @@ export default function RegisterCourt({
         if (shouldRedirect) {
           navigation.navigate("AllVeryWell", {
             courtArray: [...courts, payload],
+            profileInfos: route.params.profileInfos,
+            establishmentInfos: route.params.establishmentInfos,
           });
         } else {
           await Promise.all([
@@ -146,7 +136,6 @@ export default function RegisterCourt({
           reset()
           setPhotos([]);
           setSelectedCourtTypes([]);
-          setCourtTypes([]);
           setCourts(prevState => [...prevState, payload]);
 
           console.log(courts)
@@ -159,30 +148,6 @@ export default function RegisterCourt({
       setIsLoading(false);
     }
 
-
-
-
-    // console.log(`${data}\n${photos}\n${selectedCourtTypes}\n${storageDayUse}\n${storageAvailabilities}\n${route.params.establishmentInfos.cnpj}`)
-
-    // setIsLoading(true);
-    //
-    // try {
-
-    //
-    //   let dayUse: boolean[];
-    //   let allAvailabilities: Appointment[][];
-    //
-    //   if (
-    //     !storageDayUse ||
-    //     !storageAvailabilities ||
-    //     !(dayUse = JSON.parse(storageDayUse))?.length ||
-    //     !(allAvailabilities = JSON.parse(storageAvailabilities))?.some(
-    //       (availabilities: Appointment[]) => availabilities.length > 0,
-    //     )
-    //   ) {
-    //     return Alert.alert("Erro", "Preencha os valores e horários.");
-    //   }
-    //
     //   const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
     //     uploadImages(),
     //     Promise.all(
@@ -225,15 +190,6 @@ export default function RegisterCourt({
     //     minimum_value: Number(data.minimum_value) / 100,
     //     currentDate: new Date().toISOString(),
     //   };
-    //
-    //   if (shouldRedirect) {
-
-    //   } else {
-
-    //
-    //     reset();
-    //     setCourts(currentCourts => [...currentCourts, payload]);
-    //   }
   }
 
   const registerNewCourt = handleSubmit(async (data: IFormDatasCourt) => {
