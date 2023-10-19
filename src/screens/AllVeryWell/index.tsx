@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import {ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import useRegisterCourt from "../../hooks/useRegisterCourt";
 import axios from "axios";
@@ -21,6 +21,7 @@ export default function AllVeryWell({
   const [registerUser] = useRegisterUser()
   const [registerEstablishment] = useRegisterEstablishment()
   const [userId, setUserId] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const courts = route.params.courtArray;
 
@@ -119,6 +120,7 @@ export default function AllVeryWell({
   }
 
   async function handleComplete() {
+    setIsLoading(true);
     try {
       const userId = await registerUserPersonalInfos(route.params.profileInfos);
       const establishmentId = await registerEstablishmentInfos(userId, route.params.establishmentInfos);
@@ -184,6 +186,8 @@ export default function AllVeryWell({
       console.log("Erro externo:", error);
       console.log(userId)
       Alert.alert("Erro", "Não foi possível cadastrar as quadras");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -272,8 +276,14 @@ export default function AllVeryWell({
         <TouchableOpacity
           className="h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center"
           onPress={handleComplete}
+          disabled={isLoading}
         >
-          <Text className="text-gray-50">Concluir</Text>
+          {
+            !isLoading ?
+              <Text className="text-gray-50">Concluir</Text>
+              :
+              <ActivityIndicator size={'small'} color={'#F5620F'} />
+          }
         </TouchableOpacity>
       </View>
     </View>

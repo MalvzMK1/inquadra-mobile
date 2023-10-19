@@ -162,6 +162,24 @@ type RootStackParamList = {
     value: string;
     userID: string;
     scheduleID?: number;
+    QRcodeURL: string;
+    paymentID: string;
+    userPaymentPixID: string;
+    serviceRate?: number;
+    schedulePrice?: number;
+    scheduleValuePayed?: number;
+    screen: "signal" | "historic" | "updateSchedule";
+    court_availabilityID?: string;
+    date?: string;
+    pay_day?: string;
+    value_payed?: number;
+    ownerID?: string;
+    service_value?: number;
+    isPayed?: boolean;
+    userMoney?: number;
+    newDate?: string;
+    randomKey?: string;
+    isPayed?: boolean;
   };
   RegisterNewCourt: {
     courtArray: CourtAdd[];

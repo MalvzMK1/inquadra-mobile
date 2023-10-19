@@ -7,11 +7,20 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
 import { HOST_API } from '@env';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useCreateCharge, usePixInfosByTxid} from "../../services/inter";
+import { useCreateCharge, usePixInfosByTxid } from "../../services/inter";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
 import { useCreateStrapiPixCharge } from "../../hooks/useCreateStrapiPixCharge";
+import { verifyPixStatus } from '../../services/pixCielo';
+import { ceil } from 'react-native-reanimated';
+import useUpdateUserPaymentPix from '../../hooks/useUpdateUserPaymentPix';
+import { useInfoSchedule } from '../../hooks/useInfoSchedule';
+import useUpdateScheduleValue from '../../hooks/useUpdateScheduleValue';
+import { generateRandomKey } from '../../utils/activationKeyGenerate';
+import { useRegisterSchedule } from '../../hooks/useRegisterSchedule';
+import useUpdateScheduleDay from '../../hooks/useUpdateScheduleDay';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
@@ -21,33 +30,195 @@ interface IPixInfos {
 }
 
 export default function PixScreen({ navigation, route }: RouteParams) {
-    const { courtName, value, userID, scheduleID } = route.params
+    const { courtName, value, userID, scheduleID, QRcodeURL, paymentID } = route.params
     const formattedValue = Number(value).toFixed(2)
 
-    const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
-    const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(route.params.userID);
-    const {} = usePixInfosByTxid()
+    const { data: scheduleData, loading: isScheduleLoaging, error: scheduleError, refetch: scheduleRefetch } = useGetSchedulingsDetails(route.params.scheduleID?.toString() ?? "");
+    const { data: userData, loading: isUserDataLoading, error: userDataError, refetch: userRefetch } = useGetUserById(route.params.userID);
     const [createCharge, { data: chargeData, loading: chargeLoading, error: chargeError }] = useCreateCharge();
     const [createStrapiCharge, { data: strapiChargeData, loading: isStrapiChargeLoading, error: strapiChargeError }] = useCreateStrapiPixCharge();
+    const [updateScheduleValue, { data: dataScheduleValue, error: errorScheduleValue, loading: loadingScheduleValue }] = useUpdateScheduleValue()
+    const [updateUserPaymentPix, { data: dataUpdateUserPaymentPix, loading: loadingUpdateUserPaymentPix, error: errorUpdateUserPaymentPix }] = useUpdateUserPaymentPix()
+    const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
+    const [updateSchedule, { data: dataUpdateSchedule, error: errorUpdateSchedule, loading: loadingUpdateSchedule }] = useUpdateScheduleDay()
+    const schedulePrice = route.params.schedulePrice!
+    const scheduleValuePayed = route.params.scheduleValuePayed!
 
     const [userPhotoUri, setUserPhotoUri] = useState<string | null>(null);
     const [userAddress, setUserAddress] = useState<APICepResponse>();
     const [pixInfos, setPixInfos] = useState<IPixInfos | null>(null);
+    const [statusPix, setStatusPix] = useState("waiting")
+    const valueToPay = parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.'))
+    const [hasExecuted, setHasExecuted] = useState(false);
 
-    const handleCopiarTexto = () => {
-        if (pixInfos) {
-            Clipboard.setStringAsync(pixInfos.pixCode)
-                .finally(() => Toast.show({
-                    type: 'success',
-                    text1: 'Texto copiado',
-                    text2: 'O texto foi copiado para a área de transferência.',
-                    position: 'bottom',
-                    visibilityTime: 2000,
-                })
-                );
+    useFocusEffect(() => {
+        setHasExecuted(false)
+        setStatusPix("waiting")
+    })
 
-        }
+
+    const handleCopiarTexto = async () => {
+        await Clipboard.setStringAsync(QRcodeURL);
+        Toast.show({
+            type: 'success',
+            text1: 'Texto copiado',
+            text2: 'O texto foi copiado para a área de transferência.',
+            position: 'bottom',
+            visibilityTime: 2000,
+        });
     };
+
+    useEffect(() => {
+        let isMounted = true;
+        setStatusPix("waiting")
+
+        function checkStatus() {
+            verifyPixStatus(paymentID).then((response) => {
+                if (isMounted) {
+                    if (response.Payment.Status === 2) {
+                        setStatusPix("payed");
+                    } else if (response.Payment.Status === 13) {
+                        setStatusPix("cancelled");
+                    } else {
+                        setStatusPix("waiting");
+                    }
+                }
+            });
+        }
+
+        const intervalId = setInterval(checkStatus, 2500);
+
+        return () => {
+            isMounted = false;
+            clearInterval(intervalId);
+        };
+    }, []);
+
+
+    const scheduleValueUpdate = async (value: number) => {
+        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
+        let valuePayedUpdate = value + scheduleValuePayed!
+        let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
+
+        try {
+            await updateScheduleValue({
+                variables: {
+                    payed_status: validatePayment,
+                    scheduling_id: scheduleID!,
+                    value_payed: valuePayedUpdate,
+                    activated: false,
+                    activation_key: activation_key
+                }
+            })
+        } catch (error) {
+            console.log("Erro na mutação updateValueSchedule", error)
+        }
+    }
+
+
+    const createNewSchedule = async () => {
+        let isPayed = route.params.isPayed!
+        try {
+            const create = await createSchedule({
+                variables: {
+                    title: 'r',
+                    court_availability: route.params.court_availabilityID!,
+                    date: route.params.date!,
+                    pay_day: route.params.pay_day!,
+                    value_payed: route.params.value_payed!,
+                    owner: userID,
+                    users: [userID],
+                    activation_key: isPayed ? generateRandomKey(4) : null,
+                    service_value: route.params.service_value!,
+                    publishedAt: new Date().toISOString()
+                }
+
+            });
+
+            return create.data?.createScheduling?.data?.id
+
+        } catch (error) {
+            console.error("Erro na mutação createSchedule:", error);
+        }
+    }
+
+    const updateScheduleDay = async (isPayed: boolean, activationKey: string | null) => {
+        const paymentStatus: string = isPayed ? "payed" : "waiting"
+        try {
+            updateSchedule({
+                variables: {
+                    availabilityID: route.params.court_availabilityID?.toString()!,
+                    newDate: route.params.newDate!,
+                    scheduleID: route.params.scheduleID?.toString()!,
+                    payedStatus: paymentStatus,
+                    newValue: route.params.userMoney!,
+                    activationKey: activationKey
+                }
+            })
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    useFocusEffect(
+        React.useCallback(() => {
+            if (route.params.screen === "historic") {
+                if (statusPix === "payed") {
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Pagamento',
+                        text2: 'Efetuado com sucesso',
+                        position: 'bottom',
+                        visibilityTime: 2000,
+                    });
+                    updateUserPaymentPix({
+                        variables: { userPaymentPixID: route.params.userPaymentPixID, scheduleID: scheduleID?.toString()! }
+                    });
+    
+                    scheduleValueUpdate(valueToPay).then(() => {
+                        navigation.navigate('InfoReserva', { userId: userID });
+                        setStatusPix("waiting");
+                    });
+                }
+            } else if (route.params.screen === "signal") {
+                if (!hasExecuted) {
+                    if (statusPix === "payed") {
+                        createNewSchedule().then((scheduleID) => {
+                            setHasExecuted(true);
+                            updateUserPaymentPix({
+                                variables: {
+                                    userPaymentPixID: route.params.userPaymentPixID,
+                                    scheduleID: scheduleID?.toString()!
+                                }
+                            }).then(() => {
+                                scheduleValueUpdate(valueToPay).then(() => {
+                                    navigation.navigate('InfoReserva', { userId: userID });
+                                    setStatusPix("waiting");
+                                });
+                            });
+                        });
+                    }
+                }
+            } else {
+                if (statusPix === "payed") {
+                    updateScheduleDay(route.params.isPayed!, route.params.randomKey!).then(() => {
+                        updateUserPaymentPix({
+                            variables: {
+                                userPaymentPixID: route.params.userPaymentPixID,
+                                scheduleID: route.params.scheduleID!.toString()!
+                            }
+                        }).then(() => {
+                            navigation.navigate('InfoReserva', { userId: userID });
+                            setStatusPix("waiting");
+                        });
+                    });
+                }
+            }
+        }, [statusPix])
+    );
+    
 
     useEffect(() => {
         if (
@@ -120,7 +291,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                             publishedAt: new Date().toISOString()
                         }
                     }).then(response => {
-                        console.log({STRAPI_RESPONSE_DATA: response.data})
+                        console.log({ STRAPI_RESPONSE_DATA: response.data })
                     })
                 }
                 if (response.errors)
@@ -133,18 +304,12 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         }
     }, [userData, userAddress, scheduleData])
 
-    useEffect(() => {
-        if (pixInfos) {
-            console.log({PIX_CODE: pixInfos.pixCode})
-        }
-    }, [pixInfos])
-
     return (
         <View className='h-full w-max bg-white'>
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => console.log(pixInfos?.txid)}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.goBack()}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>
@@ -166,9 +331,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             <View className='h-max w-max flex items-center justify-start pt-16'>
                 <Text className='font-black font text-xl pb-5'>{courtName}</Text>
                 <View>
-                    {
-                        pixInfos && <QRCode value={pixInfos.pixCode} size={200} />
-                    }
+                    <QRCode value={QRcodeURL} size={200} />
                 </View>
                 <Text className='font-black font text-xl pt-2 pb-3'>Pagamento do Sinal</Text>
                 <View className='h-14 w-screen bg-gray-300 justify-center items-center '>
@@ -179,6 +342,13 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                         <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
                     </View>
                 </TouchableOpacity>
+                {
+                    statusPix === "waiting"
+                        ? <Text>Aguardando pagamento...</Text>
+                        : statusPix === "payed"
+                            ? <Text>Pagamento efetuado com sucesso</Text>
+                            : <Text>Pagamento Cancelado</Text>
+                }
             </View>
         </View>
     )
