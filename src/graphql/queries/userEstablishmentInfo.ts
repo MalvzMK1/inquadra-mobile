@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 export interface IUserEstablishmentResponse {
     usersPermissionsUser: {
         data: {
+            id: User['id'],
             attributes: {
                 username: User['username']
                 email: User['email']
@@ -67,6 +68,7 @@ export const userEstablishmentQuery = gql`
     query getInfosEstablishment($id: ID) {
         usersPermissionsUser(id: $id) {
             data {
+                id
                 attributes {
                     username
                     email
