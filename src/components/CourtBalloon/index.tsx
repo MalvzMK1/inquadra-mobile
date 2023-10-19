@@ -23,7 +23,7 @@ export default function CourtBalloon(props: CourtCardInfos) {
 const styles = StyleSheet.create({
 	calloutContainer: {
 		display: "flex",
-		width: 125,
+		width: 113,
 		height: 90,
 		backgroundColor: 'white',
 		borderRadius: 10,

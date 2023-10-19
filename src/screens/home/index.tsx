@@ -17,6 +17,7 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
+import { Image } from 'react-native';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, "Home"> {
   menuBurguer: boolean;
@@ -372,7 +373,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                         latitude: item.latitude,
                         longitude: item.longitude,
                       }}
-                      icon={pointerMap}
+                      image={pointerMap}
                       title={item.name}
                       description={item.name}
                     >

@@ -311,8 +311,6 @@ PODS:
     - InputMask (~> 6.1.0)
     - React-Core
     - React-RCTText
-  - react-native-text-recognition (1.0.0):
-    - React-Core
   - react-native-webview (11.26.0):
     - React-Core
   - React-perflogger (0.71.8)
@@ -491,7 +489,6 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-text-input-mask (from `../node_modules/react-native-text-input-mask`)
-  - react-native-text-recognition (from `../node_modules/react-native-text-recognition`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -598,8 +595,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/slider"
   react-native-text-input-mask:
     :path: "../node_modules/react-native-text-input-mask"
-  react-native-text-recognition:
-    :path: "../node_modules/react-native-text-recognition"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-perflogger:
@@ -688,7 +683,6 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-slider: 33b8d190b59d4f67a541061bb91775d53d617d9d
   react-native-text-input-mask: a273f7823ac4cb7189ea96873fd7b4a48b8aaaaa
-  react-native-text-recognition: 51841db99caa890674e44ed6efbf2870b84f4161
   react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
   React-perflogger: d21f182895de9d1b077f8a3cd00011095c8c9100
   React-RCTActionSheet: 0151f83ef92d2a7139bba7dfdbc8066632a6d47b
