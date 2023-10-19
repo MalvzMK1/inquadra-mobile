@@ -14,7 +14,6 @@ import {
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
-import { devolutionPix, generatePix, verifyPixStatus } from "../../services/pixCielo";
 
 interface IFormData {
   identifier: string;
@@ -115,15 +114,8 @@ export default function Login() {
     }
   };
 
-  let teste = "8c8eebb6-e786-4f45-b8ea-d0e1f34a3a8c"
-
   return (
     <ScrollView className="flex-1 h-max w-max bg-white">
-
-      <TouchableOpacity className=" w-full h-5 bg-slate-700" onPress={() => devolutionPix(teste, 1)}>
-        <Text>TESTE</Text>
-      </TouchableOpacity>
-
       <View className="h-16 W-max" />
       <View className="flex-1 flex items-center justify-center px-7">
         <TouchableOpacity
