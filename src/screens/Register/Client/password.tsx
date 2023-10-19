@@ -79,25 +79,22 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         return setPasswordsMatch(false);
       }
 
-      const registerData: IRegisterUserVariables = {
-        password: data.password,
-        cpf: route.params.data.cpf,
-        email: route.params.data.email,
-        role:
-          route.params.flow === "normal"
-            ? "3"
-            : "4",
-        phone_number: route.params.data.phoneNumber,
-        username: route.params.data.name,
-      };
+      if (route.params.flow === 'normal') {
+        const registerData: IRegisterUserVariables = {
+          password: data.password,
+          cpf: route.params.data.cpf,
+          email: route.params.data.email,
+          role: '3',
+          phone_number: route.params.data.phoneNumber,
+          username: route.params.data.name,
+        };
 
-      const registerResponse = await registerUser({ variables: registerData });
+        const registerResponse = await registerUser({ variables: registerData });
 
-      if (!registerResponse.data) {
-        throw new Error("No register data");
-      }
+        if (!registerResponse.data) {
+          throw new Error("No register data");
+        }
 
-      if (route.params.flow === "normal") {
         const authData = await authUser({
           variables: {
             identifier: registerData.email,
@@ -157,21 +154,15 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
               userPhoto: undefined,
             },
           });
-        } else if (
-          userData.usersPermissionsUser.data.attributes.role.data.id === "4"
-        ) {
-          navigation.navigate("RegisterSuccess", {
-            nextRoute: "HomeEstablishment",
-            routePayload: {
-              userID: authData.data.login.user.id,
-              userPhoto: undefined,
-            },
-          });
         }
-      } else {
+      } else if (route.params.flow === 'establishment') {
         navigation.navigate("EstablishmentRegister", {
-          ...registerData,
-          id: registerResponse.data.createUsersPermissionsUser.data.id,
+          password: data.password,
+          cpf: route.params.data.cpf,
+          email: route.params.data.email,
+          username: route.params.data.name,
+          phone_number: route.params.data.phoneNumber,
+          role: '4',
         });
       }
     } catch (error) {

@@ -7,6 +7,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
+import validateCpf from "../../../utils/validateCPF";
 
 interface IFormDatas {
   name: string;
@@ -40,15 +41,20 @@ export default function Register({
     control,
     handleSubmit,
     formState: { errors },
+    setError
   } = useForm<IFormDatas>({
     resolver: zodResolver(formSchema),
   });
 
   function handleGoToNextRegisterPage(data: IFormDatas) {
-    navigation.navigate("RegisterPassword", {
-      data,
-      flow: route.params.flow,
-    });
+    if (validateCpf(data.cpf))
+      navigation.navigate("RegisterPassword", {
+        data,
+        flow: route.params.flow,
+      });
+    else setError('cpf', {
+      message: 'CPF Inválido',
+    })
   }
 
   return (

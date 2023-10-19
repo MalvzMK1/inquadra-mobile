@@ -57,7 +57,7 @@ type RootStackParamList = {
     password: string;
     phone_number: string;
     role: string;
-    id: string;
+    // id: string;
   };
   CancelScheduling: {
     scheduleID: string;
@@ -144,6 +144,18 @@ type RootStackParamList = {
       phone_number: string;
       role: string;
     };
+    establishmentInfos: {
+      amenities: string[];
+      cellphone_number: string;
+      cnpj: string;
+      cep: string;
+      corporate_name: string;
+      phone_number: string;
+      street_name: string;
+      photos: string[];
+      latitude: string;
+      longitude: string;
+    }
   };
   PixScreen: {
     courtName: string;
@@ -176,7 +188,27 @@ type RootStackParamList = {
     courtArray: CourtAdd[];
   };
   AllVeryWell: {
-    courtArray: CourtAdd[];
+    profileInfos: {
+      username: string;
+      cpf: string;
+      email: string;
+      password: string;
+      phone_number: string;
+      role: string;
+    };
+    establishmentInfos: {
+      amenities: string[];
+      cellphone_number: string;
+      cnpj: string;
+      cep: string;
+      corporate_name: string;
+      phone_number: string;
+      street_name: string;
+      photos: string[];
+      latitude: string;
+      longitude: string;
+    };
+    courtArray: CourtAddRawPayload[];
   };
   CourtDetails: {
     courtArray: CourtAdd[];
