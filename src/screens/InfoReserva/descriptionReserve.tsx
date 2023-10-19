@@ -25,6 +25,8 @@ import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
 import useDeleteSchedule from '../../hooks/useDeleteSchedule';
 import BottomBlackMenu from '../../components/BottomBlackMenu';
+import { generatePix } from '../../services/pixCielo';
+import { useUserPaymentPix } from '../../hooks/useUserPaymentPix';
 import {CieloRequestManager} from "../../services/cieloRequestManager";
 import {transformCardExpirationDate} from "../../utils/transformCardExpirationDate";
 import {useGetUserById} from "../../hooks/useUserById";
@@ -45,7 +47,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const { data: allUserData, loading: allUserDataLoading, error: allUserDataError } = useGetUserById(user_id)
     const { data: dataHistoricPayments, error: errorHistoricPayments, loading: loadingHistoricPayments } = useAllPaymentsSchedulingById(schedule_id)
     const [cancelSchedule, { data: dataCancelSchedule, loading: loadingCancelSchedule, error: errorCancelSchedule }] = useDeleteSchedule()
+    const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
 
+    const [paymentID, setPaymentID] = useState('')
     const [showCancelCardModal, setShowCancelCardModal] = useState(false)
     const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
     const [creditCard, setCreditCard] = useState("")
@@ -311,6 +315,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
         let valuePayedUpdate = value + scheduleValuePayed!
         let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
+
+
         try {
             const update = await updateScheduleValue({
                 variables: {
@@ -321,23 +327,58 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     activation_key: activation_key
                 }
             })
+
+            console.log("sucesso!")
         } catch (error) {
             console.log("Erro na mutação updateValueSchedule", error)
         }
     }
 
-    function payPix(info: iFormPixPayment) {
-        const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'));
+    async function payPix(info: iFormPixPayment) {
+        const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))
+        let userPaymentPixID: string
 
-        navigation.navigate('PixScreen', {
-            courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name ?? "",
-            value: parsedValue.toString(),
-            userID: user_id
-        });
+        const generatePixJSON: RequestGeneratePix = {
+            MerchantOrderId: schedule_id + user_id + generateRandomKey(3) + new Date().toISOString(),
+            Customer: {
+                Name: info.name,
+                Identity: info.cpf,
+                IdentityType: "CPF",
+            },
+            Payment: {
+                Type: "Pix",
+                Amount: parsedValue * 100
+            }
+        }
 
+        const pixGenerated = await generatePix(generatePixJSON)
+        await addPaymentPix({
+            variables: {
+                name: info.name,
+                cpf: info.cpf,
+                value: parsedValue,
+                schedulingID: schedule_id,
+                userID: user_id,
+                paymentID: pixGenerated.Payment.PaymentId,
+                publishedAt: new Date().toISOString()
+            }
+        }).then((response) =>
+            navigation.navigate('PixScreen', {
+                courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name ?? "",
+                value: parsedValue.toString()!,
+                userID: user_id,
+                QRcodeURL: pixGenerated.Payment.QrCodeString,
+                paymentID: pixGenerated.Payment.PaymentId,
+                userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+                scheduleID: Number(schedule_id)!,
+                serviceRate: serviceRate!,
+                schedulePrice: schedulePrice!,
+                scheduleValuePayed: scheduleValuePayed!,
+                screen: "historic"
+            })
+        )
         setShowPixPaymentModal(false);
     }
-
     const countryOptions = dataCountry?.countries?.data.map(country => ({
         value: country?.id,
         label: country?.attributes?.ISOCode || "",
@@ -443,7 +484,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 </View>
                                 <View className='flex-row pt-2'>
                                     <View>
-                                        <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString() ?? "")}</Text>
+                                        <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString()! ?? "")}</Text>
                                     </View>
                                 </View>
                                 {
@@ -613,7 +654,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <View className='w-full pt-5'>
                                             <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
                                                 <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
-                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString())}</Text>
+                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>
                                                 <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
                                             </View>
                                         </View>
@@ -638,7 +679,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <View className='w-full pt-5'>
                                             <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
                                                 <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
-                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString())}</Text>
+                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>
                                                 <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
                                             </View>
                                         </View>
@@ -652,7 +693,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             </ScrollView >
             <View className="absolute bottom-0 left-0 right-0">
                 <BottomBlackMenu
-                    screen="Any"
+                    screen="EstablishmentInfo"
                     userID={user_id}
                     userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
                     key={1}
@@ -901,7 +942,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 onChangeText={onChange}>
                                             </MaskInput>
                                         )}
-                                    ></Controller>                                  
+                                    ></Controller>
                                 </View>
                                 <View className='flex flex-row justify-between'>
                                     <View>
@@ -939,7 +980,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 </View>
                                 <View>
                                     <Button mode="contained" style={{ height: 50, width: '100%', backgroundColor: '#FF6112', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}
-                                        onPress={handleSubmit(pay, console.log)}
+                                        onPress={handleSubmit(pay)}
                                     >
                                         <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                                     </Button>
@@ -1007,7 +1048,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         </View>
                         <View>
                             <Button mode="contained" style={{ height: 50, width: '100%', backgroundColor: '#FF6112', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}
-                                onPress={handleSubmitPix(payPix, console.log)}>
+                                onPress={handleSubmitPix(payPix)}>
                                 <Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
                             </Button>
                         </View>
@@ -1049,7 +1090,3 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         </View >
     )
 }
-
-
-
-

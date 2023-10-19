@@ -57,7 +57,7 @@ type RootStackParamList = {
     password: string;
     phone_number: string;
     role: string;
-    id: string;
+    // id: string;
   };
   CancelScheduling: {
     scheduleID: string;
@@ -144,12 +144,42 @@ type RootStackParamList = {
       phone_number: string;
       role: string;
     };
+    establishmentInfos: {
+      amenities: string[];
+      cellphone_number: string;
+      cnpj: string;
+      cep: string;
+      corporate_name: string;
+      phone_number: string;
+      street_name: string;
+      photos: string[];
+      latitude: string;
+      longitude: string;
+    }
   };
   PixScreen: {
     courtName: string;
     value: string;
     userID: string;
     scheduleID?: number;
+    QRcodeURL: string;
+    paymentID: string;
+    userPaymentPixID: string;
+    serviceRate?: number;
+    schedulePrice?: number;
+    scheduleValuePayed?: number;
+    screen: "signal" | "historic" | "updateSchedule";
+    court_availabilityID?: string;
+    date?: string;
+    pay_day?: string;
+    value_payed?: number;
+    ownerID?: string;
+    service_value?: number;
+    isPayed?: boolean;
+    userMoney?: number;
+    newDate?: string;
+    randomKey?: string;
+    isPayed?: boolean;
   };
   RegisterNewCourt: {
     courtArray: CourtAdd[];
@@ -158,7 +188,27 @@ type RootStackParamList = {
     courtArray: CourtAdd[];
   };
   AllVeryWell: {
-    courtArray: CourtAdd[];
+    profileInfos: {
+      username: string;
+      cpf: string;
+      email: string;
+      password: string;
+      phone_number: string;
+      role: string;
+    };
+    establishmentInfos: {
+      amenities: string[];
+      cellphone_number: string;
+      cnpj: string;
+      cep: string;
+      corporate_name: string;
+      phone_number: string;
+      street_name: string;
+      photos: string[];
+      latitude: string;
+      longitude: string;
+    };
+    courtArray: CourtAddRawPayload[];
   };
   CourtDetails: {
     courtArray: CourtAdd[];

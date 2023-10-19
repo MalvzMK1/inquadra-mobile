@@ -21,6 +21,9 @@ import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabi
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
+import { generatePix } from "../../services/pixCielo";
+import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
+import { StackActions } from '@react-navigation/native';
 import {useGetUserById} from "../../hooks/useUserById";
 import getAddress from "../../utils/getAddressByCep";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -36,6 +39,9 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const {data: userData, loading: isUserDataLoading, error: userDataError} = useGetUserById(userId);
 	const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
 	const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
+    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
+    const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
+
 
 	const [showCard, setShowCard] = useState(false);
 	const [cardData, setCardData] = useState({
@@ -103,7 +109,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
 	console.log(dataReserve?.courtAvailability?.data?.attributes?.minValue)
 	console.log(dataReserve?.courtAvailability.data.attributes.value)
-
 	const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
 	const courtLongitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.longitude ?? '0');
 	const userLatitude = parseFloat(userGeolocation?.latitude.toString() ?? "0");
@@ -327,20 +332,72 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		})
 	}
 
+    const generatePixSignal = async () => {
+        const signalValuePix = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!) * 100
+        const signalValue = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!)
+
+        const generatePixJSON: RequestGeneratePix = {
+            MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
+            Customer: {
+                Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
+                Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
+                IdentityType: "CPF",
+            },
+            Payment: {
+                Type: "Pix",
+                Amount: signalValuePix
+            }
+        }
+
+
+
+        const pixGenerated = await generatePix(generatePixJSON)
+
+        await addPaymentPix({
+            variables: {
+                name: dataUser?.usersPermissionsUser.data.attributes.username!,
+                cpf: dataUser?.usersPermissionsUser.data.attributes.cpf!,
+                value: signalValue,
+                schedulingID: null,
+                paymentID: pixGenerated.Payment.PaymentId,
+                publishedAt: new Date().toISOString(),
+                userID: userId
+            }
+        }).then((response) =>
+            navigation.dispatch(
+                StackActions.replace('PixScreen', {
+                    courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                    value: signalValue.toString(),
+                    userID: userId,
+                    QRcodeURL: pixGenerated.Payment.QrCodeString,
+                    paymentID: pixGenerated.Payment.PaymentId,
+                    userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+                    screen: "signal",
+                    court_availabilityID: courtAvailabilities,
+                    date: courtAvailabilityDate.split("T")[0],
+                    pay_day: courtAvailabilityDate.split("T")[0],
+                    value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
+                    ownerID: userId,
+                    service_value: serviceValue,
+                    isPayed: dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false,
+                    schedulePrice: signalValue
+                }))
+        )
+    }
+
+
 	useEffect(() => {
 		if (userData) {
 			setValue('cpf', userData.usersPermissionsUser.data.attributes.cpf)
 			if (userData.usersPermissionsUser.data.attributes.address) {
-				getAddress(userData.usersPermissionsUser.data.attributes.address.cep)
-					.then(response => {
-
-						console.log(response)
-						setValue('cep', response.code)
-						setValue('street', response.address)
-						setValue('district', response.district)
-						setValue('city', response.city)
-						setValue('state', response.state)
-					})
+				getAddress(userData.usersPermissionsUser.data.attributes.address.cep).then(response => {
+					console.log(response)
+					setValue('cep', response.code)
+					setValue('street', response.address)
+					setValue('district', response.district)
+					setValue('city', response.city)
+					setValue('state', response.state)
+				})
 			}
 		}
 		AsyncStorage.getItem(`user${userId}Cards`)
@@ -369,15 +426,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				<View className='px-10 py-5'>
 					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
 					                  onPressIn={() => {
-						                  createNewSchedule().then(scheduleID => {
-							                  if (scheduleID)
-								                  navigation.navigate('PixScreen', {
-									                  courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-									                  value: (amountToPay + serviceValue).toString(),
-									                  userID: userId,
-									                  scheduleID,
-								                  })
-						                  })
+                            generatePixSignal()
 					                  }}
 					>
 						<Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>

@@ -346,15 +346,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
               latitudeDelta: userGeolocationDelta.latDelta,
               longitudeDelta: userGeolocationDelta.longDelta,
             }}
-            // initialCamera={{
-            //     zoom: 0.5,
-            //     center: {
-            //         ...userGeolocation
-            //     },
-            //     heading: 1,
-            //     pitch: 1,
-            //     altitude: 10000
-            // }}
           >
             {establishments.length > 0 &&
               establishments
