@@ -26,6 +26,7 @@ import useGenerateActivationKey from "../../hooks/useGenerateActivationKey";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import { generatePix } from "../../services/pixCielo";
 import { useGetUserById } from "../../hooks/useUserById";
+import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
 
 
 export default function PaymentScheduleUpdate({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PaymentScheduleUpdate'>) {
@@ -46,7 +47,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
         amountToPay = route.params.pricePayed
     }
 
-
+    const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
     const [generateActivationKey, { data: dataGenerateKey, loading: loadingGenerateKey, error: errorGenerateKey }] = useGenerateActivationKey()
     const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
     const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
@@ -293,10 +294,11 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     }
 
     const generatePixSignal = async () => {
-        const signalValue = signalPay 
+        const signalValue = signalPay
+        const signalValuePix = signalPay * 100 
 
         const generatePixJSON: RequestGeneratePix = {
-            MerchantOrderId: userId + generateRandomKey(3),
+            MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
             Customer: {
                 Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
                 Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
@@ -304,19 +306,39 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
             },
             Payment: {
                 Type: "Pix",
-                Amount: signalValue * 100
+                Amount: signalValuePix
             }
         }
 
         const pixGenerated = await generatePix(generatePixJSON)
-
-        navigation.navigate('PixScreen', {
-            courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-            value: signalValue.toString(),
-            userID: userId,
-            QRcodeURL: pixGenerated.Payment.QrCodeString,
-            paymentID: pixGenerated.Payment.PaymentId
-        });
+        await addPaymentPix({
+            variables: {
+                name: dataUser?.usersPermissionsUser.data.attributes.username!,
+                cpf: dataUser?.usersPermissionsUser.data.attributes.cpf!,
+                value: signalValue,
+                schedulingID: route.params.scheduleUpdateID!,
+                paymentID: pixGenerated.Payment.PaymentId,
+                publishedAt: new Date().toISOString(),
+                userID: userId
+            }
+        }).then((response) =>{
+            navigation.navigate('PixScreen', {
+                courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                value: signalValue.toString(),
+                userID: userId,
+                QRcodeURL: pixGenerated.Payment.QrCodeString,
+                paymentID: pixGenerated.Payment.PaymentId,
+                screen: "updateSchedule",
+                userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+                court_availabilityID: courtAvailabilities,
+                newDate: courtAvailabilityDate.split("T")[0],
+                scheduleID: Number(route.params.scheduleUpdateID!),
+                isPayed: priceBigger ? false : true,
+                randomKey: validateKey(generateRandomKey(4))!,
+                userMoney: userMoney
+            })
+        })
+        
     }
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
@@ -481,12 +503,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                                             </TouchableOpacity>
                                         </View>
                                     </View>
-                                )}
-                                <View>
-                                    <Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
-                                        Detalhes Reserva
-                                    </Text>
-                                </View>
+                                )}                                
                             </View>
 
                         </>

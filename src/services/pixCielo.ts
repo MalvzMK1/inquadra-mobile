@@ -5,6 +5,7 @@ import {
     CIELO_API_URL,
     CIELO_QUERY_API_URL
 } from "@env";
+import { secondsInMinute } from 'date-fns/constants/index.js';
 
 const headers = {
     headers: {
@@ -28,8 +29,6 @@ export const generatePix = async (pixInfos: RequestGeneratePix): Promise<Respons
 export const verifyPixStatus = async (paymentID: string): Promise<ResponseVerifyPixStatus> => {
     try {
         const response = await axios.get(`${CIELO_QUERY_API_URL}/1/sales/${paymentID}`, headers)
-
-        console.log(response.data)
 
         return response.data
     } catch (error) {

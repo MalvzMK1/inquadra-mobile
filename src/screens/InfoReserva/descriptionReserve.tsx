@@ -26,6 +26,7 @@ import * as Clipboard from 'expo-clipboard';
 import useDeleteSchedule from '../../hooks/useDeleteSchedule';
 import BottomBlackMenu from '../../components/BottomBlackMenu';
 import { generatePix } from '../../services/pixCielo';
+import { useUserPaymentPix } from '../../hooks/useUserPaymentPix';
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
@@ -42,6 +43,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
     const { data: dataHistoricPayments, error: errorHistoricPayments, loading: loadingHistoricPayments } = useAllPaymentsSchedulingById(schedule_id)
     const [cancelSchedule, { data: dataCancelSchedule, loading: loadingCancelSchedule, error: errorCancelSchedule }] = useDeleteSchedule()
+    const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
 
     const [paymentID, setPaymentID] = useState('')
     const [showCancelCardModal, setShowCancelCardModal] = useState(false)
@@ -234,6 +236,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
         let valuePayedUpdate = value + scheduleValuePayed!
         let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
+
+
         try {
             const update = await updateScheduleValue({
                 variables: {
@@ -244,16 +248,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     activation_key: activation_key
                 }
             })
+
+            console.log("sucesso!")
         } catch (error) {
             console.log("Erro na mutação updateValueSchedule", error)
         }
     }
 
     async function payPix(info: iFormPixPayment) {
-        const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'));
+        const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, '').replace(',', '.'))
+        let userPaymentPixID: string
 
         const generatePixJSON: RequestGeneratePix = {
-            MerchantOrderId: schedule_id + user_id + generateRandomKey(3),
+            MerchantOrderId: schedule_id + user_id + generateRandomKey(3) + new Date().toISOString(),
             Customer: {
                 Name: info.name,
                 Identity: info.cpf,
@@ -266,18 +273,33 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         }
 
         const pixGenerated = await generatePix(generatePixJSON)
-
-        navigation.navigate('PixScreen', {
-            courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name ?? "",
-            value: parsedValue.toString(),
-            userID: user_id,
-            QRcodeURL: pixGenerated.Payment.QrCodeString,
-            paymentID: pixGenerated.Payment.PaymentId
-        });
-
+        await addPaymentPix({
+            variables: {
+                name: info.name,
+                cpf: info.cpf,
+                value: parsedValue,
+                schedulingID: schedule_id,
+                userID: user_id,
+                paymentID: pixGenerated.Payment.PaymentId,
+                publishedAt: new Date().toISOString()
+            }
+        }).then((response) =>
+            navigation.navigate('PixScreen', {
+                courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name ?? "",
+                value: parsedValue.toString()!,
+                userID: user_id,
+                QRcodeURL: pixGenerated.Payment.QrCodeString,
+                paymentID: pixGenerated.Payment.PaymentId,
+                userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+                scheduleID: Number(schedule_id)!,
+                serviceRate: serviceRate!,
+                schedulePrice: schedulePrice!,
+                scheduleValuePayed: scheduleValuePayed!,
+                screen: "historic"
+            })
+        )
         setShowPixPaymentModal(false);
     }
-
     const countryOptions = dataCountry?.countries?.data.map(country => ({
         value: country?.id,
         label: country?.attributes?.ISOCode || "",
@@ -383,7 +405,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 </View>
                                 <View className='flex-row pt-2'>
                                     <View>
-                                        <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString() ?? "")}</Text>
+                                        <Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString()! ?? "")}</Text>
                                     </View>
                                 </View>
                                 {
@@ -553,7 +575,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <View className='w-full pt-5'>
                                             <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
                                                 <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
-                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString())}</Text>
+                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>
                                                 <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
                                             </View>
                                         </View>
@@ -578,7 +600,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <View className='w-full pt-5'>
                                             <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
                                                 <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
-                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString())}</Text>
+                                                <Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>
                                                 <Text className='text-black font-normal pr-4'>R${paymentInfo?.attributes?.value}</Text>
                                             </View>
                                         </View>

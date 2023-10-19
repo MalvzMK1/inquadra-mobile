@@ -157,7 +157,7 @@ export default function InfoReserva({
                                     <View className="w-40 h-5 bg-green-500 flex-row justify-center items-center rounded-sm">
                                       <Text className="font-black text-xs text-white">
                                         R$
-                                        {courtInfo?.attributes?.valuePayed.toString()}
+                                        {courtInfo?.attributes?.valuePayed.toString()!}
                                       </Text>
                                       <Text className="font-black text-xs text-white">
                                         {" "}
@@ -198,7 +198,7 @@ export default function InfoReserva({
                                   <Text className="font-black text-xs text-white pt-1">
                                     Reserva feita em{" "}
                                     {formatDateTime(
-                                      courtInfo?.attributes?.createdAt.toString(),
+                                      courtInfo?.attributes?.createdAt.toString()!,
                                     )}
                                   </Text>
                                 </View>
@@ -288,7 +288,7 @@ export default function InfoReserva({
                                     <View>
                                       <Text className="font-black text-xs text-white">
                                         R$
-                                        {courtInfo.attributes.court_availability.data.attributes.value.toString()}
+                                        {courtInfo.attributes.court_availability.data.attributes.value.toString()!}
                                       </Text>
                                     </View>
                                   </View>
@@ -297,7 +297,7 @@ export default function InfoReserva({
                                     <Text className="font-black text-xs text-white">
                                       Ultima Reserva{" "}
                                       {formatDateTime(
-                                        courtInfo?.attributes?.createdAt.toString(),
+                                        courtInfo?.attributes?.createdAt.toString()!,
                                       )}
                                     </Text>
                                   </View>
