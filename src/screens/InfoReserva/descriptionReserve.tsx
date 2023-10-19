@@ -652,7 +652,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             </ScrollView >
             <View className="absolute bottom-0 left-0 right-0">
                 <BottomBlackMenu
-                    screen="Any"
+                    screen="EstablishmentInfo"
                     userID={user_id}
                     userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ? HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url : ''}
                     key={1}
@@ -1049,7 +1049,3 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         </View >
     )
 }
-
-
-
-

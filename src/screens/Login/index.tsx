@@ -119,11 +119,6 @@ export default function Login() {
 
   return (
     <ScrollView className="flex-1 h-max w-max bg-white">
-
-      <TouchableOpacity className=" w-full h-5 bg-slate-700" onPress={() => devolutionPix(teste, 1)}>
-        <Text>TESTE</Text>
-      </TouchableOpacity>
-
       <View className="h-16 W-max" />
       <View className="flex-1 flex items-center justify-center px-7">
         <TouchableOpacity
