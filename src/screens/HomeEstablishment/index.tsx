@@ -11,63 +11,123 @@ import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSc
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import storage from "../../utils/storage";
+import {CourtType} from "../../__generated__/graphql";
 const { parse, format } = require("date-fns");
+
+interface ICourtProps {
+  attributes: {
+    fantasy_name: Court['fantasy_name']
+    court_availabilities: {
+      data: Array<{
+        id: CourtAvailability['id']
+        attributes: {
+          startsAt: CourtAvailability['startsAt']
+          endsAt: CourtAvailability['endsAt']
+          court: {
+            data: {
+              id: Court['id']
+              attributes: {
+                name: Court['name']
+              }
+            }
+          }
+          schedulings: {
+            data: Array<{
+              id: string
+              attributes: {
+                date: Scheduling['date']
+                payedStatus: Scheduling['payedStatus']
+                activated: boolean
+                activationKey: string
+                owner: {
+                  data: {
+                    attributes: {
+                      username: User['username']
+                    }
+                  }
+                }
+                court_availability: {
+                  data: {
+                    attributes: {
+                      startsAt: CourtAvailability['startsAt']
+                      endsAt: CourtAvailability['endsAt']
+                      dayUseService: CourtAvailability['dayUseService']
+                      court: {
+                        data: {
+                          attributes: {
+                            court_types: {
+                              data: Array<{
+                                attributes: {
+                                  name: CourtType['name']
+                                }
+                              }>
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }>
+          }
+        }
+      }>
+    }
+  }
+}
 
 export default function HomeEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "HomeEstablishment">) {
-  const [selected, setSelected] = useState("");
   const [userId, setUserId] = useState<string>();
-
-  useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => {
-        setUserId(data.userId);
-      });
-  }, []);
+  const [establishmentId, setEstablishmentId] = useState<string>('');
+  const [selected, setSelected] = useState<string>("");
+  const [fantasy_name, setFantasyName] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [activationKey, setActivationKey] = useState<string>("");
+  const [validated, setValidate] = useState(3);
+  const [photo, setPhoto] = useState<string>();
+  const [userName, setUserName] = useState<string>();
+  const [firstName, setFirstName] = useState<string>();
+  const [establishmentCourts, setEstablishmentCourts] = useState<Array<ICourtProps>>([]);
 
   const actualDate = new Date();
   const dateFormat = "yyyy-MM-dd";
-
   const targetDate = parse(
     format(actualDate, dateFormat),
     "yyyy-MM-dd",
     new Date(),
   );
-
   const dayOfWeek = format(targetDate, "EEEE");
+  const date = format(actualDate, dateFormat);
+
+  const currentDate = new Date();
+  const day = String(currentDate.getDate()).padStart(2, "0");
+  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const formattedData = `${day}/${month}`;
 
   const {
     data: dataEstablishmentId,
     error: errorEstablishmentId,
     loading: loadingEstablishmentId,
-  } = useGetUserEstablishmentInfos(userId!);
-  const establishment_id =
-    dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.establishment
-      ?.data?.id!;
-  const [fantasy_name, setFantasyName] = useState("");
-  const day_week = dayOfWeek;
-  const date = format(actualDate, dateFormat);
-
+  } = useGetUserEstablishmentInfos(userId ? userId : '')
   const {
     data: dataSchedulings,
     error: errorSchedulings,
     loading: loadingSchedulings,
   } = useEstablishmentSchedulingsByDay(
-    establishment_id!,
+    establishmentId!,
     fantasy_name,
-    day_week,
+    dayOfWeek,
     date,
   );
   const {
     data: dataCourtsEstablishment,
     error: errorCourts,
     loading: loadingCourts,
-  } = useAllCourtsEstablishment(establishment_id!);
+  } = useAllCourtsEstablishment(establishmentId!);
   const [
     updateActivatedStatus,
     {
@@ -77,21 +137,8 @@ export default function HomeEstablishment({
     },
   ] = useUpdateScheduleActivateStatus();
 
-  const [selectedDate, setSelectedDate] = useState("");
-  const [activationKey, setActivationKey] = useState("");
-  const photo =
-    dataEstablishmentId?.usersPermissionsUser.data.attributes.photo.data
-      .attributes.url;
-  const username =
-    dataEstablishmentId?.usersPermissionsUser?.data?.attributes?.username;
-  const firstName = username ? username.split(" ")[0] : "";
-
   // 1 === true / 2 === false / 3 === null
-  const [validated, setValidate] = useState(3);
-  const currentDate = new Date();
-  const day = String(currentDate.getDate()).padStart(2, "0");
-  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-  const formattedData = `${day}/${month}`;
+
   const getIdByKey = (key: string): string | undefined => {
     const schedulingFound =
       dataSchedulings?.establishment?.data?.attributes?.courts?.data?.flatMap(
@@ -158,6 +205,37 @@ export default function HomeEstablishment({
         ),
     );
 
+  useEffect(() => {
+    storage
+      .load<UserInfos>({
+        key: "userInfos",
+      })
+      .then(data => {
+        setUserId(data.userId);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (
+      dataEstablishmentId &&
+      dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data
+    ) {
+      setEstablishmentId(dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data.id)
+      setPhoto(dataEstablishmentId.usersPermissionsUser.data.attributes.photo.data?.attributes.url ?? undefined)
+      setUserName(dataEstablishmentId.usersPermissionsUser.data.attributes.username)
+      setFirstName(dataEstablishmentId.usersPermissionsUser.data.attributes.username.split(' ')[0])
+    }
+  }, [dataEstablishmentId])
+
+  useEffect(() => {
+    if (
+      dataSchedulings &&
+      dataSchedulings.establishment.data &&
+      dataSchedulings.establishment.data.attributes.courts.data
+    ) setEstablishmentCourts(dataSchedulings.establishment.data.attributes.courts.data)
+
+  }, [dataSchedulings])
+
   return (
     <View className="flex-1">
       <View className=" h-11 w-max  bg-[#292929]"></View>
@@ -172,7 +250,7 @@ export default function HomeEstablishment({
         </View>
         <View className="flex item-center justify-center">
           <Text className="text-lg font-bold text-white">
-            Olá, {firstName}!
+            Olá{firstName ? `, ${firstName}` : ''}!
           </Text>
         </View>
         <View className="h-max w-max flex justify-center items-center">
@@ -180,25 +258,16 @@ export default function HomeEstablishment({
             className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
             onPress={() =>
               navigation.navigate("InfoProfileEstablishment", {
-                userPhoto: dataEstablishmentId?.usersPermissionsUser.data
-                  .attributes.photo.data.attributes.url
-                  ? HOST_API +
-                    dataSchedulings?.establishment?.data?.attributes?.logo?.data
-                      ?.attributes?.url
-                  : null,
-                establishmentId: establishment_id,
+                userPhoto: photo ?? '',
+                establishmentId: establishmentId,
               })
             }
           >
             <Image
               source={
-                dataEstablishmentId?.usersPermissionsUser.data.attributes.photo
-                  .data.attributes.url
+                photo
                   ? {
-                      uri:
-                        HOST_API +
-                        dataEstablishmentId?.usersPermissionsUser.data
-                          .attributes.photo.data.attributes.url,
+                      uri: HOST_API + photo,
                     }
                   : require("../../assets/default-user-image.png")
               }
@@ -263,7 +332,7 @@ export default function HomeEstablishment({
               </Text>
               <View className="pt-5 gap-2">
                 {handleDayUse === false
-                  ? dataSchedulings?.establishment?.data?.attributes?.courts?.data?.map(
+                  ? establishmentCourts.map(
                       courts =>
                         courts?.attributes?.court_availabilities?.data?.map(
                           availabilities =>
@@ -279,12 +348,9 @@ export default function HomeEstablishment({
                                     0,
                                     5,
                                   )}{" "}
-                                  {schedulings.attributes.payedStatus ===
-                                    true &&
-                                  schedulings.attributes.activated === true
+                                  {schedulings.attributes.payedStatus && schedulings.attributes.activated
                                     ? "Reserva ativada"
-                                    : schedulings.attributes.payedStatus ===
-                                      true
+                                    : schedulings.attributes.payedStatus
                                     ? "Pagamento realizado"
                                     : "Pagamento em andamento"}
                                 </Text>
@@ -300,12 +366,9 @@ export default function HomeEstablishment({
                               schedulings => (
                                 <Text className="text-white font-bold">
                                   Day use -{" "}
-                                  {schedulings.attributes.payedStatus ===
-                                    true &&
-                                  schedulings.attributes.activated === true
+                                  {schedulings.attributes.payedStatus && schedulings.attributes.activated
                                     ? "Reserva ativada"
-                                    : schedulings.attributes.payedStatus ===
-                                      true
+                                    : schedulings.attributes.payedStatus
                                     ? "Pagamento realizado"
                                     : "Pagamento em andamento"}
                                 </Text>
@@ -321,7 +384,7 @@ export default function HomeEstablishment({
               onPress={() =>
                 navigation.navigate("CourtSchedule", {
                   establishmentPhoto: undefined,
-                  establishmentId: establishment_id,
+                  establishmentId: establishmentId,
                   userId: userId!,
                 })
               }
@@ -337,7 +400,7 @@ export default function HomeEstablishment({
                   <SelectList
                     setSelected={(val: any) => setFantasyName(val)}
                     data={
-                      dataCourtsEstablishment?.establishment?.data?.attributes?.courts?.data.map(
+                      establishmentCourts.map(
                         fantasy => fantasy.attributes.fantasy_name,
                       ) || []
                     }
@@ -386,7 +449,7 @@ export default function HomeEstablishment({
                   <View className="before:absolute before:w-1 before:h-full before:bg-gray-300 before:content left-[60px]"></View>
                 ) : null}
                 {handleDayUse !== true
-                  ? dataSchedulings?.establishment.data.attributes.courts.data.map(
+                  ? establishmentCourts.map(
                       courts =>
                         courts.attributes.court_availabilities.data.map(
                           availabilities => (
@@ -502,7 +565,7 @@ export default function HomeEstablishment({
                           ),
                         ),
                     )
-                  : dataSchedulings?.establishment.data.attributes.courts.data.map(
+                  : establishmentCourts.map(
                       courts =>
                         courts.attributes.court_availabilities.data.map(
                           availabilities =>
@@ -581,7 +644,7 @@ export default function HomeEstablishment({
             screen="Home"
             userID={route?.params.userID ? route?.params.userID : ""}
             establishmentLogo={photo ? photo : undefined}
-            establishmentID={establishment_id}
+            establishmentID={establishmentId}
             key={1}
             paddingTop={2}
           />
