@@ -21,7 +21,6 @@ import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabi
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
-import { useGetUserById } from "../../hooks/useUserById";
 import { generatePix } from "../../services/pixCielo";
 import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
 import { StackActions } from '@react-navigation/native';
@@ -391,15 +390,14 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		if (userData) {
 			setValue('cpf', userData.usersPermissionsUser.data.attributes.cpf)
 			if (userData.usersPermissionsUser.data.attributes.address) {
-				getAddress(userData.usersPermissionsUser.data.attributes.address.cep)
-			
-						console.log(response)
-						setValue('cep', response.code)
-						setValue('street', response.address)
-						setValue('district', response.district)
-						setValue('city', response.city)
-						setValue('state', response.state)
-					})
+				getAddress(userData.usersPermissionsUser.data.attributes.address.cep).then(response => {
+					console.log(response)
+					setValue('cep', response.code)
+					setValue('street', response.address)
+					setValue('district', response.district)
+					setValue('city', response.city)
+					setValue('state', response.state)
+				})
 			}
 		}
 		AsyncStorage.getItem(`user${userId}Cards`)
