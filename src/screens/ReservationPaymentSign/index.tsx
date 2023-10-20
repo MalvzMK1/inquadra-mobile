@@ -32,6 +32,22 @@ import {transformCardExpirationDate} from "../../utils/transformCardExpirationDa
 import {convertToAmericanDate} from "../../utils/formatDate";
 
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
+	const [showCameraIcon, setShowCameraIcon] = useState(false);
+	const [showCard, setShowCard] = useState(false);
+	const [expiryDate, setExpiryDate] = useState('');
+	const [cvv, setCVV] = useState('');
+	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+	const [reserveValue, setReserveValue] = useState<number>();
+	const [serviceValue, setServiceValue] = useState<number>();
+	const [selected, setSelected] = React.useState("");
+	const [totalValue, setTotalValue] = useState<number>();
+	const [cardData, setCardData] = useState({
+		cardNumber: '',
+		expirationDate: '',
+		cvv: '',
+		country: ''
+	});
+
 	const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
 	const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
 	const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
@@ -39,18 +55,9 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const {data: userData, loading: isUserDataLoading, error: userDataError} = useGetUserById(userId);
 	const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
 	const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
-    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
-    const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
+	const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
+	const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
 
-
-	const [showCard, setShowCard] = useState(false);
-	const [cardData, setCardData] = useState({
-		cardNumber: '',
-		expirationDate: '',
-		cvv: '',
-		country: ''
-	});
-	const [showCameraIcon, setShowCameraIcon] = useState(false);
 	const handleCardClick = () => {
 		setShowCard(!showCard);
 		setShowCameraIcon(false);
@@ -59,26 +66,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const handleSaveCard = () => {
 		setShowCard(false);
 	};
-	const [expiryDate, setExpiryDate] = useState('');
 
 	const handleExpiryDateChange = (formatted: string) => {
 		setExpiryDate(formatted);
 	};
-
-	const [cvv, setCVV] = useState('');
-	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
-	const reserveValue = dataReserve?.courtAvailability?.data?.attributes?.value
-	const serviceValue = amountToPay * 0.04
-
-	const minValue = dataReserve?.courtAvailability?.data?.attributes?.minValue
-	let totalValue
-	if (reserveValue) {
-		totalValue = reserveValue + serviceValue
-	}
-
-
-	const [selected, setSelected] = React.useState("");
-
 
 	const handleCVVChange = (input: any) => {
 		const numericInput = input.replace(/\D/g, '');
@@ -117,6 +108,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	let distanceInMeters = calculateDistance(userLatitude, userLongitude, courtLatitude, courtLongitude)
 	const distanceText = distanceInMeters >= 1000 ? `${(distanceInMeters / 1000).toFixed(1)} Km` : `${distanceInMeters.toFixed(0)} metros`;
 
+	// const distanceText = '123'
 	interface iFormCardPayment {
 		name: string
 		cpf: string
@@ -151,10 +143,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			if (isNaN(inputDate.getTime())) {
 				return false;
 			}
-			if (inputDate <= currentDate) {
-				return false;
-			}
-			return true;
+			return inputDate > currentDate;
+
 		}, { message: "A data de vencimento é inválida" }),
 		cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(9, "CEP inválido"),
 		number: z.string().nonempty("É necessário inserir o numero da residência"),
@@ -200,7 +190,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
 	const pay = async (data: iFormCardPayment) => {
 		try {
-			if (userData) {
+			if (userData && serviceValue && amountToPay) {
 				const cieloRequestManager = new CieloRequestManager();
 				const totalValue = (Number(amountToPay.toFixed(2)) + Number(serviceValue.toFixed(2))) * 100;
 
@@ -334,6 +324,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
     const generatePixSignal = async () => {
         const signalValuePix = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!) * 100
+        // const signalValuePix = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!) * 100
         const signalValue = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!)
 
         const generatePixJSON: RequestGeneratePix = {
@@ -348,8 +339,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
                 Amount: signalValuePix
             }
         }
-
-
 
         const pixGenerated = await generatePix(generatePixJSON)
 
@@ -404,6 +393,20 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			.then(console.log)
 	}, [userData])
 
+	useEffect(() => {
+		if (
+			dataReserve &&
+			dataReserve.courtAvailability.data &&
+			dataReserve.courtAvailability.data.attributes.court.data
+		) {
+			const {minimumScheduleValue} = dataReserve.courtAvailability.data.attributes.court.data.attributes;
+
+			setReserveValue(minimumScheduleValue);
+			setServiceValue(minimumScheduleValue * 0.04)
+			setTotalValue(minimumScheduleValue + (minimumScheduleValue * 0.04))
+		}
+	}, [dataReserve])
+
 	return (
 		<View className="flex-1 bg-white w-full h-full pb-10">
 			<ScrollView>
@@ -420,7 +423,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				</View>
 				<View className="bg-gray-300 p-4">
 					<Text className="text-5xl text-center font-extrabold text-gray-700">
-						R$ {dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)}
+						R$ {reserveValue}
 					</Text>
 				</View>
 				<View className='px-10 py-5'>
@@ -549,7 +552,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 											setSelected(val);
 
 										}}
-										data={dataCountry?.countries?.data.map(country => ({
+										data={!loadingCountry && dataCountry?.countries?.data.map(country => ({
 											value: country?.attributes.name,
 											label: country?.attributes.name || "",
 											img: `${country?.attributes.flag?.data?.attributes?.url || ""}`
@@ -720,7 +723,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				<View className="p-4 justify-center items-center border-b ml-8 mr-8">
 					<View className="flex flex-row gap-6">
 						<Text className="font-bold text-xl text-[#717171]">Valor da Reserva</Text>
-						<Text className="font-bold text-xl text-right text-[#717171]">R$ {amountToPay.toFixed(2)}</Text>
+						<Text className="font-bold text-xl text-right text-[#717171]">R$ {amountToPay && amountToPay.toFixed(2)}</Text>
 					</View>
 					<View className="flex flex-row gap-6">
 						<View className="flex flex-row pt-1">
@@ -729,7 +732,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								<FontAwesome name="question-circle-o" size={13} color="black" />
 							</TouchableOpacity>
 						</View>
-						<Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue.toFixed(2)}</Text>
+						<Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue && serviceValue.toFixed(2)}</Text>
 					</View>
 				</View>
 				<View className="justify-center items-center pt-6">
