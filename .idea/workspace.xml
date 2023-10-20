@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,12 +39,12 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="WI564T770" />
-                    <option name="lastUsedInstant" value="1697542472" />
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1697638941" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="release" />
-                    <option name="lastUsedInstant" value="1697467555" />
+                    <option name="branchName" value="WI564T770" />
+                    <option name="lastUsedInstant" value="1697621486" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="develop" />
@@ -86,6 +87,7 @@
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "WI564T770",
+    "js.last.introduce.type": "CONST",
     "last_opened_file_path": "D:/Development/work/inquadra/mobile",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -141,15 +143,13 @@
       <workItem from="1696499741544" duration="658000" />
       <workItem from="1697020525733" duration="4679000" />
       <workItem from="1697541465668" duration="1917000" />
+      <workItem from="1697620663349" duration="16965000" />
+      <workItem from="1697708208799" duration="2340000" />
+      <workItem from="1697794656370" duration="5457000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-    <option name="exactExcludedFiles">
-      <list>
-        <option value="$PROJECT_DIR$/src/services/inter.js" />
-      </list>
-    </option>
   </component>
 </project>

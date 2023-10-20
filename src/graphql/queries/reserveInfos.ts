@@ -12,6 +12,7 @@ export interface IReserveInfoResponse{
                 fantasy_name: Court['fantasy_name']
                 name: Court['name']
                 rating: Court['rating']
+                minimumScheduleValue: number
                 establishment: {
                   data: {
                     attributes: {
@@ -70,6 +71,7 @@ query getReserveInfo($idCourt: ID) {
               fantasy_name
               name
               rating
+              minimumScheduleValue
               establishment {
                 data {
                   attributes {

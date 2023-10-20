@@ -33,7 +33,9 @@ import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardIn
 import useUpdateUser from "../../hooks/useUpdateUser";
 import { useGetUserById } from "../../hooks/useUserById";
 import { Card } from "../../types/Card";
-import {mask} from "react-native-text-input-mask";
+import { mask } from "react-native-text-input-mask";
+import { useToast } from 'native-base';
+
 
 interface IFormData {
   photo: string;
@@ -222,7 +224,6 @@ export default function ProfileSettings({
     resetField("cvv");
     resetField("street");
   };
-
   const handleDeleteAccount = () => {
     setShowDeleteConfirmation(true);
   };
@@ -337,10 +338,7 @@ export default function ProfileSettings({
   async function updateUserInfos(data: IFormData): Promise<void> {
     try {
       if (profilePicture) {
-        // Faz o upload da imagem e obtém o ID da imagem enviada
         const uploadedImageID = await uploadImage(profilePicture);
-
-        // Atualiza as informações do usuário junto com o ID da imagem
 
         await updateUser({
           variables: {
@@ -391,7 +389,7 @@ export default function ProfileSettings({
           dueDate: data.usersPermissionsUser.data.attributes
             .paymentCardInformations.dueDate
             ? data.usersPermissionsUser.data.attributes.paymentCardInformations
-                .dueDate
+              .dueDate
             : "",
           cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations
             .cvv
@@ -401,12 +399,12 @@ export default function ProfileSettings({
             id: data.usersPermissionsUser.data.attributes
               .paymentCardInformations.country.data
               ? data.usersPermissionsUser.data.attributes
-                  .paymentCardInformations.country.data.id
+                .paymentCardInformations.country.data.id
               : "",
             name: data.usersPermissionsUser.data.attributes
               .paymentCardInformations.country.data
               ? data.usersPermissionsUser.data.attributes
-                  .paymentCardInformations.country.data.attributes.name
+                .paymentCardInformations.country.data.attributes.name
               : "",
           },
         },
@@ -419,8 +417,8 @@ export default function ProfileSettings({
   function defineDefaultFieldValues(
     userData:
       | (Omit<User, "id" | "cep" | "latitude" | "longitude" | "streetName"> & {
-          paymentCardInfos: { dueDate: string; cvv: string };
-        })
+        paymentCardInfos: { dueDate: string; cvv: string };
+      })
       | undefined,
   ): void {
     if (userData) {
@@ -456,15 +454,8 @@ export default function ProfileSettings({
         console.log("Cartões recuperados com sucesso", parsedCards);
       }
     });
-    // AsyncStorage.removeItem('userCards', (error) => {
-    //     if (error) {
-    //         console.error('Erro ao remover os dados', error);
-    //     } else {
-    //         console.log('Dados removidos com sucesso');
-    //     }
-    // });
   }, [showCreditCards]);
-
+  const toast = useToast()
   const addCard = (
     number: string,
     maturityDate: string,
@@ -713,11 +704,10 @@ export default function ProfileSettings({
                         <MaskInput
                           value={getPaymentCardValues("cardNumber")}
                           placeholder="Ex: 0000-0000-0000-0000"
-                          className={`p-3 border ${
-                            paymentCardErrors.cvv
-                              ? "border-red-400"
-                              : "border-gray-500"
-                          } rounded-md h-18`}
+                          className={`p-3 border ${paymentCardErrors.cvv
+                            ? "border-red-400"
+                            : "border-gray-500"
+                            } rounded-md h-18`}
                           onChangeText={onChange}
                           mask={Masks.CREDIT_CARD}
                           keyboardType="numeric"
@@ -742,11 +732,10 @@ export default function ProfileSettings({
                         render={({ field: { onChange } }) => (
                           <TextInputMask
                             value={getPaymentCardValues("dueDate")}
-                            className={`p-3 border ${
-                              paymentCardErrors.dueDate
-                                ? "border-red-400"
-                                : "border-gray-500"
-                            } rounded-md h-18 flex-1`}
+                            className={`p-3 border ${paymentCardErrors.dueDate
+                              ? "border-red-400"
+                              : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
                             type={"datetime"}
                             options={{
                               format: "MM/YY",
@@ -772,11 +761,10 @@ export default function ProfileSettings({
                         render={({ field: { onChange } }) => (
                           <TextInput
                             value={getPaymentCardValues("cvv")}
-                            className={`p-3 border ${
-                              paymentCardErrors.cvv
-                                ? "border-red-400"
-                                : "border-gray-500"
-                            } rounded-md h-18 flex-1`}
+                            className={`p-3 border ${paymentCardErrors.cvv
+                              ? "border-red-400"
+                              : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
                             onChangeText={onChange}
                             placeholder="***"
                             keyboardType="numeric"

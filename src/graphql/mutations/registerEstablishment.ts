@@ -23,6 +23,7 @@ export interface IRegisterEstablishmentVariables {
   amenities: Array<string>;
   cellphone_number: string;
   photos: Array<string>;
+  publishedAt: string;
 }
 
 export const registerEstablishmentMutation = gql`
@@ -38,6 +39,7 @@ export const registerEstablishmentMutation = gql`
     $street_name: String
     $amenities: [ID]
     $ownerId: ID!
+    $publishedAt: DateTime
   ) {
     createEstablishment(
       data: {
@@ -54,6 +56,7 @@ export const registerEstablishmentMutation = gql`
         amenities: $amenities
         cellPhoneNumber: $cellphone_number
         photos: $photos
+        publishedAt: $publishedAt
       }
     ) {
       data {

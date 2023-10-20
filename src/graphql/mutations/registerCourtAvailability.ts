@@ -22,6 +22,7 @@ export interface IRegisterCourtAvailabilityVariables {
   day_use_service: boolean;
   court?: number;
   status: boolean;
+  publishedAt: string;
 }
 
 export const registerCourtAvailabilityMutation = gql`
@@ -34,6 +35,7 @@ export const registerCourtAvailabilityMutation = gql`
     $day_use_service: Boolean
     $court: ID
     $status: Boolean
+    $publishedAt: DateTime
   ) {
     createCourtAvailability(
       data: {
@@ -45,6 +47,7 @@ export const registerCourtAvailabilityMutation = gql`
         dayUseService: $day_use_service
         court: $court
         status: $status
+        publishedAt: $publishedAt
       }
     ) {
       data {
