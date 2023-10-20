@@ -50,7 +50,7 @@ export function CourtCard(props: CourtCardInfo) {
 
         <Text className="text-[12px] leading-[20px] font-bold mt-4">
           {props.availabilities || props.availabilities == undefined
-            ? "Possuí"
+            ? "Possui"
             : "Não há"}{" "}
           horário disponível
         </Text>

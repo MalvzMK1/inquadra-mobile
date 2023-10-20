@@ -6,9 +6,9 @@ export default function CourtBalloon(props: CourtCardInfos) {
 		<View className='flex flex-col mb-[1.5px] justify-center items-center'>
 			<View style={styles.calloutContainer}>
 				<Text className='h-[70px] pl-[6px] self-center w-full rounded-xl overflow-hidden'>
-					<Image source={{ uri: props.image }} className="h-[60px] w-28 rounded-xl" resizeMode='cover' />
+					<Image source={{ uri: props.image }} className="h-[67px] w-28 rounded-xl" resizeMode='cover' />
 				</Text>
-				<View className='flex flex-col gap-y-[-4px] self-start pl-[6px] mb-2 mt-1' >
+				<View className='flex flex-col gap-y-[-1px] self-start pl-[6px] mb-2 mt-1' >
 					<Text className='font-black text-[#FF6112] text-[10px]'>{props.name}</Text>
 					<Text className='text-[8px]'>{props.type}</Text>
 					<Text className='font-bold text-[8px]'>{props.distance.toFixed(2)}km</Text>
