@@ -32,7 +32,17 @@ export default function Schedulings({ route, navigation }: NativeStackScreenProp
     const [filteredSchedules, setFilteredSchedules] = useState<Array<ScheduleArray>>([])
     const [displayDatePicker, setDisplayDatePicker] = useState<boolean>();
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-    const { data, loading, error } = useAllEstablishmentSchedules('5') // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
+    const [establishmentId, setEstablishmentId] = useState("")
+    const [establishmentPicture, setEstablishentPicture] = useState("")
+    useEffect(() => {
+        setEstablishmentId(route.params.establishmentId)
+        if (route.params.establishmentPhoto !== undefined && route.params.establishmentPhoto !== null && route.params.establishmentPhoto !== "") {
+            setEstablishentPicture(route.params.establishmentPhoto)
+        } else {
+            setEstablishentPicture("../../assets/default-user-image.png")
+        }
+    }, [])
+    const { data, loading, error } = useAllEstablishmentSchedules(establishmentId) // TODO: INTEGRATE WITH REAL ESTALBISHMENT ID
 
     function handleCalendarClick(data: DateData) {
         const date = new Date(data.dateString)
@@ -146,6 +156,8 @@ export default function Schedulings({ route, navigation }: NativeStackScreenProp
                                                     endsAt={courtSchedule.endsAt}
                                                     status={courtSchedule.status}
                                                     image={courtSchedule.image}
+                                                    establishmentId={establishmentId}
+                                                    establishmentPicture={establishmentPicture}
                                                 />
                                             ))
                                         }

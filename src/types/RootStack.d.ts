@@ -61,6 +61,8 @@ type RootStackParamList = {
   };
   CancelScheduling: {
     scheduleID: string;
+    establishmentID: string;
+    establishmentPicture: string;
   };
   Home: {
     userGeolocation: {

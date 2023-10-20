@@ -96,6 +96,8 @@ const blockScheduleByTimeFormSchema = z.object({
   endHour: z.string().min(5, "Insira um horário válido"),
 });
 
+
+
 export default function CourtSchedule({
   navigation,
   route,
@@ -104,6 +106,15 @@ export default function CourtSchedule({
   const [establishmentId, setEstablishmentId] = useState<string>(
     route.params.establishmentId,
   );
+  const [establishentPicture, setEstablishentPicture] = useState("")
+  useEffect(() => {
+    if (route.params.establishmentPhoto !== undefined && route.params.establishmentPhoto !== null && route.params.establishmentPhoto !== "") {
+      setEstablishentPicture(route.params.establishmentPhoto)
+    } else {
+      setEstablishentPicture("../../assets/default-user-image.png")
+    }
+  }, [])
+
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [dateSelected, setDateSelected] = useState<Date>(new Date());
@@ -857,11 +868,10 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ${
-                schedulingsFocus
-                  ? "text-black"
-                  : "text-[#292929]" && "opacity-40"
-              } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ${schedulingsFocus
+                ? "text-black"
+                : "text-[#292929]" && "opacity-40"
+                } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
             >
               Reservas
             </Text>
@@ -873,20 +883,17 @@ export default function CourtSchedule({
               setSchedulingsFocus(false);
               navigation.navigate("Schedulings", {
                 establishmentId:
-                  userByEstablishmentData?.usersPermissionsUser.data.attributes
-                    .establishment.data.id ?? "",
+                  establishmentId,
                 establishmentPhoto:
-                  userByEstablishmentData?.usersPermissionsUser.data.attributes
-                    .photo.data.attributes.url ?? undefined,
+                  establishentPicture,
               });
             }}
           >
             <Text
-              className={`font-black text-[16px] ml-[10px] ${
-                schedulingsHistoricFocus
-                  ? "text-black"
-                  : "text-[#292929]" && "opacity-40"
-              } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ml-[10px] ${schedulingsHistoricFocus
+                ? "text-black"
+                : "text-[#292929]" && "opacity-40"
+                } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
             >
               Histórico de reservas
             </Text>
@@ -1075,11 +1082,10 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      blockScheduleByTimeErrors.initialHour
-                        ? "border-red-400"
-                        : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.initialHour
+                      ? "border-red-400"
+                      : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="initialHour"
@@ -1120,11 +1126,10 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      blockScheduleByTimeErrors.endHour
-                        ? "border-red-400"
-                        : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.endHour
+                      ? "border-red-400"
+                      : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="endHour"
@@ -1230,9 +1235,8 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      errors.initialDate ? "border-red-400" : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${errors.initialDate ? "border-red-400" : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="initialDate"
@@ -1269,9 +1273,8 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      errors.endDate ? "border-red-400" : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${errors.endDate ? "border-red-400" : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="endDate"

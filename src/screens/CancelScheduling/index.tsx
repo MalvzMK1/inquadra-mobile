@@ -16,7 +16,19 @@ export default function CancelScheduling({ route, navigation }: NativeStackScree
     const [courtType, setCourtType] = useState<string>('');
     const [cancelReason, setCancelReason] = useState<string>("")
     const maxLength: number = 200
+    const [establishmentId, setEstablishmentId] = useState("")
+    const [establishentPicture, setEstablishentPicture] = useState("")
+    const [scheduleId, setScheduleId] = useState("")
 
+    useEffect(() => {
+        setScheduleId(route.params.scheduleID)
+        setEstablishmentId(route.params.establishmentID)
+        if (route.params.establishmentPicture !== undefined && route.params.establishmentPicture !== null && route.params.establishmentPicture !== "") {
+            setEstablishentPicture(route.params.establishmentPicture)
+        } else {
+            setEstablishentPicture("../../assets/default-user-image.png")
+        }
+    }, [])
     const [showConfirmCancel, setShowConfirmCancel] = useState(false)
     const closeConfirmCancelModal = () => setShowConfirmCancel(false)
 
@@ -28,14 +40,14 @@ export default function CancelScheduling({ route, navigation }: NativeStackScree
     function handleCancelReserve() {
         cancelSchedule({
             variables: {
-                scheduleId: route.params.scheduleID,
+                scheduleId: scheduleId,
                 reason: cancelReason
             }
         }).then(response => {
             closeConfirmCancelModal()
             setShowSuccessCancel(true)
             client.clearStore()
-                .then(() => navigation.navigate('Schedulings'))
+                .then(() => navigation.navigate('Schedulings', { establishmentId: establishmentId, establishmentPhoto: establishentPicture }))
         }).catch(error => {
             alert(error)
         })
