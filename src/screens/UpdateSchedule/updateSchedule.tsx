@@ -82,7 +82,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     const [cvv, setCVV] = useState('');
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const reserveValue = dataReserve?.courtAvailability?.data?.attributes?.value
-    const serviceValue = amountToPay * 4 / 100
+    const serviceValue = amountToPay * 0.04
 
     const minValue = dataReserve?.courtAvailability?.data?.attributes?.minValue
     let totalValue
@@ -122,9 +122,9 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     }).then(data => setUserGeolocation(data));
 
 
-    if (dataReserve?.courtAvailability?.data?.attributes?.minValue! > route.params.pricePayed) {
+    if (dataReserve?.courtAvailability?.data.attributes.court.data.attributes.minimumScheduleValue! > route.params.pricePayed) {
         minPriceBigger = true
-        signalPay = dataReserve?.courtAvailability?.data?.attributes?.minValue! - route.params.pricePayed
+        signalPay = dataReserve?.courtAvailability?.data.attributes.court.data.attributes.minimumScheduleValue! - route.params.pricePayed
         userMoney += signalPay
     }
 
@@ -240,7 +240,8 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
                     owner: parseFloat(userId).toString(),
                     users: [parseFloat(userId).toString()],
-                    publishedAt: new Date().toISOString()
+                    publishedAt: new Date().toISOString(),
+                    
                 }
             });
             return create.data?.createScheduling?.data?.id
@@ -306,7 +307,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
             },
             Payment: {
                 Type: "Pix",
-                Amount: signalValuePix
+                Amount: 1
             }
         }
 

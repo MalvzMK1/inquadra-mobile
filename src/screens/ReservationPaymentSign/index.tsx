@@ -1,6 +1,6 @@
-import { View, Image, Text, TouchableOpacity, TextInput, Modal } from "react-native";
+import {View, Image, Text, TouchableOpacity, TextInput, Modal, ActivityIndicator} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { FontAwesome } from '@expo/vector-icons';
 import { TextInputMask } from 'react-native-masked-text';
 import React from "react";
@@ -23,34 +23,66 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import { generatePix } from "../../services/pixCielo";
 import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
-import { StackActions } from '@react-navigation/native';
-import {useGetUserById} from "../../hooks/useUserById";
+import { StackActions, useFocusEffect } from '@react-navigation/native';
+import { useGetUserById } from "../../hooks/useUserById";
 import getAddress from "../../utils/getAddressByCep";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {CieloRequestManager} from "../../services/cieloRequestManager";
-import {transformCardExpirationDate} from "../../utils/transformCardExpirationDate";
-import {convertToAmericanDate} from "../../utils/formatDate";
+import { CieloRequestManager } from "../../services/cieloRequestManager";
+import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import { convertToAmericanDate } from "../../utils/formatDate";
+
+export 	interface iFormCardPayment {
+	name: string
+	cpf: string
+	cvv: string
+	date: string
+	cep: string
+	number: string
+	street: string
+	district: string
+	complement: string
+	city: string
+	state: string
+	cardNumber: string
+}
 
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
-	const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
-	const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
-	const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
-	const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
-	const {data: userData, loading: isUserDataLoading, error: userDataError} = useGetUserById(userId);
-	const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
-	const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
-    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
-    const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
-
-
+	const [showCameraIcon, setShowCameraIcon] = useState(false);
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [showCard, setShowCard] = useState(false);
+	const [expiryDate, setExpiryDate] = useState('');
+	const [cvv, setCVV] = useState('');
+	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
+	const [reserveValue, setReserveValue] = useState<number>();
+	const [serviceValue, setServiceValue] = useState<number>();
+	const [userName, setUserName] = useState<string>();
+	const [userCPF, setUserCPF] = useState<string>();
+	const [selected, setSelected] = React.useState("");
+	const [totalValue, setTotalValue] = useState<number>();
 	const [cardData, setCardData] = useState({
 		cardNumber: '',
 		expirationDate: '',
 		cvv: '',
 		country: ''
 	});
-	const [showCameraIcon, setShowCameraIcon] = useState(false);
+
+	const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
+	const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
+	const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
+	const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
+	const { data: userData, loading: isUserDataLoading, error: userDataError } = useGetUserById(userId);
+	const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
+	const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
+	const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
+	const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
+
+	useFocusEffect(() => {
+		setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!)
+		setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!)
+	})
+
+
+
 	const handleCardClick = () => {
 		setShowCard(!showCard);
 		setShowCameraIcon(false);
@@ -59,26 +91,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const handleSaveCard = () => {
 		setShowCard(false);
 	};
-	const [expiryDate, setExpiryDate] = useState('');
 
 	const handleExpiryDateChange = (formatted: string) => {
 		setExpiryDate(formatted);
 	};
-
-	const [cvv, setCVV] = useState('');
-	const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
-	const reserveValue = dataReserve?.courtAvailability?.data?.attributes?.value
-	const serviceValue = amountToPay * 0.04
-
-	const minValue = dataReserve?.courtAvailability?.data?.attributes?.minValue
-	let totalValue
-	if (reserveValue) {
-		totalValue = reserveValue + serviceValue
-	}
-
-
-	const [selected, setSelected] = React.useState("");
-
 
 	const handleCVVChange = (input: any) => {
 		const numericInput = input.replace(/\D/g, '');
@@ -107,8 +123,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		key: 'userGeolocation'
 	}).then(data => setUserGeolocation(data));
 
-	console.log(dataReserve?.courtAvailability?.data?.attributes?.minValue)
-	console.log(dataReserve?.courtAvailability.data.attributes.value)
+
 	const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
 	const courtLongitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.longitude ?? '0');
 	const userLatitude = parseFloat(userGeolocation?.latitude.toString() ?? "0");
@@ -117,20 +132,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	let distanceInMeters = calculateDistance(userLatitude, userLongitude, courtLatitude, courtLongitude)
 	const distanceText = distanceInMeters >= 1000 ? `${(distanceInMeters / 1000).toFixed(1)} Km` : `${distanceInMeters.toFixed(0)} metros`;
 
-	interface iFormCardPayment {
-		name: string
-		cpf: string
-		cvv: string
-		date: string
-		cep: string
-		number: string
-		street: string
-		district: string
-		complement: string
-		city: string
-		state: string
-		cardNumber: string
-	}
+	// const distanceText = '123'
+
 
 	const formSchema = z.object({
 		name: z.string({ required_error: "É necessário inserir o nome" }).max(29, { message: "Só é possivel digitar até 30 caracteres" }),
@@ -151,17 +154,15 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			if (isNaN(inputDate.getTime())) {
 				return false;
 			}
-			if (inputDate <= currentDate) {
-				return false;
-			}
-			return true;
+			return inputDate > currentDate;
+
 		}, { message: "A data de vencimento é inválida" }),
 		cep: z.string().nonempty("É necessário inserir o CEP").min(8, "CEP inválido").max(9, "CEP inválido"),
 		number: z.string().nonempty("É necessário inserir o numero da residência"),
 		street: z.string().nonempty("É necessário inserir o nome da rua"),
 		district: z.string().nonempty("É necessário inserir o bairro"),
 		city: z.string().nonempty("É necessário inserir o nome da cidade"),
-		state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido"),
+		state: z.string().nonempty("É necessário inserir o estado").min(2, "Inválido").max(2, "Inválido"),
 		cardNumber: z.string().nonempty('É necessário inserir o número do cartão'),
 	})
 
@@ -169,7 +170,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		control,
 		handleSubmit,
 		formState: { errors },
-		getValues ,
+		getValues,
 		setValue
 	} = useForm<iFormCardPayment>({
 		resolver: zodResolver(formSchema)
@@ -199,12 +200,13 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	};
 
 	const pay = async (data: iFormCardPayment) => {
+		setIsLoading(true)
 		try {
-			if (userData) {
+			if (userData && serviceValue && amountToPay) {
 				const cieloRequestManager = new CieloRequestManager();
 				const totalValue = (Number(amountToPay.toFixed(2)) + Number(serviceValue.toFixed(2))) * 100;
 
-				console.log({totalValue})
+				console.log({ totalValue })
 
 				const body: AuthorizeCreditCardPaymentResponse = {
 					MerchantOrderId: "2014111701",
@@ -283,16 +285,18 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								payedStatus: response.Payment.Status === 2 ? 'Payed' : 'Waiting',
 							}
 						}).then((response) => {
-							console.log({strapi_response: response})
+							console.log({ strapi_response: response })
 							updateStatusDisponibleCourt();
 							handleSaveCard();
-							navigation.navigate('InfoReserva', {userId: userId})
+							navigation.navigate('InfoReserva', { userId: userId })
 						});
 					}
 				})
 			}
 		} catch (error) {
 			console.error("Erro ao criar o agendamento:", error);
+		} finally {
+			setIsLoading(false)
 		}
 	};
 
@@ -310,7 +314,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					owner: userId,
 					users: [userId],
 					activation_key: isPayed ? generateRandomKey(4) : null,
-					service_value: serviceValue,
+					service_value: serviceValue!,
 					publishedAt: new Date().toISOString()
 				}
 
@@ -332,58 +336,57 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		})
 	}
 
-    const generatePixSignal = async () => {
-        const signalValuePix = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!) * 100
-        const signalValue = Number(dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)!)
 
-        const generatePixJSON: RequestGeneratePix = {
-            MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
-            Customer: {
-                Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
-                Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
-                IdentityType: "CPF",
-            },
-            Payment: {
-                Type: "Pix",
-                Amount: signalValuePix
-            }
-        }
+	const generatePixSignal = async () => {
+		let signalValue = Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2))
+		let signalValuePix = Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2)) * 100
 
+		const generatePixJSON: RequestGeneratePix = {
+			MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
+			Customer: {
+				Name: userName!,
+				Identity: userCPF!,
+				IdentityType: "CPF",
+			},
+			Payment: {
+				Type: "Pix",
+				Amount: 1
+			}
+		}
 
+		const pixGenerated = await generatePix(generatePixJSON)
 
-        const pixGenerated = await generatePix(generatePixJSON)
-
-        await addPaymentPix({
-            variables: {
-                name: dataUser?.usersPermissionsUser.data.attributes.username!,
-                cpf: dataUser?.usersPermissionsUser.data.attributes.cpf!,
-                value: signalValue,
-                schedulingID: null,
-                paymentID: pixGenerated.Payment.PaymentId,
-                publishedAt: new Date().toISOString(),
-                userID: userId
-            }
-        }).then((response) =>
-            navigation.dispatch(
-                StackActions.replace('PixScreen', {
-                    courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                    value: signalValue.toString(),
-                    userID: userId,
-                    QRcodeURL: pixGenerated.Payment.QrCodeString,
-                    paymentID: pixGenerated.Payment.PaymentId,
-                    userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
-                    screen: "signal",
-                    court_availabilityID: courtAvailabilities,
-                    date: courtAvailabilityDate.split("T")[0],
-                    pay_day: courtAvailabilityDate.split("T")[0],
-                    value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    ownerID: userId,
-                    service_value: serviceValue,
-                    isPayed: dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false,
-                    schedulePrice: signalValue
-                }))
-        )
-    }
+		await addPaymentPix({
+			variables: {
+				name: dataUser?.usersPermissionsUser.data.attributes.username!,
+				cpf: dataUser?.usersPermissionsUser.data.attributes.cpf!,
+				value: signalValue!,
+				schedulingID: null,
+				paymentID: pixGenerated.Payment.PaymentId,
+				publishedAt: new Date().toISOString(),
+				userID: userId
+			}
+		}).then((response) =>
+			navigation.dispatch(
+				StackActions.replace('PixScreen', {
+					courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+					value: signalValue!.toString(),
+					userID: userId,
+					QRcodeURL: pixGenerated.Payment.QrCodeString,
+					paymentID: pixGenerated.Payment.PaymentId,
+					userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+					screen: "signal",
+					court_availabilityID: courtAvailabilities,
+					date: courtAvailabilityDate.split("T")[0],
+					pay_day: courtAvailabilityDate.split("T")[0],
+					value_payed: signalValue ? signalValue : 0,
+					ownerID: userId,
+					service_value: serviceValue,
+					isPayed: signalValue === dataReserve?.courtAvailability.data.attributes.value ? true : false,
+					schedulePrice: signalValue!
+				}))
+		)
+	}
 
 
 	useEffect(() => {
@@ -404,6 +407,20 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			.then(console.log)
 	}, [userData])
 
+	useEffect(() => {
+		if (
+			dataReserve &&
+			dataReserve.courtAvailability.data &&
+			dataReserve.courtAvailability.data.attributes.court.data
+		) {
+			const scheduleValue = dataReserve.courtAvailability.data.attributes.value
+
+			setReserveValue(scheduleValue);
+			setServiceValue(scheduleValue * 0.04)
+			setTotalValue(scheduleValue + (scheduleValue * 0.04))
+		}
+	}, [dataReserve])
+
 	return (
 		<View className="flex-1 bg-white w-full h-full pb-10">
 			<ScrollView>
@@ -420,14 +437,14 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				</View>
 				<View className="bg-gray-300 p-4">
 					<Text className="text-5xl text-center font-extrabold text-gray-700">
-						R$ {dataReserve?.courtAvailability.data.attributes.minValue.toFixed(2)}
+						R$ {reserveValue}
 					</Text>
 				</View>
 				<View className='px-10 py-5'>
 					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
-					                  onPressIn={() => {
-                            generatePixSignal()
-					                  }}
+						onPressIn={() => {
+							generatePixSignal()
+						}}
 					>
 						<Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
 					</TouchableOpacity>
@@ -549,7 +566,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 											setSelected(val);
 
 										}}
-										data={dataCountry?.countries?.data.map(country => ({
+										data={!loadingCountry && dataCountry?.countries?.data.map(country => ({
 											value: country?.attributes.name,
 											label: country?.attributes.name || "",
 											img: `${country?.attributes.flag?.data?.attributes?.url || ""}`
@@ -679,8 +696,11 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								</View>
 							</View>
 							<View className="p-2 justify-center items-center pt-5">
-								<TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
-									<Text className="text-white">Salvar</Text>
+								<TouchableOpacity onPress={handleSubmit(pay)} disabled={isLoading} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+									{
+										isLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> :
+											<Text className="text-white">Pagar</Text>
+									}
 								</TouchableOpacity>
 							</View>
 						</View>
@@ -720,7 +740,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				<View className="p-4 justify-center items-center border-b ml-8 mr-8">
 					<View className="flex flex-row gap-6">
 						<Text className="font-bold text-xl text-[#717171]">Valor da Reserva</Text>
-						<Text className="font-bold text-xl text-right text-[#717171]">R$ {amountToPay.toFixed(2)}</Text>
+						<Text className="font-bold text-xl text-right text-[#717171]">R$ {amountToPay && amountToPay.toFixed(2)}</Text>
 					</View>
 					<View className="flex flex-row gap-6">
 						<View className="flex flex-row pt-1">
@@ -729,7 +749,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								<FontAwesome name="question-circle-o" size={13} color="black" />
 							</TouchableOpacity>
 						</View>
-						<Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue.toFixed(2)}</Text>
+						<Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue && serviceValue.toFixed(2)}</Text>
 					</View>
 				</View>
 				<View className="justify-center items-center pt-6">

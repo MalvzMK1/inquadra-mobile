@@ -217,17 +217,26 @@ export default function CourtAvailabilityInfo({ navigation, route }: ICourtAvail
                                 className={`h-14 w-full rounded-md  ${!selectedTime ? availabilities.length <= 0 ? "bg-[#ffa363]" : "bg-[#ffa363]" : "bg-orange-500"} flex items-center justify-center`}
                                 disabled={!selectedTime ? availabilities.length <= 0 ? true : true : false} // tora grande
                                 onPress={() => {
-                                    if (selectedTime)
-                                        navigation.navigate('ReservationPaymentSign', {
-                                            courtName: route.params.courtName,
-                                            courtImage: route.params.courtImage,
-                                            courtId: route.params.courtId,
-                                            userId: route?.params?.userId,
-                                            amountToPay: selectedTime?.value,
-                                            courtAvailabilities: selectedTime?.id,
-                                            courtAvailabilityDate: selectedDate,
-                                            userPhoto: route.params.userPhoto
-                                        })
+                                    if (selectedTime) {}
+                                    console.log(route.params.userId)
+                                        if (
+                                          route.params.userId &&
+                                          route.params.userId !== 0 &&
+                                          route.params.userId !== '0'
+                                        ) {
+                                            navigation.navigate('ReservationPaymentSign', {
+                                                courtName: route.params.courtName,
+                                                courtImage: route.params.courtImage,
+                                                courtId: route.params.courtId,
+                                                userId: route?.params?.userId,
+                                                amountToPay: selectedTime?.value,
+                                                courtAvailabilities: selectedTime?.id,
+                                                courtAvailabilityDate: selectedDate,
+                                                userPhoto: route.params.userPhoto
+                                            })
+                                        } else {
+                                            navigation.navigate('Login')
+                                        }
                                 }}
                             >
                                 <Text className='text-white'>RESERVAR</Text>
