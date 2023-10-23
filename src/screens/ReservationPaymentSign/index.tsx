@@ -691,7 +691,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 							</View>
 							<View className="p-2 justify-center items-center pt-5">
 								<TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
-									<Text className="text-white">Salvar</Text>
+									<Text className="text-white">Pagar</Text>
 								</TouchableOpacity>
 							</View>
 						</View>
