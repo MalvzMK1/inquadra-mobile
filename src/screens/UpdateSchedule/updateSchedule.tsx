@@ -240,7 +240,8 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                     value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
                     owner: parseFloat(userId).toString(),
                     users: [parseFloat(userId).toString()],
-                    publishedAt: new Date().toISOString()
+                    publishedAt: new Date().toISOString(),
+                    
                 }
             });
             return create.data?.createScheduling?.data?.id

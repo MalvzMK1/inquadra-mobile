@@ -5,6 +5,10 @@ interface Customer {
   IdentityType: "CPF" | "CNPJ";
 }
 
+interface PaymentPix{
+  Type: "Pix" | "Boleto" | "Cartao";
+  Amount: number;
+}
 interface Payment {
   Type: "Pix" | "Boleto" | "Cartao";
   Amount: number;
@@ -13,7 +17,7 @@ interface Payment {
 interface RequestGeneratePix {
   MerchantOrderId: string;
   Customer: Customer;
-  Payment: Payment;
+  Payment: PaymentPix;
 }
 
 //Types of the response of the generate pix

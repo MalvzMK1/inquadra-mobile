@@ -300,7 +300,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					owner: userId,
 					users: [userId],
 					activation_key: isPayed ? generateRandomKey(4) : null,
-					service_value: serviceValue,
+					service_value: serviceValue!,
 					publishedAt: new Date().toISOString()
 				}
 
