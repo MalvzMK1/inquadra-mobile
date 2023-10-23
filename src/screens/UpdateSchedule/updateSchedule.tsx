@@ -122,9 +122,9 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     }).then(data => setUserGeolocation(data));
 
 
-    if (dataReserve?.courtAvailability?.data?.attributes?.minValue! > route.params.pricePayed) {
+    if (dataReserve?.courtAvailability?.data.attributes.court.data.attributes.minimumScheduleValue! > route.params.pricePayed) {
         minPriceBigger = true
-        signalPay = dataReserve?.courtAvailability?.data?.attributes?.minValue! - route.params.pricePayed
+        signalPay = dataReserve?.courtAvailability?.data.attributes.court.data.attributes.minimumScheduleValue! - route.params.pricePayed
         userMoney += signalPay
     }
 
