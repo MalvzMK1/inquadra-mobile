@@ -552,7 +552,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                         data?.scheduling?.data?.attributes?.owner?.data?.id !== user_id ?
                             <>
                                 {
-                                    isVanquished === false
+                                    !isVanquished
                                         ? data?.scheduling.data.attributes.payedStatus === "waiting"
                                             ? <View className='h-max w-full flex justify-center items-center pl-2'>
                                                 <TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
@@ -578,7 +578,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             </>
                             : <>
                                 {
-                                    isVanquished === false ?
+                                    !isVanquished ?
                                         data?.scheduling.data.attributes.valuePayed < data?.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate!
                                             ?
                                             <View className='h-28 w-60 flex-row  pr-5'>
