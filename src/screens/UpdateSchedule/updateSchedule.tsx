@@ -307,7 +307,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
             },
             Payment: {
                 Type: "Pix",
-                Amount: signalValuePix
+                Amount: 1
             }
         }
 
