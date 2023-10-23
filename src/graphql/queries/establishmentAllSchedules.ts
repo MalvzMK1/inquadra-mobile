@@ -1,5 +1,5 @@
-import {gql} from "@apollo/client";
-import {CourtType} from "../../__generated__/graphql";
+import { gql } from "@apollo/client";
+import { CourtType } from "../../__generated__/graphql";
 
 export interface IEstablishmentAllSchedulesResponse {
 	establishment: {
@@ -44,7 +44,7 @@ export interface IEstablishmentAllSchedulesResponse {
 															}
 														}
 													}
-													payedStatus: boolean
+													payedStatus: Scheduling['payedStatus']
 												}
 											}>
 										}

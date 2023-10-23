@@ -201,13 +201,13 @@ export default function CourtSchedule({
       schedulingDate: string;
       schedulingStatus: boolean;
       reservedBy: string;
-      payedStatus: boolean;
+      payedStatus: string;
     };
   }
 
   let establishmentSchedules: IEstablishmentSchedules[] = [];
   if (schedulesData)
-    schedulesData?.establishment.data?.attributes.courts.data.map(courtItem => {
+    schedulesData.establishment.data?.attributes.courts.data.map(courtItem => {
       courtItem.attributes.court_availabilities.data.map(
         courtAvailabilitieItem => {
           courtAvailabilitieItem.attributes.schedulings.data.map(
@@ -218,7 +218,7 @@ export default function CourtSchedule({
                   courtId: courtItem.id,
                   courtName: courtItem.attributes.name,
                   courtType:
-                    courtItem.attributes.court_types.data[0].attributes.name,
+                    courtItem?.attributes.court_types.data[0].attributes.name,
                   startsAt: courtAvailabilitieItem.attributes.startsAt,
                   endsAt: courtAvailabilitieItem.attributes.endsAt,
                   weekDay: courtAvailabilitieItem.attributes.weekDay,
@@ -227,8 +227,8 @@ export default function CourtSchedule({
                     schedulingDate: schedulingItem.attributes.date,
                     schedulingStatus: schedulingItem.attributes.status,
                     reservedBy:
-                      schedulingItem.attributes.owner?.data?.attributes
-                        ?.username,
+                      schedulingItem.attributes.owner.data.attributes
+                        .username,
                     payedStatus: schedulingItem.attributes.payedStatus,
                   },
                 },
@@ -248,7 +248,7 @@ export default function CourtSchedule({
   let courtNames: string[] = [];
   if (!courtsByEstablishmentIdLoading)
     if (courtsByEstablishmentIdData != undefined)
-      courtsByEstablishmentIdData?.establishment.data.attributes.courts.data.map(
+      courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map(
         courtItem => {
           courtNames.push(courtItem.attributes.name);
           allCourts = [
@@ -267,12 +267,12 @@ export default function CourtSchedule({
   }
 
   if (
-    userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment
-      .data?.attributes?.photo
+    userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment
+      .data.attributes.photo
   ) {
     navigation.setParams({
       establishmentPhoto:
-        userByEstablishmentData?.usersPermissionsUser.data.attributes
+        userByEstablishmentData.usersPermissionsUser.data.attributes
           .establishment.data.attributes.photo,
     });
   }
@@ -317,19 +317,11 @@ export default function CourtSchedule({
       .load<UserInfos>({
         key: "userInfos",
       })
-      .then(data => {
-        setUserId(data.userId);
-      });
 
-    if (!userByEstablishmentLoading)
-      if (
-        userByEstablishmentData?.usersPermissionsUser.data != undefined &&
-        userByEstablishmentData?.usersPermissionsUser.data != null
-      )
-        setEstablishmentId(
-          userByEstablishmentData?.usersPermissionsUser.data.attributes
-            .establishment.data.id,
-        );
+
+
+
+
   }, [userByEstablishmentData]);
 
   const [shownSchedules, setShownSchedules] = useState<
@@ -478,7 +470,6 @@ export default function CourtSchedule({
           };
         }),
       );
-
       setSchedulingsJson(scheduleInfoArray);
     }
   };
@@ -976,6 +967,7 @@ export default function CourtSchedule({
                         )} */}
 
             {maxValue == 0 && (
+
               <View className="h-[100px] flex items-center justify-center">
                 <Text className="text-[16px] font-bold">
                   Não há reservas para os próximos 7 dias.
@@ -1350,10 +1342,9 @@ export default function CourtSchedule({
         <BottomBlackMenuEstablishment
           screen="Schedule"
           userID={userId ?? ""}
-          establishmentLogo={route.params.establishmentPhoto!}
+          establishmentLogo={establishentPicture}
           establishmentID={
-            userByEstablishmentData?.usersPermissionsUser.data.attributes
-              .establishment.data.id!
+            establishmentId
           }
           key={1}
           paddingTop={2}

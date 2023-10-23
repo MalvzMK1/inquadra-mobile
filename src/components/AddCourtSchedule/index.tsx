@@ -12,7 +12,7 @@ type AddCourtScheduleCard = {
 
     reservedBy: string
     courtType: string
-    payedStatus: boolean
+    payedStatus: string
 }
 
 export default function AddCourtSchedule(props: AddCourtScheduleCard) {

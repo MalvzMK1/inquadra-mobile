@@ -1,6 +1,6 @@
 import { View, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from "react-native"
 import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -15,13 +15,26 @@ interface IBottomBlackMenuEstablishment {
 }
 
 export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEstablishment) {
-    const { screen, establishmentID, establishmentLogo, paddingTop, userID } = props
+    const [screen, setScreen] = useState("")
+    const [establishmentID, setEstablishmentID] = useState("")
+    const [establishmentLogo, setEstablishmentLogo] = useState("")
+    const [userID, setUserID] = useState("")
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const [showPrincipalButton, setPrincipalButton] = useState(true)
     const [showButtons, setShowButtons] = useState(true)
     const [statusClickHome, setStatusClickHome] = useState(false)
     const opacityValue = useSharedValue(0)
+
+    useEffect(() => {
+        setScreen(props.screen)
+        setEstablishmentID(props.establishmentID)
+        setEstablishmentLogo(props.establishmentLogo!)
+        setUserID(props.userID)
+        
+    }, [])
+    console.log(screen, establishmentID, userID)
+   
     const buttonsContainerStyle = useAnimatedStyle(() => {
         return {
             opacity: withTiming(opacityValue.value, { duration: 300 }), // Duração da animação (300ms)
@@ -33,14 +46,14 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
     }).then(data => setUserGeolocation(data))
 
     return (
-        <View className={`items-center bg-transparent w-full pt-${paddingTop} pb-1`}>
+        <View className={`items-center bg-transparent w-full pb-1`}>
 
             {
                 showButtons &&
                 (
                     <View className="bg-black h-[75px] w-2/3 rounded-[20px] items-center justify-around flex flex-row">
                         {
-                            screen === "Home"
+                            screen === "Home" && userID && establishmentID && userID
                                 ?
                                 showButtons && (<>
                                     <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishmentID, logo: establishmentLogo ?? "" })}>
@@ -53,8 +66,8 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
 
                                     <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
                                         establishmentPhoto: establishmentLogo ?? "",
-                                        establishmentId: establishmentID,
-                                        userId: userID
+                                        establishmentId: "6",
+                                        userId: "1"
                                     })}>
                                         <MaterialIcons name="calendar-today" color={"white"} size={25} />
                                     </TouchableOpacity>

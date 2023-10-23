@@ -5,7 +5,7 @@ type Scheduling = {
     date: Date
     users: Array<string>
     valuePayed: number
-    payedStatus: boolean
+    payedStatus: string
     owner: string
     payDay: Date
     activation_key: string

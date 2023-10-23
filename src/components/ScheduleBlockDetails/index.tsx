@@ -5,7 +5,7 @@ type ScheduleBlockDetailsT = {
     courtType: string
     startsAt: string
     endsAt: string
-    payedStatus: boolean
+    payedStatus: string
 }
 
 export default function ScheduleBlockDetails(props: ScheduleBlockDetailsT) {
@@ -32,10 +32,10 @@ export default function ScheduleBlockDetails(props: ScheduleBlockDetailsT) {
             <View className="flex flex-row gap-x-[8px] items-center">
                 <Image source={require('../../assets/orange_money_icon.png')}></Image>
                 <Text className="-m-[5px] font-normal text-[14px]">Status de pagamento: </Text>
-                {props.payedStatus && (
+                {props.payedStatus === "payed" && (
                     <Text className="font-bold text-[14px]">Pago</Text>
                 )}
-                {!props.payedStatus && (
+                {props.payedStatus === "waiting" && (
                     <Text className="font-bold text-[14px]">Pendente</Text>
                 )}
             </View>
