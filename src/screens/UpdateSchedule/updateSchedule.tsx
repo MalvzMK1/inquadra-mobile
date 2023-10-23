@@ -82,7 +82,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     const [cvv, setCVV] = useState('');
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const reserveValue = dataReserve?.courtAvailability?.data?.attributes?.value
-    const serviceValue = amountToPay * 4 / 100
+    const serviceValue = amountToPay * 0.04
 
     const minValue = dataReserve?.courtAvailability?.data?.attributes?.minValue
     let totalValue
