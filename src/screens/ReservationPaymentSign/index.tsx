@@ -1,4 +1,4 @@
-import { View, Image, Text, TouchableOpacity, TextInput, Modal } from "react-native";
+import {View, Image, Text, TouchableOpacity, TextInput, Modal, ActivityIndicator} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useEffect, useState } from "react";
 import { FontAwesome } from '@expo/vector-icons';
@@ -31,8 +31,24 @@ import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
 import { convertToAmericanDate } from "../../utils/formatDate";
 
+export 	interface iFormCardPayment {
+	name: string
+	cpf: string
+	cvv: string
+	date: string
+	cep: string
+	number: string
+	street: string
+	district: string
+	complement: string
+	city: string
+	state: string
+	cardNumber: string
+}
+
 export default function ReservationPaymentSign({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReservationPaymentSign'>) {
 	const [showCameraIcon, setShowCameraIcon] = useState(false);
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [showCard, setShowCard] = useState(false);
 	const [expiryDate, setExpiryDate] = useState('');
 	const [cvv, setCVV] = useState('');
@@ -117,20 +133,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const distanceText = distanceInMeters >= 1000 ? `${(distanceInMeters / 1000).toFixed(1)} Km` : `${distanceInMeters.toFixed(0)} metros`;
 
 	// const distanceText = '123'
-	interface iFormCardPayment {
-		name: string
-		cpf: string
-		cvv: string
-		date: string
-		cep: string
-		number: string
-		street: string
-		district: string
-		complement: string
-		city: string
-		state: string
-		cardNumber: string
-	}
+
 
 	const formSchema = z.object({
 		name: z.string({ required_error: "É necessário inserir o nome" }).max(29, { message: "Só é possivel digitar até 30 caracteres" }),
@@ -197,6 +200,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	};
 
 	const pay = async (data: iFormCardPayment) => {
+		setIsLoading(true)
 		try {
 			if (userData && serviceValue && amountToPay) {
 				const cieloRequestManager = new CieloRequestManager();
@@ -291,6 +295,8 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			}
 		} catch (error) {
 			console.error("Erro ao criar o agendamento:", error);
+		} finally {
+			setIsLoading(false)
 		}
 	};
 
@@ -690,8 +696,11 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								</View>
 							</View>
 							<View className="p-2 justify-center items-center pt-5">
-								<TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
-									<Text className="text-white">Salvar</Text>
+								<TouchableOpacity onPress={handleSubmit(pay)} disabled={isLoading} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+									{
+										isLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> :
+											<Text className="text-white">Pagar</Text>
+									}
 								</TouchableOpacity>
 							</View>
 						</View>
