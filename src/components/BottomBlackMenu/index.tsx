@@ -7,7 +7,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 
 interface IBottomBlackMenu {
     screen: string
-    userID: string
+    userID: string | undefined
     userPhoto: string | null
     isDisabled: boolean
     paddingTop: number
@@ -26,8 +26,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
             opacity: withTiming(opacityValue.value, { duration: 300 }), // Duração da animação (300ms)
         };
     });
-
-
 
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
@@ -52,7 +50,19 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                 ?
                                 showButtons && (<>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('FavoriteEstablishments', { userPhoto: userPhoto ?? "", userID: userID })}>
+                                    <TouchableOpacity onPress={() => {
+                                        if (
+                                            userID === '' ||
+                                            userID === '0' ||
+                                            !userID
+                                        )
+                                            navigation.navigate('Login')
+                                        else
+                                            navigation.navigate('FavoriteEstablishments', {
+                                                userPhoto: userPhoto ?? "",
+                                                userID: userID
+                                            })
+                                    }}>
                                         <AntDesign name="heart" size={25} color={"white"} />
                                     </TouchableOpacity>
 
@@ -60,7 +70,19 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('InfoReserva', { userId: userID })}>
+                                    <TouchableOpacity onPress={() => {
+                                        if (
+                                            userID === '' ||
+                                            userID === '0' ||
+                                            !userID
+                                        )
+                                            navigation.navigate('Login')
+                                        else
+                                            navigation.navigate('FavoriteEstablishments', {
+                                                userPhoto: userPhoto ?? "",
+                                                userID: userID
+                                            })
+                                    }}>
                                         <MaterialIcons name="calendar-today" color={"white"} size={25} />
                                     </TouchableOpacity>
                                 </>)
@@ -71,18 +93,37 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         <TouchableOpacity>
                                             <AntDesign name="heart" size={35} color={"red"} />
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => navigation.navigate('Home', {
-                                            userGeolocation: userGeolocation ? userGeolocation : {
-                                                latitude: 78.23570781291714,
-                                                longitude: 15.491400000982967
-                                            },
-                                            userID: userID,
-                                            userPhoto: userPhoto ?? ""
-                                        })}>
+                                        <TouchableOpacity onPress={() => {
+                                            if (
+                                                userID === '' ||
+                                                userID === '0' ||
+                                                !userID
+                                            )
+                                                navigation.navigate('Login')
+                                            else
+
+                                                navigation.navigate('Home', {
+                                                    userGeolocation: userGeolocation ? userGeolocation : {
+                                                        latitude: 78.23570781291714,
+                                                        longitude: 15.491400000982967
+                                                    },
+                                                    userID: userID,
+                                                    userPhoto: userPhoto ?? ""
+                                                })
+                                        }}>
                                             <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => navigation.navigate('InfoReserva', { userId: userID })}>
+                                        <TouchableOpacity onPress={() => {
+                                            if (
+                                                userID === '' ||
+                                                userID === '0' ||
+                                                !userID
+                                            )
+                                                navigation.navigate('Login')
+                                            else
+                                                navigation.navigate('InfoReserva', {userId: userID})
+                                        }}>
                                             <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                         </TouchableOpacity>
                                     </>)
@@ -90,17 +131,38 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         ?
                                         showButtons &&
                                         (<>
-                                            <TouchableOpacity onPress={() => navigation.navigate('FavoriteEstablishments', { userPhoto: userPhoto ?? "", userID: userID })}>
+                                            <TouchableOpacity onPress={() => {
+                                                if (
+                                                    userID === '' ||
+                                                    userID === '0' ||
+                                                    !userID
+                                                )
+                                                    navigation.navigate('Login')
+                                                else
+                                                    navigation.navigate('FavoriteEstablishments', {
+                                                    userPhoto: userPhoto ?? "",
+                                                    userID: userID
+                                                })
+                                            }}>
                                                 <AntDesign name="heart" size={25} color={"white"} />
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('Home', {
-                                                userGeolocation: userGeolocation ? userGeolocation : {
-                                                    latitude: 78.23570781291714,
-                                                    longitude: 15.491400000982967
-                                                },
-                                                userID: userID,
-                                                userPhoto: userPhoto ?? ""
-                                            })}>
+                                            <TouchableOpacity onPress={() => {
+                                                if (
+                                                    userID === '' ||
+                                                    userID === '0' ||
+                                                    !userID
+                                                )
+                                                    navigation.navigate('Login')
+                                                else
+                                                    navigation.navigate('Home', {
+                                                    userGeolocation: userGeolocation ? userGeolocation : {
+                                                        latitude: 78.23570781291714,
+                                                        longitude: 15.491400000982967
+                                                    },
+                                                    userID: userID,
+                                                    userPhoto: userPhoto ?? ""
+                                                })
+                                            }}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
 
@@ -111,23 +173,50 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                         : screen === 'EstablishmentInfo' ?
                                             showButtons &&
                                             (<>
-                                                <TouchableOpacity onPress={() => navigation.navigate('FavoriteEstablishments', {
-                                                    userPhoto: userPhoto ? userPhoto : undefined,
-                                                    userID: userID
-                                                })}>
+                                                <TouchableOpacity onPress={() => {
+                                                    if (
+                                                        userID === '' ||
+                                                        userID === '0' ||
+                                                        !userID
+                                                    )
+                                                        navigation.navigate('Login')
+                                                    else
+                                                        navigation.navigate('FavoriteEstablishments', {
+                                                        userPhoto: userPhoto ? userPhoto : undefined,
+                                                        userID: userID
+                                                    })
+                                                }}>
                                                     <AntDesign name="heart" size={25} color={"white"} />
                                                 </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => navigation.navigate('Home', {
-                                                    userGeolocation: userGeolocation ? userGeolocation : {
-                                                        latitude: 78.23570781291714,
-                                                        longitude: 15.491400000982967
-                                                    },
-                                                    userID: userID,
-                                                    userPhoto: userPhoto ?? ""
-                                                })}>
+                                                <TouchableOpacity onPress={() => {
+                                                    if (
+                                                        userID === '' ||
+                                                        userID === '0' ||
+                                                        !userID
+                                                    )
+                                                        navigation.navigate('Login')
+                                                    else
+                                                        navigation.navigate('Home', {
+                                                        userGeolocation: userGeolocation ? userGeolocation : {
+                                                            latitude: 78.23570781291714,
+                                                            longitude: 15.491400000982967
+                                                        },
+                                                        userID: userID,
+                                                        userPhoto: userPhoto ?? ""
+                                                    })
+                                                }}>
                                                     <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => navigation.navigate('InfoReserva', { userId: userID })}>
+                                                <TouchableOpacity onPress={() => {
+                                                    if (
+                                                        userID === '' ||
+                                                        userID === '0' ||
+                                                        !userID
+                                                    )
+                                                        navigation.navigate('Login')
+                                                    else
+                                                        navigation.navigate('InfoReserva', {userId: userID})
+                                                }}>
                                                     <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                                 </TouchableOpacity>
                                             </>)
@@ -136,17 +225,35 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                                                 <TouchableOpacity>
                                                     <AntDesign name="heart" size={25} color={"white"} />
                                                 </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => navigation.navigate('Home', {
-                                                    userGeolocation: userGeolocation ? userGeolocation : {
-                                                        latitude: 78.23570781291714,
-                                                        longitude: 15.491400000982967
-                                                    },
-                                                    userID: userID,
-                                                    userPhoto: userPhoto ?? ""
-                                                })}>
+                                                <TouchableOpacity onPress={() => {
+                                                    if (
+                                                        userID === '' ||
+                                                        userID === '0' ||
+                                                        !userID
+                                                    )
+                                                        navigation.navigate('Login')
+                                                    else
+                                                        navigation.navigate('Home', {
+                                                        userGeolocation: userGeolocation ? userGeolocation : {
+                                                            latitude: 78.23570781291714,
+                                                            longitude: 15.491400000982967
+                                                        },
+                                                        userID: userID,
+                                                        userPhoto: userPhoto ?? ""
+                                                    })
+                                                }}>
                                                     <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => navigation.navigate('InfoReserva', { userId: userID })}>
+                                                <TouchableOpacity onPress={() => {
+                                                    if (
+                                                        userID === '' ||
+                                                        userID === '0' ||
+                                                        !userID
+                                                    )
+                                                        navigation.navigate('Login')
+                                                    else
+                                                        navigation.navigate('InfoReserva', {userId: userID})
+                                                }}>
                                                     <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                                 </TouchableOpacity>
                                             </>
