@@ -16,12 +16,12 @@ interface Payment {
 
 interface RequestGeneratePix {
   MerchantOrderId: string;
-  Customer: Customer;
+  Customer: CustomerPix;
   Payment: PaymentPix;
 }
 
 //Types of the response of the generate pix
-interface Customer {
+interface CustomerPix {
   Name: string;
   Identity: string;
   IdentityType: string;
