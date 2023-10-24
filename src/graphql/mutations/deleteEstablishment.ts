@@ -11,7 +11,7 @@ export interface IDeleteEstablishmentResponse{
 }
 
 export interface IDeleteEstablishmentVariables{
-    establishment_id: number
+    establishment_id: number | string
 }
 
 export const deleteEstablishmentMutation = gql`

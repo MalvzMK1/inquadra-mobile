@@ -14,7 +14,6 @@ export interface IRegisterCourtAvailabilityResponse {
 }
 
 export interface IRegisterCourtAvailabilityVariables {
-  title: string;
   week_day: string;
   value: number;
   starts_at: string;
@@ -27,7 +26,6 @@ export interface IRegisterCourtAvailabilityVariables {
 
 export const registerCourtAvailabilityMutation = gql`
   mutation newCourtAvailability(
-    $title: String
     $week_day: ENUM_COURTAVAILABILITY_WEEKDAY
     $value: Float
     $starts_at: Time
@@ -39,7 +37,6 @@ export const registerCourtAvailabilityMutation = gql`
   ) {
     createCourtAvailability(
       data: {
-        title: $title
         weekDay: $week_day
         value: $value
         startsAt: $starts_at
