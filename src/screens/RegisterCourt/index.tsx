@@ -41,16 +41,6 @@ interface IFormDatasCourt {
   court_availabilities?: string[];
 }
 
-interface CourtArrayObject {
-  court_name: string;
-  courtType: string[];
-  fantasyName: string;
-  photos: string[];
-  court_availabilities: string[]; // tela vinicius
-  minimum_value: number;
-  currentDate: string;
-}
-
 type CourtTypes = Array<{ label: string; value: string }>;
 
 export default function RegisterCourt({

@@ -6,8 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/AllVeryWell/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/AllVeryWell/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/RegisterCourt/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/RegisterCourt/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,16 +41,16 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="release" />
-                    <option name="lastUsedInstant" value="1697638941" />
+                    <option name="branchName" value="WI564T770" />
+                    <option name="lastUsedInstant" value="1698139778" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="WI564T770" />
-                    <option name="lastUsedInstant" value="1697621486" />
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1698072020" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1697466654" />
+                    <option name="lastUsedInstant" value="1698071118" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI564T761" />
@@ -146,6 +148,8 @@
       <workItem from="1697620663349" duration="16965000" />
       <workItem from="1697708208799" duration="2340000" />
       <workItem from="1697794656370" duration="5457000" />
+      <workItem from="1698053959333" duration="10613000" />
+      <workItem from="1698139543037" duration="10784000" />
     </task>
     <servers />
   </component>

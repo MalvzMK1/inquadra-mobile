@@ -138,7 +138,7 @@ type RootStackParamList = {
     "id" | "fantasyName" | "cellphoneNumber"
   > & {
     address: Omit<Address, "id" | "longitude" | "latitude">;
-    profileInfos?: {
+    profileInfos: {
       username: string;
       cpf: string;
       email: string;
