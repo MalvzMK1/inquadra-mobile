@@ -182,6 +182,10 @@ type RootStackParamList = {
     newDate?: string;
     randomKey?: string;
     isPayed?: boolean;
+    courtId?: string;
+    courtImage?: string;
+    pricePayed?: number;
+    userPhoto?: string;
   };
   RegisterNewCourt: {
     courtArray: CourtAdd[];

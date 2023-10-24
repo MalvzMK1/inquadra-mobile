@@ -53,7 +53,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     useFocusEffect(() => {
         setHasExecuted(false)
-        setStatusPix("waiting")
     })
 
 
@@ -70,7 +69,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     useEffect(() => {
         let isMounted = true;
-        setStatusPix("waiting")
 
         function checkStatus() {
             verifyPixStatus(paymentID).then((response) => {
@@ -86,14 +84,55 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             });
         }
 
+        const checkTimeOut = () => {
+            if (statusPix === "waiting") {
+                setStatusPix("cancelled");
+                clearInterval(intervalId);
+
+                if (route.params.screen === "signal") {
+                    navigation.navigate('ReservationPaymentSign', {
+                        amountToPay: valueToPay,
+                        courtAvailabilities: route.params.court_availabilityID!,
+                        courtAvailabilityDate: route.params.date!,
+                        courtName: courtName,
+                        userId: userID,
+                        userPhoto: route.params.userPhoto,
+                        courtId: route.params.courtId!,
+                        courtImage: route.params.courtImage!
+                    })
+                }else if(route.params.screen === "historic"){
+                    navigation.navigate('DescriptionReserve', {
+                        scheduleId: route.params.scheduleID!.toString(),
+                        userId: courtName
+                    })
+                }else{
+                    navigation.navigate('PaymentScheduleUpdate', {
+                        amountToPay: valueToPay,
+                        activationKey: null,
+                        courtAvailabilities: route.params.court_availabilityID!,
+                        courtAvailabilityDate: route.params.newDate!,
+                        courtId: route.params.courtId!,
+                        courtImage: route.params.courtImage!,
+                        courtName:courtName,
+                        pricePayed: route.params.pricePayed!,
+                        userId:userID,
+                        userPhoto: route.params.userPhoto!,
+                        scheduleUpdateID: scheduleID?.toString()!
+                    })
+                }
+
+
+            }
+        }
+
         const intervalId = setInterval(checkStatus, 2500);
+        const timeOutPayment = setInterval(checkTimeOut, 300000);
 
         return () => {
             isMounted = false;
-            clearInterval(intervalId);
+            clearInterval(timeOutPayment)
         };
     }, []);
-
 
     const scheduleValueUpdate = async (value: number) => {
         let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
@@ -176,7 +215,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     updateUserPaymentPix({
                         variables: { userPaymentPixID: route.params.userPaymentPixID, scheduleID: scheduleID?.toString()! }
                     });
-    
+
                     scheduleValueUpdate(valueToPay).then(() => {
                         navigation.navigate('InfoReserva', { userId: userID });
                         setStatusPix("waiting");
@@ -218,7 +257,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             }
         }, [statusPix])
     );
-    
+
 
     useEffect(() => {
         if (
@@ -330,18 +369,36 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             </View>
             <View className='h-max w-max flex items-center justify-start pt-16'>
                 <Text className='font-black font text-xl pb-5'>{courtName}</Text>
-                <View>
-                    <QRCode value={QRcodeURL} size={200} />
-                </View>
+                {
+                    statusPix === "waiting" || statusPix === "payed"
+                        ? <View><QRCode value={QRcodeURL} size={200} /></View>
+                        : <Image
+                            source={
+                                require('../../assets/blocked.png')
+                            }
+                            style={{ width: 200, height: 200 }}
+                            borderRadius={100}
+                        />
+                }
                 <Text className='font-black font text-xl pt-2 pb-3'>Pagamento do Sinal</Text>
                 <View className='h-14 w-screen bg-gray-300 justify-center items-center '>
                     <Text className='font-black font text-3xl text-gray-600'>R${parseFloat(value).toFixed(2)}</Text>
                 </View>
-                <TouchableOpacity className='pt-5' onPress={handleCopiarTexto}>
-                    <View className='h-14 w-80 rounded-md bg-orange-500 flex items-center justify-center'>
-                        <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
-                    </View>
-                </TouchableOpacity>
+                {
+                    statusPix !== "cancelled"
+                        ?
+                        <TouchableOpacity className='pt-5' onPress={handleCopiarTexto}>
+                            <View className='h-14 w-80 rounded-md bg-orange-500 flex items-center justify-center'>
+                                <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
+                            </View>
+                        </TouchableOpacity>
+                        : <TouchableOpacity className='pt-5'>
+                            <View className='h-14 w-80 rounded-md bg-gray-500 flex items-center justify-center'>
+                                <Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
+                            </View>
+                        </TouchableOpacity>
+                }
+
                 {
                     statusPix === "waiting"
                         ? <Text>Aguardando pagamento...</Text>

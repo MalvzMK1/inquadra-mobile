@@ -213,7 +213,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					Customer: {
 						Name: data.name,
 						Identity: data.cpf,
-						IdentityType: "CPF",
+						IdentityType: "cpf",
 						Email: userData.usersPermissionsUser.data.attributes.email,
 						Birthdate: "1991-01-02",
 						Address: {
@@ -346,7 +346,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			Customer: {
 				Name: userName!,
 				Identity: userCPF!,
-				IdentityType: "CPF",
+				IdentityType: "cpf",
 			},
 			Payment: {
 				Type: "Pix",
@@ -383,7 +383,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					ownerID: userId,
 					service_value: serviceValue,
 					isPayed: signalValue === dataReserve?.courtAvailability.data.attributes.value ? true : false,
-					schedulePrice: signalValue!
+					schedulePrice: signalValue!,
+					courtId: courtId,
+					courtImage: courtImage,
+					userPhoto: route.params.userPhoto!
 				}))
 		)
 	}
@@ -755,7 +758,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				<View className="justify-center items-center pt-6">
 					<View className="flex flex-row gap-10">
 						<Text className="font-bold text-xl text-right text-[#717171]">Total: </Text>
-						<Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ {(amountToPay + serviceValue).toFixed(2)}</Text>
+						<Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ {(amountToPay + serviceValue!).toFixed(2)}</Text>
 					</View>
 				</View>
 				<Modal visible={showPaymentInformation} animationType="fade" transparent={true}>

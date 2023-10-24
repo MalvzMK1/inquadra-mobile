@@ -336,7 +336,11 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                 scheduleID: Number(route.params.scheduleUpdateID!),
                 isPayed: priceBigger ? false : true,
                 randomKey: validateKey(generateRandomKey(4))!,
-                userMoney: userMoney
+                userMoney: userMoney,
+                pricePayed: route.params.pricePayed!,
+                courtId: courtId,
+                courtImage: courtImage!,
+                userPhoto: route.params.userPhoto!
             })
         })
         
