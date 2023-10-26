@@ -47,63 +47,64 @@ export interface IUserPaymentCardVariables{
 }
 
 export const userPaymentCardMutation = gql`
-mutation newUserPayment(
-  $value: Float
-  $schedulingId: ID
-  $userId: ID
-  $name: String
-  $cpf: String
-  $cvv: Int
-  $date: Date
-  $countryID: ID
-  $publishedAt: DateTime
-  $cep: String
-  $state: String
-  $city: String
-  $number: String
-  $complement: String
-  $street: String
-  $neighborhood: String
-  $paymentId: String
-  $payedStatus: ENUM_USERPAYMENT_PAYEDSTATUS
-) {
-  createUserPayment(
-    data: {
-      value: $value
-      scheduling: $schedulingId
-      users_permissions_user: $userId
-      name: $name
-      cpf: $cpf
-      paymentId: $paymentId
-      card: {
-        cvv: $cvv
-        dueDate: $date
-        country: $countryID
-        cep: $cep
-        state: $state
-        city: $city
-        number: $number
-        complement: $complement
-        street: $street
-        neighborhood: $neighborhood
-      }
-      publishedAt: $publishedAt
-      payedStatus: $payedStatus
-    }
+  mutation newUserPayment(
+    $value: Float
+    $schedulingId: ID
+    $userId: ID
+    $name: String
+    $cpf: String
+    $cvv: Int
+    $date: Date
+    $countryID: ID
+    $publishedAt: DateTime
+    $cep: String
+    $state: String
+    $city: String
+    $number: String
+    $complement: String
+    $street: String
+    $neighborhood: String
+    $paymentId: String
+    $payedStatus: ENUM_USERPAYMENT_PAYEDSTATUS
   ) {
-    data {
-      attributes {
-        value
-        createdAt
-        users_permissions_user {
-          data {
-            attributes {
-              username
+    createUserPayment(
+      data: {
+        value: $value
+        scheduling: $schedulingId
+        users_permissions_user: $userId
+        name: $name
+        cpf: $cpf
+        paymentId: $paymentId
+        country: $countryID
+        card: {
+          cvv: $cvv
+          dueDate: $date
+          cep: $cep
+          state: $state
+          city: $city
+          number: $number
+          complement: $complement
+          street: $street
+          neighborhood: $neighborhood
+        }
+        publishedAt: $publishedAt
+        payedStatus: $payedStatus
+      }
+    ) {
+      data {
+        attributes {
+          value
+          createdAt
+          users_permissions_user {
+            data {
+              attributes {
+                username
+              }
             }
           }
         }
       }
     }
   }
-}
+
 `

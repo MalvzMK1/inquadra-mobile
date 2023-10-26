@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/updatePaymentCardInformations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/updatePaymentCardInformations.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/userById.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/userById.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/apolloClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/apolloClient.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,12 +41,12 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="WI564T770" />
-                    <option name="lastUsedInstant" value="1698139778" />
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1698153861" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="release" />
-                    <option name="lastUsedInstant" value="1698072020" />
+                    <option name="branchName" value="WI564T770" />
+                    <option name="lastUsedInstant" value="1698139778" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="develop" />
@@ -85,7 +88,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;WI564T770&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;release&quot;,
     &quot;js.last.introduce.type&quot;: &quot;CONST&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Development/work/inquadra/mobile&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -147,6 +150,7 @@
       <workItem from="1697794656370" duration="5457000" />
       <workItem from="1698053959333" duration="10613000" />
       <workItem from="1698139543037" duration="10784000" />
+      <workItem from="1698328471452" duration="3403000" />
     </task>
     <servers />
   </component>

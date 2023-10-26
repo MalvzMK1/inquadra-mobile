@@ -36,7 +36,6 @@ import { Card } from "../../types/Card";
 import { mask } from "react-native-text-input-mask";
 import { useToast } from 'native-base';
 
-
 interface IFormData {
   photo: string;
   name: string;
@@ -396,16 +395,8 @@ export default function ProfileSettings({
             ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString()
             : "",
           country: {
-            id: data.usersPermissionsUser.data.attributes
-              .paymentCardInformations.country.data
-              ? data.usersPermissionsUser.data.attributes
-                .paymentCardInformations.country.data.id
-              : "",
-            name: data.usersPermissionsUser.data.attributes
-              .paymentCardInformations.country.data
-              ? data.usersPermissionsUser.data.attributes
-                .paymentCardInformations.country.data.attributes.name
-              : "",
+            id: '1',
+            name: 'Brasil',
           },
         },
       };
