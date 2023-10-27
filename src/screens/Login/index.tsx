@@ -125,7 +125,7 @@ export default function Login() {
                 key: "userInfos",
                 data: {
                   jwt: undefined,
-                  userId: 8,
+                  userId: 1,
                 },
                 expires: 1000 * 3600,
               })
