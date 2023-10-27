@@ -712,27 +712,25 @@ export default function ProfileSettings({
                   )}
                 </View>
                 <TouchableOpacity onPress={handleCardClick}>
-                  <Text className="text-base">Dados Cartão</Text>
-                  <View className="h-30 border border-gray-500 rounded-md">
-                    <View className="flex-row justify-center items-center m-2">
+                  <Text className="text-base">Adicionar Cartão</Text>
+                  <View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
+                    <View className='flex flex-row items-center gap-2'>
+                      <FontAwesome
+                        name='plus'
+                        size={12}
+                        color='#FF6112'
+                      />
                       <FontAwesome
                         name="credit-card-alt"
                         size={24}
                         color="#FF6112"
                       />
-                      <Text className="flex-1 text-base text-right mb-0">
-                        {showCard ? (
-                          <FontAwesome name="camera" size={24} color="#FF6112" />
-                        ) : (
-                          "Adicionar Cartão"
-                        )}
-                      </Text>
-                      <Icon
-                        name={showCard ? "chevron-up" : "chevron-down"}
-                        size={25}
-                        color="#FF4715"
-                      />
                     </View>
+                    <Icon
+                      name={showCard ? "chevron-up" : "chevron-down"}
+                      size={25}
+                      color="#FF4715"
+                    />
                   </View>
                 </TouchableOpacity>
                 {showCard && (
@@ -1015,19 +1013,17 @@ export default function ProfileSettings({
                 )}
                 <TouchableOpacity onPress={handleOpenCardsModal}>
                   <Text className="text-base">Cartões</Text>
-                  <View className="h-30 border border-gray-500 rounded-md">
-                    <View className="flex-row justify-center items-center m-2">
-                      <FontAwesome
-                        name="credit-card-alt"
-                        size={24}
-                        color="#FF6112"
-                      />
-                      <Icon
-                        name={showCreditCards ? "chevron-up" : "chevron-down"}
-                        size={25}
-                        color="#FF4715"
-                      />
-                    </View>
+                  <View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
+                    <FontAwesome
+                      name="credit-card-alt"
+                      size={24}
+                      color="#FF6112"
+                    />
+                    <Icon
+                      name={showCreditCards ? "chevron-up" : "chevron-down"}
+                      size={25}
+                      color="#FF4715"
+                    />
                   </View>
                 </TouchableOpacity>
                 {showCreditCards ? (
