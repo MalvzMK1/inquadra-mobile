@@ -1,13 +1,8 @@
-import { View, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Text } from "react-native"
-import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import React, { useState } from 'react'
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import storage from "../../utils/storage";
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import {Image, Text, View} from "react-native"
+import {MaterialIcons} from "@expo/vector-icons"
+import React, {useState} from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
-import { showMessage, hideMessage } from "react-native-flash-message";
+import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
 
 type CreditCardInfosT = {
     id: number
@@ -50,27 +45,31 @@ export default function CreditCardCard(props: CreditCardInfosT) {
 
     const handleDeleteCard = async (cardId: number) => {
         try {
-            const userCardsJSON = await AsyncStorage.getItem(`user${props.userID}Cards`);
-            if (userCardsJSON) {
-                const userCards = JSON.parse(userCardsJSON) as CreditCardInfosT[];
+            Dialog.show({
+                type: ALERT_TYPE.DANGER,
+                title: 'Deseja excluir o cartão?',
+                button: 'Sim',
+                onPressButton: async () => {
+                    const userCardsJSON = await AsyncStorage.getItem(`user${props.userID}Cards`);
+                    if (userCardsJSON) {
+                        const userCards = JSON.parse(userCardsJSON) as CreditCardInfosT[];
 
-                const cardIndex = userCards.findIndex((card) => card.id === cardId);
+                        const cardIndex = userCards.findIndex((card) => card.id === cardId);
 
-                if (cardIndex !== -1) {
-                    userCards.splice(cardIndex, 1);
+                        if (cardIndex !== -1) {
+                            userCards.splice(cardIndex, 1);
 
-                    await AsyncStorage.setItem(`user${props.userID}Cards`, JSON.stringify(userCards));
+                            await AsyncStorage.setItem(`user${props.userID}Cards`, JSON.stringify(userCards));
 
-                    showMessage({
-                        message: " ",
-                        description: "Cartão deletado com sucesso",
-                        type: "default",
-                        backgroundColor: "red"
-                    })
-
-                    setCardDeleted(true)
+                            setCardDeleted(true)
+                            Dialog.show({
+                                title: 'Cartão deletado com sucesso',
+                                type: ALERT_TYPE.SUCCESS
+                            })
+                        }
+                    }
                 }
-            }
+            })
         } catch (error) {
             console.error('Erro ao excluir o cartão', error);
         }
