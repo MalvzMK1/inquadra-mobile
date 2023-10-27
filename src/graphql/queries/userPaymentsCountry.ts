@@ -1,7 +1,7 @@
 import {gql} from "@apollo/client";
 
 export interface IUserPaymentsCountryResponse {
-	userPermissionsUser: {
+	usersPermissionsUser: {
 		data?: {
 			id: User['id']
 			attributes: {
@@ -31,7 +31,7 @@ export const userPaymentCountryQuery = gql`
     query UserPaymentCard($id: ID) {
         usersPermissionsUser(id: $id) {
             data {
-                id
+                id	
                 attributes {
                     user_payments {
                         data {
