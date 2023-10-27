@@ -222,7 +222,7 @@ export default function () {
           ),
         })}
       >
-        {props => <Home {...props} menuBurguer={menuBurguer} />}
+        {props => <Home {...props} menuBurguer={menuBurguer} setMenuBurguer={setMenuBurguer}/>}
       </Screen>
       <Screen
         name="Login"

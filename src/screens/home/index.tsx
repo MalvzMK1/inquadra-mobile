@@ -21,8 +21,8 @@ import { Image } from 'react-native';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, "Home"> {
   menuBurguer: boolean;
+  setMenuBurguer?: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
 interface EstablishmentObject {
   id: string;
   latitude: number;
@@ -33,7 +33,7 @@ interface EstablishmentObject {
   distance: number;
 }
 
-export default function Home({ menuBurguer, route, navigation }: Props) {
+export default function Home({ menuBurguer, setMenuBurguer, route, navigation }: Props) {
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -49,14 +49,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
     startsAt: string | undefined;
     date: Date | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
   }>({
     amenities: [],
     dayUseService: undefined,
@@ -314,7 +314,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
       });
     }
   }, [userGeolocation]);
-
   return (
     <View className="flex-1 flex flex-col justify-center items-center">
       {availableSportTypesLoading ? (
@@ -329,7 +328,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
           />
         )
       )}
-
       <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
@@ -398,13 +396,15 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
         {!isDisabled && (
           <TouchableOpacity
             className={`absolute left-3 top-3`}
-            onPress={() => setIsDisabled(prevState => !prevState)}
+            onPress={() => {
+              setIsDisabled(prevState => !prevState)
+            }}
           >
             <AntDesign name="left" size={30} color="black" />
           </TouchableOpacity>
         )}
         {menuBurguer && (
-          <FilterComponent setFilter={setFilter} filter={filter} />
+          <FilterComponent setBurguer={setMenuBurguer} setFilter={setFilter} setIsDisabled={setIsDisabled} filter={filter} />
         )}
       </View>
 
@@ -428,8 +428,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
               userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
                 ?.attributes?.url
                 ? HOST_API +
-                  userHookData.usersPermissionsUser.data.attributes.photo.data
-                    ?.attributes.url
+                userHookData.usersPermissionsUser.data.attributes.photo.data
+                  ?.attributes.url
                 : ""
             }
             key={1}

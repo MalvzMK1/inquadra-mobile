@@ -11,8 +11,11 @@ import FilterDate from '../FilterDate'
 import useFilters from '../../hooks/useFilters'
 
 
+
 export default function FilterComponent(props: {
-    setFilter: any,
+    setIsDisabled: React.Dispatch<React.SetStateAction<boolean>>,
+    setBurguer: React.Dispatch<React.SetStateAction<boolean>>,
+    setFilter: React.Dispatch<React.SetStateAction<any>>,
     filter: {
         amenities: string[] | [],
         dayUseService: boolean | undefined,
@@ -77,7 +80,7 @@ export default function FilterComponent(props: {
         endsAt: string | undefined,
         startsAt: string | undefined,
         weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
-        date: Date | undefined 
+        date: Date | undefined
     }>({
         amenities: [],
         dayUseService: undefined,
@@ -202,6 +205,8 @@ export default function FilterComponent(props: {
                             style={{ marginTop: 15, marginBottom: 10 }}
                             onPress={() => {
                                 props.setFilter(filter)
+                                props.setBurguer(false)
+                                props.setIsDisabled(true)
                             }}
                         >
                             <Text className='font-medium text-base'>
