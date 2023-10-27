@@ -456,10 +456,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				<View className="pt-5 px-9">
 					<TouchableOpacity onPress={handleCardClick}>
 						<View className="h-30 border border-gray-500 rounded-md">
-							<View className="flex-row justify-center items-center m-2">
+							<View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
 								<FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
 								<Text className="flex-1 text-base text-center mb-0">
-									{showCard ? <FontAwesome name="camera" size={24} color="#FF6112" /> : 'Selecionar Cartão'}
+									Selecionar Cartão
 								</Text>
 								<Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
 							</View>
