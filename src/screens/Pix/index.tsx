@@ -21,6 +21,7 @@ import { generateRandomKey } from '../../utils/activationKeyGenerate';
 import { useRegisterSchedule } from '../../hooks/useRegisterSchedule';
 import useUpdateScheduleDay from '../../hooks/useUpdateScheduleDay';
 import { useFocusEffect } from '@react-navigation/native';
+import useDeletePaymentPix from '../../hooks/useDeletePaymentPix';
 
 interface RouteParams extends NativeStackScreenProps<RootStackParamList, 'PixScreen'> { }
 
@@ -41,6 +42,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     const [updateUserPaymentPix, { data: dataUpdateUserPaymentPix, loading: loadingUpdateUserPaymentPix, error: errorUpdateUserPaymentPix }] = useUpdateUserPaymentPix()
     const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
     const [updateSchedule, { data: dataUpdateSchedule, error: errorUpdateSchedule, loading: loadingUpdateSchedule }] = useUpdateScheduleDay()
+    const [deletePaymentPix, { data: dataDeletePaymentPix, error: errorDeletePaymentPix, loading: loadingPaymentPix }] = useDeletePaymentPix()
     const schedulePrice = route.params.schedulePrice!
     const scheduleValuePayed = route.params.scheduleValuePayed!
 
@@ -51,9 +53,12 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     const valueToPay = parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.'))
     const [hasExecuted, setHasExecuted] = useState(false);
 
+
     useFocusEffect(() => {
         setHasExecuted(false)
     })
+
+
 
 
     const handleCopiarTexto = async () => {
@@ -88,45 +93,48 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             if (statusPix === "waiting") {
                 setStatusPix("cancelled");
                 clearInterval(intervalId);
-
-                if (route.params.screen === "signal") {
-                    navigation.navigate('ReservationPaymentSign', {
-                        amountToPay: valueToPay,
-                        courtAvailabilities: route.params.court_availabilityID!,
-                        courtAvailabilityDate: route.params.date!,
-                        courtName: courtName,
-                        userId: userID,
-                        userPhoto: route.params.userPhoto,
-                        courtId: route.params.courtId!,
-                        courtImage: route.params.courtImage!
-                    })
-                }else if(route.params.screen === "historic"){
-                    navigation.navigate('DescriptionReserve', {
-                        scheduleId: route.params.scheduleID!.toString(),
-                        userId: courtName
-                    })
-                }else{
-                    navigation.navigate('PaymentScheduleUpdate', {
-                        amountToPay: valueToPay,
-                        activationKey: null,
-                        courtAvailabilities: route.params.court_availabilityID!,
-                        courtAvailabilityDate: route.params.newDate!,
-                        courtId: route.params.courtId!,
-                        courtImage: route.params.courtImage!,
-                        courtName:courtName,
-                        pricePayed: route.params.pricePayed!,
-                        userId:userID,
-                        userPhoto: route.params.userPhoto!,
-                        scheduleUpdateID: scheduleID?.toString()!
-                    })
-                }
-
-
+                deletePaymentPix({
+                    variables: {
+                        id: route.params.userPaymentPixID!
+                    }
+                }).then(() => {
+                    if (route.params.screen === "signal") {
+                        navigation.navigate('ReservationPaymentSign', {
+                            amountToPay: valueToPay,
+                            courtAvailabilities: route.params.court_availabilityID!,
+                            courtAvailabilityDate: route.params.date!,
+                            courtName: courtName,
+                            userId: userID,
+                            userPhoto: route.params.userPhoto,
+                            courtId: route.params.courtId!,
+                            courtImage: route.params.courtImage!
+                        })
+                    } else if (route.params.screen === "historic") {
+                        navigation.navigate('DescriptionReserve', {
+                            scheduleId: scheduleID?.toString()!,
+                            userId: userID
+                        })
+                    } else {
+                        navigation.navigate('PaymentScheduleUpdate', {
+                            amountToPay: valueToPay,
+                            activationKey: null,
+                            courtAvailabilities: route.params.court_availabilityID!,
+                            courtAvailabilityDate: route.params.newDate!,
+                            courtId: route.params.courtId!,
+                            courtImage: route.params.courtImage!,
+                            courtName: courtName,
+                            pricePayed: route.params.pricePayed!,
+                            userId: userID,
+                            userPhoto: route.params.userPhoto!,
+                            scheduleUpdateID: scheduleID?.toString()!
+                        })
+                    }
+                })
             }
         }
 
         const intervalId = setInterval(checkStatus, 2500);
-        const timeOutPayment = setInterval(checkTimeOut, 300000);
+        const timeOutPayment = setInterval(checkTimeOut, 10000);
 
         return () => {
             isMounted = false;

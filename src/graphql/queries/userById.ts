@@ -32,21 +32,6 @@ export interface IUserByIdResponse {
                     id: PaymentCardInformations['id']
                     cvv?: PaymentCardInformations['cvv']
                     dueDate?: string
-                    country: {
-                        data: {
-                            id: string
-                            attributes: {
-                                name: string
-                                flag: {
-                                    data: {
-                                        attributes: {
-                                            url: Flag['url'];
-                                        };
-                                    };
-                                };
-                            };
-                        };
-                    };
                 };
                 photo: {
                     data?: {
@@ -100,21 +85,6 @@ query getUserById($id: ID) {
           id
           cvv
           dueDate
-          country {
-            data {
-              id
-              attributes {
-                name
-                flag {
-                  data {
-                    attributes {
-                      url
-                    }
-                  }
-                }
-              }
-            }
-          }
         }
         photo {
           data {
@@ -125,7 +95,7 @@ query getUserById($id: ID) {
               alternativeText
               caption
               width
-          		height
+              height
               formats
               hash
               ext

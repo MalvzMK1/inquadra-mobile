@@ -63,7 +63,7 @@ export default function Login() {
           identifier: data.identifier.trim(),
           password: data.password.trim(),
         },
-      });
+      })
       if (!authData.data) {
         throw new Error("No auth data.");
       }
@@ -76,6 +76,9 @@ export default function Login() {
           id: authData.data.login.user.id,
         },
       });
+
+      console.log(authData.data.login.user.id)
+
       if (!userData) {
         throw new Error("No user data.");
       }
@@ -125,7 +128,7 @@ export default function Login() {
                 key: "userInfos",
                 data: {
                   jwt: undefined,
-                  userId: 8,
+                  userId: 1,
                 },
                 expires: 1000 * 3600,
               })

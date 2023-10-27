@@ -27,9 +27,9 @@ import useDeleteSchedule from '../../hooks/useDeleteSchedule';
 import BottomBlackMenu from '../../components/BottomBlackMenu';
 import { generatePix } from '../../services/pixCielo';
 import { useUserPaymentPix } from '../../hooks/useUserPaymentPix';
-import {CieloRequestManager} from "../../services/cieloRequestManager";
-import {transformCardExpirationDate} from "../../utils/transformCardExpirationDate";
-import {useGetUserById} from "../../hooks/useUserById";
+import { CieloRequestManager } from "../../services/cieloRequestManager";
+import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import { useGetUserById } from "../../hooks/useUserById";
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
@@ -55,6 +55,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const [creditCard, setCreditCard] = useState("")
     const [selected, setSelected] = useState("")
     const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
+    const [courtPicture, setCourtPicture] = useState("")
     const currentTime = new Date()
     const schedulingPayDate = new Date(data?.scheduling?.data?.attributes?.payDay!)
     const scheduleDay = new Date(data?.scheduling?.data?.attributes?.date!)
@@ -78,6 +79,13 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const valueDisponibleToPay =
         (data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!) -
         data?.scheduling?.data?.attributes?.valuePayed!
+
+
+    useEffect(() => {
+        data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url !== undefined || data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url !== null
+            ? setCourtPicture(HOST_API + data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url!)
+            : setCourtPicture("https://cdn-icons-png.flaticon.com/512/10449/10449616.png")
+    }, [])
 
     interface iFormCardPayment {
         value: string
@@ -142,7 +150,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         street: z.string().nonempty("É necessário inserir o nome da rua"),
         district: z.string().nonempty("É necessário inserir o bairro"),
         city: z.string().nonempty("É necessário inserir o nome da cidade"),
-        state: z.string().nonempty("É necessário inserir o estado").min(2,"Inválido").max(2,"Inválido"),
+        state: z.string().nonempty("É necessário inserir o estado").min(2, "Inválido").max(2, "Inválido"),
         cardNumber: z.string().nonempty('É necessário inserir o número do cartão').min(16, 'Inválido')
     });
 
@@ -347,7 +355,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             },
             Payment: {
                 Type: "Pix",
-                Amount: parsedValue * 100
+                Amount: 1
             }
         }
 
@@ -441,7 +449,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     <View className='flex-row items-start justify-start w-max h-max pt-2'>
                         <View>
                             <Image
-                                source={{ uri: HOST_API + data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url }}
+                                source={{ uri: courtPicture }}
                                 style={{ width: 138, height: 90 }}
                                 borderRadius={5}
                             />
@@ -724,19 +732,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                 <View>
                                     <Text className='text-sm text-[#FF6112]'>Número do cartão</Text>
                                     <Controller
-                                      name='cardNumber'
-                                      control={control}
-                                      render={({ field: { onChange } }) => (
-                                        <MaskInput
-                                          className='p-3 border border-neutral-400 rounded bg-white'
-                                          placeholder='Ex: 0000 0000 0000 0000'
-                                          mask={Masks.CREDIT_CARD}
-                                          keyboardType={'numeric'}
-                                          value={getValues('cardNumber')}
-                                          maxLength={19}
-                                          onChangeText={onChange}>
-                                        </MaskInput>
-                                      )}
+                                        name='cardNumber'
+                                        control={control}
+                                        render={({ field: { onChange } }) => (
+                                            <MaskInput
+                                                className='p-3 border border-neutral-400 rounded bg-white'
+                                                placeholder='Ex: 0000 0000 0000 0000'
+                                                mask={Masks.CREDIT_CARD}
+                                                keyboardType={'numeric'}
+                                                value={getValues('cardNumber')}
+                                                maxLength={19}
+                                                onChangeText={onChange}>
+                                            </MaskInput>
+                                        )}
                                     ></Controller>
                                     {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
                                 </View>
@@ -805,7 +813,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             control={control}
                                             render={({ field: { onChange } }) => (
                                                 <TextInputMask
-                                                  className='p-3 border border-neutral-400 rounded bg-white'
+                                                    className='p-3 border border-neutral-400 rounded bg-white'
                                                     options={{
                                                         format: 'MM/YY',
                                                     }}
@@ -814,7 +822,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     onChangeText={onChange}
                                                     placeholder="MM/YY"
                                                     keyboardType="numeric"
-                                                  maxLength={5}
+                                                    maxLength={5}
                                                 />
                                             )}
                                         ></Controller>
