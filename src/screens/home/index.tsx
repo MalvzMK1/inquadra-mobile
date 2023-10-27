@@ -17,7 +17,6 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
-import { Image } from 'react-native';
 
 interface Props extends NativeStackScreenProps<RootStackParamList, "Home"> {
   menuBurguer: boolean;
@@ -161,68 +160,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
                 .map(court => court?.attributes?.court_types.data)
                 .map(courtType =>
                   courtType.map(type => type?.attributes?.name),
-                );
-
-              if (!courtTypes) courtTypes = [];
-
-              if (userGeolocation)
-                establishmentObject = {
-                  id: establishment.id,
-                  name: establishment?.attributes?.corporateName,
-                  latitude: Number(establishment?.attributes?.address.latitude),
-                  longitude: Number(
-                    establishment?.attributes?.address.longitude,
-                  ),
-                  distance:
-                    calculateDistance(
-                      userGeolocation.latitude,
-                      userGeolocation.longitude,
-                      Number(establishment?.attributes?.address.latitude),
-                      Number(establishment?.attributes?.address.longitude),
-                    ) / 1000,
-                  image:
-                    HOST_API +
-                    establishment?.attributes?.logo?.data?.attributes?.url,
-                  type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
-                };
-
-              return establishmentObject;
-            });
-
-          if (newEstablishments) setEstablishments(newEstablishments);
-
-          navigation.setParams({
-            userPhoto:
-              userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url ?? "",
-          });
-        } else {
-          const newEstablishments = establishmentsFiltered?.establishments.data
-            .filter(
-              establishment =>
-                establishment?.attributes?.photos.data &&
-                establishment?.attributes?.photos.data.length > 0 &&
-                establishment?.attributes?.courts.data,
-            )
-            .map(establishment => {
-              let establishmentObject: EstablishmentObject = {
-                id: "",
-                latitude: 0,
-                longitude: 0,
-                name: "",
-                type: "",
-                image: "",
-                distance: 0,
-              };
-
-              let courtTypes = establishment?.attributes?.courts
-                .data!.filter(
-                  court => court?.attributes?.court_types.data.length > 0,
-                )
-                .map(court => court?.attributes?.court_types.data)
-                .map(courtType =>
-                  courtType.map(type => type?.attributes?.name),
-                );
+                ) ?? [];
 
               if (!courtTypes) courtTypes = [];
 
