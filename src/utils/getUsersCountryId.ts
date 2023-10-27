@@ -1,15 +1,17 @@
 import useUserPaymentCountry from "../hooks/useUserPaymentCountry";
 import {IUserPaymentsCountryResponse} from "../graphql/queries/userPaymentsCountry";
 
-export function getUsersCountryId(userId: User['id'], data: IUserPaymentsCountryResponse): string | number | undefined {
+export function getUsersCountryId(userId: User['id'] | undefined, data: IUserPaymentsCountryResponse): string | number | undefined {
 	const FIRST_ARRAY_INDEX = 0;
+
+	if (!userId) return undefined
 
 	if (
 		data &&
-		data.userPermissionsUser.data &&
-		data.userPermissionsUser.data.attributes.user_payments.data.length > 0
+		data.usersPermissionsUser.data &&
+		data.usersPermissionsUser.data.attributes.user_payments.data.length > 0
 	) {
-		const {data: userPayments} = data.userPermissionsUser.data.attributes.user_payments;
+		const {data: userPayments} = data.usersPermissionsUser.data.attributes.user_payments;
 
 		const countries = userPayments.map(userPayment => {
 			if (
