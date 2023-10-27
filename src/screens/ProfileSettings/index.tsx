@@ -35,6 +35,8 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { Card } from "../../types/Card";
 import { mask } from "react-native-text-input-mask";
 import { useToast } from 'native-base';
+import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
+import {getUsersCountryId} from "../../utils/getUsersCountryId";
 
 interface IFormData {
   photo: string;
@@ -113,12 +115,15 @@ export default function ProfileSettings({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "ProfileSettings">) {
+  const {userID} = route.params;
   const [userInfos, setUserInfos] = useState<UserConfigurationProps>();
   const [showCard, setShowCard] = useState(false);
   const [showCreditCards, setShowCraditCards] = useState(false);
   const [showCameraIcon, setShowCameraIcon] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+  const [countryId, setCountryId] = useState<string | number>();
+  const [countries, setCountries] = useState<Array<Country>>();
   const [countriesArray, setCountriesArray] = useState<
     Array<{ key: string; value: string }>
   >([]);
@@ -128,8 +133,10 @@ export default function ProfileSettings({
     "Fazendo upload da imagem",
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [userCountry, setUserCountry] = useState<Country>();
 
-  const { loading, error, data, refetch } = useGetUserById(route.params.userID);
+  const {data: userPaymentCountryData, error: userPaymentCountryError} = useUserPaymentCountry(userID)
+  const { loading, error, data, refetch } = useGetUserById(userID);
   const {
     data: countriesData,
     loading: countriesLoading,
@@ -147,7 +154,6 @@ export default function ProfileSettings({
     },
   ] = useUpdatePaymentCardInformations();
   const [deleteUser] = useDeleteUser();
-  const userID = route.params.userID;
 
   useEffect(() => {
     let newCountriesArray: Array<{ key: string; value: string; img: string }> =
@@ -435,6 +441,8 @@ export default function ProfileSettings({
   let phoneDefault = data?.usersPermissionsUser.data?.attributes.phoneNumber!;
   let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!;
 
+
+
   useEffect(() => {
     AsyncStorage.getItem(`user${userID}Cards`, (error, result) => {
       if (error) {
@@ -494,6 +502,34 @@ export default function ProfileSettings({
       },
     );
   };
+
+  useEffect(() => {
+    let foundCountryId: string | number | undefined
+    if (userPaymentCountryData)
+      foundCountryId = getUsersCountryId(userID, userPaymentCountryData);
+    setCountryId(foundCountryId);
+  }, [userPaymentCountryData])
+
+  useEffect(() => {
+    if (countriesData && countryId) {
+      const {data: newCountries} = countriesData.countries
+
+      const foundCountry = newCountries.find(country => String(country.id) === String(countryId));
+
+      if (foundCountry) setUserCountry({
+        name: foundCountry.attributes.name,
+        ISOCode: foundCountry.attributes.ISOCode,
+        flag: {
+          id: foundCountry.attributes.flag.data.id,
+          name: foundCountry.attributes.flag.data.attributes.name,
+          url: foundCountry.attributes.flag.data.attributes.url,
+          hash: foundCountry.attributes.flag.data.attributes.hash,
+          alternativeText: foundCountry.attributes.flag.data.attributes.alternativeText
+        },
+        id: foundCountry.id,
+      });
+    }
+  }, [countriesData])
 
   return (
     <View className="flex-1 bg-white h-full">
@@ -784,8 +820,8 @@ export default function ProfileSettings({
                                 onChange(val);
                               }}
                               defaultOption={{
-                                key: userInfos?.paymentCardInfos.country.id,
-                                value: userInfos?.paymentCardInfos.country.name,
+                                key: userCountry?.id ?? '1',
+                                value: userCountry?.name ?? 'Brasil',
                               }}
                               data={countriesArray}
                               save="key"
