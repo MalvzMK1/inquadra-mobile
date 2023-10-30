@@ -131,26 +131,35 @@ export default function AllVeryWell({
     }
   }
 
+  let rmv_userId: string;
+  let rmv_establishmentId: string;
+  let rmv_uploadedImagesIds: Array<string>;
+
   async function removeRegisteredInfos(): Promise<void> {
-    if (userId) deleteUser({
+    console.log({rmv_userId, rmv_establishmentId, rmv_uploadedImagesIds})
+    if (rmv_userId) deleteUser({
       variables: {
-        user_id: userId
+        user_id: rmv_userId
       }
-    }).then(console.log)
+    }).then(response => console.log({DELETED_USER: response}))
 
-    if (establishmentId) deleteEstablishment({
+    if (rmv_establishmentId) deleteEstablishment({
       variables: {
-        establishment_id: establishmentId
+        establishment_id: rmv_establishmentId
       }
-    }).then(console.log)
+    }).then(response => console.log({DELETED_ESTABLISHMENT: response}))
 
-    if (uploadedImagesIds) uploadedImagesIds.forEach(id => deleteCourtAvailability(id))
+    if (rmv_uploadedImagesIds) rmv_uploadedImagesIds.forEach(id => deleteCourtAvailability({
+      variables: {
+        court_availability_id: id
+      }
+    }))
   }
 
   async function handleComplete(): Promise<void> {
-    console.log({profile_infos: route.params.profileInfos})
-    console.log({establishment_infos: route.params.establishmentInfos})
-    console.log({courts: route.params.courtArray[0].court_availabilities[0][0]})
+    // console.log({profile_infos: route.params.profileInfos})
+    // console.log({establishment_infos: route.params.establishmentInfos})
+    // console.log({courts: route.params.courtArray[0].court_availabilities[0][0]})
 
     try {
       const registerUserPayload: IRegisterUserVariables = {
@@ -162,6 +171,8 @@ export default function AllVeryWell({
 
       if (!newUserData) throw new Error('Não foi possível criar o usuário', {cause: newUserErrors?.map(error => error)});
 
+      console.log({NEW_USER: newUserData.createUsersPermissionsUser.data.id})
+      rmv_userId = newUserData.createUsersPermissionsUser.data.id;
       setUserId(newUserData.createUsersPermissionsUser.data.id)
 
       const registerEstalishmentPayload: IRegisterEstablishmentVariables = {
@@ -175,6 +186,7 @@ export default function AllVeryWell({
 
       if (!establishmentData) throw new Error('Não foi possível criar o estabelecimento', {cause: establishmentErrors?.map(error => error)})
 
+      rmv_establishmentId = establishmentData.createEstablishment.data.id;
       setEstablishmentId(establishmentData.createEstablishment.data.id)
 
       for (const court of route.params.courtArray) {
@@ -210,6 +222,7 @@ export default function AllVeryWell({
           ),
         ]);
 
+        rmv_uploadedImagesIds = newPhotosIds;
         setUploadedImagesIds(newPhotosIds)
 
         addCourt({
@@ -242,87 +255,18 @@ export default function AllVeryWell({
         Alert.alert('Erro no cadastro', err.message)
         navigation.navigate('Register', {
           flow: 'establishment'
-        })
+        });
       } else if (err instanceof Error) {
         console.log({message: err.message})
         Alert.alert('Erro no cadastro', err.message)
         navigation.navigate('Register', {
           flow: 'establishment'
-        })
+        });
       }
       removeRegisteredInfos().then(() => console.log('Informações deletadas com sucesso'))
     } finally {
       console.log(userId, establishmentId)
     }
-    // setIsLoading(true);
-    // try {
-    //   const userId = await registerUserPersonalInfos(route.params.profileInfos);
-    //   const establishmentId = await registerEstablishmentInfos(userId, route.params.establishmentInfos);
-    //
-    //   setUserId(userId)
-    //
-    //   for (const court of route.params.courtArray) {
-    //     const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
-    //       uploadImages(court.photos),
-    //       Promise.all(
-    //         court.court_availabilities.flatMap((availabilities, index) => {
-    //           return availabilities.map(async availability => {
-    //             const { data } = await registerCourtAvailability({
-    //               variables: {
-    //                 status: true,
-    //                 title: "O que deve vir aqui?",
-    //                 day_use_service: court.dayUse[index],
-    //                 starts_at: `${availability.startsAt}:00.000`,
-    //                 ends_at: `${availability.endsAt}:00.000`,
-    //                 value: Number(
-    //                   availability.price
-    //                     .replace("R$", "")
-    //                     .replace(".", "")
-    //                     .replace(",", ".")
-    //                     .trim(),
-    //                 ),
-    //                 week_day: indexToWeekDayMap[index],
-    //                 publishedAt: new Date().toISOString(),
-    //               },
-    //             });
-    //
-    //             if (!data) {
-    //               throw new Error("No data");
-    //             }
-    //
-    //             return data.createCourtAvailability.data.id;
-    //           });
-    //         }),
-    //       ),
-    //     ]);
-    //
-    //     addCourt({
-    //       variables: {
-    //         court_name: court.fantasyName,
-    //         courtTypes: court.courtType,
-    //         court_availabilities: courtAvailabilityIds,
-    //         minimum_value: court.minimum_value,
-    //         current_date: court.currentDate,
-    //         photos: uploadedImageIds,
-    //         establishmentId,
-    //         fantasyName: court.fantasyName
-    //       }
-    //     }).then(() => {
-    //       Promise.all([
-    //         AsyncStorage.removeItem('@inquadra/court-price-hour_day-use'),
-    //         AsyncStorage.removeItem(
-    //           "@inquadra/court-price-hour_all-appointments",
-    //         )
-    //       ]).then(() => navigation.navigate('CompletedEstablishmentRegistration'))
-    //     }).catch((error) => console.error('Unexpected error: ', error))
-    //   }
-    // } catch (error) {
-    //   console.log("Erro externo:", error);
-    //   console.log(userId)
-    //   Alert.alert("Erro", "Não foi possível cadastrar as quadras");
-    // } finally {
-    //   setIsLoading(false);
-    // }
   }
 
   return (
