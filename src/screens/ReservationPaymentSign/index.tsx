@@ -1,4 +1,4 @@
-import {ActivityIndicator, Image, Modal, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, Image, Modal, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {ScrollView} from "react-native-gesture-handler";
 import React, {useEffect, useState} from "react";
 import {FontAwesome} from '@expo/vector-icons';
@@ -256,46 +256,46 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					},
 				};
 
-				cieloRequestManager.authorizePayment(body).then(async (response) => {
-					console.log(response)
-					const newScheduleId = await createNewSchedule();
-					const countryId = getCountryIdByName(selected);
-					if (newScheduleId) {
-						userPaymentCard({
-							variables: {
-								value: Number(response.Payment.Amount / 100),
-								schedulingId: newScheduleId.toString(),
-								userId: userId,
-								name: data.name,
-								cpf: '00000000000',
-								cvv: parseInt(data.cvv),
-								date: convertToAmericanDate(data.date),
-								countryID: countryId,
-								publishedAt: new Date().toISOString(),
-								cep: data.cep,
-								city: data.city,
-								complement: data.complement,
-								number: data.number,
-								state: data.state,
-								neighborhood: data.district,
-								street: data.street,
-								paymentId: response.Payment.PaymentId!,
-								payedStatus: response.Payment.Status === 2 ? 'Payed' : 'Waiting',
-							}
-						}).then((response) => {
-							console.log({ strapi_response: response })
-							updateStatusDisponibleCourt();
-							handleSaveCard();
-							navigation.navigate('InfoReserva', { userId: userId })
-						}).catch(error => {
-							Dialog.show({
-								type: ALERT_TYPE.DANGER,
-								title: 'Erro no pagamento',
-								textBody: String(error)
-							})
-						});
-					}
-				})
+				console.log({cpf: data.cpf})
+
+					cieloRequestManager.authorizePayment(body).then(async (response) => {
+						const newScheduleId = await createNewSchedule();
+						const countryId = getCountryIdByName(selected);
+						if (newScheduleId && response.Payment.Status === 2) {
+							userPaymentCard({
+								variables: {
+									value: Number(response.Payment.Amount / 100),
+									schedulingId: newScheduleId.toString(),
+									userId: userId,
+									name: data.name,
+									cpf: '00000000000',
+									cvv: parseInt(data.cvv),
+									date: convertToAmericanDate(data.date),
+									countryID: countryId,
+									publishedAt: new Date().toISOString(),
+									cep: data.cep,
+									city: data.city,
+									complement: data.complement,
+									number: data.number,
+									state: data.state,
+									neighborhood: data.district,
+									street: data.street,
+									paymentId: response.Payment.PaymentId!,
+									payedStatus: response.Payment.Status === 2 ? 'Payed' : 'Waiting',
+								}
+							}).then((response) => {
+								console.log({ strapi_response: response })
+								updateStatusDisponibleCourt();
+								handleSaveCard();
+								navigation.navigate('InfoReserva', { userId: userId });
+							}).catch(error => {
+								console.error(error)
+								Alert.alert('Não foi possível realizar o pagamento')
+							});
+						}
+					}).catch(error => {
+						console.error(error)
+					})
 			}
 		} catch (error) {
 			console.error("Erro ao criar o agendamento:", error);
@@ -344,7 +344,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			}
 		})
 	}
-
 
 	const generatePixSignal = async () => {
 		let signalValue = Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2))
@@ -400,7 +399,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		)
 	}
 
-
 	useEffect(() => {
 		if (userData) {
 			setValue('cpf', userData.usersPermissionsUser.data.attributes.cpf)
@@ -426,7 +424,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	}, [dataReserve])
 
 	useEffect(() => {
-		console.log(getValues('cep'))
 		try {
 			const zipCode = getValues('cep');
 
@@ -452,9 +449,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				textBody: 'Verifique se o CEP inserido é válido',
 			})
 		}
-
-
-
 	}, [zipCode])
 
 	return (
