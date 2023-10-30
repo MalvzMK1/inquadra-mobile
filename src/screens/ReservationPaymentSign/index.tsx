@@ -1,35 +1,34 @@
-import {View, Image, Text, TouchableOpacity, TextInput, Modal, ActivityIndicator} from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-import { useEffect, useState } from "react";
-import { FontAwesome } from '@expo/vector-icons';
-import { TextInputMask } from 'react-native-masked-text';
-import React from "react";
+import {ActivityIndicator, Image, Modal, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {ScrollView} from "react-native-gesture-handler";
+import React, {useEffect, useState} from "react";
+import {FontAwesome} from '@expo/vector-icons';
+import {TextInputMask} from 'react-native-masked-text';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { SelectList } from 'react-native-dropdown-select-list'
-import { useReserveInfo } from "../../hooks/useInfoReserve";
+import {SelectList} from 'react-native-dropdown-select-list'
+import {useReserveInfo} from "../../hooks/useInfoReserve";
 import SvgUri from 'react-native-svg-uri';
 import storage from "../../utils/storage";
-import { calculateDistance } from "../../components/calculateDistance/calculateDistance";
-import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
-import { z } from "zod";
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
-import { isValidCPF } from "../../utils/isValidCpf";
-import MaskInput, { Masks } from 'react-native-mask-input';
+import {calculateDistance} from "../../components/calculateDistance/calculateDistance";
+import {useUserPaymentCard} from '../../hooks/useUserPaymentCard';
+import {z} from "zod";
+import {zodResolver} from '@hookform/resolvers/zod';
+import {Controller, useForm} from 'react-hook-form';
+import {isValidCPF} from "../../utils/isValidCpf";
+import MaskInput, {Masks} from 'react-native-mask-input';
 import useCountries from '../../hooks/useCountries'
 import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabilityStatus";
-import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { generateRandomKey } from "../../utils/activationKeyGenerate";
-import { generatePix } from "../../services/pixCielo";
-import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
-import { StackActions, useFocusEffect } from '@react-navigation/native';
-import { useGetUserById } from "../../hooks/useUserById";
+import {useRegisterSchedule} from "../../hooks/useRegisterSchedule";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {generateRandomKey} from "../../utils/activationKeyGenerate";
+import {generatePix} from "../../services/pixCielo";
+import {useUserPaymentPix} from "../../hooks/useUserPaymentPix";
+import {StackActions, useFocusEffect} from '@react-navigation/native';
+import {useGetUserById} from "../../hooks/useUserById";
 import getAddress from "../../utils/getAddressByCep";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CieloRequestManager } from "../../services/cieloRequestManager";
-import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
-import { convertToAmericanDate } from "../../utils/formatDate";
+import {CieloRequestManager} from "../../services/cieloRequestManager";
+import {transformCardExpirationDate} from "../../utils/transformCardExpirationDate";
+import {convertToAmericanDate} from "../../utils/formatDate";
+import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
 
 export 	interface iFormCardPayment {
 	name: string
@@ -58,6 +57,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const [userName, setUserName] = useState<string>();
 	const [userCPF, setUserCPF] = useState<string>();
 	const [selected, setSelected] = React.useState("");
+	const [zipCode, setZipCode] = useState<string>();
 	const [totalValue, setTotalValue] = useState<number>();
 	const [cardData, setCardData] = useState({
 		cardNumber: '',
@@ -80,8 +80,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!)
 		setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!)
 	})
-
-
 
 	const handleCardClick = () => {
 		setShowCard(!showCard);
@@ -269,7 +267,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 								schedulingId: newScheduleId.toString(),
 								userId: userId,
 								name: data.name,
-								cpf: data.cpf,
+								cpf: '00000000000',
 								cvv: parseInt(data.cvv),
 								date: convertToAmericanDate(data.date),
 								countryID: countryId,
@@ -289,12 +287,23 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 							updateStatusDisponibleCourt();
 							handleSaveCard();
 							navigation.navigate('InfoReserva', { userId: userId })
+						}).catch(error => {
+							Dialog.show({
+								type: ALERT_TYPE.DANGER,
+								title: 'Erro no pagamento',
+								textBody: String(error)
+							})
 						});
 					}
 				})
 			}
 		} catch (error) {
 			console.error("Erro ao criar o agendamento:", error);
+			Dialog.show({
+				type: ALERT_TYPE.DANGER,
+				title: 'Pagamento não efetuado',
+				textBody: String(error),
+			})
 		} finally {
 			setIsLoading(false)
 		}
@@ -396,18 +405,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		if (userData) {
 			setValue('cpf', userData.usersPermissionsUser.data.attributes.cpf)
 			if (userData.usersPermissionsUser.data.attributes.address) {
-				getAddress(userData.usersPermissionsUser.data.attributes.address.cep).then(response => {
-					console.log(response)
-					setValue('cep', response.code)
-					setValue('street', response.address)
-					setValue('district', response.district)
-					setValue('city', response.city)
-					setValue('state', response.state)
-				})
+				setZipCode(userData.usersPermissionsUser.data.attributes.address.cep);
+				setValue('cep', userData.usersPermissionsUser.data.attributes.address.cep);
 			}
 		}
-		AsyncStorage.getItem(`user${userId}Cards`)
-			.then(console.log)
 	}, [userData])
 
 	useEffect(() => {
@@ -423,6 +424,38 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 			setTotalValue(scheduleValue + (scheduleValue * 0.04))
 		}
 	}, [dataReserve])
+
+	useEffect(() => {
+		console.log(getValues('cep'))
+		try {
+			const zipCode = getValues('cep');
+
+			if (zipCode && zipCode.length === 9)
+				getAddress(zipCode).then(response => {
+					setValue('cep', response.code)
+					setValue('street', response.address)
+					setValue('district', response.district)
+					setValue('city', response.city)
+					setValue('state', response.state)
+				}).catch(error => {
+					console.log(error)
+					Dialog.show({
+						type: ALERT_TYPE.WARNING,
+						title: 'Não foi possível encontrar o endereço',
+						textBody: 'Verifique se o CEP inserido é válido',
+					})
+				})
+		} catch (error) {
+			Dialog.show({
+				type: ALERT_TYPE.WARNING,
+				title: 'Não foi possível encontrar o endereço',
+				textBody: 'Verifique se o CEP inserido é válido',
+			})
+		}
+
+
+
+	}, [zipCode])
 
 	return (
 		<View className="flex-1 bg-white w-full h-full pb-10">
@@ -552,7 +585,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 											className='p-3 border border-gray-500 rounded-md h-18'
 											placeholder='Ex: 000.000.000-00'
 											value={getValues('cpf')}
-											onChangeText={(masked, unmasked, obfuscated) => onChange(unmasked)}
+											onChangeText={masked => onChange(masked)}
 											mask={Masks.BRL_CPF}
 											keyboardType='numeric'>
 										</MaskInput>
@@ -594,7 +627,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 												keyboardType='numeric'
 												mask={Masks.ZIP_CODE}
 												maxLength={9}
-												onChangeText={(masked, unmasked) => onChange(unmasked)}>
+												onChangeText={(masked) => {
+													setZipCode(masked)
+													onChange(masked)
+												}}>
 											</MaskInput>
 										)}
 									></Controller>
