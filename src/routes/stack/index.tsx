@@ -162,11 +162,14 @@ export default function () {
                           key={item.establishmentsId}
                           className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
                           onPress={() => {
-                            navigation.navigate("EstablishmentInfo", {
-                              establishmentId: item.establishmentsId,
-                              userPhoto: params.userPhoto,
-                              userId: params.userID,
-                            });
+                            if (params && params.userID)
+                              navigation.navigate("EstablishmentInfo", {
+                                establishmentId: item.establishmentsId,
+                                userPhoto: params.userPhoto,
+                                userId: params.userID,
+                              });
+                            else
+                              navigation.navigate('Login');
                           }}
                         >
                           <Text className="text-sm outline-none">
@@ -188,7 +191,7 @@ export default function () {
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                if (params.userID)
+                if (params && params.userID)
                   navigation.navigate("ProfileSettings", {
                     userPhoto: HOST_API + params.userPhoto ?? undefined,
                     userID: params.userID,
@@ -717,11 +720,10 @@ export default function () {
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                if (params.userID) {
-                  // const photo: string = params.userPhoto
+                if (params && params.userID) {
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
-                    userID: userId ?? "",
+                    userID: params.userID,
                   });
                 } else navigation.navigate("Login");
               }}
