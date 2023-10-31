@@ -19,7 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
-import CourtCardHome from "../CourtCardHome";
+import EstablishmentCardHome from "../CourtCardHome";
 
 let userId: string;
 
@@ -165,7 +165,7 @@ export default function HomeBar({
                 })
                 .map(item => {
                   return (
-                    <CourtCardHome
+                    <EstablishmentCardHome
                       key={item.id}
                       id={item.id}
                       userId={userId}
@@ -183,7 +183,7 @@ export default function HomeBar({
             )
           ) : (
             courts.map(item => (
-              <CourtCardHome
+              <EstablishmentCardHome
                 id={item.id}
                 key={item.id}
                 userId={userId}
