@@ -7,12 +7,12 @@ export interface IEstablishmentCardInformationsResponse {
 			id: Establishment['id'],
 			attributes: {
 				corporateName: Establishment['corporateName'],
-				address: {
+				address?: {
 					latitude: Address['latitude'],
 					longitude: Address['longitude'],
 				},
 				logo: {
-					data: {
+					data?: {
 						attributes: {
 							url: string
 						}
@@ -32,7 +32,7 @@ export interface IEstablishmentCardInformationsResponse {
 					data?: Array<{
 						attributes: {
 							court_types: {
-								data: Array<{
+								data?: Array<{
 									attributes: {
 										name: CourtType['name']
 									}
