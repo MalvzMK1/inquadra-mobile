@@ -36,7 +36,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 	const pointerMap = require("../../assets/pointerMap.png");
 
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
-	const [userId, setUserId] = useState("");
+	const [userId, setUserId] = useState<string | undefined>("");
 	const [userGeolocation, setUserGeolocation] = useState<{
 		latitude: number;
 		longitude: number;
@@ -91,7 +91,7 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 		data: userHookData,
 		loading: userHookLoading,
 		error: userHookError,
-	} = useGetUserById(userId);
+	} = useGetUserById(userId ?? '');
 	const {
 		data: establishmentsFiltered,
 		loading: loadingFilter,
@@ -264,12 +264,14 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				key: "userInfos",
 			})
 			.then(data => {
+				console.log(data.userId)
 				setUserId(data.userId);
 			})
 			.catch(error => {
 				if (error instanceof Error) {
 					if (error.name === 'NotFoundError') {
 						console.log('The item wasn\'t found.');
+						setUserId(undefined)
 					} else if (error.name === 'ExpiredError') {
 						console.log('The item has expired.');
 						storage.remove({
@@ -389,23 +391,21 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 				/>
 			)}
 			{
-				<View className={`absolute bottom-0 left-0 right-0`}>
-					<BottomBlackMenu
-						screen="Home"
-						userID={route?.params?.userID}
-						userPhoto={
-							userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-								?.attributes?.url
-								? HOST_API +
-								userHookData.usersPermissionsUser.data.attributes.photo.data
-									?.attributes.url
-								: ""
-						}
-						key={1}
-						isDisabled={!isDisabled}
-						paddingTop={2}
-					/>
-				</View>
+				<BottomBlackMenu
+					screen="Home"
+					userID={route?.params?.userID}
+					userPhoto={
+						userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
+							?.attributes?.url
+							? HOST_API +
+							userHookData.usersPermissionsUser.data.attributes.photo.data
+								?.attributes.url
+							: ""
+					}
+					key={1}
+					isDisabled={!isDisabled}
+					paddingTop={2}
+				/>
 			}
 		</View>
 	);
