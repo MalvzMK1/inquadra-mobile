@@ -33,6 +33,9 @@ interface EstablishmentObject {
 }
 
 export default function Home({ menuBurguer, route, navigation }: Props) {
+  const pointerMap = require("../../assets/pointerMap.png");
+
+  const [userId, setUserId] = useState("");
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -64,37 +67,6 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
     weekDay: undefined,
     date: undefined,
   });
-
-  const [userId, setUserId] = useState("");
-  const pointerMap = require("../../assets/pointerMap.png");
-  useEffect(() => {
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => setUserGeolocation(data));
-
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => {
-        setUserId(data.userId);
-      });
-  }, []);
-
-  const { data, loading, error } = useEstablishmentCardInformations();
-  const {
-    data: userHookData,
-    loading: userHookLoading,
-    error: userHookError,
-  } = useGetUserById(route?.params?.userID);
-  const {
-    data: establishmentsFiltered,
-    loading: loadingFilter,
-    error: errorFilter,
-  } = useFilters(filter);
-
   const [establishments, setEstablishments] = useState<
     Array<{
       id: string;
@@ -113,6 +85,17 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
     loading: availableSportTypesLoading,
     error: availableSportTypesError,
   } = useSportTypes();
+  const { data, loading, error } = useEstablishmentCardInformations();
+  const {
+    data: userHookData,
+    loading: userHookLoading,
+    error: userHookError,
+  } = useGetUserById(userId);
+  const {
+    data: establishmentsFiltered,
+    loading: loadingFilter,
+    error: errorFilter,
+  } = useFilters(filter);
 
   const HandleSportSelected = (nameSport: string) => {
     setSportSelected(nameSport);
@@ -188,6 +171,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
               return establishmentObject;
             });
 
+          console.log({newEstablishments})
+
           if (newEstablishments) setEstablishments(newEstablishments);
 
           navigation.setParams({
@@ -252,6 +237,38 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
       });
     }
   }, [userGeolocation]);
+
+  useEffect(() => {
+    storage
+      .load<{ latitude: number; longitude: number }>({
+        key: "userGeolocation",
+      })
+      .then(data => setUserGeolocation(data));
+
+    storage
+      .load<UserInfos>({
+        key: "userInfos",
+      })
+      .then(data => {
+        setUserId(data.userId);
+      })
+      .catch(error => {
+        if (error instanceof Error) {
+          if (error.name === 'NotFoundError') {
+            console.log('The item wasn\'t found.');
+          } else if (error.name === 'ExpiredError') {
+            console.log('The item has expired.');
+            storage.remove({
+              key: 'userInfos'
+            }).then(() => {
+              console.log('The item has been removed.');
+            })
+          } else {
+            console.log('Unknown error:', error);
+          }
+        }
+      });
+  }, []);
 
   return (
     <View className="flex-1 flex flex-col justify-center items-center">
