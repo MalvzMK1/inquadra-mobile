@@ -19,7 +19,7 @@ export interface IEstablishmentCardInformationsResponse {
 					}
 				}
 				photos: {
-					data?: Array<{
+					data: Array<{
 						attributes: {
 							name: string,
 							url: string,
@@ -29,10 +29,10 @@ export interface IEstablishmentCardInformationsResponse {
 					}>
 				},
 				courts: {
-					data?: Array<{
+					data: Array<{
 						attributes: {
 							court_types: {
-								data?: Array<{
+								data: Array<{
 									attributes: {
 										name: CourtType['name']
 									}
