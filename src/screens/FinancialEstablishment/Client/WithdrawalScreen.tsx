@@ -23,7 +23,7 @@ export default function WithdrawScreen({
   const { data, loading, error } = useGetUserHistoricPayment(
     route.params.establishmentId,
   );
-  const [xwithdrawalInfo, setWithdrawalInfo] = useState<
+  const [withdrawalInfo, setWithdrawalInfo] = useState<
     Array<{
       id: string;
       key: string;

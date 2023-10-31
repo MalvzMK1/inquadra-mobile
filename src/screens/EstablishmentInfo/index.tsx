@@ -49,14 +49,17 @@ export default function EstablishmentInfo({
     type?: string;
   }>();
 
-  const FavoriteEstablishment = useGetFavoriteEstablishmentByUserId(userId ? userId : "0");
+  const { data: FavoriteEstablishment, loading: loadingFavoriteEstablishment, error: errorFavoriteEstablishment, refetch } = useGetFavoriteEstablishmentByUserId(userId ? userId : "0");
+
+
+  useFocusEffect(() => refetch)
 
   const [arrayfavoriteEstablishment, setArrayFavoriteEstablishment] = useState<
     Array<{ id: any }>
   >([]);
 
   const [rating, setRating] = useState<number>();
-  const [heart, setHeart] = useState<boolean>(false);
+  const [heart, setHeart] = useState<boolean>(route.params.colorState === "red" ? true : false);
   const [footerHeartColor, setFooterHeartColor] = useState("white");
 
   const [Court, setCourt] = useState<
@@ -104,7 +107,7 @@ export default function EstablishmentInfo({
             longitude: Number(infosEstablishment.attributes.address.longitude),
             photo: infosEstablishment.attributes.logo.data
               ? HOST_API +
-                infosEstablishment.attributes.logo.data.attributes.url
+              infosEstablishment.attributes.logo.data.attributes.url
               : "",
             photosAmenitie: infosEstablishment.attributes.photos.data.map(
               (photo, index) => {
@@ -138,29 +141,26 @@ export default function EstablishmentInfo({
   };
 
   useEffect(() => {
-    if (!FavoriteEstablishment.error && !FavoriteEstablishment.loading) {
+    if (!errorFavoriteEstablishment && !loadingFavoriteEstablishment) {
+      console.log("curtiu")
       const favoriteEstablishmentId =
-        FavoriteEstablishment.data?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+        FavoriteEstablishment!.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
           establishment => {
             return { id: establishment.id };
           },
         );
       if (favoriteEstablishmentId) {
-        console.log(favoriteEstablishmentId);
+        console.log("descurtiu");
         setArrayFavoriteEstablishment(prevFavoriteEstablishmentId => [
           ...prevFavoriteEstablishmentId,
           ...favoriteEstablishmentId,
         ]);
       }
+    } else {
+      console.log(error)
     }
-  }, [FavoriteEstablishment.error, FavoriteEstablishment.loading]);
+  }, [errorFavoriteEstablishment, loadingFavoriteEstablishment]);
 
-  useEffect(() => {
-    const isFavorite = arrayfavoriteEstablishment.some(
-      item => item.id === Establishment?.id,
-    );
-    setHeart(isFavorite);
-  }, [arrayfavoriteEstablishment, Establishment?.id]);
 
   const handlePressFavoriteEstablishment = () => {
     const isCurrentlyFavorite = arrayfavoriteEstablishment.some(
@@ -170,17 +170,23 @@ export default function EstablishmentInfo({
     let newArrayfavoriteEstablishment = [];
 
     if (!isCurrentlyFavorite) {
+      console.log("curtiu")
       newArrayfavoriteEstablishment = [
         ...arrayfavoriteEstablishment,
-        { id: Establishment?.id },
+        { id: Establishment?.id }
       ];
+      setArrayFavoriteEstablishment(newArrayfavoriteEstablishment);
+
     } else {
+      console.log("descurtiu")
       newArrayfavoriteEstablishment = arrayfavoriteEstablishment.filter(
         item => item.id !== Establishment?.id,
       );
+      setArrayFavoriteEstablishment(newArrayfavoriteEstablishment);
+
     }
 
-    setArrayFavoriteEstablishment(newArrayfavoriteEstablishment);
+
 
     if (userId) {
       updateFavoriteEstablishment({
@@ -289,7 +295,23 @@ export default function EstablishmentInfo({
           <View className="flex flex-row items-center gap-x-8">
             <TouchableOpacity
               className="flex justify-center items-center h-12 w-8"
-              onPress={handlePressFavoriteEstablishment}
+              onPress={() => {
+                if (route.params.colorState !== undefined && route.params.setColorState !== undefined) {
+                  console.log("caiu no certo")
+                  handlePressFavoriteEstablishment()
+                  if (heart !== true) {
+                    route.params.setColorState("red")
+                    setHeart(true)
+                  } else {
+                    route.params.setColorState("white")
+                    setHeart(false)
+                  }
+                } else {
+                  console.log("caiu no errado")
+                  handlePressFavoriteEstablishment()
+                  heart ? setHeart(false) : setHeart(true)
+                }
+              }}
             >
               {!heart ? (
                 <AntDesign name="hearto" size={26} color="black" />
@@ -332,8 +354,8 @@ export default function EstablishmentInfo({
           <Text className="font-black text-lg">AMENIDADES DO LOCAL</Text>
           {
             establishmentData?.establishment.data.attributes.amenities.data.map(amenitie => (
-                <SvgUri width={12} height={12} source={{uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url}} />
-              )
+              <SvgUri width={12} height={12} source={{ uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url }} />
+            )
             )
           }
         </View>

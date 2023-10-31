@@ -115,6 +115,8 @@ type RootStackParamList = {
     establishmentId: string;
     userId: string;
     userPhoto: string | undefined;
+    colorState?: string
+    setColorState?: React.Dispatch<React.SetStateAction<string>>
   };
   CourtAvailabilityInfo: {
     courtId: string;

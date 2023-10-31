@@ -1,33 +1,40 @@
 import { AntDesign } from "@expo/vector-icons";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useUpdateFavoriteCourt from "../../hooks/useUpdateFavoriteCourt";
 import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
+import { useFocus } from "native-base/lib/typescript/components/primitives";
 
 export default function CourtCardHome(props: CourtCardInfos) {
   const [userId, setUserId] = useState("");
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const [color, setColor] = useState(props.liked ? "red" : "white");
+  const [color, setColor] = useState("white");
 
   const {
     data: userByIdData,
     error: userByIdError,
     loading: userByIdLoading,
+
   } = useGetUserById(userId ?? "");
 
   const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
     [],
   );
 
+
   useEffect(() => {
     userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
       item => {
         setUserFavoriteCourts([item.id]);
+
+        item.id === props.id
+          ?setColor("red")
+          :setColor("white")
       },
     );
 
@@ -94,6 +101,8 @@ export default function CourtCardHome(props: CourtCardInfos) {
             userPhoto:
               userByIdData?.usersPermissionsUser?.data?.attributes?.photo?.data
                 ?.attributes?.url,
+                colorState:color,
+                setColorState: setColor
           })
         }
       >

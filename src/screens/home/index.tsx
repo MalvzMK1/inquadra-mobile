@@ -404,7 +404,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
           </TouchableOpacity>
         )}
         {menuBurguer && (
-          <FilterComponent setBurguer={setMenuBurguer} setFilter={setFilter} setIsDisabled={setIsDisabled} filter={filter} />
+          <FilterComponent setBurguer={setMenuBurguer!} setFilter={setFilter} setIsDisabled={setIsDisabled} filter={filter} />
         )}
       </View>
 
