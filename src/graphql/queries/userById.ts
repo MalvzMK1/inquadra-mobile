@@ -2,9 +2,8 @@ import { gql } from "@apollo/client";
 
 
 export interface IUserByIdResponse {
-  //photo: (Omit<User, "latitude" | "longitude" | "cep" | "streetName"> & { paymentCardInfos: { dueDate: string; cvv: string; country: { id: string; name: string; }; }; }) | undefined;
     usersPermissionsUser: {
-        data: {
+        data?: {
             id: User['id'];
             attributes: {
                 username: User['username'];
@@ -42,7 +41,7 @@ export interface IUserByIdResponse {
                         };
                     };
                 };
-                address: {
+                address?: {
                     cep: string;
                     streetName: string;
                 };
