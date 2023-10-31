@@ -113,7 +113,7 @@ type RootStackParamList = {
   DescriptionInvited: undefined;
   EstablishmentInfo: {
     establishmentId: string;
-    userId: string;
+    userId: string | undefined;
     userPhoto: string | undefined;
   };
   CourtAvailabilityInfo: {
