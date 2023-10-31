@@ -120,7 +120,7 @@ type RootStackParamList = {
     courtId: string;
     courtImage: string;
     courtName: string;
-    userId: string;
+    userId: string | undefined;
     userPhoto: string | undefined;
   };
   ReservationPaymentSign: {

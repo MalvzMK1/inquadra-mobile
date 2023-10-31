@@ -368,7 +368,7 @@ export default function EstablishmentInfo({
               <Image
                 className="h-[106px] w-[142px] rounded-[5px] "
                 source={item.imgUrl}
-              ></Image>
+              />
             )}
           />
         </View>
