@@ -35,6 +35,7 @@ interface EstablishmentObject {
 export default function Home({ menuBurguer, route, navigation }: Props) {
 	const pointerMap = require("../../assets/pointerMap.png");
 
+	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 	const [userId, setUserId] = useState("");
 	const [userGeolocation, setUserGeolocation] = useState<{
 		latitude: number;
@@ -122,13 +123,8 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 						data &&
 						data.establishments.data
 					) {
-						const newEstablishments = data?.establishments.data
-							.filter(
-								establishment =>
-									establishment?.attributes?.photos.data &&
-									establishment?.attributes?.photos.data.length > 0 &&
-									establishment?.attributes?.courts.data,
-							)
+						const newEstablishments = data.establishments.data
+							.filter(establishment => establishment.attributes.courts.data)
 							.map(establishment => {
 								let establishmentObject: EstablishmentObject = {
 									id: "",
@@ -140,13 +136,12 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 									distance: 0,
 								};
 
-								let courtTypes = establishment?.attributes?.courts
-									.data!.filter(
-									court => court?.attributes?.court_types.data.length > 0,
+								let courtTypes = establishment.attributes.courts.data.filter(
+									court => court.attributes.court_types.data.length > 0,
 								)
-									.map(court => court?.attributes?.court_types.data)
+									.map(court => court.attributes.court_types.data)
 									.map(courtType =>
-										courtType.map(type => type?.attributes?.name),
+										courtType.map(type => type.attributes.name),
 									) ?? [];
 
 								if (!courtTypes) courtTypes = [];
@@ -154,35 +149,29 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 								if (userGeolocation)
 									establishmentObject = {
 										id: establishment.id,
-										name: establishment?.attributes?.corporateName,
-										latitude: Number(establishment?.attributes?.address.latitude),
+										name: establishment.attributes.corporateName,
+										latitude: Number(establishment.attributes.address?.latitude),
 										longitude: Number(
-											establishment?.attributes?.address.longitude,
+											establishment.attributes.address?.longitude,
 										),
 										distance:
 											calculateDistance(
 												userGeolocation.latitude,
 												userGeolocation.longitude,
-												Number(establishment?.attributes?.address.latitude),
-												Number(establishment?.attributes?.address.longitude),
+												Number(establishment.attributes.address?.latitude),
+												Number(establishment.attributes.address?.longitude),
 											) / 1000,
 										image:
 											HOST_API +
-											establishment?.attributes?.logo?.data?.attributes?.url,
+											establishment.attributes.logo.data?.attributes.url,
 										type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
 									};
 
 								return establishmentObject;
 							});
-						console.log({newEstablishments})
+						console.log({newEstablishmentsLength: newEstablishments.length})
 
 						if (newEstablishments) setEstablishments(newEstablishments);
-
-						navigation.setParams({
-							userPhoto:
-								userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-									?.attributes?.url ?? "",
-						});
 					}
 				}
 			}
@@ -197,7 +186,12 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			loadingFilter,
 		]),
 	);
-	const [isDisabled, setIsDisabled] = useState<boolean>(true);
+
+	useEffect(() => {
+		navigation.setParams({
+			userPhoto: userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ?? undefined,
+		});
+	}, [userHookData])
 
 	useEffect(() => {
 		const newAvailableSportTypes: SportType[] = [];
@@ -247,7 +241,23 @@ export default function Home({ menuBurguer, route, navigation }: Props) {
 			.load<{ latitude: number; longitude: number }>({
 				key: "userGeolocation",
 			})
-			.then(data => setUserGeolocation(data));
+			.then(data => setUserGeolocation(data))
+			.catch(error => {
+				if (error instanceof Error) {
+					if (error.name === 'NotFoundError') {
+						console.log('The item wasn\'t found.');
+					} else if (error.name === 'ExpiredError') {
+						console.log('The item has expired.');
+						storage.remove({
+							key: 'userGeolocation'
+						}).then(() => {
+							console.log('The item has been removed.');
+						})
+					} else {
+						console.log('Unknown error:', error);
+					}
+				}
+			});
 
 		storage
 			.load<UserInfos>({
