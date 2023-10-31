@@ -14,7 +14,23 @@ storage.load<UserInfos>({
 	key: 'userInfos',
 }).then((data) => {
 	jwt = data.token;
-});
+})
+	.catch(error => {
+		if (error instanceof Error) {
+			if (error.name === 'NotFoundError') {
+				console.log('The item wasn\'t found.');
+			} else if (error.name === 'ExpiredError') {
+				console.log('The item has expired.');
+				storage.remove({
+					key: 'userInfos'
+				}).then(() => {
+					console.log('The item has been removed.');
+				})
+			} else {
+				console.log('Unknown error:', error);
+			}
+		}
+	});
 
 const authLink = new ApolloLink((operation, forward) => {
 	const token = jwt;

@@ -90,7 +90,22 @@ export default function Login() {
 
       storage.load<UserInfos>({
         key: "userInfos",
-      });
+      }).catch(error => {
+        if (error instanceof Error) {
+          if (error.name === 'NotFoundError') {
+            console.log('The item wasn\'t found.');
+          } else if (error.name === 'ExpiredError') {
+            console.log('The item has expired.');
+            storage.remove({
+              key: 'userInfos'
+            }).then(() => {
+              console.log('The item has been removed.');
+            })
+          } else {
+            console.log('Unknown error:', error);
+          }
+        }
+      });;
       if (userData.usersPermissionsUser.data.attributes.role.data.id === "3") {
         navigation.navigate("Home", {
           userGeolocation: userGeolocation
