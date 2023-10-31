@@ -73,9 +73,12 @@ export default function EstablishmentInfo({
   useFocusEffect(
     React.useCallback(() => {
       setCourt([]);
-      setEstablishment(undefined);
+      // setEstablishment(undefined);
       if (!error && !loading) {
-        if (establishmentData) {
+        if (
+          establishmentData &&
+          establishmentData.establishment.data
+        ) {
           const infosEstablishment = establishmentData.establishment.data;
           const courts = infosEstablishment.attributes.courts.data.map(
             court => {
@@ -88,20 +91,18 @@ export default function EstablishmentInfo({
                   .join(", "),
                 court_availabilities:
                   court.attributes.court_availabilities.data.length > 0,
-                photo: HOST_API + court.attributes.photo.data[0].attributes.url,
+                photo: HOST_API + court.attributes.photo.data[0]?.attributes.url ?? '',
               };
             },
           );
 
-          let establishment;
-
-          establishment = {
+          let establishment = {
             id: infosEstablishment.id,
             corporateName: infosEstablishment.attributes.corporateName,
             cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
-            streetName: infosEstablishment.attributes.address.streetName,
-            latitude: Number(infosEstablishment.attributes.address.latitude),
-            longitude: Number(infosEstablishment.attributes.address.longitude),
+            streetName: infosEstablishment.attributes.address?.streetName ?? '',
+            latitude: Number(infosEstablishment.attributes.address?.latitude?? 0),
+            longitude: Number(infosEstablishment.attributes.address?.longitude ?? 0),
             photo: infosEstablishment.attributes.logo.data
               ? HOST_API +
                 infosEstablishment.attributes.logo.data.attributes.url
@@ -202,21 +203,6 @@ export default function EstablishmentInfo({
         userLocation.latitude,
         userLocation.longitude,
       ) / 1000;
-
-    console.log({
-      result:
-        calculateDistance(
-          Establishment.latitude,
-          Establishment.longitude,
-          userLocation.latitude,
-          userLocation.longitude,
-        ) / 1000,
-      establishment: {
-        lat: Establishment.latitude,
-        long: Establishment.longitude,
-      },
-      user: userLocation,
-    });
   }
 
   const uniqueCourtTypes = [...new Set(Court.map(court => court.court_type))];
@@ -271,6 +257,23 @@ export default function EstablishmentInfo({
       })
       .then(data => {
         setUserId(data.userId);
+      })
+      .catch(error => {
+        setUserId(undefined)
+        if (error instanceof Error) {
+          if (error.name === 'NotFoundError') {
+            console.log('The item wasn\'t found.');
+          } else if (error.name === 'ExpiredError') {
+            console.log('The item has expired.');
+            storage.remove({
+              key: 'userInfos'
+            }).then(() => {
+              console.log('The item has been removed.');
+            })
+          } else {
+            console.log('Unknown error:', error);
+          }
+        }
       });
   }, []);
 
@@ -331,10 +334,20 @@ export default function EstablishmentInfo({
         <View className="flex flex-row justify-start items-center gap-x-[10]">
           <Text className="font-black text-lg">AMENIDADES DO LOCAL</Text>
           {
-            establishmentData?.establishment.data.attributes.amenities.data.map(amenitie => (
-                <SvgUri width={12} height={12} source={{uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url}} />
+            (
+                establishmentData &&
+                establishmentData.establishment.data &&
+                establishmentData.establishment.data.attributes.amenities.data.length > 0
+            ) &&
+              establishmentData?.establishment.data?.attributes.amenities.data.map(amenitie => (
+                  amenitie.attributes.iconAmenitie.data &&
+                    <SvgUri
+                      width={12}
+                      height={12}
+                      source={{uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url}}
+                    />
+                )
               )
-            )
           }
         </View>
         <View>
