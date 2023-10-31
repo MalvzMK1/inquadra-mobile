@@ -37,6 +37,7 @@ import {useToast} from 'native-base';
 import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
 import {getUsersCountryId} from "../../utils/getUsersCountryId";
 import {ALERT_TYPE, AlertNotificationRoot, Dialog} from "react-native-alert-notification";
+import storage from "../../utils/storage";
 
 interface IFormData {
   photo: string;
@@ -266,7 +267,9 @@ export default function ProfileSettings({
   };
 
   const handleConfirmExit = () => {
-    // sair do app
+    storage.remove({
+      key: 'userInfos',
+    }).then(() => console.log('Removed user infos from local storage'))
     setShowExitConfirmation(false);
   };
 
@@ -1137,7 +1140,6 @@ export default function ProfileSettings({
                     <TouchableOpacity
                       className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
                       onPress={handleConfirmExit}
-                      onPressIn={() => navigation.navigate("Login")}
                     >
                       <Text className="text-white">Confirmar</Text>
                     </TouchableOpacity>
