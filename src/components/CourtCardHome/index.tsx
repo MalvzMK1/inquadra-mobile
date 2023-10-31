@@ -106,7 +106,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
   return (
     <View className="flex flex-row w-full justify-between">
       <TouchableOpacity
-        className="flex flex-row  gap-x-[14px] mb-5 w-full"
+        className="flex flex-row  gap-x-[14px] mb-5 flex-1"
         onPress={() => {
             navigation.navigate("EstablishmentInfo", {
               establishmentId: props.id,
@@ -117,7 +117,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
         }
       >
         <Image
-          className="w-[45%] max-w-[115px] h-[85px] rounded-[10px]"
+          className="w-[45%] w-[115px] h-[85px] rounded-[10px]"
           source={{ uri: props.image }}
         />
         <View className="flex mt-1">
