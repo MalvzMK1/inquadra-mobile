@@ -258,11 +258,12 @@ export default function HomeEstablishment({
         <View className="h-max w-max flex justify-center items-center">
           <TouchableOpacity
             className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-            onPress={() =>
+            onPress={() => {
               navigation.navigate("InfoProfileEstablishment", {
                 userPhoto: photo ?? '',
                 establishmentId: establishmentId,
               })
+            }
             }
           >
             <Image

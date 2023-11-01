@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="21b742c1-4487-4a02-97e6-0c9a82be6977" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/userEstablishmentInfo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/userEstablishmentInfo.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -111,7 +111,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     let amenities: string[] = []
 
-
     let courts: string[] = []
     interface ICourts {
         id: string
@@ -119,18 +118,14 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     }
     let courtsJson: ICourts[] = []
 
-
     let establishmentPhotos: string[] = []
 
-
     let pixKeys: string[] = []
-
 
     const userName = userByEstablishmentData?.usersPermissionsUser.data?.attributes.username
     const userEmail = userByEstablishmentData?.usersPermissionsUser.data?.attributes.email
 
     const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
-
 
     const cpf = userByEstablishmentData?.usersPermissionsUser.data?.attributes.cpf
 
@@ -237,9 +232,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
         setCep(userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.address.cep)
 
         setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data?.attributes.phoneNumber)
-        navigation.setParams({
-            userPhoto: userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
-        })
 
         userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.amenities.data.map(amenitieItem => {
             amenities.push(amenitieItem?.attributes.name)
@@ -399,40 +391,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             console.log('Erro ao carregar a imagem: ', error);
         }
     };
-
-    // const uploadImage = async (selectedImageUri: string) => {
-    //     setIsLoading(true);
-    //     const apiUrl = 'https://inquadra-api-uat.qodeless.io';
-
-    //     const formData = new FormData();
-    //     formData.append('files', {
-    //         uri: selectedImageUri,
-    //         name: 'image.jpg',
-    //         type: 'image/jpeg',
-    //     });
-
-    //     try {
-    //         const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data',
-    //             },
-    //         });
-
-    //         const uploadedImageID = response.data[0].id;
-
-    //         console.log('Imagem enviada com sucesso!', response.data);
-
-    //         setIsLoading(false);
-
-    //         return uploadedImageID;
-    //     } catch (error) {
-    //         console.error('Erro ao enviar imagem:', error);
-    //         setIsLoading(false);
-    //         return "Deu erro";
-    //     }
-    // };
-
-
     const [showCard, setShowCard] = useState(false);
 
     const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -497,6 +455,15 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
+    useEffect(() => {
+        setProfilePicture(route.params.userPhoto)
+
+        navigation.setParams({
+            userPhoto: route.params.userPhoto,
+        })
+        console.log('ive setted this, wtf')
+    }, [])
+
     return (
         <View className="flex-1 bg-white h-full">
 
@@ -504,7 +471,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 <TouchableOpacity className="items-center mt-8">
                     <View style={styles.container}>
                         {profilePicture ? (
-                            <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+                            <Image source={{ uri: HOST_API + profilePicture }} style={styles.profilePicture} />
                         ) : (
                             <Image source={{ uri: "http://192.168.15.19:1337" + userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url }} style={styles.profilePicture} />
                         )}

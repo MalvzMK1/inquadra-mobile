@@ -265,18 +265,21 @@ export default function () {
               </Text>
             </View>
           ),
-          headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
-              <Image
-                source={
-                  params.userPhoto
-                    ? { uri: HOST_API + params.userPhoto }
-                    : require("../../assets/default-user-image.png")
-                }
-                className="w-full h-full"
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => {
+            console.log({params})
+            return (
+              <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+                <Image
+                  source={
+                    params.userPhoto
+                      ? {uri: HOST_API + params.userPhoto}
+                      : require("../../assets/default-user-image.png")
+                  }
+                  className="w-full h-full"
+                />
+              </TouchableOpacity>
+            )
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Icon name="arrow-back" size={25} color="white" />
