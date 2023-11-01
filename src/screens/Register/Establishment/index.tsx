@@ -1,10 +1,9 @@
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {Alert, FlatList, Text, TextInput, TouchableOpacity, View, Image} from "react-native";
 import { MultipleSelectList } from "react-native-dropdown-select-list";
 import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
@@ -12,6 +11,7 @@ import { z } from "zod";
 import useAllAmenities from "../../../hooks/useAllAmenities";
 import useRegisterEstablishment from "../../../hooks/useRegisterEstablishment";
 import storage from "../../../utils/storage";
+import * as ImagePicker from "expo-image-picker";
 
 const formSchema = z.object({
   corporateName: z
@@ -58,6 +58,45 @@ export default function RegisterEstablishment({
     resolver: zodResolver(formSchema),
   });
 
+  async function handlePictureUpload(): void {
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== "granted") {
+        alert("Desculpe, precisamos da permissão para acessar a galeria!");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setPhotos(prevState => [...prevState, {uri: result.assets[0].uri}])
+      }
+    } catch (error) {
+      console.log("Erro ao carregar a imagem: ", error);
+    }
+  }
+
+  async function tryingToResetThisShit(): Promise<void> {
+    console.log(Promise);
+  }
+
+  function handleDeletePhoto(index: number): void {
+    setPhotos(prevState => {
+      // Crie uma nova matriz excluindo o elemento no índice
+      const updatedPhotos = [...prevState];
+      updatedPhotos.splice(index, 1);
+      return updatedPhotos;
+    });
+  }
+
+
   async function submitForm(values: IFormSchema) {
     if (amenities.length === 0) {
       return Alert.alert("Erro", "Cadastre uma amenidade antes de continuar.");
@@ -76,16 +115,10 @@ export default function RegisterEstablishment({
         corporate_name: values.corporateName,
         phone_number: values.phone,
         street_name: values.address.streetName,
-        photos: [],
+        photos: photos.map(photo => photo.uri),
         latitude: userGeolocation.latitude.toString(),
         longitude: userGeolocation.longitude.toString(),
-        // ownerId: route.params.id,
       }
-
-      // await AsyncStorage.setItem(
-      //   "@inquadra/registering-establishment-id",
-      //   data.createEstablishment.data.id,
-      // );
 
       navigation.navigate("RegisterCourts", {
         profileInfos: route.params,
@@ -291,21 +324,21 @@ export default function RegisterEstablishment({
               }
             />
           </View>
-          {/* <View>
+          <View>
             <Text className="text-base mb-2 p-1">Fotos do estabelecimento</Text>
 
             <View className="border-dashed border border-gray-400 relative">
               <View className="flex flex-row">
                 <Text
                   className="text-base text-gray-400 m-4"
-                  onPress={handleProfilePictureUpload}
+                  onPress={handlePictureUpload}
                 >
                   Carregue as fotos do estabelecimento. {"\n"} Ex: frente, o
                   bar, o vestiário e etc.{" "}
                 </Text>
                 <TouchableOpacity
                   className="mt-2"
-                  onPress={handleProfilePictureUpload}
+                  onPress={handlePictureUpload}
                 >
                   <Feather name="star" size={24} color="#FF6112" />
                 </TouchableOpacity>
@@ -340,7 +373,7 @@ export default function RegisterEstablishment({
                 horizontal
               />
             </View>
-          </View> */}
+          </View>
           <View>
             <TouchableOpacity
               className="h-14 w-full mt-4 mb-4 rounded-md bg-[#FF6112] items-center justify-center"
