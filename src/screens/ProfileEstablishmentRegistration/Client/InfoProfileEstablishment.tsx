@@ -22,6 +22,7 @@ type DateTime = Date;
 import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import { HOST_API } from "@env";
+import axios from 'axios';
 
 interface IFormData {
     userName: string
@@ -29,14 +30,7 @@ interface IFormData {
     phoneNumber: string
 }
 
-const formSchema = z.object({
-    userName: z.string()
-        .nonempty('O campo não pode estar vazio'),
-    email: z.string()
-        .nonempty('O campo não pode estar vazio'),
-    phoneNumber: z.string()
-        .nonempty('O campo não pode estar vazio')
-})
+
 
 interface IFantasyNameFormData {
     fantasyName: string
@@ -86,6 +80,23 @@ const pixKeyFormSchema = z.object({
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
     const [userId, setUserId] = useState("")
+    
+    const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
+    const defaultUserName = userByEstablishmentData?.usersPermissionsUser.data?.attributes.username!
+    const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
+    const defaultUserEmail = userByEstablishmentData?.usersPermissionsUser.data?.attributes.email!
+
+    
+    const formSchema = z.object({
+        userName: z.string().nonempty('O campo não pode estar vazio').default(defaultUserName),
+        email: z.string()
+            .nonempty('O campo não pode estar vazio').default(defaultUserEmail),
+        phoneNumber: z.string()
+            .nonempty('O campo não pode estar vazio').default(phoneNumber!)
+    })
+
+    const cpf = userByEstablishmentData?.usersPermissionsUser.data?.attributes.cpf
+
     const { control, handleSubmit, formState: { errors } } = useForm<IFormData>({
         resolver: zodResolver(formSchema)
     })
@@ -104,13 +115,12 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
     const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
     const [updateEstablishmentFantasyNameHook, { data: updateFantasyNameData, error: updateFantasyNameError, loading: updateFantasyNameLoading }] = useUpdateEstablishmentFantasyName()
-    const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
+
     const [updateUserPassword, { data: updateUserPasswordData, error: updateUserPasswordError, loading: updateUserPasswordLoading }] = useUpdateUserPassword()
     const [newPixKey, { data: newPixKeyData, error: newPixKeyError, loading: newPixKeyLoading }] = useRegisterPixKey()
     const [userDelete] = useDeleteUser()
 
     let amenities: string[] = []
-
 
     let courts: string[] = []
     interface ICourts {
@@ -122,17 +132,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     let establishmentPhotos: string[] = []
 
-
     let pixKeys: string[] = []
-
-
-    const userName = userByEstablishmentData?.usersPermissionsUser.data?.attributes.username
-    const userEmail = userByEstablishmentData?.usersPermissionsUser.data?.attributes.email
-
-    const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
-
-
-    const cpf = userByEstablishmentData?.usersPermissionsUser.data?.attributes.cpf
 
     const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
     const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
@@ -183,26 +183,52 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const handleUpdateUser = (data: IFormData): void => {
-        setIsLoading(true)
+    const handleUpdateUser = async (data: IFormData): Promise<void> => {
+        try {
+            if (profilePicture) {
+                setIsLoading(true)
+                const uploadedImageID = await uploadImage(profilePicture)
 
-        const userDatas = {
-            ...data,
-        }
+                const userDatas = {
+                    ...data,
+                }
 
-        updateUserHook({
-            variables: {
-                user_id: userId,
-                username: userDatas.userName,
-                email: userDatas.email,
-                phone_number: userDatas.phoneNumber,
-                cpf: cpf!
+                updateUserHook({
+                    variables: {
+                        user_id: userId,
+                        username: userDatas.userName,
+                        email: userDatas.email,
+                        phone_number: userDatas.phoneNumber,
+                        cpf: cpf!,
+                        photo: uploadedImageID
+                    }
+                }).then(value => {
+                    alert(value.data?.updateUsersPermissionsUser.data?.attributes.username)
+                })
+                    .catch((reason) => alert(reason))
+                    .finally(() => setIsLoading(false))
+
+            } else {
+                const uploadedImageID = await uploadImage(profilePicture!);
+
+                const userDatas = {
+                    ...data,
+                }
+                updateUserHook({
+                    variables: {
+                        user_id: userId,
+                        username: userDatas.userName,
+                        email: userDatas.email,
+                        phone_number: userDatas.phoneNumber,
+                        cpf: cpf!,
+                        photo: uploadedImageID
+                    }
+                })
             }
-        }).then(value => {
-            alert(value.data?.updateUsersPermissionsUser.data?.attributes.username)
-        })
-            .catch((reason) => alert(reason))
-            .finally(() => setIsLoading(false))
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const [cep, setCep] = useState<string | undefined>()
@@ -345,7 +371,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const handleExpiryDateChange = (formatted: string) => {
         setExpiryDate(formatted);
-    };
+    };  
 
     const [cvv, setCVV] = useState('');
 
@@ -357,7 +383,45 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
         { key: '5', value: 'Alterar Senha' },
     ]
 
-    const [profilePicture, setProfilePicture] = useState(route.params.userPhoto);
+    const [profilePicture, setProfilePicture] = useState<string>();
+    const [isChanged, setIsChanged] = useState(false)
+
+    const uploadImage = async (selectedImageUri: string) => {
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append('files', {
+            uri: selectedImageUri,
+            name: 'image.jpg',
+            type: 'image/jpeg',
+        });
+
+        const apiUrl = "http://192.168.0.229:1337";
+
+        try {
+            const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            const uploadedImageID = response.data[0].id;
+
+            console.log("uploadedImageID")
+
+            console.log('Imagem enviada com sucesso!', response.data);
+
+            setIsLoading(false);
+
+            return uploadedImageID;
+
+
+        } catch (error) {
+            console.error('Erro ao enviar imagem:', error);
+            setIsLoading(false);
+            return "Deu erro";
+        }
+    };
+
 
 
     const handleProfilePictureUpload = async () => {
@@ -369,39 +433,23 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 return;
             }
 
-            // const result = await ImagePicker.launchImageLibraryAsync({
-            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            //     allowsEditing: true,
-            //     aspect: [1, 1],
-            //     quality: 1,
-            // });
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+            });
 
-            // if (!result.canceled) {
-            //     setProfilePicture(result.uri);
-            //     await uploadImage(result.uri);
-            // }
+            if (!result.canceled) {
+                await uploadImage(result.assets[0].uri).then(uploadedImageID => {
+                    setProfilePicture(result.assets[0].uri);
+                    console.log("ID da imagem enviada:", uploadedImageID);
+                })
+            }
         } catch (error) {
             console.log('Erro ao carregar a imagem: ', error);
         }
-    };
-
-    // const uploadImage = async (selectedImageUri: string) => {
-    //     setIsLoading(true);
-    //     const apiUrl = 'https://inquadra-api-uat.qodeless.io';
-
-    //     const formData = new FormData();
-    //     formData.append('files', {
-    //         uri: selectedImageUri,
-    //         name: 'image.jpg',
-    //         type: 'image/jpeg',
-    //     });
-
-    //     try {
-    //         const response = await axios.post(`${apiUrl}/api/upload`, formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data',
-    //             },
-    //         });
+    }
 
     //         const uploadedImageID = response.data[0].id;
 
@@ -478,7 +526,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             userPhoto: userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
         })
     }
-
+    
+    const haveProfilePicture: boolean = userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined ? true : false
 
     const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
@@ -491,10 +540,10 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         {profilePicture ? (
                             <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
                         ) : (
-                            <Image source={{ uri: "http://192.168.15.19:1337" + userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url }} style={styles.profilePicture} />
+                            <Image source={{ uri: HOST_API + userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url }} style={styles.profilePicture} />
                         )}
                         <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
-                            {profilePicture ? (
+                            {haveProfilePicture ? (
                                 <Ionicons name="pencil-outline" size={30} color="#fff" />
                             ) : (
                                 <Ionicons name="camera-outline" size={30} color="#fff" />
@@ -509,6 +558,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         <Controller
                             name='userName'
                             control={control}
+                            defaultValue={defaultUserName}
                             rules={{
                                 required: true,
                                 minLength: 6
@@ -516,7 +566,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                             render={({ field: { onChange } }) => (
                                 <TextInput
                                     textContentType='username'
-                                    defaultValue={userName}
+                                    defaultValue={defaultUserName}
                                     onChangeText={onChange}
                                     className={`p-4 border ${errors.userName ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
                                     placeholder='Jhon'
@@ -531,6 +581,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         <Text className="text-base">E-mail</Text>
                         <Controller
                             name='email'
+                            defaultValue={defaultUserEmail}
                             control={control}
                             rules={{
                                 required: true,
@@ -539,7 +590,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                             render={({ field: { onChange } }) => (
                                 <TextInput
                                     textContentType='emailAddress'
-                                    defaultValue={userEmail}
+                                    defaultValue={defaultUserEmail}
                                     onChangeText={onChange}
                                     keyboardType='email-address'
                                     className={`p-4 border ${errors.email ? "border-red-400" : "border-gray-500"}  rounded-lg h-45`}
