@@ -10,6 +10,8 @@ import useUpdateFavoriteEstablishment from "../../hooks/useUpdateFavoriteEstabli
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import storage from "../../utils/storage";
+import { useFocus } from "native-base/lib/typescript/components/primitives";
+import { useFocusEffect } from "@react-navigation/native";
 interface Colors {
   [key: string]: string;
 }
@@ -27,7 +29,7 @@ export default function FavoriteEstablishments({
   }, []);
   const USER_ID = userId;
 
-  const { data, error, loading } = useGetFavoriteEstablishmentsByUserId(
+  const { data, error, loading, refetch } = useGetFavoriteEstablishmentsByUserId(
     USER_ID ?? "",
   );
   const [colors, setColors] = useState<Colors>({});
@@ -39,6 +41,8 @@ export default function FavoriteEstablishments({
   const [userFavoriteEstablishments, setUserFavoriteEstablishments] = useState<
     Array<string>
   >([]);
+
+  useFocusEffect(() => refetch)
 
   useEffect(() => {
     userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.forEach(
