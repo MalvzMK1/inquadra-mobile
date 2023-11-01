@@ -395,7 +395,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             type: 'image/jpeg',
         });
 
-        const apiUrl = "http://192.168.0.229:1337";
+        const apiUrl = HOST_API;
 
         try {
             const response = await axios.post(`${apiUrl}/api/upload`, formData, {

@@ -261,9 +261,8 @@ export default function ProfileSettings({
     setShowExitConfirmation(false);
   };
 
-  const [profilePicture, setProfilePicture] = useState<string | undefined>(
-    route.params.userPhoto,
-  );
+  const [profilePicture, setProfilePicture] = useState<string | undefined>();
+  const haveProfilePicture:boolean = data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined ? true : false
   const [photo, setPhoto] = useState("");
   const [imageEdited, setImageEdited] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
@@ -273,6 +272,8 @@ export default function ProfileSettings({
       data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!,
     );
   });
+
+
 
   const handleProfilePictureUpload = async () => {
     try {
@@ -305,7 +306,7 @@ export default function ProfileSettings({
 
   const uploadImage = async (selectedImageUri: string) => {
     setIsLoading(true);
-    const apiUrl = "https://inquadra-api-uat.qodeless.io";
+    const apiUrl = HOST_API;
 
     const formData = new FormData();
     formData.append("files", {
@@ -539,28 +540,17 @@ export default function ProfileSettings({
           <ScrollView className="flex-grow p-1">
             <TouchableOpacity style={{ alignItems: "center", marginTop: 8 }}>
               <View style={styles.container}>
-                {profilePicture ? (
-                  <Image
-                    source={{
-                      uri: imageEdited
-                        ? profilePicture
-                        : HOST_API + photo,
-                    }}
-                    style={styles.profilePicture}
-                  />
-                ) : (
-                  <Ionicons
-                    name="person-circle-outline"
-                    size={100}
-                    color="#bbb"
-                  />
-                )}
+              {profilePicture ? (
+                            <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+                        ) : (
+                            <Image source={{ uri: HOST_API + photo }} style={styles.profilePicture} />
+                        )}
 
                 <TouchableOpacity
                   onPress={handleProfilePictureUpload}
                   style={styles.uploadButton}
                 >
-                  {profilePicture ? (
+                  {haveProfilePicture ? (
                     <Ionicons name="pencil-outline" size={30} color="#fff" />
                   ) : (
                     <Ionicons name="camera-outline" size={30} color="#fff" />
