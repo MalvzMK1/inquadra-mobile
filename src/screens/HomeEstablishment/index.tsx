@@ -212,16 +212,18 @@ export default function HomeEstablishment({
       })
       .then(data => {
         setUserId(data.userId);
-      });
+      })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
     if (
       dataEstablishmentId &&
+      dataEstablishmentId.usersPermissionsUser.data &&
       dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data
     ) {
       setEstablishmentId(dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data.id)
-      setPhoto(dataEstablishmentId.usersPermissionsUser.data.attributes.photo.data?.attributes.url ?? undefined)
+      setPhoto(dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data?.attributes.logo.data?.attributes.url ?? undefined)
       setUserName(dataEstablishmentId.usersPermissionsUser.data.attributes.username)
       setFirstName(dataEstablishmentId.usersPermissionsUser.data.attributes.username.split(' ')[0])
     }
@@ -382,10 +384,10 @@ export default function HomeEstablishment({
               className="bg-[#FF6112] h-7 rounded-b-lg flex items-center justify-center"
               style={{ elevation: 8 }}
               onPress={() =>
-                navigation.navigate("CourtSchedule", {
+                (userId && establishmentId) && navigation.navigate("CourtSchedule", {
                   establishmentPhoto: undefined,
                   establishmentId: establishmentId,
-                  userId: userId!,
+                  userId: userId,
                 })
               }
             >
