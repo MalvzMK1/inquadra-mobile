@@ -48,8 +48,6 @@ export default function AllVeryWell({
     7: "SpecialDays",
   };
 
-  console.log(courts[0])
-
   const uploadImages = async (photos: {uri: string}[]) => {
     const formData = new FormData();
 
@@ -79,59 +77,8 @@ export default function AllVeryWell({
     return uploadedImageIDs;
   };
 
-  interface IRegisterUserPersonalInfosProps {
-    username: string;
-    cpf: string;
-    email: string;
-    password: string;
-    phone_number: string;
-    role: string;
-  }
-
-  interface IRegisterEstablishmentInfosProps {
-    amenities: string[];
-    cellphone_number: string;
-    cnpj: string;
-    cep: string;
-    corporate_name: string;
-    phone_number: string;
-    street_name: string;
-    photos: string[];
-    latitude: string;
-    longitude: string;
-  }
-
-  async function registerUserPersonalInfos(data: IRegisterUserPersonalInfosProps): Promise<string> {
-    const {data: registeredUser, errors} = await registerUser({
-      variables: {
-        ...data
-      }
-    })
-
-    if (errors || !registeredUser) throw new Error('Unable to register user\'s personal infos')
-    else {
-      const {id} = registeredUser.createUsersPermissionsUser.data;
-      return id;
-    }
-  }
-
-  async function registerEstablishmentInfos(ownerId: string, data: IRegisterEstablishmentInfosProps): Promise<string> {
-    const {data: registeredEstablishment, errors} = await registerEstablishment({
-      variables: {
-        ...data,
-        ownerId,
-        publishedAt: new Date().toISOString()
-      }
-    });
-
-    if (errors || !registeredEstablishment) throw new Error('Unable to register user\'s personal infos')
-    else {
-      const {id} = registeredEstablishment.createEstablishment.data;
-      return id;
-    }
-  }
-
   let rmv_userId: string;
+  let rmv_logoId: string;
   let rmv_establishmentId: string;
   let rmv_uploadedImagesIds: Array<string>;
 
@@ -148,12 +95,19 @@ export default function AllVeryWell({
         establishment_id: rmv_establishmentId
       }
     }).then(response => console.log({DELETED_ESTABLISHMENT: response}))
+  }
 
-    if (rmv_uploadedImagesIds) rmv_uploadedImagesIds.forEach(id => deleteCourtAvailability({
-      variables: {
-        court_availability_id: id
-      }
-    }))
+  async function uploadEstablishmentPhotos(logo: { uri: string }, photos: Array<string>): Promise<[Array<string>, Array<string>]> {
+    try {
+      return Promise.all([
+        await uploadImages(photos.map(photo => ({uri: photo}))),
+        await uploadImages([logo]),
+      ]);
+    } catch (error) {
+      // console.error(error instanceof ApolloError)
+      if (error instanceof Error) console.error(error)
+      throw new Error('Couldn\'t upload establishment images', {cause: error})
+    }
   }
 
   async function handleComplete(): Promise<void> {
@@ -173,18 +127,39 @@ export default function AllVeryWell({
 
       console.log({NEW_USER: newUserData.createUsersPermissionsUser.data.id})
       rmv_userId = newUserData.createUsersPermissionsUser.data.id;
-      setUserId(newUserData.createUsersPermissionsUser.data.id)
+      setUserId(newUserData.createUsersPermissionsUser.data.id);
 
+      console.log('CADASTRANDO FOTOS...')
+      const [logoId, establishmentPhotosIds] = await uploadEstablishmentPhotos(
+        route.params.establishmentInfos.logo,
+        route.params.establishmentInfos.photos
+      )
+
+      const LOGO_IDX = 0;
       const registerEstalishmentPayload: IRegisterEstablishmentVariables = {
         ownerId: newUserData.createUsersPermissionsUser.data.id,
-        ...route.params.establishmentInfos,
-        publishedAt: new Date().toISOString()
+        publishedAt: new Date().toISOString(),
+        photos: establishmentPhotosIds,
+        logo: logoId[LOGO_IDX],
+        latitude: route.params.establishmentInfos.latitude,
+        longitude: route.params.establishmentInfos.longitude,
+        street_name: route.params.establishmentInfos.street_name,
+        cep: route.params.establishmentInfos.cep,
+        phone_number: route.params.establishmentInfos.phone_number,
+        cnpj: route.params.establishmentInfos.cnpj,
+        cellphone_number: route.params.establishmentInfos.cellphone_number,
+        amenities: route.params.establishmentInfos.amenities,
+        corporate_name: route.params.establishmentInfos.corporate_name,
       }
+
+      console.error({registerEstalishmentPayload});
+
       const {data: establishmentData, errors: establishmentErrors} = await registerEstablishment({
         variables: registerEstalishmentPayload
       });
 
       if (!establishmentData) throw new Error('Não foi possível criar o estabelecimento', {cause: establishmentErrors?.map(error => error)})
+      console.warn({NEW_ESTABLISHMENT: establishmentData});
 
       rmv_establishmentId = establishmentData.createEstablishment.data.id;
       setEstablishmentId(establishmentData.createEstablishment.data.id)
@@ -253,15 +228,15 @@ export default function AllVeryWell({
       if (err instanceof ApolloError) {
         console.log({message: err.message, client: err.clientErrors, graphql: err.graphQLErrors})
         Alert.alert('Erro no cadastro', err.message)
-        navigation.navigate('Register', {
-          flow: 'establishment'
-        });
+        // navigation.navigate('Register', {
+        //   flow: 'establishment'
+        // });
       } else if (err instanceof Error) {
         console.log({message: err.message})
         Alert.alert('Erro no cadastro', err.message)
-        navigation.navigate('Register', {
-          flow: 'establishment'
-        });
+        // navigation.navigate('Register', {
+        //   flow: 'establishment'
+        // });
       }
       removeRegisteredInfos().then(() => console.log('Informações deletadas com sucesso'))
     } finally {

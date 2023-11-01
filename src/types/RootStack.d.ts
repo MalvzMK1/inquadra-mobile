@@ -155,6 +155,7 @@ type RootStackParamList = {
       phone_number: string;
       street_name: string;
       photos: string[];
+      logo: {uri: string};
       latitude: string;
       longitude: string;
     }
@@ -211,6 +212,7 @@ type RootStackParamList = {
       phone_number: string;
       street_name: string;
       photos: string[];
+      logo: { uri: string };
       latitude: string;
       longitude: string;
     };
