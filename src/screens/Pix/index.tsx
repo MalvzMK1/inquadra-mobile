@@ -134,7 +134,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         }
 
         const intervalId = setInterval(checkStatus, 2500);
-        const timeOutPayment = setInterval(checkTimeOut, 10000);
+        const timeOutPayment = setInterval(checkTimeOut, 300000);
 
         return () => {
             isMounted = false;

@@ -49,6 +49,21 @@ export interface IinfoScheduleResponse {
             }
           }>
         }
+        user_payment_pixes: {
+          data: Array<{
+            attributes: {
+              users_permissions_user: {
+                data: {
+                  attributes: {
+                    username: string
+                  }
+                }
+              }
+              value: number
+              createdAt: string
+            }
+          }>
+        }
         owner: {
           data: {
             id: string
@@ -100,7 +115,30 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
           }
         }
         user_payments(
-          filters: { users_permissions_user: { id: { eq: $idUser } } }
+          filters: {
+            users_permissions_user: { id: { eq: $idUser } }
+            payedStatus: { eq: "Payed" }
+          }
+        ) {
+          data {
+            attributes {
+              users_permissions_user {
+                data {
+                  attributes {
+                    username
+                  }
+                }
+              }
+              value
+              createdAt
+            }
+          }
+        }
+        user_payment_pixes(
+          filters: {
+            users_permissions_user: { id: { eq: $idUser } }
+            PayedStatus: { eq: "Payed" }
+          }
         ) {
           data {
             attributes {
@@ -125,5 +163,4 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
     }
   }
 }
-
 `

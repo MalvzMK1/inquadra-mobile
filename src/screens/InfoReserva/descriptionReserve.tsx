@@ -415,8 +415,28 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         alert('--- SHARE FUNCTION HAS BEEN TRIGGERED ---')
     }
 
+    const usersPaymentsPixes = dataHistoricPayments?.scheduling?.data?.attributes?.user_payment_pixes?.data || [];
+    const usersPayments = dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data || [];
+    const mergedPayments = [...usersPaymentsPixes, ...usersPayments];
+    mergedPayments.sort((a, b) => new Date(a.attributes.createdAt).getTime() - new Date(b.attributes.createdAt).getTime());
+    const paymentData = {
+        data: mergedPayments
+    };
+
+    const ownerUserPaymentsPixes = data?.scheduling?.data?.attributes?.user_payments?.data || []
+    const ownerUserPayments = data?.scheduling?.data?.attributes?.user_payment_pixes?.data || []
+    const mergedOwnerPayments = [...ownerUserPaymentsPixes, ...ownerUserPayments]
+    mergedOwnerPayments.sort((a, b) => new Date(a.attributes.createdAt).getTime() - new Date(b.attributes.createdAt).getTime())
+    const ownerPaymentsData = {
+        data: mergedOwnerPayments
+    }
+
+
+
+
     return (
         <View className='flex-1 bg-zinc-600'>
+
             <View className=' h-11 w-max  bg-zinc-900'></View>
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
                 <View className='flex item-center justify-center'>
@@ -651,14 +671,14 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 </View>
                 <View className='h-max w-full  px-5 items-center justify-start pt-4'>
                     {
-                        data?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && data?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
+                        ownerPaymentsData !== undefined && ownerPaymentsData !== null
                             ?
                             <>
                                 <View>
                                     <Text className='text-gray-50 font-black'>MEUS PAGAMENTOS:</Text>
                                 </View>
                                 {
-                                    data?.scheduling.data.attributes.user_payments.data.map((paymentInfo) =>
+                                    ownerPaymentsData.data.map((paymentInfo) =>
                                         <View className='w-full pt-5'>
                                             <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
                                                 <Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
@@ -681,8 +701,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                     </View>
                     <View className='pt-3 w-full'>
                         {
-                            dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data[0] !== undefined && dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data[0] !== null
-                                ? dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data?.map((paymentInfo) =>
+                            paymentData.data !== undefined && paymentData.data !== null
+                                ? paymentData.data.map((paymentInfo) =>
                                     <ScrollView>
                                         <View className='w-full pt-5'>
                                             <View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
