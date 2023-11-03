@@ -3,12 +3,13 @@ import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import CardFinancialEstablishment from "../../components/CardFinancialEstablishment";
 import { useGetUserHistoricPayment } from "../../hooks/useGetHistoricPayment";
 import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function FinancialEstablishment({
   navigation,
@@ -18,6 +19,7 @@ export default function FinancialEstablishment({
     useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
+  const [establishmentPicture, setEstablishmentPicture] = useState<string | undefined>();
 
   const [infosHistoric, setInfosHistoric] = useState<
     Array<{
@@ -146,6 +148,17 @@ export default function FinancialEstablishment({
     error: errorUserEstablishment,
     loading: loadingUserEstablishment,
   } = useGetUserIDByEstablishment(route.params.establishmentId ?? "");
+
+  useEffect(() => {
+    AsyncStorage.getItem('@inquadra/establishment-profile-photo')
+      .then(value => {
+        console.log({photo: value})
+        setEstablishmentPicture(value ? value : undefined)
+        navigation.setParams({
+          logo: value ?? undefined,
+        })
+      })
+  }, [])
 
   return (
     <View className="flex-1">

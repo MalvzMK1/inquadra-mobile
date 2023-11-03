@@ -44,6 +44,7 @@ import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstabl
 import useBlockSchedule from "../../hooks/useBlockSchedule";
 // import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const portugueseMonths = [
   "Janeiro",
@@ -96,8 +97,6 @@ const blockScheduleByTimeFormSchema = z.object({
   endHour: z.string().min(5, "Insira um horário válido"),
 });
 
-
-
 export default function CourtSchedule({
   navigation,
   route,
@@ -106,13 +105,17 @@ export default function CourtSchedule({
   const [establishmentId, setEstablishmentId] = useState<string>(
     route.params.establishmentId,
   );
-  const [establishentPicture, setEstablishentPicture] = useState("")
+  const [establishmentPicture , setEstablishmentPicture] = useState<string | undefined>("")
+
   useEffect(() => {
-    if (route.params.establishmentPhoto !== undefined && route.params.establishmentPhoto !== null && route.params.establishmentPhoto !== "") {
-      setEstablishentPicture(route.params.establishmentPhoto)
-    } else {
-      setEstablishentPicture("../../assets/default-user-image.png")
-    }
+    AsyncStorage.getItem('@inquadra/establishment-profile-photo')
+      .then(value => {
+        console.log({photo: value})
+        setEstablishmentPicture(value ? value : undefined)
+        navigation.setParams({
+          establishmentPhoto: value ?? undefined,
+        })
+      })
   }, [])
 
 
@@ -876,7 +879,7 @@ export default function CourtSchedule({
                 establishmentId:
                   establishmentId,
                 establishmentPhoto:
-                  establishentPicture,
+                  establishmentPicture ,
               });
             }}
           >
@@ -1342,7 +1345,7 @@ export default function CourtSchedule({
         <BottomBlackMenuEstablishment
           screen="Schedule"
           userID={userId ?? ""}
-          establishmentLogo={establishentPicture}
+          establishmentLogo={establishmentPicture }
           establishmentID={
             establishmentId
           }
