@@ -91,51 +91,31 @@ export default function FavoriteEstablishments({
   const handleUpdateEstablishmentLike = (establishmentId: string): void => {
     const establishmentsData = [...userFavoriteEstablishments];
 
-    if (userFavoriteEstablishments?.includes(establishmentId)) {
-      setIsLoading(true);
-      const arrayWithoutDeletedItem = establishmentsData.filter(
-        item => item !== establishmentId,
-      );
+    setIsLoading(true);
+    const arrayWithoutDeletedItem = establishmentsData.filter(
+      item => item !== establishmentId
+    );
 
-      updateLikedEstablishments({
-        variables: {
-          user_id: USER_ID ?? "",
-          favorite_establishments: arrayWithoutDeletedItem,
-        },
+    console.log("array deletando id:", arrayWithoutDeletedItem)
+
+    updateLikedEstablishments({
+      variables: {
+        user_id: USER_ID ?? "",
+        favorite_establishments: arrayWithoutDeletedItem,
+      },
+    })
+      .then(() => {
+        setColors(prevColor => ({
+          ...prevColor,
+          [establishmentId]: "white",
+        }));
       })
-        .then(() => {
-          setColors(prevColor => ({
-            ...prevColor,
-            [establishmentId]: "white",
-          }));
-        })
 
-        .finally(() => {
-          setIsLoading(false);
-          setUserFavoriteEstablishments(arrayWithoutDeletedItem);
-        });
-    } else {
-      setIsLoading(true);
-      establishmentsData.push(establishmentId);
+      .finally(() => {
+        setIsLoading(false);
+        setUserFavoriteEstablishments(arrayWithoutDeletedItem);
+      });
 
-      updateLikedEstablishments({
-        variables: {
-          user_id: USER_ID ?? "",
-          favorite_establishments: establishmentsData,
-        },
-      })
-        .then(() => {
-          setColors(prevColor => ({
-            ...prevColor,
-            [establishmentId]: "red",
-          }));
-        })
-
-        .finally(() => {
-          setIsLoading(false);
-          setUserFavoriteEstablishments(establishmentsData);
-        });
-    }
   };
 
   const {
@@ -217,8 +197,8 @@ export default function FavoriteEstablishments({
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                  ?.attributes?.url
+              dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                ?.attributes?.url
               : ""
           }
           key={1}

@@ -13,13 +13,20 @@ export default function CourtCardHome(props: CourtCardInfos) {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const [color, setColor] = useState("white");
+  const [color, setColor] = useState<string>("white");
+
+  useFocusEffect(() => {
+    props.liked
+      ? setColor("red")
+      : setColor("white")
+  })
+
 
   const {
     data: userByIdData,
     error: userByIdError,
     loading: userByIdLoading,
-
+    refetch: refetchUserInfos
   } = useGetUserById(userId ?? "");
 
   const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
@@ -27,17 +34,23 @@ export default function CourtCardHome(props: CourtCardInfos) {
   );
 
 
-  useEffect(() => {
+  const resetUserInfos = async () => {
+    await refetchUserInfos();
     userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
       item => {
         setUserFavoriteCourts([item.id]);
-
-        item.id === props.id
-          ?setColor("red")
-          :setColor("white")
-      },
+        item.id === props.id ? setColor("red") : setColor("white");
+      }
     );
+  };
 
+  useFocusEffect(() => {
+    resetUserInfos();
+  });
+
+
+
+  useEffect(() => {
     storage
       .load<UserInfos>({
         key: "userInfos",
@@ -101,8 +114,8 @@ export default function CourtCardHome(props: CourtCardInfos) {
             userPhoto:
               userByIdData?.usersPermissionsUser?.data?.attributes?.photo?.data
                 ?.attributes?.url,
-                colorState:color,
-                setColorState: setColor
+            colorState: color,
+            setColorState: setColor
           })
         }
       >
