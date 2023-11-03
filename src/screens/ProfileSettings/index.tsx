@@ -1,13 +1,13 @@
-import { HOST_API } from "@env";
-import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {HOST_API} from "@env";
+import {FontAwesome, Ionicons, MaterialIcons} from "@expo/vector-icons";
+import {zodResolver} from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import {useFocusEffect} from "@react-navigation/native";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import React, {useEffect, useState} from "react";
+import {Controller, useForm} from "react-hook-form";
 import {
   ActivityIndicator,
   Image,
@@ -19,23 +19,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SelectList } from "react-native-dropdown-select-list";
-import { showMessage } from "react-native-flash-message";
-import MaskInput, { Masks } from "react-native-mask-input";
-import { TextInputMask } from "react-native-masked-text";
+import {SelectList} from "react-native-dropdown-select-list";
+import {showMessage} from "react-native-flash-message";
+import MaskInput, {Masks} from "react-native-mask-input";
+import {TextInputMask} from "react-native-masked-text";
 import Icon from "react-native-vector-icons/Ionicons";
-import { z } from "zod";
+import {z} from "zod";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CreditCardCard from "../../components/CreditCardInfoCard";
 import useCountries from "../../hooks/useCountries";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import useUpdateUser from "../../hooks/useUpdateUser";
-import { useGetUserById } from "../../hooks/useUserById";
-import { Card } from "../../types/Card";
-import { mask } from "react-native-text-input-mask";
-import { useToast } from 'native-base';
-
+import {useGetUserById} from "../../hooks/useUserById";
+import {Card} from "../../types/Card";
+import {useToast} from 'native-base';
+import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
+import {getUsersCountryId} from "../../utils/getUsersCountryId";
+import {ALERT_TYPE, AlertNotificationRoot, Dialog} from "react-native-alert-notification";
+import storage from "../../utils/storage";
 
 interface IFormData {
   photo: string;
@@ -114,12 +116,15 @@ export default function ProfileSettings({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "ProfileSettings">) {
+  const {userID} = route.params;
   const [userInfos, setUserInfos] = useState<UserConfigurationProps>();
   const [showCard, setShowCard] = useState(false);
   const [showCreditCards, setShowCraditCards] = useState(false);
   const [showCameraIcon, setShowCameraIcon] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+  const [countryId, setCountryId] = useState<string | number>();
+  const [countries, setCountries] = useState<Array<Country>>();
   const [countriesArray, setCountriesArray] = useState<
     Array<{ key: string; value: string }>
   >([]);
@@ -129,8 +134,10 @@ export default function ProfileSettings({
     "Fazendo upload da imagem",
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [userCountry, setUserCountry] = useState<Country>();
 
-  const { loading, error, data, refetch } = useGetUserById(route.params.userID);
+  const {data: userPaymentCountryData, error: userPaymentCountryError} = useUserPaymentCountry(userID)
+  const { loading, error, data, refetch } = useGetUserById(userID);
   const {
     data: countriesData,
     loading: countriesLoading,
@@ -148,7 +155,6 @@ export default function ProfileSettings({
     },
   ] = useUpdatePaymentCardInformations();
   const [deleteUser] = useDeleteUser();
-  const userID = route.params.userID;
 
   useEffect(() => {
     let newCountriesArray: Array<{ key: string; value: string; img: string }> =
@@ -208,7 +214,15 @@ export default function ProfileSettings({
       data.complement,
       data.city,
       data.state,
-    );
+    ).then(() => {
+      console.log('ur')
+      Dialog.show({
+        title: 'Cartão adicionado com sucesso',
+        type: ALERT_TYPE.SUCCESS,
+        closeOnOverlayTap: true,
+        autoClose: true
+      })
+    });
   };
 
   const resetFieldsCard = () => {
@@ -253,7 +267,9 @@ export default function ProfileSettings({
   };
 
   const handleConfirmExit = () => {
-    // sair do app
+    storage.remove({
+      key: 'userInfos',
+    }).then(() => console.log('Removed user infos from local storage'))
     setShowExitConfirmation(false);
   };
 
@@ -369,9 +385,19 @@ export default function ProfileSettings({
           },
         });
 
+        Dialog.show({
+          type: ALERT_TYPE.SUCCESS,
+          title: 'Sucesso',
+          textBody: 'As informações foram atualizadas'
+        })
         console.log("Informações do usuário atualizadas com sucesso!");
       }
     } catch (error) {
+      Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: 'Erro',
+        textBody: 'Não foi possível atualizar as informações do usuário'
+      })
       console.error("Erro ao atualizar informações do usuário:", error);
     }
   }
@@ -397,16 +423,8 @@ export default function ProfileSettings({
             ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString()
             : "",
           country: {
-            id: data.usersPermissionsUser.data.attributes
-              .paymentCardInformations.country.data
-              ? data.usersPermissionsUser.data.attributes
-                .paymentCardInformations.country.data.id
-              : "",
-            name: data.usersPermissionsUser.data.attributes
-              .paymentCardInformations.country.data
-              ? data.usersPermissionsUser.data.attributes
-                .paymentCardInformations.country.data.attributes.name
-              : "",
+            id: userCountry?.id ?? '1',
+            name: userCountry?.name ?? 'Brasil',
           },
         },
       };
@@ -456,8 +474,8 @@ export default function ProfileSettings({
       }
     });
   }, [showCreditCards]);
-  const toast = useToast()
-  const addCard = (
+
+  const addCard = async (
     number: string,
     maturityDate: string,
     countryID: string,
@@ -468,7 +486,7 @@ export default function ProfileSettings({
     complement: string,
     city: string,
     state: string,
-  ) => {
+  ): Promise<void> => {
     const newCard: Card = {
       id: cards.length, // Use cards.length para obter o próximo ID.
       number: number,
@@ -485,7 +503,7 @@ export default function ProfileSettings({
     setCards(prevCards => [...prevCards, newCard]);
     console.log("log cards", cards);
 
-    AsyncStorage.setItem(
+    await AsyncStorage.setItem(
       `user${userID}Cards`,
       JSON.stringify([...cards, newCard]),
       error => {
@@ -505,464 +523,501 @@ export default function ProfileSettings({
     );
   };
 
+  useEffect(() => {
+    let foundCountryId: string | number | undefined
+    if (userPaymentCountryData)
+      foundCountryId = getUsersCountryId(userID, userPaymentCountryData);
+    setCountryId(foundCountryId);
+  }, [userPaymentCountryData])
+
+  useEffect(() => {
+    if (countriesData && countryId) {
+      const {data: newCountries} = countriesData.countries
+
+      const foundCountry = newCountries.find(country => String(country.id) === String(countryId));
+
+      if (foundCountry) setUserCountry({
+        name: foundCountry.attributes.name,
+        ISOCode: foundCountry.attributes.ISOCode,
+        flag: {
+          id: foundCountry.attributes.flag.data.id,
+          name: foundCountry.attributes.flag.data.attributes.name,
+          url: foundCountry.attributes.flag.data.attributes.url,
+          hash: foundCountry.attributes.flag.data.attributes.hash,
+          alternativeText: foundCountry.attributes.flag.data.attributes.alternativeText
+        },
+        id: foundCountry.id,
+      });
+    }
+  }, [countriesData])
+
   return (
-    <View className="flex-1 bg-white h-full">
-      <View className=" h-11 w-max  bg-[#292929]"></View>
-      <View className=" h-16 w-max  bg-[#292929] flex-row item-center justify-between px-5">
-        <View className="flex item-center justify-center">
-          <MaterialIcons
-            name="arrow-back"
-            color={"white"}
-            size={30}
-            onPress={() => navigation.goBack()}
-          />
-        </View>
-        <View className="flex item-center justify-center">
-          <Text className="text-lg font-bold text-white">EDITAR</Text>
-        </View>
-        <View className="h-max w-max flex justify-center items-center">
-          <TouchableOpacity className="h-12 W-12 ">
-            <Image
-              source={{ uri: HOST_API + photo }}
-              style={{ width: 46, height: 46 }}
-              borderRadius={100}
+    <AlertNotificationRoot>
+      <View className="flex-1 bg-white h-full">
+        <View className=" h-11 w-max  bg-[#292929]"></View>
+        <View className=" h-16 w-max  bg-[#292929] flex-row item-center justify-between px-5">
+          <View className="flex item-center justify-center">
+            <MaterialIcons
+              name="arrow-back"
+              color={"white"}
+              size={30}
+              onPress={() => navigation.goBack()}
             />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {loading ? (
-        <View className="flex-1">
-          <ActivityIndicator size="large" color="#F5620F" />
-        </View>
-      ) : (
-        <>
-          <ScrollView className="flex-grow p-1">
-            <TouchableOpacity style={{ alignItems: "center", marginTop: 8 }}>
-              <View style={styles.container}>
-              {profilePicture ? (
-                            <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
-                        ) : (
-                            <Image source={{ uri: HOST_API + photo }} style={styles.profilePicture} />
-                        )}
-
-                <TouchableOpacity
-                  onPress={handleProfilePictureUpload}
-                  style={styles.uploadButton}
-                >
-                  {haveProfilePicture ? (
-                    <Ionicons name="pencil-outline" size={30} color="#fff" />
-                  ) : (
-                    <Ionicons name="camera-outline" size={30} color="#fff" />
-                  )}
-                </TouchableOpacity>
-              </View>
+          </View>
+          <View className="flex item-center justify-center">
+            <Text className="text-lg font-bold text-white">EDITAR</Text>
+          </View>
+          <View className="h-max w-max flex justify-center items-center">
+            <TouchableOpacity className="h-12 W-12 ">
+              <Image
+                source={{ uri: HOST_API + photo }}
+                style={{ width: 46, height: 46 }}
+                borderRadius={100}
+              />
             </TouchableOpacity>
-            <View className="p-6 space-y-6">
-              <View>
-                <Text className="text-base">Nome</Text>
-                <Controller
-                  name="name"
-                  control={control}
-                  defaultValue={userNameDefault}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      value={getValues("name")}
-                      onChangeText={onChange}
-                      className={
-                        errors.name
-                          ? "p-4 border border-red-400 rounded"
-                          : "p-4 border border-neutral-400 rounded"
-                      }
-                      placeholder="Ex.: João"
+          </View>
+        </View>
+
+        {loading ? (
+          <View className="flex-1">
+            <ActivityIndicator size="large" color="#F5620F" />
+          </View>
+        ) : (
+          <>
+            <ScrollView className="flex-grow p-1">
+              <TouchableOpacity style={{ alignItems: "center", marginTop: 8 }}>
+                <View style={styles.container}>
+                  {profilePicture ? (
+                    <Image
+                      source={{
+                        uri: imageEdited
+                          ? profilePicture
+                          : HOST_API + photo,
+                      }}
+                      style={styles.profilePicture}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="person-circle-outline"
+                      size={100}
+                      color="#bbb"
                     />
                   )}
-                />
-                {errors.name && (
-                  <Text className="text-red-400 text-sm">
-                    {errors.name.message}
-                  </Text>
-                )}
-              </View>
-              <View>
-                <Text className="text-base">E-mail</Text>
-                <Controller
-                  name="email"
-                  control={control}
-                  defaultValue={emailDefault}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      value={getValues("email")}
-                      onChangeText={onChange}
-                      className={
-                        errors.email
-                          ? "p-4 border border-red-400 rounded"
-                          : "p-4 border border-neutral-400 rounded"
-                      }
-                      placeholder="email@email.com"
-                      maxLength={256}
-                    />
-                  )}
-                />
-                {errors.email && (
-                  <Text className="text-red-400 text-sm">
-                    {errors.email.message}
-                  </Text>
-                )}
-              </View>
-              <View>
-                <Text className="text-base">Telefone</Text>
-                <Controller
-                  name="phoneNumber"
-                  defaultValue={phoneDefault}
-                  control={control}
-                  render={({ field: { onChange } }) => (
-                    <MaskInput
-                      className="p-4 border border-gray-500 rounded-md h-45"
-                      placeholder="Ex: 000.000.000-00"
-                      value={getValues("phoneNumber")}
-                      onChangeText={onChange}
-                      mask={Masks.BRL_PHONE}
-                      maxLength={15}
-                    />
-                  )}
-                />
-                {errors.phoneNumber && (
-                  <Text className="text-red-400 text-sm">
-                    {errors.phoneNumber.message}
-                  </Text>
-                )}
-              </View>
-              <View>
-                <Text className="text-base">CPF</Text>
-                <Controller
-                  name="cpf"
-                  defaultValue={cpfDefault}
-                  control={control}
-                  render={({ field: { onChange } }) => (
-                    <MaskInput
-                      className="p-4 border border-gray-500 rounded-md h-45"
-                      placeholder="Ex: 000.000.000-00"
-                      value={getValues("cpf")}
-                      onChangeText={onChange}
-                      mask={Masks.BRL_CPF}
-                      editable={false}
-                      maxLength={14}
-                    />
-                  )}
-                />
-                {errors.cpf && (
-                  <Text className="text-red-400 text-sm">
-                    {errors.cpf.message}
-                  </Text>
-                )}
-              </View>
-              <TouchableOpacity onPress={handleCardClick}>
-                <Text className="text-base">Dados Cartão</Text>
-                <View className="h-30 border border-gray-500 rounded-md">
-                  <View className="flex-row justify-center items-center m-2">
-                    <FontAwesome
-                      name="credit-card-alt"
-                      size={24}
-                      color="#FF6112"
-                    />
-                    <Text className="flex-1 text-base text-right mb-0">
-                      {showCard ? (
-                        <FontAwesome name="camera" size={24} color="#FF6112" />
-                      ) : (
-                        "Adicionar Cartão"
-                      )}
+
+                  <TouchableOpacity
+                    onPress={handleProfilePictureUpload}
+                    style={styles.uploadButton}
+                  >
+                    {profilePicture ? (
+                      <Ionicons name="pencil-outline" size={30} color="#fff" />
+                    ) : (
+                      <Ionicons name="camera-outline" size={30} color="#fff" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+              <View className="p-6 space-y-6">
+                <View>
+                  <Text className="text-base">Nome</Text>
+                  <Controller
+                    name="name"
+                    control={control}
+                    defaultValue={userNameDefault}
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        value={getValues("name")}
+                        onChangeText={onChange}
+                        className={
+                          errors.name
+                            ? "p-4 border border-red-400 rounded"
+                            : "p-4 border border-neutral-400 rounded"
+                        }
+                        placeholder="Ex.: João"
+                      />
+                    )}
+                  />
+                  {errors.name && (
+                    <Text className="text-red-400 text-sm">
+                      {errors.name.message}
                     </Text>
+                  )}
+                </View>
+                <View>
+                  <Text className="text-base">E-mail</Text>
+                  <Controller
+                    name="email"
+                    control={control}
+                    defaultValue={emailDefault}
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        value={getValues("email")}
+                        onChangeText={onChange}
+                        className={
+                          errors.email
+                            ? "p-4 border border-red-400 rounded"
+                            : "p-4 border border-neutral-400 rounded"
+                        }
+                        placeholder="email@email.com"
+                        maxLength={256}
+                      />
+                    )}
+                  />
+                  {errors.email && (
+                    <Text className="text-red-400 text-sm">
+                      {errors.email.message}
+                    </Text>
+                  )}
+                </View>
+                <View>
+                  <Text className="text-base">Telefone</Text>
+                  <Controller
+                    name="phoneNumber"
+                    defaultValue={phoneDefault}
+                    control={control}
+                    render={({ field: { onChange } }) => (
+                      <MaskInput
+                        className="p-4 border border-gray-500 rounded-md h-45"
+                        placeholder="Ex: 000.000.000-00"
+                        value={getValues("phoneNumber")}
+                        onChangeText={onChange}
+                        mask={Masks.BRL_PHONE}
+                        maxLength={15}
+                      />
+                    )}
+                  />
+                  {errors.phoneNumber && (
+                    <Text className="text-red-400 text-sm">
+                      {errors.phoneNumber.message}
+                    </Text>
+                  )}
+                </View>
+                <View>
+                  <Text className="text-base">CPF</Text>
+                  <Controller
+                    name="cpf"
+                    defaultValue={cpfDefault}
+                    control={control}
+                    render={({ field: { onChange } }) => (
+                      <MaskInput
+                        className="p-4 border border-gray-500 rounded-md h-45"
+                        placeholder="Ex: 000.000.000-00"
+                        value={getValues("cpf")}
+                        onChangeText={onChange}
+                        mask={Masks.BRL_CPF}
+                        editable={false}
+                        maxLength={14}
+                      />
+                    )}
+                  />
+                  {errors.cpf && (
+                    <Text className="text-red-400 text-sm">
+                      {errors.cpf.message}
+                    </Text>
+                  )}
+                </View>
+                <TouchableOpacity onPress={handleCardClick}>
+                  <Text className="text-base">Adicionar Cartão</Text>
+                  <View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
+                    <View className='flex flex-row items-center gap-2'>
+                      <FontAwesome
+                        name='plus'
+                        size={12}
+                        color='#FF6112'
+                      />
+                      <FontAwesome
+                        name="credit-card-alt"
+                        size={24}
+                        color="#FF6112"
+                      />
+                    </View>
                     <Icon
                       name={showCard ? "chevron-up" : "chevron-down"}
                       size={25}
                       color="#FF4715"
                     />
                   </View>
-                </View>
-              </TouchableOpacity>
-              {showCard && (
-                <View className="border border-gray-500 p-4 mt-10">
-                  <View>
-                    <Text className="text-sm text-[#FF6112]">
-                      Número do cartão
-                    </Text>
-                    <Controller
-                      name="cardNumber"
-                      control={paymentCardControl}
-                      render={({ field: { onChange } }) => (
-                        <MaskInput
-                          value={getPaymentCardValues("cardNumber")}
-                          placeholder="Ex: 0000-0000-0000-0000"
-                          className={`p-3 border ${paymentCardErrors.cvv
-                            ? "border-red-400"
-                            : "border-gray-500"
-                            } rounded-md h-18`}
-                          onChangeText={onChange}
-                          mask={Masks.CREDIT_CARD}
-                          keyboardType="numeric"
-                          maxLength={19}
-                        />
-                      )}
-                    ></Controller>
-                  </View>
-                  {paymentCardErrors.cardNumber && (
-                    <Text className="text-red-400 text-sm">
-                      {paymentCardErrors.cardNumber.message}
-                    </Text>
-                  )}
-                  <View className="flex flex-row justify-between">
-                    <View className="flex flex-1 mr-5">
-                      <Text className="text-base text-[#FF6112]">
-                        Data venc.
+                </TouchableOpacity>
+                {showCard && (
+                  <View className="border border-gray-500 p-4 mt-10">
+                    <View>
+                      <Text className="text-sm text-[#FF6112]">
+                        Número do cartão
                       </Text>
                       <Controller
-                        name="dueDate"
+                        name="cardNumber"
                         control={paymentCardControl}
                         render={({ field: { onChange } }) => (
-                          <TextInputMask
-                            value={getPaymentCardValues("dueDate")}
-                            className={`p-3 border ${paymentCardErrors.dueDate
-                              ? "border-red-400"
-                              : "border-gray-500"
-                              } rounded-md h-18 flex-1`}
-                            type={"datetime"}
-                            options={{
-                              format: "MM/YY",
-                            }}
-                            onChangeText={onChange}
-                            placeholder="MM/YY"
-                            keyboardType="numeric"
-                            maxLength={5}
-                          />
-                        )}
-                      />
-                      {paymentCardErrors.dueDate && (
-                        <Text className="text-red-400 text-sm">
-                          {paymentCardErrors.dueDate.message}
-                        </Text>
-                      )}
-                    </View>
-                    <View className="flex-1 ml-5">
-                      <Text className="text-base text-[#FF6112]">CVV</Text>
-                      <Controller
-                        name="cvv"
-                        control={paymentCardControl}
-                        render={({ field: { onChange } }) => (
-                          <TextInput
-                            value={getPaymentCardValues("cvv")}
+                          <MaskInput
+                            value={getPaymentCardValues("cardNumber")}
+                            placeholder="Ex: 0000-0000-0000-0000"
                             className={`p-3 border ${paymentCardErrors.cvv
                               ? "border-red-400"
                               : "border-gray-500"
-                              } rounded-md h-18 flex-1`}
+                            } rounded-md h-18`}
                             onChangeText={onChange}
-                            placeholder="***"
+                            mask={Masks.CREDIT_CARD}
                             keyboardType="numeric"
-                            maxLength={3}
-                            secureTextEntry
+                            maxLength={19}
                           />
                         )}
-                      />
-                      {paymentCardErrors.cvv && (
-                        <Text className="text-red-400 text-sm">
-                          {paymentCardErrors.cvv.message}
-                        </Text>
-                      )}
+                      ></Controller>
                     </View>
-                  </View>
-                  <View>
-                    <Text className="text-base text-[#FF6112]">País</Text>
-                    <View className="flex flex-row items-center">
-                      <View style={{ width: "100%" }}>
+                    {paymentCardErrors.cardNumber && (
+                      <Text className="text-red-400 text-sm">
+                        {paymentCardErrors.cardNumber.message}
+                      </Text>
+                    )}
+                    <View className="flex flex-row justify-between">
+                      <View className="flex flex-1 mr-5">
+                        <Text className="text-base text-[#FF6112]">
+                          Data venc.
+                        </Text>
                         <Controller
-                          name="country"
+                          name="dueDate"
                           control={paymentCardControl}
                           render={({ field: { onChange } }) => (
-                            <SelectList
-                              setSelected={(val: string) => {
-                                onChange(val);
+                            <TextInputMask
+                              value={getPaymentCardValues("dueDate")}
+                              className={`p-3 border ${paymentCardErrors.dueDate
+                                ? "border-red-400"
+                                : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
+                              type={"datetime"}
+                              options={{
+                                format: "MM/YY",
                               }}
-                              defaultOption={{
-                                key: userInfos?.paymentCardInfos.country.id,
-                                value: userInfos?.paymentCardInfos.country.name,
-                              }}
-                              data={countriesArray}
-                              save="key"
-                              placeholder="Selecione um país..."
-                              searchPlaceholder="Pesquisar..."
+                              onChangeText={onChange}
+                              placeholder="MM/YY"
+                              keyboardType="numeric"
+                              maxLength={5}
                             />
                           )}
                         />
-                        {paymentCardErrors.country && (
+                        {paymentCardErrors.dueDate && (
                           <Text className="text-red-400 text-sm">
-                            {paymentCardErrors.country.message}
+                            {paymentCardErrors.dueDate.message}
+                          </Text>
+                        )}
+                      </View>
+                      <View className="flex-1 ml-5">
+                        <Text className="text-base text-[#FF6112]">CVV</Text>
+                        <Controller
+                          name="cvv"
+                          control={paymentCardControl}
+                          render={({ field: { onChange } }) => (
+                            <TextInput
+                              value={getPaymentCardValues("cvv")}
+                              className={`p-3 border ${paymentCardErrors.cvv
+                                ? "border-red-400"
+                                : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
+                              onChangeText={onChange}
+                              placeholder="***"
+                              keyboardType="numeric"
+                              maxLength={3}
+                              secureTextEntry
+                            />
+                          )}
+                        />
+                        {paymentCardErrors.cvv && (
+                          <Text className="text-red-400 text-sm">
+                            {paymentCardErrors.cvv.message}
                           </Text>
                         )}
                       </View>
                     </View>
-                  </View>
-                  <View className="flex flex-row justify-between gap-8">
-                    <View className='flex-1'>
-                      <Text className="text-sm text-[#FF6112]">CEP</Text>
-                      <Controller
-                        name="cep"
-                        control={paymentCardControl}
-                        render={({ field: { onChange } }) => (
-                          <MaskInput
-                            value={getPaymentCardValues("cep")}
-                            className="p-3 border border-neutral-400 rounded bg-white flex-1"
-                            placeholder="Ex: 00000-000"
-                            onChangeText={(masked, unmasked) => onChange(unmasked)}
-                            keyboardType="numeric"
-                            mask={Masks.ZIP_CODE}
-                            maxLength={9}
+                    <View>
+                      <Text className="text-base text-[#FF6112]">País</Text>
+                      <View className="flex flex-row items-center">
+                        <View style={{ width: "100%" }}>
+                          <Controller
+                            name="country"
+                            control={paymentCardControl}
+                            render={({ field: { onChange } }) => (
+                              <SelectList
+                                setSelected={(val: string) => {
+                                  onChange(val);
+                                }}
+                                defaultOption={{
+                                  key: userCountry?.id ?? '1',
+                                  value: userCountry?.name ?? 'Brasil',
+                                }}
+                                data={countriesArray}
+                                save="key"
+                                placeholder="Selecione um país..."
+                                searchPlaceholder="Pesquisar..."
+                              />
+                            )}
                           />
-                        )}
-                      />
-                      {paymentCardErrors.cep && (
-                        <Text className="text-red-400 text-sm">
-                          {paymentCardErrors.cep.message}
-                        </Text>
-                      )}
+                          {paymentCardErrors.country && (
+                            <Text className="text-red-400 text-sm">
+                              {paymentCardErrors.country.message}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
                     </View>
-                    <View className='flex-1'>
-                      <Text className="text-sm text-[#FF6112]">Numero</Text>
+                    <View className="flex flex-row justify-between gap-8">
+                      <View className='flex-1'>
+                        <Text className="text-sm text-[#FF6112]">CEP</Text>
+                        <Controller
+                          name="cep"
+                          control={paymentCardControl}
+                          render={({ field: { onChange } }) => (
+                            <MaskInput
+                              value={getPaymentCardValues("cep")}
+                              className="p-3 border border-neutral-400 rounded bg-white flex-1"
+                              placeholder="Ex: 00000-000"
+                              onChangeText={(masked, unmasked) => onChange(unmasked)}
+                              keyboardType="numeric"
+                              mask={Masks.ZIP_CODE}
+                              maxLength={9}
+                            />
+                          )}
+                        />
+                        {paymentCardErrors.cep && (
+                          <Text className="text-red-400 text-sm">
+                            {paymentCardErrors.cep.message}
+                          </Text>
+                        )}
+                      </View>
+                      <View className='flex-1'>
+                        <Text className="text-sm text-[#FF6112]">Numero</Text>
+                        <Controller
+                          name="houseNumber"
+                          control={paymentCardControl}
+                          render={({ field: { onChange } }) => (
+                            <MaskInput
+                              value={getPaymentCardValues("houseNumber")}
+                              className="p-3 border border-neutral-400 rounded bg-white flex-1"
+                              placeholder="Ex: 0000"
+                              onChangeText={onChange}
+                              keyboardType="numeric"
+                            ></MaskInput>
+                          )}
+                        ></Controller>
+                        {paymentCardErrors.houseNumber && (
+                          <Text className="text-red-400 text-sm">
+                            {paymentCardErrors.houseNumber.message}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <View>
+                      <Text className="text-sm text-[#FF6112]">Rua</Text>
                       <Controller
-                        name="houseNumber"
+                        name="street"
                         control={paymentCardControl}
                         render={({ field: { onChange } }) => (
                           <MaskInput
-                            value={getPaymentCardValues("houseNumber")}
-                            className="p-3 border border-neutral-400 rounded bg-white flex-1"
-                            placeholder="Ex: 0000"
-                            onChangeText={onChange}
-                            keyboardType="numeric"
-                          ></MaskInput>
-                        )}
-                      ></Controller>
-                      {paymentCardErrors.houseNumber && (
-                        <Text className="text-red-400 text-sm">
-                          {paymentCardErrors.houseNumber.message}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                  <View>
-                    <Text className="text-sm text-[#FF6112]">Rua</Text>
-                    <Controller
-                      name="street"
-                      control={paymentCardControl}
-                      render={({ field: { onChange } }) => (
-                        <MaskInput
-                          value={getPaymentCardValues("street")}
-                          className="p-3 border border-neutral-400 rounded bg-white"
-                          placeholder="Ex: Rua xxxx"
-                          onChangeText={onChange}
-                        ></MaskInput>
-                      )}
-                    ></Controller>
-                  </View>
-                  {paymentCardErrors.street && (
-                    <Text className="text-red-400 text-sm">
-                      {paymentCardErrors.street.message}
-                    </Text>
-                  )}
-                  <View>
-                    <Text className="text-sm text-[#FF6112]">Bairro</Text>
-                    <Controller
-                      name="district"
-                      control={paymentCardControl}
-                      render={({ field: { onChange } }) => (
-                        <MaskInput
-                          value={getPaymentCardValues("district")}
-                          className="p-3 border border-neutral-400 rounded bg-white"
-                          placeholder="Ex: Jd. xxxxx"
-                          onChangeText={onChange}
-                        ></MaskInput>
-                      )}
-                    ></Controller>
-                  </View>
-                  {paymentCardErrors.district && (
-                    <Text className="text-red-400 text-sm">
-                      {paymentCardErrors.district.message}
-                    </Text>
-                  )}
-                  <View>
-                    <Text className="text-sm text-[#FF6112]">Complemento</Text>
-                    <Controller
-                      name="complement"
-                      control={paymentCardControl}
-                      render={({ field: { onChange } }) => (
-                        <MaskInput
-                          value={getPaymentCardValues("complement")}
-                          className="p-3 border border-neutral-400 rounded bg-white"
-                          placeholder="Ex: "
-                          onChangeText={onChange}
-                        ></MaskInput>
-                      )}
-                    ></Controller>
-                  </View>
-                  {paymentCardErrors.complement && (
-                    <Text className="text-red-400 text-sm">
-                      {paymentCardErrors.complement.message}
-                    </Text>
-                  )}
-                  <View className="flex flex-row justify-between gap-8">
-                    <View className='flex-1'>
-                      <Text className="text-sm text-[#FF6112]">Cidade</Text>
-                      <Controller
-                        name="city"
-                        control={paymentCardControl}
-                        render={({ field: { onChange } }) => (
-                          <MaskInput
-                            value={getPaymentCardValues("city")}
+                            value={getPaymentCardValues("street")}
                             className="p-3 border border-neutral-400 rounded bg-white"
-                            placeholder="Ex: xxxx"
+                            placeholder="Ex: Rua xxxx"
                             onChangeText={onChange}
                           ></MaskInput>
                         )}
                       ></Controller>
-                      {paymentCardErrors.city && (
-                        <Text className="text-red-400 text-sm">
-                          {paymentCardErrors.city.message}
-                        </Text>
-                      )}
                     </View>
-                    <View className='flex-1'>
-                      <Text className="text-sm text-[#FF6112]">Estado</Text>
+                    {paymentCardErrors.street && (
+                      <Text className="text-red-400 text-sm">
+                        {paymentCardErrors.street.message}
+                      </Text>
+                    )}
+                    <View>
+                      <Text className="text-sm text-[#FF6112]">Bairro</Text>
                       <Controller
-                        name="state"
+                        name="district"
                         control={paymentCardControl}
                         render={({ field: { onChange } }) => (
                           <MaskInput
-                            value={getPaymentCardValues("state")}
+                            value={getPaymentCardValues("district")}
                             className="p-3 border border-neutral-400 rounded bg-white"
-                            placeholder="Ex: xxxx"
+                            placeholder="Ex: Jd. xxxxx"
                             onChangeText={onChange}
                           ></MaskInput>
                         )}
                       ></Controller>
-                      {paymentCardErrors.state && (
-                        <Text className="text-red-400 text-sm">
-                          {paymentCardErrors.state.message}
-                        </Text>
-                      )}
+                    </View>
+                    {paymentCardErrors.district && (
+                      <Text className="text-red-400 text-sm">
+                        {paymentCardErrors.district.message}
+                      </Text>
+                    )}
+                    <View>
+                      <Text className="text-sm text-[#FF6112]">Complemento</Text>
+                      <Controller
+                        name="complement"
+                        control={paymentCardControl}
+                        render={({ field: { onChange } }) => (
+                          <MaskInput
+                            value={getPaymentCardValues("complement")}
+                            className="p-3 border border-neutral-400 rounded bg-white"
+                            placeholder="Ex: "
+                            onChangeText={onChange}
+                          ></MaskInput>
+                        )}
+                      ></Controller>
+                    </View>
+                    {paymentCardErrors.complement && (
+                      <Text className="text-red-400 text-sm">
+                        {paymentCardErrors.complement.message}
+                      </Text>
+                    )}
+                    <View className="flex flex-row justify-between gap-8">
+                      <View className='flex-1'>
+                        <Text className="text-sm text-[#FF6112]">Cidade</Text>
+                        <Controller
+                          name="city"
+                          control={paymentCardControl}
+                          render={({ field: { onChange } }) => (
+                            <MaskInput
+                              value={getPaymentCardValues("city")}
+                              className="p-3 border border-neutral-400 rounded bg-white"
+                              placeholder="Ex: xxxx"
+                              onChangeText={onChange}
+                            ></MaskInput>
+                          )}
+                        ></Controller>
+                        {paymentCardErrors.city && (
+                          <Text className="text-red-400 text-sm">
+                            {paymentCardErrors.city.message}
+                          </Text>
+                        )}
+                      </View>
+                      <View className='flex-1'>
+                        <Text className="text-sm text-[#FF6112]">Estado</Text>
+                        <Controller
+                          name="state"
+                          control={paymentCardControl}
+                          render={({ field: { onChange } }) => (
+                            <MaskInput
+                              value={getPaymentCardValues("state")}
+                              className="p-3 border border-neutral-400 rounded bg-white"
+                              placeholder="Ex: xxxx"
+                              onChangeText={onChange}
+                            ></MaskInput>
+                          )}
+                        ></Controller>
+                        {paymentCardErrors.state && (
+                          <Text className="text-red-400 text-sm">
+                            {paymentCardErrors.state.message}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <View className="p-2 justify-center items-center">
+                      <TouchableOpacity
+                        onPress={handlePaymentCardSubmit(updateCardInfos)}
+                        className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
+                      >
+                        <Text className="text-white">Salvar</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  <View className="p-2 justify-center items-center">
-                    <TouchableOpacity
-                      onPress={handlePaymentCardSubmit(updateCardInfos)}
-                      className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
-                    >
-                      <Text className="text-white">Salvar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-              <TouchableOpacity onPress={handleOpenCardsModal}>
-                <Text className="text-base">Cartões</Text>
-                <View className="h-30 border border-gray-500 rounded-md">
-                  <View className="flex-row justify-center items-center m-2">
+                )}
+                <TouchableOpacity onPress={handleOpenCardsModal}>
+                  <Text className="text-base">Cartões</Text>
+                  <View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
                     <FontAwesome
                       name="credit-card-alt"
                       size={24}
@@ -974,137 +1029,136 @@ export default function ProfileSettings({
                       color="#FF4715"
                     />
                   </View>
-                </View>
-              </TouchableOpacity>
-              {showCreditCards ? (
-                cards.length > 0 ? (
-                  <View className=" border-gray-500 flex w-max h-max">
-                    {cards.map(card => (
-                      <>
-                        <CreditCardCard
-                          number={card.number}
-                          id={card.id}
-                          userID={userID}
-                        />
-                        <View className="h-2"></View>
-                      </>
-                    ))}
+                </TouchableOpacity>
+                {showCreditCards ? (
+                  cards.length > 0 ? (
+                    <View className=" border-gray-500 flex w-max h-max">
+                      {cards.map(card => (
+                        <>
+                          <CreditCardCard
+                            number={card.number}
+                            id={card.id}
+                            userID={userID}
+                          />
+                          <View className="h-2"></View>
+                        </>
+                      ))}
+                    </View>
+                  ) : (
+                    <Text className="font-bold text-sm text-[#808080] text-center">
+                      Você não possui nenhum cartão cadastrado no momento
+                    </Text>
+                  )
+                ) : null}
+                <View>
+                  <View className="p-2">
+                    <TouchableOpacity
+                      onPress={handleSubmit(updateUserInfos)}
+                      className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
+                    >
+                      <Text className="text-white">
+                        {isLoading ? (
+                          <View style={{ alignItems: "center", paddingTop: 5 }}>
+                            <ActivityIndicator size="small" color="#FFFF" />
+                            <Text style={{ marginTop: 6, color: "white" }}>
+                              {loadingMessage}
+                            </Text>
+                          </View>
+                        ) : (
+                          "Salvar"
+                        )}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
-                ) : (
-                  <Text className="font-bold text-sm text-[#808080] text-center">
-                    Você não possui nenhum cartão cadastrado no momento
-                  </Text>
-                )
-              ) : null}
-              <View>
-                <View className="p-2">
-                  <TouchableOpacity
-                    onPress={handleSubmit(updateUserInfos)}
-                    className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
-                  >
-                    <Text className="text-white">
-                      {isLoading ? (
-                        <View style={{ alignItems: "center", paddingTop: 5 }}>
-                          <ActivityIndicator size="small" color="#FFFF" />
-                          <Text style={{ marginTop: 6, color: "white" }}>
-                            {loadingMessage}
-                          </Text>
-                        </View>
-                      ) : (
-                        "Salvar"
-                      )}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
 
-                <View className="p-2">
-                  <TouchableOpacity
-                    onPress={handleExitApp}
-                    className="h-14 w-81 rounded-md bg-red-500 flex items-center justify-center"
-                  >
-                    <Text className="text-gray-50">Sair do App</Text>
-                  </TouchableOpacity>
-                </View>
+                  <View className="p-2">
+                    <TouchableOpacity
+                      onPress={handleExitApp}
+                      className="h-14 w-81 rounded-md bg-red-500 flex items-center justify-center"
+                    >
+                      <Text className="text-gray-50">Sair do App</Text>
+                    </TouchableOpacity>
+                  </View>
 
-                <View className="p-2">
-                  <TouchableOpacity
-                    onPress={handleDeleteAccount}
-                    className="h-14 w-81 rounded-md  flex items-center justify-center"
-                  >
-                    <Text className="text-base text-gray-400">
-                      Excluir essa conta
-                    </Text>
-                  </TouchableOpacity>
+                  <View className="p-2">
+                    <TouchableOpacity
+                      onPress={handleDeleteAccount}
+                      className="h-14 w-81 rounded-md  flex items-center justify-center"
+                    >
+                      <Text className="text-base text-gray-400">
+                        Excluir essa conta
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
 
-            <Modal
-              visible={showDeleteConfirmation}
-              animationType="fade"
-              transparent={true}
-            >
-              <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
-                <View className="bg-white rounded-md p-20 items-center">
-                  <Text className=" font-bold text-lg mb-8">
-                    Confirmar exclusão da conta?
-                  </Text>
-                  <TouchableOpacity
-                    className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center"
-                    onPress={handleCancelDelete}
-                  >
-                    <Text className="text-white">Cancelar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
-                    onPress={handleConfirmDelete}
-                  >
-                    <Text className="text-white">
-                      {deleteAccountLoading ? (
-                        <ActivityIndicator size={"small"} color={"#F5620F"} />
-                      ) : (
-                        "Confirmar"
-                      )}
+              <Modal
+                visible={showDeleteConfirmation}
+                animationType="fade"
+                transparent={true}
+              >
+                <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
+                  <View className="bg-white rounded-md p-20 items-center">
+                    <Text className=" font-bold text-lg mb-8">
+                      Confirmar exclusão da conta?
                     </Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center"
+                      onPress={handleCancelDelete}
+                    >
+                      <Text className="text-white">Cancelar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
+                      onPress={handleConfirmDelete}
+                    >
+                      <Text className="text-white">
+                        {deleteAccountLoading ? (
+                          <ActivityIndicator size={"small"} color={"#F5620F"} />
+                        ) : (
+                          "Confirmar"
+                        )}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            </Modal>
-            <Modal
-              visible={showExitConfirmation}
-              animationType="fade"
-              transparent={true}
-            >
-              <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
-                <View className="bg-white rounded-md p-20 items-center">
-                  <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
-                  <TouchableOpacity
-                    className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center"
-                    onPress={handleCancelExit}
-                  >
-                    <Text className="text-white">Cancelar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
-                    onPress={handleConfirmExit}
-                    onPressIn={() => navigation.navigate("Login")}
-                  >
-                    <Text className="text-white">Confirmar</Text>
-                  </TouchableOpacity>
+              </Modal>
+              <Modal
+                visible={showExitConfirmation}
+                animationType="fade"
+                transparent={true}
+              >
+                <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
+                  <View className="bg-white rounded-md p-20 items-center">
+                    <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
+                    <TouchableOpacity
+                      className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center"
+                      onPress={handleCancelExit}
+                    >
+                      <Text className="text-white">Cancelar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
+                      onPress={handleConfirmExit}
+                    >
+                      <Text className="text-white">Confirmar</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            </Modal>
-          </ScrollView>
-        </>
-      )}
-      <BottomBlackMenu
-        screen="Home"
-        isDisabled={true}
-        userPhoto={route.params.userPhoto ? route.params.userPhoto : ""}
-        userID={route.params.userID}
-        paddingTop={50}
-      />
-    </View>
+              </Modal>
+            </ScrollView>
+          </>
+        )}
+        <BottomBlackMenu
+          screen="Home"
+          isDisabled={true}
+          userPhoto={route.params.userPhoto ? route.params.userPhoto : ""}
+          userID={route.params.userID}
+          paddingTop={50}
+        />
+      </View>
+    </AlertNotificationRoot>
   );
 }
 

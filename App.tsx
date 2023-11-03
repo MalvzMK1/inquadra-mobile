@@ -26,6 +26,54 @@ export default function App() {
     getUserGeolocation();
   }, []);
 
+  useEffect(() => {
+    storage
+      .load<{ latitude: number; longitude: number }>({
+        key: "userGeolocation",
+      })
+      .then(console.log)
+      .catch(error => {
+        if (error instanceof Error) {
+          if (error.name === 'NotFoundError') {
+            console.log('The item wasn\'t found.');
+          } else if (error.name === 'ExpiredError') {
+            console.log('The item has expired.');
+            storage.remove({
+              key: 'userGeolocation'
+            }).then(() => {
+              console.log('The item has been removed.');
+            })
+          } else {
+            console.log('Unknown error:', error);
+          }
+        }
+      });
+
+    storage
+      .load<UserInfos>({
+        key: "userInfos",
+      })
+      .then(data => {
+        console.log(data.userId)
+      })
+      .catch(error => {
+        if (error instanceof Error) {
+          if (error.name === 'NotFoundError') {
+            console.log('The item wasn\'t found.');
+          } else if (error.name === 'ExpiredError') {
+            console.log('The item has expired.');
+            storage.remove({
+              key: 'userInfos'
+            }).then(() => {
+              console.log('The item has been removed.');
+            })
+          } else {
+            console.log('Unknown error:', error);
+          }
+        }
+      });
+  }, []);
+
   return (
     <ApolloProvider client={client}>
       <PaperProvider>

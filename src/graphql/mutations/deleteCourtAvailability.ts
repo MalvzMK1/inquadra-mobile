@@ -10,7 +10,7 @@ export interface IDeleteCourtAvailabilityResponse{
 }
 
 export interface IDeleteCourtAvailabilityVariables{
-    court_availability_id: number
+    court_availability_id: number | string
 }
 
 export const deleteCourtAvailabilityMutation = gql`

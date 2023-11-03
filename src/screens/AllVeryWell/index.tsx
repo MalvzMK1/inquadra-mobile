@@ -10,6 +10,12 @@ import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailabili
 import useRegisterUser from "../../hooks/useRegisterUser";
 import useRegisterEstablishment from "../../hooks/useRegisterEstablishment";
 import {useState} from "react";
+import {ApolloError} from "@apollo/client";
+import {IRegisterUserVariables} from "../../graphql/mutations/register";
+import {IRegisterEstablishmentVariables} from "../../graphql/mutations/registerEstablishment";
+import useDeleteUser from "../../hooks/useDeleteUser";
+import useDeleteEstablishment from "../../hooks/useDeleteEstablishment";
+import useDeleteCourtAvailability from "../../hooks/useDeleteCourtAvailability";
 
 export default function AllVeryWell({
   navigation,
@@ -18,9 +24,15 @@ export default function AllVeryWell({
   const { goBack } = useNavigation();
   const [addCourt] = useRegisterCourt();
   const [registerCourtAvailability] = useRegisterCourtAvailability();
+  const [deleteCourtAvailability] = useDeleteCourtAvailability();
   const [registerUser] = useRegisterUser()
+  const [deleteUser] = useDeleteUser();
   const [registerEstablishment] = useRegisterEstablishment()
+  const [deleteEstablishment] = useDeleteEstablishment();
   const [userId, setUserId] = useState<string>();
+  const [establishmentId, setEstablishmentId] = useState<string>();
+  const [uploadedImagesIds, setUploadedImagesIds] = useState<Array<string | number>>();
+  const [courtAvailabilitiesIds, setCourtAvailabilitiesIds] = useState<Array<string | number>>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const courts = route.params.courtArray;
@@ -35,8 +47,6 @@ export default function AllVeryWell({
     6: "Saturday",
     7: "SpecialDays",
   };
-
-  console.log(courts[0])
 
   const uploadImages = async (photos: {uri: string}[]) => {
     const formData = new FormData();
@@ -67,100 +77,128 @@ export default function AllVeryWell({
     return uploadedImageIDs;
   };
 
-  interface IRegisterUserPersonalInfosProps {
-    username: string;
-    cpf: string;
-    email: string;
-    password: string;
-    phone_number: string;
-    role: string;
-  }
+  let rmv_userId: string;
+  let rmv_logoId: string;
+  let rmv_establishmentId: string;
+  let rmv_uploadedImagesIds: Array<string>;
 
-  interface IRegisterEstablishmentInfosProps {
-    amenities: string[];
-    cellphone_number: string;
-    cnpj: string;
-    cep: string;
-    corporate_name: string;
-    phone_number: string;
-    street_name: string;
-    photos: string[];
-    latitude: string;
-    longitude: string;
-  }
-
-  async function registerUserPersonalInfos(data: IRegisterUserPersonalInfosProps): Promise<string> {
-    const {data: registeredUser, errors} = await registerUser({
+  async function removeRegisteredInfos(): Promise<void> {
+    console.log({rmv_userId, rmv_establishmentId, rmv_uploadedImagesIds})
+    if (rmv_userId) deleteUser({
       variables: {
-        ...data
+        user_id: rmv_userId
       }
-    })
+    }).then(response => console.log({DELETED_USER: response}))
 
-    if (errors || !registeredUser) throw new Error('Unable to register user\'s personal infos')
-    else {
-      const {id} = registeredUser.createUsersPermissionsUser.data;
-      return id;
-    }
-  }
-
-  async function registerEstablishmentInfos(ownerId: string, data: IRegisterEstablishmentInfosProps): Promise<string> {
-    const {data: registeredEstablishment, errors} = await registerEstablishment({
+    if (rmv_establishmentId) deleteEstablishment({
       variables: {
-        ...data,
-        ownerId,
-        publishedAt: new Date().toISOString()
+        establishment_id: rmv_establishmentId
       }
-    });
-
-    if (errors || !registeredEstablishment) throw new Error('Unable to register user\'s personal infos')
-    else {
-      const {id} = registeredEstablishment.createEstablishment.data;
-      return id;
-    }
+    }).then(response => console.log({DELETED_ESTABLISHMENT: response}))
   }
 
-  async function handleComplete() {
-    setIsLoading(true);
+  async function uploadEstablishmentPhotos(logo: { uri: string }, photos: Array<string>): Promise<[Array<string>, Array<string>]> {
     try {
-      const userId = await registerUserPersonalInfos(route.params.profileInfos);
-      const establishmentId = await registerEstablishmentInfos(userId, route.params.establishmentInfos);
+      return Promise.all([
+        await uploadImages(photos.map(photo => ({uri: photo}))),
+        await uploadImages([logo]),
+      ]);
+    } catch (error) {
+      // console.error(error instanceof ApolloError)
+      if (error instanceof Error) console.error(error)
+      throw new Error('Couldn\'t upload establishment images', {cause: error})
+    }
+  }
 
-      setUserId(userId)
+  async function handleComplete(): Promise<void> {
+    // console.log({profile_infos: route.params.profileInfos})
+    // console.log({establishment_infos: route.params.establishmentInfos})
+    // console.log({courts: route.params.courtArray[0].court_availabilities[0][0]})
+
+    try {
+      const registerUserPayload: IRegisterUserVariables = {
+        ...route.params.profileInfos
+      }
+      const {data: newUserData, errors: newUserErrors} = await registerUser({
+        variables: registerUserPayload
+      })
+
+      if (!newUserData) throw new Error('Não foi possível criar o usuário', {cause: newUserErrors?.map(error => error)});
+
+      console.log({NEW_USER: newUserData.createUsersPermissionsUser.data.id})
+      rmv_userId = newUserData.createUsersPermissionsUser.data.id;
+      setUserId(newUserData.createUsersPermissionsUser.data.id);
+
+      console.log('CADASTRANDO FOTOS...')
+      const [logoId, establishmentPhotosIds] = await uploadEstablishmentPhotos(
+        route.params.establishmentInfos.logo,
+        route.params.establishmentInfos.photos
+      )
+
+      const LOGO_IDX = 0;
+      const registerEstalishmentPayload: IRegisterEstablishmentVariables = {
+        ownerId: newUserData.createUsersPermissionsUser.data.id,
+        publishedAt: new Date().toISOString(),
+        photos: establishmentPhotosIds,
+        logo: logoId[LOGO_IDX],
+        latitude: route.params.establishmentInfos.latitude,
+        longitude: route.params.establishmentInfos.longitude,
+        street_name: route.params.establishmentInfos.street_name,
+        cep: route.params.establishmentInfos.cep,
+        phone_number: route.params.establishmentInfos.phone_number,
+        cnpj: route.params.establishmentInfos.cnpj,
+        cellphone_number: route.params.establishmentInfos.cellphone_number,
+        amenities: route.params.establishmentInfos.amenities,
+        corporate_name: route.params.establishmentInfos.corporate_name,
+      }
+
+      console.error({registerEstalishmentPayload});
+
+      const {data: establishmentData, errors: establishmentErrors} = await registerEstablishment({
+        variables: registerEstalishmentPayload
+      });
+
+      if (!establishmentData) throw new Error('Não foi possível criar o estabelecimento', {cause: establishmentErrors?.map(error => error)})
+      console.warn({NEW_ESTABLISHMENT: establishmentData});
+
+      rmv_establishmentId = establishmentData.createEstablishment.data.id;
+      setEstablishmentId(establishmentData.createEstablishment.data.id)
 
       for (const court of route.params.courtArray) {
-        const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
+        const [newPhotosIds, courtAvailabilityIds] = await Promise.all([
           uploadImages(court.photos),
           Promise.all(
             court.court_availabilities.flatMap((availabilities, index) => {
               return availabilities.map(async availability => {
-                const { data } = await registerCourtAvailability({
-                  variables: {
-                    status: true,
-                    title: "O que deve vir aqui?",
-                    day_use_service: court.dayUse[index],
-                    starts_at: `${availability.startsAt}:00.000`,
-                    ends_at: `${availability.endsAt}:00.000`,
-                    value: Number(
-                      availability.price
-                        .replace("R$", "")
-                        .replace(".", "")
-                        .replace(",", ".")
-                        .trim(),
-                    ),
-                    week_day: indexToWeekDayMap[index],
-                    publishedAt: new Date().toISOString(),
-                  },
-                });
-
-                if (!data) {
-                  throw new Error("No data");
+                console.log('veio até aqui...')
+                const registerCourtAvailabilityPayload = {
+                  status: true,
+                  starts_at: `${availability.startsAt}:00.000`,
+                  day_use_service: court.dayUse[index],
+                  ends_at: `${availability.endsAt}:00.000`,
+                  value: Number(
+                    availability.price
+                      .replace("R$", "")
+                      .replace(".", "")
+                      .replace(",", ".")
+                      .trim(),
+                  ),
+                  week_day: indexToWeekDayMap[index],
+                  publishedAt: new Date().toISOString(),
                 }
 
-                return data.createCourtAvailability.data.id;
+                const {data, errors} = await registerCourtAvailability({
+                  variables: registerCourtAvailabilityPayload,
+                });
+                if (data) return data?.createCourtAvailability.data.id
+                else throw new Error('Não foi possível criar as disponibilidades de quadra')
               });
             }),
           ),
         ]);
+
+        rmv_uploadedImagesIds = newPhotosIds;
+        setUploadedImagesIds(newPhotosIds)
 
         addCourt({
           variables: {
@@ -169,25 +207,40 @@ export default function AllVeryWell({
             court_availabilities: courtAvailabilityIds,
             minimum_value: court.minimum_value,
             current_date: court.currentDate,
-            photos: uploadedImageIds,
-            establishmentId,
+            photos: newPhotosIds,
+            establishmentId: establishmentData.createEstablishment.data.id,
             fantasyName: court.fantasyName
           }
         }).then(() => {
+          console.log('cadastrou tudo certinho de fato')
           Promise.all([
             AsyncStorage.removeItem('@inquadra/court-price-hour_day-use'),
             AsyncStorage.removeItem(
               "@inquadra/court-price-hour_all-appointments",
             )
           ]).then(() => navigation.navigate('CompletedEstablishmentRegistration'))
-        }).catch((error) => console.error('Unexpected error: ', error))
+        }).catch(error => {
+          if (error instanceof ApolloError)
+            throw new Error(`Não foi possível criar a quadra\n${error.name}\n${error.message}`)
+        })
       }
-    } catch (error) {
-      console.log("Erro externo:", error);
-      console.log(userId)
-      Alert.alert("Erro", "Não foi possível cadastrar as quadras");
+    } catch (err) {
+      if (err instanceof ApolloError) {
+        console.log({message: err.message, client: err.clientErrors, graphql: err.graphQLErrors})
+        Alert.alert('Erro no cadastro', err.message)
+        // navigation.navigate('Register', {
+        //   flow: 'establishment'
+        // });
+      } else if (err instanceof Error) {
+        console.log({message: err.message})
+        Alert.alert('Erro no cadastro', err.message)
+        // navigation.navigate('Register', {
+        //   flow: 'establishment'
+        // });
+      }
+      removeRegisteredInfos().then(() => console.log('Informações deletadas com sucesso'))
     } finally {
-      setIsLoading(false);
+      console.log(userId, establishmentId)
     }
   }
 
@@ -200,7 +253,7 @@ export default function AllVeryWell({
           </TouchableOpacity>
 
           <Text className="text-[32px] text-[#4E4E4E] font-semibold -translate-x-3">
-            Tudo Certo ?
+            Tudo Certo?
           </Text>
 
           <View />

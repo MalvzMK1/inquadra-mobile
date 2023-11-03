@@ -89,26 +89,47 @@ export default function Login() {
           userId: authData.data.login.user.id,
         },
         expires: 1000 * 3600,
+      }).then(() => {
+        storage.load<UserInfos>({
+          key: "userInfos",
+        }).catch(error => {
+          if (error instanceof Error) {
+            if (error.name === 'NotFoundError') {
+              console.log('The item wasn\'t found.');
+            } else if (error.name === 'ExpiredError') {
+              console.log('The item has expired.');
+              storage.remove({
+                key: 'userInfos'
+              }).then(() => {
+                console.log('The item has been removed.');
+              })
+            } else {
+              console.log('Unknown error:', error);
+            }
+          }
+        });
       });
 
-      storage.load<UserInfos>({
-        key: "userInfos",
-      });
-      if (userData.usersPermissionsUser.data.attributes.role.data.id === "3") {
-        navigation.navigate("Home", {
-          userGeolocation: userGeolocation
-            ? userGeolocation
-            : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-          userID: authData.data.login.user.id,
-          userPhoto: undefined,
-        });
-      } else if (
-        userData.usersPermissionsUser.data.attributes.role.data.id === "4"
+      if (
+        userData &&
+        userData.usersPermissionsUser.data
       ) {
-        navigation.navigate("HomeEstablishment", {
-          userID: authData.data.login.user.id,
-          userPhoto: undefined,
-        });
+        if (userData.usersPermissionsUser.data.attributes.role.data.id === "3") {
+          navigation.navigate("Home", {
+            userGeolocation: userGeolocation
+              ? userGeolocation
+              : {latitude: 78.23570781291714, longitude: 15.491400000982967},
+            userID: authData.data.login.user.id,
+            userPhoto: undefined,
+          });
+        } else if (
+          userData.usersPermissionsUser.data.attributes.role.data.id === "4"
+        ) {
+          navigation.navigate("HomeEstablishment", {
+            userID: authData.data.login.user.id,
+            userPhoto: undefined,
+          });
+        }
       }
     } catch (error) {
       console.error(error);

@@ -12,6 +12,7 @@ import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmen
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import storage from "../../utils/storage";
 import {CourtType} from "../../__generated__/graphql";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { parse, format } = require("date-fns");
 
 interface ICourtProps {
@@ -212,16 +213,18 @@ export default function HomeEstablishment({
       })
       .then(data => {
         setUserId(data.userId);
-      });
+      })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
     if (
       dataEstablishmentId &&
+      dataEstablishmentId.usersPermissionsUser.data &&
       dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data
     ) {
       setEstablishmentId(dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data.id)
-      setPhoto(dataEstablishmentId.usersPermissionsUser.data.attributes.photo.data?.attributes.url ?? undefined)
+      setPhoto(dataEstablishmentId.usersPermissionsUser.data.attributes.establishment.data?.attributes.logo.data?.attributes.url ?? undefined)
       setUserName(dataEstablishmentId.usersPermissionsUser.data.attributes.username)
       setFirstName(dataEstablishmentId.usersPermissionsUser.data.attributes.username.split(' ')[0])
     }
@@ -229,12 +232,25 @@ export default function HomeEstablishment({
 
   useEffect(() => {
     if (
-      dataSchedulings &&
-      dataSchedulings.establishment.data &&
-      dataSchedulings.establishment.data.attributes.courts.data
-    ) setEstablishmentCourts(dataSchedulings.establishment.data.attributes.courts.data)
+      dataCourtsEstablishment &&
+      dataCourtsEstablishment.establishment.data &&
+      dataCourtsEstablishment.establishment.data.attributes.courts.data.length > 0
+    ) {
+      console.log({BUCETA:dataCourtsEstablishment.establishment.data.attributes.courts.data[0]})
+      setEstablishmentCourts(dataCourtsEstablishment.establishment.data.attributes.courts.data)
+      }
+    }, [dataSchedulings])
 
-  }, [dataSchedulings])
+  useEffect(() => {
+    photo &&
+      AsyncStorage.setItem(
+        '@inquadra/establishment-profile-photo',
+        photo,
+        (error => {
+          if (error) console.error(JSON.stringify(error))
+        })
+      )
+  }, [photo]);
 
   return (
     <View className="flex-1">
@@ -256,11 +272,12 @@ export default function HomeEstablishment({
         <View className="h-max w-max flex justify-center items-center">
           <TouchableOpacity
             className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-            onPress={() =>
+            onPress={() => {
               navigation.navigate("InfoProfileEstablishment", {
                 userPhoto: photo ?? '',
                 establishmentId: establishmentId,
               })
+            }
             }
           >
             <Image
@@ -382,10 +399,10 @@ export default function HomeEstablishment({
               className="bg-[#FF6112] h-7 rounded-b-lg flex items-center justify-center"
               style={{ elevation: 8 }}
               onPress={() =>
-                navigation.navigate("CourtSchedule", {
+                (userId && establishmentId) && navigation.navigate("CourtSchedule", {
                   establishmentPhoto: undefined,
                   establishmentId: establishmentId,
-                  userId: userId!,
+                  userId: userId,
                 })
               }
             >
@@ -402,7 +419,7 @@ export default function HomeEstablishment({
                     data={
                       establishmentCourts.map(
                         fantasy => fantasy.attributes.fantasy_name,
-                      ) || []
+                      ) ?? []
                     }
                     save="value"
                     searchPlaceholder="Pesquisar..."
@@ -642,7 +659,7 @@ export default function HomeEstablishment({
         <View className={`absolute bottom-0 left-0 right-0`}>
           <BottomBlackMenuEstablishment
             screen="Home"
-            userID={route?.params.userID ? route?.params.userID : ""}
+            userID={route.params.userID ? route.params.userID : ""}
             establishmentLogo={photo ? photo : undefined}
             establishmentID={establishmentId}
             key={1}

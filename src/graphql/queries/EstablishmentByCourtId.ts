@@ -3,12 +3,12 @@ import { CourtType } from "../../__generated__/graphql";
 
 export interface IEstablishmentByCourtId {
 	establishment: {
-		data: {
+		data?: {
 			id: Establishment['id'],
 			attributes: {
 				corporateName: Establishment['corporateName'],
 				cellPhoneNumber: Establishment['cellphoneNumber']
-				address: {
+				address?: {
 					latitude: Address['latitude'],
 					longitude: Address['longitude'],
 					cep: Address['cep'],
@@ -22,7 +22,7 @@ export interface IEstablishmentByCourtId {
 					}>
 				},
 				logo: {
-					data: {
+					data?: {
 						attributes: {
 							url: string
 						}
@@ -68,7 +68,7 @@ export interface IEstablishmentByCourtId {
 						attributes: {
 							name: Amenitie['name'],
 							iconAmenitie: {
-								data: {
+								data?: {
 									attributes: {
 										url: Amenitie['icon']
 									}

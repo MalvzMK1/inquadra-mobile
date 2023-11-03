@@ -113,7 +113,7 @@ type RootStackParamList = {
   DescriptionInvited: undefined;
   EstablishmentInfo: {
     establishmentId: string;
-    userId: string;
+    userId: string | undefined;
     userPhoto: string | undefined;
     colorState?: string
     setColorState?: React.Dispatch<React.SetStateAction<string>>
@@ -122,7 +122,7 @@ type RootStackParamList = {
     courtId: string;
     courtImage: string;
     courtName: string;
-    userId: string;
+    userId: string | undefined;
     userPhoto: string | undefined;
   };
   ReservationPaymentSign: {
@@ -140,7 +140,7 @@ type RootStackParamList = {
     "id" | "fantasyName" | "cellphoneNumber"
   > & {
     address: Omit<Address, "id" | "longitude" | "latitude">;
-    profileInfos?: {
+    profileInfos: {
       username: string;
       cpf: string;
       email: string;
@@ -157,6 +157,7 @@ type RootStackParamList = {
       phone_number: string;
       street_name: string;
       photos: string[];
+      logo: {uri: string};
       latitude: string;
       longitude: string;
     }
@@ -213,6 +214,7 @@ type RootStackParamList = {
       phone_number: string;
       street_name: string;
       photos: string[];
+      logo: { uri: string };
       latitude: string;
       longitude: string;
     };

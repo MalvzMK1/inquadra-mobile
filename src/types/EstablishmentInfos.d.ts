@@ -5,6 +5,6 @@ type Establishment = {
     cnpj: string
     phoneNumber: string
     cellphoneNumber: string
-    photo?: string
-    logo?: string
+    photo?: string | string[]
+    logo?: {uri: string}
 }

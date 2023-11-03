@@ -1,14 +1,15 @@
 import { HOST_API } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import { format, parseISO } from "date-fns";
-import React, { useState } from "react";
-import { Image, Text, View } from "react-native";
+import React, {useEffect, useState} from "react";
+import {Alert, Image, Text, View} from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import { useGetHistoricReserveOn } from "../../hooks/useHistoricReserveOn";
 import { useGetMenuUser } from "../../hooks/useMenuUser";
+import storage from "../../utils/storage";
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -38,6 +39,7 @@ export default function InfoReserva({
   route,
 }: NativeStackScreenProps<RootStackParamList, "InfoReserva">) {
   let user_id = route?.params?.userId;
+  const [userGeolocation, setUserGeolocation] = useState<{latitude: number, longitude: number}>();
 
   const {
     data: dataUser,
@@ -60,12 +62,12 @@ export default function InfoReserva({
     }, []),
   );
 
-  const [userPicture, setUserPicture] = useState<string | null>()
+  useEffect(() => {
+    storage.load<{ latitude: number, longitude: number }>({
+      key: 'userGeolocation'
+    }).then(data => setUserGeolocation(data));
+  }, [])
 
-
-
-  console.log(dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-    ?.attributes?.url)
   return (
     <View className="h-full w-max bg-zinc-600 flex-1">
       <View className=" h-11 w-max  bg-zinc-900"></View>
@@ -73,7 +75,14 @@ export default function InfoReserva({
         <View className="flex item-center justify-center">
           <TouchableOpacity
             className="h-6 w-6"
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              if (userGeolocation)
+                navigation.navigate('Home', {
+                  userID: user_id,
+                  userPhoto: undefined,
+                  userGeolocation: userGeolocation,
+                })
+            }}
           >
             <TextInput.Icon icon={"chevron-left"} size={25} color={"white"} />
           </TouchableOpacity>

@@ -44,12 +44,20 @@ export interface IUserEstablishmentResponse {
                             }
                         } & {
                             photos: {
-                                data: Array<{
+                                data?: Array<{
                                     id: Photo['id']
                                     attributes: {
                                         url: Photo['url']
                                     }
                                 }>
+                            },
+                            logo: {
+                                data?: {
+                                    id: Photo['id']
+                                    attributes: {
+                                        url: Photo['url']
+                                    }
+                                }
                             }
                         }
                     }
@@ -97,6 +105,14 @@ export const userEstablishmentQuery = gql`
                                 cnpj
                                 fantasyName
                                 photos {
+                                    data {
+                                        id
+                                        attributes {
+                                            url
+                                        }
+                                    }
+                                }
+                                logo {
                                     data {
                                         id
                                         attributes {
