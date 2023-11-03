@@ -13,13 +13,20 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const [color, setColor] = useState("white");
+  const [color, setColor] = useState<string>("white");
+
+  useFocusEffect(() => {
+    props.liked
+      ? setColor("red")
+      : setColor("white")
+  })
+
 
   const {
     data: userByIdData,
     error: userByIdError,
     loading: userByIdLoading,
-
+    refetch: refetchUserInfos
   } = useGetUserById(userId ?? "");
 
   const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
@@ -27,21 +34,21 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
   );
 
 
-  useEffect(() => {
-    if (
-      userByIdData &&
-      userByIdData.usersPermissionsUser.data
-    )
-      userByIdData.usersPermissionsUser.data.attributes.favorite_establishments.data.map(
-        item => {
-          setUserFavoriteCourts(prevState => [...prevState, item.id]);
-
-        item.id === props.id
-          ?setColor("red")
-          :setColor("white")
-        },
+  const resetUserInfos = async () => {
+    await refetchUserInfos();
+    userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+      item => {
+        setUserFavoriteCourts([item.id]);
+        item.id === props.id ? setColor("red") : setColor("white");
+      }
       );
-  }, [userByIdData])
+  };
+
+  useFocusEffect(() => {
+    resetUserInfos();
+  });
+
+
 
   useEffect(() => {
     storage
@@ -119,8 +126,8 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
               establishmentId: props.id,
               userId: userId,
               userPhoto: userByIdData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ?? undefined,
-                colorState:color,
-                setColorState: setColor
+            colorState: color,
+            setColorState: setColor
             })
           }
         }

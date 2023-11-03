@@ -20,6 +20,8 @@ import Animated, {
 import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
 import EstablishmentCardHome from "../CourtCardHome";
+import { useFocusEffect } from "@react-navigation/native";
+import { useState } from "react";
 
 let userId: string;
 
@@ -104,9 +106,16 @@ export default function HomeBar({
     },
   );
 
+
+  console.log("quadras favoritas:", userFavoriteCourts)
+  
+ 
+
   const verifyCourtLike = (courtId: string) => {
     return userFavoriteCourts?.includes(courtId);
   };
+
+  console.log(verifyCourtLike("2"))
 
   const result = courts.filter(item => {
     if (chosenType) {

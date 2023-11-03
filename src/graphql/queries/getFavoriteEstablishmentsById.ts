@@ -27,9 +27,10 @@ export interface IFavoriteEstablishmentsVariable {
 }
 
 export const getFavoriteEstablishmentsQuery = gql`
-  query getFavoriteEstablishments($user_id: ID!) {
+query getFavoriteEstablishments($user_id: ID!) {
   establishments(filters: { favorited_users: { id: { eq: $user_id } } }) {
     data {
+      id
       attributes {
         address {
           latitude

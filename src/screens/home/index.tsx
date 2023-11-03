@@ -68,6 +68,9 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 		weekDay: undefined,
 		date: undefined,
 	});
+    refetch: refectchUserInfos
+
+  useFocusEffect(() => {refectchUserInfos})
 	const [establishments, setEstablishments] = useState<
 		Array<{
 			id: string;
