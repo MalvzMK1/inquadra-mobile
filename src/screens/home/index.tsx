@@ -368,7 +368,6 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 					<TouchableOpacity
 						className={`absolute left-3 top-3`}
 						onPress={() => setIsDisabled(prevState => !prevState)}
-            }}
 					>
 						<AntDesign name="left" size={30} color="black" />
 					</TouchableOpacity>
