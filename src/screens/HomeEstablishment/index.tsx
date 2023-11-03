@@ -236,7 +236,6 @@ export default function HomeEstablishment({
       dataCourtsEstablishment.establishment.data &&
       dataCourtsEstablishment.establishment.data.attributes.courts.data.length > 0
     ) {
-      console.log({BUCETA:dataCourtsEstablishment.establishment.data.attributes.courts.data[0]})
       setEstablishmentCourts(dataCourtsEstablishment.establishment.data.attributes.courts.data)
       }
     }, [dataSchedulings])
