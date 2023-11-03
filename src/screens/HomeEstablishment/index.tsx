@@ -12,6 +12,7 @@ import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmen
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import storage from "../../utils/storage";
 import {CourtType} from "../../__generated__/graphql";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { parse, format } = require("date-fns");
 
 interface ICourtProps {
@@ -237,6 +238,17 @@ export default function HomeEstablishment({
     ) setEstablishmentCourts(dataSchedulings.establishment.data.attributes.courts.data)
 
   }, [dataSchedulings])
+
+  useEffect(() => {
+    photo &&
+      AsyncStorage.setItem(
+        '@inquadra/establishment-profile-photo',
+        photo,
+        (error => {
+          if (error) console.error(JSON.stringify(error))
+        })
+      )
+  }, [photo]);
 
   return (
     <View className="flex-1">
