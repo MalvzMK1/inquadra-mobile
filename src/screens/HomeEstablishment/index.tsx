@@ -232,12 +232,14 @@ export default function HomeEstablishment({
 
   useEffect(() => {
     if (
-      dataSchedulings &&
-      dataSchedulings.establishment.data &&
-      dataSchedulings.establishment.data.attributes.courts.data
-    ) setEstablishmentCourts(dataSchedulings.establishment.data.attributes.courts.data)
-
-  }, [dataSchedulings])
+      dataCourtsEstablishment &&
+      dataCourtsEstablishment.establishment.data &&
+      dataCourtsEstablishment.establishment.data.attributes.courts.data.length > 0
+    ) {
+      console.log({BUCETA:dataCourtsEstablishment.establishment.data.attributes.courts.data[0]})
+      setEstablishmentCourts(dataCourtsEstablishment.establishment.data.attributes.courts.data)
+      }
+    }, [dataSchedulings])
 
   useEffect(() => {
     photo &&
@@ -417,7 +419,7 @@ export default function HomeEstablishment({
                     data={
                       establishmentCourts.map(
                         fantasy => fantasy.attributes.fantasy_name,
-                      ) || []
+                      ) ?? []
                     }
                     save="value"
                     searchPlaceholder="Pesquisar..."
@@ -657,7 +659,7 @@ export default function HomeEstablishment({
         <View className={`absolute bottom-0 left-0 right-0`}>
           <BottomBlackMenuEstablishment
             screen="Home"
-            userID={route?.params.userID ? route?.params.userID : ""}
+            userID={route.params.userID ? route.params.userID : ""}
             establishmentLogo={photo ? photo : undefined}
             establishmentID={establishmentId}
             key={1}
