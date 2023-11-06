@@ -1,21 +1,19 @@
 import { gql } from "@apollo/client";
 
-export interface IsearchEstablishmentsByCorporateName {
+export interface IAllEstablishmentsResponse {
     establishments: {
-        data: [
-            {
-                id: string,
-                attributes: {
-                    corporateName: string
-                }
+        data: Array<{
+            id: string,
+            attributes: {
+                corporateName: string
             }
-        ]
+        }>
     }
 }
 
 
-export const searchEstablishmentsByCorporateNameQuery = gql`
-    query searchEstablishmentsByCorporateName($name: String){
+export const allEstablishmentsQuery = gql`
+    query getAllEstablishments($name: String){
         establishments(filters:{
             corporateName: {
                 contains: $name

@@ -27,13 +27,13 @@ enum EPayedStatus {
 
 export interface IUserPaymentCardVariables{
 	value: number
-	schedulingId: string
-	userId: string
+	schedulingId: string | number
+	userId: string | number
 	name: string
 	cpf: string
 	cvv: number
 	date: string
-	countryID: string
+	countryID: string | number
 	publishedAt: string
 	cep: string
 	state:string

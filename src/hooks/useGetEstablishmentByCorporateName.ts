@@ -1,11 +1,7 @@
 import {QueryResult, useQuery} from "@apollo/client";
-import {IsearchEstablishmentsByCorporateName, searchEstablishmentsByCorporateNameQuery} from "../graphql/queries/searchEstablishmentsByCorporateName";
+import {IAllEstablishmentsResponse, allEstablishmentsQuery} from "../graphql/queries/searchEstablishmentsByCorporateName";
 
 
-export default function useGetEstablishmentByCorporateName(corporateName: string): QueryResult<IsearchEstablishmentsByCorporateName> {
-	return useQuery<IsearchEstablishmentsByCorporateName>(searchEstablishmentsByCorporateNameQuery, {
-		variables :{
-			name: corporateName
-		}
-	});
+export default function useAllEstablishments(): QueryResult<IAllEstablishmentsResponse> {
+	return useQuery<IAllEstablishmentsResponse>(allEstablishmentsQuery);
 }
