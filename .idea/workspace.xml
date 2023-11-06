@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/userPaymentCard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/userPaymentCard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/searchEstablishmentsByCorporateName.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/searchEstablishmentsByCorporateName.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/useGetEstablishmentByCorporateName.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/useGetEstablishmentByCorporateName.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +78,7 @@
       <workItem from="1699263401066" duration="4055000" />
       <workItem from="1699269099927" duration="107000" />
       <workItem from="1699269234915" duration="402000" />
-      <workItem from="1699269662806" duration="5922000" />
+      <workItem from="1699269662806" duration="8713000" />
     </task>
     <servers />
   </component>

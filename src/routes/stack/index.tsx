@@ -7,11 +7,10 @@ import {
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useCallback, useEffect, useState } from "react";
-import { Image, View } from "react-native";
+import {Alert, Image, View} from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Text, TextInput } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
-import useGetEstablishmentByCorporateName from "../../hooks/useGetEstablishmentByCorporateName";
 import AllVeryWell from "../../screens/AllVeryWell";
 import CourtDetails from "../../screens/AllVeryWell/CourtDetails";
 import editCourt from "../../screens/AllVeryWell/CourtDetails/editCourt";
@@ -57,6 +56,9 @@ import UpdateSchedule from "../../screens/UpdateSchedule";
 import PaymentScheduleUpdate from "../../screens/UpdateSchedule/updateSchedule";
 import Home from "../../screens/home";
 import storage from "../../utils/storage";
+import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
+import {gql, useQuery} from "@apollo/client";
+import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -77,31 +79,26 @@ export default function () {
     latitude: 0,
     longitude: 0,
   });
-  const { error, loading, data } =
-    useGetEstablishmentByCorporateName(corporateName);
 
-  useFocusEffect(
-    useCallback(() => {
-      setEstablishmentsInfos([]);
-      if (!error && !loading && corporateName) {
-        const establishment = data?.establishments.data.map(establishment => {
-          return {
-            establishmentsId: establishment.id,
-            corporateName: establishment.attributes.corporateName,
-          };
-        });
+  const {data: allEstablishments} = useAllEstablishments();
 
-        if (establishment) {
-          if (corporateName === "") setEstablishmentsInfos([]);
-          else
-            setEstablishmentsInfos(prevState => [
-              ...prevState,
-              ...establishment,
-            ]);
+  useEffect(() => {
+    if (corporateName === '') setEstablishmentsInfos([]);
+    else if (allEstablishments) {
+      const establishments = allEstablishments.establishments.data.map(establishment => {
+        return {
+          establishmentsId: establishment.id,
+          corporateName: establishment.attributes.corporateName
         }
-      }
-    }, [error, loading, corporateName]),
-  );
+      })
+
+      const filteredEstablishments = establishments.filter(establishment => {
+        console.log(establishment.corporateName, corporateName, {penis: establishment.corporateName.toLowerCase().includes(corporateName.toLowerCase())})
+        return establishment.corporateName.toLowerCase().includes(corporateName.toLowerCase())
+      })
+      setEstablishmentsInfos(filteredEstablishments)
+    }
+  }, [corporateName])
 
   useEffect(() => {
     storage
