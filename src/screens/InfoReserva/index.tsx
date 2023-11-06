@@ -40,6 +40,7 @@ export default function InfoReserva({
 }: NativeStackScreenProps<RootStackParamList, "InfoReserva">) {
   let user_id = route?.params?.userId;
   const [userGeolocation, setUserGeolocation] = useState<{latitude: number, longitude: number}>();
+  const [userPicture, setUserPicture] = useState<string | undefined>();
 
   const {
     data: dataUser,
@@ -56,8 +57,8 @@ export default function InfoReserva({
     React.useCallback(() => {
       refreshData();
 
-      dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url !== undefined || dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url !== null
-        ? setUserPicture(`${HOST_API}${dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url!}`)
+      !!(dataUser?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ??  null)
+        ? setUserPicture(`${HOST_API}${dataUser?.usersPermissionsUser.data?.attributes?.photo?.data?.attributes?.url!}`)
         : setUserPicture("../../assets/default-user-image.png")
     }, []),
   );
