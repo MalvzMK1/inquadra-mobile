@@ -23,6 +23,7 @@ import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEst
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import { HOST_API } from "@env";
 import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface IFormData {
     userName: string
@@ -496,7 +497,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     };
 
     const handleConfirmExit = () => {
-        // sair do app
+        storage.remove({
+            key: 'userInfos',
+        }).then(() => navigation.navigate('Login'))
         setShowExitConfirmation(false);
     };
 
