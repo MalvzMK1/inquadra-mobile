@@ -129,6 +129,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     }
     let courtsJson: ICourts[] = []
 
+
     let establishmentPhotos: string[] = []
 
     let pixKeys: string[] = []
@@ -262,6 +263,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
         setCep(userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.address.cep)
 
         setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data?.attributes.phoneNumber)
+        navigation.setParams({
+            userPhoto: userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
+        })
 
         userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.amenities.data.map(amenitieItem => {
             amenities.push(amenitieItem?.attributes.name)
@@ -270,7 +274,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             courtsJson = [...courtsJson, { id: item.id, courtName: item?.attributes.name }]
             courts.push(item?.attributes.name)
         })
-        userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.photos.data.map(photoItem => {
+        userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.photos.data!.map(photoItem => {
             establishmentPhotos.push(photoItem.id)
         })
         userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.pix_keys.data.map(pixKeyItem => {
@@ -281,22 +285,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             key: 'userInfos',
         }).then((data) => {
             setUserId(data.userId)
-        }).catch(error => {
-            if (error instanceof Error) {
-                if (error.name === 'NotFoundError') {
-                    console.log('The item wasn\'t found.');
-                } else if (error.name === 'ExpiredError') {
-                    console.log('The item has expired.');
-                    storage.remove({
-                        key: 'userInfos'
-                    }).then(() => {
-                        console.log('The item has been removed.');
-                    })
-                } else {
-                    console.log('Unknown error:', error);
-                }
-            }
-        });
+        })
     }, [userByEstablishmentData])
 
     const handleUpdateEstablishmentFantasyName = (data: IFantasyNameFormData): void => {
@@ -461,6 +450,22 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             console.log('Erro ao carregar a imagem: ', error);
         }
     }
+
+    //         const uploadedImageID = response.data[0].id;
+
+    //         console.log('Imagem enviada com sucesso!', response.data);
+
+    //         setIsLoading(false);
+
+    //         return uploadedImageID;
+    //     } catch (error) {
+    //         console.error('Erro ao enviar imagem:', error);
+    //         setIsLoading(false);
+    //         return "Deu erro";
+    //     }
+    // };
+
+
     const [showCard, setShowCard] = useState(false);
 
     const [showCameraIcon, setShowCameraIcon] = useState(false);
@@ -526,15 +531,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
-    useEffect(() => {
-        setProfilePicture(route.params.userPhoto)
-
-        navigation.setParams({
-            userPhoto: route.params.userPhoto,
-        })
-        console.log('ive setted this, wtf')
-    }, [])
-
     return (
         <View className="flex-1 bg-white h-full">
 
@@ -542,7 +538,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                 <TouchableOpacity className="items-center mt-8">
                     <View style={styles.container}>
                         {profilePicture ? (
-                            <Image source={{ uri: HOST_API + profilePicture }} style={styles.profilePicture} />
+                            <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
                         ) : (
                             <Image source={{ uri: HOST_API + userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url }} style={styles.profilePicture} />
                         )}
