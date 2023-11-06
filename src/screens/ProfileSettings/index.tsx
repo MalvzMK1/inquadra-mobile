@@ -1,13 +1,13 @@
-import {HOST_API} from "@env";
-import {FontAwesome, Ionicons, MaterialIcons} from "@expo/vector-icons";
-import {zodResolver} from "@hookform/resolvers/zod";
+import { HOST_API } from "@env";
+import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {useFocusEffect} from "@react-navigation/native";
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import { useFocusEffect } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
-import React, {useEffect, useState} from "react";
-import {Controller, useForm} from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   Image,
@@ -19,24 +19,24 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {SelectList} from "react-native-dropdown-select-list";
-import {showMessage} from "react-native-flash-message";
-import MaskInput, {Masks} from "react-native-mask-input";
-import {TextInputMask} from "react-native-masked-text";
+import { SelectList } from "react-native-dropdown-select-list";
+import { showMessage } from "react-native-flash-message";
+import MaskInput, { Masks } from "react-native-mask-input";
+import { TextInputMask } from "react-native-masked-text";
 import Icon from "react-native-vector-icons/Ionicons";
-import {z} from "zod";
+import { z } from "zod";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CreditCardCard from "../../components/CreditCardInfoCard";
 import useCountries from "../../hooks/useCountries";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import useUpdateUser from "../../hooks/useUpdateUser";
-import {useGetUserById} from "../../hooks/useUserById";
-import {Card} from "../../types/Card";
-import {useToast} from 'native-base';
+import { useGetUserById } from "../../hooks/useUserById";
+import { Card } from "../../types/Card";
+import { useToast } from 'native-base';
 import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
-import {getUsersCountryId} from "../../utils/getUsersCountryId";
-import {ALERT_TYPE, AlertNotificationRoot, Dialog} from "react-native-alert-notification";
+import { getUsersCountryId } from "../../utils/getUsersCountryId";
+import { ALERT_TYPE, AlertNotificationRoot, Dialog } from "react-native-alert-notification";
 import storage from "../../utils/storage";
 
 interface IFormData {
@@ -116,7 +116,7 @@ export default function ProfileSettings({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "ProfileSettings">) {
-  const {userID} = route.params;
+  const { userID } = route.params;
   const [userInfos, setUserInfos] = useState<UserConfigurationProps>();
   const [showCard, setShowCard] = useState(false);
   const [showCreditCards, setShowCraditCards] = useState(false);
@@ -136,7 +136,7 @@ export default function ProfileSettings({
   const [isLoading, setIsLoading] = useState(false);
   const [userCountry, setUserCountry] = useState<Country>();
 
-  const {data: userPaymentCountryData, error: userPaymentCountryError} = useUserPaymentCountry(userID)
+  const { data: userPaymentCountryData, error: userPaymentCountryError } = useUserPaymentCountry(userID)
   const { loading, error, data, refetch } = useGetUserById(userID);
   const {
     data: countriesData,
@@ -278,7 +278,7 @@ export default function ProfileSettings({
   };
 
   const [profilePicture, setProfilePicture] = useState<string | undefined>();
-  const haveProfilePicture:boolean = data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined ? true : false
+  const haveProfilePicture: boolean = data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined ? true : false
   const [photo, setPhoto] = useState("");
   const [imageEdited, setImageEdited] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
@@ -532,7 +532,7 @@ export default function ProfileSettings({
 
   useEffect(() => {
     if (countriesData && countryId) {
-      const {data: newCountries} = countriesData.countries
+      const { data: newCountries } = countriesData.countries
 
       const foundCountry = newCountries.find(country => String(country.id) === String(countryId));
 
@@ -609,9 +609,9 @@ export default function ProfileSettings({
                     style={styles.uploadButton}
                   >
                     {profilePicture ? (
-                      <Ionicons name="pencil-outline" size={30} color="#fff" />
+                      <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
                     ) : (
-                      <Ionicons name="camera-outline" size={30} color="#fff" />
+                      <Image source={{ uri: HOST_API + photo }} style={styles.profilePicture} />
                     )}
                   </TouchableOpacity>
                 </View>
@@ -753,7 +753,7 @@ export default function ProfileSettings({
                             className={`p-3 border ${paymentCardErrors.cvv
                               ? "border-red-400"
                               : "border-gray-500"
-                            } rounded-md h-18`}
+                              } rounded-md h-18`}
                             onChangeText={onChange}
                             mask={Masks.CREDIT_CARD}
                             keyboardType="numeric"
@@ -781,7 +781,7 @@ export default function ProfileSettings({
                               className={`p-3 border ${paymentCardErrors.dueDate
                                 ? "border-red-400"
                                 : "border-gray-500"
-                              } rounded-md h-18 flex-1`}
+                                } rounded-md h-18 flex-1`}
                               type={"datetime"}
                               options={{
                                 format: "MM/YY",
@@ -810,7 +810,7 @@ export default function ProfileSettings({
                               className={`p-3 border ${paymentCardErrors.cvv
                                 ? "border-red-400"
                                 : "border-gray-500"
-                              } rounded-md h-18 flex-1`}
+                                } rounded-md h-18 flex-1`}
                               onChangeText={onChange}
                               placeholder="***"
                               keyboardType="numeric"
