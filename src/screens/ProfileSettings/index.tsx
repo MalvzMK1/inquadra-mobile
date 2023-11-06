@@ -269,7 +269,7 @@ export default function ProfileSettings({
   const handleConfirmExit = () => {
     storage.remove({
       key: 'userInfos',
-    }).then(() => console.log('Removed user infos from local storage'))
+    }).then(() => navigation.navigate('Login'))
     setShowExitConfirmation(false);
   };
 
