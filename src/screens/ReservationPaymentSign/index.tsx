@@ -130,9 +130,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	let distanceInMeters = calculateDistance(userLatitude, userLongitude, courtLatitude, courtLongitude)
 	const distanceText = distanceInMeters >= 1000 ? `${(distanceInMeters / 1000).toFixed(1)} Km` : `${distanceInMeters.toFixed(0)} metros`;
 
-	// const distanceText = '123'
-
-
 	const formSchema = z.object({
 		name: z.string({ required_error: "É necessário inserir o nome" }).max(29, { message: "Só é possivel digitar até 30 caracteres" }),
 		cpf: z.string({ required_error: "É necessário inserir o CPF" }).max(15, { message: "CPF invalido" }).refine(isValidCPF, { message: "CPF inválido" }),
@@ -175,37 +172,47 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	})
 
 	const getCountryImage = (countryName: string | null): string | undefined => {
-		if (countryName && dataCountry) {
-			const selectedCountry = dataCountry.countries.data.find(country => country.attributes.name === countryName);
+		try {
+			if (countryName && dataCountry) {
+				const selectedCountry = dataCountry.countries.data.find(country => country.attributes.name === countryName);
 
-			if (selectedCountry) {
-				return selectedCountry.attributes.flag.data.attributes.url;
+				if (selectedCountry) {
+					return selectedCountry.attributes.flag.data.attributes.url;
+				}
 			}
+			return undefined;
+		} catch (error) {
+			Alert.alert('Erro ao pegar a imagem do país', JSON.stringify(error) ?? String(error))
 		}
-		return undefined;
 	};
 
 
 	const getCountryIdByName = (countryName: string | null): string => {
-		if (countryName && dataCountry) {
-			const selectedCountry = dataCountry.countries.data.find(name => name.attributes.name === countryName);
+		try {
+			if (countryName && dataCountry) {
+				const selectedCountry = dataCountry.countries.data.find(name => name.attributes.name === countryName);
 
-			if (selectedCountry) {
-				return selectedCountry.id;
+				if (selectedCountry) {
+					return selectedCountry.id;
+				}
 			}
+			return "";
+		} catch (error) {
+			Alert.alert('Erro ao procurar país', JSON.stringify(error) ?? String(error))
 		}
-		return "";
 	};
 
 	const pay = async (data: iFormCardPayment) => {
 		setIsLoading(true)
 		try {
-			if (userData && serviceValue && amountToPay) {
+			if (
+				userData &&
+				userData.usersPermissionsUser.data &&
+				serviceValue &&
+				amountToPay
+			) {
 				const cieloRequestManager = new CieloRequestManager();
 				const totalValue = (Number(amountToPay.toFixed(2)) + Number(serviceValue.toFixed(2))) * 100;
-
-				console.log({ totalValue })
-
 				const body: AuthorizeCreditCardPaymentResponse = {
 					MerchantOrderId: "2014111701",
 					Customer: {
@@ -256,46 +263,44 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					},
 				};
 
-				console.log({cpf: data.cpf})
-
-					cieloRequestManager.authorizePayment(body).then(async (response) => {
-						const newScheduleId = await createNewSchedule();
-						const countryId = getCountryIdByName(selected);
-						if (newScheduleId && response.Payment.Status === 2) {
-							userPaymentCard({
-								variables: {
-									value: Number(response.Payment.Amount / 100),
-									schedulingId: newScheduleId.toString(),
-									userId: userId,
-									name: data.name,
-									cpf: '00000000000',
-									cvv: parseInt(data.cvv),
-									date: convertToAmericanDate(data.date),
-									countryID: countryId,
-									publishedAt: new Date().toISOString(),
-									cep: data.cep,
-									city: data.city,
-									complement: data.complement,
-									number: data.number,
-									state: data.state,
-									neighborhood: data.district,
-									street: data.street,
-									paymentId: response.Payment.PaymentId!,
-									payedStatus: response.Payment.Status === 2 ? 'Payed' : 'Waiting',
-								}
-							}).then((response) => {
-								console.log({ strapi_response: response })
-								updateStatusDisponibleCourt();
-								handleSaveCard();
-								navigation.navigate('InfoReserva', { userId: userId });
-							}).catch(error => {
-								console.error(error)
-								Alert.alert('Não foi possível realizar o pagamento')
-							});
-						}
-					}).catch(error => {
-						console.error(error)
-					})
+				cieloRequestManager.authorizePayment(body).then(async (response) => {
+					const newScheduleId = await createNewSchedule();
+					const countryId = getCountryIdByName(selected);
+					if (newScheduleId && response.Payment.Status === 2) {
+						userPaymentCard({
+							variables: {
+								value: Number(response.Payment.Amount / 100),
+								schedulingId: newScheduleId,
+								userId: Number(userId),
+								name: data.name,
+								cpf: data.cpf,
+								cvv: parseInt(data.cvv),
+								date: convertToAmericanDate(data.date),
+								countryID: Number(countryId),
+								publishedAt: new Date().toISOString(),
+								cep: data.cep,
+								city: data.city,
+								complement: data.complement,
+								number: data.number,
+								state: data.state,
+								neighborhood: data.district,
+								street: data.street,
+								paymentId: response.Payment.PaymentId!,
+								payedStatus: response.Payment.Status === 2 ? 'Payed' : 'Waiting',
+							}
+						}).then((response) => {
+							updateStatusDisponibleCourt();
+							handleSaveCard();
+							navigation.navigate('InfoReserva', { userId: userId });
+						}).catch(error => {
+							console.error(error)
+							Alert.alert('Não foi possível realizar o pagamento', String(error))
+						});
+					}
+				}).catch(error => {
+					console.error(error)
+					Alert.alert('Não foi possível realizar o pagamento', String(error))
+				})
 			}
 		} catch (error) {
 			console.error("Erro ao criar o agendamento:", error);
@@ -310,7 +315,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	};
 
 	const createNewSchedule = async () => {
-		let isPayed = dataReserve?.courtAvailability?.data?.attributes?.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false
+		let isPayed = dataReserve?.courtAvailability.data?.attributes.minValue === dataReserve?.courtAvailability.data.attributes.value ? true : false
 
 		try {
 			const create = await createSchedule({
@@ -400,7 +405,10 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	}
 
 	useEffect(() => {
-		if (userData) {
+		if (
+			userData &&
+			userData.usersPermissionsUser.data
+		) {
 			setValue('cpf', userData.usersPermissionsUser.data.attributes.cpf)
 			if (userData.usersPermissionsUser.data.attributes.address) {
 				setZipCode(userData.usersPermissionsUser.data.attributes.address.cep);
@@ -590,16 +598,14 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 							<View>
 								<Text className='text-sm text-[#FF6112]'>País</Text>
 								<View className='flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white'>
-									<Image className='h-[21px] w-[30px] mr-[10px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
 									<SelectList
 										setSelected={(val: string) => {
 											setSelected(val);
-
 										}}
-										data={!loadingCountry && dataCountry?.countries?.data.map(country => ({
-											value: country?.attributes.name,
-											label: country?.attributes.name || "",
-											img: `${country?.attributes.flag?.data?.attributes?.url || ""}`
+										data={dataCountry && dataCountry.countries.data.map(country => ({
+											value: country.attributes.name,
+											label: country.attributes.name,
+											img: `${country.attributes.flag.data?.attributes.url ?? ""}`
 										})) || []}
 										save="value"
 										placeholder='Selecione um país'
