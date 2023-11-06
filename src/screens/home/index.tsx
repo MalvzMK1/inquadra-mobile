@@ -20,7 +20,7 @@ import storage from "../../utils/storage";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, "Home"> {
 	menuBurguer: boolean;
-  setMenuBurguer?: React.Dispatch<React.SetStateAction<boolean>>;
+	setMenuBurguer?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 interface EstablishmentObject {
 	id: string;
@@ -35,6 +35,7 @@ interface EstablishmentObject {
 export default function Home({ menuBurguer, setMenuBurguer, route, navigation }: Props) {
 	const pointerMap = require("../../assets/pointerMap.png");
 
+	const [userPicture, setUserPicture] = useState<string>()
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
 	const [userId, setUserId] = useState<string | undefined>("");
 	const [userGeolocation, setUserGeolocation] = useState<{
@@ -52,14 +53,14 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 		startsAt: string | undefined;
 		date: Date | undefined;
 		weekDay:
-    | "Monday"
-    | "Tuesday"
-    | "Wednesday"
-    | "Thursday"
-    | "Friday"
-    | "Saturday"
-    | "Sunday"
-    | undefined;
+		| "Monday"
+		| "Tuesday"
+		| "Wednesday"
+		| "Thursday"
+		| "Friday"
+		| "Saturday"
+		| "Sunday"
+		| undefined;
 	}>({
 		amenities: [],
 		dayUseService: undefined,
@@ -91,7 +92,8 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 	const {
 		data: userHookData,
 		loading: userHookLoading,
-		error: userHookError
+		error: userHookError,
+		refetch: refetchUserInfos
 	} = useGetUserById(userId ?? '');
 	const {
 		data: establishmentsFiltered,
@@ -109,6 +111,19 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 	useFocusEffect(
 		React.useCallback(() => {
+			refetchUserInfos().then(() => {
+				if (userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url! !== undefined || userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url! !== null) {
+					setUserPicture(HOST_API + userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!)
+					navigation.setParams({
+						userPhoto: userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!
+					})
+				} else {
+					setUserPicture("../../assets/default-user-image.png")
+					navigation.setParams({
+						userPhoto: "../../assets/default-user-image.png"
+					})
+				}
+			})
 			setEstablishments([]);
 			if (!error && !loading) {
 				if (
@@ -170,7 +185,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 								return establishmentObject;
 							});
-						console.log({newEstablishmentsLength: newEstablishments.length})
+						console.log({ newEstablishmentsLength: newEstablishments.length })
 
 						if (newEstablishments) setEstablishments(newEstablishments);
 					}
@@ -187,12 +202,6 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			loadingFilter,
 		]),
 	);
-
-	useEffect(() => {
-		navigation.setParams({
-			userPhoto: userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ?? undefined,
-		});
-	}, [userHookData])
 
 	useEffect(() => {
 		const newAvailableSportTypes: SportType[] = [];
@@ -345,7 +354,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 													navigation.navigate("EstablishmentInfo", {
 														establishmentId: item.id,
 														userId: userId,
-														userPhoto: undefined,
+														userPhoto: userPicture,
 													})
 												}
 											>
@@ -393,14 +402,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				<BottomBlackMenu
 					screen="Home"
 					userID={route?.params?.userID}
-					userPhoto={
-						userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-							?.attributes?.url
-							? HOST_API +
-							userHookData.usersPermissionsUser.data.attributes.photo.data
-								?.attributes.url
-							: ""
-					}
+					userPhoto={userPicture!}
 					key={1}
 					isDisabled={!isDisabled}
 					paddingTop={2}

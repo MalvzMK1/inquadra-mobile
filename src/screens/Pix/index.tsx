@@ -58,9 +58,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         setHasExecuted(false)
     })
 
-
-
-
     const handleCopiarTexto = async () => {
         await Clipboard.setStringAsync(QRcodeURL);
         Toast.show({
@@ -281,15 +278,12 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     }, [userData])
 
     useEffect(() => {
-        if
-            (
-            userData &&
-            userData.usersPermissionsUser.data &&
-            userData.usersPermissionsUser.data.attributes.photo.data
-        )
-            setUserPhotoUri(HOST_API + userData.usersPermissionsUser.data.attributes.photo.data.attributes.url)
-        else
-            setUserPhotoUri(null)
+        if (userData!.usersPermissionsUser.data!.attributes.photo.data!.attributes.url! !== undefined || userData!.usersPermissionsUser.data!.attributes.photo.data!.attributes.url! !== null) {
+            setUserPhotoUri(HOST_API + userData!.usersPermissionsUser.data!.attributes.photo.data!.attributes.url!)
+        } else {
+            setUserPhotoUri(("../../assets/default-user-image.png"))
+        }
+
 
         if
             (
@@ -366,9 +360,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-max w-max'>
                         <Image
-                            source={
-                                userPhotoUri ? { uri: userPhotoUri } : require('../../assets/default-user-image.png')
-                            }
+                            source={{ uri: userPhotoUri! }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
