@@ -588,30 +588,19 @@ export default function ProfileSettings({
               <TouchableOpacity style={{ alignItems: "center", marginTop: 8 }}>
                 <View style={styles.container}>
                   {profilePicture ? (
-                    <Image
-                      source={{
-                        uri: imageEdited
-                          ? profilePicture
-                          : HOST_API + photo,
-                      }}
-                      style={styles.profilePicture}
-                    />
+                    <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
                   ) : (
-                    <Ionicons
-                      name="person-circle-outline"
-                      size={100}
-                      color="#bbb"
-                    />
+                    <Image source={{ uri: HOST_API + photo }} style={styles.profilePicture} />
                   )}
 
                   <TouchableOpacity
                     onPress={handleProfilePictureUpload}
                     style={styles.uploadButton}
                   >
-                    {profilePicture ? (
-                      <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+                    {haveProfilePicture ? (
+                      <Ionicons name="pencil-outline" size={30} color="#fff" />
                     ) : (
-                      <Image source={{ uri: HOST_API + photo }} style={styles.profilePicture} />
+                      <Ionicons name="camera-outline" size={30} color="#fff" />
                     )}
                   </TouchableOpacity>
                 </View>
