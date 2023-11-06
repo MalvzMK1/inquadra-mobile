@@ -52,6 +52,8 @@ export default function InfoReserva({
     refetch();
   };
 
+  const [userPicture, setUserPicture] = useState<string>()
+
   useFocusEffect(
     React.useCallback(() => {
       refreshData();

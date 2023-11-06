@@ -69,7 +69,6 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 		date: undefined,
 	});
 
-  useFocusEffect(() => {refectchUserInfos})
 	const [establishments, setEstablishments] = useState<
 		Array<{
 			id: string;
@@ -92,8 +91,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 	const {
 		data: userHookData,
 		loading: userHookLoading,
-		error: userHookError,
-		refetch: refectchUserInfos
+		error: userHookError
 	} = useGetUserById(userId ?? '');
 	const {
 		data: establishmentsFiltered,

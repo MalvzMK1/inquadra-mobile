@@ -25,30 +25,12 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
   const {
     data: userByIdData,
     error: userByIdError,
-    loading: userByIdLoading,
-    refetch: refetchUserInfos
+    loading: userByIdLoading
   } = useGetUserById(userId ?? "");
 
   const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
     [],
   );
-
-
-  const resetUserInfos = async () => {
-    await refetchUserInfos();
-    userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
-      item => {
-        setUserFavoriteCourts([item.id]);
-        item.id === props.id ? setColor("red") : setColor("white");
-      }
-      );
-  };
-
-  useFocusEffect(() => {
-    resetUserInfos();
-  });
-
-
 
   useEffect(() => {
     storage
