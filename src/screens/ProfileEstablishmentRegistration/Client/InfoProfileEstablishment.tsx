@@ -185,8 +185,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const handleUpdateUser = async (data: IFormData): Promise<void> => {
         try {
+            setIsLoading(true)
             if (profilePicture) {
-                setIsLoading(true)
                 const uploadedImageID = await uploadImage(profilePicture)
 
                 const userDatas = {
@@ -228,6 +228,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
         } catch (error) {
             console.log(error)
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -438,6 +440,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const handleProfilePictureUpload = async () => {
         try {
+            const IDX_SELECTED_PHOTO = 0;
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
             if (status !== 'granted') {
@@ -453,8 +456,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             });
 
             if (!result.canceled) {
-                await uploadImage(result.assets[0].uri).then(uploadedImageID => {
-                    setProfilePicture(result.assets[0].uri);
+                result.assets[IDX_SELECTED_PHOTO] && await uploadImage(result.assets[IDX_SELECTED_PHOTO].uri).then(uploadedImageID => {
+                    setProfilePicture(result.assets[IDX_SELECTED_PHOTO].uri);
                     console.log("ID da imagem enviada:", uploadedImageID);
                 })
             }
