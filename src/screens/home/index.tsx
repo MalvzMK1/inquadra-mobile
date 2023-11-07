@@ -18,6 +18,7 @@ import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
 
+
 interface Props extends NativeStackScreenProps<RootStackParamList, "Home"> {
 	menuBurguer: boolean;
 	setMenuBurguer?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -135,10 +136,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 					!filter.startsAt &&
 					!filter.weekDay
 				) {
-					if (
-						data &&
-						data.establishments.data
-					) {
+					if (data && data.establishments.data) {
 						const newEstablishments = data.establishments.data
 							.filter(establishment => establishment.attributes.courts.data)
 							.map(establishment => {
@@ -189,6 +187,65 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 						if (newEstablishments) setEstablishments(newEstablishments);
 					}
+				} else {
+					const newEstablishments = establishmentsFiltered?.establishments.data
+						.filter(
+							establishment =>
+								establishment?.attributes?.photos.data &&
+								establishment?.attributes?.photos.data.length > 0 &&
+								establishment?.attributes?.courts.data,
+						)
+						.map(establishment => {
+							let establishmentObject: EstablishmentObject = {
+								id: "",
+								latitude: 0,
+								longitude: 0,
+								name: "",
+								type: "",
+								image: "",
+								distance: 0,
+							};
+
+							let courtTypes = establishment?.attributes?.courts
+								.data!.filter(
+									court => court?.attributes?.court_types.data.length > 0,
+								)
+								.map(court => court?.attributes?.court_types.data)
+								.map(courtType =>
+									courtType.map(type => type?.attributes?.name),
+								);
+
+							if (!courtTypes) courtTypes = [];
+
+							if (userGeolocation)
+								establishmentObject = {
+									id: establishment.id,
+									name: establishment?.attributes?.corporateName,
+									latitude: Number(establishment?.attributes?.address.latitude),
+									longitude: Number(
+										establishment?.attributes?.address.longitude,
+									),
+									distance:
+										calculateDistance(
+											userGeolocation.latitude,
+											userGeolocation.longitude,
+											Number(establishment?.attributes?.address.latitude),
+											Number(establishment?.attributes?.address.longitude),
+										) / 1000,
+									image:
+										HOST_API +
+										establishment?.attributes?.logo?.data?.attributes?.url,
+									type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
+								};
+
+							return establishmentObject;
+						});
+
+					if (newEstablishments) setEstablishments(newEstablishments);
+
+					navigation.setParams({
+						userPhoto: userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url ?? "",
+					});
 				}
 			}
 		}, [
@@ -273,14 +330,17 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				key: "userInfos",
 			})
 			.then(data => {
-				console.log(data.userId)
+				console.log({USER_FUCKING_ID: data.userId})
 				setUserId(data.userId);
+				navigation.setParams({
+					userID: data.userId,
+				})
 			})
 			.catch(error => {
 				if (error instanceof Error) {
+					setUserId(undefined)
 					if (error.name === 'NotFoundError') {
 						console.log('The item wasn\'t found.');
-						setUserId(undefined)
 					} else if (error.name === 'ExpiredError') {
 						console.log('The item has expired.');
 						storage.remove({
@@ -364,7 +424,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 													distance={item.distance ?? ""}
 													image={item.image}
 													type={item.type}
-													userId={route?.params?.userID ?? ""}
+													userId={userId ?? ''}
 													liked={true}
 												/>
 											</Callout>
@@ -389,7 +449,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 			{isDisabled && !menuBurguer && (
 				<HomeBar
-					loggedUserId={route.params?.userID}
+					loggedUserId={userId}
 					chosenType={sportSelected}
 					courts={establishments}
 					userName={
@@ -401,7 +461,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			{
 				<BottomBlackMenu
 					screen="Home"
-					userID={route?.params?.userID}
+					userID={userId}
 					userPhoto={userPicture!}
 					key={1}
 					isDisabled={!isDisabled}
