@@ -106,17 +106,9 @@ export default function HomeBar({
     },
   );
 
-
-  console.log("quadras favoritas:", userFavoriteCourts)
-  
- 
-
   const verifyCourtLike = (courtId: string) => {
     return userFavoriteCourts?.includes(courtId);
   };
-
-  console.log(verifyCourtLike("2"))
-
   const result = courts.filter(item => {
     if (chosenType) {
       const ampersandSeparated = item.type.split(" & ").join(",").split(",");

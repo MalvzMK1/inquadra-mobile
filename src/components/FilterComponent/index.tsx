@@ -8,9 +8,6 @@ import Animated, {
 import { Button, Checkbox } from "react-native-paper"
 import DateTimePicker from "@react-native-community/datetimepicker"
 import FilterDate from '../FilterDate'
-import useFilters from '../../hooks/useFilters'
-
-
 
 export default function FilterComponent(props: {
     setIsDisabled: React.Dispatch<React.SetStateAction<boolean>>,
