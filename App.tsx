@@ -54,7 +54,7 @@ export default function App() {
         key: "userInfos",
       })
       .then(data => {
-        console.log(data.userId)
+        console.log({LOGGED_USER_ID: data.userId})
       })
       .catch(error => {
         if (error instanceof Error) {

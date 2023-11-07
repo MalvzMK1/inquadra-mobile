@@ -273,14 +273,17 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				key: "userInfos",
 			})
 			.then(data => {
-				console.log(data.userId)
+				console.log({USER_FUCKING_ID: data.userId})
 				setUserId(data.userId);
+				navigation.setParams({
+					userID: data.userId,
+				})
 			})
 			.catch(error => {
 				if (error instanceof Error) {
+					setUserId(undefined)
 					if (error.name === 'NotFoundError') {
 						console.log('The item wasn\'t found.');
-						setUserId(undefined)
 					} else if (error.name === 'ExpiredError') {
 						console.log('The item has expired.');
 						storage.remove({
@@ -364,7 +367,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 													distance={item.distance ?? ""}
 													image={item.image}
 													type={item.type}
-													userId={route?.params?.userID ?? ""}
+													userId={userId ?? ''}
 													liked={true}
 												/>
 											</Callout>
@@ -389,7 +392,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 			{isDisabled && !menuBurguer && (
 				<HomeBar
-					loggedUserId={route.params?.userID}
+					loggedUserId={userId}
 					chosenType={sportSelected}
 					courts={establishments}
 					userName={
@@ -401,7 +404,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			{
 				<BottomBlackMenu
 					screen="Home"
-					userID={route?.params?.userID}
+					userID={userId}
 					userPhoto={userPicture!}
 					key={1}
 					isDisabled={!isDisabled}
