@@ -63,6 +63,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const [zipCode, setZipCode] = useState<string>();
 	const [totalValue, setTotalValue] = useState<number>();
 	const [isPaymentLoading, setIsPaymentLoading] = useState<boolean>(false)
+	const [valuePayed, setValuePayed] = useState<number>()
 	const [cardData, setCardData] = useState({
 		cardNumber: '',
 		expirationDate: '',
@@ -86,6 +87,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		setCourtName(dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "")
 		setSignalValueValidate(dataReserve?.courtAvailability.data.attributes.value ? true : false)
 		setUserPhoto(route.params.userPhoto!)
+		setValuePayed(dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0)
 	})
 
 	const handleCardClick = () => {
@@ -331,7 +333,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					court_availability: courtAvailabilities,
 					date: courtAvailabilityDate.split("T")[0],
 					pay_day: courtAvailabilityDate.split("T")[0],
-					value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
+					value_payed: valuePayed!,
 					owner: userId,
 					users: [userId],
 					activation_key: isPayed ? generateRandomKey(4) : null,
@@ -340,10 +342,9 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 				}
 
 			});
-
-			return create.data?.createScheduling?.data?.id
-
+			return create.data?.createScheduling?.data?.id!
 		} catch (error) {
+			alert(error)
 			console.error("Erro na mutação createSchedule:", error);
 		}
 	};
