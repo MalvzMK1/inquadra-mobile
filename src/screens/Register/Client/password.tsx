@@ -195,7 +195,11 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
       setIsLoading(false);
     }
   }
-
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
   return (
     <View className="flex flex-col bg-white h-screen items-center p-5">
       <View>
