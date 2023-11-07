@@ -63,7 +63,11 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const [zipCode, setZipCode] = useState<string>();
 	const [totalValue, setTotalValue] = useState<number>();
 	const [isPaymentLoading, setIsPaymentLoading] = useState<boolean>(false)
+	const [amountToPay, setAmountToPay] = useState<number>();
+	const [isScreenLoading, setIsScreenLoading] = useState<boolean>(false)
 	const [valuePayed, setValuePayed] = useState<number>()
+	const [signalValue, setSignalValue] = useState<number>()
+	const [signalValuePix, setSignalValuePix] = useState<number>()
 	const [cardData, setCardData] = useState({
 		cardNumber: '',
 		expirationDate: '',
@@ -71,7 +75,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		country: ''
 	});
 
-	const { courtId, courtImage, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
+	const { courtId, courtImage, userId, courtAvailabilityDate, courtAvailabilities } = route.params
 	const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
 	const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
 	const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
@@ -81,14 +85,31 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
 	const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
 
-	useFocusEffect(() => {
+
+	const loadingScreenInfos = () => {
+		setAmountToPay(route.params.amountToPay)
 		setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!)
 		setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!)
 		setCourtName(dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "")
 		setSignalValueValidate(dataReserve?.courtAvailability.data.attributes.value ? true : false)
 		setUserPhoto(route.params.userPhoto!)
 		setValuePayed(dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0)
+		setSignalValue(Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2)))
+		setSignalValuePix(Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2)) * 100)
+	}
+
+	useFocusEffect(() => {
+		loadingScreenInfos()
 	})
+
+
+	useEffect(() => {
+		loadingUser || loadingReserve
+			? setIsScreenLoading(true)
+			: setIsScreenLoading(false)
+	}, [dataUser, dataReserve])
+
+
 
 	const handleCardClick = () => {
 		setShowCard(!showCard);
@@ -359,9 +380,6 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	}
 
 	const generatePixSignal = async () => {
-		let signalValue = Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2))
-		let signalValuePix = Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2)) * 100
-
 		try {
 			setIsPaymentLoading(true)
 			const generatePixJSON: RequestGeneratePix = {
@@ -476,372 +494,380 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
 	return (
 		<View className="flex-1 bg-white w-full h-full pb-10">
-			<ScrollView>
-				<View>
-					<Image source={{ uri: courtImage }} className="w-full h-[230]" />
-				</View>
-				<View className="pt-5 pb-4 flex justify-center flex-row">
-					<Text className="text-base text-center font-bold">
-						Para realizar sua reserva é necessário pagar um sinal.
-					</Text>
-					<TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
-						<FontAwesome name="question-circle-o" size={13} color="black" />
-					</TouchableOpacity>
-				</View>
-				<View className="bg-gray-300 p-4">
-					<Text className="text-5xl text-center font-extrabold text-gray-700">
-						R$ {reserveValue}
-					</Text>
-				</View>
-				<View className='px-10 py-5'>
-					{
-						!isPaymentLoading
-							?
-							<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
-								onPressIn={() => {
-									generatePixSignal()
-								}}
-							>
-								<Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
-							</TouchableOpacity>
-							:
-							<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'>
-								<ActivityIndicator size="small" color="white" />
-							</TouchableOpacity>
-					}
-
-				</View>
-				<View><Text className="text-center font-bold text-base text-gray-700">ou</Text></View>
-				<View className="pt-5 px-9">
-					<TouchableOpacity onPress={handleCardClick}>
-						<View className="h-30 border border-gray-500 rounded-md">
-							<View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
-								<FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-								<Text className="flex-1 text-base text-center mb-0">
-									Selecionar Cartão
-								</Text>
-								<Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
-							</View>
+			{
+				!isScreenLoading
+					? <ScrollView>
+						<View>
+							<Image source={{ uri: courtImage }} className="w-full h-[230]" />
 						</View>
-					</TouchableOpacity>
-					{showCard && (
-						<View className="border border-gray-500 rounded-xl p-4 mt-3">
-							<View className="flex-row justify-between">
-								<View className='flex-1 mr-[20px]'>
-									<Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
-									<Controller
-										name='date'
-										control={control}
-										render={({ field: { onChange } }) => (
-											<TextInputMask
-												className='p-3 border border-gray-500 rounded-md h-18'
-												options={{
-													format: 'MM/YY',
-												}}
-												type={'datetime'}
-												value={getValues('date')}
-												onChangeText={onChange}
-												placeholder="MM/YY"
-												keyboardType="numeric"
-												maxLength={5}
-											/>
-										)}
-									></Controller>
-									{errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
-								</View>
-								<View className='flex-1 ml-[20px]'>
-									<Text className='text-sm text-[#FF6112]'>CVV</Text>
-									<Controller
-										name='cvv'
-										control={control}
-										render={({ field: { onChange } }) => (
-											<TextInput
-												className='p-3 border border-gray-500 rounded-md h-18'
-												placeholder='123'
-												onChangeText={onChange}
-												keyboardType='numeric'
-												maxLength={3}>
-											</TextInput>
-										)}
-									></Controller>
-									{errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
-								</View>
-							</View>
-							<View>
-								<Text className='text-sm text-[#FF6112]'>Nome</Text>
-								<Controller
-									name='name'
-									control={control}
-									render={({ field: { onChange } }) => (
-										<TextInput
-											className='p-3 border border-gray-500 rounded-md h-18'
-											placeholder='Ex: nome'
-											onChangeText={onChange}>
-										</TextInput>
-									)}
-								></Controller>
-								{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
-							</View>
-							<View>
-								<Text className='text-sm text-[#FF6112]'>Número do Cartão</Text>
-								<Controller
-									name='cardNumber'
-									control={control}
-									render={({ field: { onChange } }) => (
-										<MaskInput
-											className='p-3 border border-gray-500 rounded-md h-18'
-											placeholder='Ex: 0000 0000 0000 0000'
-											mask={Masks.CREDIT_CARD}
-											maxLength={19}
-											keyboardType={'numeric'}
-											value={getValues('cardNumber')}
-											onChangeText={onChange}>
-										</MaskInput>
-									)}
-								></Controller>
-								{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
-							</View>
-							<View>
-								<Text className='text-sm text-[#FF6112]'>CPF</Text>
-								<Controller
-									name='cpf'
-									control={control}
-									render={({ field: { onChange } }) => (
-										<MaskInput
-											className='p-3 border border-gray-500 rounded-md h-18'
-											placeholder='Ex: 000.000.000-00'
-											value={getValues('cpf')}
-											onChangeText={masked => onChange(masked)}
-											mask={Masks.BRL_CPF}
-											keyboardType='numeric'>
-										</MaskInput>
-									)}
-								></Controller>
-								{errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
-							</View>
-							<View>
-								<Text className='text-sm text-[#FF6112]'>País</Text>
-								<View className='flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white'>
-									<SelectList
-										setSelected={(val: string) => {
-											setSelected(val);
-										}}
-										data={dataCountry && dataCountry.countries.data.map(country => ({
-											value: country.attributes.name,
-											label: country.attributes.name,
-											img: `${country.attributes.flag.data?.attributes.url ?? ""}`
-										})) || []}
-										save="value"
-										placeholder='Selecione um país'
-										searchPlaceholder='Pesquisar...'
-									/>
-								</View>
-							</View>
-							<View className="flex flex-row justify-between">
-								<View>
-									<Text className='text-sm text-[#FF6112]'>CEP</Text>
-									<Controller
-										name='cep'
-										control={control}
-										render={({ field: { onChange } }) => (
-											<MaskInput
-												className='p-3 border border-gray-500 rounded-md h-18'
-												placeholder='Ex: 00000-000'
-												value={getValues('cep')}
-												keyboardType='numeric'
-												mask={Masks.ZIP_CODE}
-												maxLength={9}
-												onChangeText={(masked) => {
-													setZipCode(masked)
-													onChange(masked)
-												}}>
-											</MaskInput>
-										)}
-									></Controller>
-									{errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
-								</View>
-								<View>
-									<Text className='text-sm text-[#FF6112]'>Numero</Text>
-									<Controller
-										name='number'
-										control={control}
-										render={({ field: { onChange } }) => (
-											<TextInput
-												className='p-3 border border-gray-500 rounded-md h-18'
-												placeholder='Ex: nome'
-												onChangeText={onChange}>
-											</TextInput>
-										)}
-									></Controller>
-									{errors.number && <Text className='text-red-400 text-sm'>{errors.number.message}</Text>}
-								</View>
-							</View>
-							<View>
-								<Text className='text-sm text-[#FF6112]'>Rua</Text>
-								<Controller
-									name='street'
-									control={control}
-									render={({ field: { onChange } }) => (
-										<TextInput
-											className='p-3 border border-gray-500 rounded-md h-18'
-											placeholder='Ex: Rua xxxxxx'
-											value={getValues('street')}
-											onChangeText={onChange}>
-										</TextInput>
-									)}
-								></Controller>
-								{errors.street && <Text className='text-red-400 text-sm'>{errors.street.message}</Text>}
-							</View>
-							<View>
-								<Text className='text-sm text-[#FF6112]'>Bairro</Text>
-								<Controller
-									name='district'
-									control={control}
-									render={({ field: { onChange } }) => (
-										<TextInput
-											className='p-3 border border-gray-500 rounded-md h-18'
-											placeholder='Ex: Jd. xxxxxxx'
-											value={getValues('district')}
-											onChangeText={onChange}>
-										</TextInput>
-									)}
-								></Controller>
-								{errors.district && <Text className='text-red-400 text-sm'>{errors.district.message}</Text>}
-							</View>
-							<View>
-								<Text className='text-sm text-[#FF6112]'>Complemento</Text>
-								<Controller
-									name='complement'
-									control={control}
-									render={({ field: { onChange } }) => (
-										<TextInput
-											className='p-3 border border-gray-500 rounded-md h-18'
-											placeholder='Ex: Lado ABC'
-											onChangeText={onChange}>
-										</TextInput>
-									)}
-								></Controller>
-								{errors.complement && <Text className='text-red-400 text-sm'>{errors.complement.message}</Text>}
-							</View>
-							<View className="flex flex-row justify-between">
-								<View>
-									<Text className='text-sm text-[#FF6112]'>Cidade</Text>
-									<Controller
-										name='city'
-										control={control}
-										render={({ field: { onChange } }) => (
-											<TextInput
-												className='p-3 border border-gray-500 rounded-md h-18'
-												placeholder='Ex: xxxxx'
-												value={getValues('city')}
-												onChangeText={onChange}>
-											</TextInput>
-										)}
-									></Controller>
-									{errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
-								</View>
-								<View>
-									<Text className='text-sm text-[#FF6112]'>Estado</Text>
-									<Controller
-										name='state'
-										control={control}
-										render={({ field: { onChange } }) => (
-											<TextInput
-												className='p-3 border border-gray-500 rounded-md h-18'
-												placeholder='Ex: XX'
-												value={getValues('state')}
-												maxLength={2}
-												onChangeText={onChange}>
-											</TextInput>
-										)}
-									></Controller>
-									{errors.state && <Text className='text-red-400 text-sm'>{errors.state.message}</Text>}
-								</View>
-							</View>
-							<View className="p-2 justify-center items-center pt-5">
-								<TouchableOpacity onPress={handleSubmit(pay)} disabled={isLoading} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
-									{
-										isLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> :
-											<Text className="text-white">Pagar</Text>
-									}
-								</TouchableOpacity>
-							</View>
-						</View>
-					)}
-					<View>
-						<Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
-							Detalhes Reserva
-						</Text>
-					</View>
-				</View>
-				<View className="bg-gray-300 flex flex-row">
-					<View className="m-6">
-						<Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.name}</Text>
-						<Text className="text-base">{distanceText} de distância</Text>
-						<View className="flex flex-row">
-							<Text className="text-base">Avaliação: {dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.rating}</Text>
-							<View className="pt-1.5 pl-1.5">
-								<FontAwesome name="star" color="#FF4715" size={11} /></View>
-						</View>
-						<Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.streetName}</Text>
-					</View>
-					<View className="justify-center gap-1">
-						{
-							dataReserve?.courtAvailability.data.attributes.court.data.attributes.establishment.data.attributes.amenities.data.map((amenitieInfo) =>
-								<View className="flex flex-row  items-center">
-									<SvgUri
-										width="14"
-										height="14"
-										source={{ uri: amenitieInfo.attributes.iconAmenitie.data.attributes.url }}
-									/>
-									<Text className="text-base pl-2">{amenitieInfo.attributes.name}</Text>
-								</View>
-							)
-						}
-					</View>
-				</View>
-				<View className="p-4 justify-center items-center border-b ml-8 mr-8">
-					<View className="flex flex-row gap-6">
-						<Text className="font-bold text-xl text-[#717171]">Valor da Reserva</Text>
-						<Text className="font-bold text-xl text-right text-[#717171]">R$ {amountToPay && amountToPay.toFixed(2)}</Text>
-					</View>
-					<View className="flex flex-row gap-6">
-						<View className="flex flex-row pt-1">
-							<Text className="font-bold text-xl text-[#717171]">Taxa de Serviço</Text>
-							<TouchableOpacity onPress={handlePaymentInformation}>
+						<View className="pt-5 pb-4 flex justify-center flex-row">
+							<Text className="text-base text-center font-bold">
+								Para realizar sua reserva é necessário pagar um sinal.
+							</Text>
+							<TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
 								<FontAwesome name="question-circle-o" size={13} color="black" />
 							</TouchableOpacity>
 						</View>
-						<Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue && serviceValue.toFixed(2)}</Text>
-					</View>
-				</View>
-				<View className="justify-center items-center pt-6">
-					<View className="flex flex-row gap-10">
-						<Text className="font-bold text-xl text-right text-[#717171]">Total: </Text>
-						<Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ {(amountToPay + serviceValue!).toFixed(2)}</Text>
-					</View>
-				</View>
-				<Modal visible={showPaymentInformation} animationType="fade" transparent={true}>
-					<View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
-						<View className="bg-white rounded-md items-center ">
-							<Text className="bg-white p-8 rounded text-base text-center">Através dessa taxa provemos a tecnologia necessária para você reservar suas quadras com antecedência e rapidez.</Text>
-							<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
-								<Text className="text-white">OK</Text>
-							</TouchableOpacity>
+						<View className="bg-gray-300 p-4">
+							<Text className="text-5xl text-center font-extrabold text-gray-700">
+								R$ {reserveValue}
+							</Text>
 						</View>
-					</View>
-				</Modal>
-				<Modal visible={showRateInformation} animationType="fade" transparent={true}>
-					<View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
-						<View className="bg-white rounded-md items-center">
-							<Text className="bg-white p-8 rounded text-base text-center">Esse valor será deduzido do valor total e não será estornado, mesmo no caso de não comparecimento ao local ou cancelamento da reserva.</Text>
-							<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
-								<Text className="text-white">OK</Text>
-							</TouchableOpacity>
+						<View className='px-10 py-5'>
+							{
+								!isPaymentLoading
+									?
+									<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+										onPressIn={() => {
+											generatePixSignal()
+										}}
+									>
+										<Text className='text-lg text-gray-50 font-bold'>Gerar código PIX</Text>
+									</TouchableOpacity>
+									:
+									<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'>
+										<ActivityIndicator size="small" color="white" />
+									</TouchableOpacity>
+							}
+
 						</View>
+						<View><Text className="text-center font-bold text-base text-gray-700">ou</Text></View>
+						<View className="pt-5 px-9">
+							<TouchableOpacity onPress={handleCardClick}>
+								<View className="h-30 border border-gray-500 rounded-md">
+									<View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
+										<FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+										<Text className="flex-1 text-base text-center mb-0">
+											Selecionar Cartão
+										</Text>
+										<Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+									</View>
+								</View>
+							</TouchableOpacity>
+							{showCard && (
+								<View className="border border-gray-500 rounded-xl p-4 mt-3">
+									<View className="flex-row justify-between">
+										<View className='flex-1 mr-[20px]'>
+											<Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
+											<Controller
+												name='date'
+												control={control}
+												render={({ field: { onChange } }) => (
+													<TextInputMask
+														className='p-3 border border-gray-500 rounded-md h-18'
+														options={{
+															format: 'MM/YY',
+														}}
+														type={'datetime'}
+														value={getValues('date')}
+														onChangeText={onChange}
+														placeholder="MM/YY"
+														keyboardType="numeric"
+														maxLength={5}
+													/>
+												)}
+											></Controller>
+											{errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
+										</View>
+										<View className='flex-1 ml-[20px]'>
+											<Text className='text-sm text-[#FF6112]'>CVV</Text>
+											<Controller
+												name='cvv'
+												control={control}
+												render={({ field: { onChange } }) => (
+													<TextInput
+														className='p-3 border border-gray-500 rounded-md h-18'
+														placeholder='123'
+														onChangeText={onChange}
+														keyboardType='numeric'
+														maxLength={3}>
+													</TextInput>
+												)}
+											></Controller>
+											{errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
+										</View>
+									</View>
+									<View>
+										<Text className='text-sm text-[#FF6112]'>Nome</Text>
+										<Controller
+											name='name'
+											control={control}
+											render={({ field: { onChange } }) => (
+												<TextInput
+													className='p-3 border border-gray-500 rounded-md h-18'
+													placeholder='Ex: nome'
+													onChangeText={onChange}>
+												</TextInput>
+											)}
+										></Controller>
+										{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+									</View>
+									<View>
+										<Text className='text-sm text-[#FF6112]'>Número do Cartão</Text>
+										<Controller
+											name='cardNumber'
+											control={control}
+											render={({ field: { onChange } }) => (
+												<MaskInput
+													className='p-3 border border-gray-500 rounded-md h-18'
+													placeholder='Ex: 0000 0000 0000 0000'
+													mask={Masks.CREDIT_CARD}
+													maxLength={19}
+													keyboardType={'numeric'}
+													value={getValues('cardNumber')}
+													onChangeText={onChange}>
+												</MaskInput>
+											)}
+										></Controller>
+										{errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+									</View>
+									<View>
+										<Text className='text-sm text-[#FF6112]'>CPF</Text>
+										<Controller
+											name='cpf'
+											control={control}
+											render={({ field: { onChange } }) => (
+												<MaskInput
+													className='p-3 border border-gray-500 rounded-md h-18'
+													placeholder='Ex: 000.000.000-00'
+													value={getValues('cpf')}
+													onChangeText={masked => onChange(masked)}
+													mask={Masks.BRL_CPF}
+													keyboardType='numeric'>
+												</MaskInput>
+											)}
+										></Controller>
+										{errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
+									</View>
+									<View>
+										<Text className='text-sm text-[#FF6112]'>País</Text>
+										<View className='flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white'>
+											<SelectList
+												setSelected={(val: string) => {
+													setSelected(val);
+												}}
+												data={dataCountry && dataCountry.countries.data.map(country => ({
+													value: country.attributes.name,
+													label: country.attributes.name,
+													img: `${country.attributes.flag.data?.attributes.url ?? ""}`
+												})) || []}
+												save="value"
+												placeholder='Selecione um país'
+												searchPlaceholder='Pesquisar...'
+											/>
+										</View>
+									</View>
+									<View className="flex flex-row justify-between">
+										<View>
+											<Text className='text-sm text-[#FF6112]'>CEP</Text>
+											<Controller
+												name='cep'
+												control={control}
+												render={({ field: { onChange } }) => (
+													<MaskInput
+														className='p-3 border border-gray-500 rounded-md h-18'
+														placeholder='Ex: 00000-000'
+														value={getValues('cep')}
+														keyboardType='numeric'
+														mask={Masks.ZIP_CODE}
+														maxLength={9}
+														onChangeText={(masked) => {
+															setZipCode(masked)
+															onChange(masked)
+														}}>
+													</MaskInput>
+												)}
+											></Controller>
+											{errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
+										</View>
+										<View>
+											<Text className='text-sm text-[#FF6112]'>Numero</Text>
+											<Controller
+												name='number'
+												control={control}
+												render={({ field: { onChange } }) => (
+													<TextInput
+														className='p-3 border border-gray-500 rounded-md h-18'
+														placeholder='Ex: nome'
+														onChangeText={onChange}>
+													</TextInput>
+												)}
+											></Controller>
+											{errors.number && <Text className='text-red-400 text-sm'>{errors.number.message}</Text>}
+										</View>
+									</View>
+									<View>
+										<Text className='text-sm text-[#FF6112]'>Rua</Text>
+										<Controller
+											name='street'
+											control={control}
+											render={({ field: { onChange } }) => (
+												<TextInput
+													className='p-3 border border-gray-500 rounded-md h-18'
+													placeholder='Ex: Rua xxxxxx'
+													value={getValues('street')}
+													onChangeText={onChange}>
+												</TextInput>
+											)}
+										></Controller>
+										{errors.street && <Text className='text-red-400 text-sm'>{errors.street.message}</Text>}
+									</View>
+									<View>
+										<Text className='text-sm text-[#FF6112]'>Bairro</Text>
+										<Controller
+											name='district'
+											control={control}
+											render={({ field: { onChange } }) => (
+												<TextInput
+													className='p-3 border border-gray-500 rounded-md h-18'
+													placeholder='Ex: Jd. xxxxxxx'
+													value={getValues('district')}
+													onChangeText={onChange}>
+												</TextInput>
+											)}
+										></Controller>
+										{errors.district && <Text className='text-red-400 text-sm'>{errors.district.message}</Text>}
+									</View>
+									<View>
+										<Text className='text-sm text-[#FF6112]'>Complemento</Text>
+										<Controller
+											name='complement'
+											control={control}
+											render={({ field: { onChange } }) => (
+												<TextInput
+													className='p-3 border border-gray-500 rounded-md h-18'
+													placeholder='Ex: Lado ABC'
+													onChangeText={onChange}>
+												</TextInput>
+											)}
+										></Controller>
+										{errors.complement && <Text className='text-red-400 text-sm'>{errors.complement.message}</Text>}
+									</View>
+									<View className="flex flex-row justify-between">
+										<View>
+											<Text className='text-sm text-[#FF6112]'>Cidade</Text>
+											<Controller
+												name='city'
+												control={control}
+												render={({ field: { onChange } }) => (
+													<TextInput
+														className='p-3 border border-gray-500 rounded-md h-18'
+														placeholder='Ex: xxxxx'
+														value={getValues('city')}
+														onChangeText={onChange}>
+													</TextInput>
+												)}
+											></Controller>
+											{errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
+										</View>
+										<View>
+											<Text className='text-sm text-[#FF6112]'>Estado</Text>
+											<Controller
+												name='state'
+												control={control}
+												render={({ field: { onChange } }) => (
+													<TextInput
+														className='p-3 border border-gray-500 rounded-md h-18'
+														placeholder='Ex: XX'
+														value={getValues('state')}
+														maxLength={2}
+														onChangeText={onChange}>
+													</TextInput>
+												)}
+											></Controller>
+											{errors.state && <Text className='text-red-400 text-sm'>{errors.state.message}</Text>}
+										</View>
+									</View>
+									<View className="p-2 justify-center items-center pt-5">
+										<TouchableOpacity onPress={handleSubmit(pay)} disabled={isLoading} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+											{
+												isLoading ? <ActivityIndicator size={'small'} color={'#F5620F'} /> :
+													<Text className="text-white">Pagar</Text>
+											}
+										</TouchableOpacity>
+									</View>
+								</View>
+							)}
+							<View>
+								<Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
+									Detalhes Reserva
+								</Text>
+							</View>
+						</View>
+						<View className="bg-gray-300 flex flex-row">
+							<View className="m-6">
+								<Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.name}</Text>
+								<Text className="text-base">{distanceText} de distância</Text>
+								<View className="flex flex-row">
+									<Text className="text-base">Avaliação: {dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.rating}</Text>
+									<View className="pt-1.5 pl-1.5">
+										<FontAwesome name="star" color="#FF4715" size={11} /></View>
+								</View>
+								<Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.streetName}</Text>
+							</View>
+							<View className="justify-center gap-1">
+								{
+									dataReserve?.courtAvailability.data.attributes.court.data.attributes.establishment.data.attributes.amenities.data.map((amenitieInfo) =>
+										<View className="flex flex-row  items-center">
+											<SvgUri
+												width="14"
+												height="14"
+												source={{ uri: amenitieInfo.attributes.iconAmenitie.data.attributes.url }}
+											/>
+											<Text className="text-base pl-2">{amenitieInfo.attributes.name}</Text>
+										</View>
+									)
+								}
+							</View>
+						</View>
+						<View className="p-4 justify-center items-center border-b ml-8 mr-8">
+							<View className="flex flex-row gap-6">
+								<Text className="font-bold text-xl text-[#717171]">Valor da Reserva</Text>
+								<Text className="font-bold text-xl text-right text-[#717171]">R$ {amountToPay && amountToPay.toFixed(2)}</Text>
+							</View>
+							<View className="flex flex-row gap-6">
+								<View className="flex flex-row pt-1">
+									<Text className="font-bold text-xl text-[#717171]">Taxa de Serviço</Text>
+									<TouchableOpacity onPress={handlePaymentInformation}>
+										<FontAwesome name="question-circle-o" size={13} color="black" />
+									</TouchableOpacity>
+								</View>
+								<Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue && serviceValue.toFixed(2)}</Text>
+							</View>
+						</View>
+						<View className="justify-center items-center pt-6">
+							<View className="flex flex-row gap-10">
+								<Text className="font-bold text-xl text-right text-[#717171]">Total: </Text>
+								<Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ {(amountToPay! + serviceValue!).toFixed(2)}</Text>
+							</View>
+						</View>
+						<Modal visible={showPaymentInformation} animationType="fade" transparent={true}>
+							<View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
+								<View className="bg-white rounded-md items-center ">
+									<Text className="bg-white p-8 rounded text-base text-center">Através dessa taxa provemos a tecnologia necessária para você reservar suas quadras com antecedência e rapidez.</Text>
+									<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+										<Text className="text-white">OK</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</Modal>
+						<Modal visible={showRateInformation} animationType="fade" transparent={true}>
+							<View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
+								<View className="bg-white rounded-md items-center">
+									<Text className="bg-white p-8 rounded text-base text-center">Esse valor será deduzido do valor total e não será estornado, mesmo no caso de não comparecimento ao local ou cancelamento da reserva.</Text>
+									<TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+										<Text className="text-white">OK</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</Modal>
+					</ScrollView>
+					:
+					<View className="w-screen h-screen flex justify-center items-center">
+						<ActivityIndicator size="large" color={'#F5620F'} />
 					</View>
-				</Modal>
-			</ScrollView>
+			}
+
 		</View>
 	)
 }
