@@ -56,7 +56,11 @@ export default function Register({
       message: 'CPF Inválido',
     })
   }
-
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
   return (
     <ScrollView className="flex-1 bg-white p-2">
       <View className="h-full p-4">
