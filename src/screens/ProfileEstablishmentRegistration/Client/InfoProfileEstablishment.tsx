@@ -23,7 +23,6 @@ import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEst
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import { HOST_API } from "@env";
 import axios from 'axios';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface IFormData {
     userName: string
@@ -186,8 +185,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const handleUpdateUser = async (data: IFormData): Promise<void> => {
         try {
-            setIsLoading(true)
             if (profilePicture) {
+                setIsLoading(true)
                 const uploadedImageID = await uploadImage(profilePicture)
 
                 const userDatas = {
@@ -229,8 +228,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
         } catch (error) {
             console.log(error)
-        } finally {
-            setIsLoading(false);
         }
     }
 
@@ -429,7 +426,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
     const handleProfilePictureUpload = async () => {
         try {
-            const IDX_SELECTED_PHOTO = 0;
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
             if (status !== 'granted') {
@@ -445,8 +441,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             });
 
             if (!result.canceled) {
-                result.assets[IDX_SELECTED_PHOTO] && await uploadImage(result.assets[IDX_SELECTED_PHOTO].uri).then(uploadedImageID => {
-                    setProfilePicture(result.assets[IDX_SELECTED_PHOTO].uri);
+                await uploadImage(result.assets[0].uri).then(uploadedImageID => {
+                    setProfilePicture(result.assets[0].uri);
                     console.log("ID da imagem enviada:", uploadedImageID);
                 })
             }
@@ -454,21 +450,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             console.log('Erro ao carregar a imagem: ', error);
         }
     }
-
-    //         const uploadedImageID = response.data[0].id;
-
-    //         console.log('Imagem enviada com sucesso!', response.data);
-
-    //         setIsLoading(false);
-
-    //         return uploadedImageID;
-    //     } catch (error) {
-    //         console.error('Erro ao enviar imagem:', error);
-    //         setIsLoading(false);
-    //         return "Deu erro";
-    //     }
-    // };
-
 
     const [showCard, setShowCard] = useState(false);
 
@@ -505,9 +486,6 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
     };
 
     const handleConfirmExit = () => {
-        storage.remove({
-            key: 'userInfos',
-        }).then(() => navigation.navigate('Login'))
         setShowExitConfirmation(false);
     };
 
@@ -532,6 +510,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             userPhoto: userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
         })
     }
+
+    console.log("picture:", userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url)
     
     const haveProfilePicture: boolean = userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined ? true : false
 
