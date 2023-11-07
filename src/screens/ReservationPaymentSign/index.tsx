@@ -1,36 +1,36 @@
-import {ActivityIndicator, Alert, Image, Modal, Text, TextInput, TouchableOpacity, View} from "react-native";
-import {ScrollView} from "react-native-gesture-handler";
-import React, {useEffect, useState} from "react";
-import {FontAwesome} from '@expo/vector-icons';
-import {TextInputMask} from 'react-native-masked-text';
+import { ActivityIndicator, Alert, Image, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import React, { useEffect, useState } from "react";
+import { FontAwesome } from '@expo/vector-icons';
+import { TextInputMask } from 'react-native-masked-text';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {SelectList} from 'react-native-dropdown-select-list'
-import {useReserveInfo} from "../../hooks/useInfoReserve";
+import { SelectList } from 'react-native-dropdown-select-list'
+import { useReserveInfo } from "../../hooks/useInfoReserve";
 import SvgUri from 'react-native-svg-uri';
 import storage from "../../utils/storage";
-import {calculateDistance} from "../../components/calculateDistance/calculateDistance";
-import {useUserPaymentCard} from '../../hooks/useUserPaymentCard';
-import {z} from "zod";
-import {zodResolver} from '@hookform/resolvers/zod';
-import {Controller, useForm} from 'react-hook-form';
-import {isValidCPF} from "../../utils/isValidCpf";
-import MaskInput, {Masks} from 'react-native-mask-input';
+import { calculateDistance } from "../../components/calculateDistance/calculateDistance";
+import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
+import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+import { isValidCPF } from "../../utils/isValidCpf";
+import MaskInput, { Masks } from 'react-native-mask-input';
 import useCountries from '../../hooks/useCountries'
 import useUpdateCourtAvailabilityStatus from "../../hooks/useUpdateCourtAvailabilityStatus";
-import {useRegisterSchedule} from "../../hooks/useRegisterSchedule";
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {generateRandomKey} from "../../utils/activationKeyGenerate";
-import {generatePix} from "../../services/pixCielo";
-import {useUserPaymentPix} from "../../hooks/useUserPaymentPix";
-import {StackActions, useFocusEffect} from '@react-navigation/native';
-import {useGetUserById} from "../../hooks/useUserById";
+import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { generateRandomKey } from "../../utils/activationKeyGenerate";
+import { generatePix } from "../../services/pixCielo";
+import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
+import { StackActions, useFocusEffect } from '@react-navigation/native';
+import { useGetUserById } from "../../hooks/useUserById";
 import getAddress from "../../utils/getAddressByCep";
-import {CieloRequestManager} from "../../services/cieloRequestManager";
-import {transformCardExpirationDate} from "../../utils/transformCardExpirationDate";
-import {convertToAmericanDate} from "../../utils/formatDate";
-import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
+import { CieloRequestManager } from "../../services/cieloRequestManager";
+import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import { convertToAmericanDate } from "../../utils/formatDate";
+import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 
-export 	interface iFormCardPayment {
+export interface iFormCardPayment {
 	name: string
 	cpf: string
 	cvv: string
@@ -56,9 +56,13 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	const [serviceValue, setServiceValue] = useState<number>();
 	const [userName, setUserName] = useState<string>();
 	const [userCPF, setUserCPF] = useState<string>();
+	const [courtName, setCourtName] = useState<string>()
+	const [signalValueValidate, setSignalValueValidate] = useState<boolean>();
+	const [userPhoto, setUserPhoto] = useState<string>();
 	const [selected, setSelected] = React.useState("");
 	const [zipCode, setZipCode] = useState<string>();
 	const [totalValue, setTotalValue] = useState<number>();
+	const [isPaymentLoading, setIsPaymentLoading] = useState<boolean>(false)
 	const [cardData, setCardData] = useState({
 		cardNumber: '',
 		expirationDate: '',
@@ -66,7 +70,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		country: ''
 	});
 
-	const { courtId, courtImage, courtName, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
+	const { courtId, courtImage, userId, amountToPay, courtAvailabilityDate, courtAvailabilities } = route.params
 	const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
 	const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
 	const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
@@ -79,6 +83,9 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 	useFocusEffect(() => {
 		setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!)
 		setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!)
+		setCourtName(dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "")
+		setSignalValueValidate(dataReserve?.courtAvailability.data.attributes.value ? true : false)
+		setUserPhoto(route.params.userPhoto!)
 	})
 
 	const handleCardClick = () => {
@@ -354,54 +361,61 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 		let signalValue = Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2))
 		let signalValuePix = Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2)) * 100
 
-		const generatePixJSON: RequestGeneratePix = {
-			MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
-			Customer: {
-				Name: userName!,
-				Identity: userCPF!,
-				IdentityType: "cpf",
-			},
-			Payment: {
-				Type: "Pix",
-				Amount: 1
+		try {
+			setIsPaymentLoading(true)
+			const generatePixJSON: RequestGeneratePix = {
+				MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
+				Customer: {
+					Name: userName!,
+					Identity: userCPF!,
+					IdentityType: "cpf",
+				},
+				Payment: {
+					Type: "Pix",
+					Amount: 1
+				}
 			}
-		}
 
-		const pixGenerated = await generatePix(generatePixJSON)
+			const pixGenerated = await generatePix(generatePixJSON)
 
-		await addPaymentPix({
-			variables: {
-				name: dataUser?.usersPermissionsUser.data.attributes.username!,
-				cpf: dataUser?.usersPermissionsUser.data.attributes.cpf!,
-				value: signalValue!,
-				schedulingID: null,
-				paymentID: pixGenerated.Payment.PaymentId,
-				publishedAt: new Date().toISOString(),
-				userID: userId
-			}
-		}).then((response) =>
-			navigation.dispatch(
-				StackActions.replace('PixScreen', {
-					courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-					value: signalValue!.toString(),
-					userID: userId,
-					QRcodeURL: pixGenerated.Payment.QrCodeString,
+			await addPaymentPix({
+				variables: {
+					name: userName!,
+					cpf: userCPF!,
+					value: signalValue!,
+					schedulingID: null,
 					paymentID: pixGenerated.Payment.PaymentId,
-					userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
-					screen: "signal",
-					court_availabilityID: courtAvailabilities,
-					date: courtAvailabilityDate.split("T")[0],
-					pay_day: courtAvailabilityDate.split("T")[0],
-					value_payed: signalValue ? signalValue : 0,
-					ownerID: userId,
-					service_value: serviceValue,
-					isPayed: signalValue === dataReserve?.courtAvailability.data.attributes.value ? true : false,
-					schedulePrice: signalValue!,
-					courtId: courtId,
-					courtImage: courtImage,
-					userPhoto: route.params.userPhoto!
-				}))
-		)
+					publishedAt: new Date().toISOString(),
+					userID: userId
+				}
+			}).then((response) =>
+				navigation.dispatch(
+					StackActions.replace('PixScreen', {
+						courtName: courtName,
+						value: signalValue!.toString(),
+						userID: userId,
+						QRcodeURL: pixGenerated.Payment.QrCodeString,
+						paymentID: pixGenerated.Payment.PaymentId,
+						userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+						screen: "signal",
+						court_availabilityID: courtAvailabilities,
+						date: courtAvailabilityDate.split("T")[0],
+						pay_day: courtAvailabilityDate.split("T")[0],
+						value_payed: signalValue ? signalValue : 0,
+						ownerID: userId,
+						service_value: serviceValue,
+						isPayed: signalValueValidate,
+						schedulePrice: signalValue!,
+						courtId: courtId,
+						courtImage: courtImage,
+						userPhoto: userPhoto!
+					}))
+			)
+			setIsPaymentLoading(false)
+		} catch (error) {
+			console.log(error)
+			alert(error)
+		}
 	}
 
 	useEffect(() => {
@@ -479,13 +493,22 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 					</Text>
 				</View>
 				<View className='px-10 py-5'>
-					<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
-						onPressIn={() => {
-							generatePixSignal()
-						}}
-					>
-						<Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
-					</TouchableOpacity>
+					{
+						!isPaymentLoading
+							?
+							<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+								onPressIn={() => {
+									generatePixSignal()
+								}}
+							>
+								<Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
+							</TouchableOpacity>
+							:
+							<TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'>
+								<ActivityIndicator size="small" color="white" />
+							</TouchableOpacity>
+					}
+
 				</View>
 				<View><Text className="text-center font-bold text-base text-gray-700">ou</Text></View>
 				<View className="pt-5 px-9">
