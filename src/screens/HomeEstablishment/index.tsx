@@ -236,9 +236,10 @@ export default function HomeEstablishment({
       dataCourtsEstablishment.establishment.data &&
       dataCourtsEstablishment.establishment.data.attributes.courts.data.length > 0
     ) {
+      console.log(dataCourtsEstablishment.establishment.data.attributes.courts.data)
       setEstablishmentCourts(dataCourtsEstablishment.establishment.data.attributes.courts.data)
       }
-    }, [dataSchedulings])
+    }, [dataCourtsEstablishment])
 
   useEffect(() => {
     photo &&
@@ -417,7 +418,10 @@ export default function HomeEstablishment({
                     setSelected={(val: any) => setFantasyName(val)}
                     data={
                       establishmentCourts.map(
-                        fantasy => fantasy.attributes.fantasy_name,
+                        fantasy => {
+                          console.log({fantasy: fantasy.attributes.fantasy_name})
+                          return fantasy.attributes.fantasy_name
+                        }
                       ) ?? []
                     }
                     save="value"
