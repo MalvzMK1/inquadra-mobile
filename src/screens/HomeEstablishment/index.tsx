@@ -350,17 +350,17 @@ export default function HomeEstablishment({
                 {handleDayUse === false
                   ? establishmentCourts.map(
                       courts =>
-                        courts?.attributes?.court_availabilities?.data?.map(
+                        courts?.attributes.court_availabilities.data.map(
                           availabilities =>
-                            availabilities?.attributes?.schedulings?.data?.map(
+                            availabilities?.attributes.schedulings.data.map(
                               schedulings => (
                                 <Text className="text-white font-bold">
-                                  {schedulings?.attributes?.court_availability?.data?.attributes?.startsAt?.substring(
+                                  {schedulings?.attributes.court_availability.data?.attributes.startsAt.substring(
                                     0,
                                     5,
                                   )}{" "}
                                   -{" "}
-                                  {schedulings.attributes.court_availability.data.attributes.endsAt.substring(
+                                  {schedulings.attributes.court_availability.data?.attributes.endsAt.substring(
                                     0,
                                     5,
                                   )}{" "}
@@ -374,7 +374,7 @@ export default function HomeEstablishment({
                             ),
                         ),
                     )
-                  : dataSchedulings?.establishment?.data?.attributes?.courts?.data?.map(
+                  : dataSchedulings?.establishment.data?.attributes.courts.data.map(
                       courts =>
                         courts?.attributes?.court_availabilities?.data?.map(
                           availabilities =>
