@@ -252,6 +252,17 @@ export default function HomeEstablishment({
       )
   }, [photo]);
 
+  function handlePayedStatus(payedStatus: "waiting" | "payed" | "canceled") {
+    switch (payedStatus) {
+      case 'waiting':
+        return 'Pgt.Parcial'
+      case 'payed':
+        return 'Pago'
+      case 'canceled':
+        return 'Cancelado'
+    }
+  }
+
   return (
     <View className="flex-1">
       <View className=" h-11 w-max  bg-[#292929]"></View>
@@ -523,10 +534,9 @@ export default function HomeEstablishment({
                                                 className="pr-2"
                                               />
                                               <Text className="">
-                                                {scheduling.attributes
-                                                  .payedStatus
-                                                  ? "Pago"
-                                                  : "Pgt.parcial"}
+                                                {
+                                                  handlePayedStatus(scheduling.attributes.payedStatus)
+                                                }
                                               </Text>
                                             </View>
                                           </View>
