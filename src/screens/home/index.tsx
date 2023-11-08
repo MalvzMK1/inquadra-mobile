@@ -3,7 +3,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import {ActivityIndicator, Text, TouchableOpacity, View} from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
@@ -354,6 +354,20 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				}
 			});
 	}, []);
+
+	useEffect(() => {
+		if (
+			userHookData &&
+			userHookData.usersPermissionsUser.data &&
+			userHookData.usersPermissionsUser.data.attributes.role.data
+		) {
+			const userRole = userHookData.usersPermissionsUser.data.attributes.role.data.id
+			userRole === '4' && navigation.navigate('HomeEstablishment', {
+				userPhoto: undefined,
+				userID: userHookData.usersPermissionsUser.data.id,
+			})
+		}
+	}, [])
 
 	return (
 		<View className="flex-1 flex flex-col justify-center items-center">
