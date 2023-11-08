@@ -367,7 +367,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				userID: userHookData.usersPermissionsUser.data.id,
 			})
 		}
-	}, [])
+	}, [userHookData])
 
 	return (
 		<View className="flex-1 flex flex-col justify-center items-center">
