@@ -54,6 +54,11 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
         }, [route.params.courtArray])
     );
 
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+          headerShown: false,
+        });
+      }, [navigation]);
 
     async function RegisterNewCourt(data: IFormDatasCourt) {
 

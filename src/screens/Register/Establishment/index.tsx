@@ -175,6 +175,12 @@ export default function RegisterEstablishment({
 		});
 	}, [allAmenitiesData]);
 
+	React.useLayoutEffect(() => {
+		navigation.setOptions({
+		  headerShown: false,
+		});
+	  }, [navigation]);
+
 	return (
 		<ScrollView className="bg-white flex-1">
 			<View className="items-center mt-2 p-4">
