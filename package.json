@@ -50,6 +50,7 @@
     "geolib": "^3.3.4",
     "graphql": "^16.7.1",
     "https": "^1.0.0",
+    "ios": "^0.0.1",
     "native-base": "^3.4.28",
     "nativewind": "^2.0.11",
     "password-requirements": "^1.2.1",

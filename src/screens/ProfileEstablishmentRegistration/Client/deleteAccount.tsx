@@ -3,10 +3,17 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import {useNavigation} from "@react-navigation/native";
 import { Octicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React from "react";
 
 export default function DeleteAccountEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "DeleteAccountEstablishment">) {
 
 const nameCourt = route.params.establishmentName
+
+React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
 
 return (
     <View className="h-full flex justify-center items-center">

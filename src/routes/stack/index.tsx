@@ -436,7 +436,7 @@ export default function () {
         options={({ route: { params } }) => ({
           headerTintColor: "white",
           headerStyle: {
-            height: 85,
+            height: 95,
             backgroundColor: "#292929",
           },
           headerTitleAlign: "center",

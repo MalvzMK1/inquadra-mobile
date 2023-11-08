@@ -7771,6 +7771,11 @@ invariant@*, invariant@2.2.4, invariant@^2.2.4:
   dependencies:
     loose-envify "^1.0.0"
 
+ios@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/ios/-/ios-0.0.1.tgz#4c6f774d8b0c2e9bb53c3411a6cdf00ac51dd92d"
+  integrity sha512-yhzNDf7dFMzay0eC+geyoDWUV335S17HiOQ3PumOhRn8SIFrjx6RhdVRs4dqCaw9emlhWPzuSk5o10ziUdOrWQ==
+
 ip-regex@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/ip-regex/-/ip-regex-2.1.0.tgz"

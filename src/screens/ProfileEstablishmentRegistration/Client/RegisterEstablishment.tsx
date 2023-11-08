@@ -97,6 +97,12 @@ export default function RegisterEstablishment({
     setPhotos(newPhotos);
   };
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
+
   return (
     <ScrollView className="h-fit bg-white flex-1">
       <View className="items-center mt-9 p-4">

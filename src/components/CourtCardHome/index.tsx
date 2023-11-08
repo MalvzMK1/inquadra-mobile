@@ -115,7 +115,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
         }
       >
         <Image
-          className="w-[45%] w-[115px] h-[85px] rounded-[10px]"
+          className="w-[120px] h-[85px] rounded-[10px]"
           source={{ uri: props.image }}
         />
         <View className="flex mt-1">

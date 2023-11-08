@@ -254,6 +254,13 @@ export default function RegisterNewCourtAdded({
     setCourtTypes(newCourtTypes);
   }, [dataSportTypeAvaible, loadingSportTypeAvaible]);
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
+  
+
   return (
     <ScrollView className="h-fit bg-white flex-1">
       <View className="items-center mt-9 p-4">
