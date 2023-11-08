@@ -250,13 +250,9 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			}
 		}, [
 			data,
-			loading,
-			userHookLoading,
 			userHookData,
-			error,
 			filter,
-			errorFilter,
-			loadingFilter,
+			establishmentsFiltered
 		]),
 	);
 
