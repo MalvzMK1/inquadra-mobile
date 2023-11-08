@@ -3,7 +3,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import {ActivityIndicator, Text, TouchableOpacity, View} from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
@@ -250,13 +250,9 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			}
 		}, [
 			data,
-			loading,
-			userHookLoading,
 			userHookData,
-			error,
 			filter,
-			errorFilter,
-			loadingFilter,
+			establishmentsFiltered
 		]),
 	);
 
@@ -330,14 +326,17 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				key: "userInfos",
 			})
 			.then(data => {
-				console.log(data.userId)
+				console.log({USER_FUCKING_ID: data.userId})
 				setUserId(data.userId);
+				navigation.setParams({
+					userID: data.userId,
+				})
 			})
 			.catch(error => {
 				if (error instanceof Error) {
+					setUserId(undefined)
 					if (error.name === 'NotFoundError') {
 						console.log('The item wasn\'t found.');
-						setUserId(undefined)
 					} else if (error.name === 'ExpiredError') {
 						console.log('The item has expired.');
 						storage.remove({
@@ -351,6 +350,20 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				}
 			});
 	}, []);
+
+	useEffect(() => {
+		if (
+			userHookData &&
+			userHookData.usersPermissionsUser.data &&
+			userHookData.usersPermissionsUser.data.attributes.role.data
+		) {
+			const userRole = userHookData.usersPermissionsUser.data.attributes.role.data.id
+			userRole === '4' && navigation.navigate('HomeEstablishment', {
+				userPhoto: undefined,
+				userID: userHookData.usersPermissionsUser.data.id,
+			})
+		}
+	}, [userHookData])
 
 	return (
 		<View className="flex-1 flex flex-col justify-center items-center">
@@ -421,7 +434,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 													distance={item.distance ?? ""}
 													image={item.image}
 													type={item.type}
-													userId={route?.params?.userID ?? ""}
+													userId={userId ?? ''}
 													liked={true}
 												/>
 											</Callout>
@@ -446,7 +459,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 			{isDisabled && !menuBurguer && (
 				<HomeBar
-					loggedUserId={route.params?.userID}
+					loggedUserId={userId}
 					chosenType={sportSelected}
 					courts={establishments}
 					userName={
@@ -458,7 +471,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			{
 				<BottomBlackMenu
 					screen="Home"
-					userID={route?.params?.userID}
+					userID={userId}
 					userPhoto={userPicture!}
 					key={1}
 					isDisabled={!isDisabled}

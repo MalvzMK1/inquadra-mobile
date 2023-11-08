@@ -71,20 +71,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 										</TouchableOpacity>
 
 										<TouchableOpacity onPress={() => {
-											if (
-												userID === '' ||
-												userID === '0' ||
-												!userID
-											)
-												navigation.navigate('Login')
-											else
-												navigation.navigate('FavoriteEstablishments', {
-													userPhoto: userPhoto ?? "",
-													userID: userID
-												})
-										}}>
-											<MaterialIcons name="calendar-today" color={"white"} size={25} />
-										</TouchableOpacity>
+												if (
+													userID === '' ||
+													userID === '0' ||
+													!userID
+												)
+													navigation.navigate('Login')
+												else
+													navigation.navigate('InfoReserva', {userId: userID})
+											}}>
+												<MaterialIcons name="calendar-today" color={"white"} size={26} />
+											</TouchableOpacity>
 									</>)
 									: screen === "Favorite"
 										?

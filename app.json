@@ -3,7 +3,7 @@
     "name": "InQuadra",
     "slug": "InQuadra",
     "scheme": "com.qodeless.inquadra",
-    "version": "5.5.0",
+    "version": "5.6.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

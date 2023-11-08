@@ -1,4 +1,4 @@
-import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
+import {ApolloClient, ApolloLink, defaultDataIdFromObject, HttpLink, InMemoryCache} from "@apollo/client";
 import { HOST_API } from '@env';
 import storage from "../utils/storage";
 
@@ -51,7 +51,21 @@ const authLink = new ApolloLink((operation, forward) => {
 const link = ApolloLink.from([authLink, httpLink]);
 
 export const client = new ApolloClient({
-	// link: authLink.concat(link),
 	link: httpLink,
-	cache: new InMemoryCache(),
+	cache: new InMemoryCache({
+		typePolicies: {
+			UsersPermissionsUserResponse: {
+				keyFields: [],
+				merge: (existing, incoming) => incoming,
+			},
+			EstablishmentEntityResponse: {
+				keyFields: [],
+				merge: (existing, incoming) => incoming,
+			},
+			UsersPermissionsUserEntityResponseCollection: {
+				keyFields: [],
+				merge: (existing, incoming) => incoming,
+			},
+		},
+	}),
 });
