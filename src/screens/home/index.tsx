@@ -299,6 +299,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			});
 		}
 	}, [userGeolocation]);
+
 	useEffect(() => {
 		storage
 			.load<{ latitude: number; longitude: number }>({
@@ -327,7 +328,6 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				key: "userInfos",
 			})
 			.then(data => {
-				console.log({USER_FUCKING_ID: data.userId})
 				setUserId(data.userId);
 				navigation.setParams({
 					userID: data.userId,

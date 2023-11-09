@@ -30,6 +30,8 @@ import { useUserPaymentPix } from '../../hooks/useUserPaymentPix';
 import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
 import { useGetUserById } from "../../hooks/useUserById";
+import getAddress from "../../utils/getAddressByCep";
+import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
@@ -69,6 +71,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const isVanquishedDate = schedulingPayDate < currentTime
     const isPayed = data?.scheduling.data?.attributes.payedStatus === "payed"
     const isVanquished = isVanquishedDate && !isPayed
+
+    const [zipCode, setZipCode] = useState<string>();
 
     const valueDisponibleToPay =
         (data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!) -
@@ -190,7 +194,13 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         cpf: z.string().nonempty("É necessário inserir o CPF").max(15, "CPF inválido").refine(isValidCPF, "CPF inválido"),
     })
 
-    const { control, handleSubmit, formState: { errors }, getValues } = useForm<iFormCardPayment>({
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+        getValues ,
+        setValue
+    } = useForm<iFormCardPayment>({
         resolver: zodResolver(formSchema)
     })
 
@@ -429,8 +439,35 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         data: mergedOwnerPayments
     }
 
+    useEffect(() => {
+        alert(zipCode)
+        try {
+            const zipCode = getValues('cep');
 
-
+            if (zipCode && zipCode.length === 9)
+                getAddress(zipCode).then(response => {
+                    console.log(response)
+                    setValue('cep', response.code)
+                    setValue('street', response.address)
+                    setValue('district', response.district)
+                    setValue('city', response.city)
+                    setValue('state', response.state)
+                }).catch(error => {
+                    console.log(error)
+                    Dialog.show({
+                        type: ALERT_TYPE.WARNING,
+                        title: 'Não foi possível encontrar o endereço',
+                        textBody: 'Verifique se o CEP inserido é válido',
+                    })
+                })
+        } catch (error) {
+            Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Não foi possível encontrar o endereço',
+                textBody: 'Verifique se o CEP inserido é válido',
+            })
+        }
+    }, [zipCode])
 
     return (
         <View className='flex-1 bg-zinc-600'>
@@ -741,6 +778,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
                                                 placeholder='Ex: nome'
+                                                value={getValues('name')}
                                                 onChangeText={onChange}>
                                             </MaskInput>
                                         )}
@@ -775,6 +813,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
                                                 placeholder='Ex: 000.000.000-00'
+                                                maxLength={14}
                                                 value={getValues('cpf')}
                                                 onChangeText={onChange}
                                                 mask={Masks.BRL_CPF}
@@ -857,6 +896,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     placeholder='123'
                                                     onChangeText={onChange}
                                                     keyboardType='numeric'
+                                                    value={getValues('cvv')}
                                                     maxLength={3}>
                                                 </MaskInput>
                                             )}
@@ -897,7 +937,10 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     value={getValues('cep')}
                                                     maxLength={9}
                                                     mask={Masks.ZIP_CODE}
-                                                    onChangeText={onChange}
+                                                    onChangeText={(masked) => {
+                                                        setZipCode(masked)
+                                                        onChange(masked)
+                                                    }}
                                                     keyboardType='numeric'>
                                                 </MaskInput>
                                             )}
