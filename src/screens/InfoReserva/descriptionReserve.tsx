@@ -59,22 +59,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const currentTime = new Date()
     const schedulingPayDate = new Date(data?.scheduling?.data?.attributes?.payDay!)
     const scheduleDay = new Date(data?.scheduling?.data?.attributes?.date!)
+
     const timeDifferenceMs = Number(scheduleDay) - Number(currentTime);
-
     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
-
     const isWithin24Hours = timeDifferenceHours <= 24;
-
     const timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
-
     const oneHourInMs = 60 * 60 * 1000;
-
     const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
-
     const isVanquishedDate = schedulingPayDate < currentTime
-    const isPayed = data?.scheduling?.data?.attributes?.payedStatus === "payed" ? true : false
-
-    const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
+    const isPayed = data?.scheduling.data?.attributes.payedStatus === "payed"
+    const isVanquished = isVanquishedDate && !isPayed
 
     const valueDisponibleToPay =
         (data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!) -
@@ -155,14 +149,18 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     });
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
-        if (countryISOCode && dataCountry) {
-            const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        try {
+            if (countryISOCode && dataCountry) {
+                const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
 
-            if (selectedCountry) {
-                return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
+                if (selectedCountry) {
+                    return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
+                }
             }
+            return undefined;
+        } catch (error) {
+            console.error(error)
         }
-        return undefined;
     };
 
 
@@ -875,11 +873,11 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 setSelected(val);
 
                                             }}
-                                            data={dataCountry?.countries?.data.map(country => ({
-                                                value: country?.attributes.ISOCode,
-                                                label: country?.attributes.ISOCode || "",
-                                                img: `${HOST_API}${country?.attributes.flag?.data?.attributes?.url || ""}`
-                                            })) || []}
+                                            data={dataCountry?.countries.data.map(country => ({
+                                                value: country.attributes.ISOCode,
+                                                label: country.attributes.ISOCode,
+                                                img: `${HOST_API}${country.attributes.flag.data?.attributes.url ?? ""}`
+                                            })) ?? []}
                                             save="value"
                                             placeholder='Selecione um país'
                                             searchPlaceholder='Pesquisar...'
