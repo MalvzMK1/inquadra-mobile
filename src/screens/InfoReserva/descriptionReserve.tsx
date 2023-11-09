@@ -740,11 +740,11 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         name='name'
                                         control={control}
                                         render={({ field: { onChange } }) => (
-                                            <TextInput
+                                            <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
                                                 placeholder='Ex: nome'
                                                 onChangeText={onChange}>
-                                            </TextInput>
+                                            </MaskInput>
                                         )}
                                     ></Controller>
                                     {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
@@ -825,8 +825,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Image source={require('../../assets/camera.png')}></Image>
                                     </TouchableOpacity>
                                 </View>
-                                <View className='flex flex-row'>
-                                    <View className='flex-1 mr-[20px]'>
+                                <View className='flex flex-row justify-between gap-x-6'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
                                         <Controller
                                             name='date'
@@ -848,19 +848,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         ></Controller>
                                         {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
                                     </View>
-                                    <View className='flex-1 ml-[20px]'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>CVV</Text>
                                         <Controller
                                             name='cvv'
                                             control={control}
                                             render={({ field: { onChange } }) => (
-                                                <TextInput
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white placeholder:text-neutral-400'
                                                     placeholder='123'
                                                     onChangeText={onChange}
                                                     keyboardType='numeric'
                                                     maxLength={3}>
-                                                </TextInput>
+                                                </MaskInput>
                                             )}
                                         ></Controller>
                                         {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
@@ -886,8 +886,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         />
                                     </View>
                                 </View>
-                                <View className='flex flex-row justify-between'>
-                                    <View>
+                                <View className='flex flex-row justify-between gap-x-6'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>CEP</Text>
                                         <Controller
                                             name='cep'
@@ -906,7 +906,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         ></Controller>
                                         {errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
                                     </View>
-                                    <View>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Numero</Text>
                                         <Controller
                                             name='number'
@@ -972,8 +972,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         )}
                                     ></Controller>
                                 </View>
-                                <View className='flex flex-row justify-between'>
-                                    <View>
+                                <View className='flex flex-row justify-between gap-x-6'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Cidade</Text>
                                         <Controller
                                             name='city'
@@ -989,7 +989,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         ></Controller>
                                         {errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
                                     </View>
-                                    <View>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Estado</Text>
                                         <Controller
                                             name='state'

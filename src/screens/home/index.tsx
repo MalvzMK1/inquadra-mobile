@@ -252,7 +252,8 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			data,
 			userHookData,
 			filter,
-			establishmentsFiltered
+			establishmentsFiltered,
+			userGeolocation,
 		]),
 	);
 
