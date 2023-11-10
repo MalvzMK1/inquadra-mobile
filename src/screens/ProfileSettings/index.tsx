@@ -436,14 +436,18 @@ export default function ProfileSettings({
 
   async function loadInformations() {
     let newUserInfos = userInfos;
-    if (!loading && data) {
+    if (
+      !loading &&
+      data &&
+      data.usersPermissionsUser.data
+    ) {
       newUserInfos = {
         id: data.usersPermissionsUser.data.id,
         username: data.usersPermissionsUser.data.attributes.username,
         cpf: data.usersPermissionsUser.data.attributes.cpf,
         email: data.usersPermissionsUser.data.attributes.email,
         phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
-        photo: data.usersPermissionsUser.data?.attributes.photo.data?.id!,
+        photo: data.usersPermissionsUser.data.attributes.photo.data?.id ?? '',
         paymentCardInfos: {
           dueDate: data.usersPermissionsUser.data.attributes
             .paymentCardInformations.dueDate
