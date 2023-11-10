@@ -30,6 +30,8 @@ import { useUserPaymentPix } from '../../hooks/useUserPaymentPix';
 import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
 import { useGetUserById } from "../../hooks/useUserById";
+import getAddress from "../../utils/getAddressByCep";
+import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
@@ -59,22 +61,18 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const currentTime = new Date()
     const schedulingPayDate = new Date(data?.scheduling?.data?.attributes?.payDay!)
     const scheduleDay = new Date(data?.scheduling?.data?.attributes?.date!)
+
     const timeDifferenceMs = Number(scheduleDay) - Number(currentTime);
-
     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
-
     const isWithin24Hours = timeDifferenceHours <= 24;
-
     const timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
-
     const oneHourInMs = 60 * 60 * 1000;
-
     const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
-
     const isVanquishedDate = schedulingPayDate < currentTime
-    const isPayed = data?.scheduling?.data?.attributes?.payedStatus === "payed" ? true : false
+    const isPayed = data?.scheduling.data?.attributes.payedStatus === "payed"
+    const isVanquished = isVanquishedDate && !isPayed
 
-    const isVanquished = isVanquishedDate === true && isPayed === false ? true : false
+    const [zipCode, setZipCode] = useState<string>();
 
     const valueDisponibleToPay =
         (data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!) -
@@ -155,14 +153,18 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     });
 
     const getCountryImage = (countryISOCode: string | null): string | undefined => {
-        if (countryISOCode && dataCountry) {
-            const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
+        try {
+            if (countryISOCode && dataCountry) {
+                const selectedCountry = dataCountry.countries.data.find(country => country.attributes.ISOCode === countryISOCode);
 
-            if (selectedCountry) {
-                return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
+                if (selectedCountry) {
+                    return HOST_API + selectedCountry.attributes.flag.data.attributes.url;
+                }
             }
+            return undefined;
+        } catch (error) {
+            console.error(error)
         }
-        return undefined;
     };
 
 
@@ -192,7 +194,13 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         cpf: z.string().nonempty("É necessário inserir o CPF").max(15, "CPF inválido").refine(isValidCPF, "CPF inválido"),
     })
 
-    const { control, handleSubmit, formState: { errors }, getValues } = useForm<iFormCardPayment>({
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+        getValues ,
+        setValue
+    } = useForm<iFormCardPayment>({
         resolver: zodResolver(formSchema)
     })
 
@@ -431,8 +439,35 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         data: mergedOwnerPayments
     }
 
+    useEffect(() => {
+        alert(zipCode)
+        try {
+            const zipCode = getValues('cep');
 
-
+            if (zipCode && zipCode.length === 9)
+                getAddress(zipCode).then(response => {
+                    console.log(response)
+                    setValue('cep', response.code)
+                    setValue('street', response.address)
+                    setValue('district', response.district)
+                    setValue('city', response.city)
+                    setValue('state', response.state)
+                }).catch(error => {
+                    console.log(error)
+                    Dialog.show({
+                        type: ALERT_TYPE.WARNING,
+                        title: 'Não foi possível encontrar o endereço',
+                        textBody: 'Verifique se o CEP inserido é válido',
+                    })
+                })
+        } catch (error) {
+            Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Não foi possível encontrar o endereço',
+                textBody: 'Verifique se o CEP inserido é válido',
+            })
+        }
+    }, [zipCode])
 
     return (
         <View className='flex-1 bg-zinc-600'>
@@ -740,11 +775,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         name='name'
                                         control={control}
                                         render={({ field: { onChange } }) => (
-                                            <TextInput
+                                            <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
                                                 placeholder='Ex: nome'
+                                                value={getValues('name')}
                                                 onChangeText={onChange}>
-                                            </TextInput>
+                                            </MaskInput>
                                         )}
                                     ></Controller>
                                     {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
@@ -777,6 +813,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                             <MaskInput
                                                 className='p-3 border border-neutral-400 rounded bg-white'
                                                 placeholder='Ex: 000.000.000-00'
+                                                maxLength={14}
                                                 value={getValues('cpf')}
                                                 onChangeText={onChange}
                                                 mask={Masks.BRL_CPF}
@@ -825,8 +862,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         <Image source={require('../../assets/camera.png')}></Image>
                                     </TouchableOpacity>
                                 </View>
-                                <View className='flex flex-row'>
-                                    <View className='flex-1 mr-[20px]'>
+                                <View className='flex flex-row justify-between gap-x-6'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
                                         <Controller
                                             name='date'
@@ -848,19 +885,20 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         ></Controller>
                                         {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
                                     </View>
-                                    <View className='flex-1 ml-[20px]'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>CVV</Text>
                                         <Controller
                                             name='cvv'
                                             control={control}
                                             render={({ field: { onChange } }) => (
-                                                <TextInput
-                                                    className='p-3 border border-neutral-400 rounded bg-white'
+                                                <MaskInput
+                                                    className='p-3 border border-neutral-400 rounded bg-white placeholder:text-neutral-400'
                                                     placeholder='123'
                                                     onChangeText={onChange}
                                                     keyboardType='numeric'
+                                                    value={getValues('cvv')}
                                                     maxLength={3}>
-                                                </TextInput>
+                                                </MaskInput>
                                             )}
                                         ></Controller>
                                         {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
@@ -875,19 +913,19 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                 setSelected(val);
 
                                             }}
-                                            data={dataCountry?.countries?.data.map(country => ({
-                                                value: country?.attributes.ISOCode,
-                                                label: country?.attributes.ISOCode || "",
-                                                img: `${HOST_API}${country?.attributes.flag?.data?.attributes?.url || ""}`
-                                            })) || []}
+                                            data={dataCountry?.countries.data.map(country => ({
+                                                value: country.attributes.ISOCode,
+                                                label: country.attributes.ISOCode,
+                                                img: `${HOST_API}${country.attributes.flag.data?.attributes.url ?? ""}`
+                                            })) ?? []}
                                             save="value"
                                             placeholder='Selecione um país'
                                             searchPlaceholder='Pesquisar...'
                                         />
                                     </View>
                                 </View>
-                                <View className='flex flex-row justify-between'>
-                                    <View>
+                                <View className='flex flex-row justify-between gap-x-6'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>CEP</Text>
                                         <Controller
                                             name='cep'
@@ -899,14 +937,17 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                                     value={getValues('cep')}
                                                     maxLength={9}
                                                     mask={Masks.ZIP_CODE}
-                                                    onChangeText={onChange}
+                                                    onChangeText={(masked) => {
+                                                        setZipCode(masked)
+                                                        onChange(masked)
+                                                    }}
                                                     keyboardType='numeric'>
                                                 </MaskInput>
                                             )}
                                         ></Controller>
                                         {errors.cep && <Text className='text-red-400 text-sm'>{errors.cep.message}</Text>}
                                     </View>
-                                    <View>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Numero</Text>
                                         <Controller
                                             name='number'
@@ -972,8 +1013,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         )}
                                     ></Controller>
                                 </View>
-                                <View className='flex flex-row justify-between'>
-                                    <View>
+                                <View className='flex flex-row justify-between gap-x-6'>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Cidade</Text>
                                         <Controller
                                             name='city'
@@ -989,7 +1030,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                         ></Controller>
                                         {errors.city && <Text className='text-red-400 text-sm'>{errors.city.message}</Text>}
                                     </View>
-                                    <View>
+                                    <View className='flex-1'>
                                         <Text className='text-sm text-[#FF6112]'>Estado</Text>
                                         <Controller
                                             name='state'

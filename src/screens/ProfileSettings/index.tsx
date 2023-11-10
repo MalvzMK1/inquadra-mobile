@@ -284,9 +284,14 @@ export default function ProfileSettings({
   const [cards, setCards] = useState<Card[]>([]);
 
   useFocusEffect(() => {
-    setPhoto(
-      data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!,
-    );
+    if (
+      data &&
+      data.usersPermissionsUser.data &&
+      data.usersPermissionsUser.data.attributes.photo.data
+    )
+      setPhoto(
+        data.usersPermissionsUser.data.attributes.photo.data.attributes.url,
+      );
   });
 
 
@@ -346,51 +351,78 @@ export default function ProfileSettings({
 
       return uploadedImageID;
     } catch (error) {
-      console.error("Erro ao enviar imagem:", error);
+      console.error("Erro ao enviar imagem:", JSON.stringify(error, null, 2));
       setIsLoading(false);
       return "Deu erro";
     }
   };
 
+  interface IUpdateUserValidatingPhotoProps {
+    user_id: string;
+    email: string;
+    cpf: string;
+    phone_number: string;
+    username: string;
+    photo?: string;
+  }
+
+  async function updateUserValidatingPhoto(data: IUpdateUserValidatingPhotoProps): Promise<void> {
+    console.log(JSON.stringify(data, null, 2));
+    if (data.photo) {
+      await updateUser({
+        variables: {
+          user_id: data.user_id,
+          email: data.email,
+          cpf: data.cpf,
+          phone_number: data.phone_number,
+          username: data.username,
+          photo: data.photo,
+        }
+      })
+    } else {
+      await updateUser({
+        user_id: data.user_id,
+        email: data.email,
+        cpf: data.cpf,
+        phone_number: data.phone_number,
+        username: data.username,
+      })
+    }
+  }
+
   async function updateUserInfos(data: IFormData): Promise<void> {
     try {
-      if (profilePicture) {
-        const uploadedImageID = await uploadImage(profilePicture);
+      if (userInfos) {
+        let uploadedImageID: string | undefined;
+        if (profilePicture) {
+          uploadedImageID = await uploadImage(profilePicture);
 
-        await updateUser({
-          variables: {
-            user_id: route.params.userID,
-            email: data.email,
-            cpf: data.cpf,
-            phone_number: data.phoneNumber,
-            username: data.name,
-            photo: uploadedImageID,
-          },
-        });
+          setPhoto(profilePicture);
+          console.log({photo});
+        }
 
-        console.log(profilePicture);
-        setPhoto(profilePicture);
-        console.log(photo);
-      } else {
-        const uploadedImageID = await uploadImage(profilePicture!);
-        // Se não houver uma nova imagem, apenas atualize as informações do usuário
-        await updateUser({
-          variables: {
-            user_id: userInfos?.id!,
-            email: data.email,
-            cpf: data.cpf,
-            phone_number: data.phoneNumber,
-            username: data.name,
-            photo: uploadedImageID,
-          },
-        });
-
-        Dialog.show({
-          type: ALERT_TYPE.SUCCESS,
-          title: 'Sucesso',
-          textBody: 'As informações foram atualizadas'
+        await updateUserValidatingPhoto({
+          photo: uploadedImageID,
+          username: data.name,
+          cpf: data.cpf,
+          phone_number: data.phoneNumber,
+          user_id: userInfos.id,
+          email: data.email,
+        }).catch(error => {
+          Dialog.show({
+            type: ALERT_TYPE.WARNING,
+            title: 'Erro',
+            textBody: 'Não foi possível atualizar as informações do usuário'
+          })
+          console.error("Erro ao atualizar informações do usuário:", JSON.stringify(error, null, 2));
+        }).then(() => {
+          Dialog.show({
+            type: ALERT_TYPE.SUCCESS,
+            title: 'Sucesso',
+            textBody: 'As informações foram atualizadas'
+          })
+          console.log("Informações do usuário atualizadas com sucesso!");
         })
-        console.log("Informações do usuário atualizadas com sucesso!");
       }
     } catch (error) {
       Dialog.show({
@@ -404,14 +436,18 @@ export default function ProfileSettings({
 
   async function loadInformations() {
     let newUserInfos = userInfos;
-    if (!loading && data) {
+    if (
+      !loading &&
+      data &&
+      data.usersPermissionsUser.data
+    ) {
       newUserInfos = {
         id: data.usersPermissionsUser.data.id,
         username: data.usersPermissionsUser.data.attributes.username,
         cpf: data.usersPermissionsUser.data.attributes.cpf,
         email: data.usersPermissionsUser.data.attributes.email,
         phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
-        photo: data.usersPermissionsUser.data?.attributes.photo.data?.id!,
+        photo: data.usersPermissionsUser.data.attributes.photo.data?.id ?? '',
         paymentCardInfos: {
           dueDate: data.usersPermissionsUser.data.attributes
             .paymentCardInformations.dueDate
