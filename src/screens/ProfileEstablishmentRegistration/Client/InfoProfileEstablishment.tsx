@@ -84,7 +84,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
         pixKey: z.string()
             .nonempty('O campo não pode estar vazio')
     })
-    
+
     const defaultUserName = userByEstablishmentData?.usersPermissionsUser.data?.attributes.username!
     const [phoneNumber, setPhoneNumber] = useState<string | undefined>()
     const defaultUserEmail = userByEstablishmentData?.usersPermissionsUser.data?.attributes.email!
@@ -130,12 +130,12 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
         id: string
         courtName: string
     }
-    
+
     const [courtsJson, setCourtsJson] = useState<ICourts[]>([])
 
     let establishmentPhotos: string[] = []
 
-    let pixKeys: string[] = []
+    const [pixKeys, setPixKeys] = useState<string[]>([])
 
     const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
     const closeEditFantasyNameModal = () => setEditFantasyNameModal(false)
@@ -284,7 +284,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
             establishmentPhotos.push(photoItem.id)
         })
         userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.pix_keys.data.map(pixKeyItem => {
-            pixKeys.push(pixKeyItem?.attributes.key)
+            setPixKeys(prevState => [...prevState, pixKeyItem?.attributes.key])
         })
 
         setStreetName(userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.address.streetName!)
@@ -383,13 +383,17 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
         const currentDate: DateTime = new Date();
 
+        setPixKeys(prevState => [...prevState, pixKeyData.pixKey])
+
         newPixKey({
             variables: {
                 establishment_id: userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data.id ?? "",
                 pix_key: pixKeyData.pixKey,
                 published_at: currentDate
             }
-        }).then(() => alert("Chave pix cadastrada com sucesso"))
+        }).then(() => {
+            alert("Chave pix cadastrada com sucesso")
+        })
             .catch((reason) => alert(reason))
             .finally(() => setNewPixKeyIsLoading(false))
     }
