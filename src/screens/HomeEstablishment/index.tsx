@@ -236,9 +236,10 @@ export default function HomeEstablishment({
       dataCourtsEstablishment.establishment.data &&
       dataCourtsEstablishment.establishment.data.attributes.courts.data.length > 0
     ) {
+      console.log(dataCourtsEstablishment.establishment.data.attributes.courts.data)
       setEstablishmentCourts(dataCourtsEstablishment.establishment.data.attributes.courts.data)
       }
-    }, [dataSchedulings])
+    }, [dataCourtsEstablishment])
 
   useEffect(() => {
     photo &&
@@ -250,6 +251,17 @@ export default function HomeEstablishment({
         })
       )
   }, [photo]);
+
+  function handlePayedStatus(payedStatus: "waiting" | "payed" | "canceled") {
+    switch (payedStatus) {
+      case 'waiting':
+        return 'Pgt.Parcial'
+      case 'payed':
+        return 'Pago'
+      case 'canceled':
+        return 'Cancelado'
+    }
+  }
 
   return (
     <View className="flex-1">
@@ -273,7 +285,7 @@ export default function HomeEstablishment({
             className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
             onPress={() => {
               navigation.navigate("InfoProfileEstablishment", {
-                userPhoto: photo ?? '',
+                establishmentPhoto: photo ?? '',
                 establishmentId: establishmentId,
               })
             }
@@ -350,17 +362,17 @@ export default function HomeEstablishment({
                 {handleDayUse === false
                   ? establishmentCourts.map(
                       courts =>
-                        courts?.attributes?.court_availabilities?.data?.map(
+                        courts?.attributes.court_availabilities.data.map(
                           availabilities =>
-                            availabilities?.attributes?.schedulings?.data?.map(
+                            availabilities?.attributes.schedulings.data.map(
                               schedulings => (
                                 <Text className="text-white font-bold">
-                                  {schedulings?.attributes?.court_availability?.data?.attributes?.startsAt?.substring(
+                                  {schedulings?.attributes.court_availability.data?.attributes.startsAt.substring(
                                     0,
                                     5,
                                   )}{" "}
                                   -{" "}
-                                  {schedulings.attributes.court_availability.data.attributes.endsAt.substring(
+                                  {schedulings.attributes.court_availability.data?.attributes.endsAt.substring(
                                     0,
                                     5,
                                   )}{" "}
@@ -374,7 +386,7 @@ export default function HomeEstablishment({
                             ),
                         ),
                     )
-                  : dataSchedulings?.establishment?.data?.attributes?.courts?.data?.map(
+                  : dataSchedulings?.establishment.data?.attributes.courts.data.map(
                       courts =>
                         courts?.attributes?.court_availabilities?.data?.map(
                           availabilities =>
@@ -417,7 +429,10 @@ export default function HomeEstablishment({
                     setSelected={(val: any) => setFantasyName(val)}
                     data={
                       establishmentCourts.map(
-                        fantasy => fantasy.attributes.fantasy_name,
+                        fantasy => {
+                          console.log({fantasy: fantasy.attributes.fantasy_name})
+                          return fantasy.attributes.fantasy_name
+                        }
                       ) ?? []
                     }
                     save="value"
@@ -519,10 +534,9 @@ export default function HomeEstablishment({
                                                 className="pr-2"
                                               />
                                               <Text className="">
-                                                {scheduling.attributes
-                                                  .payedStatus
-                                                  ? "Pago"
-                                                  : "Pgt.parcial"}
+                                                {
+                                                  handlePayedStatus(scheduling.attributes.payedStatus)
+                                                }
                                               </Text>
                                             </View>
                                           </View>

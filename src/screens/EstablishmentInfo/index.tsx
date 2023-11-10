@@ -418,7 +418,7 @@ export default function EstablishmentInfo({
         ))}
         <View className="h-16"></View>
       </ScrollView>
-      <View className={`absolute bottom-12 left-0 right-0`}>
+      <View className={`absolute bottom-20 left-0 right-0`}>
         <BottomBlackMenu
           screen="EstablishmentInfo"
           userID={userId ? userId : "0"}

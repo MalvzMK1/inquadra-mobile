@@ -3,7 +3,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
@@ -272,13 +272,10 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 		}, [
 			data,
-			loading,
-			userHookLoading,
 			userHookData,
-			error,
 			filter,
-			errorFilter,
-			loadingFilter,
+			establishmentsFiltered,
+			userGeolocation,
 		]),
 	);
 
@@ -324,6 +321,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 			});
 		}
 	}, [userGeolocation]);
+
 	useEffect(() => {
 		storage
 			.load<{ latitude: number; longitude: number }>({
@@ -352,7 +350,6 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				key: "userInfos",
 			})
 			.then(data => {
-				console.log({ USER_FUCKING_ID: data.userId })
 				setUserId(data.userId);
 				navigation.setParams({
 					userID: data.userId,
@@ -376,6 +373,20 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				}
 			});
 	}, []);
+
+	useEffect(() => {
+		if (
+			userHookData &&
+			userHookData.usersPermissionsUser.data &&
+			userHookData.usersPermissionsUser.data.attributes.role.data
+		) {
+			const userRole = userHookData.usersPermissionsUser.data.attributes.role.data.id
+			userRole === '4' && navigation.navigate('HomeEstablishment', {
+				userPhoto: undefined,
+				userID: userHookData.usersPermissionsUser.data.id,
+			})
+		}
+	}, [userHookData])
 
 	return (
 		<View className="flex-1 flex flex-col justify-center items-center">

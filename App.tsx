@@ -74,6 +74,10 @@ export default function App() {
       });
   }, []);
 
+  useEffect(() => {
+    client.resetStore().then(() => console.log('Cache resetado com sucesso...'));
+  }, [])
+
   return (
     <ApolloProvider client={client}>
       <PaperProvider>

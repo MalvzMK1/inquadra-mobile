@@ -41,6 +41,8 @@ interface IFormDatasCourt {
   court_availabilities?: string[];
 }
 
+
+
 type CourtTypes = Array<{ label: string; value: string }>;
 
 export default function RegisterCourt({
@@ -197,6 +199,12 @@ export default function RegisterCourt({
 
     await register(data, true);
   });
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
 
   const handleProfilePictureUpload = async () => {
     try {
