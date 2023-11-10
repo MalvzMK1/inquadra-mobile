@@ -510,7 +510,7 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 						</View>
 						<View className="bg-gray-300 p-4">
 							<Text className="text-5xl text-center font-extrabold text-gray-700">
-								R$ {reserveValue}
+								R$ {signalValue}
 							</Text>
 						</View>
 						<View className='px-10 py-5'>
