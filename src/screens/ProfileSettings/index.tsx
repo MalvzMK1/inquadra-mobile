@@ -38,6 +38,8 @@ import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
 import { getUsersCountryId } from "../../utils/getUsersCountryId";
 import { ALERT_TYPE, AlertNotificationRoot, Dialog } from "react-native-alert-notification";
 import storage from "../../utils/storage";
+import useUpdateUserPassword from "../../hooks/useUpdateUserPassword";
+import {ApolloError} from "@apollo/client";
 
 interface IFormData {
   photo: string;
@@ -486,12 +488,97 @@ export default function ProfileSettings({
     }
   }
 
+  interface IPasswordFormData {
+    currentPassword: string;
+    password: string;
+    confirmPassword: string;
+  }
+
+  const [updatePasswordIsLoading, setUpdatePasswordIsLoading] = useState<boolean>(false);
+  const [jwtToken, setJwtToken] = useState<string>("");
+  const [editPasswordModal, setEditPasswordModal] = useState<boolean>(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmedPassword, setShowConfirmedPassword] = useState(false);
+
+  const [updateUserPassword] = useUpdateUserPassword();
+
+  const passwordFormSchema = z.object({
+    currentPassword: z.string()
+      .nonempty('O campo não pode estar vazio'),
+    password: z.string()
+      .nonempty('O campo não pode estar vazio'),
+    confirmPassword: z.string()
+      .nonempty('O campo não pode estar vazio')
+  })
+
+  const { control: controlPassword, handleSubmit: handleSubmitPassword, formState: { errors: passwordErrors } } = useForm<IPasswordFormData>({
+    resolver: zodResolver(passwordFormSchema)
+  })
+
+  const closeEditPasswordModal = () => setEditPasswordModal(false)
+
+  const handleShowCurrentPassword = () => {
+    setShowCurrentPassword(!showCurrentPassword)
+  }
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  }
+  const handleConfirmShowPassword = () => {
+    setShowConfirmedPassword(!showConfirmedPassword)
+  }
+
+  function handleUpdateUserPassword(data: IPasswordFormData): void {
+    setUpdatePasswordIsLoading(true)
+
+    if (data.password === data.confirmPassword) {
+      const passwordData = {
+        ...data
+      }
+
+      updateUserPassword({
+        context: {
+          headers: {
+            Authorization: `bearer ${jwtToken}`
+          }
+        },
+        variables: {
+          current_password: passwordData.currentPassword,
+          password: passwordData.password,
+          password_confirmation: passwordData.confirmPassword
+        }
+      }).then(value => {
+        alert("Senha alterada com sucesso")
+      })
+        .catch((reason) => {
+          if (reason instanceof ApolloError) {
+            if (reason.message === 'The provided current password is invalid')
+              alert ('A senha atual informada não é válida')
+            alert(reason.message)
+          }
+          alert('Erro na alteração de senha\n' + JSON.stringify(reason, null, 2))
+        })
+        .finally(() => {
+          setUpdatePasswordIsLoading(false)
+          setEditPasswordModal(false)
+        })
+    }
+  }
+
+
   useEffect(() => {
     loadInformations().then(data => {
       console.log({ data });
       defineDefaultFieldValues(data);
       setUserInfos(data);
     });
+
+    storage.load<UserInfos>({
+      key: 'userInfos',
+    }).then((data) => {
+      console.error(data)
+      setJwtToken(data.token)
+    })
   }, [loading]);
 
   let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!;
@@ -1076,6 +1163,12 @@ export default function ProfileSettings({
                   )
                 ) : null}
                 <View>
+                  <TouchableOpacity
+                    onPress={() => setEditPasswordModal(true)}
+                    className='flex-1 flex flex-row justify-end items-center'
+                  >
+                    <Text className='text-orange-600 border-b border-b-orange-600 text-base mb-4'>Alterar senha</Text>
+                  </TouchableOpacity>
                   <View className="p-2">
                     <TouchableOpacity
                       onPress={handleSubmit(updateUserInfos)}
@@ -1183,6 +1276,110 @@ export default function ProfileSettings({
           paddingTop={50}
         />
       </View>
+      <Modal visible={editPasswordModal} animationType='fade' transparent={true} onRequestClose={closeEditPasswordModal}>
+        <View className='h-full w-full justify-center items-center'>
+          <View className='h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6'>
+
+            <View className='w-full'>
+              <Text className='text-[14px] font-bold'>Insira a sua senha atual:</Text>
+              <View className={passwordErrors.currentPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+                <Controller
+                  name='currentPassword'
+                  control={controlPassword}
+                  rules={{
+                    required: true,
+                    minLength: 6
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      textContentType='password'
+                      secureTextEntry={!showCurrentPassword}
+                      onChangeText={onChange}
+                      className="p-4 flex-1"
+                      placeholder='Senha atual'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
+                />
+                <TouchableOpacity onPress={handleShowCurrentPassword}>
+                  <Image className="h-4 w-4 m-4" source={!showCurrentPassword ? require('../../assets/eye.png') : require('../../assets/eye-slash.png')}></Image>
+                </TouchableOpacity>
+              </View>
+              {passwordErrors.currentPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.currentPassword.message}</Text>}
+            </View>
+
+            <View className='w-full'>
+              <Text className='text-[14px] font-bold'>Insira sua nova senha:</Text>
+              <View className={passwordErrors.password ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+                <Controller
+                  name='password'
+                  control={controlPassword}
+                  rules={{
+                    required: true,
+                    minLength: 6
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      textContentType='password'
+                      secureTextEntry={!showPassword}
+                      onChangeText={onChange}
+                      className="p-4 flex-1"
+                      placeholder='Nova senha'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
+                />
+                <TouchableOpacity onPress={handleShowPassword}>
+                  <Image className="h-4 w-4 m-4" source={!showPassword ? require('../../assets/eye.png') : require('../../assets/eye-slash.png')}></Image>
+                </TouchableOpacity>
+              </View>
+              {passwordErrors.password && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.password.message}</Text>}
+            </View>
+
+            <View className='w-full'>
+              <Text className='text-[14px] font-bold'>Confirme sua nova senha:</Text>
+              <View className={passwordErrors.confirmPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+                <Controller
+                  name='confirmPassword'
+                  control={controlPassword}
+                  rules={{
+                    required: true,
+                    minLength: 6
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <TextInput
+                      textContentType='password'
+                      secureTextEntry={!showConfirmedPassword}
+                      onChangeText={onChange}
+                      className="p-4 flex-1"
+                      placeholder='Confirme a nova senha'
+                      placeholderTextColor="#B8B8B8"
+                    />
+                  )}
+                />
+                <TouchableOpacity onPress={handleConfirmShowPassword}>
+                  <Image className="h-4 w-4 m-4" source={!showConfirmedPassword ? require('../../assets/eye.png') : require('../../assets/eye-slash.png')}></Image>
+                </TouchableOpacity>
+              </View>
+              {passwordErrors.confirmPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.confirmPassword.message}</Text>}
+            </View>
+
+            <View className="flex flex-row items-center mt-[10px]">
+              <TouchableOpacity
+                onPress={() => {
+                  closeEditPasswordModal()
+                }}
+                className='h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]'>
+                <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleSubmitPassword(handleUpdateUserPassword)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
+                <Text className='text-white font-medium text-[14px]'>{updatePasswordIsLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </AlertNotificationRoot>
   );
 }
@@ -1224,19 +1421,3 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
-//
-// const handleCVVChange = (input: any) => {
-// 	const numericInput = input.replace(/\D/g, '');
-//
-// 	const truncatedCVV = numericInput.slice(0, 3);
-//
-// 	setCVV(truncatedCVV);
-// };
-//
-// const [ phoneNumber, setPhoneNumber ] = useState("")
-// const [ cpf, setCpf ] = useState("")
-//
-// const getCountryImage = (countryName: string) => {
-// 	const countryImg = countriesData.find(item => item.value === countryName)?.img
-// 	return countryImg
-// }
