@@ -404,7 +404,7 @@ export default function ProfileSettings({
 
   async function loadInformations() {
     let newUserInfos = userInfos;
-    if (!loading && data) {
+    if (!loading && data && data.usersPermissionsUser.data) {
       newUserInfos = {
         id: data.usersPermissionsUser.data.id,
         username: data.usersPermissionsUser.data.attributes.username,

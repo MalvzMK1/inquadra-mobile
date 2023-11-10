@@ -32,10 +32,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 	}).then(data => setUserGeolocation(data))
 
 	useEffect(() => {
-		if(screen === "Home"){
-			setPrincipalButton(false)
-			setShowButtons(true)
-		}
+		if (screen === "Home") setShowButtons(true)
 	}, [])
 
 	return (
@@ -71,17 +68,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 										</TouchableOpacity>
 
 										<TouchableOpacity onPress={() => {
-												if (
-													userID === '' ||
-													userID === '0' ||
-													!userID
-												)
-													navigation.navigate('Login')
-												else
-													navigation.navigate('InfoReserva', {userId: userID})
-											}}>
-												<MaterialIcons name="calendar-today" color={"white"} size={26} />
-											</TouchableOpacity>
+											if (
+												userID === '' ||
+												userID === '0' ||
+												!userID
+											)
+												navigation.navigate('Login')
+											else
+												navigation.navigate('InfoReserva', { userId: userID })
+										}}>
+											<MaterialIcons name="calendar-today" color={"white"} size={26} />
+										</TouchableOpacity>
 									</>)
 									: screen === "Favorite"
 										?
@@ -98,7 +95,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 												)
 													navigation.navigate('Login')
 												else
-
 													navigation.navigate('Home', {
 														userGeolocation: userGeolocation ? userGeolocation : {
 															latitude: 78.23570781291714,
@@ -119,7 +115,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 												)
 													navigation.navigate('Login')
 												else
-													navigation.navigate('InfoReserva', {userId: userID})
+													navigation.navigate('InfoReserva', { userId: userID })
 											}}>
 												<MaterialIcons name="calendar-today" color={"white"} size={26} />
 											</TouchableOpacity>
@@ -212,49 +208,49 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 														)
 															navigation.navigate('Login')
 														else
-															navigation.navigate('InfoReserva', {userId: userID})
+															navigation.navigate('InfoReserva', { userId: userID })
 													}}>
 														<MaterialIcons name="calendar-today" color={"white"} size={26} />
 													</TouchableOpacity>
 												</>)
 												: showButtons && (
-												<>
-													<TouchableOpacity>
-														<AntDesign name="heart" size={25} color={"white"} />
-													</TouchableOpacity>
-													<TouchableOpacity onPress={() => {
-														if (
-															userID === '' ||
-															userID === '0' ||
-															!userID
-														)
-															navigation.navigate('Login')
-														else
-															navigation.navigate('Home', {
-																userGeolocation: userGeolocation ? userGeolocation : {
-																	latitude: 78.23570781291714,
-																	longitude: 15.491400000982967
-																},
-																userID: userID,
-																userPhoto: userPhoto ?? ""
-															})
-													}}>
-														<Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
-													</TouchableOpacity>
-													<TouchableOpacity onPress={() => {
-														if (
-															userID === '' ||
-															userID === '0' ||
-															!userID
-														)
-															navigation.navigate('Login')
-														else
-															navigation.navigate('InfoReserva', {userId: userID})
-													}}>
-														<MaterialIcons name="calendar-today" color={"white"} size={26} />
-													</TouchableOpacity>
-												</>
-											)
+													<>
+														<TouchableOpacity>
+															<AntDesign name="heart" size={25} color={"white"} />
+														</TouchableOpacity>
+														<TouchableOpacity onPress={() => {
+															if (
+																userID === '' ||
+																userID === '0' ||
+																!userID
+															)
+																navigation.navigate('Login')
+															else
+																navigation.navigate('Home', {
+																	userGeolocation: userGeolocation ? userGeolocation : {
+																		latitude: 78.23570781291714,
+																		longitude: 15.491400000982967
+																	},
+																	userID: userID,
+																	userPhoto: userPhoto ?? ""
+																})
+														}}>
+															<Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
+														</TouchableOpacity>
+														<TouchableOpacity onPress={() => {
+															if (
+																userID === '' ||
+																userID === '0' ||
+																!userID
+															)
+																navigation.navigate('Login')
+															else
+																navigation.navigate('InfoReserva', { userId: userID })
+														}}>
+															<MaterialIcons name="calendar-today" color={"white"} size={26} />
+														</TouchableOpacity>
+													</>
+												)
 							}
 						</View>
 					)
