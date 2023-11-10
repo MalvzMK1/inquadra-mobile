@@ -29,7 +29,7 @@ type RootStackParamList = {
     establishmentName: string | undefined;
   };
   InfoProfileEstablishment: {
-    userPhoto: string;
+    establishmentPhoto: string | undefined;
     establishmentId: string;
   };
   FinancialEstablishment: {

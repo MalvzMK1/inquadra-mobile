@@ -27,6 +27,7 @@ import axios from 'axios';
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
     const [userId, setUserId] = useState("")
     const [jwtToken, setJwtToken] = useState("")
+    console.log(route.params.userPhoto)
 
     const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
 
@@ -559,7 +560,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
                         {profilePicture ? (
                             <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
                         ) : (
-                            <Image source={{ uri: HOST_API + userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url }} style={styles.profilePicture} />
+                            <Image source={{ uri: HOST_API + userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment.data.attributes.logo.data?.attributes.url }} style={styles.profilePicture} />
                         )}
                         <TouchableOpacity onPress={handleProfilePictureUpload} style={styles.uploadButton}>
                             {haveProfilePicture ? (

@@ -285,7 +285,7 @@ export default function HomeEstablishment({
             className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
             onPress={() => {
               navigation.navigate("InfoProfileEstablishment", {
-                userPhoto: photo ?? '',
+                establishmentPhoto: photo ?? '',
                 establishmentId: establishmentId,
               })
             }

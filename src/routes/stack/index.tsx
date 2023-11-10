@@ -263,13 +263,12 @@ export default function () {
             </View>
           ),
           headerRight: () => {
-            console.log({params})
             return (
               <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
                 <Image
                   source={
-                    params.userPhoto
-                      ? {uri: HOST_API + params.userPhoto}
+                    params.establishmentPhoto
+                      ? {uri: HOST_API + params.establishmentPhoto}
                       : require("../../assets/default-user-image.png")
                   }
                   className="w-full h-full"
@@ -409,7 +408,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  userPhoto: params.establishmentPhoto ?? "",
+                  establishmentPhoto: params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -451,7 +450,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  userPhoto: params.establishmentPhoto ?? "",
+                  establishmentPhoto: params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -608,7 +607,14 @@ export default function () {
             marginLeft: 10,
           },
           headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+            onPress={() =>
+              navigation.navigate("InfoProfileEstablishment", {
+                establishmentId: params.establishmentId,
+                establishmentPhoto: params.logo ?? "",
+              })
+            }
+            >
               <Image
                 source={
                   params?.logo
@@ -916,7 +922,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  userPhoto: params.logo ?? "",
+                  establishmentPhoto: params.logo ?? "",
                 })
               }
             >
@@ -997,7 +1003,14 @@ export default function () {
           headerTitleAlign: "center",
           title: "Detalhes",
           headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+            onPress={() =>
+              navigation.navigate("InfoProfileEstablishment", {
+                establishmentId: params.establishmentId,
+                establishmentPhoto: params.logo ?? "",
+              })
+            }
+            >
               <Image
                 source={
                   params?.logo
@@ -1022,7 +1035,13 @@ export default function () {
           headerTitleAlign: "center",
           title: "Histórico",
           headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
+            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" 
+            onPress={() =>
+              navigation.navigate("InfoProfileEstablishment", {
+                establishmentId: params.establishmentId,
+                establishmentPhoto: params.logo ?? "",
+              })
+            }>
               <Image
                 source={
                   params?.logo
