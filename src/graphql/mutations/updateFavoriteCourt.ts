@@ -5,9 +5,9 @@ export interface IUpdateFavoriteCourtResponse {
     data: {
       attributes: {
         favorite_establishments: {
-          data: [
+          data: Array<{
             id: Court['id']
-          ]
+          }>
         }
       }
     }

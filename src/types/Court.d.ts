@@ -7,6 +7,9 @@ type CourtCardInfos = {
   liked: boolean;
   userId: string;
   loggedUserId?: string;
+  updated?: any
+  setUserFavoriteCourts?: any
+  userFavoriteCourts?: any
 };
 
 type Court = {

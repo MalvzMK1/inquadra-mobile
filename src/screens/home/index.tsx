@@ -1,6 +1,6 @@
 import { HOST_API } from "@env";
 import { AntDesign } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
@@ -84,12 +84,13 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 	>([]);
 	const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
 	const [sportSelected, setSportSelected] = useState<string>();
+	const [IsUpdated, setIsUpdated] = useState<number>(0);
 	const {
 		data: availableSportTypes,
 		loading: availableSportTypesLoading,
 		error: availableSportTypesError,
 	} = useSportTypes();
-	const { data, loading, error } = useEstablishmentCardInformations();
+	const { data, loading, error, refetch: refetchEstablishments } = useEstablishmentCardInformations();
 	const {
 		data: userHookData,
 		loading: userHookLoading,
@@ -110,8 +111,21 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 		if (menuBurguer) setIsDisabled(false);
 	}, [menuBurguer]);
 
+	const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] = useState<boolean>()
+	const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>()
+
+
+	const isFocused = useIsFocused();
+
+	useEffect(() => {
+		if (isFocused) {
+			setUniqueIdGenerate(Math.random());
+		}
+	}, [isFocused]);
+
 	useFocusEffect(
 		React.useCallback(() => {
+			setIsUpdated(IsUpdated + 1)
 			refetchUserInfos().then(() => {
 				if (userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url! !== undefined || userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url! !== null) {
 					setUserPicture(HOST_API + userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url!)
@@ -248,6 +262,14 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 					});
 				}
 			}
+
+			if (!error && !loading) {
+				setIsEstablishmentsLoaded(true)
+			} else {
+				setIsEstablishmentsLoaded(false)
+			}
+
+
 		}, [
 			data,
 			loading,
@@ -330,7 +352,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 				key: "userInfos",
 			})
 			.then(data => {
-				console.log({USER_FUCKING_ID: data.userId})
+				console.log({ USER_FUCKING_ID: data.userId })
 				setUserId(data.userId);
 				navigation.setParams({
 					userID: data.userId,
@@ -449,6 +471,8 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 			{isDisabled && !menuBurguer && (
 				<HomeBar
+					key={uniqueIdGenerate}
+					isUpdated={IsUpdated}
 					loggedUserId={userId}
 					chosenType={sportSelected}
 					courts={establishments}

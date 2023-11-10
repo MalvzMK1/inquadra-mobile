@@ -21,7 +21,7 @@ import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
 import EstablishmentCardHome from "../CourtCardHome";
 import { useFocusEffect } from "@react-navigation/native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 let userId: string;
 
@@ -63,6 +63,7 @@ interface HomeBarProps {
   chosenType: string | undefined;
   HandleSportSelected: Function;
   loggedUserId?: string;
+  isUpdated?: any
 }
 
 const screenHeight = Dimensions.get("window").height;
@@ -77,7 +78,8 @@ export default function HomeBar({
   userName,
   chosenType,
   HandleSportSelected,
-  loggedUserId,
+  isUpdated,
+  loggedUserId
 }: HomeBarProps) {
   const translateY = useSharedValue(0);
   const height = useSharedValue(minHeight);
@@ -98,13 +100,43 @@ export default function HomeBar({
     loading: userByIdLoading,
   } = useGetUserById(userId ?? "");
 
-  let userFavoriteCourts: string[] = [];
+  const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>([]);
 
-  userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
-    item => {
-      userFavoriteCourts?.push(item.id);
-    },
-  );
+  useEffect(() => {
+    console.log("array:", userFavoriteCourts)
+  }, [userFavoriteCourts])
+
+  const [isLoaded, setIsLoaded] = useState<boolean>()
+
+  const resetUserInfos = async () => {
+    if (
+      userByIdData &&
+      userByIdData.usersPermissionsUser.data &&
+      userByIdData.usersPermissionsUser.data.attributes.favorite_establishments.data.length > 0
+    ) {
+      const idsEstablishementsLikeds = userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+        item => {
+          return item.id
+        }
+      );
+      setUserFavoriteCourts(idsEstablishementsLikeds!)
+    } else {
+      null
+    }
+  };
+
+  useEffect(() => {
+    if (!userByIdError && !userByIdLoading) {
+      setIsLoaded(true)
+      console.log("ok")
+    }
+  }, [userByIdError, userByIdLoading])
+
+  useEffect(() => {
+    if (isLoaded) {
+      resetUserInfos();
+    }
+  }, [isLoaded]);
 
   const verifyCourtLike = (courtId: string) => {
     return userFavoriteCourts?.includes(courtId);
@@ -153,7 +185,7 @@ export default function HomeBar({
         </View>
       </PanGestureHandler>
       <ScrollView className="p-5">
-        {courts !== undefined ? (
+        {courts.length !== 0 ? (
           chosenType ? (
             result.length > 0 ? (
               courts
@@ -167,7 +199,8 @@ export default function HomeBar({
                 .map(item => {
                   return (
                     <EstablishmentCardHome
-                      key={item.id}
+                      updated={isUpdated}
+                      key={Math.random()}
                       id={item.id}
                       userId={userId}
                       type={item.type}
@@ -176,6 +209,8 @@ export default function HomeBar({
                       distance={item.distance}
                       loggedUserId={loggedUserId}
                       liked={verifyCourtLike(item.id)}
+                      setUserFavoriteCourts={setUserFavoriteCourts}
+                      userFavoriteCourts={userFavoriteCourts}
                     />
                   );
                 })
@@ -186,7 +221,7 @@ export default function HomeBar({
             courts.map(item => (
               <EstablishmentCardHome
                 id={item.id}
-                key={item.id}
+                key={Math.random()}
                 userId={userId}
                 name={item.name}
                 type={item.type}
@@ -194,15 +229,16 @@ export default function HomeBar({
                 distance={item.distance}
                 loggedUserId={loggedUserId}
                 liked={verifyCourtLike(item.id)}
+                setUserFavoriteCourts={setUserFavoriteCourts}
+                userFavoriteCourts={userFavoriteCourts}
               />
             ))
           )
         ) : (
-          <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="large" color="#FF6112" />        
         )}
-
-        <View className="h-10"></View>
-      </ScrollView>
+            <View className="h-10"></View>
+          </ScrollView>
     </Animated.View>
   );
 }

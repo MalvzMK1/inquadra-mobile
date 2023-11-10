@@ -17,6 +17,13 @@ export interface IFavoriteEstablishmentsResponse {
             }
           }>
         }
+        logo: {
+          data: {
+            attributes: {
+              url: string
+            }
+          }
+        }
       }
     }>
   }
@@ -38,6 +45,13 @@ query getFavoriteEstablishments($user_id: ID!) {
         }
         corporateName
         photos {
+          data {
+            attributes {
+              url
+            }
+          }
+        }
+        logo {
           data {
             attributes {
               url
