@@ -970,14 +970,20 @@ export default function () {
             </View>
           ),
           headerRight: () => (
-            <TouchableOpacity style={{ paddingRight: 10 }}>
+            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+            onPress={() =>
+              navigation.navigate("InfoProfileEstablishment", {
+                establishmentId: params.establishmentId,
+                establishmentPhoto: params.logo ?? "",
+              })
+            }>
               <Image
                 source={
                   params?.logo
                     ? { uri: `${HOST_API}${params?.logo}` }
                     : require("../../assets/default-user-image.png")
                 }
-                style={{ width: 30, height: 30, borderRadius: 15 }}
+                className="w-full h-full"
               />
             </TouchableOpacity>
           ),
