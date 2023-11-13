@@ -1,10 +1,11 @@
 import { CodegenConfig } from '@graphql-codegen/cli';
+import { HOST_API } from '@env';
 
 const config: CodegenConfig = {
-  schema:'https://api-inquadra-uat.qodeless.com.br'+'/graphql',
+  schema: HOST_API + '/graphql',
   documents: ['src/**/*.tsx'],
   generates: {
-      './src/__generated__/': {
+    './src/__generated__/': {
       preset: 'client',
       plugins: [],
       presetConfig: {

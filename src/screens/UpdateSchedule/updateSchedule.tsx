@@ -1,6 +1,6 @@
-import { View, Image, Text, TouchableOpacity, TextInput, Modal } from "react-native";
+import { View, Image, Text, TouchableOpacity, TextInput, Modal, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesome } from '@expo/vector-icons';
 import { TextInputMask } from 'react-native-masked-text';
 import React from "react";
@@ -55,6 +55,8 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     const [updateStatusCourtAvailability, { data: dataStatusAvailability, error: errorStatusAvailability, loading: loadingStatusAvailability }] = useUpdateCourtAvailabilityStatus()
     const [createSchedule, { data: dataCreateSchedule, error: errorCreateSchedule, loading: loadingCreateSchedule }] = useRegisterSchedule()
     const [updateSchedule, { data: dataUpdateSchedule, error: errorUpdateSchedule, loading: loadingUpdateSchedule }] = useUpdateScheduleDay()
+    const [isLoadingPayment, setIsLoadingPayment] = useState<boolean>()
+    const [isSreenLoading, setIsScreenLoading] = useState<boolean>()
     const [showCard, setShowCard] = useState(false);
     const [cardData, setCardData] = useState({
         cardNumber: '',
@@ -83,17 +85,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const reserveValue = dataReserve?.courtAvailability?.data?.attributes?.value
     const serviceValue = amountToPay * 0.04
-
-    const minValue = dataReserve?.courtAvailability?.data?.attributes?.minValue
-    let totalValue
-    if (reserveValue) {
-        totalValue = reserveValue + serviceValue
-    }
-
-
     const [selected, setSelected] = React.useState("");
-
-
     const handleCVVChange = (input: any) => {
         const numericInput = input.replace(/\D/g, '');
 
@@ -127,6 +119,12 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
         signalPay = dataReserve?.courtAvailability?.data.attributes.court.data.attributes.minimumScheduleValue! - route.params.pricePayed
         userMoney += signalPay
     }
+
+    useEffect(() => {
+        loadingReserve || loadingUser
+            ? setIsScreenLoading(true)
+            : setIsScreenLoading(false)
+    }, [dataReserve, dataUser])
 
 
     const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
@@ -241,7 +239,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                     owner: parseFloat(userId).toString(),
                     users: [parseFloat(userId).toString()],
                     publishedAt: new Date().toISOString(),
-                    
+
                 }
             });
             return create.data?.createScheduling?.data?.id
@@ -282,7 +280,8 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                     scheduleID: route.params.scheduleUpdateID,
                     payedStatus: paymentStatus,
                     newValue: userMoney,
-                    activationKey: activationKey
+                    activationKey: activationKey,
+                    payDay: courtAvailabilityDate.split("T")[0]
                 }
             })
 
@@ -295,315 +294,339 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
     }
 
     const generatePixSignal = async () => {
-        const signalValue = signalPay
-        const signalValuePix = signalPay * 100 
+        try {
+            setIsLoadingPayment(true)
+            const signalValue = signalPay
+            const signalValuePix = signalPay * 100
 
-        const generatePixJSON: RequestGeneratePix = {
-            MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
-            Customer: {
-                Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
-                Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
-                IdentityType: "CPF",
-            },
-            Payment: {
-                Type: "Pix",
-                Amount: 1
+            const generatePixJSON: RequestGeneratePix = {
+                MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
+                Customer: {
+                    Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
+                    Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
+                    IdentityType: "CPF",
+                },
+                Payment: {
+                    Type: "Pix",
+                    Amount: 1
+                }
             }
-        }
-
-        const pixGenerated = await generatePix(generatePixJSON)
-        await addPaymentPix({
-            variables: {
-                name: dataUser?.usersPermissionsUser.data.attributes.username!,
-                cpf: dataUser?.usersPermissionsUser.data.attributes.cpf!,
-                value: signalValue,
-                schedulingID: route.params.scheduleUpdateID!,
-                paymentID: pixGenerated.Payment.PaymentId,
-                publishedAt: new Date().toISOString(),
-                userID: userId
-            }
-        }).then((response) =>{
-            navigation.navigate('PixScreen', {
-                courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                value: signalValue.toString(),
-                userID: userId,
-                QRcodeURL: pixGenerated.Payment.QrCodeString,
-                paymentID: pixGenerated.Payment.PaymentId,
-                screen: "updateSchedule",
-                userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
-                court_availabilityID: courtAvailabilities,
-                newDate: courtAvailabilityDate.split("T")[0],
-                scheduleID: Number(route.params.scheduleUpdateID!),
-                isPayed: priceBigger ? false : true,
-                randomKey: validateKey(generateRandomKey(4))!,
-                userMoney: userMoney,
-                pricePayed: route.params.pricePayed!,
-                courtId: courtId,
-                courtImage: courtImage!,
-                userPhoto: route.params.userPhoto!
+            const pixGenerated = await generatePix(generatePixJSON)
+            await addPaymentPix({
+                variables: {
+                    name: dataUser?.usersPermissionsUser.data!.attributes.username!,
+                    cpf: dataUser?.usersPermissionsUser.data!.attributes.cpf!,
+                    value: signalValue,
+                    schedulingID: route.params.scheduleUpdateID!,
+                    paymentID: pixGenerated.Payment.PaymentId,
+                    publishedAt: new Date().toISOString(),
+                    userID: userId
+                }
+            }).then((response) => {
+                navigation.navigate('PixScreen', {
+                    courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                    value: signalValue.toString(),
+                    userID: userId,
+                    QRcodeURL: pixGenerated.Payment.QrCodeString,
+                    paymentID: pixGenerated.Payment.PaymentId,
+                    screen: "updateSchedule",
+                    userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+                    court_availabilityID: courtAvailabilities,
+                    newDate: courtAvailabilityDate.split("T")[0],
+                    scheduleID: Number(route.params.scheduleUpdateID!),
+                    isPayed: priceBigger ? false : true,
+                    randomKey: validateKey(generateRandomKey(4))!,
+                    userMoney: userMoney,
+                    pricePayed: route.params.pricePayed!,
+                    courtId: courtId,
+                    courtImage: courtImage!,
+                    userPhoto: route.params.userPhoto!
+                })
+                setIsLoadingPayment(false)
             })
-        })
-        
+        } catch (error) {
+            console.log(error)
+            alert(error)
+        }
     }
     return (
         <View className="flex-1 bg-white w-full h-full pb-10">
-            <ScrollView>
-                <View>
-                    <Image source={{ uri: courtImage }} className="w-full h-[230]" />
-                </View>
-                {
-                    minPriceBigger
-                        ?
-                        <>
-                            <View className="pt-5 pb-4 flex justify-center flex-row">
-                                <Text className="text-base text-center font-bold">
-                                    Para remarcar sua reserva é necessário pagar um sinal.
-                                </Text>
-                                <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
-                                    <FontAwesome name="question-circle-o" size={13} color="black" />
-                                </TouchableOpacity>
-                            </View>
-                            <View className="bg-gray-300 p-4">
-                                <Text className="text-5xl text-center font-extrabold text-gray-700">
-                                    R$ {signalPay}
-                                </Text>
-                            </View>
-                        </>
-                        :
-                        <>
-                            <View className="pt-5 pb-4 flex justify-center flex-row">
-                                <Text className="text-base text-center font-bold">
-                                    Valor pago maior que o sinal da quadra
-                                </Text>
-                                <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
-                                    <FontAwesome name="question-circle-o" size={13} color="black" />
-                                </TouchableOpacity>
-                            </View>
-                        </>
-                }
-                {
-                    minPriceBigger
-                        ?
-                        <>
-                            <View className='px-10 py-5'>
-                                <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
-                                    onPressIn={() => {
-                                        generatePixSignal()
-                                    }}
-                                >
-                                    <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View><Text className="text-center font-bold text-base text-gray-700">ou</Text></View>
-                            <View className="pt-5 px-9">
-                                <TouchableOpacity onPress={handleCardClick}>
-                                    <View className="h-30 border border-gray-500 rounded-md">
-                                        <View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
-                                            <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
-                                            <Text className="flex-1 text-base text-center mb-0">
-                                                Selecionar Cartão
-                                            </Text>
-                                            <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                                {showCard && (
-                                    <View className="border border-gray-500 rounded-xl p-4 mt-3">
-                                        <View className="flex-row justify-between">
-                                            <View className='flex-1 mr-[20px]'>
-                                                <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
-                                                <Controller
-                                                    name='date'
-                                                    control={control}
-                                                    render={({ field: { onChange } }) => (
-                                                        <TextInputMask className='p-3 border border-gray-500 rounded-md h-18'
-                                                            options={{
-                                                                format: 'MM/YY',
-                                                            }}
-                                                            type={'datetime'}
-                                                            value={getValues('date')}
-                                                            onChangeText={onChange}
-                                                            placeholder="MM/YY"
-                                                            keyboardType="numeric"
-                                                        />
-                                                    )}
-                                                ></Controller>
-                                                {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
-                                            </View>
-                                            <View className='flex-1 ml-[20px]'>
-                                                <Text className='text-sm text-[#FF6112]'>CVV</Text>
-                                                <Controller
-                                                    name='cvv'
-                                                    control={control}
-                                                    render={({ field: { onChange } }) => (
-                                                        <TextInput
-                                                            className='p-3 border border-gray-500 rounded-md h-18'
-                                                            placeholder='123'
-                                                            onChangeText={onChange}
-                                                            keyboardType='numeric'
-                                                            maxLength={3}>
-                                                        </TextInput>
-                                                    )}
-                                                ></Controller>
-                                                {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
-                                            </View>
-                                        </View>
-                                        <View>
-                                            <Text className='text-sm text-[#FF6112]'>Nome</Text>
-                                            <Controller
-                                                name='name'
-                                                control={control}
-                                                render={({ field: { onChange } }) => (
-                                                    <TextInput
-                                                        className='p-3 border border-gray-500 rounded-md h-18'
-                                                        placeholder='Ex: nome'
-                                                        onChangeText={onChange}>
-                                                    </TextInput>
-                                                )}
-                                            ></Controller>
-                                            {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
-                                        </View>
-                                        <View>
-                                            <Text className='text-sm text-[#FF6112]'>CPF</Text>
-                                            <Controller
-                                                name='cpf'
-                                                control={control}
-                                                render={({ field: { onChange } }) => (
-                                                    <MaskInput
-                                                        className='p-3 border border-gray-500 rounded-md h-18'
-                                                        placeholder='Ex: 000.000.000-00'
-                                                        value={getValues('cpf')}
-                                                        onChangeText={onChange}
-                                                        mask={Masks.BRL_CPF}
-                                                        keyboardType='numeric'>
-                                                    </MaskInput>
-                                                )}
-                                            ></Controller>
-                                            {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
-                                        </View>
-                                        <View>
-                                            <Text className='text-sm text-[#FF6112]'>País</Text>
-                                            <View className='flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white'>
-                                                <Image className='h-[21px] w-[30px] mr-[10px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
-                                                <SelectList
-                                                    setSelected={(val: string) => {
-                                                        setSelected(val);
-
-                                                    }}
-                                                    data={dataCountry?.countries?.data.map(country => ({
-                                                        value: country?.attributes.name,
-                                                        label: country?.attributes.name || "",
-                                                        img: `${country?.attributes.flag?.data?.attributes?.url || ""}`
-                                                    })) || []}
-                                                    save="value"
-                                                    placeholder='Selecione um país'
-                                                    searchPlaceholder='Pesquisar...'
-                                                />
-                                            </View>
-                                        </View>
-
-                                        <View className="p-2 justify-center items-center pt-5">
-                                            <TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
-                                                <Text className="text-white">Salvar</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                )}                                
-                            </View>
-
-                        </>
-
-                        : <View className='px-10 py-5'>
-                            <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
-                                onPressIn={() => {
-                                    updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4))!)
-                                }}
-                            >
-                                <Text className='text-lg text-gray-50 font-bold'>REMARCAR</Text>
-                            </TouchableOpacity>
-                        </View>
-                }
-                <View className=" px-9">
-                    <View>
-                        <Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
-                            Detalhes Reserva
-                        </Text>
+            {
+                isSreenLoading
+                    ? <View className="w-screen h-screen flex justify-center items-center">
+                        <ActivityIndicator size="large" color={'#F5620F'} />
                     </View>
-                </View>
-                <View className="bg-gray-300 flex flex-row">
-                    <View className="m-6">
-                        <Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.name}</Text>
-                        <Text className="text-base">{distanceText} de distância</Text>
-                        <View className="flex flex-row">
-                            <Text className="text-base">Avaliação: {dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.rating}</Text>
-                            <View className="pt-1.5 pl-1.5">
-                                <FontAwesome name="star" color="#FF4715" size={11} /></View>
+                    : <ScrollView>
+                        <View>
+                            <Image source={{ uri: courtImage }} className="w-full h-[230]" />
                         </View>
-                        <Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.streetName}</Text>
-                    </View>
-                    <View className="justify-center gap-1">
                         {
-                            dataReserve?.courtAvailability.data.attributes.court.data.attributes.establishment.data.attributes.amenities.data.map((amenitieInfo) =>
-                                <View className="flex flex-row  items-center">
-                                    <SvgUri
-                                        width="14"
-                                        height="14"
-                                        source={{ uri: amenitieInfo.attributes.iconAmenitie.data.attributes.url }}
-                                    />
-                                    <Text className="text-base pl-2">{amenitieInfo.attributes.name}</Text>
-                                </View>
-                            )
+                            minPriceBigger
+                                ?
+                                <>
+                                    <View className="pt-5 pb-4 flex justify-center flex-row">
+                                        <Text className="text-base text-center font-bold">
+                                            Para remarcar sua reserva é necessário pagar um sinal.
+                                        </Text>
+                                        <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
+                                            <FontAwesome name="question-circle-o" size={13} color="black" />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View className="bg-gray-300 p-4">
+                                        <Text className="text-5xl text-center font-extrabold text-gray-700">
+                                            R$ {signalPay}
+                                        </Text>
+                                    </View>
+                                </>
+                                :
+                                <>
+                                    <View className="pt-5 pb-4 flex justify-center flex-row">
+                                        <Text className="text-base text-center font-bold">
+                                            Valor pago maior que o sinal da quadra
+                                        </Text>
+                                        <TouchableOpacity className="p-1 px-3" onPress={handleRateInformation}>
+                                            <FontAwesome name="question-circle-o" size={13} color="black" />
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
                         }
-                    </View>
-                </View>
-                <View className="p-4 justify-center items-center border-b ml-8 mr-8">
-                    <View className="flex flex-row gap-6">
-                        <Text className="font-bold text-xl text-[#717171]">Valor da Reserva</Text>
-                        <Text className="font-bold text-xl text-right text-[#717171]">R$ {ogPrice.toFixed(2)}</Text>
-                    </View>
-                    <View className="flex flex-row justify-between gap-6">
-                        <View className="flex flex-row pt-1">
-                            <Text className="font-bold text-xl text-[#717171]">Valor já pago</Text>
+                        {
+                            minPriceBigger
+                                ?
+                                <>
+                                    <View className='px-10 py-5'>
+                                        {
+                                            !isLoadingPayment
+                                                ? < TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+                                                    onPressIn={() => {
+                                                        generatePixSignal()
+                                                    }}
+                                                >
+                                                    <Text className='text-lg text-gray-50 font-bold'>Copiar código PIX</Text>
+                                                </TouchableOpacity>
+
+                                                : < TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+                                                    onPressIn={() => {
+                                                        generatePixSignal()
+                                                    }}
+                                                >
+                                                    <ActivityIndicator size="small" color="white" />
+                                                </TouchableOpacity>
+                                        }
+
+                                    </View>
+                                    <View><Text className="text-center font-bold text-base text-gray-700">ou</Text></View>
+                                    <View className="pt-5 px-9">
+                                        <TouchableOpacity onPress={handleCardClick}>
+                                            <View className="h-30 border border-gray-500 rounded-md">
+                                                <View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
+                                                    <FontAwesome name="credit-card-alt" size={24} color="#FF6112" />
+                                                    <Text className="flex-1 text-base text-center mb-0">
+                                                        Selecionar Cartão
+                                                    </Text>
+                                                    <Icon name={showCard ? 'chevron-up' : 'chevron-down'} size={25} color="#FF4715" />
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
+                                        {showCard && (
+                                            <View className="border border-gray-500 rounded-xl p-4 mt-3">
+                                                <View className="flex-row justify-between">
+                                                    <View className='flex-1 mr-[20px]'>
+                                                        <Text className='text-sm text-[#FF6112]'>Data de Venc.</Text>
+                                                        <Controller
+                                                            name='date'
+                                                            control={control}
+                                                            render={({ field: { onChange } }) => (
+                                                                <TextInputMask className='p-3 border border-gray-500 rounded-md h-18'
+                                                                    options={{
+                                                                        format: 'MM/YY',
+                                                                    }}
+                                                                    type={'datetime'}
+                                                                    value={getValues('date')}
+                                                                    onChangeText={onChange}
+                                                                    placeholder="MM/YY"
+                                                                    keyboardType="numeric"
+                                                                />
+                                                            )}
+                                                        ></Controller>
+                                                        {errors.date && <Text className='text-red-400 text-sm'>{errors.date.message}</Text>}
+                                                    </View>
+                                                    <View className='flex-1 ml-[20px]'>
+                                                        <Text className='text-sm text-[#FF6112]'>CVV</Text>
+                                                        <Controller
+                                                            name='cvv'
+                                                            control={control}
+                                                            render={({ field: { onChange } }) => (
+                                                                <TextInput
+                                                                    className='p-3 border border-gray-500 rounded-md h-18'
+                                                                    placeholder='123'
+                                                                    onChangeText={onChange}
+                                                                    keyboardType='numeric'
+                                                                    maxLength={3}>
+                                                                </TextInput>
+                                                            )}
+                                                        ></Controller>
+                                                        {errors.cvv && <Text className='text-red-400 text-sm'>{errors.cvv.message}</Text>}
+                                                    </View>
+                                                </View>
+                                                <View>
+                                                    <Text className='text-sm text-[#FF6112]'>Nome</Text>
+                                                    <Controller
+                                                        name='name'
+                                                        control={control}
+                                                        render={({ field: { onChange } }) => (
+                                                            <TextInput
+                                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                                placeholder='Ex: nome'
+                                                                onChangeText={onChange}>
+                                                            </TextInput>
+                                                        )}
+                                                    ></Controller>
+                                                    {errors.name && <Text className='text-red-400 text-sm'>{errors.name.message}</Text>}
+                                                </View>
+                                                <View>
+                                                    <Text className='text-sm text-[#FF6112]'>CPF</Text>
+                                                    <Controller
+                                                        name='cpf'
+                                                        control={control}
+                                                        render={({ field: { onChange } }) => (
+                                                            <MaskInput
+                                                                className='p-3 border border-gray-500 rounded-md h-18'
+                                                                placeholder='Ex: 000.000.000-00'
+                                                                value={getValues('cpf')}
+                                                                onChangeText={onChange}
+                                                                mask={Masks.BRL_CPF}
+                                                                keyboardType='numeric'>
+                                                            </MaskInput>
+                                                        )}
+                                                    ></Controller>
+                                                    {errors.cpf && <Text className='text-red-400 text-sm'>{errors.cpf.message}</Text>}
+                                                </View>
+                                                <View>
+                                                    <Text className='text-sm text-[#FF6112]'>País</Text>
+                                                    <View className='flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white'>
+                                                        <Image className='h-[21px] w-[30px] mr-[10px] rounded' source={{ uri: getCountryImage(selected) }}></Image>
+                                                        <SelectList
+                                                            setSelected={(val: string) => {
+                                                                setSelected(val);
+
+                                                            }}
+                                                            data={dataCountry?.countries?.data.map(country => ({
+                                                                value: country?.attributes.name,
+                                                                label: country?.attributes.name || "",
+                                                                img: `${country?.attributes.flag?.data?.attributes?.url || ""}`
+                                                            })) || []}
+                                                            save="value"
+                                                            placeholder='Selecione um país'
+                                                            searchPlaceholder='Pesquisar...'
+                                                        />
+                                                    </View>
+                                                </View>
+
+                                                <View className="p-2 justify-center items-center pt-5">
+                                                    <TouchableOpacity onPress={handleSubmit(pay)} className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center">
+                                                        <Text className="text-white">Salvar</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        )}
+                                    </View>
+
+                                </>
+
+                                : <View className='px-10 py-5'>
+                                    <TouchableOpacity className='py-4 rounded-xl bg-orange-500 flex items-center justify-center'
+                                        onPressIn={() => {
+                                            updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4))!)
+                                        }}
+                                    >
+                                        <Text className='text-lg text-gray-50 font-bold'>REMARCAR</Text>
+                                    </TouchableOpacity>
+                                </View>
+                        }
+                        <View className=" px-9">
+                            <View>
+                                <Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
+                                    Detalhes Reserva
+                                </Text>
+                            </View>
                         </View>
-                        <Text className="font-bold text-xl text-right text-[#717171]">- R$ {route.params.pricePayed.toFixed(2)}</Text>
-                    </View>
-                    <View className="flex flex-row gap-6">
-                        <View className="flex flex-row pt-1">
-                            <Text className="font-bold text-xl text-[#717171]">Taxa de Serviço</Text>
-                            <TouchableOpacity onPress={handlePaymentInformation}>
-                                <FontAwesome name="question-circle-o" size={13} color="black" />
-                            </TouchableOpacity>
+                        <View className="bg-gray-300 flex flex-row">
+                            <View className="m-6">
+                                <Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.name}</Text>
+                                <Text className="text-base">{distanceText} de distância</Text>
+                                <View className="flex flex-row">
+                                    <Text className="text-base">Avaliação: {dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.rating}</Text>
+                                    <View className="pt-1.5 pl-1.5">
+                                        <FontAwesome name="star" color="#FF4715" size={11} /></View>
+                                </View>
+                                <Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.streetName}</Text>
+                            </View>
+                            <View className="justify-center gap-1">
+                                {
+                                    dataReserve?.courtAvailability.data.attributes.court.data.attributes.establishment.data.attributes.amenities.data.map((amenitieInfo) =>
+                                        <View className="flex flex-row  items-center">
+                                            <SvgUri
+                                                width="14"
+                                                height="14"
+                                                source={{ uri: amenitieInfo.attributes.iconAmenitie.data.attributes.url }}
+                                            />
+                                            <Text className="text-base pl-2">{amenitieInfo.attributes.name}</Text>
+                                        </View>
+                                    )
+                                }
+                            </View>
                         </View>
-                        <Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue.toFixed(2)}</Text>
-                    </View>
-                </View>
-                <View className="justify-center items-center pt-6">
-                    <View className="flex flex-row gap-10">
-                        <Text className="font-bold text-xl text-right text-[#717171]">Total: </Text>
-                        <Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ {(amountToPay + serviceValue).toFixed(2)}</Text>
-                    </View>
-                </View>
-                <Modal visible={showPaymentInformation} animationType="fade" transparent={true}>
-                    <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
-                        <View className="bg-white rounded-md items-center ">
-                            <Text className="bg-white p-8 rounded text-base text-center">Através dessa taxa provemos a tecnologia necessária para você reservar suas quadras com antecedência e rapidez.</Text>
-                            <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
-                                <Text className="text-white">OK</Text>
-                            </TouchableOpacity>
+                        <View className="p-4 justify-center items-center border-b ml-8 mr-8">
+                            <View className="flex flex-row gap-6">
+                                <Text className="font-bold text-xl text-[#717171]">Valor da Reserva</Text>
+                                <Text className="font-bold text-xl text-right text-[#717171]">R$ {ogPrice.toFixed(2)}</Text>
+                            </View>
+                            <View className="flex flex-row justify-between gap-6">
+                                <View className="flex flex-row pt-1">
+                                    <Text className="font-bold text-xl text-[#717171]">Valor já pago</Text>
+                                </View>
+                                <Text className="font-bold text-xl text-right text-[#717171]">- R$ {route.params.pricePayed.toFixed(2)}</Text>
+                            </View>
+                            <View className="flex flex-row gap-6">
+                                <View className="flex flex-row pt-1">
+                                    <Text className="font-bold text-xl text-[#717171]">Taxa de Serviço</Text>
+                                    <TouchableOpacity onPress={handlePaymentInformation}>
+                                        <FontAwesome name="question-circle-o" size={13} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+                                <Text className="font-bold text-xl text-right text-[#717171]">R$ {serviceValue.toFixed(2)}</Text>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-                <Modal visible={showRateInformation} animationType="fade" transparent={true}>
-                    <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
-                        <View className="bg-white rounded-md items-center">
-                            <Text className="bg-white p-8 rounded text-base text-center">Esse valor será deduzido do valor total e não será estornado, mesmo no caso de não comparecimento ao local ou cancelamento da reserva.</Text>
-                            <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
-                                <Text className="text-white">OK</Text>
-                            </TouchableOpacity>
+                        <View className="justify-center items-center pt-6">
+                            <View className="flex flex-row gap-10">
+                                <Text className="font-bold text-xl text-right text-[#717171]">Total: </Text>
+                                <Text className="flex flex-row font-bold text-xl text-right text-[#717171]"> R$ {(amountToPay + serviceValue).toFixed(2)}</Text>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-            </ScrollView>
-        </View>
+                        <Modal visible={showPaymentInformation} animationType="fade" transparent={true}>
+                            <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
+                                <View className="bg-white rounded-md items-center ">
+                                    <Text className="bg-white p-8 rounded text-base text-center">Através dessa taxa provemos a tecnologia necessária para você reservar suas quadras com antecedência e rapidez.</Text>
+                                    <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+                                        <Text className="text-white">OK</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Modal>
+                        <Modal visible={showRateInformation} animationType="fade" transparent={true}>
+                            <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
+                                <View className="bg-white rounded-md items-center">
+                                    <Text className="bg-white p-8 rounded text-base text-center">Esse valor será deduzido do valor total e não será estornado, mesmo no caso de não comparecimento ao local ou cancelamento da reserva.</Text>
+                                    <TouchableOpacity className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center" onPress={handleCancelExit}>
+                                        <Text className="text-white">OK</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Modal>
+                    </ScrollView>
+            }
+
+        </View >
     )
 }

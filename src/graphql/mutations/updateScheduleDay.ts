@@ -18,6 +18,7 @@ export interface IUpdateScheduleDayVariables {
   newValue: number
   payedStatus: string
   activationKey: string | null
+  payDay: string
 }
 
 export const UpdateScheduleDayMutation = gql`
@@ -28,6 +29,7 @@ mutation updateSchedule(
   $newValue: Float
   $payedStatus: ENUM_SCHEDULING_PAYEDSTATUS
   $activationKey: String
+  $payDay: Date!
 ) {
   updateScheduling(
     id: $scheduleID
@@ -37,6 +39,7 @@ mutation updateSchedule(
       payedStatus: $payedStatus
       valuePayed: $newValue
       activationKey: $activationKey
+      payDay: $payDay
     }
   ) {
     data {

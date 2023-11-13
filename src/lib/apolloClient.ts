@@ -5,7 +5,7 @@ import storage from "../utils/storage";
 console.log(HOST_API)
 
 const httpLink = new HttpLink({
-	uri: "https://api-inquadra-uat.qodeless.com.br" + "/graphql"
+	uri: HOST_API + "/graphql"
 });
 
 let jwt: string = "";
