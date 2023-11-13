@@ -1,4 +1,4 @@
-import {ApolloClient, ApolloLink, defaultDataIdFromObject, HttpLink, InMemoryCache} from "@apollo/client";
+import {ApolloClient, ApolloLink, HttpLink, InMemoryCache} from "@apollo/client";
 import { HOST_API } from '@env';
 import storage from "../utils/storage";
 
