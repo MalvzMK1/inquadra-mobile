@@ -8,8 +8,8 @@ import {
 
 const headers = {
     headers: {
-        'merchantId': CIELO_MERCHANT_ID,
-        'merchantKey': CIELO_MERCHANT_KEY
+        'merchantId': "51cb1016-2778-41ef-820f-d47ae642ad6f",
+        'merchantKey': "CQWr1W6w8IFmFGApQ15UoRuNYYSomcop3fmzpceG"
     }
 }
 

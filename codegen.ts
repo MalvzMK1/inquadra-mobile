@@ -1,7 +1,8 @@
 import { CodegenConfig } from '@graphql-codegen/cli';
+import { HOST_API } from '@env';
 
 const config: CodegenConfig = {
-  schema: process.env.HOST_API + '/graphql',
+  schema: HOST_API + '/graphql',
   documents: ['src/**/*.tsx'],
   generates: {
     './src/__generated__/': {

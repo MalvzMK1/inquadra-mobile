@@ -196,15 +196,14 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     scheduleID: route.params.scheduleID?.toString()!,
                     payedStatus: paymentStatus,
                     newValue: route.params.userMoney!,
-                    activationKey: activationKey
+                    activationKey: activationKey,
+                    payDay: route.params.newDate!
                 }
             })
-
         } catch (error) {
             console.log(error)
         }
     }
-
 
     useFocusEffect(
         React.useCallback(() => {

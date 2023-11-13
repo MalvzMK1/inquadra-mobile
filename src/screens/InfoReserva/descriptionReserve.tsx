@@ -485,7 +485,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url }}
+                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url! }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
