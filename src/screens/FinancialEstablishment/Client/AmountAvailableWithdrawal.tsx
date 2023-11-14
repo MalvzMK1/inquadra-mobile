@@ -159,7 +159,7 @@ export default function AmountAvailableWithdrawal({
             </View>
             <View className="p-4 flex flex-row justify-center">
               <Text className="text-lg flex flex-row items-center text-gray-500">
-                Isso é tudo!{" "}
+                Isso é tudo!
                 <SimpleLineIcons name="emotsmile" size={15} color="gray" />
               </Text>
             </View>
@@ -195,7 +195,7 @@ export default function AmountAvailableWithdrawal({
               ? HOST_API +
               dataUserEstablishment?.establishment?.data?.attributes?.logo
                 ?.data?.attributes?.url
-              : null
+              : undefined
           }
           establishmentID={route.params.establishmentId}
           key={1}

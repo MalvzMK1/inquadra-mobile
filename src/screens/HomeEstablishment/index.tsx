@@ -11,7 +11,7 @@ import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSc
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import storage from "../../utils/storage";
-import {CourtType} from "../../__generated__/graphql";
+import { CourtType } from "../../__generated__/graphql";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const { parse, format } = require("date-fns");
 
@@ -236,10 +236,9 @@ export default function HomeEstablishment({
       dataCourtsEstablishment.establishment.data &&
       dataCourtsEstablishment.establishment.data.attributes.courts.data.length > 0
     ) {
-      console.log(dataCourtsEstablishment.establishment.data.attributes.courts.data)
       setEstablishmentCourts(dataCourtsEstablishment.establishment.data.attributes.courts.data)
-      }
-    }, [dataCourtsEstablishment])
+    }
+  }, [dataCourtsEstablishment])
 
   useEffect(() => {
     photo &&
@@ -295,8 +294,8 @@ export default function HomeEstablishment({
               source={
                 photo
                   ? {
-                      uri: HOST_API + photo,
-                    }
+                    uri: HOST_API + photo,
+                  }
                   : require("../../assets/default-user-image.png")
               }
               className="w-full h-full"
@@ -361,49 +360,49 @@ export default function HomeEstablishment({
               <View className="pt-5 gap-2">
                 {handleDayUse === false
                   ? establishmentCourts.map(
-                      courts =>
-                        courts?.attributes.court_availabilities.data.map(
-                          availabilities =>
-                            availabilities?.attributes.schedulings.data.map(
-                              schedulings => (
-                                <Text className="text-white font-bold">
-                                  {schedulings?.attributes.court_availability.data?.attributes.startsAt.substring(
-                                    0,
-                                    5,
-                                  )}{" "}
-                                  -{" "}
-                                  {schedulings.attributes.court_availability.data?.attributes.endsAt.substring(
-                                    0,
-                                    5,
-                                  )}{" "}
-                                  {schedulings.attributes.payedStatus && schedulings.attributes.activated
-                                    ? "Reserva ativada"
-                                    : schedulings.attributes.payedStatus
+                    courts =>
+                      courts?.attributes.court_availabilities.data.map(
+                        availabilities =>
+                          availabilities?.attributes.schedulings.data.map(
+                            schedulings => (
+                              <Text className="text-white font-bold">
+                                {schedulings?.attributes.court_availability.data?.attributes.startsAt.substring(
+                                  0,
+                                  5,
+                                )}{" "}
+                                -{" "}
+                                {schedulings.attributes.court_availability.data?.attributes.endsAt.substring(
+                                  0,
+                                  5,
+                                )}{" "}
+                                {schedulings.attributes.payedStatus && schedulings.attributes.activated
+                                  ? "Reserva ativada"
+                                  : schedulings.attributes.payedStatus
                                     ? "Pagamento realizado"
                                     : "Pagamento em andamento"}
-                                </Text>
-                              ),
+                              </Text>
                             ),
-                        ),
-                    )
+                          ),
+                      ),
+                  )
                   : dataSchedulings?.establishment.data?.attributes.courts.data.map(
-                      courts =>
-                        courts?.attributes?.court_availabilities?.data?.map(
-                          availabilities =>
-                            availabilities?.attributes?.schedulings?.data?.map(
-                              schedulings => (
-                                <Text className="text-white font-bold">
-                                  Day use -{" "}
-                                  {schedulings.attributes.payedStatus && schedulings.attributes.activated
-                                    ? "Reserva ativada"
-                                    : schedulings.attributes.payedStatus
+                    courts =>
+                      courts?.attributes?.court_availabilities?.data?.map(
+                        availabilities =>
+                          availabilities?.attributes?.schedulings?.data?.map(
+                            (schedulings, index) => (
+                              <Text key={index} className="text-white font-bold">
+                                Day use -{" "}
+                                {schedulings.attributes.payedStatus && schedulings.attributes.activated
+                                  ? "Reserva ativada"
+                                  : schedulings.attributes.payedStatus
                                     ? "Pagamento realizado"
                                     : "Pagamento em andamento"}
-                                </Text>
-                              ),
+                              </Text>
                             ),
-                        ),
-                    )}
+                          ),
+                      ),
+                  )}
               </View>
             </View>
             <TouchableOpacity
@@ -430,7 +429,6 @@ export default function HomeEstablishment({
                     data={
                       establishmentCourts.map(
                         fantasy => {
-                          console.log({fantasy: fantasy.attributes.fantasy_name})
                           return fantasy.attributes.fantasy_name
                         }
                       ) ?? []
@@ -481,187 +479,187 @@ export default function HomeEstablishment({
                 ) : null}
                 {handleDayUse !== true
                   ? establishmentCourts.map(
-                      courts =>
-                        courts.attributes.court_availabilities.data.map(
-                          availabilities => (
-                            <View
-                              className="flex flex-row"
-                              key={availabilities.id}
-                            >
-                              <View className="flex justify-center items-center pr-3">
-                                <Text className="text-base text-gray-400">
-                                  {availabilities.attributes.startsAt.substring(
-                                    0,
-                                    5,
-                                  )}
-                                  hs
-                                </Text>
-                              </View>
-                              {availabilities.attributes.schedulings.data
-                                .length !== 0 ? (
-                                availabilities.attributes.schedulings.data.map(
-                                  scheduling => (
-                                    <View
-                                      className="min-h-20 h-auto bg-[#B6B6B633] rounded-2xl items-start"
-                                      key={scheduling.id}
-                                    >
-                                      <Text className="pl-10 pt-1 text-gray-400 text-xs text-start">
-                                        Info reserva:
-                                      </Text>
-                                      <View className="flex flex-row p-2">
-                                        <View className="h-12 -mt-4 border-2 rounded border-orange-500"></View>
-                                        <View className=" flex flex-row justify-between w-max pl-5">
-                                          <View className="flex justify-start items-start">
-                                            <View className="flex flex-row items-start">
-                                              <Ionicons
-                                                name="person-outline"
-                                                size={16}
-                                                color="#FF6112"
-                                                className="pr-2"
-                                              />
-                                              <Text>
-                                                {
-                                                  scheduling.attributes.owner
-                                                    .data.attributes.username
-                                                }
-                                              </Text>
-                                            </View>
-                                            <View className="flex flex-row items-start">
-                                              <MaterialIcons
-                                                name="attach-money"
-                                                size={16}
-                                                color="#FF6112"
-                                                className="pr-2"
-                                              />
-                                              <Text className="">
-                                                {
-                                                  handlePayedStatus(scheduling.attributes.payedStatus)
-                                                }
-                                              </Text>
-                                            </View>
+                    courts =>
+                      courts.attributes.court_availabilities.data.map(
+                        availabilities => (
+                          <View
+                            className="flex flex-row"
+                            key={availabilities.id}
+                          >
+                            <View className="flex justify-center items-center pr-3">
+                              <Text className="text-base text-gray-400">
+                                {availabilities.attributes.startsAt.substring(
+                                  0,
+                                  5,
+                                )}
+                                hs
+                              </Text>
+                            </View>
+                            {availabilities.attributes.schedulings.data
+                              .length !== 0 ? (
+                              availabilities.attributes.schedulings.data.map(
+                                scheduling => (
+                                  <View
+                                    className="min-h-20 h-auto bg-[#B6B6B633] rounded-2xl items-start"
+                                    key={scheduling.id}
+                                  >
+                                    <Text className="pl-10 pt-1 text-gray-400 text-xs text-start">
+                                      Info reserva:
+                                    </Text>
+                                    <View className="flex flex-row p-2">
+                                      <View className="h-12 -mt-4 border-2 rounded border-orange-500"></View>
+                                      <View className=" flex flex-row justify-between w-max pl-5">
+                                        <View className="flex justify-start items-start">
+                                          <View className="flex flex-row items-start">
+                                            <Ionicons
+                                              name="person-outline"
+                                              size={16}
+                                              color="#FF6112"
+                                              className="pr-2"
+                                            />
+                                            <Text>
+                                              {
+                                                scheduling.attributes.owner
+                                                  .data.attributes.username
+                                              }
+                                            </Text>
                                           </View>
-                                          <View className=" flex flex-wrap justify-start items-start pl-2">
-                                            <View className="flex flex-row items-start">
-                                              <Ionicons
-                                                name="time-outline"
-                                                size={16}
-                                                color="#FF6112"
-                                                className="pr-2"
-                                              />
-                                              <Text>{`${scheduling.attributes.court_availability.data.attributes.startsAt.substring(
-                                                0,
-                                                5,
-                                              )} - ${scheduling.attributes.court_availability.data.attributes.endsAt.substring(
-                                                0,
-                                                5,
-                                              )}`}</Text>
-                                            </View>
-                                            <View className="flex flex-row items-start">
-                                              <Ionicons
-                                                name="basketball-outline"
-                                                size={16}
-                                                color="#FF6112"
-                                                className="pr-2"
-                                              />
+                                          <View className="flex flex-row items-start">
+                                            <MaterialIcons
+                                              name="attach-money"
+                                              size={16}
+                                              color="#FF6112"
+                                              className="pr-2"
+                                            />
+                                            <Text className="">
+                                              {
+                                                handlePayedStatus(scheduling.attributes.payedStatus)
+                                              }
+                                            </Text>
+                                          </View>
+                                        </View>
+                                        <View className=" flex flex-wrap justify-start items-start pl-2">
+                                          <View className="flex flex-row items-start">
+                                            <Ionicons
+                                              name="time-outline"
+                                              size={16}
+                                              color="#FF6112"
+                                              className="pr-2"
+                                            />
+                                            <Text>{`${scheduling.attributes.court_availability.data.attributes.startsAt.substring(
+                                              0,
+                                              5,
+                                            )} - ${scheduling.attributes.court_availability.data.attributes.endsAt.substring(
+                                              0,
+                                              5,
+                                            )}`}</Text>
+                                          </View>
+                                          <View className="flex flex-row items-start">
+                                            <Ionicons
+                                              name="basketball-outline"
+                                              size={16}
+                                              color="#FF6112"
+                                              className="pr-2"
+                                            />
+                                            <View className="flex flex-wrap">
                                               <View className="flex flex-wrap">
-                                                <View className="flex flex-wrap">
-                                                  {scheduling.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(
-                                                    sportType => (
-                                                      <Text>
-                                                        {
-                                                          sportType.attributes
-                                                            .name
-                                                        }
-                                                      </Text>
-                                                    ),
-                                                  )}
-                                                </View>
+                                                {scheduling.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(
+                                                  (sportType, index) => (
+                                                    <Text key={index}>
+                                                      {
+                                                        sportType.attributes
+                                                          .name
+                                                      }
+                                                    </Text>
+                                                  ),
+                                                )}
                                               </View>
                                             </View>
                                           </View>
                                         </View>
                                       </View>
                                     </View>
-                                  ),
-                                )
-                              ) : (
-                                <View className=" h-16 items-center justify-center">
-                                  <Text className="text-base text-gray-400">
-                                    Livre
-                                  </Text>
-                                </View>
-                              )}
-                            </View>
-                          ),
+                                  </View>
+                                ),
+                              )
+                            ) : (
+                              <View className=" h-16 items-center justify-center">
+                                <Text className="text-base text-gray-400">
+                                  Livre
+                                </Text>
+                              </View>
+                            )}
+                          </View>
                         ),
-                    )
+                      ),
+                  )
                   : establishmentCourts.map(
-                      courts =>
-                        courts.attributes.court_availabilities.data.map(
-                          availabilities =>
-                            availabilities.attributes.schedulings.data.map(
-                              scheduling => (
-                                <View className="h-max w-80 flex flex-row justify-center items-center">
-                                  <View className="flex h-max w-max justify-center items-center">
-                                    <View className="flex flex-row items-start">
-                                      <Ionicons
-                                        name="person-outline"
-                                        size={16}
-                                        color="#FF6112"
-                                        className="pr-2"
-                                      />
-                                      <Text>
-                                        {
-                                          scheduling.attributes.owner.data
-                                            .attributes.username
-                                        }
-                                      </Text>
-                                    </View>
-                                    <View className="flex flex-row items-start">
-                                      <MaterialIcons
-                                        name="attach-money"
-                                        size={16}
-                                        color="#FF6112"
-                                        className="pr-2"
-                                      />
-                                      <Text className="">
-                                        {scheduling.attributes.payedStatus
-                                          ? "Pago"
-                                          : "Pgt.parcial"}
-                                      </Text>
-                                    </View>
-                                    <View className="flex flex-row items-start">
-                                      <Ionicons
-                                        name="time-outline"
-                                        size={16}
-                                        color="#FF6112"
-                                        className="pr-2"
-                                      />
-                                      <Text>{`Day use`}</Text>
-                                    </View>
+                    courts =>
+                      courts.attributes.court_availabilities.data.map(
+                        availabilities =>
+                          availabilities.attributes.schedulings.data.map(
+                            (scheduling, index) => (
+                              <View key={index} className="h-max w-80 flex flex-row justify-center items-center">
+                                <View className="flex h-max w-max justify-center items-center">
+                                  <View className="flex flex-row items-start">
+                                    <Ionicons
+                                      name="person-outline"
+                                      size={16}
+                                      color="#FF6112"
+                                      className="pr-2"
+                                    />
+                                    <Text>
+                                      {
+                                        scheduling.attributes.owner.data
+                                          .attributes.username
+                                      }
+                                    </Text>
+                                  </View>
+                                  <View className="flex flex-row items-start">
+                                    <MaterialIcons
+                                      name="attach-money"
+                                      size={16}
+                                      color="#FF6112"
+                                      className="pr-2"
+                                    />
+                                    <Text className="">
+                                      {scheduling.attributes.payedStatus
+                                        ? "Pago"
+                                        : "Pgt.parcial"}
+                                    </Text>
+                                  </View>
+                                  <View className="flex flex-row items-start">
+                                    <Ionicons
+                                      name="time-outline"
+                                      size={16}
+                                      color="#FF6112"
+                                      className="pr-2"
+                                    />
+                                    <Text>{`Day use`}</Text>
+                                  </View>
+                                  <View className="flex items-center justify-center">
+                                    <Ionicons
+                                      name="basketball-outline"
+                                      size={16}
+                                      color="#FF6112"
+                                      className="pr-2"
+                                    />
                                     <View className="flex items-center justify-center">
-                                      <Ionicons
-                                        name="basketball-outline"
-                                        size={16}
-                                        color="#FF6112"
-                                        className="pr-2"
-                                      />
-                                      <View className="flex items-center justify-center">
-                                        {scheduling.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(
-                                          sportType => (
-                                            <Text>
-                                              {sportType.attributes.name}
-                                            </Text>
-                                          ),
-                                        )}
-                                      </View>
+                                      {scheduling.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(
+                                        (sportType, index) => (
+                                          <Text key={index}>
+                                            {sportType.attributes.name}
+                                          </Text>
+                                        ),
+                                      )}
                                     </View>
                                   </View>
                                 </View>
-                              ),
+                              </View>
                             ),
-                        ),
-                    )}
+                          ),
+                      ),
+                  )}
               </View>
             </View>
           </View>

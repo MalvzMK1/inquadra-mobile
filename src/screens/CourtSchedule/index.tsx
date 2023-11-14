@@ -105,12 +105,12 @@ export default function CourtSchedule({
   const [establishmentId, setEstablishmentId] = useState<string>(
     route.params.establishmentId,
   );
-  const [establishmentPicture , setEstablishmentPicture] = useState<string | undefined>("")
+  const [establishmentPicture, setEstablishmentPicture] = useState<string | undefined>("")
 
   useEffect(() => {
     AsyncStorage.getItem('@inquadra/establishment-profile-photo')
       .then(value => {
-        console.log({photo: value})
+        console.log({ photo: value })
         setEstablishmentPicture(value ? value : undefined)
         navigation.setParams({
           establishmentPhoto: value ?? undefined,
@@ -274,9 +274,10 @@ export default function CourtSchedule({
       .data.attributes.photo
   ) {
     navigation.setParams({
-      establishmentPhoto:
-        userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.photo,
+      establishmentPhoto: Array.isArray(userByEstablishmentData.usersPermissionsUser.data.attributes
+        .establishment.data.attributes.photo) ? userByEstablishmentData.usersPermissionsUser.data.attributes
+          .establishment.data.attributes.photo[0] : userByEstablishmentData.usersPermissionsUser.data.attributes
+            .establishment.data.attributes.photo,
     });
   }
 
@@ -761,6 +762,7 @@ export default function CourtSchedule({
             <View className="h-fit w-full items-center justify-around flex flex-row mt-[30px]">
               {weekDates.map((date, index) => (
                 <WeekDayButton
+                  key={index}
                   localeDayInitial={date.localeDayInitial}
                   day={date.day}
                   onClick={isClicked => {
@@ -879,7 +881,7 @@ export default function CourtSchedule({
                 establishmentId:
                   establishmentId,
                 establishmentPhoto:
-                  establishmentPicture ,
+                  establishmentPicture,
               });
             }}
           >
@@ -1060,6 +1062,7 @@ export default function CourtSchedule({
                       if (activeCourts[index] != undefined) {
                         return (
                           <CourtSlideButton
+                            key={index}
                             name={courtItem.attributes.name}
                             onClick={isClicked => {
                               handleSelectedCourt(index);
@@ -1345,7 +1348,7 @@ export default function CourtSchedule({
         <BottomBlackMenuEstablishment
           screen="Schedule"
           userID={userId ?? ""}
-          establishmentLogo={establishmentPicture }
+          establishmentLogo={establishmentPicture}
           establishmentID={
             establishmentId
           }

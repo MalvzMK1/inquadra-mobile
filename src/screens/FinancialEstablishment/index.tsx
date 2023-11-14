@@ -3,7 +3,7 @@ import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import CardFinancialEstablishment from "../../components/CardFinancialEstablishment";
@@ -39,6 +39,9 @@ export default function FinancialEstablishment({
   const { data, loading, error } = useGetUserHistoricPayment(
     establishmentId ?? "",
   );
+
+  console.log(establishmentId)
+  console.log({ data })
 
   useFocusEffect(
     React.useCallback(() => {
@@ -136,6 +139,7 @@ export default function FinancialEstablishment({
       }
     });
 
+    console.log(valueCollected)
 
     return {
       creditValue: creditValue,
@@ -152,7 +156,7 @@ export default function FinancialEstablishment({
   useEffect(() => {
     AsyncStorage.getItem('@inquadra/establishment-profile-photo')
       .then(value => {
-        console.log({photo: value})
+        console.log({ photo: value })
         setEstablishmentPicture(value ? value : undefined)
         navigation.setParams({
           logo: value ?? undefined,
@@ -173,10 +177,12 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().cashout.reduce(
-                      (total, current) => total + current.valuePayment,
-                      0,
-                    )
+                    ? (
+                      console.log({ valueCollected }),
+                      isAvailableForWithdrawal().cashout.reduce(
+                        (total, current) => total + current.valuePayment,
+                        0,
+                      ))
                     : 0}
                 </Text>
               </View>
@@ -229,10 +235,10 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().creditValue.reduce(
+                    ? (console.log({ valueCollected }), isAvailableForWithdrawal().creditValue.reduce(
                       (total, current) => total + current.valuePayment,
                       0,
-                    )
+                    ))
                     : 0}
                 </Text>
               </View>
