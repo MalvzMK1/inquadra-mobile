@@ -38,7 +38,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
 	const [userPicture, setUserPicture] = useState<string>()
 	const [isDisabled, setIsDisabled] = useState<boolean>(true);
-	const [userId, setUserId] = useState<string | undefined>("");
+	const [userId, setUserId] = useState<string | undefined>(route?.params?.userID ?? undefined);
 	const [userGeolocation, setUserGeolocation] = useState<{
 		latitude: number;
 		longitude: number;
