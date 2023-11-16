@@ -73,6 +73,16 @@ export interface IHistoricPayment {
                                     }
                                   }]
                                 }
+                                user_payment_pixes: {
+                                  data: [{
+                                    id: number
+                                    attributes: {
+                                      value: number
+                                      payedStatus: string
+                                      paymentId: string
+                                    }
+                                  }]
+                                }
                               }
                             }
                           ]
@@ -157,6 +167,16 @@ query getHistoryPayment($ID: ID!) {
                                     }
                                   }
                                 }
+                              }
+                            }
+                          }
+                          user_payment_pixes {
+                            data {
+                              id
+                              attributes {
+                                value
+                                PayedStatus
+                                paymentId
                               }
                             }
                           }
