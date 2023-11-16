@@ -36,54 +36,110 @@ import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
     const user_id = route.params.userId.toString()
     const schedule_id = route.params.scheduleId
+    const currentTime = new Date();
+    const oneHourInMs = 60 * 60 * 1000;
+
+    const [serviceRate, setServiceRate] = useState<number>();
+    const [schedulePrice, setSchedulePrice] = useState<number>();
+    const [scheduleValuePayed, setScheduleValuePayed] = useState<number>();
+    const [paymentID, setPaymentID] = useState<string>('')
+    const [showCancelCardModal, setShowCancelCardModal] = useState<boolean>(false)
+    const [showCardPaymentModal, setShowCardPaymentModal] = useState<boolean>(false)
+    const [creditCard, setCreditCard] = useState<string>("")
+    const [selected, setSelected] = useState<string>("")
+    const [showPixPaymentModal, setShowPixPaymentModal] = useState<boolean>(false)
+    const [courtPicture, setCourtPicture] = useState<string>("")
+    const [schedulingPayDate, setSchedulingPayDate] = useState<Date>();
+    const [scheduleDay, setSchedulingDay] = useState<Date>();
+    const [isPayed, setIsPayed] = useState<string>('payed');
+    const [timeDifferenceMs, setTimeDifferenceMs] = useState<number>();
+    const [timeDifferenceHours, setTimeDifferenceHours] = useState<number>();
+    const [isWithin24Hours, setIsWithin24Hours] = useState<boolean>();
+    const [timeDifferenceMsPayDate, setTimeDifferenceMsPayDate] = useState<number>();
+    const [isWithinOneHour, setIsWithinOneHour] = useState<boolean>();
+    const [isVanquishedDate, setIsVanquishedDate] = useState<boolean>();
+    const [isVanquished, setIsVanquished] = useState<boolean>();
+    const [valueDisponibleToPay, setValueDisponibleToPay] = useState<number>();
+    const [fantasyName, setFantasyName] = useState<string>('');
 
     const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
-    const serviceRate = data?.scheduling.data.attributes.serviceRate
-    const schedulePrice = data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!
-    const scheduleValuePayed = data?.scheduling?.data?.attributes?.valuePayed
+    const { data: dataCountry } = useCountries()
+    const { data: dataUser } = useGetMenuUser(user_id)
+    const { data: allUserData } = useGetUserById(user_id)
+    const { data: dataHistoricPayments } = useAllPaymentsSchedulingById(schedule_id)
 
-    const { data: dataCountry, error: errorCountry, loading: loadingCountry } = useCountries()
-    const [userPaymentCard, { data: userCardData, error: userCardError, loading: userCardLoading }] = useUserPaymentCard()
-    const [updateScheduleValue, { data: dataScheduleValue, error: errorScheduleValue, loading: loadingScheduleValue }] = useUpdateScheduleValue()
-    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetMenuUser(user_id)
-    const { data: allUserData, loading: allUserDataLoading, error: allUserDataError } = useGetUserById(user_id)
-    const { data: dataHistoricPayments, error: errorHistoricPayments, loading: loadingHistoricPayments } = useAllPaymentsSchedulingById(schedule_id)
-    const [cancelSchedule, { data: dataCancelSchedule, loading: loadingCancelSchedule, error: errorCancelSchedule }] = useDeleteSchedule()
-    const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
-
-    const [paymentID, setPaymentID] = useState('')
-    const [showCancelCardModal, setShowCancelCardModal] = useState(false)
-    const [showCardPaymentModal, setShowCardPaymentModal] = useState(false)
-    const [creditCard, setCreditCard] = useState("")
-    const [selected, setSelected] = useState("")
-    const [showPixPaymentModal, setShowPixPaymentModal] = useState(false)
-    const [courtPicture, setCourtPicture] = useState("")
-    const currentTime = new Date()
-    const schedulingPayDate = new Date(data?.scheduling?.data?.attributes?.payDay!)
-    const scheduleDay = new Date(data?.scheduling?.data?.attributes?.date!)
-
-    const timeDifferenceMs = Number(scheduleDay) - Number(currentTime);
-    const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
-    const isWithin24Hours = timeDifferenceHours <= 24;
-    const timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
-    const oneHourInMs = 60 * 60 * 1000;
-    const isWithinOneHour = timeDifferenceMsPayDate <= oneHourInMs;
-    const isVanquishedDate = schedulingPayDate < currentTime
-    const isPayed = data?.scheduling.data?.attributes.payedStatus === "payed"
-    const isVanquished = isVanquishedDate && !isPayed
+    const [cancelSchedule, { loading: loadingCancelSchedule, error: errorCancelSchedule }] = useDeleteSchedule()
+    const [addPaymentPix] = useUserPaymentPix()
+    const [userPaymentCard] = useUserPaymentCard()
+    const [updateScheduleValue] = useUpdateScheduleValue()
 
     const [zipCode, setZipCode] = useState<string>();
 
-    const valueDisponibleToPay =
-        (data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate!) -
-        data?.scheduling?.data?.attributes?.valuePayed!
+    useEffect(() => {
+        if (
+          data &&
+          data.scheduling.data
+        ) {
+            const { valuePayed, serviceRate: receivedServiceRate } = data.scheduling.data.attributes;
 
+            setServiceRate(receivedServiceRate);
+            setScheduleValuePayed(valuePayed);
+            setSchedulingPayDate(new Date(data.scheduling.data.attributes.payDay))
+            setSchedulingDay(new Date(data.scheduling.data.attributes.date))
+            setIsPayed(data.scheduling.data.attributes.payedStatus)
+            setTimeDifferenceMs(Number(scheduleDay) - Number(currentTime))
+
+            if (
+              data.scheduling.data.attributes.court_availability.data
+            ) {
+                const _valueDisponibleToPay = (data.scheduling.data.attributes.court_availability.data.attributes.value + receivedServiceRate) - valuePayed
+                setValueDisponibleToPay(_valueDisponibleToPay);
+            }
+
+            if (
+              data.scheduling.data.attributes.court_availability.data &&
+              data.scheduling.data.attributes.court_availability.data.attributes.court.data &&
+              data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0]
+            ) {
+                const courtPicture = HOST_API + data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url;
+
+                setCourtPicture(courtPicture);
+            } else {
+                setCourtPicture("https://cdn-icons-png.flaticon.com/512/10449/10449616.png")
+            }
+
+            if (data.scheduling.data.attributes.court_availability.data) {
+                const receivedSchedulePrice = data.scheduling.data.attributes.court_availability.data.attributes.value + receivedServiceRate
+                setSchedulePrice(receivedSchedulePrice)
+                if (data.scheduling.data.attributes.court_availability.data.attributes.court.data)
+                    setFantasyName(data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name)
+            }
+
+        }
+    }, [data])
 
     useEffect(() => {
-        data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url !== undefined || data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url !== null
-            ? setCourtPicture(HOST_API + data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.photo?.data[0]?.attributes?.url!)
-            : setCourtPicture("https://cdn-icons-png.flaticon.com/512/10449/10449616.png")
-    }, [])
+        if (
+          timeDifferenceMs &&
+          schedulingPayDate &&
+          isPayed !== undefined
+        ) {
+            const _timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
+            setTimeDifferenceHours(_timeDifferenceHours);
+            setIsWithin24Hours(_timeDifferenceHours <= 24);
+
+            const _timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
+            setTimeDifferenceMsPayDate(_timeDifferenceMsPayDate);
+
+            const _isWithinOneHour = _timeDifferenceMsPayDate <= oneHourInMs;
+            const _isVanquishedDate = schedulingPayDate < currentTime
+            const _isVanquished = _isVanquishedDate && !isPayed
+
+            setIsWithinOneHour(_isWithinOneHour);
+            setIsVanquishedDate(_isVanquishedDate);
+            setIsVanquished(_isVanquished);
+        }
+    }, [timeDifferenceMs, schedulingPayDate])
 
     interface iFormCardPayment {
         value: string
@@ -121,13 +177,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const formSchema = z.object({
         value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value) => {
             const schedulingAmount = valueDisponibleToPay;
-            const parsedValue = parseFloat(value?.replace(/[^\d,.]/g, '').replace(',', '.'));
+            if (schedulingAmount) {
+                const parsedValue = parseFloat(value?.replace(/[^\d,.]/g, '').replace(',', '.'));
 
-            if (isNaN(parsedValue)) {
-                return false;
+                if (isNaN(parsedValue)) {
+                    return false;
+                }
+
+                return parsedValue <= schedulingAmount;
             }
-
-            return parsedValue <= schedulingAmount;
+            return false;
         }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueDisponibleToPay}`),
         name: z.string().nonempty("É necessário inserir o nome").max(29, "Só é possível digitar até 30 caracteres"),
         cpf: z.string().nonempty("É necessário inserir o CPF").max(15, "CPF inválido").refine(isValidCPF, "CPF inválido"),
@@ -182,13 +241,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
     const formSchemaPixPayment = z.object({
         value: z.string().nonempty("É necessário inserir um valor").min(1).refine((value) => {
             const schedulingAmount = valueDisponibleToPay;
-            const parsedValue = parseFloat(value.replace(/[^\d,.]/g, '').replace(',', '.'));
+            if (schedulingAmount) {
+                const parsedValue = parseFloat(value.replace(/[^\d,.]/g, '').replace(',', '.'));
 
-            if (isNaN(parsedValue)) {
-                return false;
+                if (isNaN(parsedValue)) {
+                    return false;
+                }
+
+                return parsedValue <= schedulingAmount;
             }
-
-            return parsedValue <= schedulingAmount;
+            return false;
         }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueDisponibleToPay}`),
         name: z.string().nonempty("É necessário inserir o nome").max(29, "Só é possível digitar até 30 caracteres"),
         cpf: z.string().nonempty("É necessário inserir o CPF").max(15, "CPF inválido").refine(isValidCPF, "CPF inválido"),
@@ -235,9 +297,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             console.log(parsedValue)
             if (allUserData && allUserData.usersPermissionsUser.data) {
                 const cieloRequestManager = new CieloRequestManager();
-                // const totalValue = (Number(parsedValue.toFixed(2)) + Number(serviceValue.toFixed(2))) * 100;
-
-                // console.log({totalValue})
 
                 const body: AuthorizeCreditCardPaymentResponse = {
                     MerchantOrderId: "2014111701",
@@ -380,7 +439,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             }
         }).then((response) =>
             navigation.navigate('PixScreen', {
-                courtName: data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name ?? "",
+                courtName: fantasyName ?? "",
                 value: parsedValue.toString()!,
                 userID: user_id,
                 QRcodeURL: pixGenerated.Payment.QrCodeString,
@@ -423,16 +482,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
         alert('--- SHARE FUNCTION HAS BEEN TRIGGERED ---')
     }
 
-    const usersPaymentsPixes = dataHistoricPayments?.scheduling?.data?.attributes?.user_payment_pixes?.data || [];
-    const usersPayments = dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data || [];
+    const usersPaymentsPixes = dataHistoricPayments?.scheduling?.data?.attributes?.user_payment_pixes?.data ?? [];
+    const usersPayments = dataHistoricPayments?.scheduling?.data?.attributes?.user_payments?.data ?? [];
     const mergedPayments = [...usersPaymentsPixes, ...usersPayments];
     mergedPayments.sort((a, b) => new Date(a.attributes.createdAt).getTime() - new Date(b.attributes.createdAt).getTime());
     const paymentData = {
         data: mergedPayments
     };
 
-    const ownerUserPaymentsPixes = data?.scheduling?.data?.attributes?.user_payments?.data || []
-    const ownerUserPayments = data?.scheduling?.data?.attributes?.user_payment_pixes?.data || []
+    const ownerUserPaymentsPixes = data?.scheduling?.data?.attributes?.user_payments?.data ?? []
+    const ownerUserPayments = data?.scheduling?.data?.attributes?.user_payment_pixes?.data ?? []
     const mergedOwnerPayments = [...ownerUserPaymentsPixes, ...ownerUserPayments]
     mergedOwnerPayments.sort((a, b) => new Date(a.attributes.createdAt).getTime() - new Date(b.attributes.createdAt).getTime())
     const ownerPaymentsData = {
@@ -485,7 +544,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                 <View className='h-max w-max flex justify-center items-center'>
                     <TouchableOpacity className='h-12 W-12 '>
                         <Image
-                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url! }}
+                            source={{ uri: HOST_API + dataUser?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ?? '' }}
                             style={{ width: 46, height: 46 }}
                             borderRadius={100}
                         />
@@ -495,9 +554,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
             <ScrollView>
                 <View className='h-6'></View>
                 <View className={
-                    data?.scheduling?.data.attributes?.valuePayed! < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate! && isVanquished === false
+                    scheduleValuePayed && scheduleValuePayed < data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.value! + serviceRate! && isVanquished === false
                         ? 'flex w-max h-80 bg-zinc-900 px-5'
-                        : user_id !== data?.scheduling?.data?.attributes?.owner?.data?.id && isPayed === true
+                        : user_id !== data?.scheduling?.data?.attributes?.owner?.data?.id && isPayed
                             ? 'flex w-max h-48 bg-zinc-900 px-5'
                             : 'flex w-max h-60 bg-zinc-900 px-5'
                 }>
@@ -513,17 +572,22 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                             <View className='flex justify-start items-start h-max w-max pl-1'>
                                 <View className='flex-row justify-between items-center w-48'>
                                     <View className='flex items-center justify-center'>
-                                        <Text className='font-black text-base text-orange-600'>{data?.scheduling?.data?.attributes?.court_availability?.data?.attributes?.court?.data?.attributes?.fantasy_name}</Text>
+                                        <Text className='font-black text-base text-orange-600'>{fantasyName}</Text>
                                     </View>
                                     {
-                                        user_id === data?.scheduling?.data?.attributes?.owner?.data?.id
+                                        (
+                                          data &&
+                                          data.scheduling.data &&
+                                          data.scheduling.data.attributes.owner.data &&
+                                          user_id === data.scheduling.data.attributes.owner.data.id
+                                        )
                                             ?
                                             !isWithin24Hours
                                                 ? <TouchableOpacity className='flex-row items-center' onPress={
                                                     () => navigation.navigate('UpdateSchedule', {
                                                         courtId: data.scheduling.data.attributes.court_availability.data.attributes.court.data.id,
-                                                        courtName: data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.fantasy_name,
-                                                        courtImage: HOST_API + data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url,
+                                                        courtName: fantasyName,
+                                                        courtImage: courtPicture,
                                                         userId: user_id,
                                                         userPhoto: dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data?.attributes?.url!,
                                                         valuePayed: scheduleValuePayed!,
@@ -543,7 +607,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
                                     }
                                 </View>
                                 <View>
-                                    <Text className='font-normal text-xs text-white'>{data?.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.name}</Text>
+                                    <Text className='font-normal text-xs text-white'>{fantasyName}</Text>
                                 </View>
                                 <View className='flex-row pt-2'>
                                     <View>
