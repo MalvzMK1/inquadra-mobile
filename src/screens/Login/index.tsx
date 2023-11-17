@@ -165,12 +165,12 @@ export default function Login() {
                     expires: 1000 * 3600,
                   })
                   .then(() => {
-                    alert(`entered with enzao@gmail.com\nid: ${response.data?.login.user.id}\nJWT: ${response.data?.login.jwt}`)
                     storage
                       .load<UserInfos>({
                         key: "userInfos",
                       })
                       .then(response => {
+                        alert(`entered with enzao@gmail.com\nid: ${response.userId}\nJWT: ${response.token}`)
                         navigation.navigate("Home", {
                           userGeolocation: userGeolocation
                             ? userGeolocation
