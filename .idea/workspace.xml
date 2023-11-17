@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/apolloClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/apolloClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +24,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="crashing-reserve-screen-fix" />
+                    <option name="lastUsedInstant" value="1699952662" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="release" />
                     <option name="lastUsedInstant" value="1699628182" />
                   </RecentBranch>
@@ -42,10 +42,6 @@
                   <RecentBranch>
                     <option name="branchName" value="develop" />
                     <option name="lastUsedInstant" value="1699454588" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="fix-establishment-home-integrations" />
-                    <option name="lastUsedInstant" value="1699435887" />
                   </RecentBranch>
                 </list>
               </option>
@@ -69,7 +65,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;release&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;crashing-reserve-screen-fix&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
@@ -109,6 +105,9 @@
       <workItem from="1699521686545" duration="13626000" />
       <workItem from="1699624571068" duration="3472000" />
       <workItem from="1699869507624" duration="9397000" />
+      <workItem from="1699952562370" duration="7899000" />
+      <workItem from="1700140603369" duration="6379000" />
+      <workItem from="1700215177158" duration="1043000" />
     </task>
     <servers />
   </component>
