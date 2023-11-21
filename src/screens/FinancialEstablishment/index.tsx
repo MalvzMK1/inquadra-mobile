@@ -19,6 +19,7 @@ export default function FinancialEstablishment({
     useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
+  const [formattedDate, setFormattedDate] = useState<string | null>(null)
   const [establishmentPicture, setEstablishmentPicture] = useState<string | undefined>();
 
   const [infosHistoric, setInfosHistoric] = useState<
@@ -42,6 +43,15 @@ export default function FinancialEstablishment({
 
   console.log(establishmentId)
   console.log({ data })
+
+  useEffect(() => {
+    if (date !== undefined) {
+      const formattedDate = date.toISOString().split('T')[0];
+      setFormattedDate(formattedDate)
+    } else {
+      setFormattedDate(null)
+    }
+  }, [date])
 
   useFocusEffect(
     React.useCallback(() => {
@@ -186,7 +196,6 @@ export default function FinancialEstablishment({
         })
       })
   }, [])
-
   return (
     <View className="flex-1">
       <ScrollView>
@@ -285,6 +294,7 @@ export default function FinancialEstablishment({
                   navigation.navigate("HistoryPayment", {
                     establishmentId: establishmentId ?? "",
                     logo: logo ?? "",
+                    dateFilter: formattedDate
                   })
                 }
               >
