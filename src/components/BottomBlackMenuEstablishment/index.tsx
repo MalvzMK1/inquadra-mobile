@@ -9,7 +9,7 @@ interface IBottomBlackMenuEstablishment {
     screen: string
     establishmentID: string
     userID: string
-    establishmentLogo: string | undefined
+    establishmentLogo: string | null
     paddingTop: number
 }
 

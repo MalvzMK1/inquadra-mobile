@@ -212,7 +212,7 @@ export default function AmountAvailableWithdrawal({
               ? HOST_API +
               dataUserEstablishment?.establishment?.data?.attributes?.logo
                 ?.data?.attributes?.url
-              : undefined
+              : null
           }
           establishmentID={route.params.establishmentId}
           key={1}

@@ -170,7 +170,7 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
                 <BottomBlackMenuEstablishment
                     screen="Any"
                     userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
-                    establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : undefined}
+                    establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
                     establishmentID={route.params.establishmentId}
                     key={1}
                     paddingTop={2}
