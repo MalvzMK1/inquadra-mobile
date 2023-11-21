@@ -2,10 +2,10 @@ import {ApolloClient, ApolloLink, HttpLink, InMemoryCache} from "@apollo/client"
 import { HOST_API } from '@env';
 import storage from "../utils/storage";
 
-console.log(HOST_API)
+console.log({HOST_API})
 
 const httpLink = new HttpLink({
-	uri: HOST_API + "/graphql"
+	uri: "https://api-inquadra-uat.qodeless.com.br" + "/graphql"
 });
 
 let jwt: string = "";

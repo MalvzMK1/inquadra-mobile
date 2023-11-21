@@ -87,6 +87,8 @@ export default function FinancialEstablishment({
                   courtName: court.attributes.name,
                   date: schedulings.attributes.date,
                 });
+
+                
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
