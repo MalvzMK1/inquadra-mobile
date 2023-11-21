@@ -31,7 +31,7 @@ import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
 import { useGetUserById } from "../../hooks/useUserById";
 import getAddress from "../../utils/getAddressByCep";
-import {ALERT_TYPE, Dialog} from "react-native-alert-notification";
+import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 
 export default function DescriptionReserve({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DescriptionReserve'>) {
 	const user_id = route.params.userId.toString()
@@ -119,27 +119,26 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 	}, [data])
 
 	useEffect(() => {
-		if (
-			timeDifferenceMs &&
-			schedulingPayDate &&
-			isPayed !== undefined
-		) {
-			const _timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
-			setTimeDifferenceHours(_timeDifferenceHours);
-			setIsWithin24Hours(_timeDifferenceHours <= 24);
 
-			const _timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
-			setTimeDifferenceMsPayDate(_timeDifferenceMsPayDate);
+		const _timeDifferenceHours = timeDifferenceMs! / (1000 * 60 * 60);
+		setTimeDifferenceHours(_timeDifferenceHours);
+		setIsWithin24Hours(_timeDifferenceHours <= 24);
 
-			const _isWithinOneHour = _timeDifferenceMsPayDate <= oneHourInMs;
-			const _isVanquishedDate = schedulingPayDate < currentTime
-			const _isVanquished = _isVanquishedDate && !isPayed
+		const _timeDifferenceMsPayDate = Number(schedulingPayDate) - Number(currentTime);
+		setTimeDifferenceMsPayDate(_timeDifferenceMsPayDate);
 
-			setIsWithinOneHour(_isWithinOneHour);
-			setIsVanquishedDate(_isVanquishedDate);
-			setIsVanquished(_isVanquished);
-		}
+		const _isWithinOneHour = _timeDifferenceMsPayDate <= oneHourInMs;
+		const _isVanquishedDate = schedulingPayDate! < currentTime
+		const _isVanquished = _isVanquishedDate && !isPayed
+
+		setIsWithinOneHour(_isWithinOneHour);
+		setIsVanquishedDate(_isVanquishedDate);
+		setIsVanquished(_isVanquished);
+
 	}, [timeDifferenceMs, schedulingPayDate])
+
+
+	console.log("24 HORAS:", isWithin24Hours)
 
 	interface iFormCardPayment {
 		value: string
@@ -260,7 +259,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 		control,
 		handleSubmit,
 		formState: { errors },
-		getValues ,
+		getValues,
 		setValue
 	} = useForm<iFormCardPayment>({
 		resolver: zodResolver(formSchema)
@@ -559,10 +558,10 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 				<View className={
 					(data && data.scheduling.data && data.scheduling.data.attributes.court_availability.data && serviceRate && isVanquished !== undefined)
 						&&
-					scheduleValuePayed && scheduleValuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate && !isVanquished
+						scheduleValuePayed && scheduleValuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate && !isVanquished
 						? 'flex w-max h-80 bg-zinc-900 px-5'
 						: (data && data.scheduling.data && data.scheduling.data.attributes.owner.data) &&
-						user_id !== data.scheduling.data.attributes.owner.data.id && isPayed
+							user_id !== data.scheduling.data.attributes.owner.data.id && isPayed
 							? 'flex w-max h-48 bg-zinc-900 px-5'
 							: 'flex w-max h-60 bg-zinc-900 px-5'
 				}>
@@ -621,16 +620,16 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									</View>
 								</View>
 								{
-									(data && data.scheduling.data && data.scheduling.data.attributes.owner.data && isWithinOneHour)
-									&&
-									user_id === data.scheduling.data.attributes.owner.data.id
+									(data && data.scheduling.data && data.scheduling.data.attributes.owner.data && isWithinOneHour !== undefined)
+										&&
+										user_id === data.scheduling.data.attributes.owner.data.id
 										?
 										!isWithinOneHour
 											? <View className='pt-2'>
 												<Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
 											</View>
-											: null
-										: null
+											: <Text className='text-white'>CREU</Text>
+										: <Text className='text-white'>CARREGOU NAO</Text>
 								}
 							</View>
 						</View>
@@ -641,8 +640,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 					</View>
 					{
 						(data && data.scheduling.data && data.scheduling.data.attributes.court_availability.data && serviceRate)
-						&&
-						data.scheduling.data.attributes.valuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate
+							&&
+							data.scheduling.data.attributes.valuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate
 							?
 							<>
 								<View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
@@ -692,7 +691,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 					{
 						(data && data.scheduling.data && data.scheduling.data.attributes.owner.data && isVanquished !== undefined)
 							&&
-						data.scheduling.data.attributes.owner.data.id !== user_id ?
+							data.scheduling.data.attributes.owner.data.id !== user_id ?
 							<>
 								{
 									!isVanquished
@@ -723,7 +722,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 								{
 									(data && data.scheduling.data && data.scheduling.data.attributes.court_availability.data && serviceRate && isVanquished !== undefined)
 										&&
-									!isVanquished ?
+										!isVanquished ?
 										data.scheduling.data.attributes.valuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate
 											?
 											<View className='h-28 w-60 flex-row  pr-5'>
@@ -1131,7 +1130,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 								</View>
 								<View>
 									<Button mode="contained" style={{ height: 50, width: '100%', backgroundColor: '#FF6112', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}
-									        onPress={handleSubmit(pay)}
+										onPress={handleSubmit(pay)}
 									>
 										<Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
 									</Button>
@@ -1199,7 +1198,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 						</View>
 						<View>
 							<Button mode="contained" style={{ height: 50, width: '100%', backgroundColor: '#FF6112', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}
-							        onPress={handleSubmitPix(payPix)}>
+								onPress={handleSubmitPix(payPix)}>
 								<Text className='text-base text-white'>EFETUAR PAGAMENTO</Text>
 							</Button>
 						</View>
