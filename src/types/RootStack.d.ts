@@ -3,6 +3,7 @@ type RootStackParamList = {
   HistoryPayment: {
     establishmentId: string;
     logo: string;
+    dateFilter: string | null
   };
   DetailsAmountReceivable: {
     establishmentId: string;

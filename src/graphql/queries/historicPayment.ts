@@ -55,6 +55,8 @@ export interface IHistoricPayment {
                                 user_payments: {
                                   data: [{
                                     attributes: {
+                                      payedStatus: string
+                                      createdAt: string
                                       value: number
                                       users_permissions_user: {
                                         data: {
@@ -77,8 +79,9 @@ export interface IHistoricPayment {
                                   data: [{
                                     id: number
                                     attributes: {
+                                      createdAt: string
                                       value: number
-                                      payedStatus: string
+                                      PayedStatus: string
                                       paymentId: string
                                     }
                                   }]
@@ -127,7 +130,7 @@ query getHistoryPayment($ID: ID!) {
             }
           }
         }
-        courts {
+        courts(pagination: { limit: -1 }) {
           data {
             attributes {
               name
@@ -138,20 +141,25 @@ query getHistoryPayment($ID: ID!) {
                   }
                 }
               }
-              court_availabilities {
+              court_availabilities(pagination: { limit: -1 }) {
                 data {
                   attributes {
                     startsAt
                     endsAt
-                    schedulings {
+                    schedulings(
+                      pagination: { limit: -1 }
+                      filters: { activated: { eq: true } }
+                    ) {
                       data {
                         attributes {
                           activated
                           date
                           valuePayed
-                          user_payments {
+                          user_payments(pagination: { limit: -1 }) {
                             data {
                               attributes {
+                                payedStatus
+                                createdAt
                                 value
                                 users_permissions_user {
                                   data {
@@ -170,10 +178,11 @@ query getHistoryPayment($ID: ID!) {
                               }
                             }
                           }
-                          user_payment_pixes {
+                          user_payment_pixes(pagination: { limit: -1 }) {
                             data {
                               id
                               attributes {
+                                createdAt
                                 value
                                 PayedStatus
                                 paymentId

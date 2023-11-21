@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import CardDetailsPaymentHistoric from "../../../components/CardDetailsPaymentHistoric";
 import { useFocusEffect } from "@react-navigation/native";
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
@@ -7,6 +7,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HOST_API } from "@env";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
+import { IGetEstablishmentWithdrawsResponse } from "../../../graphql/queries/allEstablishmentWithdraws";
+import useAllEstablishmentWithdraws from "../../../hooks/useAllEstablishmentWithdraws";
+import { useGetUserHistoricPaymentFiltred } from "../../../hooks/useHistoricPaymentsFiltred";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, 'HistoryPayment'> {
     establishmentId: string
@@ -24,86 +27,91 @@ export default function HistoryPayment({ route }: NativeStackScreenProps<RootSta
     yesterday.setDate(currentDate.getDate() - 1);
     const fiveDaysAgo = new Date(currentDate);
     fiveDaysAgo.setDate(currentDate.getDate() - 5);
-
-    const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
-    const [infosHistoric, setInfosHistoric] = useState<Array<{
-        username: string;
-        valuePayed: number;
-        date: string
-    }>>()
-
     const establishmentId = route.params.establishmentId
-    const { data, loading, error } = useGetUserHistoricPayment(establishmentId)
-
-
+    let { data, loading, error } = useGetUserHistoricPayment("5");
+    if (route.params.dateFilter !== null) {
+        ({ data, loading, error } = useGetUserHistoricPaymentFiltred("5", route.params.dateFilter));
+    }
+    const [mergedPayments, setMergedPayments] = useState<[] | null>();
+    const [balance, setBalance] = useState<number>(0)
 
     useFocusEffect(
         React.useCallback(() => {
-            setInfosHistoric([]);
-            setValueCollected([]);
-
-            const dataHistoric = data?.establishment.data.attributes.courts.data;
-
             if (!error && !loading) {
-                const infosCard: {
-                    username: string;
-                    valuePayed: number;
-                    date: string;
-                }[] = [];
+                if (
+                    data &&
+                    data.establishment.data &&
+                    data.establishment.data.attributes.courts.data.length > 0
+                ) {
+                    const allPayments = data?.establishment.data.attributes.courts.data.flatMap(court => {
+                        if (court.attributes.court_availabilities.data.length > 0) {
+                            return court.attributes.court_availabilities.data.flatMap(availability => {
+                                if (availability.attributes.schedulings.data.length > 0) {
+                                    return availability.attributes.schedulings.data.flatMap(schedulings => {
+                                        if (schedulings.attributes.user_payment_pixes.data.length > 0 && schedulings.attributes.user_payments.data.length > 0) {
+                                            const userPayments = schedulings.attributes.user_payments.data.map(payment => ({
+                                                type: 'user_payment',
+                                                PayedStatus: payment.attributes.payedStatus,
+                                                createdAt: payment.attributes.createdAt,
+                                                value: payment.attributes.value,
+                                                user: payment.attributes.users_permissions_user.data.attributes,
+                                            }));
+                                            const userPaymentPixes = schedulings.attributes.user_payment_pixes.data.map(pix => ({
+                                                type: 'user_payment_pix',
+                                                createdAt: pix.attributes.createdAt,
+                                                value: pix.attributes.value,
+                                                PayedStatus: pix.attributes.PayedStatus, // Ajuste no nome do atributo
+                                                paymentId: pix.attributes.paymentId,
+                                            }));
+                                            let allPaymentsByDate = [...userPayments, ...userPaymentPixes]
+                                            allPaymentsByDate.sort((a, b) => new Date(a!.createdAt).getTime() - new Date(b!.createdAt).getTime());
+                                            const totalBalance = allPaymentsByDate.reduce((total, payment) => total + payment.value, 0);
 
-                const amountPaid: { valuePayment: number, payday: string }[] = []
+                                            setBalance(totalBalance)
+                                            setMergedPayments(allPaymentsByDate);
 
-                dataHistoric?.forEach((court) => {
-                    court.attributes.court_availabilities.data.forEach((availability) => {
-                        availability.attributes.schedulings.data.forEach((schedulings) => {
-                            schedulings.attributes.user_payments.data.forEach((payment) => {
-                                const user = payment.attributes.users_permissions_user.data.attributes;
-                                infosCard.push({
-                                    username: user.username,
-                                    valuePayed: payment.attributes.value,
-                                    date: schedulings.attributes.date,
-                                });
-                                amountPaid.push({
-                                    valuePayment: payment.attributes.value,
-                                    payday: schedulings.attributes.date
-                                });
+                                        } else if (schedulings.attributes.user_payment_pixes.data.length <= 0 && schedulings.attributes.user_payments.data.length > 0) {
+                                            const userPayments = schedulings.attributes.user_payments.data.map(payment => ({
+                                                type: 'user_payment',
+                                                PayedStatus: payment.attributes.payedStatus,
+                                                createdAt: payment.attributes.createdAt,
+                                                value: payment.attributes.value,
+                                                user: payment.attributes.users_permissions_user.data.attributes,
+                                            }));
+                                            const totalBalance = userPayments.reduce((total, payment) => total + payment.value, 0);
+
+                                            setBalance(totalBalance)
+                                            setMergedPayments(userPayments);
+                                        } else if (schedulings.attributes.user_payment_pixes.data.length > 0 && schedulings.attributes.user_payments.data.length <= 0) {
+                                            const userPaymentPixes = schedulings.attributes.user_payment_pixes.data.map(pix => ({
+                                                type: 'user_payment_pix',
+                                                createdAt: pix.attributes.createdAt,
+                                                value: pix.attributes.value,
+                                                PayedStatus: pix.attributes.PayedStatus, // Ajuste no nome do atributo
+                                                paymentId: pix.attributes.paymentId,
+                                            }));
+                                            const totalBalance = userPaymentPixes.reduce((total, payment) => total + payment.value, 0);
+
+                                            setBalance(totalBalance)
+                                            setMergedPayments(userPaymentPixes);
+                                        } else {
+                                            setMergedPayments(null)
+                                        }
+
+                                    });
+                                } else {
+                                    setMergedPayments(null)
+                                }
                             });
-                        });
-                    });
-                });
-
-                if (infosCard) {
-                    setInfosHistoric(prevState => {
-                        if (prevState === undefined) {
-                            return infosCard;
+                        } else {
+                            setMergedPayments(null);
                         }
-                        return [...prevState, ...infosCard];
-                    });
-                }
 
-                if (amountPaid) {
-                    setValueCollected(prevState => {
-                        if (prevState === undefined) {
-                            return amountPaid
-                        }
-                        return [...prevState, ...amountPaid]
-                    })
+                    }) || [];
                 }
             }
-        }, [error, loading])
-    )
-
-    function isAvailableForWithdrawal() {
-        const currentDate = new Date();
-
-        const datesFilter = valueCollected?.filter((item) => {
-            const paydayDate = new Date(item.payday);
-
-            return paydayDate == currentDate;
-        });
-
-        return datesFilter;
-    }
+        }, [error, loading, data])
+    );
 
     const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId)
     return (
@@ -119,10 +127,20 @@ export default function HistoryPayment({ route }: NativeStackScreenProps<RootSta
                         </View>
                         <View>
                             <Text className="text-base text-gray-500 mt-1">Saldo do dia: R$ {
-                                isAvailableForWithdrawal()?.reduce((total, current) => total + current.valuePayment, 0)
+                                balance
                             }</Text>
                         </View>
-                        <CardDetailsPaymentHistoric username={""} valuePayed={0} />
+                        {
+                            mergedPayments !== undefined
+                                ?
+                                mergedPayments !== null
+                                    ?
+                                    mergedPayments.map((payment) => (
+                                        <CardDetailsPaymentHistoric valuePayed={payment.value} username={"Enzudo Graxa"} payedStatus={payment.PayedStatus}></CardDetailsPaymentHistoric>
+                                    ))
+                                    : <Text className="text-lg font-bold">Não existe algum saque para hoje</Text>
+                                : <ActivityIndicator size="large" color="#FF6112" />
+                        }
                     </View>
                 </View>
                 <View className="h-16"></View>

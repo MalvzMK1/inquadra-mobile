@@ -6,6 +6,7 @@ import { View, Text } from "react-native";
 interface infosCard {
     username: string;
     valuePayed: number
+    payedStatus: string
 }
 
 export default function CardDetailsPaymentHistoric(props: infosCard) {
@@ -18,9 +19,9 @@ export default function CardDetailsPaymentHistoric(props: infosCard) {
                 <Text className="text-base">Outras transferências</Text>
                 <Text className="text-xl font-bold">Pix transf.</Text>
             </View>
-            <View className="flex-shrink-0">
-                <Text className="text-xl font-bold">-R$150,00</Text>
+            <View className="flex items-center">
+                <Text className="text-xl font-bold">+R${props.valuePayed}</Text>
             </View>
-        </View>
+        </View >
     )
 }
