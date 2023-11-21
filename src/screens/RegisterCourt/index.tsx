@@ -1,3 +1,4 @@
+import { HOST_API } from "@env";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,10 +21,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { ActivityIndicator } from "react-native-paper";
 import { z } from "zod";
-import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { Appointment } from "../CourtPriceHour";
-import { HOST_API } from '@env';
 
 const formSchema = z.object({
   minimum_value: z
@@ -40,8 +39,6 @@ interface IFormDatasCourt {
   photos: string[];
   court_availabilities?: string[];
 }
-
-
 
 type CourtTypes = Array<{ label: string; value: string }>;
 
@@ -71,12 +68,12 @@ export default function RegisterCourt({
   });
 
   async function register(data: IFormDatasCourt, shouldRedirect = false) {
-    setIsLoading(true)
+    setIsLoading(true);
 
     const [storageDayUse, storageAvailabilities] = await Promise.all([
-      AsyncStorage.getItem('@inquadra/court-price-hour_day-use'),
-      AsyncStorage.getItem('@inquadra/court-price-hour_all-appointments'),
-    ])
+      AsyncStorage.getItem("@inquadra/court-price-hour_day-use"),
+      AsyncStorage.getItem("@inquadra/court-price-hour_all-appointments"),
+    ]);
 
     const selectedCourtTypeIds: string[] = [];
 
@@ -95,9 +92,11 @@ export default function RegisterCourt({
       if (
         storageDayUse &&
         storageAvailabilities &&
-        (dayUse = JSON.parse(storageDayUse)).length &&
-        (allAvailabilities = JSON.parse(storageAvailabilities)).some(
-          (availabilities: Appointment[]) => availabilities.length > 0,
+        (dayUse = JSON.parse(storageDayUse) as typeof dayUse).length &&
+        (allAvailabilities = JSON.parse(
+          storageAvailabilities,
+        ) as typeof allAvailabilities).some(
+          availabilities => availabilities.length > 0,
         )
       ) {
         const payload: CourtAddRawPayload = {
@@ -109,7 +108,7 @@ export default function RegisterCourt({
           court_availabilities: allAvailabilities,
           dayUse,
           currentDate: new Date().toISOString(),
-        }
+        };
 
         if (shouldRedirect) {
           navigation.navigate("AllVeryWell", {
@@ -125,66 +124,21 @@ export default function RegisterCourt({
             ),
           ]);
 
-          reset()
+          reset();
           setPhotos([]);
           setSelectedCourtTypes([]);
           setCourts(prevState => [...prevState, payload]);
-
-          console.log(courts)
         }
-      } else Alert.alert('Erro', 'Preencha os valores e horários.');
+      } else Alert.alert("Erro", "Preencha os valores e horários.");
     } catch (error) {
       console.error(JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível registrar a quadra");
     } finally {
       setIsLoading(false);
     }
-
-    //   const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
-    //     uploadImages(),
-    //     Promise.all(
-    //       allAvailabilities.flatMap((availabilities, index) => {
-    //         return availabilities.map(async availability => {
-    //           const { data } = await registerCourtAvailability({
-    //             variables: {
-    //               status: true,
-    //               title: "O que deve vir aqui?",
-    //               day_use_service: dayUse[index],
-    //               starts_at: `${availability.startsAt}:00.000`,
-    //               ends_at: `${availability.endsAt}:00.000`,
-    //               value: Number(
-    //                 availability.price
-    //                   .replace("R$", "")
-    //                   .replace(".", "")
-    //                   .replace(",", ".")
-    //                   .trim(),
-    //               ),
-    //               week_day: indexToWeekDayMap[index],
-    //             },
-    //           });
-    //
-    //           if (!data) {
-    //             throw new Error("No data");
-    //           }
-    //
-    //           return data.createCourtAvailability.data.id;
-    //         });
-    //       }),
-    //     ),
-    //   ]);
-    //
-    //   const payload: CourtAdd = {
-    //     court_name: `Quadra de ${selected}`,
-    //     courtType: courtIds,
-    //     fantasyName: data.fantasyName,
-    //     photos: uploadedImageIds,
-    //     court_availabilities: courtAvailabilityIds,
-    //     minimum_value: Number(data.minimum_value) / 100,
-    //     currentDate: new Date().toISOString(),
-    //   };
   }
 
-  const registerNewCourt = handleSubmit(async (data: IFormDatasCourt) => {
+  const registerNewCourt = handleSubmit(async data => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
@@ -192,19 +146,13 @@ export default function RegisterCourt({
     await register(data);
   });
 
-  const finishCourtsRegisters = handleSubmit(async (data: IFormDatasCourt) => {
+  const finishCourtsRegisters = handleSubmit(async data => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
 
     await register(data, true);
   });
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, [navigation]);
 
   const handleProfilePictureUpload = async () => {
     try {

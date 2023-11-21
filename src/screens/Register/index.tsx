@@ -1,27 +1,30 @@
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { View, Text } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function Register() {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>()
-    return (
-        <View className="flex-1 bg-white">
-            <View className="h-[150px] w-full flex items-center justify-center flex-col">
-                <Text className="text-4xl font-bold text-[#4e4e4e] mb-6">Registro</Text>
-                <Text className="text-xl text-[#959595]">Subtitulo</Text>
-            </View>
-            <View className="flex-1 bg-orange-200 flex flex-col justify-start p-20">
-                <TouchableOpacity
-                    onPress={() =>
-                        navigation.navigate('HomeVariant', {
-                            userPhoto: 'https://avatars.githubusercontent.com/u/92887081?v=4',
-                            name: 'Screen Name',
-                        })
-                    }
-                >
-                    <Text>Go to next page</Text>
-                </TouchableOpacity>
-            </View>
-        </View >
-    );
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  return (
+    <View className="flex-1 bg-white">
+      <View className="h-[150px] w-full flex items-center justify-center flex-col">
+        <Text className="text-4xl font-bold text-[#4e4e4e] mb-6">Registro</Text>
+
+        <Text className="text-xl text-[#959595]">Subtitulo</Text>
+      </View>
+
+      <View className="flex-1 bg-orange-200 flex flex-col justify-start p-20">
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("HomeVariant", {
+              userPhoto: "https://avatars.githubusercontent.com/u/92887081?v=4",
+              name: "Screen Name",
+            })
+          }
+        >
+          <Text>Go to next page</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }

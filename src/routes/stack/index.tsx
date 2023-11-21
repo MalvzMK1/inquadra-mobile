@@ -1,16 +1,13 @@
 import { HOST_API } from "@env";
 import { Entypo, MaterialIcons } from "@expo/vector-icons";
-import {
-  NavigationProp,
-  useFocusEffect,
-  useNavigation,
-} from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { useCallback, useEffect, useState } from "react";
-import {Alert, Image, View} from "react-native";
+import { useEffect, useState } from "react";
+import { Image, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Text, TextInput } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
+import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 import AllVeryWell from "../../screens/AllVeryWell";
 import CourtDetails from "../../screens/AllVeryWell/CourtDetails";
 import editCourt from "../../screens/AllVeryWell/CourtDetails/editCourt";
@@ -56,9 +53,6 @@ import UpdateSchedule from "../../screens/UpdateSchedule";
 import PaymentScheduleUpdate from "../../screens/UpdateSchedule/updateSchedule";
 import Home from "../../screens/home";
 import storage from "../../utils/storage";
-import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
-import {gql, useQuery} from "@apollo/client";
-import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
@@ -80,25 +74,33 @@ export default function () {
     longitude: 0,
   });
 
-  const {data: allEstablishments} = useAllEstablishments();
+  const { data: allEstablishments } = useAllEstablishments();
 
   useEffect(() => {
-    if (corporateName === '') setEstablishmentsInfos([]);
+    if (corporateName === "") setEstablishmentsInfos([]);
     else if (allEstablishments) {
-      const establishments = allEstablishments.establishments.data.map(establishment => {
-        return {
-          establishmentsId: establishment.id,
-          corporateName: establishment.attributes.corporateName
-        }
-      })
+      const establishments = allEstablishments.establishments.data.map(
+        establishment => {
+          return {
+            establishmentsId: establishment.id,
+            corporateName: establishment.attributes.corporateName,
+          };
+        },
+      );
 
       const filteredEstablishments = establishments.filter(establishment => {
-        console.log(establishment.corporateName, corporateName, {penis: establishment.corporateName.toLowerCase().includes(corporateName.toLowerCase())})
-        return establishment.corporateName.toLowerCase().includes(corporateName.toLowerCase())
-      })
-      setEstablishmentsInfos(filteredEstablishments)
+        console.log(establishment.corporateName, corporateName, {
+          penis: establishment.corporateName
+            .toLowerCase()
+            .includes(corporateName.toLowerCase()),
+        });
+        return establishment.corporateName
+          .toLowerCase()
+          .includes(corporateName.toLowerCase());
+      });
+      setEstablishmentsInfos(filteredEstablishments);
     }
-  }, [corporateName])
+  }, [corporateName]);
 
   useEffect(() => {
     storage
@@ -165,8 +167,7 @@ export default function () {
                                 userPhoto: params.userPhoto,
                                 userId: params.userID,
                               });
-                            else
-                              navigation.navigate('Login');
+                            else navigation.navigate("Login");
                           }}
                         >
                           <Text className="text-sm outline-none">
@@ -222,7 +223,13 @@ export default function () {
           ),
         })}
       >
-        {props => <Home {...props} menuBurguer={menuBurguer} setMenuBurguer={setMenuBurguer}/>}
+        {props => (
+          <Home
+            {...props}
+            menuBurguer={menuBurguer}
+            setMenuBurguer={setMenuBurguer}
+          />
+        )}
       </Screen>
       <Screen
         name="Login"
@@ -268,13 +275,13 @@ export default function () {
                 <Image
                   source={
                     params.establishmentPhoto
-                      ? {uri: HOST_API + params.establishmentPhoto}
+                      ? { uri: HOST_API + params.establishmentPhoto }
                       : require("../../assets/default-user-image.png")
                   }
                   className="w-full h-full"
                 />
               </TouchableOpacity>
-            )
+            );
           },
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -494,7 +501,12 @@ export default function () {
         name="Register"
         component={Register}
         options={{
-          headerTitle: "",
+          title: "",
+          headerLeft: () => (
+            <TouchableOpacity className="ml-4" onPress={navigation.goBack}>
+              <Icon name="arrow-back" size={25} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Screen
@@ -515,28 +527,48 @@ export default function () {
         name="EstablishmentRegister"
         component={RegisterEstablishment}
         options={{
-          headerTitle: "",
+          title: "",
+          headerLeft: () => (
+            <TouchableOpacity className="ml-4" onPress={navigation.goBack}>
+              <Icon name="arrow-back" size={25} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Screen
         name="RegisterCourts"
         component={RegisterCourt}
         options={{
-          headerShown: false,
+          title: "",
+          headerLeft: () => (
+            <TouchableOpacity className="ml-4" onPress={navigation.goBack}>
+              <Icon name="arrow-back" size={25} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Screen
         name="AllVeryWell"
         component={AllVeryWell}
         options={{
-          headerShown: false,
+          title: "",
+          headerLeft: () => (
+            <TouchableOpacity className="ml-4" onPress={navigation.goBack}>
+              <Icon name="arrow-back" size={25} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Screen
         name="CourtDetails"
         component={CourtDetails}
         options={{
-          headerShown: false,
+          title: "",
+          headerLeft: () => (
+            <TouchableOpacity className="ml-4" onPress={navigation.goBack}>
+              <Icon name="arrow-back" size={25} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Screen
@@ -607,13 +639,14 @@ export default function () {
             marginLeft: 10,
           },
           headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-            onPress={() =>
-              navigation.navigate("InfoProfileEstablishment", {
-                establishmentId: params.establishmentId,
-                establishmentPhoto: params.logo ?? "",
-              })
-            }
+            <TouchableOpacity
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              onPress={() =>
+                navigation.navigate("InfoProfileEstablishment", {
+                  establishmentId: params.establishmentId,
+                  establishmentPhoto: params.logo ?? "",
+                })
+              }
             >
               <Image
                 source={
@@ -633,10 +666,7 @@ export default function () {
         options={{
           title: "",
           headerLeft: () => (
-            <TouchableOpacity
-              className="ml-1"
-              onPress={() => navigation.goBack()}
-            >
+            <TouchableOpacity className="ml-4" onPress={navigation.goBack}>
               <Icon name="arrow-back" size={25} color="black" />
             </TouchableOpacity>
           ),
@@ -970,13 +1000,15 @@ export default function () {
             </View>
           ),
           headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-            onPress={() =>
-              navigation.navigate("InfoProfileEstablishment", {
-                establishmentId: params.establishmentId,
-                establishmentPhoto: params.logo ?? "",
-              })
-            }>
+            <TouchableOpacity
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              onPress={() =>
+                navigation.navigate("InfoProfileEstablishment", {
+                  establishmentId: params.establishmentId,
+                  establishmentPhoto: params.logo ?? "",
+                })
+              }
+            >
               <Image
                 source={
                   params?.logo
@@ -1009,13 +1041,14 @@ export default function () {
           headerTitleAlign: "center",
           title: "Detalhes",
           headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-            onPress={() =>
-              navigation.navigate("InfoProfileEstablishment", {
-                establishmentId: params.establishmentId,
-                establishmentPhoto: params.logo ?? "",
-              })
-            }
+            <TouchableOpacity
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              onPress={() =>
+                navigation.navigate("InfoProfileEstablishment", {
+                  establishmentId: params.establishmentId,
+                  establishmentPhoto: params.logo ?? "",
+                })
+              }
             >
               <Image
                 source={
@@ -1041,13 +1074,15 @@ export default function () {
           headerTitleAlign: "center",
           title: "Histórico",
           headerRight: () => (
-            <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden" 
-            onPress={() =>
-              navigation.navigate("InfoProfileEstablishment", {
-                establishmentId: params.establishmentId,
-                establishmentPhoto: params.logo ?? "",
-              })
-            }>
+            <TouchableOpacity
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              onPress={() =>
+                navigation.navigate("InfoProfileEstablishment", {
+                  establishmentId: params.establishmentId,
+                  establishmentPhoto: params.logo ?? "",
+                })
+              }
+            >
               <Image
                 source={
                   params?.logo

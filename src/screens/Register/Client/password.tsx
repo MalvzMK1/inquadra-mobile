@@ -1,7 +1,7 @@
 import { ApolloError, useApolloClient } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -13,9 +13,10 @@ import {
   View,
 } from "react-native";
 import { CheckBox } from "react-native-elements";
+import type { UserGeolocation } from "src/types/UserGeolocation";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
-import { IRegisterUserVariables } from "../../../graphql/mutations/register";
+import type { IRegisterUserVariables } from "../../../graphql/mutations/register";
 import {
   IUserByIdResponse,
   IUserByIdVariables,
@@ -79,17 +80,19 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         return setPasswordsMatch(false);
       }
 
-      if (route.params.flow === 'normal') {
+      if (route.params.flow === "normal") {
         const registerData: IRegisterUserVariables = {
           password: data.password,
           cpf: route.params.data.cpf,
           email: route.params.data.email,
-          role: '3',
+          role: "3",
           phone_number: route.params.data.phoneNumber,
           username: route.params.data.name,
         };
 
-        const registerResponse = await registerUser({ variables: registerData });
+        const registerResponse = await registerUser({
+          variables: registerData,
+        });
 
         if (!registerResponse.data) {
           throw new Error("No register data");
@@ -129,55 +132,54 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           expires: 1000 * 3600,
         });
 
-        storage.load<UserInfos>({
-          key: "userInfos",
-        }).catch(error => {
-          if (error instanceof Error) {
-            if (error.name === 'NotFoundError') {
-              console.log('The item wasn\'t found.');
-            } else if (error.name === 'ExpiredError') {
-              console.log('The item has expired.');
-              storage.remove({
-                key: 'userInfos'
-              }).then(() => {
-                console.log('The item has been removed.');
-              })
-            } else {
-              console.log('Unknown error:', error);
+        storage
+          .load<UserInfos>({
+            key: "userInfos",
+          })
+          .catch(error => {
+            if (error instanceof Error) {
+              if (error.name === "NotFoundError") {
+                console.log("The item wasn't found.");
+              } else if (error.name === "ExpiredError") {
+                console.log("The item has expired.");
+                storage
+                  .remove({
+                    key: "userInfos",
+                  })
+                  .then(() => {
+                    console.log("The item has been removed.");
+                  });
+              } else {
+                console.log("Unknown error:", error);
+              }
             }
-          }
-        });;
+          });
 
-        if (
-          userData.usersPermissionsUser.data.attributes.role.data.id === "3"
-        ) {
-          const userGeolocation = await storage.load<{
-            latitude: number;
-            longitude: number;
-          }>({ key: "userGeolocation" });
+        const userGeolocation = await storage.load<UserGeolocation>({
+          key: "userGeolocation",
+        });
 
-          navigation.navigate("RegisterSuccess", {
-            nextRoute: "Home",
-            routePayload: {
-              userGeolocation: userGeolocation
-                ? userGeolocation
-                : {
+        navigation.navigate("RegisterSuccess", {
+          nextRoute: "Home",
+          routePayload: {
+            userGeolocation: userGeolocation
+              ? userGeolocation
+              : {
                   latitude: 78.23570781291714,
                   longitude: 15.491400000982967,
                 },
-              userID: authData.data.login.user.id,
-              userPhoto: undefined,
-            },
-          });
-        }
-      } else if (route.params.flow === 'establishment') {
+            userID: authData.data.login.user.id,
+            userPhoto: undefined,
+          },
+        });
+      } else if (route.params.flow === "establishment") {
         navigation.navigate("EstablishmentRegister", {
           password: data.password,
           cpf: route.params.data.cpf,
           email: route.params.data.email,
           username: route.params.data.name,
           phone_number: route.params.data.phoneNumber,
-          role: '4',
+          role: "4",
         });
       }
     } catch (error) {
@@ -195,11 +197,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
       setIsLoading(false);
     }
   }
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, [navigation]);
+
   return (
     <View className="flex flex-col bg-white h-screen items-center p-5">
       <View>

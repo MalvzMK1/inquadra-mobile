@@ -57,16 +57,19 @@ export default function Login() {
 
   const handleLogin = async (data: IFormData) => {
     setIsLoading(true);
+
     try {
       const authData = await authUser({
         variables: {
           identifier: data.identifier.trim(),
           password: data.password.trim(),
         },
-      })
+      });
+
       if (!authData.data) {
         throw new Error("No auth data.");
       }
+
       const { data: userData } = await apolloClient.query<
         IUserByIdResponse,
         IUserByIdVariables
@@ -77,48 +80,48 @@ export default function Login() {
         },
       });
 
-      console.log(authData.data.login.user.id)
-
-      if (!userData) {
-        throw new Error("No user data.");
-      }
-      storage.save({
-        key: "userInfos",
-        data: {
-          token: authData.data.login.jwt,
-          userId: authData.data.login.user.id,
-        },
-        expires: 1000 * 3600,
-      }).then(() => {
-        storage.load<UserInfos>({
+      storage
+        .save({
           key: "userInfos",
-        }).catch(error => {
-          if (error instanceof Error) {
-            if (error.name === 'NotFoundError') {
-              console.log('The item wasn\'t found.');
-            } else if (error.name === 'ExpiredError') {
-              console.log('The item has expired.');
-              storage.remove({
-                key: 'userInfos'
-              }).then(() => {
-                console.log('The item has been removed.');
-              })
-            } else {
-              console.log('Unknown error:', error);
-            }
-          }
+          data: {
+            token: authData.data.login.jwt,
+            userId: authData.data.login.user.id,
+          },
+          expires: 1000 * 3600,
+        })
+        .then(() => {
+          storage
+            .load<UserInfos>({
+              key: "userInfos",
+            })
+            .catch(error => {
+              if (error instanceof Error) {
+                if (error.name === "NotFoundError") {
+                  console.log("The item wasn't found.");
+                } else if (error.name === "ExpiredError") {
+                  console.log("The item has expired.");
+                  storage
+                    .remove({
+                      key: "userInfos",
+                    })
+                    .then(() => {
+                      console.log("The item has been removed.");
+                    });
+                } else {
+                  console.log("Unknown error:", error);
+                }
+              }
+            });
         });
-      });
 
-      if (
-        userData &&
-        userData.usersPermissionsUser.data
-      ) {
-        if (userData.usersPermissionsUser.data.attributes.role.data.id === "3") {
+      if (userData && userData.usersPermissionsUser.data) {
+        if (
+          userData.usersPermissionsUser.data.attributes.role.data.id === "3"
+        ) {
           navigation.navigate("Home", {
             userGeolocation: userGeolocation
               ? userGeolocation
-              : {latitude: 78.23570781291714, longitude: 15.491400000982967},
+              : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
             userID: authData.data.login.user.id,
             userPhoto: undefined,
           });
@@ -146,9 +149,9 @@ export default function Login() {
           onPress={() => {
             authUser({
               variables: {
-                identifier: 'enzao@gmail.com',
-                password: '122122',
-              }
+                identifier: "enzao@gmail.com",
+                password: "122122",
+              },
             }).then(response => {
               if (
                 response.data &&
@@ -170,21 +173,23 @@ export default function Login() {
                         key: "userInfos",
                       })
                       .then(response => {
-                        alert(`entered with enzao@gmail.com\nid: ${response.userId}\nJWT: ${response.token}`)
+                        alert(
+                          `entered with enzao@gmail.com\nid: ${response.userId}\nJWT: ${response.token}`,
+                        );
                         navigation.navigate("Home", {
                           userGeolocation: userGeolocation
                             ? userGeolocation
                             : {
-                              latitude: 78.23570781291714,
-                              longitude: 15.491400000982967,
-                            },
+                                latitude: 78.23570781291714,
+                                longitude: 15.491400000982967,
+                              },
                           userID: response.userId,
                           userPhoto: undefined,
                         });
                       });
                   });
               }
-            })
+            });
           }}
         >
           <Text className="text-base text-gray-400 pb-5">Seja bem-vindo!</Text>
@@ -281,13 +286,11 @@ export default function Login() {
               className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
               onPress={handleSubmit(handleLogin)}
             >
-              <Text className="text-white text-base">
-                {isLoading ? (
-                  <ActivityIndicator size="small" color="#F5620F" />
-                ) : (
-                  "Entrar"
-                )}
-              </Text>
+              {isLoading ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Text className="text-white text-base">Entrar</Text>
+              )}
             </TouchableOpacity>
           </View>
           <View className="flex-row  items-center justify-center pt-11">

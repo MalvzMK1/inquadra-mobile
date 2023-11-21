@@ -30,7 +30,8 @@ const formSchema = z.object({
   cpf: z
     .string()
     .nonempty("O CPF não pode estar vazio!")
-    .max(14, "O CPF passado não é válido"),
+    .max(14, "O CPF passado não é válido")
+    .refine(cpf => validateCpf(cpf), "CPF Inválido"),
 });
 
 export default function Register({
@@ -41,26 +42,17 @@ export default function Register({
     control,
     handleSubmit,
     formState: { errors },
-    setError
   } = useForm<IFormDatas>({
     resolver: zodResolver(formSchema),
   });
 
-  function handleGoToNextRegisterPage(data: IFormDatas) {
-    if (validateCpf(data.cpf))
-      navigation.navigate("RegisterPassword", {
-        data,
-        flow: route.params.flow,
-      });
-    else setError('cpf', {
-      message: 'CPF Inválido',
-    })
-  }
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
+  const handleGoToNextRegisterPage = handleSubmit(data => {
+    navigation.navigate("RegisterPassword", {
+      data,
+      flow: route.params.flow,
     });
-  }, [navigation]);
+  });
+
   return (
     <ScrollView className="flex-1 bg-white p-2">
       <View className="h-full p-4">
@@ -75,9 +67,6 @@ export default function Register({
             <Controller
               name="name"
               control={control}
-              rules={{
-                required: true,
-              }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   value={value}
@@ -148,9 +137,9 @@ export default function Register({
                   textContentType="telephoneNumber"
                   keyboardType="phone-pad"
                   maxLength={15}
-                  onChangeText={(masked, unmasked, obfuscated) =>
-                    onChange(unmasked)
-                  }
+                  onChangeText={(masked, unmasked, obfuscated) => {
+                    onChange(unmasked);
+                  }}
                   className={
                     errors.phoneNumber
                       ? "p-4 border border-red-400 rounded"
@@ -184,9 +173,9 @@ export default function Register({
                   value={value}
                   keyboardType="numeric"
                   maxLength={14}
-                  onChangeText={(masked, unmasked, obfuscated) =>
-                    onChange(unmasked)
-                  }
+                  onChangeText={(masked, unmasked, obfuscated) => {
+                    onChange(unmasked);
+                  }}
                   className={
                     errors.cpf
                       ? "p-4 border border-red-400 rounded"
@@ -204,7 +193,7 @@ export default function Register({
 
         <TouchableOpacity
           className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6"
-          onPress={handleSubmit(handleGoToNextRegisterPage)}
+          onPress={handleGoToNextRegisterPage}
         >
           <Text className="text-white text-base font-semibold">Continuar</Text>
         </TouchableOpacity>
