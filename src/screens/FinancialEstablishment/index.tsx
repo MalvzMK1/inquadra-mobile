@@ -50,6 +50,8 @@ export default function FinancialEstablishment({
 
       const dataHistoric = data?.establishment.data.attributes.courts.data;
 
+      console.log(dataHistoric?.[0].attributes.court_availabilities.data[0].attributes.schedulings.data[0].attributes.date)
+
       if (!error && !loading) {
         const infosCard: {
           username: string;
@@ -139,8 +141,6 @@ export default function FinancialEstablishment({
       }
     });
 
-    console.log(valueCollected)
-
     return {
       creditValue: creditValue,
       cashout: cashout,
@@ -156,7 +156,6 @@ export default function FinancialEstablishment({
   useEffect(() => {
     AsyncStorage.getItem('@inquadra/establishment-profile-photo')
       .then(value => {
-        console.log({ photo: value })
         setEstablishmentPicture(value ? value : undefined)
         navigation.setParams({
           logo: value ?? undefined,
@@ -178,7 +177,6 @@ export default function FinancialEstablishment({
                   R${" "}
                   {valueCollected
                     ? (
-                      console.log({ valueCollected }),
                       isAvailableForWithdrawal().cashout.reduce(
                         (total, current) => total + current.valuePayment,
                         0,
@@ -235,7 +233,7 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? (console.log({ valueCollected }), isAvailableForWithdrawal().creditValue.reduce(
+                    ? (isAvailableForWithdrawal().creditValue.reduce(
                       (total, current) => total + current.valuePayment,
                       0,
                     ))

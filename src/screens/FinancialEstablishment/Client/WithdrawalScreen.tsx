@@ -76,7 +76,7 @@ export default function WithdrawScreen({
         if (amountPaid) {
           setValueCollected(prevState => {
             if (prevState === undefined) {
-              return amountPaid;            
+              return amountPaid;
             }
             return [...prevState, ...amountPaid];
           });
@@ -90,7 +90,7 @@ export default function WithdrawScreen({
       return item.activated === true
     });
 
-    if (validateActivatedStatus) {   
+    if (validateActivatedStatus) {
       return validateActivatedStatus!.reduce(
         (total, current) => total + current.valuePayment,
         0,
@@ -278,7 +278,7 @@ export default function WithdrawScreen({
               ? HOST_API +
               dataUserEstablishment?.establishment?.data?.attributes?.logo
                 ?.data?.attributes?.url
-              : null
+              : undefined
           }
           establishmentID={route.params.establishmentId}
           key={1}

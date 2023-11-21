@@ -1,10 +1,9 @@
 import { View, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from "react-native"
-import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import React, { useEffect, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 interface IBottomBlackMenuEstablishment {
     screen: string
@@ -21,9 +20,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
     const [userID, setUserID] = useState("")
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
-    const [showPrincipalButton, setPrincipalButton] = useState(true)
     const [showButtons, setShowButtons] = useState(true)
-    const [statusClickHome, setStatusClickHome] = useState(false)
     const opacityValue = useSharedValue(0)
 
     useEffect(() => {
@@ -31,10 +28,8 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
         setEstablishmentID(props.establishmentID)
         setEstablishmentLogo(props.establishmentLogo!)
         setUserID(props.userID)
-        
-    }, [])
-    console.log(screen, establishmentID, userID)
-   
+    }, [props])
+
     const buttonsContainerStyle = useAnimatedStyle(() => {
         return {
             opacity: withTiming(opacityValue.value, { duration: 300 }), // Duração da animação (300ms)

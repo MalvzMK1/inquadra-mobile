@@ -129,6 +129,7 @@ export default function HomeEstablishment({
     error: errorCourts,
     loading: loadingCourts,
   } = useAllCourtsEstablishment(establishmentId!);
+
   const [
     updateActivatedStatus,
     {
@@ -228,7 +229,7 @@ export default function HomeEstablishment({
       setUserName(dataEstablishmentId.usersPermissionsUser.data.attributes.username)
       setFirstName(dataEstablishmentId.usersPermissionsUser.data.attributes.username.split(' ')[0])
     }
-  }, [dataEstablishmentId])
+  }, [dataEstablishmentId, errorEstablishmentId, loadingEstablishmentId])
 
   useEffect(() => {
     if (

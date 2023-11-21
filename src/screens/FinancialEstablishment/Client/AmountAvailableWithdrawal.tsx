@@ -34,6 +34,7 @@ export default function AmountAvailableWithdrawal({
       username: string;
       valuePayed: number;
       date: string;
+      activated: boolean
     }>
   >();
 
@@ -52,6 +53,7 @@ export default function AmountAvailableWithdrawal({
           username: string;
           valuePayed: number;
           date: string;
+          activated: boolean
         }[] = [];
 
         const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
@@ -66,6 +68,7 @@ export default function AmountAvailableWithdrawal({
                   username: user.username,
                   valuePayed: payment.attributes.value,
                   date: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
                 });
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
@@ -141,7 +144,7 @@ export default function AmountAvailableWithdrawal({
               </Text>
             </View>
             <View>
-              {infosHistoric?.map(card => {
+              {infosHistoric?.filter(item => { return item.activated }).map(card => {
                 const currentDate = new Date();
                 const cardDate = new Date(card.date.split("T")[0]);
 
