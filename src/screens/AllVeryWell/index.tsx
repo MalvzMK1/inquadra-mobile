@@ -13,9 +13,9 @@ import {
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import useDeleteCourtAvailability from "src/hooks/useDeleteCourtAvailability";
 import { IRegisterUserVariables } from "../../graphql/mutations/register";
 import { IRegisterEstablishmentVariables } from "../../graphql/mutations/registerEstablishment";
+import useDeleteCourtAvailability from "../../hooks/useDeleteCourtAvailability";
 import useDeleteEstablishment from "../../hooks/useDeleteEstablishment";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import useRegisterCourt from "../../hooks/useRegisterCourt";

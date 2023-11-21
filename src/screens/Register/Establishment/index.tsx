@@ -16,9 +16,9 @@ import {
 import { MultipleSelectList } from "react-native-dropdown-select-list";
 import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
-import type { UserGeolocation } from "src/types/UserGeolocation";
 import { z } from "zod";
 import useAllAmenities from "../../../hooks/useAllAmenities";
+import type { UserGeolocation } from "../../../types/UserGeolocation";
 import storage from "../../../utils/storage";
 
 const formSchema = z.object({

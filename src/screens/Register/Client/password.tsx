@@ -13,7 +13,6 @@ import {
   View,
 } from "react-native";
 import { CheckBox } from "react-native-elements";
-import type { UserGeolocation } from "src/types/UserGeolocation";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
 import type { IRegisterUserVariables } from "../../../graphql/mutations/register";
@@ -24,6 +23,7 @@ import {
 } from "../../../graphql/queries/userById";
 import useLoginUser from "../../../hooks/useLoginUser";
 import useRegisterUser from "../../../hooks/useRegisterUser";
+import type { UserGeolocation } from "../../../types/UserGeolocation";
 import storage from "../../../utils/storage";
 
 type RegisterPasswordProps = NativeStackScreenProps<
