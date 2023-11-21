@@ -82,6 +82,20 @@ export interface IHistoricPayment {
                                       createdAt: string
                                       value: number
                                       PayedStatus: string
+                                      users_permissions_user: {
+                                        data: {
+                                          attributes: {
+                                            username: string
+                                            photo: {
+                                              data: {
+                                                attributes: {
+                                                  url: string
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
                                       paymentId: string
                                     }
                                   }]
@@ -155,6 +169,28 @@ query getHistoryPayment($ID: ID!) {
                           activated
                           date
                           valuePayed
+                          user_payment_pixes{
+                            data{
+                              attributes{
+                                name
+                                value
+                                users_permissions_user{
+                                  data {
+                                    attributes {
+                                      username
+                                      photo {
+                                        data {
+                                          attributes {
+                                            url
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
                           user_payments(pagination: { limit: -1 }) {
                             data {
                               attributes {

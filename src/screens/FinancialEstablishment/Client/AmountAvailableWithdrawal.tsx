@@ -34,6 +34,7 @@ export default function AmountAvailableWithdrawal({
       username: string;
       valuePayed: number;
       date: string;
+      activated: boolean
     }>
   >();
 
@@ -52,6 +53,7 @@ export default function AmountAvailableWithdrawal({
           username: string;
           valuePayed: number;
           date: string;
+          activated: boolean
         }[] = [];
 
         const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
@@ -60,12 +62,26 @@ export default function AmountAvailableWithdrawal({
           court.attributes.court_availabilities.data.forEach(availability => {
             availability.attributes.schedulings.data.forEach(schedulings => {
               schedulings.attributes.user_payments.data.forEach(payment => {
-                const user =
-                  payment.attributes.users_permissions_user.data.attributes;
+                const user = payment.attributes.users_permissions_user.data.attributes;
                 infosCard.push({
                   username: user.username,
                   valuePayed: payment.attributes.value,
                   date: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
+                });
+                amountPaid.push({
+                  valuePayment: payment.attributes.value,
+                  payday: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
+                });
+              });
+              schedulings.attributes.user_payment_pixes.data.forEach(payment => {
+                const user = payment.attributes.users_permissions_user.data.attributes;
+                infosCard.push({
+                  username: user.username,
+                  valuePayed: payment.attributes.value,
+                  date: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
                 });
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
@@ -141,13 +157,14 @@ export default function AmountAvailableWithdrawal({
               </Text>
             </View>
             <View>
-              {infosHistoric?.map(card => {
+              {infosHistoric?.filter(item => { return item.activated }).map((card, index) => {
                 const currentDate = new Date();
                 const cardDate = new Date(card.date.split("T")[0]);
 
                 if (cardDate <= currentDate) {
                   return (
                     <CardAmountAvailableWithdrawal
+                      key={index}
                       username={card.username}
                       valuePayed={card.valuePayed}
                     />
@@ -159,7 +176,7 @@ export default function AmountAvailableWithdrawal({
             </View>
             <View className="p-4 flex flex-row justify-center">
               <Text className="text-lg flex flex-row items-center text-gray-500">
-                Isso é tudo!{" "}
+                Isso é tudo!
                 <SimpleLineIcons name="emotsmile" size={15} color="gray" />
               </Text>
             </View>

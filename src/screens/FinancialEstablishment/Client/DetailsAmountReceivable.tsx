@@ -19,11 +19,18 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const formattedData = `${day}/${month}`;
 
-    const [valueCollected, setValueCollected] = useState<Array<{ valuePayment: number, payday: string }>>()
+    const [valueCollected, setValueCollected] = useState<Array<{
+        valuePayment: number,
+        payday: string,
+        activated: boolean
+    }
+    >>()
+
     const [infosHistoric, setInfosHistoric] = useState<Array<{
         username: string;
         valuePayed: number;
-        date: string
+        date: string;
+        activated: boolean
     }>>()
 
     const establishmentId = route.params.establishmentId
@@ -43,9 +50,14 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
                     username: string;
                     valuePayed: number;
                     date: string;
+                    activated: boolean
                 }[] = [];
 
-                const amountPaid: { valuePayment: number, payday: string }[] = []
+                const amountPaid: {
+                    valuePayment: number,
+                    payday: string,
+                    activated: boolean
+                }[] = []
 
                 dataHistoric?.forEach((court) => {
                     court.attributes.court_availabilities.data.forEach((availability) => {
@@ -56,10 +68,26 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
                                     username: user.username,
                                     valuePayed: payment.attributes.value,
                                     date: schedulings.attributes.date,
+                                    activated: schedulings.attributes.activated
                                 });
                                 amountPaid.push({
                                     valuePayment: payment.attributes.value,
-                                    payday: schedulings.attributes.date
+                                    payday: schedulings.attributes.date,
+                                    activated: schedulings.attributes.activated
+                                });
+                            });
+                            schedulings.attributes.user_payment_pixes.data.forEach((payment) => {
+                                const user = payment.attributes.users_permissions_user.data.attributes;
+                                infosCard.push({
+                                    username: user.username,
+                                    valuePayed: payment.attributes.value,
+                                    date: schedulings.attributes.date,
+                                    activated: schedulings.attributes.activated
+                                });
+                                amountPaid.push({
+                                    valuePayment: payment.attributes.value,
+                                    payday: schedulings.attributes.date,
+                                    activated: schedulings.attributes.activated
                                 });
                             });
                         });
@@ -88,18 +116,13 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
     )
 
     function isAvailableForWithdrawal() {
-        const currentDate = new Date();
-
-        const datesFilter = valueCollected?.filter((item) => {
-            const paydayDate = new Date(item.payday);
-
-            return paydayDate > currentDate;
+        const filteredValues = valueCollected?.filter((item) => {
+            return !item.activated;
         });
-
-        return datesFilter;
+        return filteredValues;
     }
 
-    const {data:dataUserEstablishment, error:errorUserEstablishment, loading:loadingUserEstablishment} = useGetUserIDByEstablishment(route.params.establishmentId)
+    const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId)
 
     return (
         <View className="flex-1">
@@ -120,14 +143,10 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
                         </Text>
                     </View>
                     {
-                        infosHistoric?.map((card) => {
-                            const currentDate = new Date();
-                            const cardDate = new Date(card.date);
-                            console.log(card);
-
-
-                            if (cardDate > currentDate) {
+                        infosHistoric?.map((card, index) => {
+                            if (!card.activated) {
                                 return <CardDetailsAmountReceivable
+                                    key={index}
                                     userName={card.username}
                                     valuePayed={card.valuePayed}
                                     date={card.date}

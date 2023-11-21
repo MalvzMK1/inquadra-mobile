@@ -3,7 +3,7 @@ import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import CardFinancialEstablishment from "../../components/CardFinancialEstablishment";
@@ -40,12 +40,17 @@ export default function FinancialEstablishment({
     establishmentId ?? "",
   );
 
+  console.log(establishmentId)
+  console.log({ data })
+
   useFocusEffect(
     React.useCallback(() => {
       setInfosHistoric([]);
       setValueCollected([]);
 
       const dataHistoric = data?.establishment.data.attributes.courts.data;
+
+      console.log(dataHistoric?.[0].attributes.court_availabilities.data[0].attributes.schedulings.data[0].attributes.date)
 
       if (!error && !loading) {
         const infosCard: {
@@ -67,8 +72,7 @@ export default function FinancialEstablishment({
           court.attributes.court_availabilities.data.forEach(availability => {
             availability.attributes.schedulings.data.forEach(schedulings => {
               schedulings.attributes.user_payments.data.forEach(payment => {
-                const user =
-                  payment.attributes.users_permissions_user.data.attributes;
+                const user = payment.attributes.users_permissions_user.data.attributes;
 
                 infosCard.push({
                   startsAt: availability.attributes.startsAt,
@@ -83,13 +87,36 @@ export default function FinancialEstablishment({
                   date: schedulings.attributes.date,
                 });
 
-                
+
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
                   activated: schedulings.attributes.activated
                 });
               });
+              schedulings.attributes.user_payment_pixes.data.forEach(payment => {
+                const user = payment.attributes.users_permissions_user.data.attributes;
+
+                infosCard.push({
+                  startsAt: availability.attributes.startsAt,
+                  endsAt: availability.attributes.endsAt,
+                  username: user.username,
+                  photoUser: user.photo.data.attributes.url
+                    ? HOST_API + user.photo.data.attributes.url
+                    : null,
+                  photoCourt: HOST_API + courtPhoto,
+                  valuePayed: payment.attributes.value,
+                  courtName: court.attributes.name,
+                  date: schedulings.attributes.date,
+                });
+
+                amountPaid.push({
+                  valuePayment: payment.attributes.value,
+                  payday: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
+                });
+
+              })
             });
           });
         });
@@ -138,7 +165,6 @@ export default function FinancialEstablishment({
       }
     });
 
-
     return {
       creditValue: creditValue,
       cashout: cashout,
@@ -154,7 +180,6 @@ export default function FinancialEstablishment({
   useEffect(() => {
     AsyncStorage.getItem('@inquadra/establishment-profile-photo')
       .then(value => {
-        console.log({photo: value})
         setEstablishmentPicture(value ? value : undefined)
         navigation.setParams({
           logo: value ?? undefined,
@@ -175,10 +200,11 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().cashout.reduce(
-                      (total, current) => total + current.valuePayment,
-                      0,
-                    )
+                    ? (
+                      isAvailableForWithdrawal().cashout.reduce(
+                        (total, current) => total + current.valuePayment,
+                        0,
+                      ))
                     : 0}
                 </Text>
               </View>
@@ -231,10 +257,10 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? isAvailableForWithdrawal().creditValue.reduce(
+                    ? (isAvailableForWithdrawal().creditValue.reduce(
                       (total, current) => total + current.valuePayment,
                       0,
-                    )
+                    ))
                     : 0}
                 </Text>
               </View>
