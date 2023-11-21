@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import useDeleteCourtAvailability from "src/hooks/useDeleteCourtAvailability";
 import { IRegisterUserVariables } from "../../graphql/mutations/register";
 import { IRegisterEstablishmentVariables } from "../../graphql/mutations/registerEstablishment";
 import useDeleteEstablishment from "../../hooks/useDeleteEstablishment";
@@ -40,6 +41,7 @@ export default function AllVeryWell({
   const [deleteUser] = useDeleteUser();
   const [registerEstablishment] = useRegisterEstablishment();
   const [deleteEstablishment] = useDeleteEstablishment();
+  const [deleteCourtAvailability] = useDeleteCourtAvailability();
   const [isLoading, setIsLoading] = useState(false);
 
   const courts = route.params.courtArray;
@@ -97,20 +99,44 @@ export default function AllVeryWell({
       courtAvailabilityIdsToRemove,
     });
 
+    const promises: Array<Promise<any>> = [];
+
     if (userIdToRemove) {
-      deleteUser({
-        variables: {
-          user_id: userIdToRemove,
-        },
-      }).then(response => console.log("DELETED_USER", response));
+      promises.push(
+        deleteUser({
+          variables: {
+            user_id: userIdToRemove,
+          },
+        }).then(response => console.log("DELETED_USER", response)),
+      );
     }
 
     if (establishmentIdToRemove) {
-      deleteEstablishment({
-        variables: {
-          establishment_id: establishmentIdToRemove,
-        },
-      }).then(response => console.log("DELETED_ESTABLISHMENT", response));
+      promises.push(
+        deleteEstablishment({
+          variables: {
+            establishment_id: establishmentIdToRemove,
+          },
+        }).then(response => console.log("DELETED_ESTABLISHMENT", response)),
+      );
+    }
+
+    if (courtAvailabilityIdsToRemove.length > 0) {
+      courtAvailabilityIdsToRemove.forEach(id => {
+        promises.push(
+          deleteCourtAvailability({
+            variables: {
+              court_availability_id: id,
+            },
+          }).then(response =>
+            console.log("DELETED_COURT_AVAILABILITY", response),
+          ),
+        );
+      });
+    }
+
+    if (promises.length > 0) {
+      await Promise.all(promises);
     }
   }
 
