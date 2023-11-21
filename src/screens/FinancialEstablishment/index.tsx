@@ -72,8 +72,7 @@ export default function FinancialEstablishment({
           court.attributes.court_availabilities.data.forEach(availability => {
             availability.attributes.schedulings.data.forEach(schedulings => {
               schedulings.attributes.user_payments.data.forEach(payment => {
-                const user =
-                  payment.attributes.users_permissions_user.data.attributes;
+                const user = payment.attributes.users_permissions_user.data.attributes;
 
                 infosCard.push({
                   startsAt: availability.attributes.startsAt,
@@ -88,13 +87,36 @@ export default function FinancialEstablishment({
                   date: schedulings.attributes.date,
                 });
 
-                
+
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
                   activated: schedulings.attributes.activated
                 });
               });
+              schedulings.attributes.user_payment_pixes.data.forEach(payment => {
+                const user = payment.attributes.users_permissions_user.data.attributes;
+
+                infosCard.push({
+                  startsAt: availability.attributes.startsAt,
+                  endsAt: availability.attributes.endsAt,
+                  username: user.username,
+                  photoUser: user.photo.data.attributes.url
+                    ? HOST_API + user.photo.data.attributes.url
+                    : null,
+                  photoCourt: HOST_API + courtPhoto,
+                  valuePayed: payment.attributes.value,
+                  courtName: court.attributes.name,
+                  date: schedulings.attributes.date,
+                });
+
+                amountPaid.push({
+                  valuePayment: payment.attributes.value,
+                  payday: schedulings.attributes.date,
+                  activated: schedulings.attributes.activated
+                });
+
+              })
             });
           });
         });

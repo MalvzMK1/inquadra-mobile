@@ -76,6 +76,20 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
                                     activated: schedulings.attributes.activated
                                 });
                             });
+                            schedulings.attributes.user_payment_pixes.data.forEach((payment) => {
+                                const user = payment.attributes.users_permissions_user.data.attributes;
+                                infosCard.push({
+                                    username: user.username,
+                                    valuePayed: payment.attributes.value,
+                                    date: schedulings.attributes.date,
+                                    activated: schedulings.attributes.activated
+                                });
+                                amountPaid.push({
+                                    valuePayment: payment.attributes.value,
+                                    payday: schedulings.attributes.date,
+                                    activated: schedulings.attributes.activated
+                                });
+                            });
                         });
                     });
                 });
@@ -129,9 +143,10 @@ export default function DetailsAmountReceivable({ route }: NativeStackScreenProp
                         </Text>
                     </View>
                     {
-                        infosHistoric?.map((card) => {
+                        infosHistoric?.map((card, index) => {
                             if (!card.activated) {
                                 return <CardDetailsAmountReceivable
+                                    key={index}
                                     userName={card.username}
                                     valuePayed={card.valuePayed}
                                     date={card.date}

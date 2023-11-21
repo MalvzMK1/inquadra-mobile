@@ -75,11 +75,22 @@ export interface IHistoricPayment {
                                 }
                                 user_payment_pixes: {
                                   data: [{
-                                    id: number
                                     attributes: {
                                       value: number
-                                      payedStatus: string
-                                      paymentId: string
+                                      users_permissions_user: {
+                                        data: {
+                                          attributes: {
+                                            username: string
+                                            photo: {
+                                              data: {
+                                                attributes: {
+                                                  url: string
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
                                     }
                                   }]
                                 }
@@ -149,6 +160,28 @@ query getHistoryPayment($ID: ID!) {
                           activated
                           date
                           valuePayed
+                          user_payment_pixes{
+                            data{
+                              attributes{
+                                name
+                                value
+                                users_permissions_user{
+                                  data {
+                                    attributes {
+                                      username
+                                      photo {
+                                        data {
+                                          attributes {
+                                            url
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
                           user_payments {
                             data {
                               attributes {

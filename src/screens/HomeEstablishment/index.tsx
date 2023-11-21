@@ -499,89 +499,93 @@ export default function HomeEstablishment({
                             {availabilities.attributes.schedulings.data
                               .length !== 0 ? (
                               availabilities.attributes.schedulings.data.map(
-                                scheduling => (
-                                  <View
-                                    className="min-h-20 h-auto bg-[#B6B6B633] rounded-2xl items-start"
-                                    key={scheduling.id}
-                                  >
-                                    <Text className="pl-10 pt-1 text-gray-400 text-xs text-start">
-                                      Info reserva:
-                                    </Text>
-                                    <View className="flex flex-row p-2">
-                                      <View className="h-12 -mt-4 border-2 rounded border-orange-500"></View>
-                                      <View className=" flex flex-row justify-between w-max pl-5">
-                                        <View className="flex justify-start items-start">
-                                          <View className="flex flex-row items-start">
-                                            <Ionicons
-                                              name="person-outline"
-                                              size={16}
-                                              color="#FF6112"
-                                              className="pr-2"
-                                            />
-                                            <Text>
-                                              {
-                                                scheduling.attributes.owner
-                                                  .data.attributes.username
-                                              }
-                                            </Text>
+                                scheduling => {
+                                  return (
+                                    <View
+                                      className="min-h-20 h-auto bg-[#B6B6B633] rounded-2xl items-start"
+                                      key={scheduling.id}
+                                    >
+                                      <Text className="pl-10 pt-1 text-gray-400 text-xs text-start">
+                                        Info reserva:
+                                      </Text>
+                                      <View className="flex flex-row p-2">
+                                        <View className="h-12 -mt-4 border-2 rounded border-orange-500"></View>
+                                        <View className=" flex flex-row justify-between w-max pl-5">
+                                          <View className="flex justify-start items-start">
+                                            <View className="flex flex-row items-start">
+                                              <Ionicons
+                                                name="person-outline"
+                                                size={16}
+                                                color="#FF6112"
+                                                className="pr-2"
+                                              />
+                                              <Text>
+                                                {
+                                                  scheduling.attributes.owner.data !== null ?
+                                                    scheduling.attributes.owner.data.attributes.username
+                                                    :
+                                                    ""
+                                                }
+                                              </Text>
+                                            </View>
+                                            <View className="flex flex-row items-start">
+                                              <MaterialIcons
+                                                name="attach-money"
+                                                size={16}
+                                                color="#FF6112"
+                                                className="pr-2"
+                                              />
+                                              <Text className="">
+                                                {
+                                                  handlePayedStatus(scheduling.attributes.payedStatus)
+                                                }
+                                              </Text>
+                                            </View>
                                           </View>
-                                          <View className="flex flex-row items-start">
-                                            <MaterialIcons
-                                              name="attach-money"
-                                              size={16}
-                                              color="#FF6112"
-                                              className="pr-2"
-                                            />
-                                            <Text className="">
-                                              {
-                                                handlePayedStatus(scheduling.attributes.payedStatus)
-                                              }
-                                            </Text>
-                                          </View>
-                                        </View>
-                                        <View className=" flex flex-wrap justify-start items-start pl-2">
-                                          <View className="flex flex-row items-start">
-                                            <Ionicons
-                                              name="time-outline"
-                                              size={16}
-                                              color="#FF6112"
-                                              className="pr-2"
-                                            />
-                                            <Text>{`${scheduling.attributes.court_availability.data.attributes.startsAt.substring(
-                                              0,
-                                              5,
-                                            )} - ${scheduling.attributes.court_availability.data.attributes.endsAt.substring(
-                                              0,
-                                              5,
-                                            )}`}</Text>
-                                          </View>
-                                          <View className="flex flex-row items-start">
-                                            <Ionicons
-                                              name="basketball-outline"
-                                              size={16}
-                                              color="#FF6112"
-                                              className="pr-2"
-                                            />
-                                            <View className="flex flex-wrap">
+                                          <View className=" flex flex-wrap justify-start items-start pl-2">
+                                            <View className="flex flex-row items-start">
+                                              <Ionicons
+                                                name="time-outline"
+                                                size={16}
+                                                color="#FF6112"
+                                                className="pr-2"
+                                              />
+                                              <Text>{`${scheduling.attributes.court_availability.data.attributes.startsAt.substring(
+                                                0,
+                                                5,
+                                              )} - ${scheduling.attributes.court_availability.data.attributes.endsAt.substring(
+                                                0,
+                                                5,
+                                              )}`}</Text>
+                                            </View>
+                                            <View className="flex flex-row items-start">
+                                              <Ionicons
+                                                name="basketball-outline"
+                                                size={16}
+                                                color="#FF6112"
+                                                className="pr-2"
+                                              />
                                               <View className="flex flex-wrap">
-                                                {scheduling.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(
-                                                  (sportType, index) => (
-                                                    <Text key={index}>
-                                                      {
-                                                        sportType.attributes
-                                                          .name
-                                                      }
-                                                    </Text>
-                                                  ),
-                                                )}
+                                                <View className="flex flex-wrap">
+                                                  {scheduling.attributes.court_availability.data.attributes.court.data.attributes.court_types.data.map(
+                                                    (sportType, index) => (
+                                                      <Text key={index}>
+                                                        {
+                                                          sportType.attributes
+                                                            .name
+                                                        }
+                                                      </Text>
+                                                    ),
+                                                  )}
+                                                </View>
                                               </View>
                                             </View>
                                           </View>
                                         </View>
                                       </View>
                                     </View>
-                                  </View>
-                                ),
+                                  )
+                                },
                               )
                             ) : (
                               <View className=" h-16 items-center justify-center">
