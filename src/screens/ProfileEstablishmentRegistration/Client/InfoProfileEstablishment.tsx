@@ -581,6 +581,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 	const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [selectedImage, setSelectedImage] = useState<number>();
 	const [deletePhoto] = useDeletePhoto();
 	const [updateEstablishmentPhotos] = useUpdateEstablishmentPhotos();
 
@@ -783,10 +784,12 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 						<FlatList
 							data={photos}
 							horizontal
-							renderItem={({item}) => (
+							renderItem={({item, index}) => (
 								<View className='w-32 h-32 rounded-md relative block mx-2'>
 									<TouchableOpacity
-										onPress={() => alert(item.id)}
+										onPress={() => {
+											setSelectedImage(index)
+										}}
 									>
 										<Image source={{uri: HOST_API + item.uri}} className='h-full' />
 									</TouchableOpacity>
@@ -799,6 +802,32 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 								</View>
 						)} />
 					</View>
+
+					<Modal
+						visible={selectedImage !== undefined}
+						transparent
+						animationType={'fade'}
+					>
+						{
+							(selectedImage !== undefined) &&
+							<View className='flex-1 justify-center items-center bg-[#0008] rounded'>
+								<View className='w-5/6 aspect-square flex justify-center items-center'>
+									<Image
+										className='w-full h-full'
+										source={{uri: HOST_API + photos[selectedImage].uri}}
+									/>
+									<TouchableOpacity
+										className='self-end'
+										onPress={() => {
+											setSelectedImage(undefined)
+										}}
+									>
+										<Text className='text-base border-b border-b-orange-600'>Fechar</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						}
+					</Modal>
 
 					<TouchableOpacity onPress={handleCardClick}>
 						<Text className="text-base">Chave PIX</Text>
