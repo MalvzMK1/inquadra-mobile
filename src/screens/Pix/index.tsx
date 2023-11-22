@@ -86,6 +86,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             });
         }
 
+
+        console.log("value:", value)
+
         const checkTimeOut = () => {
             if (statusPix === "waiting") {
                 setStatusPix("cancelled");
@@ -139,20 +142,29 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         };
     }, []);
 
-    const scheduleValueUpdate = async (value: number) => {
-        let validatePayment = value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting"
-        let valuePayedUpdate = value + scheduleValuePayed!
-        let activation_key = value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : null
-
+    const scheduleValueUpdate = async (value: number, schedule_id: number | null) => {
+        let validatePayment = (value + scheduleValuePayed! >= schedulePrice && scheduleValuePayed !== undefined! ? "payed" : "waiting")
+        let valuePayedUpdate = (value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0))
+        console.log(valuePayedUpdate)
+        let activation_key = (value + scheduleValuePayed! >= schedulePrice! && scheduleValuePayed !== undefined ? generateRandomKey(4) : "")
+        console.log("rodou aqui")
         try {
             await updateScheduleValue({
                 variables: {
                     payed_status: validatePayment,
-                    scheduling_id: scheduleID!,
+                    scheduling_id: schedule_id!,
                     value_payed: valuePayedUpdate,
                     activated: false,
                     activation_key: activation_key
                 }
+            })
+
+            console.log({
+                payed_status: validatePayment,
+                scheduling_id: schedule_id!,
+                value_payed: valuePayedUpdate,
+                activated: false,
+                activation_key: activation_key
             })
         } catch (error) {
             console.log("Erro na mutação updateValueSchedule", error)
@@ -162,6 +174,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     const createNewSchedule = async () => {
         let isPayed = route.params.isPayed!
+        console.log("isPayedValidation:", isPayed)
         try {
             const create = await createSchedule({
                 variables: {
@@ -172,7 +185,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                     value_payed: route.params.value_payed!,
                     owner: userID,
                     users: [userID],
-                    activation_key: isPayed ? generateRandomKey(4) : null,
+                    activation_key: isPayed ? generateRandomKey(4) : "",
                     service_value: route.params.service_value!,
                     publishedAt: new Date().toISOString()
                 }
@@ -220,7 +233,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                         variables: { userPaymentPixID: route.params.userPaymentPixID, scheduleID: scheduleID?.toString()! }
                     });
 
-                    scheduleValueUpdate(valueToPay).then(() => {
+                    scheduleValueUpdate(valueToPay, scheduleID!).then(() => {
                         navigation.navigate('InfoReserva', { userId: userID });
                         setStatusPix("waiting");
                     });
@@ -228,15 +241,15 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             } else if (route.params.screen === "signal") {
                 if (!hasExecuted) {
                     if (statusPix === "payed") {
-                        createNewSchedule().then((scheduleID) => {
+                        createNewSchedule().then((schedule_id) => {
                             setHasExecuted(true);
                             updateUserPaymentPix({
                                 variables: {
                                     userPaymentPixID: route.params.userPaymentPixID,
-                                    scheduleID: scheduleID?.toString()!
+                                    scheduleID: schedule_id?.toString()!
                                 }
                             }).then(() => {
-                                scheduleValueUpdate(valueToPay).then(() => {
+                                scheduleValueUpdate(valueToPay, schedule_id!).then(() => {
                                     navigation.navigate('InfoReserva', { userId: userID });
                                     setStatusPix("waiting");
                                 });
