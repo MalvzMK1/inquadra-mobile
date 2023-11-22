@@ -259,7 +259,6 @@ export default function RegisterNewCourtAdded({
       headerShown: false,
     });
   }, [navigation]);
-  
 
   return (
     <ScrollView className="h-fit bg-white flex-1">

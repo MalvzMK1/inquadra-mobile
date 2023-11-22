@@ -4,11 +4,11 @@ import {
   HttpLink,
   InMemoryCache,
 } from "@apollo/client";
-import { HOST_API } from "@env";
+import { API_BASE_URL } from "../utils/constants";
 import storage from "../utils/storage";
 
 const httpLink = new HttpLink({
-  uri: HOST_API + "/graphql",
+  uri: API_BASE_URL + "/graphql",
 });
 
 let jwt: string = "";
@@ -49,7 +49,7 @@ const authLink = new ApolloLink((operation, forward) => {
 
   operation.setContext({
     headers: {
-      Authorization: "bearer " + token,
+      Authorization: "Bearer " + token,
     },
   });
 

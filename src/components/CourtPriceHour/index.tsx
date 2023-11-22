@@ -36,6 +36,9 @@ export default function PriceHour({
             onChangeText={setStartsAt}
             placeholder="Ex.: 06:00"
             inputMode="numeric"
+            onBlur={() => {
+              setStartsAt(startsAt.replace(/\D/, "").padEnd(4, "0"));
+            }}
           />
         </View>
         <Text className="text-white text-[14px]"> às </Text>
@@ -47,6 +50,9 @@ export default function PriceHour({
             onChangeText={setEndsAt}
             placeholder="Ex.: 07:00"
             inputMode="numeric"
+            onBlur={() => {
+              setEndsAt(endsAt.replace(/\D/, "").padEnd(4, "0"));
+            }}
           />
         </View>
       </View>

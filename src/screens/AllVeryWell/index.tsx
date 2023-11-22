@@ -1,4 +1,3 @@
-import { HOST_API } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -22,6 +21,7 @@ import useRegisterCourt from "../../hooks/useRegisterCourt";
 import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import useRegisterEstablishment from "../../hooks/useRegisterEstablishment";
 import useRegisterUser from "../../hooks/useRegisterUser";
+import { API_BASE_URL } from "../../utils/constants";
 
 interface ToDelete {
   userIdToRemove: string | undefined;
@@ -72,7 +72,7 @@ export default function AllVeryWell({
     }
 
     const response = await axios.post<Array<{ id: string }>>(
-      `${HOST_API}/api/upload`,
+      `${API_BASE_URL}/api/upload`,
       formData,
       {
         headers: {
@@ -162,10 +162,8 @@ export default function AllVeryWell({
         });
       }
 
-      console.log({ NEW_USER: newUserData.createUsersPermissionsUser.data.id });
       userIdToRemove = newUserData.createUsersPermissionsUser.data.id;
 
-      console.log("CADASTRANDO FOTOS...");
       const [logoId, ...establishmentPhotosIds] = await uploadImages([
         route.params.establishmentInfos.logo,
         ...route.params.establishmentInfos.photos,
@@ -190,8 +188,6 @@ export default function AllVeryWell({
         corporate_name: route.params.establishmentInfos.corporate_name,
       };
 
-      console.error({ registerEstalishmentPayload });
-
       const { data: establishmentData, errors: establishmentErrors } =
         await registerEstablishment({
           variables: registerEstalishmentPayload,
@@ -202,8 +198,6 @@ export default function AllVeryWell({
           cause: establishmentErrors?.map(error => error),
         });
       }
-
-      console.warn({ NEW_ESTABLISHMENT: establishmentData });
 
       establishmentIdToRemove = establishmentData.createEstablishment.data.id;
 
@@ -272,7 +266,13 @@ export default function AllVeryWell({
     } catch (error) {
       console.error(error);
       console.error(JSON.stringify(error, null, 2));
-      Alert.alert("Erro", "Não foi possível concluir o cadastro.");
+      let errorMessage = "Não foi possível concluir o cadastro.";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      Alert.alert("Erro", errorMessage);
 
       removeRegisteredInfos({
         userIdToRemove,

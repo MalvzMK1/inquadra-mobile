@@ -33,7 +33,7 @@ export default function SetCourtAvailibility({
   onDeleteAppointment,
 }: SetCourtAvailibilityProps) {
   return (
-    <View className="mt-[10px]">
+    <View className="mt-2.5">
       {hasCopy && (
         <View className="flex-row items-center justify-between mt-[25px] mb-[25px]">
           <Text className="text-white text-[16px]">

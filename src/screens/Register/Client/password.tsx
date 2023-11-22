@@ -36,10 +36,20 @@ interface IFormData {
   confirmPassword: string;
 }
 
-const formSchema = z.object({
-  password: z.string().nonempty("O campo não pode estar vazio"),
-  confirmPassword: z.string().nonempty("O campo não pode estar vazio"),
-});
+const formSchema = z
+  .object({
+    password: z.string().nonempty("O campo não pode estar vazio"),
+    confirmPassword: z.string().nonempty("O campo não pode estar vazio"),
+  })
+  .superRefine((values, context) => {
+    if (values.password !== values.confirmPassword) {
+      context.addIssue({
+        code: "custom",
+        path: ["confirmPassword"],
+        message: "As senhas devem ser iguais",
+      });
+    }
+  });
 
 export default function Password({ route, navigation }: RegisterPasswordProps) {
   const apolloClient = useApolloClient();
@@ -64,20 +74,16 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
 
   const [isTermChecked, setIsTermChecked] = useState(false);
   const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false);
-  const [isCaptchaCheckedError, setIsCaptchaCheckedError] =
-    useState<boolean>(false);
+  // const [isCaptchaCheckedError, setIsCaptchaCheckedError] =
+  //   useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [passwordsMatch, setPasswordsMatch] = useState<boolean>(true);
 
   async function handleSignup(data: IFormData) {
     setIsLoading(true);
+
     try {
       if (!isTermChecked) {
         return setIsTermCheckedError(true);
-      }
-
-      if (data.password !== data.confirmPassword) {
-        return setPasswordsMatch(false);
       }
 
       if (route.params.flow === "normal") {
@@ -212,7 +218,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           <Text className="text-base mb-2">Escolha uma senha</Text>
           <View
             className={
-              errors.password || !passwordsMatch
+              errors.password
                 ? "flex flex-row items-center justify-between border border-red-400 rounded"
                 : "flex flex-row items-center justify-between border border-neutral-400 rounded"
             }
@@ -251,18 +257,13 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
               {errors.password.message}
             </Text>
           )}
-          {!passwordsMatch && (
-            <Text className="text-red-400 text-sm">
-              As senha devem ser iguais
-            </Text>
-          )}
         </View>
 
         <View className="w-full">
           <Text className="text-base mt-4 mb-2">Repita a senha escolhida</Text>
           <View
             className={
-              errors.confirmPassword || !passwordsMatch
+              errors.confirmPassword
                 ? "flex flex-row items-center justify-between border border-red-400 rounded"
                 : "flex flex-row items-center justify-between border border-neutral-400 rounded"
             }
@@ -301,11 +302,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           {errors.confirmPassword && (
             <Text className="text-red-400 text-sm">
               {errors.confirmPassword.message}
-            </Text>
-          )}
-          {!passwordsMatch && (
-            <Text className="text-red-400 text-sm">
-              As senha devem ser iguais
             </Text>
           )}
         </View>

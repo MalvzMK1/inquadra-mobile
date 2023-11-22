@@ -1,9 +1,7 @@
-import { HOST_API } from "@env";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -183,35 +181,6 @@ export default function RegisterCourt({
     } catch (error) {
       console.log("Erro ao carregar a imagem: ", error);
     }
-  };
-
-  const uploadImages = async () => {
-    const formData = new FormData();
-
-    for (let index = 0; index < photos.length; index++) {
-      const { uri } = photos[index];
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      formData.append("files", {
-        uri,
-        type: blob.type,
-        name: `image${index}.jpg`,
-      } as any);
-    }
-
-    const response = await axios.post<Array<{ id: string }>>(
-      `${HOST_API}/api/upload`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
-    );
-
-    const uploadedImageIDs = response.data.map(image => image.id);
-    console.log("Imagens enviadas com sucesso!", response.data);
-    return uploadedImageIDs;
   };
 
   const handleDeletePhoto = (index: any) => {
