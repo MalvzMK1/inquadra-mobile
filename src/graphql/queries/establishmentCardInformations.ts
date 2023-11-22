@@ -48,7 +48,7 @@ export interface IEstablishmentCardInformationsResponse {
 
 export const establishmentCardInformationsQuery = gql`
     query getEstablishmentCardInformations {
-        establishments {
+        establishments(pagination: { limit: -1 }) {
             data {
                 id
                 attributes {

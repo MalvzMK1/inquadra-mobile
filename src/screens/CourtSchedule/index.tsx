@@ -719,7 +719,7 @@ export default function CourtSchedule({
                   court_availability_id: item.courtAvailabilityId.toString(),
                 },
               });
-              setBlockScheduleByTimeModal(false);
+              setBlockScheduleByTimeModal(false); 
               setConfirmBlockSchedule(true);
               setIsLoading(false);
               setBlockedCourtId("");

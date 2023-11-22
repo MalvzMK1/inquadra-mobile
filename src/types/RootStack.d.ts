@@ -3,7 +3,7 @@ type RootStackParamList = {
   HistoryPayment: {
     establishmentId: string;
     logo: string;
-    dateFilter: string | null
+    dateFilter: string | null;
   };
   DetailsAmountReceivable: {
     establishmentId: string;
@@ -18,7 +18,7 @@ type RootStackParamList = {
   AmountAvailableWithdrawal: {
     establishmentId: string;
     logo: string;
-    valueDisponible: number
+    valueDisponible: number;
   };
   RegisterEstablishmentProfile: undefined;
   CompletedEstablishmentResgistration: undefined;
@@ -116,8 +116,8 @@ type RootStackParamList = {
     establishmentId: string;
     userId: string | undefined;
     userPhoto: string | undefined;
-    colorState?: string
-    setColorState?: React.Dispatch<React.SetStateAction<string>>
+    colorState?: string;
+    setColorState?: React.Dispatch<React.SetStateAction<string>>;
   };
   CourtAvailabilityInfo: {
     courtId: string;
@@ -158,10 +158,10 @@ type RootStackParamList = {
       phone_number: string;
       street_name: string;
       photos: string[];
-      logo: {uri: string};
+      logo: string;
       latitude: string;
       longitude: string;
-    }
+    };
   };
   PixScreen: {
     courtName: string;
@@ -215,17 +215,17 @@ type RootStackParamList = {
       phone_number: string;
       street_name: string;
       photos: string[];
-      logo: { uri: string };
+      logo: string;
       latitude: string;
       longitude: string;
     };
     courtArray: CourtAddRawPayload[];
   };
   CourtDetails: {
-    courtArray: CourtAdd[];
+    courtArray: CourtAddRawPayload[];
   };
   editCourt: {
-    courtArray: CourtAdd[];
+    courtArray: CourtAddRawPayload[];
     indexCourtArray: number;
   };
   UpdateSchedule: {

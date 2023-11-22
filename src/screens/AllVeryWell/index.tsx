@@ -1,21 +1,34 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View} from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
-import useRegisterCourt from "../../hooks/useRegisterCourt";
 import axios from "axios";
-import {HOST_API} from '@env';
-import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
-import useRegisterUser from "../../hooks/useRegisterUser";
-import useRegisterEstablishment from "../../hooks/useRegisterEstablishment";
-import {useState} from "react";
-import {ApolloError} from "@apollo/client";
-import {IRegisterUserVariables} from "../../graphql/mutations/register";
-import {IRegisterEstablishmentVariables} from "../../graphql/mutations/registerEstablishment";
-import useDeleteUser from "../../hooks/useDeleteUser";
-import useDeleteEstablishment from "../../hooks/useDeleteEstablishment";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { IRegisterUserVariables } from "../../graphql/mutations/register";
+import { IRegisterEstablishmentVariables } from "../../graphql/mutations/registerEstablishment";
 import useDeleteCourtAvailability from "../../hooks/useDeleteCourtAvailability";
+import useDeleteEstablishment from "../../hooks/useDeleteEstablishment";
+import useDeleteUser from "../../hooks/useDeleteUser";
+import useRegisterCourt from "../../hooks/useRegisterCourt";
+import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
+import useRegisterEstablishment from "../../hooks/useRegisterEstablishment";
+import useRegisterUser from "../../hooks/useRegisterUser";
+import { API_BASE_URL } from "../../utils/constants";
+
+interface ToDelete {
+  userIdToRemove: string | undefined;
+  imageIdsToRemove: string[];
+  establishmentIdToRemove: string | undefined;
+  courtAvailabilityIdsToRemove: string[];
+}
 
 export default function AllVeryWell({
   navigation,
@@ -24,16 +37,12 @@ export default function AllVeryWell({
   const { goBack } = useNavigation();
   const [addCourt] = useRegisterCourt();
   const [registerCourtAvailability] = useRegisterCourtAvailability();
-  const [deleteCourtAvailability] = useDeleteCourtAvailability();
-  const [registerUser] = useRegisterUser()
+  const [registerUser] = useRegisterUser();
   const [deleteUser] = useDeleteUser();
-  const [registerEstablishment] = useRegisterEstablishment()
+  const [registerEstablishment] = useRegisterEstablishment();
   const [deleteEstablishment] = useDeleteEstablishment();
-  const [userId, setUserId] = useState<string>();
-  const [establishmentId, setEstablishmentId] = useState<string>();
-  const [uploadedImagesIds, setUploadedImagesIds] = useState<Array<string | number>>();
-  const [courtAvailabilitiesIds, setCourtAvailabilitiesIds] = useState<Array<string | number>>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [deleteCourtAvailability] = useDeleteCourtAvailability();
+  const [isLoading, setIsLoading] = useState(false);
 
   const courts = route.params.courtArray;
 
@@ -48,22 +57,22 @@ export default function AllVeryWell({
     7: "SpecialDays",
   };
 
-  const uploadImages = async (photos: {uri: string}[]) => {
+  const uploadImages = async (photos: string[]) => {
     const formData = new FormData();
 
     for (let index = 0; index < photos.length; index++) {
-      const { uri } = photos[index];
+      const uri = photos[index];
       const response = await fetch(uri);
       const blob = await response.blob();
       formData.append("files", {
         uri,
         type: blob.type,
-        name: `image${index}.jpg`,
+        name: `image-${blob.name}.jpg`,
       } as any);
     }
 
     const response = await axios.post<Array<{ id: string }>>(
-      `${HOST_API}/api/upload`,
+      `${API_BASE_URL}/api/upload`,
       formData,
       {
         headers: {
@@ -77,70 +86,97 @@ export default function AllVeryWell({
     return uploadedImageIDs;
   };
 
-  let rmv_userId: string;
-  let rmv_logoId: string;
-  let rmv_establishmentId: string;
-  let rmv_uploadedImagesIds: Array<string>;
+  async function removeRegisteredInfos({
+    userIdToRemove,
+    imageIdsToRemove,
+    establishmentIdToRemove,
+    courtAvailabilityIdsToRemove,
+  }: ToDelete) {
+    console.log({
+      userIdToRemove,
+      imageIdsToRemove,
+      establishmentIdToRemove,
+      courtAvailabilityIdsToRemove,
+    });
 
-  async function removeRegisteredInfos(): Promise<void> {
-    console.log({rmv_userId, rmv_establishmentId, rmv_uploadedImagesIds})
-    if (rmv_userId) deleteUser({
-      variables: {
-        user_id: rmv_userId
-      }
-    }).then(response => console.log({DELETED_USER: response}))
+    const promises: Array<Promise<any>> = [];
 
-    if (rmv_establishmentId) deleteEstablishment({
-      variables: {
-        establishment_id: rmv_establishmentId
-      }
-    }).then(response => console.log({DELETED_ESTABLISHMENT: response}))
-  }
+    if (userIdToRemove) {
+      promises.push(
+        deleteUser({
+          variables: {
+            user_id: userIdToRemove,
+          },
+        }).then(response => console.log("DELETED_USER", response)),
+      );
+    }
 
-  async function uploadEstablishmentPhotos(logo: { uri: string }, photos: Array<string>): Promise<[Array<string>, Array<string>]> {
-    try {
-      return Promise.all([
-        await uploadImages(photos.map(photo => ({uri: photo}))),
-        await uploadImages([logo]),
-      ]);
-    } catch (error) {
-      // console.error(error instanceof ApolloError)
-      if (error instanceof Error) console.error(error)
-      throw new Error('Couldn\'t upload establishment images', {cause: error})
+    if (establishmentIdToRemove) {
+      promises.push(
+        deleteEstablishment({
+          variables: {
+            establishment_id: establishmentIdToRemove,
+          },
+        }).then(response => console.log("DELETED_ESTABLISHMENT", response)),
+      );
+    }
+
+    if (courtAvailabilityIdsToRemove.length > 0) {
+      courtAvailabilityIdsToRemove.forEach(id => {
+        promises.push(
+          deleteCourtAvailability({
+            variables: {
+              court_availability_id: id,
+            },
+          }).then(response =>
+            console.log("DELETED_COURT_AVAILABILITY", response),
+          ),
+        );
+      });
+    }
+
+    if (promises.length > 0) {
+      await Promise.all(promises);
     }
   }
 
-  async function handleComplete(): Promise<void> {
-    // console.log({profile_infos: route.params.profileInfos})
-    // console.log({establishment_infos: route.params.establishmentInfos})
-    // console.log({courts: route.params.courtArray[0].court_availabilities[0][0]})
+  async function handleComplete() {
+    setIsLoading(true);
+    const imageIdsToRemove: string[] = [];
+    let userIdToRemove: string | undefined;
+    let establishmentIdToRemove: string | undefined;
+    const courtAvailabilityIdsToRemove: string[] = [];
 
     try {
       const registerUserPayload: IRegisterUserVariables = {
-        ...route.params.profileInfos
+        ...route.params.profileInfos,
+      };
+
+      const { data: newUserData, errors: newUserErrors } = await registerUser({
+        variables: registerUserPayload,
+      });
+
+      if (!newUserData) {
+        throw new Error("Não foi possível criar o usuário", {
+          cause: newUserErrors?.map(error => error),
+        });
       }
-      const {data: newUserData, errors: newUserErrors} = await registerUser({
-        variables: registerUserPayload
-      })
 
-      if (!newUserData) throw new Error('Não foi possível criar o usuário', {cause: newUserErrors?.map(error => error)});
+      userIdToRemove = newUserData.createUsersPermissionsUser.data.id;
 
-      console.log({NEW_USER: newUserData.createUsersPermissionsUser.data.id})
-      rmv_userId = newUserData.createUsersPermissionsUser.data.id;
-      setUserId(newUserData.createUsersPermissionsUser.data.id);
-
-      console.log('CADASTRANDO FOTOS...')
-      const [logoId, establishmentPhotosIds] = await uploadEstablishmentPhotos(
+      const [logoId, ...establishmentPhotosIds] = await uploadImages([
         route.params.establishmentInfos.logo,
-        route.params.establishmentInfos.photos
-      )
+        ...route.params.establishmentInfos.photos,
+      ]);
 
-      const LOGO_IDX = 0;
+      imageIdsToRemove.push(logoId);
+      imageIdsToRemove.push(...establishmentPhotosIds);
+
       const registerEstalishmentPayload: IRegisterEstablishmentVariables = {
         ownerId: newUserData.createUsersPermissionsUser.data.id,
         publishedAt: new Date().toISOString(),
         photos: establishmentPhotosIds,
-        logo: logoId[LOGO_IDX],
+        logo: logoId,
         latitude: route.params.establishmentInfos.latitude,
         longitude: route.params.establishmentInfos.longitude,
         street_name: route.params.establishmentInfos.street_name,
@@ -150,27 +186,28 @@ export default function AllVeryWell({
         cellphone_number: route.params.establishmentInfos.cellphone_number,
         amenities: route.params.establishmentInfos.amenities,
         corporate_name: route.params.establishmentInfos.corporate_name,
+      };
+
+      const { data: establishmentData, errors: establishmentErrors } =
+        await registerEstablishment({
+          variables: registerEstalishmentPayload,
+        });
+
+      if (!establishmentData) {
+        throw new Error("Não foi possível criar o estabelecimento", {
+          cause: establishmentErrors?.map(error => error),
+        });
       }
 
-      console.error({registerEstalishmentPayload});
+      establishmentIdToRemove = establishmentData.createEstablishment.data.id;
 
-      const {data: establishmentData, errors: establishmentErrors} = await registerEstablishment({
-        variables: registerEstalishmentPayload
-      });
-
-      if (!establishmentData) throw new Error('Não foi possível criar o estabelecimento', {cause: establishmentErrors?.map(error => error)})
-      console.warn({NEW_ESTABLISHMENT: establishmentData});
-
-      rmv_establishmentId = establishmentData.createEstablishment.data.id;
-      setEstablishmentId(establishmentData.createEstablishment.data.id)
-
-      for (const court of route.params.courtArray) {
+      for (const court of courts) {
         const [newPhotosIds, courtAvailabilityIds] = await Promise.all([
-          uploadImages(court.photos),
+          uploadImages(court.photos.map(photo => photo.uri)),
           Promise.all(
             court.court_availabilities.flatMap((availabilities, index) => {
               return availabilities.map(async availability => {
-                console.log('veio até aqui...')
+                console.log("Cadastrando court availabilities...", index);
                 const registerCourtAvailabilityPayload = {
                   status: true,
                   starts_at: `${availability.startsAt}:00.000`,
@@ -185,22 +222,28 @@ export default function AllVeryWell({
                   ),
                   week_day: indexToWeekDayMap[index],
                   publishedAt: new Date().toISOString(),
-                }
+                };
 
-                const {data, errors} = await registerCourtAvailability({
+                const { data } = await registerCourtAvailability({
                   variables: registerCourtAvailabilityPayload,
                 });
-                if (data) return data?.createCourtAvailability.data.id
-                else throw new Error('Não foi possível criar as disponibilidades de quadra')
+
+                if (!data) {
+                  throw new Error(
+                    "Não foi possível criar as disponibilidades de quadra",
+                  );
+                }
+
+                return data.createCourtAvailability.data.id;
               });
             }),
           ),
         ]);
 
-        rmv_uploadedImagesIds = newPhotosIds;
-        setUploadedImagesIds(newPhotosIds)
+        imageIdsToRemove.push(...newPhotosIds);
+        courtAvailabilityIdsToRemove.push(...courtAvailabilityIdsToRemove);
 
-        addCourt({
+        await addCourt({
           variables: {
             court_name: court.fantasyName,
             courtTypes: court.courtType,
@@ -209,39 +252,39 @@ export default function AllVeryWell({
             current_date: court.currentDate,
             photos: newPhotosIds,
             establishmentId: establishmentData.createEstablishment.data.id,
-            fantasyName: court.fantasyName
-          }
-        }).then(() => {
-          console.log('cadastrou tudo certinho de fato')
-          Promise.all([
-            AsyncStorage.removeItem('@inquadra/court-price-hour_day-use'),
-            AsyncStorage.removeItem(
-              "@inquadra/court-price-hour_all-appointments",
-            )
-          ]).then(() => navigation.navigate('CompletedEstablishmentRegistration'))
-        }).catch(error => {
-          if (error instanceof ApolloError)
-            throw new Error(`Não foi possível criar a quadra\n${error.name}\n${error.message}`)
-        })
+            fantasyName: court.fantasyName,
+          },
+        });
       }
-    } catch (err) {
-      if (err instanceof ApolloError) {
-        console.log({message: err.message, client: err.clientErrors, graphql: err.graphQLErrors})
-        Alert.alert('Erro no cadastro', err.message)
-        // navigation.navigate('Register', {
-        //   flow: 'establishment'
-        // });
-      } else if (err instanceof Error) {
-        console.log({message: err.message})
-        Alert.alert('Erro no cadastro', err.message)
-        // navigation.navigate('Register', {
-        //   flow: 'establishment'
-        // });
-      }
-      removeRegisteredInfos().then(() => console.log('Informações deletadas com sucesso'))
+
+      await Promise.all([
+        AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
+        AsyncStorage.removeItem("@inquadra/court-price-hour_all-appointments"),
+      ]);
+
+      navigation.navigate("CompletedEstablishmentRegistration");
+    } catch (error) {
+      console.error(error);
+      console.error(JSON.stringify(error, null, 2));
+      Alert.alert("Erro", "Não foi possível concluir o cadastro.");
+
+      removeRegisteredInfos({
+        userIdToRemove,
+        imageIdsToRemove,
+        establishmentIdToRemove,
+        courtAvailabilityIdsToRemove,
+      })
+        .then(() => console.log("Informações deletadas com sucesso"))
+        .catch(console.error);
     } finally {
-      console.log(userId, establishmentId)
+      setIsLoading(false);
     }
+  }
+
+  function handleNavigateToDetails() {
+    navigation.navigate("CourtDetails", {
+      courtArray: courts,
+    });
   }
 
   return (
@@ -259,13 +302,7 @@ export default function AllVeryWell({
           <View />
         </View>
 
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate("CourtDetails", {
-              courtArray: courts,
-            });
-          }}
-        >
+        <TouchableOpacity onPress={handleNavigateToDetails}>
           <View>
             <Text className="text-xl p-2">Detalhes Gerais</Text>
 
@@ -291,11 +328,7 @@ export default function AllVeryWell({
           keyExtractor={(_, index) => index.toString()}
           contentContainerStyle={{ paddingBottom: 24 }}
           renderItem={({ item: court }) => (
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("CourtDetails", { courtArray: courts });
-              }}
-            >
+            <TouchableOpacity onPress={handleNavigateToDetails}>
               <View>
                 <Text className="text-xl p-2">{court.court_name}</Text>
 
@@ -327,16 +360,15 @@ export default function AllVeryWell({
 
       <View className="bg-white">
         <TouchableOpacity
-          className="h-14 w-81 m-6 rounded-md bg-[#FF6112] flex items-center justify-center"
+          className="h-14 w-81 m-6 rounded-md bg-[#FF6112] items-center justify-center"
           onPress={handleComplete}
           disabled={isLoading}
         >
-          {
-            !isLoading ?
-              <Text className="text-gray-50">Concluir</Text>
-              :
-              <ActivityIndicator size={'small'} color={'#F5620F'} />
-          }
+          {isLoading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text className="text-gray-50">Concluir</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>

@@ -4,7 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   FlatList,
@@ -136,18 +136,6 @@ export default function EditCourt({
         alert("Desculpe, precisamos da permissão para acessar a galeria!");
         return;
       }
-
-      // const result = await ImagePicker.launchImageLibraryAsync({
-      //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      //     allowsEditing: true,
-      //     aspect: [1, 1],
-      //     quality: 1,
-      //     allowsMultipleSelection: true,
-      // });
-
-      // if (!result.canceled) {
-      //     setPhotos([...photos, { uri: result.uri }]);
-      // }
     } catch (error) {
       console.log("Erro ao carregar a imagem: ", error);
     }
@@ -207,7 +195,7 @@ export default function EditCourt({
   }, [dataSportTypeAvaible, loadingSportTypeAvaible]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       setCourts(route.params.courtArray);
     }, [route.params.courtArray]),
   );

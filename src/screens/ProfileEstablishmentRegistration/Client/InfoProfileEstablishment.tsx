@@ -9,7 +9,7 @@ import {
 	Modal,
 	StyleSheet,
 	ActivityIndicator,
-	FlatList
+	FlatList, GestureResponderEvent
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, NavigationProp } from "@react-navigation/native"
@@ -35,9 +35,13 @@ import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishme
 import { HOST_API } from "@env";
 import axios from 'axios';
 import SvgUri from "react-native-svg-uri";
+import useDeletePhoto from "../../../hooks/useDeletePhoto";
+import {updateEstablishmentPhotosMutation} from "../../../graphql/mutations/updateEstablishmentPhotos";
+import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentPhotos";
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
 	const [userId, setUserId] = useState("")
+	const [establishmentId, setEstablishmentId] = useState<string | number>();
 	const [jwtToken, setJwtToken] = useState("")
 
 	const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
@@ -45,8 +49,9 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 	const [cep, setCep] = useState<string>("")
 	const [fantasyName, setFantasyName] = useState<string>("")
 	const [streetName, setStreetName] = useState<string>("")
-	const [photos, setPhotos] = useState<Array<string>>([]);
+	const [photos, setPhotos] = useState<Array<{ uri: string, id: string }>>([]);
 	const [logo, setLogo] = useState<string>();
+
 
 	interface IFormData {
 		userName: string
@@ -281,11 +286,16 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 			userByEstablishmentData.usersPermissionsUser.data &&
 			userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data
 		) {
-			setCep(userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.address.cep!)
+			setCep(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data?.attributes.address.cep!)
 			setLogo(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes.logo.data?.attributes.url ?? undefined)
 			setPhotos(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data?.map(
-				photo => photo.attributes.url
+				photo => ({
+					uri: photo.attributes.url,
+					id: photo.id,
+				})
 			) ?? [])
+
+			setEstablishmentId(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.id);
 
 			setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data?.attributes.phoneNumber)
 			navigation.setParams({
@@ -461,7 +471,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 				},
 			});
 
-			const uploadedImageID = response.data[0].id;
+			const uploadedImage = response.data[0];
 
 			console.log("uploadedImageID")
 
@@ -469,9 +479,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
 			setUploadImageIsLoading(false);
 
-			return uploadedImageID;
-
-
+			return uploadedImage;
 		} catch (error) {
 			console.error('Erro ao enviar imagem:', error);
 			setUploadImageIsLoading(false);
@@ -572,9 +580,89 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
 	const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [selectedImage, setSelectedImage] = useState<number>();
+	const [deletePhoto] = useDeletePhoto();
+	const [updateEstablishmentPhotos] = useUpdateEstablishmentPhotos();
+
+	async function uploadNewEstablishmentPhoto() {
+		try {
+			if (establishmentId) {
+				const { status } =
+					await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+				if (status !== "granted") {
+					alert("Desculpe, precisamos da permissão para acessar a galeria!");
+					return;
+				}
+
+				const result = await ImagePicker.launchImageLibraryAsync({
+					mediaTypes: ImagePicker.MediaTypeOptions.Images,
+					allowsEditing: true,
+					aspect: [1, 1],
+					quality: 1,
+				});
+
+				if (!result.canceled) {
+					uploadImage(result.assets[0].uri).then(uploadedImage => {
+						const newPhotos = photos
+
+						newPhotos.push({uri: uploadedImage.uri, id: uploadedImage.id})
+
+						setPhotos(newPhotos);
+						updateEstablishmentPhotos({
+							variables: {
+								establishment_id: establishmentId,
+								photos_id: newPhotos.map(photo => photo.id)
+							}
+						})
+					});
+				}
+
+			}
+		} catch (error) {
+			console.log("Erro ao carregar a imagem: ", error);
+		}
+	}
+
+	function deleteEstablishmentPhoto(id: string, event: GestureResponderEvent) {
+		try {
+			event.preventDefault();
+			setIsLoading(true);
+
+			deletePhoto({
+				variables: {
+					photo_id: id
+				}
+			}).then(response => {
+				if (
+					response.data &&
+					response.data.deleteUploadFile.data &&
+					response.data.deleteUploadFile.data.id === id
+				) {
+					const deletedPhotoIndex = photos.findIndex(photo => photo.id === id);
+					const updatedPhotos = photos;
+
+					updatedPhotos.splice(deletedPhotoIndex, 1);
+
+					setPhotos(updatedPhotos)
+
+					alert('Foto deletada com sucesso!')
+
+					return;				}
+			}).catch(error => {
+				alert('Não foi possível deletar a imagem!')
+				console.error(JSON.stringify(error, null, 2));
+			})
+		} catch (error) {
+			console.error(JSON.stringify(error, null, 2))
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
 	return (
 		<View className="flex-1 bg-white h-full">
-
 			<ScrollView className="flex-grow p-1">
 				<TouchableOpacity className="items-center mt-8">
 					<View style={styles.container}>
@@ -680,39 +768,33 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 					</View>
 
 					<View>
-						<Text className="text-base">Logo</Text>
-						{/*<FlatList*/}
-						{/*	data={logo}*/}
-						{/*	renderItem={({item, index}) => (*/}
-						{/*		<View className='w-32 h-32 rounded-md relative'>*/}
-						{/*			<TouchableOpacity*/}
-						{/*				onPress={() => alert(item)}*/}
-						{/*			>*/}
-						{/*				<Image source={{uri: HOST_API + item}} className='h-full' />*/}
-						{/*			</TouchableOpacity>*/}
-						{/*			<TouchableOpacity*/}
-						{/*				onPress={() => alert('function delete photo')}*/}
-						{/*				className='absolute bottom-0 right-0'*/}
-						{/*			>*/}
-						{/*				<Ionicons name="trash" size={25} color="#FF6112" />*/}
-						{/*			</TouchableOpacity>*/}
-						{/*		</View>*/}
-						{/*	)} />*/}
-					</View>
-
-					<View>
-						<Text className="text-base">Fotos do Estabelecimento</Text>
+						<View className='flex flex-row justify-between mb-2'>
+							<Text className="text-base">Fotos do Estabelecimento</Text>
+							<TouchableOpacity
+								onPress={uploadNewEstablishmentPhoto}
+								className='p-2 border-orange-500 border rounded-full'
+							>
+								<Ionicons
+									name={'add'}
+									color={'#F5620F'}
+									size={32}
+								/>
+							</TouchableOpacity>
+						</View>
 						<FlatList
 							data={photos}
+							horizontal
 							renderItem={({item, index}) => (
-								<View className='w-32 h-32 rounded-md relative'>
+								<View className='w-32 h-32 rounded-md relative block mx-2'>
 									<TouchableOpacity
-										onPress={() => alert(item)}
+										onPress={() => {
+											setSelectedImage(index)
+										}}
 									>
-										<Image source={{uri: HOST_API + item}} className='h-full' />
+										<Image source={{uri: HOST_API + item.uri}} className='h-full' />
 									</TouchableOpacity>
 									<TouchableOpacity
-										onPress={() => alert('function delete photo')}
+										onPress={(event) => deleteEstablishmentPhoto(item.id, event)}
 										className='absolute bottom-0 right-0'
 									>
 										<Ionicons name="trash" size={25} color="#FF6112" />
@@ -720,6 +802,32 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 								</View>
 						)} />
 					</View>
+
+					<Modal
+						visible={selectedImage !== undefined}
+						transparent
+						animationType={'fade'}
+					>
+						{
+							(selectedImage !== undefined) &&
+							<View className='flex-1 justify-center items-center bg-[#0008] rounded'>
+								<View className='w-5/6 aspect-square flex justify-center items-center'>
+									<Image
+										className='w-full h-full'
+										source={{uri: HOST_API + photos[selectedImage].uri}}
+									/>
+									<TouchableOpacity
+										className='self-end'
+										onPress={() => {
+											setSelectedImage(undefined)
+										}}
+									>
+										<Text className='text-base border-b border-b-orange-600'>Fechar</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						}
+					</Modal>
 
 					<TouchableOpacity onPress={handleCardClick}>
 						<Text className="text-base">Chave PIX</Text>

@@ -1,7 +1,7 @@
 import { ApolloError, useApolloClient } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -15,7 +15,7 @@ import {
 import { CheckBox } from "react-native-elements";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
-import { IRegisterUserVariables } from "../../../graphql/mutations/register";
+import type { IRegisterUserVariables } from "../../../graphql/mutations/register";
 import {
   IUserByIdResponse,
   IUserByIdVariables,
@@ -23,6 +23,7 @@ import {
 } from "../../../graphql/queries/userById";
 import useLoginUser from "../../../hooks/useLoginUser";
 import useRegisterUser from "../../../hooks/useRegisterUser";
+import type { UserGeolocation } from "../../../types/UserGeolocation";
 import storage from "../../../utils/storage";
 
 type RegisterPasswordProps = NativeStackScreenProps<
@@ -35,17 +36,27 @@ interface IFormData {
   confirmPassword: string;
 }
 
-const formSchema = z.object({
-  password: z.string().nonempty("O campo não pode estar vazio"),
-  confirmPassword: z.string().nonempty("O campo não pode estar vazio"),
-});
+const formSchema = z
+  .object({
+    password: z.string().nonempty("O campo não pode estar vazio"),
+    confirmPassword: z.string().nonempty("O campo não pode estar vazio"),
+  })
+  .superRefine((values, context) => {
+    if (values.password !== values.confirmPassword) {
+      context.addIssue({
+        code: "custom",
+        path: ["confirmPassword"],
+        message: "As senhas devem ser iguais",
+      });
+    }
+  });
 
 export default function Password({ route, navigation }: RegisterPasswordProps) {
   const apolloClient = useApolloClient();
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
   });
@@ -63,33 +74,28 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
 
   const [isTermChecked, setIsTermChecked] = useState(false);
   const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false);
-  const [isCaptchaCheckedError, setIsCaptchaCheckedError] =
-    useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [passwordsMatch, setPasswordsMatch] = useState<boolean>(true);
+  // const [isCaptchaCheckedError, setIsCaptchaCheckedError] =
+  //   useState<boolean>(false);
 
-  async function handleSignup(data: IFormData) {
-    setIsLoading(true);
+  const handleSignup = handleSubmit(async (data: IFormData) => {
     try {
       if (!isTermChecked) {
         return setIsTermCheckedError(true);
       }
 
-      if (data.password !== data.confirmPassword) {
-        return setPasswordsMatch(false);
-      }
-
-      if (route.params.flow === 'normal') {
+      if (route.params.flow === "normal") {
         const registerData: IRegisterUserVariables = {
           password: data.password,
           cpf: route.params.data.cpf,
           email: route.params.data.email,
-          role: '3',
+          role: "3",
           phone_number: route.params.data.phoneNumber,
           username: route.params.data.name,
         };
 
-        const registerResponse = await registerUser({ variables: registerData });
+        const registerResponse = await registerUser({
+          variables: registerData,
+        });
 
         if (!registerResponse.data) {
           throw new Error("No register data");
@@ -129,55 +135,46 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           expires: 1000 * 3600,
         });
 
-        storage.load<UserInfos>({
-          key: "userInfos",
-        }).catch(error => {
+        storage.load<UserInfos>({ key: "userInfos" }).catch(error => {
           if (error instanceof Error) {
-            if (error.name === 'NotFoundError') {
-              console.log('The item wasn\'t found.');
-            } else if (error.name === 'ExpiredError') {
-              console.log('The item has expired.');
-              storage.remove({
-                key: 'userInfos'
-              }).then(() => {
-                console.log('The item has been removed.');
-              })
+            if (error.name === "NotFoundError") {
+              console.log("The item wasn't found.");
+            } else if (error.name === "ExpiredError") {
+              console.log("The item has expired.");
+              storage.remove({ key: "userInfos" }).then(() => {
+                console.log("The item has been removed.");
+              });
             } else {
-              console.log('Unknown error:', error);
+              console.log("Unknown error:", error);
             }
           }
-        });;
+        });
 
-        if (
-          userData.usersPermissionsUser.data.attributes.role.data.id === "3"
-        ) {
-          const userGeolocation = await storage.load<{
-            latitude: number;
-            longitude: number;
-          }>({ key: "userGeolocation" });
+        const userGeolocation = await storage.load<UserGeolocation>({
+          key: "userGeolocation",
+        });
 
-          navigation.navigate("RegisterSuccess", {
-            nextRoute: "Home",
-            routePayload: {
-              userGeolocation: userGeolocation
-                ? userGeolocation
-                : {
+        navigation.navigate("RegisterSuccess", {
+          nextRoute: "Home",
+          routePayload: {
+            userGeolocation: userGeolocation
+              ? userGeolocation
+              : {
                   latitude: 78.23570781291714,
                   longitude: 15.491400000982967,
                 },
-              userID: authData.data.login.user.id,
-              userPhoto: undefined,
-            },
-          });
-        }
-      } else if (route.params.flow === 'establishment') {
+            userID: authData.data.login.user.id,
+            userPhoto: undefined,
+          },
+        });
+      } else if (route.params.flow === "establishment") {
         navigation.navigate("EstablishmentRegister", {
           password: data.password,
           cpf: route.params.data.cpf,
           email: route.params.data.email,
           username: route.params.data.name,
           phone_number: route.params.data.phoneNumber,
-          role: '4',
+          role: "4",
         });
       }
     } catch (error) {
@@ -191,15 +188,9 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
 
       console.log(JSON.stringify(error, null, 2));
       navigation.goBack();
-    } finally {
-      setIsLoading(false);
     }
-  }
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, [navigation]);
+  });
+
   return (
     <View className="flex flex-col bg-white h-screen items-center p-5">
       <View>
@@ -214,7 +205,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           <Text className="text-base mb-2">Escolha uma senha</Text>
           <View
             className={
-              errors.password || !passwordsMatch
+              errors.password
                 ? "flex flex-row items-center justify-between border border-red-400 rounded"
                 : "flex flex-row items-center justify-between border border-neutral-400 rounded"
             }
@@ -253,18 +244,13 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
               {errors.password.message}
             </Text>
           )}
-          {!passwordsMatch && (
-            <Text className="text-red-400 text-sm">
-              As senha devem ser iguais
-            </Text>
-          )}
         </View>
 
         <View className="w-full">
           <Text className="text-base mt-4 mb-2">Repita a senha escolhida</Text>
           <View
             className={
-              errors.confirmPassword || !passwordsMatch
+              errors.confirmPassword
                 ? "flex flex-row items-center justify-between border border-red-400 rounded"
                 : "flex flex-row items-center justify-between border border-neutral-400 rounded"
             }
@@ -284,7 +270,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                   onChangeText={onChange}
                   className="p-4 flex-1"
                   placeholder="**********"
-                  onSubmitEditing={handleSubmit(handleSignup)}
+                  onSubmitEditing={handleSignup}
                   returnKeyType="send"
                 />
               )}
@@ -303,11 +289,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           {errors.confirmPassword && (
             <Text className="text-red-400 text-sm">
               {errors.confirmPassword.message}
-            </Text>
-          )}
-          {!passwordsMatch && (
-            <Text className="text-red-400 text-sm">
-              As senha devem ser iguais
             </Text>
           )}
         </View>
@@ -333,16 +314,17 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
       </View>
       <View className="flex-1 mb-14 flex w-full items-center justify-center">
         <TouchableOpacity
+          disabled={isSubmitting}
           className="h-14 w-full rounded-md bg-orange-500 flex items-center justify-center"
-          onPress={handleSubmit(handleSignup)}
+          onPress={handleSignup}
         >
-          <Text className="text-white font-semibold text-base">
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#F5620F" />
-            ) : (
-              "Continuar"
-            )}
-          </Text>
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text className="text-white font-semibold text-base">
+              Continuar
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>

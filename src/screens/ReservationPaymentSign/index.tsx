@@ -88,19 +88,25 @@ export default function ReservationPaymentSign({ navigation, route }: NativeStac
 
 	const loadingScreenInfos = () => {
 		setAmountToPay(route.params.amountToPay)
+		let amountToPayHold = route.params.amountToPay
 		setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!)
 		setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!)
 		setCourtName(dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "")
-		setSignalValueValidate(dataReserve?.courtAvailability.data.attributes.value ? true : false)
+		setSignalValueValidate(dataReserve?.courtAvailability.data.attributes.value === amountToPayHold! + serviceValue! ? true : false)
+		console.log("validação:", dataReserve?.courtAvailability.data.attributes.value === amountToPayHold! + serviceValue!)
 		setUserPhoto(route.params.userPhoto!)
 		setValuePayed(dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0)
 		setSignalValue(Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2)))
 		setSignalValuePix(Number(dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(2)) * 100)
 	}
 
-	useFocusEffect(() => {
-		loadingScreenInfos()
-	})
+	useFocusEffect(
+		React.useCallback(() => {
+		  if (!isScreenLoading) {
+			loadingScreenInfos();
+		  }
+		}, [isScreenLoading])
+	  );
 
 
 	useEffect(() => {

@@ -2,7 +2,6 @@ import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -20,10 +19,10 @@ import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { ActivityIndicator } from "react-native-paper";
 import { z } from "zod";
-import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { Appointment } from "../CourtPriceHour";
-import { HOST_API } from '@env';
+
+const availabilityTimeRegex = /^\d{2}:\d{2}$/;
 
 const formSchema = z.object({
   minimum_value: z
@@ -40,8 +39,6 @@ interface IFormDatasCourt {
   photos: string[];
   court_availabilities?: string[];
 }
-
-
 
 type CourtTypes = Array<{ label: string; value: string }>;
 
@@ -71,12 +68,12 @@ export default function RegisterCourt({
   });
 
   async function register(data: IFormDatasCourt, shouldRedirect = false) {
-    setIsLoading(true)
+    setIsLoading(true);
 
     const [storageDayUse, storageAvailabilities] = await Promise.all([
-      AsyncStorage.getItem('@inquadra/court-price-hour_day-use'),
-      AsyncStorage.getItem('@inquadra/court-price-hour_all-appointments'),
-    ])
+      AsyncStorage.getItem("@inquadra/court-price-hour_day-use"),
+      AsyncStorage.getItem("@inquadra/court-price-hour_all-appointments"),
+    ]);
 
     const selectedCourtTypeIds: string[] = [];
 
@@ -95,11 +92,48 @@ export default function RegisterCourt({
       if (
         storageDayUse &&
         storageAvailabilities &&
-        (dayUse = JSON.parse(storageDayUse)).length &&
-        (allAvailabilities = JSON.parse(storageAvailabilities)).some(
-          (availabilities: Appointment[]) => availabilities.length > 0,
+        (dayUse = JSON.parse(storageDayUse) as typeof dayUse).length &&
+        (allAvailabilities = JSON.parse(
+          storageAvailabilities,
+        ) as typeof allAvailabilities).some(
+          availabilities => availabilities.length > 0,
         )
       ) {
+        const areAvailabilitiesValid = allAvailabilities.every(
+          availabilities => {
+            return availabilities.every(availability => {
+              const isStartValid = availabilityTimeRegex.test(
+                availability.startsAt,
+              );
+
+              const isEndValid = availabilityTimeRegex.test(
+                availability.endsAt,
+              );
+
+              const isPriceValid =
+                Boolean(availability.price) &&
+                !isNaN(
+                  Number(
+                    availability.price
+                      .replace("R$", "")
+                      .replace(".", "")
+                      .replace(",", ".")
+                      .trim(),
+                  ),
+                );
+
+              return isStartValid && isEndValid && isPriceValid;
+            });
+          },
+        );
+
+        if (!areAvailabilitiesValid) {
+          return Alert.alert(
+            "Erro",
+            "Preencha todos os horários e valores corretamente.",
+          );
+        }
+
         const payload: CourtAddRawPayload = {
           court_name: data.court_name,
           courtType: selectedCourtTypeIds,
@@ -109,7 +143,7 @@ export default function RegisterCourt({
           court_availabilities: allAvailabilities,
           dayUse,
           currentDate: new Date().toISOString(),
-        }
+        };
 
         if (shouldRedirect) {
           navigation.navigate("AllVeryWell", {
@@ -125,66 +159,23 @@ export default function RegisterCourt({
             ),
           ]);
 
-          reset()
+          reset();
           setPhotos([]);
           setSelectedCourtTypes([]);
           setCourts(prevState => [...prevState, payload]);
-
-          console.log(courts)
         }
-      } else Alert.alert('Erro', 'Preencha os valores e horários.');
+      } else {
+        Alert.alert("Erro", "Preencha os valores e horários.");
+      }
     } catch (error) {
       console.error(JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível registrar a quadra");
     } finally {
       setIsLoading(false);
     }
-
-    //   const [uploadedImageIds, courtAvailabilityIds] = await Promise.all([
-    //     uploadImages(),
-    //     Promise.all(
-    //       allAvailabilities.flatMap((availabilities, index) => {
-    //         return availabilities.map(async availability => {
-    //           const { data } = await registerCourtAvailability({
-    //             variables: {
-    //               status: true,
-    //               title: "O que deve vir aqui?",
-    //               day_use_service: dayUse[index],
-    //               starts_at: `${availability.startsAt}:00.000`,
-    //               ends_at: `${availability.endsAt}:00.000`,
-    //               value: Number(
-    //                 availability.price
-    //                   .replace("R$", "")
-    //                   .replace(".", "")
-    //                   .replace(",", ".")
-    //                   .trim(),
-    //               ),
-    //               week_day: indexToWeekDayMap[index],
-    //             },
-    //           });
-    //
-    //           if (!data) {
-    //             throw new Error("No data");
-    //           }
-    //
-    //           return data.createCourtAvailability.data.id;
-    //         });
-    //       }),
-    //     ),
-    //   ]);
-    //
-    //   const payload: CourtAdd = {
-    //     court_name: `Quadra de ${selected}`,
-    //     courtType: courtIds,
-    //     fantasyName: data.fantasyName,
-    //     photos: uploadedImageIds,
-    //     court_availabilities: courtAvailabilityIds,
-    //     minimum_value: Number(data.minimum_value) / 100,
-    //     currentDate: new Date().toISOString(),
-    //   };
   }
 
-  const registerNewCourt = handleSubmit(async (data: IFormDatasCourt) => {
+  const registerNewCourt = handleSubmit(async data => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
@@ -192,19 +183,13 @@ export default function RegisterCourt({
     await register(data);
   });
 
-  const finishCourtsRegisters = handleSubmit(async (data: IFormDatasCourt) => {
+  const finishCourtsRegisters = handleSubmit(async data => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
 
     await register(data, true);
   });
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, [navigation]);
 
   const handleProfilePictureUpload = async () => {
     try {
@@ -235,35 +220,6 @@ export default function RegisterCourt({
     } catch (error) {
       console.log("Erro ao carregar a imagem: ", error);
     }
-  };
-
-  const uploadImages = async () => {
-    const formData = new FormData();
-
-    for (let index = 0; index < photos.length; index++) {
-      const { uri } = photos[index];
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      formData.append("files", {
-        uri,
-        type: blob.type,
-        name: `image${index}.jpg`,
-      } as any);
-    }
-
-    const response = await axios.post<Array<{ id: string }>>(
-      `${HOST_API}/api/upload`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
-    );
-
-    const uploadedImageIDs = response.data.map(image => image.id);
-    console.log("Imagens enviadas com sucesso!", response.data);
-    return uploadedImageIDs;
   };
 
   const handleDeletePhoto = (index: any) => {
@@ -500,7 +456,7 @@ export default function RegisterCourt({
           <View>
             <View>
               <TouchableOpacity
-                className="h-14 w-full rounded-md bg-[#FF6112] flex items-center justify-center"
+                className="h-14 w-full rounded-md bg-[#FF6112] items-center justify-center"
                 onPress={() => {
                   if (selectedCourtTypes.length === 0) {
                     setIsCourtTypeEmpty(true);
@@ -511,17 +467,9 @@ export default function RegisterCourt({
                 }}
               >
                 {isLoading ? (
-                  <View
-                    style={{
-                      alignItems: "center",
-                      paddingTop: 5,
-                      flexDirection: "row",
-                    }}
-                  >
+                  <View className="flex-row items-center space-x-2">
                     <ActivityIndicator size="small" color="#FFFF" />
-                    <Text style={{ marginTop: 6, color: "white" }}>
-                      Fazendo upload das imagens...
-                    </Text>
+                    <Text className="text-white">Carregando...</Text>
                   </View>
                 ) : (
                   <Text className="text-white font-semibold text-base">

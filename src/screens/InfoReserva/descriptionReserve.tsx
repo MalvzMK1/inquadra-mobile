@@ -629,7 +629,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 												<Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
 											</View>
 											: <Text className='text-white'>CREU</Text>
-										: <Text className='text-white'>CARREGOU NAO</Text>
+										: null
 								}
 							</View>
 						</View>
