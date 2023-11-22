@@ -28,9 +28,9 @@ export default function HistoryPayment({ route }: NativeStackScreenProps<RootSta
     const fiveDaysAgo = new Date(currentDate);
     fiveDaysAgo.setDate(currentDate.getDate() - 5);
     const establishmentId = route.params.establishmentId
-    let { data, loading, error } = useGetUserHistoricPayment("5");
+    let { data, loading, error } = useGetUserHistoricPayment(establishmentId);
     if (route.params.dateFilter !== null) {
-        ({ data, loading, error } = useGetUserHistoricPaymentFiltred("5", route.params.dateFilter));
+        ({ data, loading, error } = useGetUserHistoricPaymentFiltred(establishmentId, route.params.dateFilter));
     }
     const [mergedPayments, setMergedPayments] = useState<[] | null>();
     const [balance, setBalance] = useState<number>(0)
