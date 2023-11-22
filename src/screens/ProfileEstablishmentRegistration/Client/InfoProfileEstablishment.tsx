@@ -9,7 +9,7 @@ import {
 	Modal,
 	StyleSheet,
 	ActivityIndicator,
-	FlatList
+	FlatList, GestureResponderEvent
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, NavigationProp } from "@react-navigation/native"
@@ -35,6 +35,7 @@ import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishme
 import { HOST_API } from "@env";
 import axios from 'axios';
 import SvgUri from "react-native-svg-uri";
+import useDeletePhoto from "../../../hooks/useDeletePhoto";
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
 	const [userId, setUserId] = useState("")
@@ -45,7 +46,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 	const [cep, setCep] = useState<string>("")
 	const [fantasyName, setFantasyName] = useState<string>("")
 	const [streetName, setStreetName] = useState<string>("")
-	const [photos, setPhotos] = useState<Array<string>>([]);
+	const [photos, setPhotos] = useState<Array<{ uri: string, id: string }>>([]);
 	const [logo, setLogo] = useState<string>();
 
 	interface IFormData {
@@ -281,10 +282,13 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 			userByEstablishmentData.usersPermissionsUser.data &&
 			userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data
 		) {
-			setCep(userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.address.cep!)
+			setCep(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data?.attributes.address.cep!)
 			setLogo(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes.logo.data?.attributes.url ?? undefined)
 			setPhotos(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data?.map(
-				photo => photo.attributes.url
+				photo => ({
+					uri: photo.attributes.url,
+					id: photo.id,
+				})
 			) ?? [])
 
 			setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data?.attributes.phoneNumber)
@@ -572,9 +576,53 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
 	const { data: dataUserEstablishment, error: errorUserEstablishment, loading: loadingUserEstablishment } = useGetUserIDByEstablishment(route.params.establishmentId ?? "")
 
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [deletePhoto] = useDeletePhoto();
+
+	function uploadNewEstablishmentPhoto() {
+		alert('I\'be big as fuck')
+		// show modal to upload new photo
+		// add the photo to 'photos' state
+	}
+
+	function deleteEstablishmentPhoto(id: string, event: GestureResponderEvent) {
+		try {
+			event.preventDefault();
+			setIsLoading(true);
+
+			deletePhoto({
+				variables: {
+					photo_id: id
+				}
+			}).then(response => {
+				if (
+					response.data &&
+					response.data.deleteUploadFile.data &&
+					response.data.deleteUploadFile.data.id === id
+				) {
+					const deletedPhotoIndex = photos.findIndex(photo => photo.id === id);
+					const updatedPhotos = photos;
+
+					updatedPhotos.splice(deletedPhotoIndex, 1);
+
+					setPhotos(updatedPhotos)
+
+					alert('Foto deletada com sucesso!')
+
+					return;				}
+			}).catch(error => {
+				alert('Não foi possível deletar a imagem!')
+				console.error(JSON.stringify(error, null, 2));
+			})
+		} catch (error) {
+			console.error(JSON.stringify(error, null, 2))
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
 	return (
 		<View className="flex-1 bg-white h-full">
-
 			<ScrollView className="flex-grow p-1">
 				<TouchableOpacity className="items-center mt-8">
 					<View style={styles.container}>
@@ -680,39 +728,31 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 					</View>
 
 					<View>
-						<Text className="text-base">Logo</Text>
-						{/*<FlatList*/}
-						{/*	data={logo}*/}
-						{/*	renderItem={({item, index}) => (*/}
-						{/*		<View className='w-32 h-32 rounded-md relative'>*/}
-						{/*			<TouchableOpacity*/}
-						{/*				onPress={() => alert(item)}*/}
-						{/*			>*/}
-						{/*				<Image source={{uri: HOST_API + item}} className='h-full' />*/}
-						{/*			</TouchableOpacity>*/}
-						{/*			<TouchableOpacity*/}
-						{/*				onPress={() => alert('function delete photo')}*/}
-						{/*				className='absolute bottom-0 right-0'*/}
-						{/*			>*/}
-						{/*				<Ionicons name="trash" size={25} color="#FF6112" />*/}
-						{/*			</TouchableOpacity>*/}
-						{/*		</View>*/}
-						{/*	)} />*/}
-					</View>
-
-					<View>
-						<Text className="text-base">Fotos do Estabelecimento</Text>
+						<View className='flex flex-row justify-between mb-2'>
+							<Text className="text-base">Fotos do Estabelecimento</Text>
+							<TouchableOpacity
+								onPress={uploadNewEstablishmentPhoto}
+								className='p-2 border-orange-500 border rounded-full'
+							>
+								<Ionicons
+									name={'add'}
+									color={'#F5620F'}
+									size={32}
+								/>
+							</TouchableOpacity>
+						</View>
 						<FlatList
 							data={photos}
-							renderItem={({item, index}) => (
-								<View className='w-32 h-32 rounded-md relative'>
+							horizontal
+							renderItem={({item}) => (
+								<View className='w-32 h-32 rounded-md relative block mx-2'>
 									<TouchableOpacity
 										onPress={() => alert(item)}
 									>
-										<Image source={{uri: HOST_API + item}} className='h-full' />
+										<Image source={{uri: HOST_API + item.uri}} className='h-full' />
 									</TouchableOpacity>
 									<TouchableOpacity
-										onPress={() => alert('function delete photo')}
+										onPress={(event) => deleteEstablishmentPhoto(item.id, event)}
 										className='absolute bottom-0 right-0'
 									>
 										<Ionicons name="trash" size={25} color="#FF6112" />
