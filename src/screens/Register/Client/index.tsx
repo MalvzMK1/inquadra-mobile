@@ -1,12 +1,35 @@
+import { useApolloClient } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
+import {
+  UserByCpfResponse,
+  UserByCpfVariables,
+  userByCpfQuery,
+} from "../../../graphql/queries/userByCpf";
+import {
+  IUserByEmailResponse,
+  IUserByEmailVariables,
+  userByEmailQuery,
+} from "../../../graphql/queries/userByEmail";
+import {
+  UserByUsernameResponse,
+  UserByUsernameVariables,
+  userByUsernameQuery,
+} from "../../../graphql/queries/userByUsername";
 import validateCpf from "../../../utils/validateCPF";
 
 interface IFormDatas {
@@ -38,19 +61,61 @@ export default function Register({
   route,
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "Register">) {
+  const apolloClient = useApolloClient();
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<IFormDatas>({
     resolver: zodResolver(formSchema),
   });
 
-  const handleGoToNextRegisterPage = handleSubmit(data => {
-    navigation.navigate("RegisterPassword", {
-      data,
-      flow: route.params.flow,
-    });
+  const handleGoToNextRegisterPage = handleSubmit(async data => {
+    try {
+      const [{ data: emailData }, { data: usernameData }, { data: cpfData }] =
+        await Promise.all([
+          apolloClient.query<IUserByEmailResponse, IUserByEmailVariables>({
+            fetchPolicy: "network-only",
+            query: userByEmailQuery,
+            variables: {
+              email: data.email,
+            },
+          }),
+          apolloClient.query<UserByUsernameResponse, UserByUsernameVariables>({
+            fetchPolicy: "network-only",
+            query: userByUsernameQuery,
+            variables: {
+              username: data.name,
+            },
+          }),
+          apolloClient.query<UserByCpfResponse, UserByCpfVariables>({
+            fetchPolicy: "network-only",
+            query: userByCpfQuery,
+            variables: {
+              cpf: data.cpf,
+            },
+          }),
+        ]);
+
+      if (emailData.usersPermissionsUsers.data.length > 0) {
+        return Alert.alert("Erro", "Este e-mail já está em uso.");
+      }
+
+      if (usernameData.usersPermissionsUsers.data.length > 0) {
+        return Alert.alert("Erro", "Este nome já está em uso.");
+      }
+
+      if (cpfData.usersPermissionsUsers.data.length > 0) {
+        return Alert.alert("Erro", "Este cpf já está em uso.");
+      }
+
+      navigation.navigate("RegisterPassword", {
+        data,
+        flow: route.params.flow,
+      });
+    } catch (error) {
+      Alert.alert("Erro", "Ocorreu um erro inesperado.");
+    }
   });
 
   return (
@@ -192,10 +257,17 @@ export default function Register({
         </View>
 
         <TouchableOpacity
+          disabled={isSubmitting}
           className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6"
           onPress={handleGoToNextRegisterPage}
         >
-          <Text className="text-white text-base font-semibold">Continuar</Text>
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text className="text-white text-base font-semibold">
+              Continuar
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>
