@@ -37,7 +37,10 @@ export default function PriceHour({
             placeholder="Ex.: 06:00"
             inputMode="numeric"
             onBlur={() => {
-              setStartsAt(startsAt.replace(/\D/, "").padEnd(4, "0"));
+              const padValue = startsAt.replace(/\D/, "").padEnd(4, "0");
+              setStartsAt(
+                `${padValue.substring(0, 2)}:${padValue.substring(2)}`,
+              );
             }}
           />
         </View>
@@ -51,7 +54,8 @@ export default function PriceHour({
             placeholder="Ex.: 07:00"
             inputMode="numeric"
             onBlur={() => {
-              setEndsAt(endsAt.replace(/\D/, "").padEnd(4, "0"));
+              const padValue = endsAt.replace(/\D/, "").padEnd(4, "0");
+              setEndsAt(`${padValue.substring(0, 2)}:${padValue.substring(2)}`);
             }}
           />
         </View>

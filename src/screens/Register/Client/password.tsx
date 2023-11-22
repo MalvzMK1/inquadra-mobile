@@ -56,7 +56,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
   });
@@ -76,11 +76,8 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   const [isTermCheckedError, setIsTermCheckedError] = useState<boolean>(false);
   // const [isCaptchaCheckedError, setIsCaptchaCheckedError] =
   //   useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  async function handleSignup(data: IFormData) {
-    setIsLoading(true);
-
+  const handleSignup = handleSubmit(async (data: IFormData) => {
     try {
       if (!isTermChecked) {
         return setIsTermCheckedError(true);
@@ -138,28 +135,20 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           expires: 1000 * 3600,
         });
 
-        storage
-          .load<UserInfos>({
-            key: "userInfos",
-          })
-          .catch(error => {
-            if (error instanceof Error) {
-              if (error.name === "NotFoundError") {
-                console.log("The item wasn't found.");
-              } else if (error.name === "ExpiredError") {
-                console.log("The item has expired.");
-                storage
-                  .remove({
-                    key: "userInfos",
-                  })
-                  .then(() => {
-                    console.log("The item has been removed.");
-                  });
-              } else {
-                console.log("Unknown error:", error);
-              }
+        storage.load<UserInfos>({ key: "userInfos" }).catch(error => {
+          if (error instanceof Error) {
+            if (error.name === "NotFoundError") {
+              console.log("The item wasn't found.");
+            } else if (error.name === "ExpiredError") {
+              console.log("The item has expired.");
+              storage.remove({ key: "userInfos" }).then(() => {
+                console.log("The item has been removed.");
+              });
+            } else {
+              console.log("Unknown error:", error);
             }
-          });
+          }
+        });
 
         const userGeolocation = await storage.load<UserGeolocation>({
           key: "userGeolocation",
@@ -199,10 +188,8 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
 
       console.log(JSON.stringify(error, null, 2));
       navigation.goBack();
-    } finally {
-      setIsLoading(false);
     }
-  }
+  });
 
   return (
     <View className="flex flex-col bg-white h-screen items-center p-5">
@@ -283,7 +270,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
                   onChangeText={onChange}
                   className="p-4 flex-1"
                   placeholder="**********"
-                  onSubmitEditing={handleSubmit(handleSignup)}
+                  onSubmitEditing={handleSignup}
                   returnKeyType="send"
                 />
               )}
@@ -327,16 +314,17 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
       </View>
       <View className="flex-1 mb-14 flex w-full items-center justify-center">
         <TouchableOpacity
+          disabled={isSubmitting}
           className="h-14 w-full rounded-md bg-orange-500 flex items-center justify-center"
-          onPress={handleSubmit(handleSignup)}
+          onPress={handleSignup}
         >
-          <Text className="text-white font-semibold text-base">
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#F5620F" />
-            ) : (
-              "Continuar"
-            )}
-          </Text>
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text className="text-white font-semibold text-base">
+              Continuar
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>

@@ -22,6 +22,8 @@ import { z } from "zod";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { Appointment } from "../CourtPriceHour";
 
+const availabilityTimeRegex = /^\d{2}:\d{2}$/;
+
 const formSchema = z.object({
   minimum_value: z
     .string()
@@ -97,6 +99,41 @@ export default function RegisterCourt({
           availabilities => availabilities.length > 0,
         )
       ) {
+        const areAvailabilitiesValid = allAvailabilities.every(
+          availabilities => {
+            return availabilities.every(availability => {
+              const isStartValid = availabilityTimeRegex.test(
+                availability.startsAt,
+              );
+
+              const isEndValid = availabilityTimeRegex.test(
+                availability.endsAt,
+              );
+
+              const isPriceValid =
+                Boolean(availability.price) &&
+                !isNaN(
+                  Number(
+                    availability.price
+                      .replace("R$", "")
+                      .replace(".", "")
+                      .replace(",", ".")
+                      .trim(),
+                  ),
+                );
+
+              return isStartValid && isEndValid && isPriceValid;
+            });
+          },
+        );
+
+        if (!areAvailabilitiesValid) {
+          return Alert.alert(
+            "Erro",
+            "Preencha todos os horários e valores corretamente.",
+          );
+        }
+
         const payload: CourtAddRawPayload = {
           court_name: data.court_name,
           courtType: selectedCourtTypeIds,
@@ -127,7 +164,9 @@ export default function RegisterCourt({
           setSelectedCourtTypes([]);
           setCourts(prevState => [...prevState, payload]);
         }
-      } else Alert.alert("Erro", "Preencha os valores e horários.");
+      } else {
+        Alert.alert("Erro", "Preencha os valores e horários.");
+      }
     } catch (error) {
       console.error(JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível registrar a quadra");
@@ -417,7 +456,7 @@ export default function RegisterCourt({
           <View>
             <View>
               <TouchableOpacity
-                className="h-14 w-full rounded-md bg-[#FF6112] flex items-center justify-center"
+                className="h-14 w-full rounded-md bg-[#FF6112] items-center justify-center"
                 onPress={() => {
                   if (selectedCourtTypes.length === 0) {
                     setIsCourtTypeEmpty(true);
@@ -428,17 +467,9 @@ export default function RegisterCourt({
                 }}
               >
                 {isLoading ? (
-                  <View
-                    style={{
-                      alignItems: "center",
-                      paddingTop: 5,
-                      flexDirection: "row",
-                    }}
-                  >
+                  <View className="flex-row items-center space-x-2">
                     <ActivityIndicator size="small" color="#FFFF" />
-                    <Text style={{ marginTop: 6, color: "white" }}>
-                      Fazendo upload das imagens...
-                    </Text>
+                    <Text className="text-white">Carregando...</Text>
                   </View>
                 ) : (
                   <Text className="text-white font-semibold text-base">

@@ -266,13 +266,7 @@ export default function AllVeryWell({
     } catch (error) {
       console.error(error);
       console.error(JSON.stringify(error, null, 2));
-      let errorMessage = "Não foi possível concluir o cadastro.";
-
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      Alert.alert("Erro", errorMessage);
+      Alert.alert("Erro", "Não foi possível concluir o cadastro.");
 
       removeRegisteredInfos({
         userIdToRemove,
