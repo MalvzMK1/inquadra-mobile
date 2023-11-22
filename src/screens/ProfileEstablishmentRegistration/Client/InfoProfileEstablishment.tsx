@@ -36,9 +36,12 @@ import { HOST_API } from "@env";
 import axios from 'axios';
 import SvgUri from "react-native-svg-uri";
 import useDeletePhoto from "../../../hooks/useDeletePhoto";
+import {updateEstablishmentPhotosMutation} from "../../../graphql/mutations/updateEstablishmentPhotos";
+import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentPhotos";
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
 	const [userId, setUserId] = useState("")
+	const [establishmentId, setEstablishmentId] = useState<string | number>();
 	const [jwtToken, setJwtToken] = useState("")
 
 	const { data: userByEstablishmentData, error: userByEstablishmentError, loading: userByEstablishmentLoading } = useGetUserEstablishmentInfos(userId)
@@ -48,6 +51,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 	const [streetName, setStreetName] = useState<string>("")
 	const [photos, setPhotos] = useState<Array<{ uri: string, id: string }>>([]);
 	const [logo, setLogo] = useState<string>();
+
 
 	interface IFormData {
 		userName: string
@@ -291,6 +295,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 				})
 			) ?? [])
 
+			setEstablishmentId(userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.id);
+
 			setPhoneNumber(userByEstablishmentData?.usersPermissionsUser.data?.attributes.phoneNumber)
 			navigation.setParams({
 				userPhoto: userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ?? undefined
@@ -465,7 +471,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 				},
 			});
 
-			const uploadedImageID = response.data[0].id;
+			const uploadedImage = response.data[0];
 
 			console.log("uploadedImageID")
 
@@ -473,9 +479,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
 			setUploadImageIsLoading(false);
 
-			return uploadedImageID;
-
-
+			return uploadedImage;
 		} catch (error) {
 			console.error('Erro ao enviar imagem:', error);
 			setUploadImageIsLoading(false);
@@ -578,11 +582,46 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [deletePhoto] = useDeletePhoto();
+	const [updateEstablishmentPhotos] = useUpdateEstablishmentPhotos();
 
-	function uploadNewEstablishmentPhoto() {
-		alert('I\'be big as fuck')
-		// show modal to upload new photo
-		// add the photo to 'photos' state
+	async function uploadNewEstablishmentPhoto() {
+		try {
+			if (establishmentId) {
+				const { status } =
+					await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+				if (status !== "granted") {
+					alert("Desculpe, precisamos da permissão para acessar a galeria!");
+					return;
+				}
+
+				const result = await ImagePicker.launchImageLibraryAsync({
+					mediaTypes: ImagePicker.MediaTypeOptions.Images,
+					allowsEditing: true,
+					aspect: [1, 1],
+					quality: 1,
+				});
+
+				if (!result.canceled) {
+					uploadImage(result.assets[0].uri).then(uploadedImage => {
+						const newPhotos = photos
+
+						newPhotos.push({uri: uploadedImage.uri, id: uploadedImage.id})
+
+						setPhotos(newPhotos);
+						updateEstablishmentPhotos({
+							variables: {
+								establishment_id: establishmentId,
+								photos_id: newPhotos.map(photo => photo.id)
+							}
+						})
+					});
+				}
+
+			}
+		} catch (error) {
+			console.log("Erro ao carregar a imagem: ", error);
+		}
 	}
 
 	function deleteEstablishmentPhoto(id: string, event: GestureResponderEvent) {
@@ -747,7 +786,7 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 							renderItem={({item}) => (
 								<View className='w-32 h-32 rounded-md relative block mx-2'>
 									<TouchableOpacity
-										onPress={() => alert(item)}
+										onPress={() => alert(item.id)}
 									>
 										<Image source={{uri: HOST_API + item.uri}} className='h-full' />
 									</TouchableOpacity>
