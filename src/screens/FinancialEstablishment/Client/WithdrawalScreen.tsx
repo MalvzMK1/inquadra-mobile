@@ -125,6 +125,7 @@ export default function WithdrawScreen({
         navigation.navigate("HistoryPayment", {
           establishmentId: route.params.establishmentId,
           logo: route.params.logo,
+          dateFilter: null
         }),
       1000,
     );
