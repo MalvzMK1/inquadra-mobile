@@ -98,7 +98,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 			}
 
 			const newValuePayedPercentage = Math.floor((data.scheduling.data.attributes.valuePayed / (data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate)) * 100);
-			setPayedPercentage(newValuePayedPercentage / 100);
+			setPayedPercentage(newValuePayedPercentage);
 
 			if (
 				data.scheduling.data.attributes.court_availability.data &&
