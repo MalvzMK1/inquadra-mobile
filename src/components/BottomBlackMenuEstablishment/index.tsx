@@ -123,7 +123,6 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                     </View>
                 )
             }
-            <BottomAppVersion />
         </View>
     )
 }

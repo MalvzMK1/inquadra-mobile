@@ -257,7 +257,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 					)
 				}
 			</View >
-			<BottomAppVersion />
 		</View>
 	)
 }

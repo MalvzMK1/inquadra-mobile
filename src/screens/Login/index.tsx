@@ -14,6 +14,7 @@ import {
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
+import BottomAppVersion from "../../components/BottomAppVersion";
 
 interface IFormData {
   identifier: string;
@@ -307,6 +308,7 @@ export default function Login() {
           </View>
         </View>
       </View>
+      <BottomAppVersion />
     </ScrollView>
   );
 }
