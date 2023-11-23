@@ -123,10 +123,12 @@ export default function InfoReserva({
               >
                 {/* Div para inserção dos cards*/}
                 <View className="w-max h-max px-3">
-                  {!error && !loading
-                    ? data?.usersPermissionsUser?.data?.attributes?.schedulings?.data.map(
+                  {(
+                    data &&
+                    data.usersPermissionsUser.data
+                  ) ? data.usersPermissionsUser.data.attributes.schedulings.data.map(
                       courtInfo =>
-                        courtInfo?.attributes?.status ? (
+                        courtInfo.attributes.status ? (
                           <TouchableOpacity
                             onPress={() =>
                               navigation.navigate("DescriptionReserve", {
