@@ -1,10 +1,4 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import {
-    CIELO_MERCHANT_ID,
-    CIELO_MERCHANT_KEY,
-    CIELO_API_URL,
-    CIELO_QUERY_API_URL
-} from "@env";
 
 const headers = {
     headers: {
@@ -12,6 +6,9 @@ const headers = {
         'merchantKey': "CQWr1W6w8IFmFGApQ15UoRuNYYSomcop3fmzpceG"
     }
 }
+
+const CIELO_API_URL         = "https://api.cieloecommerce.cielo.com.br"
+const CIELO_QUERY_API_URL   = "https://apiquery.cieloecommerce.cielo.com.br"
 
 export const generatePix = async (pixInfos: RequestGeneratePix): Promise<ResponseGeneratedPix> => {
     try {
