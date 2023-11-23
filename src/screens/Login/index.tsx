@@ -7,6 +7,7 @@ import { ActivityIndicator, Text, View } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { z } from "zod";
+import BottomAppVersion from "../../components/BottomAppVersion";
 import {
   IUserByIdResponse,
   IUserByIdVariables,
@@ -14,7 +15,6 @@ import {
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
-import BottomAppVersion from "../../components/BottomAppVersion";
 
 interface IFormData {
   identifier: string;
@@ -56,7 +56,7 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = async (data: IFormData) => {
+  const handleLogin = handleSubmit(async data => {
     setIsLoading(true);
 
     try {
@@ -140,7 +140,7 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
-  };
+  });
 
   return (
     <>
@@ -194,7 +194,9 @@ export default function Login() {
               });
             }}
           >
-            <Text className="text-base text-gray-400 pb-5">Seja bem-vindo!</Text>
+            <Text className="text-base text-gray-400 pb-5">
+              Seja bem-vindo!
+            </Text>
           </TouchableOpacity>
 
           <View className="w-full">
@@ -242,6 +244,8 @@ export default function Login() {
                   onChangeText={onChange}
                   mode="outlined"
                   outlineColor="#DCDCDC"
+                  onSubmitEditing={handleLogin}
+                  returnKeyType="send"
                   label={<Text style={{ color: "#DCDCDC" }}>******</Text>}
                   left={
                     <TextInput.Icon
@@ -286,7 +290,7 @@ export default function Login() {
             <View className="h-11 pt-4">
               <TouchableOpacity
                 className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
-                onPress={handleSubmit(handleLogin)}
+                onPress={handleLogin}
               >
                 {isLoading ? (
                   <ActivityIndicator size="small" color="white" />

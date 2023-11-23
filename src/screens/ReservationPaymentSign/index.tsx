@@ -324,9 +324,17 @@ export default function ReservationPaymentSign({
 
   const handlePay = handleSubmit(async values => {
     try {
+      const signalAmount = dataReserve
+        ? Number(
+            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+              2,
+            ),
+          )
+        : undefined;
+
       if (
         !userData?.usersPermissionsUser.data ||
-        typeof amountToPay === "undefined" ||
+        typeof signalAmount === "undefined" ||
         typeof serviceValue === "undefined"
       ) {
         return Dialog.show({
@@ -336,9 +344,8 @@ export default function ReservationPaymentSign({
       }
 
       const cieloRequestManager = new CieloRequestManager();
-      const totalValue =
-        (Number(amountToPay.toFixed(2)) + Number(serviceValue.toFixed(2))) *
-        100;
+      const totalSignalValue = signalAmount + Number(serviceValue.toFixed(2));
+      const totalSignalValueCents = totalSignalValue * 100;
 
       let brand = "Visa";
 
@@ -377,7 +384,7 @@ export default function ReservationPaymentSign({
         },
         Payment: {
           Type: "CreditCard",
-          Amount: totalValue,
+          Amount: totalSignalValueCents,
           Currency: "BRL",
           Country: "BRA",
           Provider: "Simulado",
@@ -398,14 +405,14 @@ export default function ReservationPaymentSign({
         },
       };
 
-      cieloRequestManager
+      return cieloRequestManager
         .authorizePayment(body)
         .then(async response => {
-          const newScheduleId = await createNewSchedule();
+          const newScheduleId = await createNewSchedule(totalSignalValue);
           const countryId = getCountryIdByName(selected);
 
           if (newScheduleId && response.Payment.Status === 2) {
-            userPaymentCard({
+            await userPaymentCard({
               variables: {
                 value: Number(response.Payment.Amount / 100),
                 schedulingId: newScheduleId,
@@ -443,6 +450,7 @@ export default function ReservationPaymentSign({
           }
         })
         .catch(error => {
+          console.log("authorizePayment");
           console.error(error);
           Alert.alert("Não foi possível realizar o pagamento", String(error));
         });
@@ -456,7 +464,7 @@ export default function ReservationPaymentSign({
     }
   });
 
-  const createNewSchedule = async () => {
+  const createNewSchedule = async (valuePayed: number) => {
     let isPayed =
       dataReserve?.courtAvailability.data?.attributes.minValue ===
       dataReserve?.courtAvailability.data.attributes.value;
@@ -468,7 +476,7 @@ export default function ReservationPaymentSign({
           court_availability: courtAvailabilities,
           date: courtAvailabilityDate.split("T")[0],
           pay_day: courtAvailabilityDate.split("T")[0],
-          value_payed: valuePayed!,
+          value_payed: valuePayed,
           owner: userId,
           users: [userId],
           activation_key: isPayed ? generateRandomKey(4) : null,
@@ -872,7 +880,7 @@ export default function ReservationPaymentSign({
                         <Fragment>
                           <TextInput
                             value={value}
-                            placeholder="Ex: nome"
+                            placeholder="Ex: 123"
                             onChangeText={onChange}
                             className="p-3 border border-gray-500 rounded-md h-18"
                           />
@@ -1025,7 +1033,7 @@ export default function ReservationPaymentSign({
                             placeholder="Ex: XX"
                             value={value}
                             maxLength={2}
-                            onChangeText={onChange}
+                            onChangeText={text => onChange(text.toUpperCase())}
                           />
 
                           {error?.message && (
@@ -1048,7 +1056,7 @@ export default function ReservationPaymentSign({
                     className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
                   >
                     {isSubmitting ? (
-                      <ActivityIndicator size={"small"} color={"#F5620F"} />
+                      <ActivityIndicator size="small" color="white" />
                     ) : (
                       <Text className="text-white">Pagar</Text>
                     )}
@@ -1093,8 +1101,8 @@ export default function ReservationPaymentSign({
             </View>
             <View className="justify-center gap-1">
               {dataReserve?.courtAvailability.data.attributes.court.data.attributes.establishment.data.attributes.amenities.data.map(
-                amenitieInfo => (
-                  <View className="flex flex-row  items-center">
+                (amenitieInfo, index) => (
+                  <View key={index} className="flex flex-row  items-center">
                     <SvgUri
                       width="14"
                       height="14"
