@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import BottomAppVersion from "../BottomAppVersion";
 
 interface IBottomBlackMenuEstablishment {
     screen: string
@@ -122,15 +123,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                     </View>
                 )
             }
+            <BottomAppVersion />
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    buttonsContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 5
-    }
-})
