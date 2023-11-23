@@ -32,7 +32,9 @@ import { useUserPaymentCard } from "../../hooks/useUserPaymentCard";
 import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
 import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { generatePix } from "../../services/pixCielo";
+import { UserGeolocation } from "../../types/UserGeolocation";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
+import { SERVICE_FEE } from "../../utils/constants";
 import { convertToAmericanDate } from "../../utils/formatDate";
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
@@ -129,10 +131,7 @@ export default function ReservationPaymentSign({
 
   const [showCameraIcon, setShowCameraIcon] = useState(false);
   const [showCard, setShowCard] = useState(false);
-  const [userGeolocation, setUserGeolocation] = useState<{
-    latitude: number;
-    longitude: number;
-  }>();
+  const [userGeolocation, setUserGeolocation] = useState<UserGeolocation>();
   const [reserveValue, setReserveValue] = useState<number>();
   const [serviceValue, setServiceValue] = useState<number>();
   const [userName, setUserName] = useState<string>();
@@ -157,8 +156,8 @@ export default function ReservationPaymentSign({
           const scheduleValue = data.courtAvailability.data.attributes.value;
 
           setReserveValue(scheduleValue);
-          setServiceValue(scheduleValue * 0.04);
-          setTotalValue(scheduleValue + scheduleValue * 0.04);
+          setServiceValue(scheduleValue * SERVICE_FEE);
+          setTotalValue(scheduleValue + scheduleValue * SERVICE_FEE);
         }
       },
     },
@@ -199,31 +198,27 @@ export default function ReservationPaymentSign({
     );
     setSignalValueValidate(
       dataReserve?.courtAvailability.data.attributes.value ===
-        amountToPayHold! + serviceValue!
-        ? true
-        : false,
+        amountToPayHold + (serviceValue ?? 0),
     );
     console.log(
       "validação:",
       dataReserve?.courtAvailability.data.attributes.value ===
-        amountToPayHold! + serviceValue!,
+        amountToPayHold + (serviceValue ?? 0),
     );
-    setUserPhoto(route.params.userPhoto!);
+    setUserPhoto(route.params.userPhoto);
     setValuePayed(
-      dataReserve?.courtAvailability?.data?.attributes?.minValue
-        ? dataReserve?.courtAvailability?.data?.attributes?.minValue
-        : 0,
+      dataReserve?.courtAvailability?.data?.attributes?.minValue ?? 0,
     );
     setSignalValue(
       Number(
-        dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(
+        dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
           2,
         ),
       ),
     );
     setSignalValuePix(
       Number(
-        dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue!.toFixed(
+        dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
           2,
         ),
       ) * 100,
@@ -267,11 +262,11 @@ export default function ReservationPaymentSign({
     setShowRateInformation(false);
   };
 
-  storage
-    .load<{ latitude: number; longitude: number }>({
-      key: "userGeolocation",
-    })
-    .then(data => setUserGeolocation(data));
+  useEffect(() => {
+    storage
+      .load<UserGeolocation>({ key: "userGeolocation" })
+      .then(data => setUserGeolocation(data));
+  }, []);
 
   const courtLatitude = parseFloat(
     dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes
@@ -331,8 +326,8 @@ export default function ReservationPaymentSign({
     try {
       if (
         !userData?.usersPermissionsUser.data ||
-        typeof serviceValue === "undefined" ||
-        typeof signalValue === "undefined"
+        typeof amountToPay === "undefined" ||
+        typeof serviceValue === "undefined"
       ) {
         return Dialog.show({
           type: ALERT_TYPE.DANGER,
@@ -342,22 +337,22 @@ export default function ReservationPaymentSign({
 
       const cieloRequestManager = new CieloRequestManager();
       const totalValue =
-        (Number(signalValue.toFixed(2)) + Number(serviceValue.toFixed(2))) *
+        (Number(amountToPay.toFixed(2)) + Number(serviceValue.toFixed(2))) *
         100;
 
-      let brand = "";
+      let brand = "Visa";
 
-      if (/^3(4|7)/.test(values.cardNumber)) {
-        brand = "American Express";
-      } else if (values.cardNumber.startsWith("4")) {
-        brand = "Visa";
-      } else if (/^3(01|05|6|8)/.test(values.cardNumber)) {
-        brand = "Dinners Club";
-      } else if (values.cardNumber.startsWith("5")) {
-        brand = "Mastercard";
-      } else if (values.cardNumber.startsWith("6")) {
-        brand = "Discord";
-      }
+      // if (/^3(4|7)/.test(values.cardNumber)) {
+      //   brand = "American Express";
+      // } else if (values.cardNumber.startsWith("4")) {
+      //   brand = "Visa";
+      // } else if (/^3(01|05|6|8)/.test(values.cardNumber)) {
+      //   brand = "Dinners Club";
+      // } else if (values.cardNumber.startsWith("5")) {
+      //   brand = "Mastercard";
+      // } else if (values.cardNumber.startsWith("6")) {
+      //   brand = "Discover";
+      // }
 
       const address: CieloAddress = {
         Street: values.street,
