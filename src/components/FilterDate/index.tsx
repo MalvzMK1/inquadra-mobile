@@ -39,6 +39,7 @@ export default function FilterDate(props: { dateSelector: string, setDateSelecto
                 <DateTimePicker
                     value={date}
                     onChange={handleDateChange}
+                    display='calendar'
                 />
             )}
         </View>

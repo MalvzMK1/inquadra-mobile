@@ -71,6 +71,11 @@ export default function FilterComponent(props: {
     const [weekDay, setWeekDay] = useState<number | undefined>(props.filter.weekDay ? getNumberArrayWeekDay(props.filter.weekDay) : undefined)
     const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
     const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
+    const handleDateSelectorPress = () => {
+        if (Platform.OS === 'ios') {
+            setShowTimeInitPicker(true);
+        }
+    };
     const [filter, setFilter] = useState<{
         amenities: string[] | [],
         dayUseService: boolean | undefined,
@@ -120,11 +125,12 @@ export default function FilterComponent(props: {
 
     return (
         <>
-            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-[#292929E5] opacity-90 z-10 w-screen h-screen'></Animated.View>
+            <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='bg-zinc-700 z-10 w-screen h-screen'></Animated.View>
             <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} className='absolute z-10 items-center w-full h-5/6'>
                 <ScrollView className='flex flex-col gap-y-4 h-full w-3/4 pt-9'>
                     <FilterDropdown amenities={amenities} setAmenities={setAmenities} />
                     <FilterDate setWeekDay={setWeekDay} dateSelector={dateSelector} setDateSelector={setDateSelector} />
+                    
 
                     <View className='flex flex-row justify-between'>
                         <View className='w-[41%]'>
@@ -144,9 +150,11 @@ export default function FilterComponent(props: {
                             </Button>
                             {showTimeInitPicker && (
                                 <DateTimePicker
-                                    value={timeInit}
-                                    mode="time"
-                                    onChange={handleTimeInitChange}
+                                value={timeInit}
+                                mode="time"
+                                is24Hour={true}
+                                display="spinner"
+                                onChange={handleTimeInitChange}
                                 />
                             )}
 
@@ -168,9 +176,11 @@ export default function FilterComponent(props: {
                             </Button>
                             {showTimeFinalPicker && (
                                 <DateTimePicker
-                                    value={timeFinal}
-                                    mode="time"
-                                    onChange={handleTimeFinalChange}
+                                value={timeFinal}
+                                mode="time"
+                                is24Hour={true}
+                                display="spinner"
+                                onChange={handleTimeFinalChange}
                                 />
                             )}
                         </View>
@@ -183,15 +193,10 @@ export default function FilterComponent(props: {
                                     <Checkbox
                                         uncheckedColor='#FF6112'
                                         color='#FF6112'
-                                        status={dayUseYes ? "checked" : "unchecked"}
-                                        onPress={() => {
-                                            if (dayUseYes) {
-                                                setDayUseYes(false);
-                                            } else {
-                                                setDayUseYes(true);
-                                            }
-                                        }}
+                                        status={dayUseYes ? 'checked' : 'unchecked'}
+                                        onPress={() => setDayUseYes(!dayUseYes)}
                                     />
+                                    <View className='border-2 border-orange-500 w-5 h-5 rounded-sm ml-2 absolute'/>
                                 </View>
                             </View>
                         </View>
