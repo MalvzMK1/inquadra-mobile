@@ -387,17 +387,22 @@ export default function CourtSchedule({
     setDateSelected(date);
 
     let newActiveStates: IActiveState[] = [];
-    await Promise.all(
-      weekDates.map(weekDayItem => {
-        newActiveStates = [
-          ...newActiveStates,
-          {
-            active: false,
-            date: weekDayItem.date.toISOString().split("T")[0],
-          },
-        ];
-      }),
-    );
+    try{
+      await Promise.all(
+        weekDates.map(weekDayItem => {
+          newActiveStates = [
+            ...newActiveStates,
+            {
+              active: false,
+              date: weekDayItem.date.toISOString().split("T")[0],
+            },
+          ];
+        }),
+      );
+    }catch(error){
+      alert(error)
+    }
+   
 
     const index = newActiveStates.findIndex(
       activeItem => activeItem.date == date.toISOString().split("T")[0],
@@ -419,6 +424,8 @@ export default function CourtSchedule({
       ),
     );
   }
+
+  console.log(shownSchedules)
 
   // const [selectedCourts, setSelectedCourts] = useState("")
   const [blockedCourtId, setBlockedCourtId] = useState<string>("");
