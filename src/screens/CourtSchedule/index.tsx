@@ -45,6 +45,7 @@ import useBlockSchedule from "../../hooks/useBlockSchedule";
 // import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 const portugueseMonths = [
   "Janeiro",
@@ -209,38 +210,52 @@ export default function CourtSchedule({
   }
 
   let establishmentSchedules: IEstablishmentSchedules[] = [];
-  if (schedulesData)
-    schedulesData.establishment.data?.attributes.courts.data.map(courtItem => {
-      courtItem.attributes.court_availabilities.data.map(
-        courtAvailabilitieItem => {
-          courtAvailabilitieItem.attributes.schedulings.data.map(
-            schedulingItem => {
-              establishmentSchedules = [
-                ...establishmentSchedules,
-                {
-                  courtId: courtItem.id,
-                  courtName: courtItem.attributes.name,
-                  courtType:
-                    courtItem?.attributes.court_types.data[0].attributes.name,
-                  startsAt: courtAvailabilitieItem.attributes.startsAt,
-                  endsAt: courtAvailabilitieItem.attributes.endsAt,
-                  weekDay: courtAvailabilitieItem.attributes.weekDay,
-                  scheduling: {
-                    schedulingId: schedulingItem.id,
-                    schedulingDate: schedulingItem.attributes.date,
-                    schedulingStatus: schedulingItem.attributes.status,
-                    reservedBy:
-                      schedulingItem.attributes.owner.data.attributes
-                        .username,
-                    payedStatus: schedulingItem.attributes.payedStatus,
+
+  useEffect(() => {
+    if (
+      schedulesData &&
+      schedulesData.establishment.data &&
+      schedulesData.establishment.data.attributes.courts.data.length > 0
+    )
+      schedulesData.establishment.data?.attributes.courts.data.map(courtItem => {
+        if (
+          courtItem &&
+          courtItem.attributes.court_availabilities.data.length > 0
+        ) {
+          courtItem.attributes.court_availabilities.data.map(
+            courtAvailabilitieItem => {
+              if (courtAvailabilitieItem.attributes.schedulings.data.length > 0) {
+                courtAvailabilitieItem.attributes.schedulings.data.map(
+                  schedulingItem => {
+                    establishmentSchedules = [
+                      ...establishmentSchedules,
+                      {
+                        courtId: courtItem.id,
+                        courtName: courtItem.attributes.name,
+                        courtType:
+                          courtItem?.attributes.court_types.data[0].attributes.name,
+                        startsAt: courtAvailabilitieItem.attributes.startsAt,
+                        endsAt: courtAvailabilitieItem.attributes.endsAt,
+                        weekDay: courtAvailabilitieItem.attributes.weekDay,
+                        scheduling: {
+                          schedulingId: schedulingItem.id,
+                          schedulingDate: schedulingItem.attributes.date,
+                          schedulingStatus: schedulingItem.attributes.status,
+                          reservedBy:
+                            schedulingItem.attributes.owner.data.attributes
+                              .username,
+                          payedStatus: schedulingItem.attributes.payedStatus,
+                        },
+                      },
+                    ];
                   },
-                },
-              ];
+                );
+              }
             },
           );
-        },
-      );
-    });
+        }
+      });
+  }, [schedulesData])
 
   interface ICourts {
     id: string;
@@ -271,7 +286,7 @@ export default function CourtSchedule({
 
   if (
     userByEstablishmentData?.usersPermissionsUser.data.attributes.establishment
-      .data.attributes.photo
+      .data.attributes.photo!
   ) {
     navigation.setParams({
       establishmentPhoto: Array.isArray(userByEstablishmentData.usersPermissionsUser.data.attributes
@@ -372,17 +387,22 @@ export default function CourtSchedule({
     setDateSelected(date);
 
     let newActiveStates: IActiveState[] = [];
-    await Promise.all(
-      weekDates.map(weekDayItem => {
-        newActiveStates = [
-          ...newActiveStates,
-          {
-            active: false,
-            date: weekDayItem.date.toISOString().split("T")[0],
-          },
-        ];
-      }),
-    );
+    try{
+      await Promise.all(
+        weekDates.map(weekDayItem => {
+          newActiveStates = [
+            ...newActiveStates,
+            {
+              active: false,
+              date: weekDayItem.date.toISOString().split("T")[0],
+            },
+          ];
+        }),
+      );
+    }catch(error){
+      alert(error)
+    }
+   
 
     const index = newActiveStates.findIndex(
       activeItem => activeItem.date == date.toISOString().split("T")[0],
@@ -404,6 +424,8 @@ export default function CourtSchedule({
       ),
     );
   }
+
+  console.log(shownSchedules)
 
   // const [selectedCourts, setSelectedCourts] = useState("")
   const [blockedCourtId, setBlockedCourtId] = useState<string>("");
@@ -719,7 +741,7 @@ export default function CourtSchedule({
                   court_availability_id: item.courtAvailabilityId.toString(),
                 },
               });
-              setBlockScheduleByTimeModal(false); 
+              setBlockScheduleByTimeModal(false);
               setConfirmBlockSchedule(true);
               setIsLoading(false);
               setBlockedCourtId("");

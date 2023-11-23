@@ -61,6 +61,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 	const [isVanquished, setIsVanquished] = useState<boolean>();
 	const [valueDisponibleToPay, setValueDisponibleToPay] = useState<number>();
 	const [fantasyName, setFantasyName] = useState<string>('');
+	const [payedPercentage, setPayedPercentage] = useState<number>(0);
 
 	const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
 	const { data: dataCountry } = useCountries()
@@ -95,6 +96,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 				const _valueDisponibleToPay = (data.scheduling.data.attributes.court_availability.data.attributes.value + receivedServiceRate) - valuePayed
 				setValueDisponibleToPay(_valueDisponibleToPay);
 			}
+
+			const newValuePayedPercentage = Math.floor((data.scheduling.data.attributes.valuePayed / (data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate)) * 100);
+			setPayedPercentage(newValuePayedPercentage);
 
 			if (
 				data.scheduling.data.attributes.court_availability.data &&
@@ -650,7 +654,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									</Text>
 									{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
 										<ProgressBar
-											progress={Math.floor((data.scheduling.data.attributes.valuePayed / (data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate)) * 100)}
+											progress={payedPercentage}
 											width={null}
 											height={30}
 											borderRadius={5}
@@ -676,7 +680,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 										</Text>
 										{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
 											<ProgressBar
-												progress={100}
+												progress={payedPercentage}
 												width={null}
 												height={30}
 												borderRadius={5}
@@ -695,7 +699,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 							<>
 								{
 									!isVanquished
-										? data.scheduling.data.attributes.payedStatus === "waiting"
+										? (data.scheduling.data.attributes.payedStatus === "waiting" && false)
 											? <View className='h-max w-full flex justify-center items-center pl-2'>
 												<TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
 													<View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>

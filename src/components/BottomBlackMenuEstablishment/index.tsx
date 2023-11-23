@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import BottomAppVersion from "../BottomAppVersion";
 
 interface IBottomBlackMenuEstablishment {
     screen: string
@@ -36,6 +37,10 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
         };
     });
 
+
+    console.log("ID do usuario:", userID)
+    console.log("ID do estabelecimento", establishmentID)
+
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data))
@@ -61,8 +66,8 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
 
                                     <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
                                         establishmentPhoto: establishmentLogo ?? "",
-                                        establishmentId: "6",
-                                        userId: "1"
+                                        establishmentId: establishmentID,
+                                        userId: userID
                                     })}>
                                         <MaterialIcons name="calendar-today" color={"white"} size={25} />
                                     </TouchableOpacity>
@@ -125,12 +130,3 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    buttonsContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 5
-    }
-})

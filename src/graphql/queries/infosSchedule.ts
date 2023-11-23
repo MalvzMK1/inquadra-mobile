@@ -11,10 +11,12 @@ export interface IinfoScheduleResponse {
         valuePayed: number
         payDay: Date
         activationKey: string
+        activated: boolean
         court_availability: {
           data: {
             attributes: {
               value: number
+              status: boolean
               court: {
                 data: {
                   id: Court['id']
@@ -80,31 +82,34 @@ export interface IinfoScheduleVariables {
 }
 
 export const infoSchedule = gql`
-query infoSchedule($idScheduling: ID, $idUser: ID) {
-  scheduling(id: $idScheduling) {
-    data {
-      attributes {
-        date
-        payedStatus
-        createdAt
-        serviceRate
-        valuePayed
-        payDay
-        activationKey
-        court_availability {
-          data {
-            attributes {
-              value
-              court {
-                data {
-                  id
-                  attributes {
-                    fantasy_name
-                    name
-                    photo {
-                      data {
-                        attributes {
-                          url
+  query infoSchedule($idScheduling: ID, $idUser: ID) {
+    scheduling(id: $idScheduling) {
+      data {
+        attributes {
+          date
+          payedStatus
+          createdAt
+          serviceRate
+          valuePayed
+          payDay
+          activationKey
+          activated
+          court_availability {
+            data {
+              attributes {
+                status
+                value
+                court {
+                  data {
+                    id
+                    attributes {
+                      fantasy_name
+                      name
+                      photo {
+                        data {
+                          attributes {
+                            url
+                          }
                         }
                       }
                     }
@@ -113,54 +118,53 @@ query infoSchedule($idScheduling: ID, $idUser: ID) {
               }
             }
           }
-        }
-        user_payments(
-          filters: {
-            users_permissions_user: { id: { eq: $idUser } }
-            payedStatus: { eq: "Payed" }
-          }
-        ) {
-          data {
-            attributes {
-              users_permissions_user {
-                data {
-                  attributes {
-                    username
+          user_payments(
+            filters: {
+              users_permissions_user: { id: { eq: $idUser } }
+              payedStatus: { eq: "Payed" }
+            }
+          ) {
+            data {
+              attributes {
+                users_permissions_user {
+                  data {
+                    attributes {
+                      username
+                    }
                   }
                 }
+                value
+                createdAt
               }
-              value
-              createdAt
             }
           }
-        }
-        user_payment_pixes(
-          filters: {
-            users_permissions_user: { id: { eq: $idUser } }
-            PayedStatus: { eq: "Payed" }
-          }
-        ) {
-          data {
-            attributes {
-              users_permissions_user {
-                data {
-                  attributes {
-                    username
+          user_payment_pixes(
+            filters: {
+              users_permissions_user: { id: { eq: $idUser } }
+              PayedStatus: { eq: "Payed" }
+            }
+          ) {
+            data {
+              attributes {
+                users_permissions_user {
+                  data {
+                    attributes {
+                      username
+                    }
                   }
                 }
+                value
+                createdAt
               }
-              value
-              createdAt
             }
           }
-        }
-        owner {
-          data {
-            id
+          owner {
+            data {
+              id
+            }
           }
         }
       }
     }
   }
-}
 `

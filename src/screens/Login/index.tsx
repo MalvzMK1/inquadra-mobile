@@ -14,6 +14,7 @@ import {
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
+import BottomAppVersion from "../../components/BottomAppVersion";
 
 interface IFormData {
   identifier: string;
@@ -142,171 +143,174 @@ export default function Login() {
   };
 
   return (
-    <ScrollView className="flex-1 h-max w-max bg-white">
-      <View className="h-16 W-max" />
-      <View className="flex-1 flex items-center justify-center px-7">
-        <TouchableOpacity
-          onPress={() => {
-            authUser({
-              variables: {
-                identifier: "enzao@gmail.com",
-                password: "122122",
-              },
-            }).then(response => {
-              if (
-                response.data &&
-                response.data.login &&
-                response.data.login.user.id
-              ) {
-                storage
-                  .save({
-                    key: "userInfos",
-                    data: {
-                      jwt: response.data.login.jwt,
-                      userId: response.data.login.user.id,
-                    },
-                    expires: 1000 * 3600,
-                  })
-                  .then(() => {
-                    storage
-                      .load<UserInfos>({
-                        key: "userInfos",
-                      })
-                      .then(response => {
-                        alert(
-                          `entered with enzao@gmail.com\nid: ${response.userId}\nJWT: ${response.token}`,
-                        );
-                        navigation.navigate("Home", {
-                          userGeolocation: userGeolocation
-                            ? userGeolocation
-                            : {
-                                latitude: 78.23570781291714,
-                                longitude: 15.491400000982967,
-                              },
-                          userID: response.userId,
-                          userPhoto: undefined,
+    <>
+      <ScrollView className="flex-1 h-max w-max bg-white">
+        <View className="h-16 W-max" />
+        <View className="flex-1 flex items-center justify-center px-7">
+          <TouchableOpacity
+            onPress={() => {
+              authUser({
+                variables: {
+                  identifier: "enzao@gmail.com",
+                  password: "122122",
+                },
+              }).then(response => {
+                if (
+                  response.data &&
+                  response.data.login &&
+                  response.data.login.user.id
+                ) {
+                  storage
+                    .save({
+                      key: "userInfos",
+                      data: {
+                        jwt: response.data.login.jwt,
+                        userId: response.data.login.user.id,
+                      },
+                      expires: 1000 * 3600,
+                    })
+                    .then(() => {
+                      storage
+                        .load<UserInfos>({
+                          key: "userInfos",
+                        })
+                        .then(response => {
+                          alert(
+                            `entered with enzao@gmail.com\nid: ${response.userId}\nJWT: ${response.token}`,
+                          );
+                          navigation.navigate("Home", {
+                            userGeolocation: userGeolocation
+                              ? userGeolocation
+                              : {
+                                  latitude: 78.23570781291714,
+                                  longitude: 15.491400000982967,
+                                },
+                            userID: response.userId,
+                            userPhoto: undefined,
+                          });
                         });
-                      });
-                  });
-              }
-            });
-          }}
-        >
-          <Text className="text-base text-gray-400 pb-5">Seja bem-vindo!</Text>
-        </TouchableOpacity>
+                    });
+                }
+              });
+            }}
+          >
+            <Text className="text-base text-gray-400 pb-5">Seja bem-vindo!</Text>
+          </TouchableOpacity>
 
-        <View className="w-full">
-          <Controller
-            name="identifier"
-            control={control}
-            render={({ field: { onChange } }) => (
-              <TextInput
-                className="h-14 text-base"
-                keyboardType="email-address"
-                onChangeText={onChange}
-                outlineColor="#DCDCDC"
-                mode="outlined"
-                label={<Text style={{ color: "#DCDCDC" }}>Email</Text>}
-                left={
-                  <TextInput.Icon
-                    icon={"account-outline"}
-                    color="#DCDCDC"
-                    style={{ marginTop: 15 }}
-                  />
-                }
-                theme={{
-                  colors: {
-                    placeholder: "#DCDCDC",
-                    primary: "#DCDCDC",
-                    text: "#DCDCDC",
-                    background: "white",
-                  },
-                }}
-              />
-            )}
-          />
-          {errors.identifier && (
-            <Text className="text-red-400 text-sm">
-              {errors.identifier.message}
-            </Text>
-          )}
-          <Controller
-            name="password"
-            control={control}
-            render={({ field: { onChange } }) => (
-              <TextInput
-                className="h-14 mt-2 text-base"
-                secureTextEntry={!showPassword}
-                onChangeText={onChange}
-                mode="outlined"
-                outlineColor="#DCDCDC"
-                label={<Text style={{ color: "#DCDCDC" }}>******</Text>}
-                left={
-                  <TextInput.Icon
-                    icon={"lock-outline"}
-                    color="#DCDCDC"
-                    style={{ marginTop: 15 }}
-                  />
-                }
-                right={
-                  <TextInput.Icon
-                    icon={!showPassword ? "eye-off-outline" : "eye-outline"}
-                    color="#DCDCDC"
-                    style={{ marginTop: 15 }}
-                    onPress={handleShowPassword}
-                  />
-                }
-                theme={{
-                  colors: {
-                    placeholder: "#DCDCDC",
-                    primary: "#DCDCDC",
-                    text: "#DCDCDC",
-                    background: "white",
-                  },
-                }}
-              />
-            )}
-          />
-          {errors.password && (
-            <Text className="text-red-400 text-sm">
-              {errors.password.message}
-            </Text>
-          )}
-          <View className="flex items-end pt-4 pb-10">
-            <TouchableOpacity
-              onPress={() => navigation.navigate("ForgotPassword")}
-            >
-              <Text className="text-gray-400 text-base underline">
-                Esqueceu a senha?
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View className="h-11 pt-4">
-            <TouchableOpacity
-              className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
-              onPress={handleSubmit(handleLogin)}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Text className="text-white text-base">Entrar</Text>
+          <View className="w-full">
+            <Controller
+              name="identifier"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <TextInput
+                  className="h-14 text-base"
+                  keyboardType="email-address"
+                  onChangeText={onChange}
+                  outlineColor="#DCDCDC"
+                  mode="outlined"
+                  label={<Text style={{ color: "#DCDCDC" }}>Email</Text>}
+                  left={
+                    <TextInput.Icon
+                      icon={"account-outline"}
+                      color="#DCDCDC"
+                      style={{ marginTop: 15 }}
+                    />
+                  }
+                  theme={{
+                    colors: {
+                      placeholder: "#DCDCDC",
+                      primary: "#DCDCDC",
+                      text: "#DCDCDC",
+                      background: "white",
+                    },
+                  }}
+                />
               )}
-            </TouchableOpacity>
-          </View>
-          <View className="flex-row  items-center justify-center pt-11">
-            <Text className="text-base text-gray-400">
-              Ainda não tem uma conta?{" "}
-            </Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("ChooseUserType")}
-            >
-              <Text className="text-orange-500 text-base underline">
-                Clique aqui
+            />
+            {errors.identifier && (
+              <Text className="text-red-400 text-sm">
+                {errors.identifier.message}
               </Text>
-            </TouchableOpacity>
+            )}
+            <Controller
+              name="password"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <TextInput
+                  className="h-14 mt-2 text-base"
+                  secureTextEntry={!showPassword}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  outlineColor="#DCDCDC"
+                  label={<Text style={{ color: "#DCDCDC" }}>******</Text>}
+                  left={
+                    <TextInput.Icon
+                      icon={"lock-outline"}
+                      color="#DCDCDC"
+                      style={{ marginTop: 15 }}
+                    />
+                  }
+                  right={
+                    <TextInput.Icon
+                      icon={!showPassword ? "eye-off-outline" : "eye-outline"}
+                      color="#DCDCDC"
+                      style={{ marginTop: 15 }}
+                      onPress={handleShowPassword}
+                    />
+                  }
+                  theme={{
+                    colors: {
+                      placeholder: "#DCDCDC",
+                      primary: "#DCDCDC",
+                      text: "#DCDCDC",
+                      background: "white",
+                    },
+                  }}
+                />
+              )}
+            />
+            {errors.password && (
+              <Text className="text-red-400 text-sm">
+                {errors.password.message}
+              </Text>
+            )}
+            <View className="flex items-end pt-4 pb-10">
+              <TouchableOpacity
+                onPress={() => navigation.navigate("ForgotPassword")}
+              >
+                <Text className="text-gray-400 text-base underline">
+                  Esqueceu a senha?
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View className="h-11 pt-4">
+              <TouchableOpacity
+                className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
+                onPress={handleSubmit(handleLogin)}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <Text className="text-white text-base">Entrar</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+            <View className="flex-row  items-center justify-center pt-11">
+              <Text className="text-base text-gray-400">
+                Ainda não tem uma conta?{" "}
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("ChooseUserType")}
+              >
+                <Text className="text-orange-500 text-base underline">
+                  Clique aqui
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <BottomAppVersion />
+    </>
   );
 }
