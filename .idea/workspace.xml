@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/components/BottomAppVersion/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomAppVersion/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BottomBlackMenuEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomBlackMenuEstablishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -121,7 +119,7 @@
       <workItem from="1700215177158" duration="1438000" />
       <workItem from="1700216744835" duration="4578000" />
       <workItem from="1700645159906" duration="14085000" />
-      <workItem from="1700732837508" duration="2106000" />
+      <workItem from="1700732837508" duration="2293000" />
     </task>
     <servers />
   </component>
