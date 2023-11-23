@@ -1,11 +1,21 @@
-import { QueryResult, useQuery } from "@apollo/client";
-import { IUserByIdResponse, IUserByIdVariables, userByIdQuery } from "../graphql/queries/userById";
+import { QueryHookOptions, useQuery } from "@apollo/client";
+import {
+  IUserByIdResponse,
+  IUserByIdVariables,
+  userByIdQuery,
+} from "../graphql/queries/userById";
 
-
-export function useGetUserById(id: string): QueryResult<IUserByIdResponse, IUserByIdVariables> {
-	return useQuery<IUserByIdResponse, IUserByIdVariables>(userByIdQuery, {
-		variables: {
-			id
-		}
-	});
+export function useGetUserById(
+  id: string,
+  options?: Omit<
+    QueryHookOptions<IUserByIdResponse, IUserByIdVariables>,
+    "variables"
+  >,
+) {
+  return useQuery<IUserByIdResponse, IUserByIdVariables>(userByIdQuery, {
+    ...options,
+    variables: {
+      id,
+    },
+  });
 }
