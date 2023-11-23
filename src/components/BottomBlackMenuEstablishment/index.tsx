@@ -37,6 +37,10 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
         };
     });
 
+
+    console.log("ID do usuario:", userID)
+    console.log("ID do estabelecimento", establishmentID)
+
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data))
@@ -62,8 +66,8 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
 
                                     <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
                                         establishmentPhoto: establishmentLogo ?? "",
-                                        establishmentId: "6",
-                                        userId: "1"
+                                        establishmentId: establishmentID,
+                                        userId: userID
                                     })}>
                                         <MaterialIcons name="calendar-today" color={"white"} size={25} />
                                     </TouchableOpacity>
