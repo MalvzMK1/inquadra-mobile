@@ -301,7 +301,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 		if (userGeolocation) {
 			const radiusKm = 5;
 
-			const earthRadiusKm = 6371; // Raio médio da Terra em quilômetros
+			const earthRadiusKm = 6371; 
 			const deltaLatitude: number =
 				(radiusKm / earthRadiusKm) * (180 / Math.PI);
 			const deltaLongitude: number =
