@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Alert,
@@ -49,14 +49,9 @@ export default function RegisterCourt({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCourtTypes, setSelectedCourtTypes] = useState<string[]>([]);
   const [courts, setCourts] = useState<CourtAddRawPayload[]>([]);
-  const [courtTypes, setCourtTypes] = useState<CourtTypes>([]);
   const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false);
   const [photos, setPhotos] = useState<Array<{ uri: string }>>([]);
-  const {
-    data: dataSportTypeAvaible,
-    loading: loadingSportTypeAvaible,
-    error: errorSportTypeAvaible,
-  } = useSportTypes();
+  const { data: dataSportTypeAvailable } = useSportTypes();
 
   const {
     reset,
@@ -228,19 +223,18 @@ export default function RegisterCourt({
     setPhotos(newPhotos);
   };
 
-  useEffect(() => {
-    let newCourtTypes: Array<{ value: string; label: string }> = [];
-    if (!loadingSportTypeAvaible && !errorSportTypeAvaible) {
-      dataSportTypeAvaible?.courtTypes.data.forEach(sportType => {
-        newCourtTypes.push({
-          value: sportType.attributes.name,
-          label: sportType.id,
-        });
-      });
+  const courtTypes = useMemo((): Array<{ value: string; label: string }> => {
+    if (!dataSportTypeAvailable) {
+      return [];
     }
 
-    setCourtTypes(newCourtTypes);
-  }, [dataSportTypeAvaible, loadingSportTypeAvaible]);
+    return dataSportTypeAvailable?.courtTypes.data.map(sportType => {
+      return {
+        value: sportType.attributes.name,
+        label: sportType.id,
+      };
+    });
+  }, []);
 
   return (
     <ScrollView className="h-fit bg-white flex-1">
