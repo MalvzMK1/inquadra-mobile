@@ -650,7 +650,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 							<>
 								<View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
 									<Text className='absolute z-10 self-center text-white font-bold'>
-										R$ {data.scheduling.data.attributes.valuePayed} / R$ {data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate}
+										{/*R$ {data.scheduling.data.attributes.valuePayed.toFixed(2)} / R$ {(data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate).toFixed(2)}*/}
 									</Text>
 									{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
 										<ProgressBar
@@ -798,8 +798,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									<Text className='text-gray-50 font-black'>MEUS PAGAMENTOS:</Text>
 								</View>
 								{
-									ownerPaymentsData.data.map((paymentInfo) =>
-										<View className='w-full pt-5'>
+									ownerPaymentsData.data.map((paymentInfo, index) =>
+										<View className='w-full pt-5' key={index}>
 											<View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
 												<Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
 												<Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>
@@ -822,9 +822,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 					<View className='pt-3 w-full'>
 						{
 							paymentData.data !== undefined && paymentData.data !== null
-								? paymentData.data.map((paymentInfo) =>
+								? paymentData.data.map((paymentInfo, index) =>
 									<ScrollView>
-										<View className='w-full pt-5'>
+										<View className='w-full pt-5' key={index}>
 											<View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
 												<Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
 												<Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>
