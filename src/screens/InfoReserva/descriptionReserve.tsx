@@ -48,7 +48,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 	const [creditCard, setCreditCard] = useState<string>("")
 	const [selected, setSelected] = useState<string>("")
 	const [showPixPaymentModal, setShowPixPaymentModal] = useState<boolean>(false)
-	const [courtPicture, setCourtPicture] = useState<string>("")
+	const [courtPicture, setCourtPicture] = useState<string>()
 	const [schedulingPayDate, setSchedulingPayDate] = useState<Date>();
 	const [scheduleDay, setSchedulingDay] = useState<Date>();
 	const [isPayed, setIsPayed] = useState<string>('payed');
@@ -62,6 +62,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 	const [valueDisponibleToPay, setValueDisponibleToPay] = useState<number>();
 	const [fantasyName, setFantasyName] = useState<string>('');
 	const [payedPercentage, setPayedPercentage] = useState<number>(0);
+	const [reserveStatus, setReserveStatus] = useState<boolean>(false);
 
 	const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
 	const { data: dataCountry } = useCountries()
@@ -97,17 +98,33 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 				setValueDisponibleToPay(_valueDisponibleToPay);
 			}
 
-			const newValuePayedPercentage = Math.floor((data.scheduling.data.attributes.valuePayed / (data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate)) * 100);
-			setPayedPercentage(newValuePayedPercentage);
+			if (serviceRate) {
+				const denominator = data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate;
+
+				if (denominator !== 0) {
+					const newValuePayedPercentage = data.scheduling.data.attributes.valuePayed / denominator;
+
+					console.error(newValuePayedPercentage)
+					if (!isNaN(newValuePayedPercentage) && newValuePayedPercentage >= 0 && newValuePayedPercentage <= 1) {
+						setPayedPercentage(newValuePayedPercentage);
+					} else {
+						console.error('Valor inválido para payedPercentage:', newValuePayedPercentage);
+					}
+				} else {
+					console.error('Denominador é zero. Não é possível calcular a porcentagem.');
+				}
+			}
 
 			if (
 				data.scheduling.data.attributes.court_availability.data &&
 				data.scheduling.data.attributes.court_availability.data.attributes.court.data &&
 				data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0]
 			) {
-				const courtPicture = HOST_API + data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url;
+				const newReserveStatus = data.scheduling.data.attributes.court_availability.data.attributes.status;
+				setReserveStatus(newReserveStatus);
 
-				setCourtPicture(courtPicture);
+				const newCourtPicture = HOST_API + data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url;
+				setCourtPicture(newCourtPicture);
 			} else {
 				setCourtPicture("https://cdn-icons-png.flaticon.com/512/10449/10449616.png")
 			}
@@ -533,7 +550,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
 	return (
 		<View className='flex-1 bg-zinc-600'>
-
 			<View className=' h-11 w-max  bg-zinc-900'></View>
 			<View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
 				<View className='flex item-center justify-center'>
@@ -592,8 +608,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 										)
 											?
 											!isWithin24Hours
-												? <TouchableOpacity className='flex-row items-center' onPress={
-													() => navigation.navigate('UpdateSchedule', {
+												? <TouchableOpacity
+													className='flex-row items-center'
+													onPress={() => navigation.navigate('UpdateSchedule', {
 														courtId: data.scheduling.data.attributes.court_availability.data.attributes.court.data.id,
 														courtName: fantasyName,
 														courtImage: courtPicture,
@@ -602,8 +619,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 														valuePayed: scheduleValuePayed!,
 														scheduleUpdateID: schedule_id,
 														activationKey: data?.scheduling?.data?.attributes?.activationKey || null
-													})
-												}>
+													})}
+													disabled={!reserveStatus}
+												>
 													<View>
 														<Text className='font-normal text-xs text-orange-600'>Editar</Text>
 													</View>
@@ -619,9 +637,15 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									<Text className='font-normal text-xs text-white'>{fantasyName}</Text>
 								</View>
 								<View className='flex-row pt-2'>
-									<View>
-										<Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString()! ?? "")}</Text>
-									</View>
+									{
+										(
+											data &&
+											data.scheduling.data
+										) &&
+										<View>
+											<Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString()! ?? "")}</Text>
+										</View>
+									}
 								</View>
 								{
 									(data && data.scheduling.data && data.scheduling.data.attributes.owner.data && isWithinOneHour !== undefined)
@@ -629,10 +653,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 										user_id === data.scheduling.data.attributes.owner.data.id
 										?
 										!isWithinOneHour
-											? <View className='pt-2'>
-												<Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
+											&&
+											<View className='pt-2'>
+												{
+													!reserveStatus && <Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
+												}
 											</View>
-											: <Text className='text-white'>CREU</Text>
 										: null
 								}
 							</View>
@@ -701,7 +727,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									!isVanquished
 										? (data.scheduling.data.attributes.payedStatus === "waiting" && false)
 											? <View className='h-max w-full flex justify-center items-center pl-2'>
-												<TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
+												<TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)} disabled={!reserveStatus}>
 													<View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
 														<View className='w-1'></View>
 														<View className='h-5 w-5 items-center justify-center'>
@@ -712,8 +738,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 														</View>
 													</View>
 												</TouchableOpacity>
-												<TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
-													<View className='h-10 w-64 rounded-md bg-orange-500 flex items-center justify-center'>
+												<TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)} disabled={!reserveStatus}>
+													<View className={'h-10 w-64 rounded-md flex items-center justify-center '.concat(!reserveStatus ? 'bg-zinc-500' : 'bg-orange-500')}>
 														<Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
 													</View>
 												</TouchableOpacity>
@@ -765,7 +791,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 											<View className='h-20 w-60 flex-row pr-5 items-center'>
 												<View className=' w-max  justify-center items-start'>
 													<View className='flex-row item-center justify-center'>
-														<TouchableOpacity onPress={() => share()} className='flex-row'>
+														<TouchableOpacity onPress={() => share()} className='flex-row' disabled={!reserveStatus}>
 															<View className='h-5 w-5 items-center justify-center'>
 																<TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} />
 															</View>
