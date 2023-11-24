@@ -209,8 +209,9 @@ export default function CourtSchedule({
     };
   }
 
-  let establishmentSchedules: IEstablishmentSchedules[] = [];
 
+
+  const [establishmentSchedules, setEstablishmentSchedules] = useState<IEstablishmentSchedules[]>([])
   useEffect(() => {
     if (
       schedulesData &&
@@ -227,8 +228,8 @@ export default function CourtSchedule({
               if (courtAvailabilitieItem.attributes.schedulings.data.length > 0) {
                 courtAvailabilitieItem.attributes.schedulings.data.map(
                   schedulingItem => {
-                    establishmentSchedules = [
-                      ...establishmentSchedules,
+                    setEstablishmentSchedules([
+                      ...establishmentSchedules!,
                       {
                         courtId: courtItem.id,
                         courtName: courtItem.attributes.name,
@@ -247,7 +248,7 @@ export default function CourtSchedule({
                           payedStatus: schedulingItem.attributes.payedStatus,
                         },
                       },
-                    ];
+                    ]);
                   },
                 );
               }
@@ -256,6 +257,8 @@ export default function CourtSchedule({
         }
       });
   }, [schedulesData])
+
+
 
   interface ICourts {
     id: string;
@@ -336,11 +339,6 @@ export default function CourtSchedule({
       .load<UserInfos>({
         key: "userInfos",
       })
-
-
-
-
-
   }, [userByEstablishmentData]);
 
   const [shownSchedules, setShownSchedules] = useState<
@@ -383,26 +381,25 @@ export default function CourtSchedule({
   async function handleCalendarClick(data: DateData) {
     const date = new Date(data.dateString);
     const weekDay = format(addDays(date, 1), "eeee");
-
     setDateSelected(date);
 
     let newActiveStates: IActiveState[] = [];
-    try{
+    try {
       await Promise.all(
         weekDates.map(weekDayItem => {
           newActiveStates = [
             ...newActiveStates,
             {
               active: false,
-              date: weekDayItem.date.toISOString().split("T")[0],
+              date: data.dateString,
             },
           ];
         }),
       );
-    }catch(error){
+    } catch (error) {
       alert(error)
     }
-   
+
 
     const index = newActiveStates.findIndex(
       activeItem => activeItem.date == date.toISOString().split("T")[0],
@@ -415,17 +412,17 @@ export default function CourtSchedule({
     setActiveStates(newActiveStates);
 
     const schedules = establishmentSchedules;
-    if (schedules) setShownSchedules([]);
+    if (schedules)
     setShownSchedules(
       establishmentSchedules.filter(
         scheduleItem =>
           scheduleItem.scheduling.schedulingDate ===
-          weekDates[index].date.toISOString().split("T")[0],
+          data.dateString,
       ),
     );
   }
 
-  console.log(shownSchedules)
+  console.log("shown:", shownSchedules)
 
   // const [selectedCourts, setSelectedCourts] = useState("")
   const [blockedCourtId, setBlockedCourtId] = useState<string>("");
