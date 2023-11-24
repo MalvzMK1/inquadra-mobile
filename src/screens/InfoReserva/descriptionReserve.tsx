@@ -48,7 +48,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 	const [creditCard, setCreditCard] = useState<string>("")
 	const [selected, setSelected] = useState<string>("")
 	const [showPixPaymentModal, setShowPixPaymentModal] = useState<boolean>(false)
-	const [courtPicture, setCourtPicture] = useState<string>("")
+	const [courtPicture, setCourtPicture] = useState<string>()
 	const [schedulingPayDate, setSchedulingPayDate] = useState<Date>();
 	const [scheduleDay, setSchedulingDay] = useState<Date>();
 	const [isPayed, setIsPayed] = useState<string>('payed');
@@ -61,7 +61,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 	const [isVanquished, setIsVanquished] = useState<boolean>();
 	const [valueDisponibleToPay, setValueDisponibleToPay] = useState<number>();
 	const [fantasyName, setFantasyName] = useState<string>('');
-	const [payedPercentage, setPayedPercentage] = useState<number>(0);
+	const [payedPercentage, setPayedPercentage] = useState<number>();
+	const [reserveStatus, setReserveStatus] = useState<boolean>(false);
 
 	const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
 	const { data: dataCountry } = useCountries()
@@ -97,17 +98,32 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 				setValueDisponibleToPay(_valueDisponibleToPay);
 			}
 
-			const newValuePayedPercentage = Math.floor((data.scheduling.data.attributes.valuePayed / (data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate)) * 100);
-			setPayedPercentage(newValuePayedPercentage);
+			if (receivedServiceRate) {
+				const denominator = data.scheduling.data.attributes.court_availability.data.attributes.value + receivedServiceRate;
+
+				if (denominator !== 0) {
+					const newValuePayedPercentage = data.scheduling.data.attributes.valuePayed / denominator;
+
+					if (!isNaN(newValuePayedPercentage) && newValuePayedPercentage >= 0 && newValuePayedPercentage <= 1) {
+						setPayedPercentage(newValuePayedPercentage);
+					} else {
+						console.error('Valor inválido para payedPercentage:', newValuePayedPercentage);
+					}
+				} else {
+					console.error('Denominador é zero. Não é possível calcular a porcentagem.');
+				}
+			}
 
 			if (
 				data.scheduling.data.attributes.court_availability.data &&
 				data.scheduling.data.attributes.court_availability.data.attributes.court.data &&
 				data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0]
 			) {
-				const courtPicture = HOST_API + data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url;
+				const newReserveStatus = data.scheduling.data.attributes.status;
+				setReserveStatus(newReserveStatus);
 
-				setCourtPicture(courtPicture);
+				const newCourtPicture = HOST_API + data.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.photo.data[0].attributes.url;
+				setCourtPicture(newCourtPicture);
 			} else {
 				setCourtPicture("https://cdn-icons-png.flaticon.com/512/10449/10449616.png")
 			}
@@ -133,7 +149,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
 		const _isWithinOneHour = _timeDifferenceMsPayDate <= oneHourInMs;
 		const _isVanquishedDate = schedulingPayDate! < currentTime
-		const _isVanquished = _isVanquishedDate && !isPayed
+		const _isVanquished = _isVanquishedDate && isPayed !== 'payed'
 
 		setIsWithinOneHour(_isWithinOneHour);
 		setIsVanquishedDate(_isVanquishedDate);
@@ -533,7 +549,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 
 	return (
 		<View className='flex-1 bg-zinc-600'>
-
 			<View className=' h-11 w-max  bg-zinc-900'></View>
 			<View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
 				<View className='flex item-center justify-center'>
@@ -559,16 +574,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 			</View>
 			<ScrollView>
 				<View className='h-6'></View>
-				<View className={
-					(data && data.scheduling.data && data.scheduling.data.attributes.court_availability.data && serviceRate && isVanquished !== undefined)
-						&&
-						scheduleValuePayed && scheduleValuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate && !isVanquished
-						? 'flex w-max h-80 bg-zinc-900 px-5'
-						: (data && data.scheduling.data && data.scheduling.data.attributes.owner.data) &&
-							user_id !== data.scheduling.data.attributes.owner.data.id && isPayed
-							? 'flex w-max h-48 bg-zinc-900 px-5'
-							: 'flex w-max h-60 bg-zinc-900 px-5'
-				}>
+				<View className='flex w-max h-fit bg-zinc-900 px-5 pb-2'>
 					<View className='flex-row items-start justify-start w-max h-max pt-2'>
 						<View>
 							<Image
@@ -591,9 +597,10 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 											user_id === data.scheduling.data.attributes.owner.data.id
 										)
 											?
-											!isWithin24Hours
-												? <TouchableOpacity className='flex-row items-center' onPress={
-													() => navigation.navigate('UpdateSchedule', {
+											!isWithin24Hours && reserveStatus
+												? <TouchableOpacity
+													className='flex-row items-center'
+													onPress={() => navigation.navigate('UpdateSchedule', {
 														courtId: data.scheduling.data.attributes.court_availability.data.attributes.court.data.id,
 														courtName: fantasyName,
 														courtImage: courtPicture,
@@ -602,8 +609,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 														valuePayed: scheduleValuePayed!,
 														scheduleUpdateID: schedule_id,
 														activationKey: data?.scheduling?.data?.attributes?.activationKey || null
-													})
-												}>
+													})}
+													disabled={!reserveStatus}
+												>
 													<View>
 														<Text className='font-normal text-xs text-orange-600'>Editar</Text>
 													</View>
@@ -619,9 +627,15 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									<Text className='font-normal text-xs text-white'>{fantasyName}</Text>
 								</View>
 								<View className='flex-row pt-2'>
-									<View>
-										<Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString()! ?? "")}</Text>
-									</View>
+									{
+										(
+											data &&
+											data.scheduling.data
+										) &&
+										<View>
+											<Text className='font-black text-xs text-white'>Reserva feita em {formatDateTime(data?.scheduling?.data?.attributes?.createdAt.toString()! ?? "")}</Text>
+										</View>
+									}
 								</View>
 								{
 									(data && data.scheduling.data && data.scheduling.data.attributes.owner.data && isWithinOneHour !== undefined)
@@ -629,10 +643,12 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 										user_id === data.scheduling.data.attributes.owner.data.id
 										?
 										!isWithinOneHour
-											? <View className='pt-2'>
-												<Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
+											&&
+											<View className='pt-2'>
+												{
+													reserveStatus && <Text className='font-black text-xs text-red-500' onPress={() => setShowCancelCardModal(true)}>CANCELAR</Text>
+												}
 											</View>
-											: <Text className='text-white'>CREU</Text>
 										: null
 								}
 							</View>
@@ -650,24 +666,31 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 							<>
 								<View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
 									<Text className='absolute z-10 self-center text-white font-bold'>
-										R$ {data.scheduling.data.attributes.valuePayed} / R$ {data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate}
+										R$ {data.scheduling.data.attributes.valuePayed.toFixed(2)} / R$ {(data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate).toFixed(2)}
 									</Text>
-									{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
+									{(data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && payedPercentage !== undefined) && (
 										<ProgressBar
 											progress={payedPercentage}
 											width={null}
 											height={30}
 											borderRadius={5}
-											color={'#0FA958'}
-											unfilledColor={'#0FA95866'}
+											color={!reserveStatus ? 'rgb(166,166,166)' : '#0FA958'}
+											unfilledColor={!reserveStatus ? 'rgb(166,166,166, 66)' : '#0FA95866'}
 										/>
 									)}
 								</View>
-								<View className=' h-18 w-full flex items-center'>
-									<View className='w-60 pt-2 item-center'>
-										<Countdown targetDate={new Date(data.scheduling.data.attributes.payDay ?? new Date().toISOString())} />
+									<View className='h-18 w-full flex items-center'>
+										{
+											reserveStatus ?
+												<View className='w-60 pt-2 item-center'>
+													<Countdown targetDate={new Date(data.scheduling.data.attributes.payDay ?? new Date().toISOString())}/>
+												</View>
+												:
+												<Text className='py-4 text-base font-bold'>
+													A reserva não está mais disponível
+												</Text>
+										}
 									</View>
-								</View>
 							</>
 							:
 							<>
@@ -678,7 +701,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 										<Text className='absolute z-10 self-center text-white font-bold'>
 											Pagamento efetuado
 										</Text>
-										{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
+										{(payedPercentage !== undefined) && (
 											<ProgressBar
 												progress={payedPercentage}
 												width={null}
@@ -698,10 +721,10 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 							data.scheduling.data.attributes.owner.data.id !== user_id ?
 							<>
 								{
-									!isVanquished
+									!isVanquished && reserveStatus
 										? (data.scheduling.data.attributes.payedStatus === "waiting" && false)
 											? <View className='h-max w-full flex justify-center items-center pl-2'>
-												<TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)}>
+												<TouchableOpacity className='pt-2 pb-5 ' onPress={() => setShowCardPaymentModal(true)} disabled={!reserveStatus}>
 													<View className='w-64 h-10 bg-white rounded-sm flex-row items-center'>
 														<View className='w-1'></View>
 														<View className='h-5 w-5 items-center justify-center'>
@@ -712,8 +735,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 														</View>
 													</View>
 												</TouchableOpacity>
-												<TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
-													<View className='h-10 w-64 rounded-md bg-orange-500 flex items-center justify-center'>
+												<TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)} disabled={!reserveStatus}>
+													<View className={'h-10 w-64 rounded-md flex items-center justify-center '.concat(!reserveStatus ? 'bg-zinc-500' : 'bg-orange-500')}>
 														<Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
 													</View>
 												</TouchableOpacity>
@@ -726,8 +749,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 								{
 									(data && data.scheduling.data && data.scheduling.data.attributes.court_availability.data && serviceRate && isVanquished !== undefined)
 										&&
-										!isVanquished ?
-										data.scheduling.data.attributes.valuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate
+										!isVanquished && reserveStatus ?
+										(data.scheduling.data.attributes.valuePayed < data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate)
 											?
 											<View className='h-28 w-60 flex-row  pr-5'>
 												<View className='h-max w-max  justify-center items-start'>
@@ -743,7 +766,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 													</View>
 												</View>
 												<View className='h-max w-full flex justify-between pl-2'>
-													<TouchableOpacity className='pt-2' onPress={() => setShowCardPaymentModal(true)}>
+													<TouchableOpacity className='pt-2' onPress={() => setShowCardPaymentModal(true)} disabled={!reserveStatus}>
 														<View className='w-30 h-10 bg-white rounded-sm flex-row items-center'>
 															<View className='w-1'></View>
 															<View className='h-5 w-5 items-center justify-center'>
@@ -754,7 +777,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 															</View>
 														</View>
 													</TouchableOpacity>
-													<TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)}>
+													<TouchableOpacity className='pb-2' onPress={() => setShowPixPaymentModal(true)} disabled={!reserveStatus}>
 														<View className='h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center'>
 															<Text className='text-gray-50 font-bold'>Copiar código PIX</Text>
 														</View>
@@ -765,7 +788,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 											<View className='h-20 w-60 flex-row pr-5 items-center'>
 												<View className=' w-max  justify-center items-start'>
 													<View className='flex-row item-center justify-center'>
-														<TouchableOpacity onPress={() => share()} className='flex-row'>
+														<TouchableOpacity onPress={() => share()} className='flex-row' disabled={!reserveStatus}>
 															<View className='h-5 w-5 items-center justify-center'>
 																<TextInput.Icon icon={'share-variant'} size={21} color={'#FF6112'} />
 															</View>
@@ -798,8 +821,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									<Text className='text-gray-50 font-black'>MEUS PAGAMENTOS:</Text>
 								</View>
 								{
-									ownerPaymentsData.data.map((paymentInfo) =>
-										<View className='w-full pt-5'>
+									ownerPaymentsData.data.map((paymentInfo, index) =>
+										<View className='w-full pt-5' key={index}>
 											<View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
 												<Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
 												<Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>
@@ -822,9 +845,9 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 					<View className='pt-3 w-full'>
 						{
 							paymentData.data !== undefined && paymentData.data !== null
-								? paymentData.data.map((paymentInfo) =>
+								? paymentData.data.map((paymentInfo, index) =>
 									<ScrollView>
-										<View className='w-full pt-5'>
+										<View className='w-full pt-5' key={index}>
 											<View className='h-14 w-30 rounded-md bg-white flex-row items-center justify-between'>
 												<Text className='text-black font-normal pl-4'>{paymentInfo?.attributes?.users_permissions_user?.data?.attributes?.username}</Text>
 												<Text className='text-black font-normal'>{formatDate(paymentInfo?.attributes?.createdAt.toString()!)}</Text>

@@ -6,76 +6,77 @@ export interface IgetHistoricOfReserveOnResponse {
       attributes: {
         schedulings: {
           data: Array<{
-            id: string
+            id: string;
             attributes: {
-              serviceRate: Number
-              status: boolean
-              createdAt: Date
-              valuePayed: Number
-              payedStatus: string
+              serviceRate: number;
+              status: boolean;
+              createdAt: Date;
+              valuePayed: number;
+              payedStatus: string;
               court_availability: {
                 data: {
                   attributes: {
-                    value: Number
+                    value: number;
                     court: {
                       data: {
-                        id: string
+                        id: string;
                         attributes: {
-                          name: string
-                          fantasy_name: string
+                          name: string;
+                          fantasy_name: string;
                           photo: {
                             data: Array<{
                               attributes: {
-                                url: string
-                              }
-                            }>
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }>
-        }
-      }
-    }
-  }
+                                url: string;
+                              };
+                            }>;
+                          };
+                        };
+                      };
+                    };
+                  };
+                };
+              };
+            };
+          }>;
+        };
+      };
+    };
+  };
 }
 
 export interface IHistoricReserveOnVariables {
-  id: string
+  id: string;
 }
 
 export const historicReserveOnQuery = gql`
-query getHistoricOfReserveOn($id: ID) {
-  usersPermissionsUser(id: $id) {
-    data {
-      attributes {
-        schedulings {
-          data {
-            id
-            attributes {
-              serviceRate
-              status
-              createdAt
-              valuePayed
-              payedStatus
-              court_availability {
-                data {
-                  attributes {
-                    value
-                    court {
-                      data {
-                        id
-                        attributes {
-                          name
-                          fantasy_name
-                          photo {
-                            data {
-                              attributes {
-                                url
+  query getHistoricOfReserveOn($id: ID) {
+    usersPermissionsUser(id: $id) {
+      data {
+        attributes {
+          schedulings {
+            data {
+              id
+              attributes {
+                serviceRate
+                status
+                createdAt
+                valuePayed
+                payedStatus
+                court_availability {
+                  data {
+                    attributes {
+                      value
+                      court {
+                        data {
+                          id
+                          attributes {
+                            name
+                            fantasy_name
+                            photo {
+                              data {
+                                attributes {
+                                  url
+                                }
                               }
                             }
                           }
@@ -91,5 +92,4 @@ query getHistoricOfReserveOn($id: ID) {
       }
     }
   }
-}
-`
+`;
