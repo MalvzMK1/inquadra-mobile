@@ -61,7 +61,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 	const [isVanquished, setIsVanquished] = useState<boolean>();
 	const [valueDisponibleToPay, setValueDisponibleToPay] = useState<number>();
 	const [fantasyName, setFantasyName] = useState<string>('');
-	const [payedPercentage, setPayedPercentage] = useState<number>(0);
+	const [payedPercentage, setPayedPercentage] = useState<number>();
 	const [reserveStatus, setReserveStatus] = useState<boolean>(false);
 
 	const { data, error, loading } = useInfoSchedule(schedule_id, user_id)
@@ -98,8 +98,8 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 				setValueDisponibleToPay(_valueDisponibleToPay);
 			}
 
-			if (serviceRate) {
-				const denominator = data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate;
+			if (receivedServiceRate) {
+				const denominator = data.scheduling.data.attributes.court_availability.data.attributes.value + receivedServiceRate;
 
 				if (denominator !== 0) {
 					const newValuePayedPercentage = data.scheduling.data.attributes.valuePayed / denominator;
@@ -677,7 +677,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 									<Text className='absolute z-10 self-center text-white font-bold'>
 										R$ {data.scheduling.data.attributes.valuePayed.toFixed(2)} / R$ {(data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate).toFixed(2)}
 									</Text>
-									{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
+									{(data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && payedPercentage !== undefined) && (
 										<ProgressBar
 											progress={payedPercentage}
 											width={null}
@@ -703,7 +703,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 										<Text className='absolute z-10 self-center text-white font-bold'>
 											Pagamento efetuado
 										</Text>
-										{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
+										{(payedPercentage !== undefined) && (
 											<ProgressBar
 												progress={payedPercentage}
 												width={null}
