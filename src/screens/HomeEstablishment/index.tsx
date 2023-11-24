@@ -153,8 +153,9 @@ export default function HomeEstablishment({
   // 1 === true / 2 === false / 3 === null
 
   const getIdByKey = (key: string): string | undefined => {
+    establishmentCourts
     const schedulingFound =
-      dataSchedulings?.establishment?.data?.attributes?.courts?.data?.flatMap(
+      establishmentCourts?.flatMap(
         courts =>
           courts?.attributes?.court_availabilities?.data?.flatMap(
             availabilities =>
@@ -167,7 +168,6 @@ export default function HomeEstablishment({
     if (schedulingFound) {
       return schedulingFound.id;
     }
-
     return undefined;
   };
 
