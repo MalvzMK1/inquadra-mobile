@@ -57,9 +57,10 @@ export default function InfoReserva({
         setUserPicture(
           `${API_BASE_URL}${dataUser.usersPermissionsUser.data.attributes.photo.data.attributes.url}`,
         );
-      } else {
-        setUserPicture("../../assets/default-user-image.png");
       }
+      // else {
+      //   setUserPicture("../../assets/default-user-image.png");
+      // }
     }, [refetch]),
   );
 

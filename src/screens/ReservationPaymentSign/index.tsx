@@ -450,7 +450,6 @@ export default function ReservationPaymentSign({
           }
         })
         .catch(error => {
-          console.log("authorizePayment");
           console.error(error);
           Alert.alert("Não foi possível realizar o pagamento", String(error));
         });
