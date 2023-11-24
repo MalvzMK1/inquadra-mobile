@@ -12,6 +12,7 @@ export interface IinfoScheduleResponse {
         payDay: Date
         activationKey: string
         activated: boolean
+        status: boolean
         court_availability: {
           data: {
             attributes: {
@@ -94,6 +95,7 @@ export const infoSchedule = gql`
           payDay
           activationKey
           activated
+          status
           court_availability {
             data {
               attributes {

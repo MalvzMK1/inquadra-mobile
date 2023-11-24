@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/infosSchedule.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/infosSchedule.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
