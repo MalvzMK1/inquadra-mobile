@@ -25,41 +25,43 @@ export default function CourtAvailibility(props: CourtAvailibility) {
     status = `R$${props.price.toFixed(2).replace(".", ",")}`;
   }
 
-  return props.busy ? (
-    <View
-      className={`flex flex-row h-fit w-full ${
-        props.busy ? "" : "border"
-      } rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${
-        props.busy ? "bg-[#D9D9D9]" : ""
-      }`}
-    >
-      <Text
-        className={`font-black text-[15px] ${
-          props.busy ? "text-[#808080]" : ""
+  if (props.busy) {
+    return (
+      <View
+        className={`flex flex-row h-fit w-full ${
+          props.busy ? "" : "border"
+        } rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${
+          props.busy ? "bg-[#D9D9D9]" : ""
         }`}
       >
-        {props.startsAt} - {props.endsAt}
-      </Text>
-      <Text
-        className={`font-black text-[15px] ${
-          props.busy ? "text-[#808080]" : ""
-        }`}
-      >
-        OCUPADO
-      </Text>
-    </View>
-  ) : (
+        <Text
+          className={`font-black text-[15px] ${
+            props.busy ? "text-[#808080]" : ""
+          }`}
+        >
+          {props.startsAt} - {props.endsAt}
+        </Text>
+        <Text
+          className={`font-black text-[15px] ${
+            props.busy ? "text-[#808080]" : ""
+          }`}
+        >
+          OCUPADO
+        </Text>
+      </View>
+    );
+  }
+
+  return (
     <TouchableOpacity
-      className={`flex flex-row h-fit w-full border rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${
+      onPress={() => props.toggleTimeSelection(props.id, props.price)}
+      className={`flex flex-row h-fit space-x-4 w-full border rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${
         props.selectedTimes
           ? props.selectedTimes.id == props.id
             ? "bg-[#f3ffe4]"
             : ""
           : ""
       } `}
-      onPress={() => {
-        props.toggleTimeSelection(props.id, props.price);
-      }}
     >
       <Text className="font-black text-[15px]">
         {props.startsAt} - {props.endsAt}

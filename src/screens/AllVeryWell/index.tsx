@@ -164,19 +164,19 @@ export default function AllVeryWell({
 
       userIdToRemove = newUserData.createUsersPermissionsUser.data.id;
 
-      const [logoId, ...establishmentPhotosIds] = await uploadImages([
+      const [logoId, ...establishmentPhotoIds] = await uploadImages([
         route.params.establishmentInfos.logo,
         ...route.params.establishmentInfos.photos,
       ]);
 
       imageIdsToRemove.push(logoId);
-      imageIdsToRemove.push(...establishmentPhotosIds);
+      imageIdsToRemove.push(...establishmentPhotoIds);
 
       const registerEstalishmentPayload: IRegisterEstablishmentVariables = {
-        ownerId: newUserData.createUsersPermissionsUser.data.id,
-        publishedAt: new Date().toISOString(),
-        photos: establishmentPhotosIds,
         logo: logoId,
+        photos: establishmentPhotoIds,
+        publishedAt: new Date().toISOString(),
+        ownerId: newUserData.createUsersPermissionsUser.data.id,
         latitude: route.params.establishmentInfos.latitude,
         longitude: route.params.establishmentInfos.longitude,
         street_name: route.params.establishmentInfos.street_name,
@@ -207,25 +207,22 @@ export default function AllVeryWell({
           Promise.all(
             court.court_availabilities.flatMap((availabilities, index) => {
               return availabilities.map(async availability => {
-                console.log("Cadastrando court availabilities...", index);
-                const registerCourtAvailabilityPayload = {
-                  status: true,
-                  starts_at: `${availability.startsAt}:00.000`,
-                  day_use_service: court.dayUse[index],
-                  ends_at: `${availability.endsAt}:00.000`,
-                  value: Number(
-                    availability.price
-                      .replace("R$", "")
-                      .replace(".", "")
-                      .replace(",", ".")
-                      .trim(),
-                  ),
-                  week_day: indexToWeekDayMap[index],
-                  publishedAt: new Date().toISOString(),
-                };
-
                 const { data } = await registerCourtAvailability({
-                  variables: registerCourtAvailabilityPayload,
+                  variables: {
+                    status: true,
+                    starts_at: `${availability.startsAt}:00.000`,
+                    day_use_service: court.dayUse[index],
+                    ends_at: `${availability.endsAt}:00.000`,
+                    value: Number(
+                      availability.price
+                        .replace("R$", "")
+                        .replace(".", "")
+                        .replace(",", ".")
+                        .trim(),
+                    ),
+                    week_day: indexToWeekDayMap[index],
+                    publishedAt: new Date().toISOString(),
+                  },
                 });
 
                 if (!data) {

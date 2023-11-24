@@ -1,8 +1,8 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StackActions, useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -237,6 +237,12 @@ export default function ReservationPaymentSign({
     setIsScreenLoading(loadingUser || loadingReserve);
   }, [dataUser, dataReserve]);
 
+  useEffect(() => {
+    storage
+      .load<UserGeolocation>({ key: "userGeolocation" })
+      .then(setUserGeolocation);
+  }, []);
+
   const handleCardClick = () => {
     setShowCard(!showCard);
     setShowCameraIcon(false);
@@ -262,12 +268,6 @@ export default function ReservationPaymentSign({
     setShowRateInformation(false);
   };
 
-  useEffect(() => {
-    storage
-      .load<UserGeolocation>({ key: "userGeolocation" })
-      .then(data => setUserGeolocation(data));
-  }, []);
-
   const courtLatitude = parseFloat(
     dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes
       ?.establishment?.data?.attributes?.address?.latitude ?? "0",
@@ -276,17 +276,24 @@ export default function ReservationPaymentSign({
     dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes
       ?.establishment?.data?.attributes?.address?.longitude ?? "0",
   );
-  const userLatitude = parseFloat(userGeolocation?.latitude.toString() ?? "0");
-  const userLongitude = parseFloat(
-    userGeolocation?.longitude.toString() ?? "0",
-  );
 
-  let distanceInMeters = calculateDistance(
-    userLatitude,
-    userLongitude,
-    courtLatitude,
-    courtLongitude,
-  );
+  const distanceInMeters = useMemo(() => {
+    const userLatitude = parseFloat(
+      userGeolocation?.latitude.toString() ?? "0",
+    );
+
+    const userLongitude = parseFloat(
+      userGeolocation?.longitude.toString() ?? "0",
+    );
+
+    return calculateDistance(
+      userLatitude,
+      userLongitude,
+      courtLatitude,
+      courtLongitude,
+    );
+  }, [userGeolocation, courtLatitude, courtLongitude]);
+
   const distanceText =
     distanceInMeters >= 1000
       ? `${(distanceInMeters / 1000).toFixed(1)} Km`
@@ -294,8 +301,8 @@ export default function ReservationPaymentSign({
 
   const {
     control,
-    handleSubmit,
     setValue,
+    handleSubmit,
     formState: { isSubmitting },
   } = useForm<iFormCardPayment>({
     resolver: zodResolver(formSchema),
@@ -434,19 +441,11 @@ export default function ReservationPaymentSign({
                 payedStatus:
                   response.Payment.Status === 2 ? "Payed" : "Waiting",
               },
-            })
-              .then(() => {
-                updateStatusDisponibleCourt();
-                handleSaveCard();
-                navigation.navigate("InfoReserva", { userId: userId });
-              })
-              .catch(error => {
-                console.error(error);
-                Alert.alert(
-                  "Não foi possível realizar o pagamento",
-                  String(error),
-                );
-              });
+            });
+
+            await updateStatusDisponibleCourt();
+            handleSaveCard();
+            navigation.navigate("InfoReserva", { userId: userId });
           }
         })
         .catch(error => {
@@ -492,7 +491,7 @@ export default function ReservationPaymentSign({
   };
 
   const updateStatusDisponibleCourt = () => {
-    updateStatusCourtAvailability({
+    return updateStatusCourtAvailability({
       variables: {
         id: courtAvailabilityDate,
         status: true,
@@ -501,9 +500,31 @@ export default function ReservationPaymentSign({
   };
 
   const generatePixSignal = async () => {
+    setIsPaymentLoading(true);
+
     try {
-      setIsPaymentLoading(true);
-      const generatePixJSON: RequestGeneratePix = {
+      const signalAmount = dataReserve
+        ? Number(
+            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+              2,
+            ),
+          )
+        : undefined;
+
+      if (
+        typeof signalAmount === "undefined" ||
+        typeof serviceValue === "undefined"
+      ) {
+        return Dialog.show({
+          type: ALERT_TYPE.DANGER,
+          title: "Não foi possível gerar o código pix.",
+        });
+      }
+
+      const totalSignalValue = signalAmount + Number(serviceValue.toFixed(2));
+      const totalSignalValueCents = totalSignalValue * 100;
+
+      const pixGenerated = await generatePix({
         MerchantOrderId:
           userId + generateRandomKey(3) + new Date().toISOString(),
         Customer: {
@@ -513,13 +534,11 @@ export default function ReservationPaymentSign({
         },
         Payment: {
           Type: "Pix",
-          Amount: 1,
+          Amount: totalSignalValueCents,
         },
-      };
+      });
 
-      const pixGenerated = await generatePix(generatePixJSON);
-
-      await addPaymentPix({
+      const response = await addPaymentPix({
         variables: {
           name: userName!,
           cpf: userCPF!,
@@ -529,34 +548,34 @@ export default function ReservationPaymentSign({
           publishedAt: new Date().toISOString(),
           userID: userId,
         },
-      }).then(response =>
-        navigation.dispatch(
-          StackActions.replace("PixScreen", {
-            courtName: courtName,
-            value: signalValue!.toString(),
-            userID: userId,
-            QRcodeURL: pixGenerated.Payment.QrCodeString,
-            paymentID: pixGenerated.Payment.PaymentId,
-            userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
-            screen: "signal",
-            court_availabilityID: courtAvailabilities,
-            date: courtAvailabilityDate.split("T")[0],
-            pay_day: courtAvailabilityDate.split("T")[0],
-            value_payed: signalValue ? signalValue : 0,
-            ownerID: userId,
-            service_value: serviceValue,
-            isPayed: signalValueValidate,
-            schedulePrice: signalValue!,
-            courtId: courtId,
-            courtImage: courtImage,
-            userPhoto: userPhoto!,
-          }),
-        ),
-      );
-      setIsPaymentLoading(false);
+      });
+
+      navigation.navigate("PixScreen", {
+        courtName: courtName!,
+        value: signalValue!.toString(),
+        userID: userId,
+        QRcodeURL: pixGenerated.Payment.QrCodeString,
+        paymentID: pixGenerated.Payment.PaymentId,
+        userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+        screen: "signal",
+        court_availabilityID: courtAvailabilities,
+        date: courtAvailabilityDate.split("T")[0],
+        pay_day: courtAvailabilityDate.split("T")[0],
+        value_payed: signalValue || 0,
+        ownerID: userId,
+        service_value: serviceValue,
+        isPayed: signalValueValidate,
+        schedulePrice: signalValue!,
+        courtId: courtId,
+        courtImage: courtImage,
+        userPhoto: userPhoto!,
+      });
     } catch (error) {
-      console.log(error);
-      alert(error);
+      console.error(error);
+      console.error(JSON.stringify(error, null, 2));
+      Alert.alert("Erro", String(error));
+    } finally {
+      setIsPaymentLoading(false);
     }
   };
 
@@ -584,22 +603,19 @@ export default function ReservationPaymentSign({
             </Text>
           </View>
           <View className="px-10 py-5">
-            {!isPaymentLoading ? (
-              <TouchableOpacity
-                className="py-4 rounded-xl bg-orange-500 flex items-center justify-center"
-                onPressIn={() => {
-                  generatePixSignal();
-                }}
-              >
+            <TouchableOpacity
+              onPress={generatePixSignal}
+              disabled={isPaymentLoading}
+              className="py-4 rounded-xl bg-orange-500 flex items-center justify-center"
+            >
+              {isPaymentLoading ? (
+                <ActivityIndicator size={28} color="white" />
+              ) : (
                 <Text className="text-lg text-gray-50 font-bold">
                   Gerar código PIX
                 </Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity className="py-4 rounded-xl bg-orange-500 flex items-center justify-center">
-                <ActivityIndicator size="small" color="white" />
-              </TouchableOpacity>
-            )}
+              )}
+            </TouchableOpacity>
           </View>
           <View>
             <Text className="text-center font-bold text-base text-gray-700">
@@ -643,8 +659,8 @@ export default function ReservationPaymentSign({
                         <Fragment>
                           <TextInputMask
                             className="p-3 border border-gray-500 rounded-md h-18"
+                            type="datetime"
                             options={{ format: "MM/YY" }}
-                            type={"datetime"}
                             value={value}
                             onChangeText={onChange}
                             placeholder="MM/YY"
@@ -1141,7 +1157,7 @@ export default function ReservationPaymentSign({
                 </TouchableOpacity>
               </View>
               <Text className="font-bold text-xl text-right text-[#717171]">
-                R$ {serviceValue && serviceValue.toFixed(2)}
+                R$ {serviceValue?.toFixed(2)}
               </Text>
             </View>
           </View>

@@ -74,6 +74,9 @@ export const client = new ApolloClient({
         keyFields: [],
         merge: (existing, incoming) => incoming,
       },
+      EstablishmentEntity: {
+        merge: true,
+      },
     },
   }),
 });
