@@ -124,6 +124,15 @@ export default function HomeEstablishment({
     dayOfWeek,
     date,
   );
+
+  console.log({
+    establishmentId,
+    fantasy_name,
+    dayOfWeek,
+    date
+  })
+
+
   const {
     data: dataCourtsEstablishment,
     error: errorCourts,
@@ -360,7 +369,7 @@ export default function HomeEstablishment({
               </Text>
               <View className="pt-5 gap-2">
                 {handleDayUse === false
-                  ? establishmentCourts.map(
+                  ? dataSchedulings?.establishment.data.attributes.courts.data.map(
                     courts =>
                       courts?.attributes.court_availabilities.data.map(
                         availabilities =>
