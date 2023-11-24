@@ -104,7 +104,6 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 				if (denominator !== 0) {
 					const newValuePayedPercentage = data.scheduling.data.attributes.valuePayed / denominator;
 
-					console.error(newValuePayedPercentage)
 					if (!isNaN(newValuePayedPercentage) && newValuePayedPercentage >= 0 && newValuePayedPercentage <= 1) {
 						setPayedPercentage(newValuePayedPercentage);
 					} else {
@@ -676,7 +675,7 @@ export default function DescriptionReserve({ navigation, route }: NativeStackScr
 							<>
 								<View style={{ width: '100%', justifyContent: 'center' }} className='relative'>
 									<Text className='absolute z-10 self-center text-white font-bold'>
-										{/*R$ {data.scheduling.data.attributes.valuePayed.toFixed(2)} / R$ {(data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate).toFixed(2)}*/}
+										R$ {data.scheduling.data.attributes.valuePayed.toFixed(2)} / R$ {(data.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate).toFixed(2)}
 									</Text>
 									{data.scheduling.data.attributes.valuePayed && data.scheduling.data.attributes.court_availability.data.attributes.value && (
 										<ProgressBar
