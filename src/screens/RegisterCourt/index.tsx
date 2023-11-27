@@ -228,7 +228,7 @@ export default function RegisterCourt({
       return [];
     }
 
-    return dataSportTypeAvailable?.courtTypes.data.map(sportType => {
+    return dataSportTypeAvailable.courtTypes.data.map(sportType => {
       return {
         value: sportType.attributes.name,
         label: sportType.id,

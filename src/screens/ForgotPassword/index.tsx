@@ -36,21 +36,18 @@ export default function ForgotPassword({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "ForgotPassword">) {
-  const [noUserFound, setNoUserFound] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const apolloClient = useApolloClient();
   const { goBack } = useNavigation();
-
+  const apolloClient = useApolloClient();
+  const [noUserFound, setNoUserFound] = useState(false);
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
   });
 
-  async function handleSendCodePassword(data: IFormData) {
-    setIsLoading(true);
+  const handleSendCodePassword = handleSubmit(async data => {
     try {
       const { data: userData } = await apolloClient.query<
         IUserByEmailResponse,
@@ -62,39 +59,36 @@ export default function ForgotPassword({
         },
       });
 
-      if (userData && userData.usersPermissionsUsers.data.length > 0) {
-        const userInfos = userData.usersPermissionsUsers.data[0];
-        const response = await apolloClient.mutate<
-          SendResetPasswordTokenResponse,
-          SendResetPasswordTokenVariables
-        >({
-          mutation: sendResetPasswordTokenMutation,
-          variables: {
-            email: data.email,
-          },
-        });
-        if (
-          response.data &&
-          response.data.sendResetPasswordTokenCustom.success
-        ) {
-          navigation.navigate("InsertResetCode", {
-            id: userInfos.id,
-            username: userInfos.attributes.username,
-            email: userInfos.attributes.email,
-          });
-        } else {
-          Alert.alert("Erro", "Não foi possível enviar o e-mail.");
-        }
-      } else {
-        setNoUserFound(true);
+      if (!userData.usersPermissionsUsers.data.length) {
+        return setNoUserFound(true);
       }
+
+      const userInfos = userData.usersPermissionsUsers.data[0];
+      const response = await apolloClient.mutate<
+        SendResetPasswordTokenResponse,
+        SendResetPasswordTokenVariables
+      >({
+        mutation: sendResetPasswordTokenMutation,
+        variables: {
+          email: data.email,
+        },
+      });
+
+      if (!response.data?.sendResetPasswordTokenCustom.success) {
+        throw response.data;
+      }
+
+      navigation.navigate("InsertResetCode", {
+        id: userInfos.id,
+        username: userInfos.attributes.username,
+        email: userInfos.attributes.email,
+      });
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      console.error(JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível enviar o e-mail.");
-    } finally {
-      setIsLoading(false);
     }
-  }
+  });
 
   return (
     <View className="h-full w-screen bg-white flex-1 justify-center items-center p-4">
@@ -151,10 +145,10 @@ export default function ForgotPassword({
       <View className={"w-full"}>
         <TouchableOpacity
           className="h-14 rounded-md bg-orange-500 mt-6 flex items-center justify-center"
-          onPress={handleSubmit(handleSendCodePassword)}
-          disabled={isLoading}
+          disabled={isSubmitting}
+          onPress={handleSendCodePassword}
         >
-          {isLoading ? (
+          {isSubmitting ? (
             <ActivityIndicator size={20} color="white" />
           ) : (
             <Text className="text-white font-semibold text-base">Enviar</Text>
