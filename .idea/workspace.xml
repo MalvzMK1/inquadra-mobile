@@ -6,16 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/CourtCardInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtCardInfo/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/InfosEstablishment/InfoEstablishmentCardContentRating.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/InfosEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/InfosEstablishment/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/EstablishmentByCourtId.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/EstablishmentByCourtId.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/userEstablishmentInfo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/userEstablishmentInfo.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/UpdateSchedule/updateSchedule.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/UpdateSchedule/updateSchedule.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/Court.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Court.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +37,7 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="WI10580T10604" />
-                    <option name="lastUsedInstant" value="1701076696" />
+                    <option name="lastUsedInstant" value="1701084687" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="develop" />
@@ -83,7 +77,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI10580T10604",
+    "git-widget-placeholder": "80c9814a",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",

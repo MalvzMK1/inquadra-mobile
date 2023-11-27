@@ -40,6 +40,7 @@ import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import storage from "../../utils/storage";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import PaymentCompleted, {TPaymentStatus} from "../../components/PaymentCompleted";
 
 const formSchema = z.object({
   name: z
@@ -147,6 +148,8 @@ export default function ReservationPaymentSign({
   const [valuePayed, setValuePayed] = useState<number>();
   const [signalValue, setSignalValue] = useState<number>();
   const [signalValuePix, setSignalValuePix] = useState<number>();
+  const [cardPaymentLoading, setCardPaymentLoading] = useState<boolean>(false);
+  const [paymentStatus, setPaymentStatus] = useState<TPaymentStatus>('processing');
 
   const { data: dataReserve, loading: loadingReserve } = useReserveInfo(
     courtAvailabilities,
@@ -331,6 +334,9 @@ export default function ReservationPaymentSign({
 
   const handlePay = handleSubmit(async values => {
     try {
+      setCardPaymentLoading(true);
+      setPaymentStatus('processing');
+
       const signalAmount = dataReserve
         ? Number(
             dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
@@ -441,16 +447,19 @@ export default function ReservationPaymentSign({
                 payedStatus:
                   response.Payment.Status === 2 ? "Payed" : "Waiting",
               },
+            }).catch(error => {
+              console.log({ERROR_STRAPI: JSON.stringify(error, null, 2)})
             });
 
             await updateStatusDisponibleCourt();
             handleSaveCard();
-            navigation.navigate("InfoReserva", { userId: userId });
+            setPaymentStatus('completed');
           }
         })
         .catch(error => {
-          console.error(error);
+          console.error(JSON.stringify(error, null, 2));
           Alert.alert("Não foi possível realizar o pagamento", String(error));
+          setPaymentStatus('failed');
         });
     } catch (error) {
       console.error("Erro ao criar o agendamento:", error);
@@ -483,7 +492,7 @@ export default function ReservationPaymentSign({
         },
       });
 
-      return data?.createScheduling?.data?.id;
+      return data?.createScheduling.data.id ?? undefined;
     } catch (error) {
       alert(error);
       console.error("Erro na mutação createSchedule:", error);
@@ -581,6 +590,16 @@ export default function ReservationPaymentSign({
 
   return (
     <View className="flex-1 bg-white w-full h-full pb-10">
+      {
+        (cardPaymentLoading && amountToPay) ?
+        <PaymentCompleted
+          userId={userId}
+          name={courtName !== undefined ? courtName : ''}
+          status={paymentStatus}
+          image={courtImage}
+        /> :
+          null
+      }
       {!isScreenLoading ? (
         <ScrollView>
           <View>
