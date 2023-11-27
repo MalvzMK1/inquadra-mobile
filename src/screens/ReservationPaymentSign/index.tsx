@@ -22,6 +22,9 @@ import { TextInputMask } from "react-native-masked-text";
 import SvgUri from "react-native-svg-uri";
 import Icon from "react-native-vector-icons/Ionicons";
 import { z } from "zod";
+import PaymentCompleted, {
+  TPaymentStatus,
+} from "../../components/PaymentCompleted";
 import { calculateDistance } from "../../components/calculateDistance/calculateDistance";
 import useCountries from "../../hooks/useCountries";
 import { useReserveInfo } from "../../hooks/useInfoReserve";
@@ -40,7 +43,6 @@ import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import storage from "../../utils/storage";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
-import PaymentCompleted, {TPaymentStatus} from "../../components/PaymentCompleted";
 
 const formSchema = z.object({
   name: z
@@ -149,7 +151,8 @@ export default function ReservationPaymentSign({
   const [signalValue, setSignalValue] = useState<number>();
   const [signalValuePix, setSignalValuePix] = useState<number>();
   const [cardPaymentLoading, setCardPaymentLoading] = useState<boolean>(false);
-  const [paymentStatus, setPaymentStatus] = useState<TPaymentStatus>('processing');
+  const [paymentStatus, setPaymentStatus] =
+    useState<TPaymentStatus>("processing");
 
   const { data: dataReserve, loading: loadingReserve } = useReserveInfo(
     courtAvailabilities,
@@ -335,7 +338,7 @@ export default function ReservationPaymentSign({
   const handlePay = handleSubmit(async values => {
     try {
       setCardPaymentLoading(true);
-      setPaymentStatus('processing');
+      setPaymentStatus("processing");
 
       const signalAmount = dataReserve
         ? Number(
@@ -356,7 +359,6 @@ export default function ReservationPaymentSign({
         });
       }
 
-      const cieloRequestManager = new CieloRequestManager();
       const totalSignalValue = signalAmount + Number(serviceValue.toFixed(2));
       const totalSignalValueCents = totalSignalValue * 100;
 
@@ -418,7 +420,9 @@ export default function ReservationPaymentSign({
         },
       };
 
-      return cieloRequestManager
+      const cieloRequestManager = new CieloRequestManager();
+
+      await cieloRequestManager
         .authorizePayment(body)
         .then(async response => {
           const newScheduleId = await createNewSchedule(totalSignalValue);
@@ -448,18 +452,18 @@ export default function ReservationPaymentSign({
                   response.Payment.Status === 2 ? "Payed" : "Waiting",
               },
             }).catch(error => {
-              console.log({ERROR_STRAPI: JSON.stringify(error, null, 2)})
+              console.log({ ERROR_STRAPI: JSON.stringify(error, null, 2) });
             });
 
             await updateStatusDisponibleCourt();
             handleSaveCard();
-            setPaymentStatus('completed');
+            setPaymentStatus("completed");
           }
         })
         .catch(error => {
           console.error(JSON.stringify(error, null, 2));
           Alert.alert("Não foi possível realizar o pagamento", String(error));
-          setPaymentStatus('failed');
+          setPaymentStatus("failed");
         });
     } catch (error) {
       console.error("Erro ao criar o agendamento:", error);
@@ -590,16 +594,14 @@ export default function ReservationPaymentSign({
 
   return (
     <View className="flex-1 bg-white w-full h-full pb-10">
-      {
-        (cardPaymentLoading && amountToPay) ?
+      {cardPaymentLoading && amountToPay ? (
         <PaymentCompleted
           userId={userId}
-          name={courtName !== undefined ? courtName : ''}
+          name={courtName !== undefined ? courtName : ""}
           status={paymentStatus}
           image={courtImage}
-        /> :
-          null
-      }
+        />
+      ) : null}
       {!isScreenLoading ? (
         <ScrollView>
           <View>
