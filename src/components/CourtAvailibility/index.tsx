@@ -28,7 +28,7 @@ export default function CourtAvailibility(props: CourtAvailibility) {
   if (props.busy) {
     return (
       <View
-        className={`flex flex-row h-fit w-full ${
+        className={`flex flex-row h-fit w-max ${
           props.busy ? "" : "border"
         } rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${
           props.busy ? "bg-[#D9D9D9]" : ""
@@ -55,7 +55,7 @@ export default function CourtAvailibility(props: CourtAvailibility) {
   return (
     <TouchableOpacity
       onPress={() => props.toggleTimeSelection(props.id, props.price)}
-      className={`flex flex-row h-fit space-x-4 w-full border rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${
+      className={`flex flex-row h-fit space-x-4 w-max border rounded-[25px] p-[15px] mb-[5px] items-center justify-between px-2${
         props.selectedTimes
           ? props.selectedTimes.id == props.id
             ? "bg-[#f3ffe4]"
