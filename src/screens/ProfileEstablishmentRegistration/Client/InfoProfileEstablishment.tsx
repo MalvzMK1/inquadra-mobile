@@ -34,9 +34,7 @@ import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEst
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import { HOST_API } from "@env";
 import axios from 'axios';
-import SvgUri from "react-native-svg-uri";
 import useDeletePhoto from "../../../hooks/useDeletePhoto";
-import {updateEstablishmentPhotosMutation} from "../../../graphql/mutations/updateEstablishmentPhotos";
 import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentPhotos";
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {

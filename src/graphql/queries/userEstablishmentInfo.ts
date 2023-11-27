@@ -30,7 +30,7 @@ export interface IUserEstablishmentResponse {
                             courts: {
                                 data: Array<{
                                     id: Court['id']
-                                    attributes: Omit<Court, 'id' | 'rating'>
+                                    attributes: Omit<Court, 'id'>
                                 }>
                             }
                         } & {

@@ -555,11 +555,6 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
                             <View className="m-6">
                                 <Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.name}</Text>
                                 <Text className="text-base">{distanceText} de distância</Text>
-                                <View className="flex flex-row">
-                                    <Text className="text-base">Avaliação: {dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.rating}</Text>
-                                    <View className="pt-1.5 pl-1.5">
-                                        <FontAwesome name="star" color="#FF4715" size={11} /></View>
-                                </View>
                                 <Text className="text-base">{dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.streetName}</Text>
                             </View>
                             <View className="justify-center gap-1">

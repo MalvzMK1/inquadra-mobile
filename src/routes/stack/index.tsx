@@ -3,7 +3,7 @@ import { Entypo, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
-import { Image, View } from "react-native";
+import { Image, Platform, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Text, TextInput } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -141,6 +141,8 @@ export default function () {
           },
           headerTitle: () => (
             <>
+            {Platform.OS === 'ios' ? 
+            <View className="w-[63vw]">
               <TextInput
                 theme={{ colors: { placeholder: "#e9e9e9" } }}
                 placeholder="O que você está procurando?"
@@ -152,6 +154,21 @@ export default function () {
                   setCorporateName(e);
                 }}
               />
+              </View> 
+              : 
+              <TextInput
+                theme={{ colors: { placeholder: "#e9e9e9" } }}
+                placeholder="O que você está procurando?"
+                underlineColorAndroid="transparent"
+                underlineColor="transparent"
+                className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                right={<TextInput.Icon icon={"magnify"} />}
+                onChangeText={e => {
+                  setCorporateName(e);
+                }}
+              />
+            }
+              
               <View className="absolute top-[55px] w-full">
                 {EstablishmentsInfos ? (
                   EstablishmentsInfos.length > 0 ? (
@@ -1121,7 +1138,7 @@ export default function () {
               }}
             >
               <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
-                SINAL
+                RESERVA
               </Text>
             </View>
           ),

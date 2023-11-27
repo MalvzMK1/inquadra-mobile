@@ -232,7 +232,7 @@ type RootStackParamList = {
     userPhoto: string;
     userId: string;
     courtId: string;
-    courtImage: string;
+    courtImage: string | undefined;
     courtName: string;
     valuePayed: number;
     scheduleUpdateID: string;

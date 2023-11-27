@@ -59,7 +59,6 @@ export default function EstablishmentInfo({
     Array<{ id: any }>
   >([]);
 
-  const [rating, setRating] = useState<number>();
   const [heart, setHeart] = useState<boolean>(route.params.colorState === "red" ? true : false);
   const [footerHeartColor, setFooterHeartColor] = useState("white");
 
@@ -67,7 +66,6 @@ export default function EstablishmentInfo({
     Array<{
       id: string;
       name: string;
-      rating: number;
       court_type: string;
       court_availabilities: boolean;
       photo: string;
@@ -89,7 +87,6 @@ export default function EstablishmentInfo({
               return {
                 id: court.id,
                 name: court.attributes.name,
-                rating: court.attributes.rating ? court.attributes.rating : 0,
                 court_type: court.attributes.court_types.data
                   .map(courtType => courtType.attributes.name)
                   .join(", "),
@@ -215,30 +212,6 @@ export default function EstablishmentInfo({
   const uniqueCourtTypes = [...new Set(Court.map(court => court.court_type))];
 
   useEffect(() => {
-    function calculateRating() {
-      const generalRating = Court.map(item => {
-        if (item.rating) {
-          return item.rating;
-        } else {
-          return 5;
-        }
-      });
-
-      if (generalRating.length > 0) {
-        const sum = generalRating.reduce(
-          (accumulator, currentValue) => accumulator + currentValue,
-          0,
-        );
-        setRating(sum / generalRating.length);
-      } else {
-        setRating(0);
-      }
-    }
-
-    calculateRating();
-  }, [Court]);
-
-  useEffect(() => {
     storage
       .load<{ latitude: string; longitude: string }>({
         key: "userGeolocation",
@@ -347,10 +320,6 @@ export default function EstablishmentInfo({
               {distance?.toFixed(1).split(".").join(",")} Km de distância
             </Text>
             <Text className="font-bold text-[#717171]">
-              Avaliação: {rating?.toFixed(1).split(".").join(",")}{" "}
-              <Ionicons name="star-sharp" size={20} color="orange" />
-            </Text>
-            <Text className="font-bold text-[#717171]">
               {Establishment?.streetName}
             </Text>
           </View>
@@ -415,7 +384,6 @@ export default function EstablishmentInfo({
                 image={court.photo}
                 name={court.name}
                 type={court.court_type}
-                rate={court.rating}
               />
             ))}
           </View>
