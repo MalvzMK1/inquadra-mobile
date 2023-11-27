@@ -21,6 +21,7 @@ export function InsertResetCode({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "InsertResetCode">) {
+  const { goBack } = useNavigation();
   const {
     control,
     handleSubmit,
@@ -28,14 +29,12 @@ export function InsertResetCode({
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
   });
-  const { goBack } = useNavigation();
 
-  function handleValidateCode(data: IFormData) {
-    console.log(data.code);
+  const handleValidateCode = handleSubmit(data => {
     navigation.navigate("SetNewPassword", {
       code: data.code,
     });
-  }
+  });
 
   return (
     <View className="h-full w-screen bg-white relative flex justify-center items-center p-4">
@@ -61,6 +60,8 @@ export function InsertResetCode({
               onChangeText={onChange}
               outlineColor="#DCDCDC"
               mode="outlined"
+              returnKeyType="send"
+              onSubmitEditing={handleValidateCode}
               label={<Text style={{ color: "#DCDCDC" }}>Código</Text>}
               left={
                 <TextInput.Icon
@@ -91,7 +92,7 @@ export function InsertResetCode({
       <View className={"w-full"}>
         <TouchableOpacity
           className="h-14 mt-6 rounded-md bg-orange-500 flex items-center justify-center"
-          onPress={handleSubmit(handleValidateCode)}
+          onPress={handleValidateCode}
         >
           <Text className="text-white text-base font-semibold">Confirmar</Text>
         </TouchableOpacity>

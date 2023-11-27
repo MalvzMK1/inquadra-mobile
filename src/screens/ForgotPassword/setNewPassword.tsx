@@ -45,21 +45,18 @@ export function SetNewPassword({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "SetNewPassword">) {
+  const { goBack } = useNavigation();
+  const apolloClient = useApolloClient();
+  const [showPassword, setShowPassword] = useState(false);
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
   });
 
-  const { goBack } = useNavigation();
-  const apolloClient = useApolloClient();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-
-  async function handleResetPassword(values: IFormData) {
-    setIsLoading(true);
+  const handleResetPassword = handleSubmit(async values => {
     try {
       const { data } = await apolloClient.mutate<
         ResetPasswordResponse,
@@ -68,23 +65,25 @@ export function SetNewPassword({
         mutation: resetPasswordMutation,
         variables: {
           password: values.password,
-          token: route.params.code,
+          token: route.params.code.trim(),
         },
       });
-      if (data?.resetUserPasswordCustom.success) {
-        navigation.navigate("Login");
-      } else {
-        Alert.alert("Erro", "Não foi possível alterar a senha.");
-      }
-    } catch (error) {
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
-  const handleShowPassword = () => {
+      if (!data?.resetUserPasswordCustom.success) {
+        throw data;
+      }
+
+      navigation.navigate("Login");
+    } catch (error) {
+      console.error(error);
+      console.error(JSON.stringify(error, null, 2));
+      Alert.alert("Erro", "Não foi possível alterar a senha.");
+    }
+  });
+
+  function handleShowPassword() {
     setShowPassword(!showPassword);
-  };
+  }
 
   return (
     <View className="h-full w-screen bg-white flex justify-center items-center px-4">
@@ -151,6 +150,8 @@ export function SetNewPassword({
               onChangeText={onChange}
               outlineColor="#DCDCDC"
               mode="outlined"
+              returnKeyType="send"
+              onSubmitEditing={handleResetPassword}
               label={
                 <Text style={{ color: "#DCDCDC" }}>Confirme sua senha</Text>
               }
@@ -191,10 +192,10 @@ export function SetNewPassword({
       <View className={"w-full"}>
         <TouchableOpacity
           className="h-14 mt-6 rounded-md bg-orange-500 flex items-center justify-center"
-          onPress={handleSubmit(handleResetPassword)}
-          disabled={isLoading}
+          onPress={handleResetPassword}
+          disabled={isSubmitting}
         >
-          {isLoading ? (
+          {isSubmitting ? (
             <ActivityIndicator size={20} color="white" />
           ) : (
             <Text className="text-white text-base font-semibold">
