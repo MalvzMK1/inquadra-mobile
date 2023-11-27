@@ -5,11 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable/splashscreen.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable/splashscreen.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values-night/colors.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/colors.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +43,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1701096944" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI10580T10604" />
                     <option name="lastUsedInstant" value="1701084687" />
                   </RecentBranch>
@@ -50,10 +61,6 @@
                   <RecentBranch>
                     <option name="branchName" value="edit-establishment-photos" />
                     <option name="lastUsedInstant" value="1700645452" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="crashing-reserve-screen-fix" />
-                    <option name="lastUsedInstant" value="1699952662" />
                   </RecentBranch>
                 </list>
               </option>
@@ -77,7 +84,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "80c9814a",
+    "git-widget-placeholder": "release",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
