@@ -209,7 +209,7 @@ export default function CourtAvailabilityInfo({
                   {route.params.courtName}
                 </Text>
                 {!showCalendar && (
-                  <View className="h-fit w-full border border-[#9747FF] border-dashed p-[15px] items-center justify-around flex flex-row mt-[30px]">
+                  <View className="h-fit w-full p-[15px] items-center justify-around flex flex-row mt-[30px]">
                     <FilterDate
                       dateSelector={dateSelector}
                       setDateSelector={setDateSelector}
@@ -257,7 +257,6 @@ export default function CourtAvailabilityInfo({
                 </Text>
               ) : (
                 <FlatList
-                  horizontal
                   data={availabilities}
                   keyExtractor={availability => availability.id}
                   ListEmptyComponent={() => (

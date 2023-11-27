@@ -12,6 +12,7 @@ import { calculateDistance } from "../../utils/calculateDistance";
 import storage from "../../utils/storage";
 import { useFocus } from "native-base/lib/typescript/components/primitives";
 import { useFocusEffect } from "@react-navigation/native";
+import React from "react";
 interface Colors {
   [key: string]: string;
 }
@@ -41,6 +42,7 @@ export default function FavoriteEstablishments({
     data: userByIdData,
     error: userByIdError,
     loading: userByIdLoading,
+    refetch: refetchUserInfos
   } = useGetUserById(USER_ID ?? "");
   const [userFavoriteEstablishments, setUserFavoriteEstablishments] = useState<
     Array<string>
@@ -48,6 +50,7 @@ export default function FavoriteEstablishments({
 
 
   useFocusEffect(() => refetch)
+  useFocusEffect(() => refetchUserInfos)
 
   useFocusEffect(() => {
     setIsLoaded(false)
@@ -56,20 +59,30 @@ export default function FavoriteEstablishments({
     }
   })
 
-  useEffect(() => {
-    userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.forEach(
-      item => {
-        setColors(prevColors => ({
-          ...prevColors,
-          [item.id]: "red",
-        }));
-        setUserFavoriteEstablishments(prevEstablishments => [
-          ...prevEstablishments,
-          item.id,
-        ]);
-      },
-    );
-  }, [userByIdData]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userByIdData &&
+        userByIdData.usersPermissionsUser.data?.attributes.favorite_establishments.data.length! > 0
+      ) {
+        userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.forEach(
+          item => {
+            setColors(prevColors => ({
+              ...prevColors,
+              [item.id]: "red",
+            }));
+            setUserFavoriteEstablishments(prevEstablishments => [
+              ...prevEstablishments,
+              item.id,
+            ]);
+          },
+        );
+
+        setIsLoaded(false)
+      } else {
+        setIsLoaded(true)
+      }
+    }, [userByIdData])
+  );
 
   const [userLocation, setUserLocation] = useState({
     latitude: 0,
