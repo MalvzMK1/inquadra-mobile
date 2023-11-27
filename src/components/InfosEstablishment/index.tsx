@@ -5,7 +5,6 @@ import { InfoEstablishmentCardContentHeader } from "./InfoEstablishmentCardConte
 import { InfoEstablishmentCardContent } from "./InfoEstablishmentCardContent";
 import { InfoEstablishmentCardContentTitle } from "./InfoEstablishmentCardContentTitle";
 import { InfoEstablishmentCardContentDistance } from "./InfoEstablishmentCardContentDistance";
-import { InfoEstablishmentCardContentRating } from "./InfoEstablishmentCardContentRating";
 import { InfoEstablishmentCardContentPaymentProgressBar } from "./InfoCourtEstablishmentContentPaymentProgressBar";
 
 export const InfosEstablishment = {
@@ -16,6 +15,5 @@ export const InfosEstablishment = {
 	ContentHeader: InfoEstablishmentCardContentHeader,
 	ContentCourtType: InfoEstablishmentCardContentTitle,
 	ContentDistance: InfoEstablishmentCardContentDistance,
-	ContentRating: InfoEstablishmentCardContentRating,
 	ContentPaymentProgress: InfoEstablishmentCardContentPaymentProgressBar
 }

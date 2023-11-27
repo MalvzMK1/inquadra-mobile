@@ -32,7 +32,6 @@ export interface IEstablishmentByCourtId {
 					data: Array<{
 						id: Court['id'],
 						attributes: {
-							rating?: Court['rating'],
 							name: Court['fantasy_name'],
 							court_types: {
 								data: Array<{
@@ -115,7 +114,6 @@ export const EstablishmentByCourtIdQuery = gql`
                         data {
                             id
                             attributes {
-                                rating
                                 name
                                 court_types {
                                     data {

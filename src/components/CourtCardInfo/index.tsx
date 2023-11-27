@@ -8,7 +8,6 @@ interface CourtCardInfo {
   userPhoto: string | undefined;
   name: string;
   type: string;
-  rate: number;
   image: string;
   availabilities: boolean | undefined;
 }
@@ -41,12 +40,6 @@ export function CourtCard(props: CourtCardInfo) {
         <Text className="text-[12px] leading-[20px] font-normal">
           {props.type}
         </Text>
-        <View className="flex-row items-center space-x-1">
-          <Text className="flex text-[12px] leading-[20px] font-bold items-center justify-center">
-            Avaliação: {props.rate || "0"}
-          </Text>
-          <Ionicons name="star-sharp" size={20} color="orange" />
-        </View>
 
         <Text className="text-[12px] leading-[20px] font-bold mt-4">
           {props.availabilities || props.availabilities == undefined

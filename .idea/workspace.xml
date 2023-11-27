@@ -5,7 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CourtCardInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtCardInfo/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/InfosEstablishment/InfoEstablishmentCardContentRating.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/InfosEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/InfosEstablishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/EstablishmentByCourtId.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/EstablishmentByCourtId.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/reserveInfos.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/queries/userEstablishmentInfo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/userEstablishmentInfo.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EstablishmentInfo/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/UpdateSchedule/updateSchedule.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/UpdateSchedule/updateSchedule.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/Court.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/Court.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +130,7 @@
       <workItem from="1700645159906" duration="14085000" />
       <workItem from="1700732837508" duration="3000000" />
       <workItem from="1700817970445" duration="4328000" />
-      <workItem from="1701076320205" duration="388000" />
+      <workItem from="1701076320205" duration="1855000" />
     </task>
     <servers />
   </component>

@@ -1095,13 +1095,6 @@ export default function ReservationPaymentSign({
               </Text>
               <Text className="text-base">{distanceText} de distância</Text>
               <View className="flex flex-row">
-                <Text className="text-base">
-                  Avaliação:{" "}
-                  {
-                    dataReserve?.courtAvailability?.data?.attributes?.court
-                      ?.data?.attributes?.rating
-                  }
-                </Text>
                 <View className="pt-1.5 pl-1.5">
                   <FontAwesome name="star" color="#FF4715" size={11} />
                 </View>
