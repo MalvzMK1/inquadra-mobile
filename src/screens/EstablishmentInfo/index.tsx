@@ -20,6 +20,7 @@ const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4;
 
 export default function EstablishmentInfo({
+  navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "EstablishmentInfo">) {
   let distance;
@@ -104,7 +105,7 @@ export default function EstablishmentInfo({
             corporateName: infosEstablishment.attributes.corporateName,
             cellPhoneNumber: infosEstablishment.attributes.cellPhoneNumber,
             streetName: infosEstablishment.attributes.address?.streetName ?? '',
-            latitude: Number(infosEstablishment.attributes.address?.latitude?? 0),
+            latitude: Number(infosEstablishment.attributes.address?.latitude ?? 0),
             longitude: Number(infosEstablishment.attributes.address?.longitude ?? 0),
             photo: infosEstablishment.attributes.logo.data
               ? HOST_API +
@@ -299,22 +300,25 @@ export default function EstablishmentInfo({
             <TouchableOpacity
               className="flex justify-center items-center h-12 w-8"
               onPress={() => {
-                if (route.params.colorState !== undefined && route.params.setColorState !== undefined) {
-                  console.log("caiu no certo")
-                  handlePressFavoriteEstablishment()
-                  if (heart !== true) {
-                    route.params.setColorState("red")
-                    setHeart(true)
+                if (userId !== undefined && userId !== null) {
+                  if (route.params.colorState !== undefined && route.params.setColorState !== undefined) {
+                    handlePressFavoriteEstablishment()
+                    if (heart !== true) {
+                      route.params.setColorState("red")
+                      setHeart(true)
+                    } else {
+                      route.params.setColorState("white")
+                      setHeart(false)
+                    }
                   } else {
-                    route.params.setColorState("white")
-                    setHeart(false)
+                    handlePressFavoriteEstablishment()
+                    heart ? setHeart(false) : setHeart(true)
                   }
-                } else {
-                  console.log("caiu no errado")
-                  handlePressFavoriteEstablishment()
-                  heart ? setHeart(false) : setHeart(true)
+                }else{
+                 navigation.navigate('Login')
                 }
-              }}
+              }
+              }
             >
               {!heart ? (
                 <AntDesign name="hearto" size={26} color="black" />
@@ -357,19 +361,19 @@ export default function EstablishmentInfo({
           <Text className="font-black text-lg">AMENIDADES DO LOCAL</Text>
           {
             (
-                establishmentData &&
-                establishmentData.establishment.data &&
-                establishmentData.establishment.data.attributes.amenities.data.length > 0
+              establishmentData &&
+              establishmentData.establishment.data &&
+              establishmentData.establishment.data.attributes.amenities.data.length > 0
             ) &&
-              establishmentData?.establishment.data?.attributes.amenities.data.map(amenitie => (
-                  amenitie.attributes.iconAmenitie.data &&
-                    <SvgUri
-                      width={12}
-                      height={12}
-                      source={{uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url}}
-                    />
-                )
-              )
+            establishmentData?.establishment.data?.attributes.amenities.data.map(amenitie => (
+              amenitie.attributes.iconAmenitie.data &&
+              <SvgUri
+                width={12}
+                height={12}
+                source={{ uri: HOST_API + amenitie.attributes.iconAmenitie.data.attributes.url }}
+              />
+            )
+            )
           }
         </View>
         <View>
@@ -436,6 +440,6 @@ export default function EstablishmentInfo({
         />
       </View>
       <View className="h-2"></View>
-    </View>
+    </View >
   );
 }
