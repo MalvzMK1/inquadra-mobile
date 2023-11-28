@@ -3,30 +3,13 @@ import { gql } from "@apollo/client";
 export interface IUserPaymentCardResponse {
   createUserPayment: {
     data: {
-      attributes: {
-        value: number;
-        createdAt: Date;
-        user_permissions_user: {
-          data: {
-            attributes: {
-              username: string;
-            };
-          };
-        };
-      };
+      id: string;
     };
   };
 }
 
-enum EPayedStatus {
-  Waiting,
-  Payed,
-  Canceled,
-}
-
 export interface IUserPaymentCardVariables {
   value: number;
-  schedulingId: string | number;
   userId: string | number;
   name: string;
   cpf: string;
@@ -41,14 +24,11 @@ export interface IUserPaymentCardVariables {
   complement: string | null | undefined;
   street: string;
   neighborhood: string;
-  paymentId: string;
-  payedStatus: keyof typeof EPayedStatus;
 }
 
 export const userPaymentCardMutation = gql`
   mutation newUserPayment(
     $value: Float
-    $schedulingId: ID
     $userId: ID
     $name: String
     $cpf: String
@@ -63,17 +43,14 @@ export const userPaymentCardMutation = gql`
     $complement: String
     $street: String
     $neighborhood: String
-    $paymentId: String
-    $payedStatus: ENUM_USERPAYMENT_PAYEDSTATUS
   ) {
     createUserPayment(
       data: {
         value: $value
-        scheduling: $schedulingId
         users_permissions_user: $userId
         name: $name
         cpf: $cpf
-        paymentId: $paymentId
+        paymentId: "undefined"
         country: $countryID
         card: {
           cvv: $cvv
@@ -87,21 +64,11 @@ export const userPaymentCardMutation = gql`
           neighborhood: $neighborhood
         }
         publishedAt: $publishedAt
-        payedStatus: $payedStatus
+        payedStatus: Waiting
       }
     ) {
       data {
-        attributes {
-          value
-          createdAt
-          users_permissions_user {
-            data {
-              attributes {
-                username
-              }
-            }
-          }
-        }
+        id
       }
     }
   }

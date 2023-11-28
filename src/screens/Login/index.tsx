@@ -15,6 +15,7 @@ import {
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
+import {Ionicons} from "@expo/vector-icons";
 
 interface IFormData {
   identifier: string;
@@ -145,7 +146,11 @@ export default function Login() {
   return (
     <>
       <ScrollView className="flex-1 h-max w-max bg-white">
-        <View className="h-16 W-max" />
+        <View className="h-16 w-full  flex items-start justify-start p-2">
+          <TouchableOpacity onPress={navigation.goBack}>
+            <Ionicons name='arrow-back-outline' size={32} />
+          </TouchableOpacity>
+        </View>
         <View className="flex-1 flex items-center justify-center px-7">
           <TouchableOpacity
             onPress={() => {

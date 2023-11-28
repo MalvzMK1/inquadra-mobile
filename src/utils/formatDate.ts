@@ -1,4 +1,4 @@
-import { format, parseISO, differenceInSeconds, formatDuration, intervalToDuration } from 'date-fns';
+import {format, parseISO} from 'date-fns';
 
 export function formatDateTime(dateTimeString: string): string {
     try {
@@ -30,6 +30,5 @@ export function formatDateTime(dateTimeString: string): string {
   
     const yearInFull = currentCentury * 100 + parseInt(year, 10);
 
-    const americanDate = `${yearInFull}-${month}-01`;
-    return americanDate;
+    return `${yearInFull}-${month}-01`;
   }

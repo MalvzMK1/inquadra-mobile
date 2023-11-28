@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/userPaymentCard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/userPaymentCard.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/cieloRequestManager.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/formatDate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/formatDate.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="TypeScript File" />
         <option value="TypeScript JSX File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -77,7 +77,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "80c9814a",
+    "git-widget-placeholder": "WI10580T10604",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -125,6 +125,7 @@
       <workItem from="1700732837508" duration="3000000" />
       <workItem from="1700817970445" duration="4328000" />
       <workItem from="1701076320205" duration="1855000" />
+      <workItem from="1701163349764" duration="12319000" />
     </task>
     <servers />
   </component>
