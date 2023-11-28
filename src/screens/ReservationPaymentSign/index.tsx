@@ -581,7 +581,7 @@ export default function ReservationPaymentSign({
 
 			navigation.navigate("PixScreen", {
 				courtName: courtName!,
-				value: signalValue!.toString(),
+        			value: totalSignalValue!.toString(),
 				userID: userId,
 				QRcodeURL: pixGenerated.Payment.QrCodeString,
 				paymentID: pixGenerated.Payment.PaymentId,
