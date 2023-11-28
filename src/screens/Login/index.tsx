@@ -150,7 +150,6 @@ export default function Login() {
           <TouchableOpacity onPress={navigation.goBack}>
             <Ionicons name='arrow-back-outline' size={32} />
           </TouchableOpacity>
-
         </View>
         <View className="flex-1 flex items-center justify-center px-7">
           <TouchableOpacity
