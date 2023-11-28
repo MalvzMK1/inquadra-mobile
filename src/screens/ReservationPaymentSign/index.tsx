@@ -535,7 +535,7 @@ export default function ReservationPaymentSign({
       }
 
       const totalSignalValue = signalAmount + Number(serviceValue.toFixed(2));
-      const totalSignalValueCents = totalSignalValue * 100;
+      const totalSignalValueCents = totalSignalValue * 100; // <---- VALOR DO PAGAMENTO DO PIX
 
       const pixGenerated = await generatePix({
         MerchantOrderId:
@@ -547,7 +547,7 @@ export default function ReservationPaymentSign({
         },
         Payment: {
           Type: "Pix",
-          Amount: totalSignalValueCents,
+          Amount: 1,
         },
       });
 
