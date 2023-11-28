@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -20,8 +21,6 @@ import Animated, {
 import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
 import EstablishmentCardHome from "../CourtCardHome";
-import { useFocusEffect } from "@react-navigation/native";
-import { useEffect, useState } from "react";
 
 let userId: string;
 
@@ -34,17 +33,19 @@ storage
   })
   .catch(error => {
     if (error instanceof Error) {
-      if (error.name === 'NotFoundError') {
-        console.log('The item wasn\'t found.');
-      } else if (error.name === 'ExpiredError') {
-        console.log('The item has expired.');
-        storage.remove({
-          key: 'userInfos'
-        }).then(() => {
-          console.log('The item has been removed.');
-        })
+      if (error.name === "NotFoundError") {
+        console.log("The item wasn't found.");
+      } else if (error.name === "ExpiredError") {
+        console.log("The item has expired.");
+        storage
+          .remove({
+            key: "userInfos",
+          })
+          .then(() => {
+            console.log("The item has been removed.");
+          });
       } else {
-        console.log('Unknown error:', error);
+        console.log("Unknown error:", error);
       }
     }
   });
@@ -63,7 +64,7 @@ interface HomeBarProps {
   chosenType: string | undefined;
   HandleSportSelected: Function;
   loggedUserId?: string;
-  isUpdated?: any
+  isUpdated?: any;
 }
 
 const screenHeight = Dimensions.get("window").height;
@@ -77,9 +78,8 @@ export default function HomeBar({
   courts,
   userName,
   chosenType,
-  HandleSportSelected,
   isUpdated,
-  loggedUserId
+  loggedUserId,
 }: HomeBarProps) {
   const translateY = useSharedValue(0);
   const height = useSharedValue(minHeight);
@@ -100,37 +100,41 @@ export default function HomeBar({
     loading: userByIdLoading,
   } = useGetUserById(userId ?? "");
 
-  const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>([]);
+  const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
+    [],
+  );
 
-  useEffect(() => {
-    console.log("array:", userFavoriteCourts)
-  }, [userFavoriteCourts])
+  // useEffect(() => {
+  //   console.log("array:", userFavoriteCourts);
+  // }, [userFavoriteCourts]);
 
-  const [isLoaded, setIsLoaded] = useState<boolean>()
+  const [isLoaded, setIsLoaded] = useState<boolean>();
 
   const resetUserInfos = async () => {
     if (
       userByIdData &&
       userByIdData.usersPermissionsUser.data &&
-      userByIdData.usersPermissionsUser.data.attributes.favorite_establishments.data.length > 0
+      userByIdData.usersPermissionsUser.data.attributes.favorite_establishments
+        .data.length > 0
     ) {
-      const idsEstablishementsLikeds = userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
-        item => {
-          return item.id
-        }
-      );
-      setUserFavoriteCourts(idsEstablishementsLikeds!)
+      const idsEstablishementsLikeds =
+        userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
+          item => {
+            return item.id;
+          },
+        );
+      setUserFavoriteCourts(idsEstablishementsLikeds!);
     } else {
-      null
+      null;
     }
   };
 
   useEffect(() => {
     if (!userByIdError && !userByIdLoading) {
-      setIsLoaded(true)
-      console.log("ok")
+      setIsLoaded(true);
+      // console.log("ok");
     }
-  }, [userByIdError, userByIdLoading])
+  }, [userByIdError, userByIdLoading]);
 
   useEffect(() => {
     if (isLoaded) {
@@ -141,6 +145,7 @@ export default function HomeBar({
   const verifyCourtLike = (courtId: string) => {
     return userFavoriteCourts?.includes(courtId);
   };
+
   const result = courts.filter(item => {
     if (chosenType) {
       const ampersandSeparated = item.type.split(" & ").join(",").split(",");
@@ -153,7 +158,7 @@ export default function HomeBar({
       entering={FadeIn.duration(500)}
       exiting={FadeOut.duration(500)}
       className="w-full"
-      style={[animatedStyle, { backgroundColor: "#292929" }]}
+      style={animatedStyle}
     >
       <PanGestureHandler
         onGestureEvent={event => {
@@ -214,9 +219,7 @@ export default function HomeBar({
                     />
                   );
                 })
-            ) : (
-              <></>
-            )
+            ) : null
           ) : (
             courts.map(item => (
               <EstablishmentCardHome
@@ -235,10 +238,10 @@ export default function HomeBar({
             ))
           )
         ) : (
-            <ActivityIndicator size="large" color="#FF6112" />        
+          <ActivityIndicator size="large" color="#FF6112" />
         )}
-            <View className="h-10"></View>
-          </ScrollView>
+        <View className="h-10"></View>
+      </ScrollView>
     </Animated.View>
   );
 }

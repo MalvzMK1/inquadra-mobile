@@ -1,18 +1,17 @@
 import { AntDesign } from "@expo/vector-icons";
-import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
-import { useEffect, useRef, useState } from "react";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useUpdateFavoriteCourt from "../../hooks/useUpdateFavoriteCourt";
 import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
-import React from "react";
 
 export default function EstablishmentCardHome(props: CourtCardInfos) {
   const [userId, setUserId] = useState<string | undefined>("");
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [color, setColor] = useState<string>("white");
-  const [isLoaded, setIsLoaded] = useState<boolean>()
+  const [isLoaded, setIsLoaded] = useState<boolean>();
   const [isLikeLoading, setIsLikeLoading] = useState<boolean>();
 
   const {
@@ -23,15 +22,13 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
 
   useEffect(() => {
     if (!userByIdError && !userByIdLoading) {
-      setIsLoaded(true)
+      setIsLoaded(true);
     }
-  }, [userByIdError, userByIdLoading])
+  }, [userByIdError, userByIdLoading]);
 
   useEffect(() => {
     if (isLoaded) {
-      props.liked
-        ? setColor("red")
-        : setColor("white");
+      props.liked ? setColor("red") : setColor("white");
     }
   }, [isLoaded]);
 
@@ -45,20 +42,22 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
       })
       .catch(error => {
         if (error instanceof Error) {
-          if (error.name === 'NotFoundError') {
-            console.log('The item wasn\'t found.');
-            setUserId(undefined)
-          } else if (error.name === 'ExpiredError') {
-            console.log('The item has expired.');
-            storage.remove({
-              key: 'userInfos'
-            }).then(() => {
-              console.log('The item has been removed.');
-              setUserId(undefined)
-            })
+          if (error.name === "NotFoundError") {
+            console.log("The item wasn't found.");
+            setUserId(undefined);
+          } else if (error.name === "ExpiredError") {
+            console.log("The item has expired.");
+            storage
+              .remove({
+                key: "userInfos",
+              })
+              .then(() => {
+                console.log("The item has been removed.");
+                setUserId(undefined);
+              });
           } else {
-            console.log('Unknown error:', error);
-            setUserId(undefined)
+            console.log("Unknown error:", error);
+            setUserId(undefined);
           }
         }
       });
@@ -66,7 +65,6 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
 
   const [updateLikedCourts, { data, error, loading }] =
     useUpdateFavoriteCourt();
-
 
   const handleUpdateCourtLike = async (courtId: string): Promise<void> => {
     setIsLikeLoading(true);
@@ -101,99 +99,109 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
           .catch(reason => {
             alert(reason);
             setIsLikeLoading(false);
-          }).finally(() => {props.setUserFavoriteCourts(updatedCourts)})
+          })
+          .finally(() => {
+            props.setUserFavoriteCourts(updatedCourts);
+          });
       }
     }
   };
 
   return (
     <View className="flex flex-row w-full justify-between">
-      {
-        isLoaded
-          ?
-          <>
-            <TouchableOpacity
-              className="flex flex-row  gap-x-[14px] mb-5 flex-1"
-              onPress={() => {
-                navigation.navigate("EstablishmentInfo", {
-                  establishmentId: props.id,
-                  userId: userId,
-                  userPhoto: userByIdData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ?? undefined,
-                  colorState: color,
-                  setColorState: setColor
-                })
-              }
-              }
-            >
-              <Image
-                className="w-[45%] w-[115px] h-[85px] rounded-[10px]"
-                source={{ uri: props.image }}
-              />
-              <View className="flex mt-1">
-                <Text className="text-[#ff6112] font-black text-[15px]">
-                  {props.name}
-                </Text>
-                <Text className="text-white font-bold text-xs">
-                  {Array.isArray(props.type) ? props.type.join(" & ") : props.type}
-                </Text>
-                <Text className="text-white font-bold text-xs">
-                  {props.distance.toFixed(2).replace(".", ",")}km
-                </Text>
-              </View>
-            </TouchableOpacity>
-            {props.loggedUserId ? (
-              !isLikeLoading ?
-                <TouchableOpacity
-                  onPress={() => {
-                    console.log("click")
-                    color === "white" ? setColor("red") : setColor("white");
-                    console.log("changed", color)
-                    handleUpdateCourtLike(props.id)
-                  }}
-                >
-                  <AntDesign name="heart" size={20} color={color} />
-                </TouchableOpacity>
-                : <TouchableOpacity >
-                  <ActivityIndicator size={'small'} color={'red'} />
-                </TouchableOpacity>
-
-            ) : null}
-          </>
-          : userId !== "" && userId !== undefined
-            ? <View className="w-max h-max flex justify-center items-center"><ActivityIndicator size={48} color="#FF6112" /></View>
-            : <>
+      {isLoaded ? (
+        <>
+          <TouchableOpacity
+            className="flex flex-row  gap-x-[14px] mb-5 flex-1"
+            onPress={() => {
+              navigation.navigate("EstablishmentInfo", {
+                establishmentId: props.id,
+                userId: userId,
+                userPhoto:
+                  userByIdData?.usersPermissionsUser.data?.attributes.photo.data
+                    ?.attributes.url ?? undefined,
+                colorState: color,
+                setColorState: setColor,
+              });
+            }}
+          >
+            <Image
+              className="w-[45%] w-[115px] h-[85px] rounded-[10px]"
+              source={{ uri: props.image }}
+            />
+            <View className="flex mt-1">
+              <Text className="text-[#ff6112] font-black text-[15px]">
+                {props.name}
+              </Text>
+              <Text className="text-white font-bold text-xs">
+                {Array.isArray(props.type)
+                  ? props.type.join(" & ")
+                  : props.type}
+              </Text>
+              <Text className="text-white font-bold text-xs">
+                {props.distance.toFixed(2).replace(".", ",")}km
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {props.loggedUserId ? (
+            !isLikeLoading ? (
               <TouchableOpacity
-                className="flex flex-row  gap-x-[14px] mb-5 flex-1"
                 onPress={() => {
-                  navigation.navigate("EstablishmentInfo", {
-                    establishmentId: props.id,
-                    userId: userId,
-                    userPhoto: userByIdData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url ?? undefined,
-                    colorState: color,
-                    setColorState: setColor
-                  })
-                }
-                }
+                  console.log("click");
+                  color === "white" ? setColor("red") : setColor("white");
+                  console.log("changed", color);
+                  handleUpdateCourtLike(props.id);
+                }}
               >
-                <Image
-                  className="w-[45%] w-[115px] h-[85px] rounded-[10px]"
-                  source={{ uri: props.image }}
-                />
-                <View className="flex mt-1">
-                  <Text className="text-[#ff6112] font-black text-[15px]">
-                    {props.name}
-                  </Text>
-                  <Text className="text-white font-bold text-xs">
-                    {Array.isArray(props.type) ? props.type.join(" & ") : props.type}
-                  </Text>
-                  <Text className="text-white font-bold text-xs">
-                    {props.distance.toFixed(2).replace(".", ",")}km
-                  </Text>
-                </View>
+                <AntDesign name="heart" size={20} color={color} />
               </TouchableOpacity>
-            </>
-      }
-
+            ) : (
+              <TouchableOpacity>
+                <ActivityIndicator size={"small"} color={"red"} />
+              </TouchableOpacity>
+            )
+          ) : null}
+        </>
+      ) : userId !== "" && userId !== undefined ? (
+        <View className="w-max h-max flex justify-center items-center">
+          <ActivityIndicator size={48} color="#FF6112" />
+        </View>
+      ) : (
+        <>
+          <TouchableOpacity
+            className="flex flex-row  gap-x-[14px] mb-5 flex-1"
+            onPress={() => {
+              navigation.navigate("EstablishmentInfo", {
+                establishmentId: props.id,
+                userId: userId,
+                userPhoto:
+                  userByIdData?.usersPermissionsUser.data?.attributes.photo.data
+                    ?.attributes.url ?? undefined,
+                colorState: color,
+                setColorState: setColor,
+              });
+            }}
+          >
+            <Image
+              className="w-[45%] w-[115px] h-[85px] rounded-[10px]"
+              source={{ uri: props.image }}
+            />
+            <View className="flex mt-1">
+              <Text className="text-[#ff6112] font-black text-[15px]">
+                {props.name}
+              </Text>
+              <Text className="text-white font-bold text-xs">
+                {Array.isArray(props.type)
+                  ? props.type.join(" & ")
+                  : props.type}
+              </Text>
+              <Text className="text-white font-bold text-xs">
+                {props.distance.toFixed(2).replace(".", ",")}km
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }

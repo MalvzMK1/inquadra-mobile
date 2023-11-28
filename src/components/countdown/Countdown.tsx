@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { useEffect, useState } from "react";
+import { Text } from "react-native";
 
 interface CountdownProps {
   targetDate: Date;
@@ -42,21 +42,20 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
   }, [targetDate]);
 
   const formatTime = (value: number) => {
-    return value.toString().padStart(2, '0');
+    return value.toString().padStart(2, "0");
   };
 
-  const isPaymentExpired = +targetDate < +new Date();
+  const isPaymentExpired = targetDate < new Date();
 
   return (
-    <Text className='font-black text-xs text-center text-white'>
+    <Text className="font-black text-xs text-center text-white">
       {isPaymentExpired
-        ? 'Pagamento vencido'
+        ? "Pagamento vencido"
         : timeLeft.days > 0
         ? `Tempo restante para o pagamento: ${timeLeft.days} dias ${timeLeft.hours} horas ${timeLeft.minutes} minutos`
         : `Tempo restante: ${timeLeft.hours} horas ${timeLeft.minutes} minutos`}
     </Text>
   );
 };
-
 
 export default Countdown;
