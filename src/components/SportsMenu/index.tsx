@@ -22,24 +22,9 @@ const arrayIcons = [
     activeImage: activeIconFutebol,
   },
   {
-    id: 2,
-    image: iconBTennis,
-    activeImage: activeIconBTennis,
-  },
-  {
-    id: 3,
-    image: iconFutebol,
-    activeImage: activeIconFutebol,
-  },
-  {
     id: 4,
-    image: iconVoley,
-    activeImage: activeIconVoley,
-  },
-  {
-    id: 5,
-    image: iconFVoley,
-    activeImage: activeIconFVoley,
+    image: iconBasquete,
+    activeImage: activeIconBasquete,
   },
   {
     id: 6,
@@ -47,9 +32,24 @@ const arrayIcons = [
     activeImage: activeIconTennis,
   },
   {
+    id: 5,
+    image: iconBTennis,
+    activeImage: activeIconBTennis,
+  },
+  {
     id: 7,
-    image: iconBasquete,
-    activeImage: activeIconBasquete,
+    image: iconVoley,
+    activeImage: activeIconVoley,
+  },
+  {
+    id: 3,
+    image: iconFutebol,
+    activeImage: activeIconFutebol,
+  },
+  {
+    id: 2,
+    image: iconFVoley,
+    activeImage: activeIconFVoley,
   },
 ];
 
