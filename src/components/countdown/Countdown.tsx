@@ -11,41 +11,39 @@ interface TimeLeft {
   minutes: number;
 }
 
-const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
-  const calculateTimeLeft = () => {
-    const difference = +targetDate - +new Date();
-    let timeLeft: TimeLeft = {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-    };
-
-    if (difference > 0) {
-      timeLeft = {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-      };
-    }
-
-    return timeLeft;
+const calculateTimeLeft = (targetDate: Date) => {
+  const difference = +targetDate - +new Date();
+  let timeLeft: TimeLeft = {
+    days: 0,
+    hours: 0,
+    minutes: 0,
   };
 
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
+  if (difference > 0) {
+    timeLeft = {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+    };
+  }
+
+  return timeLeft;
+};
+
+const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => {
+    return calculateTimeLeft(targetDate);
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
+      setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);
 
     return () => clearInterval(interval);
   }, [targetDate]);
 
-  const formatTime = (value: number) => {
-    return value.toString().padStart(2, "0");
-  };
-
-  const isPaymentExpired = targetDate < new Date();
+  const isPaymentExpired = targetDate.getTime() < new Date().getTime();
 
   return (
     <Text className="font-black text-xs text-center text-white">

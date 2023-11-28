@@ -4,82 +4,84 @@ export interface IinfoScheduleResponse {
   scheduling: {
     data: {
       attributes: {
-        date: Scheduling['date']
-        payedStatus: string
-        createdAt: Date
-        serviceRate: number
-        valuePayed: number
-        payDay: Date
-        activationKey: string
-        activated: boolean
-        status: boolean
+        date: string;
+        payedStatus: string;
+        createdAt: string;
+        serviceRate: number;
+        valuePayed: number;
+        payDay: string;
+        activationKey: string;
+        activated: boolean;
+        status: boolean;
         court_availability: {
           data: {
             attributes: {
-              value: number
-              status: boolean
+              value: number;
+              status: boolean;
+              startsAt: string;
+              endsAt: string;
               court: {
                 data: {
-                  id: Court['id']
+                  id: Court["id"];
                   attributes: {
-                    fantasy_name: string
-                    name: string
+                    fantasy_name: string;
+                    name: string;
                     photo: {
                       data: Array<{
                         attributes: {
-                          url: string
-                        }
-                      }>
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                          url: string;
+                        };
+                      }>;
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
         user_payments: {
           data: Array<{
             attributes: {
               users_permissions_user: {
                 data: {
                   attributes: {
-                    username: string
-                  }
-                }
-              }
-              value: number
-              createdAt: Date
-            }
-          }>
-        }
+                    username: string;
+                  };
+                };
+              };
+              value: number;
+              createdAt: string;
+            };
+          }>;
+        };
         user_payment_pixes: {
           data: Array<{
             attributes: {
               users_permissions_user: {
                 data: {
                   attributes: {
-                    username: string
-                  }
-                }
-              }
-              value: number
-              createdAt: string
-            }
-          }>
-        }
+                    username: string;
+                  };
+                };
+              };
+              value: number;
+              createdAt: string;
+            };
+          }>;
+        };
         owner: {
           data: {
-            id: string
-          }
-        }
-      }
-    }
-  }
+            id: string;
+          };
+        };
+      };
+    };
+  };
 }
 
 export interface IinfoScheduleVariables {
-  idScheduling: string
-  idUser: string
+  idScheduling: string;
+  idUser: string;
 }
 
 export const infoSchedule = gql`
@@ -101,6 +103,8 @@ export const infoSchedule = gql`
               attributes {
                 status
                 value
+                startsAt
+                endsAt
                 court {
                   data {
                     id
@@ -169,4 +173,4 @@ export const infoSchedule = gql`
       }
     }
   }
-`
+`;

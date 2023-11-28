@@ -10,6 +10,7 @@ export interface IUserPaymentCardResponse {
 
 export interface IUserPaymentCardVariables {
   value: number;
+  schedulingId: string | number;
   userId: string | number;
   name: string;
   cpf: string;
@@ -24,6 +25,8 @@ export interface IUserPaymentCardVariables {
   complement: string | null | undefined;
   street: string;
   neighborhood: string;
+  paymentId: string;
+  payedStatus: "Waiting" | "Payed" | "Canceled";
 }
 
 export const userPaymentCardMutation = gql`
