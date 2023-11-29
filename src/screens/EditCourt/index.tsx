@@ -28,6 +28,7 @@ import {
   indexToWeekDayMap,
   weekDayToIndexMap,
 } from "../../utils/constants";
+import { formatCurrency } from "../../utils/formatCurrency";
 import storage from "../../utils/storage";
 import { Appointment } from "../CourtPriceHour";
 
@@ -67,6 +68,7 @@ export default function EditCourt({
   const { data: courtByIdData, loading: loadingCourt } = useCourtById(
     courtId ?? "",
     {
+      fetchPolicy: "cache-and-network",
       onCompleted(data) {
         setPhoto(
           data.court.data.attributes.photo.data.at(0)?.attributes.url ?? "",
@@ -190,7 +192,7 @@ export default function EditCourt({
             data.allAvailabilities[index].push({
               startsAt: availability.attributes.startsAt.slice(0, 5),
               endsAt: availability.attributes.endsAt.slice(0, 5),
-              price: availability.attributes.value.toString(),
+              price: formatCurrency(availability.attributes.value),
             });
 
             data.dayUse[index] = availability.attributes.dayUseService;
@@ -345,7 +347,7 @@ export default function EditCourt({
             data.allAvailabilities[index].push({
               startsAt: availability.attributes.startsAt.slice(0, 5),
               endsAt: availability.attributes.endsAt.slice(0, 5),
-              price: availability.attributes.value.toString(),
+              price: formatCurrency(availability.attributes.value),
             });
 
             data.dayUse[index] = availability.attributes.dayUseService;
