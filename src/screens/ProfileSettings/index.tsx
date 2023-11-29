@@ -19,7 +19,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {RNFetchBlob} from 'react-native-fetch-blob';
 import { SelectList } from "react-native-dropdown-select-list";
 import { showMessage } from "react-native-flash-message";
 import MaskInput, { Masks } from "react-native-mask-input";
