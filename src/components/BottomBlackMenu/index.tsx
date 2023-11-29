@@ -52,9 +52,10 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 											if (
 												userID === '' ||
 												userID === '0' ||
-												!userID
-											)
+												userID === undefined
+											){
 												navigation.navigate('Login')
+											}
 											else
 												navigation.navigate('FavoriteEstablishments', {
 													userPhoto: userPhoto ?? "",
@@ -129,9 +130,13 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 													if (
 														userID === '' ||
 														userID === '0' ||
-														!userID
-													)
+														userID === undefined
+													){
+														console.log("_______________________")
+														console.log("_______________________")
+														console.log("CLicou aqui na tela Historico")
 														navigation.navigate('Login')
+													}
 													else
 														navigation.navigate('FavoriteEstablishments', {
 															userPhoto: userPhoto ?? "",
@@ -171,9 +176,13 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 														if (
 															userID === '' ||
 															userID === '0' ||
-															!userID
-														)
+															userID === undefined
+														){
+															console.log("_______________________")
+															console.log("_______________________")
+															console.log("clicou no EstablishmentInfo")
 															navigation.navigate('Login')
+														}
 														else
 															navigation.navigate('FavoriteEstablishments', {
 																userPhoto: userPhoto ? userPhoto : undefined,
@@ -223,9 +232,14 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 															if (
 																userID === '' ||
 																userID === '0' ||
-																!userID
+																userID === undefined
 															)
+															{
+																console.log("_______________________")
+																console.log("_______________________")
+																console.log("Clicou no else")
 																navigation.navigate('Login')
+															}
 															else
 																navigation.navigate('Home', {
 																	userGeolocation: userGeolocation ? userGeolocation : {
