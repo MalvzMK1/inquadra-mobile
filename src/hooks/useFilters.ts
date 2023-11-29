@@ -7,21 +7,21 @@ import {
 
 export default function useFilters({ amenities, dayUseService, endsAt, startsAt, weekDay }: IVariableFilter): QueryResult<IFilters> {
 
-  let query: IVariableFilter = {}
+  let query: IVariableFilter = {};
 
-  if (amenities.length > 0 && amenities !== null) {
+  if (amenities && amenities.length > 0) {
     query.amenities = amenities;
   }
   if (dayUseService !== undefined && dayUseService !== null) {
     query.dayUseService = dayUseService;
   }
-  if (endsAt) {
+  if (endsAt !== undefined) {
     query.endsAt = endsAt;
   }
-  if (startsAt) {
+  if (startsAt !== undefined) {
     query.startsAt = startsAt;
   }
-  if (weekDay) {
+  if (weekDay !== undefined) {
     query.weekDay = weekDay;
   }
 
