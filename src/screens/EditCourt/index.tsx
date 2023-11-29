@@ -210,8 +210,7 @@ export default function EditCourt({
             source={{
               uri:
                 HOST_API +
-                courtByIdData?.court.data.attributes.photo.data[0].attributes
-                  .url,
+                photo
             }}
           ></Image>
 
