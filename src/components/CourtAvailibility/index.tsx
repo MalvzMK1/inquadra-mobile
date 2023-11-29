@@ -55,18 +55,24 @@ export default function CourtAvailibility(props: CourtAvailibility) {
   return (
     <TouchableOpacity
       onPress={() => props.toggleTimeSelection(props.id, props.price)}
-      className={`flex flex-row h-fit space-x-4 w-max border rounded-[25px] p-[15px] mb-[5px] items-center justify-between px-2${
-        props.selectedTimes
-          ? props.selectedTimes.id == props.id
-            ? "bg-[#f3ffe4]"
-            : ""
-          : ""
-      } `}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: 15,
+        marginBottom: 5,
+        borderRadius: 25,
+        borderWidth: 1,
+        backgroundColor:
+          props.selectedTimes && props.selectedTimes.id === props.id
+            ? "#ff7c36"
+            : "transparent",
+      }}
     >
-      <Text className="font-black text-[15px]">
+      <Text style={{ fontSize: 15 }}>
         {props.startsAt} - {props.endsAt}
       </Text>
-      <Text className="font-black text-[15px]">{status}</Text>
+      <Text style={{ fontSize: 15 }}>{status}</Text>
     </TouchableOpacity>
   );
 }
