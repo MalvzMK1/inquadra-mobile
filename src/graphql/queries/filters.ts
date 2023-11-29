@@ -68,11 +68,11 @@ export interface IFilters {
 
 
 export interface IVariableFilter {
-  amenities: string[] | [],
-  startsAt: string | undefined,
-  endsAt: string | undefined,
-  dayUseService: boolean | undefined,
-  weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
+  amenities?: string[] | [],
+  startsAt?: string | undefined,
+  endsAt?: string | undefined,
+  dayUseService?: boolean | undefined,
+  weekDay?: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
 }
 
 export const filtersQuery = gql`
@@ -83,49 +83,39 @@ query filters(
   $dayUseService: Boolean,
   $weekDay: String
 ) {
-  establishments(filters: {
-    amenities: {
-      name: {
-        in: $amenities
-      }
-    }
-    courts: {
-      court_availabilities: {
-        startsAt: {
-          contains: $startsAt
-        }
-        endsAt: {
-          contains: $endsAt
-        }
-        dayUseService: {
-          eq: $dayUseService
-        }
-        weekDay: {
-          eq: $weekDay
+  establishments(
+    filters: {
+      amenities: { name: { in: $amenities } }
+      courts: {
+        court_availabilities: {
+          startsAt: { gte: $startsAt }
+          endsAt: { lte: $endsAt }
+          dayUseService: { eq: $dayUseService }
+          weekDay: { eq: $weekDay }
         }
       }
     }
-  }) {
+  ) {
     data {
       id
       attributes {
         corporateName
-	      logo {
-	        data {
-		          attributes {
-			            url
-		          }
-	        }
-	      }
-        photos {
-            data {
-                attributes {
-                 name
-                 width
-                 height
-                 url
-                }
+        logo {
+          data {
+            attributes {
+              url
             }
+          }
+        }
+        photos {
+          data {
+            attributes {
+              name
+              width
+              height
+              url
+            }
+          }
         }
         address {
           latitude
@@ -148,6 +138,7 @@ query filters(
     }
   }
 }
+
 
 `
 

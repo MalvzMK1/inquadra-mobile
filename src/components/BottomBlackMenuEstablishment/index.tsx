@@ -37,10 +37,6 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
         };
     });
 
-
-    console.log("ID do usuario:", userID)
-    console.log("ID do estabelecimento", establishmentID)
-
     storage.load<{ latitude: number, longitude: number }>({
         key: 'userGeolocation'
     }).then(data => setUserGeolocation(data))

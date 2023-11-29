@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform } from 'react-native'
 import FilterDropdown from '../FilterDropdown'
 import Animated, {
     FadeOut,
@@ -206,6 +206,7 @@ export default function FilterComponent(props: {
                             textColor='white'
                             style={{ marginTop: 15, marginBottom: 10 }}
                             onPress={() => {
+                                console.log("filtrão:", filter)
                                 props.setFilter(filter)
                                 props.setBurguer(false)
                                 props.setIsDisabled(true)
