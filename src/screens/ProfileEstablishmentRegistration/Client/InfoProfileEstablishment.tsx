@@ -12,7 +12,6 @@ import {
 	FlatList, GestureResponderEvent
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, NavigationProp } from "@react-navigation/native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
@@ -36,6 +35,8 @@ import { HOST_API } from "@env";
 import axios from 'axios';
 import useDeletePhoto from "../../../hooks/useDeletePhoto";
 import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentPhotos";
+import useUpdateEstablishmentUser from "../../../hooks/useUpdateEstablishmentUser";
+import useUpdateEstablishmentLogo from "../../../hooks/useUpdateEstablishmentLogo";
 
 export default function InfoProfileEstablishment({ navigation, route }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
 	const [userId, setUserId] = useState("")
@@ -132,7 +133,8 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 	const { control: controlPixKey, handleSubmit: handleSubmitPixKey, formState: { errors: pixKeyErrors } } = useForm<IPixKeyFormData>({
 		resolver: zodResolver(pixKeyFormSchema)
 	})
-	const [updateUserHook, { data: updateUserData, error: updateUserError, loading: updateUserLoading }] = useUpdateUser()
+	const [updateUserHook] = useUpdateEstablishmentUser()
+	const [updateEstablishmentLogo] = useUpdateEstablishmentLogo()
 	const [updateEstablishmentAddressHook, { data, error, loading }] = useUpdateEstablishmentAddress()
 	const [updateEstablishmentFantasyNameHook, { data: updateFantasyNameData, error: updateFantasyNameError, loading: updateFantasyNameLoading }] = useUpdateEstablishmentFantasyName()
 
@@ -220,32 +222,43 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 						email: userDatas.email,
 						phone_number: userDatas.phoneNumber,
 						cpf: cpf!,
-						photo: uploadedImageID
 					}
 				}).then(value => {
-					alert(value.data?.updateUsersPermissionsUser.data?.attributes.username)
+					// alert(value.data?.updateUsersPermissionsUser.data?.attributes.username)
 				})
 					.catch((reason) => alert(reason))
 					.finally(() => setUpdateUserIsLoading(false))
 
 			} else {
-				const uploadedImageID = await uploadImage(profilePicture!);
+				if (establishmentId) {
+					const uploadedImageID = await uploadImage(profilePicture!);
 
-				const userDatas = {
-					...data,
-				}
-				updateUserHook({
-					variables: {
-						user_id: userId,
-						username: userDatas.userName,
-						email: userDatas.email,
-						phone_number: userDatas.phoneNumber,
-						cpf: cpf!,
-						photo: uploadedImageID
+					const userDatas = {
+						...data,
 					}
-				})
+					updateUserHook({
+						variables: {
+							user_id: userId,
+							username: userDatas.userName,
+							email: userDatas.email,
+							phone_number: userDatas.phoneNumber,
+							cpf: cpf!,
+						}
+					}).then(response => {
+						if (
+							response.data &&
+							response.data.userPermissionsUser.data
+						) {
+							updateEstablishmentLogo({
+								variables: {
+									establishment_id: establishmentId,
+									photo_id: uploadedImageID
+								}
+							})
+						}
+					})
+				}
 			}
-
 		} catch (error) {
 			console.log(error)
 		}
@@ -453,39 +466,34 @@ export default function InfoProfileEstablishment({ navigation, route }: NativeSt
 
 	const uploadImage = async (selectedImageUri: string) => {
 		setUploadImageIsLoading(true);
+
 		const formData = new FormData();
-		formData.append('files', {
+		formData.append("files", {
 			uri: selectedImageUri,
-			name: 'image.jpg',
-			type: 'image/jpeg',
+			name: "profile.jpg",
+			type: "image/jpeg",
 		});
 
-		const apiUrl = HOST_API;
-
 		try {
-			const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+			const response = await axios.post(`${HOST_API}/api/upload`, formData, {
 				headers: {
-					'Content-Type': 'multipart/form-data',
+					"Content-Type": "multipart/form-data",
 				},
 			});
 
-			const uploadedImage = response.data[0];
+			const uploadedImageID = response.data[0].id;
 
-			console.log("uploadedImageID")
-
-			console.log('Imagem enviada com sucesso!', response.data);
+			console.log("Imagem enviada com sucesso!", response.data);
 
 			setUploadImageIsLoading(false);
 
-			return uploadedImage;
+			return uploadedImageID;
 		} catch (error) {
-			console.error('Erro ao enviar imagem:', error);
+			console.error("Erro ao enviar imagem:", JSON.stringify(error, null, 2));
 			setUploadImageIsLoading(false);
 			return "Deu erro";
 		}
 	};
-
-
 
 	const handleProfilePictureUpload = async () => {
 		try {

@@ -4,6 +4,6 @@ import {
 	IUpdateEstablishmentLogoVariables, updateEstablishmentLogoMutation
 } from "../graphql/mutations/updateEstablishmentLogo";
 
-export default function useUpdateEstablishmentUser(): MutationTuple<IUpdateEstablishmentLogoResponse, IUpdateEstablishmentLogoVariables> {
+export default function useUpdateEstablishmentLogo(): MutationTuple<IUpdateEstablishmentLogoResponse, IUpdateEstablishmentLogoVariables> {
 	return useMutation<IUpdateEstablishmentLogoResponse, IUpdateEstablishmentLogoVariables>(updateEstablishmentLogoMutation);
 }
