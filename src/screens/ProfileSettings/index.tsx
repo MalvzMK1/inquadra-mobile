@@ -335,36 +335,40 @@ export default function ProfileSettings({
     setIsLoading(true);
     const apiUrl = HOST_API;
   
-    try {  
-      const response = await RNFetchBlob.fetch(
-        'POST',
-        `${apiUrl}/api/upload`,
-        {
-          'Content-Type': 'multipart/form-data',
+    try {
+      const formData = new FormData();
+  
+      const response = await fetch(selectedImageUri);
+      const blob = await response.blob();
+      
+      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as ArrayBuffer);
+        reader.onerror = (error) => reject(error);
+        reader.readAsArrayBuffer(blob);
+      });
+  
+      formData.append("files", new Blob([arrayBuffer]), "profile.jpg");
+  
+      const axiosResponse = await axios.post(`${apiUrl}/api/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        [
-          {
-            name: 'files',
-            filename: 'profile.jpg',
-            data: RNFetchBlob.wrap(selectedImageUri),
-          },
-        ],
-      );
+      });
   
-      const uploadedImageID = response.data[0].id;
+      const uploadedImageID = axiosResponse.data[0].id;
   
-      console.log('Imagem enviada com sucesso!', response.data);
+      console.log("Imagem enviada com sucesso!", axiosResponse.data);
   
       setIsLoading(false);
   
       return uploadedImageID;
     } catch (error) {
-      console.error('Erro ao enviar imagem:', error);
+      console.error("Erro ao enviar imagem:", error);
       setIsLoading(false);
-      return 'Deu erro';
+      return "Deu erro";
     }
   };
-  
 
   interface IUpdateUserValidatingPhotoProps {
     user_id: string;
