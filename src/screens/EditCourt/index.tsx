@@ -19,8 +19,9 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
+import { CreateCourtAvailabilitiesVariables } from "../../graphql/mutations/createCourtAvailabilities";
 import useCourtById from "../../hooks/useCourtById";
-import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
+import useCreateCourtAvailabilities from "../../hooks/useCreateCourtAvailabilities";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import useUpdateCourt from "../../hooks/useUpdateCourt";
 import {
@@ -64,7 +65,7 @@ export default function EditCourt({
   const { data: sportTypesData } = useSportTypes();
   const [updateCourtHook] = useUpdateCourt();
   const [isOpeningCourtPriceHour, setIsOpeningCourtPriceHour] = useState(false);
-  const [registerCourtAvailability] = useRegisterCourtAvailability();
+  const [createCourtAvailabilities] = useCreateCourtAvailabilities();
   const { data: courtByIdData, loading: loadingCourt } = useCourtById(
     courtId ?? "",
     {
@@ -242,9 +243,11 @@ export default function EditCourt({
         return Alert.alert("Erro", "Preencha os valores e horários.");
       }
 
-      const courtAvailabilityIds = await Promise.all(
-        allAvailabilities.flatMap((availabilities, index) => {
-          return availabilities.map(async availability => {
+      const courtAvailabilityIds: string[] = [];
+
+      const courtAvailabilitiesData = allAvailabilities.reduce(
+        (data, availabilities, index) => {
+          availabilities.forEach(availability => {
             const isDayUse = dayUse[index];
             const weekDay = indexToWeekDayMap[index];
             const startsAt = `${availability.startsAt}:00.000`;
@@ -272,31 +275,56 @@ export default function EditCourt({
               )?.id;
 
             if (existingId) {
-              return existingId;
-            }
-
-            const { data } = await registerCourtAvailability({
-              variables: {
+              courtAvailabilityIds.push(existingId);
+            } else {
+              data.push({
                 status: true,
                 starts_at: startsAt,
                 day_use_service: isDayUse,
                 ends_at: endsAt,
                 value: price,
                 week_day: weekDay,
+                court: courtId,
                 publishedAt: new Date().toISOString(),
-              },
-            });
-
-            if (!data) {
-              throw new Error(
-                "Não foi possível criar as disponibilidades de quadra",
-              );
+              });
             }
-
-            return data.createCourtAvailability.data.id;
           });
-        }),
+
+          return data;
+        },
+        [] as CreateCourtAvailabilitiesVariables["data"],
       );
+
+      if (courtAvailabilitiesData.length > 0) {
+        const accessToken = (
+          await storage.load<UserInfos>({ key: "userInfos" })
+        ).token;
+
+        const { data: createAvailabilitiesData } =
+          await createCourtAvailabilities({
+            variables: {
+              data: courtAvailabilitiesData,
+            },
+            context: {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
+          });
+
+        if (
+          !createAvailabilitiesData?.createCourtAvailabilitiesCustom.success
+        ) {
+          console.log("erro", createAvailabilitiesData);
+          throw new Error(
+            "Não foi possível criar as disponibilidades de quadra",
+          );
+        }
+
+        courtAvailabilityIds.push(
+          ...createAvailabilitiesData.createCourtAvailabilitiesCustom.ids,
+        );
+      }
 
       await updateCourtHook({
         variables: {
