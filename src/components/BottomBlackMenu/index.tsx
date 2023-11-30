@@ -2,11 +2,6 @@ import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Image, TouchableOpacity, View } from "react-native";
-import {
-	useAnimatedStyle,
-	useSharedValue,
-	withTiming,
-} from "react-native-reanimated";
 import storage from "../../utils/storage";
 
 interface IBottomBlackMenu {
@@ -18,32 +13,24 @@ interface IBottomBlackMenu {
 }
 
 export default function BottomBlackMenu(props: IBottomBlackMenu) {
-	const { screen, userID, userPhoto, isDisabled, paddingTop } = props;
+	const { screen, userID, userPhoto, paddingTop } = props;
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const [userGeolocation, setUserGeolocation] = useState<{
-		latitude: number;
-		longitude: number;
+		latitude: number; longitude: number;
 	}>();
 	const [userIdStorage, setUserIdStorage] = useState<string | undefined>();
-	const [showPrincipalButton, setPrincipalButton] = useState(true);
 	const [showButtons, setShowButtons] = useState(true);
-	const [statusClickHome, setStatusClickHome] = useState(false);
-	const opacityValue = useSharedValue(0);
-	const buttonsContainerStyle = useAnimatedStyle(() => {
-		return {
-			opacity: withTiming(opacityValue.value, { duration: 300 }), // Duração da animação (300ms)
-		};
-	});
 
 	storage
 		.load<{ latitude: number; longitude: number }>({
 			key: "userGeolocation",
 		})
-		.then(data => setUserGeolocation(data));
+		.then(data => setUserGeolocation(data))
+		.catch(error => console.error("erro ao capturar o userLocation: ", error));
 
 	useEffect(() => {
 		if (screen === "Home") setShowButtons(true);
-	}, []);
+	}, [screen]);
 
 	return (
 		<View className={`absolute bottom-0 left-0 right-0`}>
@@ -67,17 +54,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 													.load<UserInfos>({
 														key: "userInfos",
 													})
-												.then(data => {
-													setUserIdStorage(data.userId);
-													navigation.navigate('FavoriteEstablishments', {
-														userPhoto: userPhoto ?? "",
-														userID: userIdStorage ?? ''
+													.then(data => {
+														setUserIdStorage(data.userId);
+														navigation.navigate('FavoriteEstablishments', {
+															userPhoto: userPhoto ?? "",
+															userID: userIdStorage ?? ''
+														})
 													})
-												})
-												.catch(error => {
-													console.log(error)
-													navigation.navigate('Login')
-												})
+													.catch(error => {
+														console.log(error)
+														navigation.navigate('Login')
+													})
 											}
 											else
 												navigation.navigate('FavoriteEstablishments', {
@@ -96,13 +83,29 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 
 										<TouchableOpacity
 											onPress={() => {
-												if (userID === "" || userID === "0" || !userID) {
-													navigation.navigate("Login");
-												} else {
-													navigation.navigate("InfoReserva", {
+												if (
+													userID === '' ||
+													userID === '0' ||
+													userID === undefined
+												) {
+													storage
+														.load<UserInfos>({
+															key: "userInfos",
+														})
+														.then(data => {
+															setUserIdStorage(data.userId);
+															navigation.navigate("InfoReserva", {
+																userId: userID ?? "",
+															});
+														})
+														.catch(error => {
+															console.log(error)
+															navigation.navigate('Login')
+														})
+												} else
+													navigation.navigate('InfoReserva', {
 														userId: userID,
-													});
-												}
+													})
 											}}
 										>
 											<MaterialIcons
@@ -146,11 +149,27 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 													if (
 														userID === '' ||
 														userID === '0' ||
-														!userID
-													)
-														navigation.navigate('Login')
+														userID === undefined
+													) {
+														storage
+															.load<UserInfos>({
+																key: "userInfos",
+															})
+															.then(data => {
+																setUserIdStorage(data.userId);
+																navigation.navigate('InfoReserva', {
+																	userId: userID ?? "",
+																})
+															})
+															.catch(error => {
+																console.log(error)
+																navigation.navigate('Login')
+															})
+													}
 													else
-														navigation.navigate('InfoReserva', { userId: userID })
+														navigation.navigate('InfoReserva', {
+															userId: userID,
+														})
 												}}>
 													<MaterialIcons name="calendar-today" color={"white"} size={26} />
 												</TouchableOpacity>
@@ -169,17 +188,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 															.load<UserInfos>({
 																key: "userInfos",
 															})
-														.then(data => {
-															setUserIdStorage(data.userId);
-															navigation.navigate('FavoriteEstablishments', {
-																userPhoto: userPhoto ?? "",
-																userID: userIdStorage ?? ''
+															.then(data => {
+																setUserIdStorage(data.userId);
+																navigation.navigate('FavoriteEstablishments', {
+																	userPhoto: userPhoto ?? "",
+																	userID: userIdStorage ?? ''
+																})
 															})
-														})
-														.catch(error => {
-															console.log(error)
-															navigation.navigate('Login')
-														})
+															.catch(error => {
+																console.log(error)
+																navigation.navigate('Login')
+															})
 													}
 													else
 														navigation.navigate('FavoriteEstablishments', {
@@ -226,17 +245,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 																.load<UserInfos>({
 																	key: "userInfos",
 																})
-															.then(data => {
-																setUserIdStorage(data.userId);
-																navigation.navigate('FavoriteEstablishments', {
-																	userPhoto: userPhoto ?? "",
-																	userID: userIdStorage ?? ''
+																.then(data => {
+																	setUserIdStorage(data.userId);
+																	navigation.navigate('FavoriteEstablishments', {
+																		userPhoto: userPhoto ?? "",
+																		userID: userIdStorage ?? ''
+																	})
 																})
-															})
-															.catch(error => {
-																console.log(error)
-																navigation.navigate('Login')
-															})
+																.catch(error => {
+																	console.log(error)
+																	navigation.navigate('Login')
+																})
 														}
 														else
 															navigation.navigate('FavoriteEstablishments', {
@@ -269,11 +288,27 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 														if (
 															userID === '' ||
 															userID === '0' ||
-															!userID
-														)
-															navigation.navigate('Login')
+															userID === undefined
+														) {
+															storage
+																.load<UserInfos>({
+																	key: "userInfos",
+																})
+																.then(data => {
+																	setUserIdStorage(data.userId);
+																	navigation.navigate('InfoReserva', {
+																		userId: userID ?? "",
+																	})
+																})
+																.catch(error => {
+																	console.log(error)
+																	navigation.navigate('Login')
+																})
+														}
 														else
-															navigation.navigate('InfoReserva', { userId: userID })
+															navigation.navigate('InfoReserva', {
+																userId: userID,
+															})
 													}}>
 														<MaterialIcons name="calendar-today" color={"white"} size={26} />
 													</TouchableOpacity>
@@ -308,11 +343,27 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
 															if (
 																userID === '' ||
 																userID === '0' ||
-																!userID
-															)
-																navigation.navigate('Login')
+																userID === undefined
+															) {
+																storage
+																	.load<UserInfos>({
+																		key: "userInfos",
+																	})
+																	.then(data => {
+																		setUserIdStorage(data.userId);
+																		navigation.navigate('InfoReserva', {
+																			userId: userID ?? "",
+																		})
+																	})
+																	.catch(error => {
+																		console.log(error)
+																		navigation.navigate('Login')
+																	})
+															}
 															else
-																navigation.navigate('InfoReserva', { userId: userID })
+																navigation.navigate('InfoReserva', {
+																	userId: userID,
+																})
 														}}>
 															<MaterialIcons name="calendar-today" color={"white"} size={26} />
 														</TouchableOpacity>
