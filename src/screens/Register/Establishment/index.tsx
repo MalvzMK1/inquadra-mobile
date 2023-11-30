@@ -27,8 +27,11 @@ const formSchema = z.object({
     .nonempty("Esse campo não pode estar vazio!"),
   cnpj: z
     .string({ required_error: "Informe um CNPJ válido!" })
-    .nonempty("Esse campo não pode estar vazio!")
-    .min(14, "Deve ser informado um CNPJ válido!"),
+    .optional()
+    .refine(
+      value => !value || value.length >= 14,
+      "Deve ser informado um CNPJ válido!",
+    ),
   phone: z
     .string({ required_error: "Informe um número de telefone válido!" })
     .nonempty("Esse campo não pode estar vazio!")
@@ -218,7 +221,7 @@ export default function RegisterEstablishment({
               render={({ field: { onChange, value } }) => (
                 <MaskInput
                   className="p-5 border border-neutral-400 rounded"
-                  placeholder="00.000.000/0001-00."
+                  placeholder="00.000.000/0001-00"
                   value={value}
                   maxLength={18}
                   keyboardType={"numeric"}
