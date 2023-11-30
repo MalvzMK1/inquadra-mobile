@@ -262,13 +262,47 @@ export default function InfoProfileEstablishment({
   const handleUpdateUser = async (data: IFormData): Promise<void> => {
     try {
       if (profilePicture) {
-        setUpdateUserIsLoading(true);
+        setIsLoading(true)
         const uploadedImageID = uploadedPictureID?.toString()!
 
         const userDatas = {
           ...data,
-        };
+        }
 
+        console.log({
+          user_id: userId,
+          username: userDatas.userName,
+          email: userDatas.email,
+          phone_number: userDatas.phoneNumber,
+          cpf: cpf!,
+        })
+
+        updateUserHook({
+          variables: {
+            user_id: userId,
+            username: userDatas.userName,
+            email: userDatas.email,
+            phone_number: userDatas.phoneNumber,
+            cpf: cpf!,
+          }
+        }).then(response => {
+          console.log(response)
+            updateEstablishmentLogo({
+              variables: {
+                establishment_id: establishmentId!,
+                photo_id: uploadedImageID,
+              },
+            });
+        })
+          .catch((reason) => alert(reason))
+          .finally(() => {setIsLoading(false), navigation.setParams({establishmentPhoto: profilePicture})})
+
+      } else {
+        const uploadedImageID = await uploadImage(profilePicture!);
+
+        const userDatas = {
+          ...data,
+        }
         updateUserHook({
           variables: {
             user_id: userId,
@@ -277,43 +311,13 @@ export default function InfoProfileEstablishment({
             phone_number: userDatas.phoneNumber,
             cpf: cpf!
           }
-
-
         })
-          .then(response => {
-            if (response.data && response.data.userPermissionsUser.data) {
-              updateEstablishmentLogo({
-                variables: {
-                  establishment_id: establishmentId!,
-                  photo_id: uploadedImageID,
-                },
-              });
-            }
-          })
-          .catch(reason => alert(reason))
-          .finally(() => setUpdateUserIsLoading(false));
-      } else {
-        if (establishmentId) {
-          const uploadedImageID = await uploadImage(profilePicture!);
-
-          const userDatas = {
-            ...data,
-          };
-          updateUserHook({
-            variables: {
-              user_id: userId,
-              username: userDatas.userName,
-              email: userDatas.email,
-              phone_number: userDatas.phoneNumber,
-              cpf: cpf!,
-            },
-          })
-        }
       }
+
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   const [updateAddressIsLoading, setUpdateAddressIsLoading] = useState(false);
 
@@ -619,7 +623,6 @@ export default function InfoProfileEstablishment({
         await uploadImage(result.assets[0].uri).then(uploadedImageID => {
           setProfilePicture(result.assets[0].uri);
           setUploadedPictureID(uploadedImageID)
-          console.log("ID da imagem enviada:", uploadedImageID);
         })
       }
     } catch (error) {
