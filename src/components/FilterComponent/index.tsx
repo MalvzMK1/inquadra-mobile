@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { SetStateAction, useEffect, useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, Platform } from 'react-native'
 import FilterDropdown from '../FilterDropdown'
 import Animated, {
@@ -79,14 +79,7 @@ export default function FilterComponent(props: {
         startsAt: string | undefined,
         weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | undefined
         date: Date | undefined
-    }>({
-        amenities: [],
-        dayUseService: undefined,
-        endsAt: undefined,
-        startsAt: undefined,
-        weekDay: undefined,
-        date: undefined
-    })
+    }>()
 
     useEffect(() => {
         setFilter({
@@ -102,18 +95,18 @@ export default function FilterComponent(props: {
     const handleTimeInitPicker = () => {
         setShowTimeInitPicker(true)
     }
-    const handleTimeInitChange = (selectedTime: any) => {
+    const handleTimeInitChange = (event: any, selectedTime?: Date) => {
         setShowTimeInitPicker(false)
-        if (selectedTime) {
-            setTimeInit(selectedTime)
-        }
+        if (selectedTime !== undefined) {
+            setTimeInit(selectedTime);
+          }
     }
     const handleTimeFinalPicker = () => {
         setShowTimeFinalPicker(true)
     }
-    const handleTimeFinalChange = (selectedTime: any) => {
+    const handleTimeFinalChange = (event: any, selectedTime?: Date) => {
         setShowTimeFinalPicker(false)
-        if (selectedTime) {
+        if (selectedTime !== undefined) {
             setTimeFinal(selectedTime)
         }
     }
@@ -139,32 +132,35 @@ export default function FilterComponent(props: {
                                 textColor='black'
                                 style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
                             >
+
                                 <Text className='text-sm'>
-                                    {timeInit.toLocaleTimeString().slice(0, 5)}
+                                    {timeInit !== undefined ?
+                                        timeInit.toLocaleTimeString().slice(0, 5) : ""}
                                 </Text>
+
                             </Button>
                             {showTimeInitPicker && (
-                                Platform.OS === 'ios' ? 
-                                (
-                                <DateTimePickerModal
-                                    isVisible={true}
-                                    mode="time"
-                                    onConfirm={handleTimeInitChange}
-                                    onCancel={() => setShowTimeInitPicker(false)}
-                                    locale="pt-BR"
-                                    cancelTextIOS="Cancelar"
-                                    confirmTextIOS="Confirmar"
-                                    textColor="#333"
-                                    isDarkModeEnabled={false}
-                            />
-                                ) :
-                                (
-                                <DateTimePicker
-                                    value={timeInit}
-                                    mode="time"
-                                    onChange={handleTimeInitChange}
-                                />
-                                )
+                                Platform.OS === 'ios' ?
+                                    (
+                                        <DateTimePickerModal
+                                            isVisible={true}
+                                            mode="time"
+                                            onConfirm={handleTimeInitChange}
+                                            onCancel={() => setShowTimeInitPicker(false)}
+                                            locale="pt-BR"
+                                            cancelTextIOS="Cancelar"
+                                            confirmTextIOS="Confirmar"
+                                            textColor="#333"
+                                            isDarkModeEnabled={false}
+                                        />
+                                    ) :
+                                    (
+                                        <DateTimePicker
+                                            value={timeInit}
+                                            mode="time"
+                                            onChange={handleTimeInitChange}
+                                            />
+                                    )
                             )}
 
                         </View>
@@ -180,29 +176,31 @@ export default function FilterComponent(props: {
                                 style={{ borderColor: "#FF6112", borderWidth: 1, padding: 10 }}
                             >
                                 <Text className='text-sm'>
-                                    {timeFinal.toLocaleTimeString().slice(0, 5)}
+                                    {timeFinal !== undefined ?
+                                        timeFinal.toLocaleTimeString().slice(0, 5) :
+                                        ""}
                                 </Text>
                             </Button>
                             {showTimeFinalPicker && (
-                                Platform.OS === "ios" ? 
-                                (
-                                <DateTimePickerModal
-                                    isVisible={true}
-                                    mode="time"
-                                    onConfirm={handleTimeFinalChange}
-                                    onCancel={() => setShowTimeFinalPicker(false)}
-                                    locale="pt-BR"
-                                    cancelTextIOS="Cancelar"
-                                    confirmTextIOS="Confirmar"
-                                    textColor="#333"
-                                    isDarkModeEnabled={false}
-                            />
-                                ) : 
-                                (<DateTimePicker
-                                    value={timeFinal}
-                                    mode="time"
-                                    onChange={handleTimeFinalChange}
-                                />)
+                                Platform.OS === "ios" ?
+                                    (
+                                        <DateTimePickerModal
+                                            isVisible={true}
+                                            mode="time"
+                                            onConfirm={handleTimeFinalChange}
+                                            onCancel={() => setShowTimeFinalPicker(false)}
+                                            locale="pt-BR"
+                                            cancelTextIOS="Cancelar"
+                                            confirmTextIOS="Confirmar"
+                                            textColor="#333"
+                                            isDarkModeEnabled={false}
+                                        />
+                                    ) :
+                                    (<DateTimePicker
+                                        value={timeFinal}
+                                        mode="time"
+                                        onChange={handleTimeFinalChange}
+                                    />)
                             )}
                         </View>
                     </View>
@@ -217,7 +215,7 @@ export default function FilterComponent(props: {
                                         status={dayUseYes ? 'checked' : 'unchecked'}
                                         onPress={() => setDayUseYes(!dayUseYes)}
                                     />
-                                    <View className='border-2 border-orange-500 w-5 h-5 rounded-sm ml-2 absolute'/>
+                                    <View className='border-2 border-orange-500 w-5 h-5 rounded-sm ml-2 absolute' />
                                 </View>
                             </View>
                         </View>
