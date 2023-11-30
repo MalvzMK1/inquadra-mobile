@@ -24,6 +24,8 @@ export default function PaymentCompleted({name, image, status, userId}: IPayment
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const [failedCountDown, setFailedCountDown] = useState<number>(COUNTDOWN_START_VALUE);
 
+	console.log(status)
+
 	useEffect(() => {
 		if (status === 'failed') {
 			setTimeout(() => {

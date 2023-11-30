@@ -369,7 +369,7 @@ export default function ReservationPaymentSign({
 				});
 			}
 
-			const totalSignalValue = signalAmount
+			const totalSignalValue = signalAmount 
 			const totalSignalValueCents = totalSignalValue * 100;
 
 			let brand = "Visa";
@@ -460,7 +460,8 @@ export default function ReservationPaymentSign({
 									updateStatusDisponibleCourt().then(() => {
 										handleSaveCard();
 										setPaymentStatus("completed");
-									}).catch(() => {
+									}).catch((error) => {
+										console.log(error)
 										setPaymentStatus('failed');
 									});
 								}).catch(error => {
@@ -522,10 +523,10 @@ export default function ReservationPaymentSign({
 		}
 	};
 
-	const updateStatusDisponibleCourt = () => {
+	const updateStatusDisponibleCourt = () => {	
 		return updateStatusCourtAvailability({
 			variables: {
-				id: courtAvailabilityDate,
+				id: courtAvailabilities,
 				status: true,
 			},
 		});
