@@ -571,32 +571,30 @@ export default function InfoProfileEstablishment({
   const [uploadImageIsLoading, setUploadImageIsLoading] = useState(false);
 
   const uploadImage = async (selectedImageUri: string) => {
-    setUploadImageIsLoading(true);
+    setIsLoading(true);
+    const apiUrl = HOST_API;
 
     const formData = new FormData();
     formData.append("files", {
       uri: selectedImageUri,
       name: "profile.jpg",
       type: "image/jpeg",
-    } as any);
+    });
 
     try {
-      const response = await axios.post(`${HOST_API}/api/upload`, formData, {
+      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       const uploadedImageID = response.data[0].id;
 
-      console.log("Imagem enviada com sucesso!", response.data);
-
-      setUploadImageIsLoading(false);
+      setIsLoading(false);
 
       return uploadedImageID;
     } catch (error) {
-      console.error("Erro ao enviar imagem:", JSON.stringify(error, null, 2));
-      setUploadImageIsLoading(false);
+      console.error("Erro ao enviar imagem:", error);
+      setIsLoading(false);
       return "Deu erro";
     }
   };
