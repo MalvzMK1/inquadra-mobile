@@ -209,7 +209,7 @@ export default function CourtAvailabilityInfo({
                   {route.params.courtName}
                 </Text>
                 {!showCalendar && (
-                  <View className="h-fit w-full p-[15px] items-center justify-around flex flex-row mt-[30px]">
+                  <View className="h-fit w-full p-[15px] items-center justify-around flex flex-row">
                     <FilterDate
                       dateSelector={dateSelector}
                       setDateSelector={setDateSelector}
@@ -239,11 +239,11 @@ export default function CourtAvailabilityInfo({
                 )}
                 <TouchableOpacity
                   onPress={() => setShowCalendar(!showCalendar)}
-                  className="bg-[#959595] h-[4px] w-[30px] mt-[10px] rounded-[5px]"
+                  className="bg-[#959595] h-[4px] w-[30px] rounded-[5px]"
                 />
               </View>
             </View>
-            <ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[30px] flex">
+            <ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[15px] flex">
               {!route.params.userId ? (
                 <Text className="text-xl font-black text-center">
                   FAÇA{" "}

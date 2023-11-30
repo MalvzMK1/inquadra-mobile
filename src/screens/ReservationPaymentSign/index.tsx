@@ -123,9 +123,9 @@ export interface iFormCardPayment {
 }
 
 export default function ReservationPaymentSign({
-	                                               navigation,
-	                                               route,
-                                               }: NativeStackScreenProps<RootStackParamList, "ReservationPaymentSign">) {
+	navigation,
+	route,
+}: NativeStackScreenProps<RootStackParamList, "ReservationPaymentSign">) {
 	const {
 		courtId,
 		courtImage,
@@ -160,11 +160,14 @@ export default function ReservationPaymentSign({
 		courtAvailabilities,
 		{
 			onCompleted(data) {
-				if (data?.courtAvailability.data?.attributes.court.data) {
+				if (data?.courtAvailability.data?.attributes.court.data
+					&& data?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue
+				) {
 					const scheduleValue = data.courtAvailability.data.attributes.value;
+					const signalValue = data?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue
 
 					setReserveValue(scheduleValue);
-					setServiceValue(scheduleValue * SERVICE_FEE);
+					setServiceValue(signalValue * SERVICE_FEE);
 					setTotalValue(scheduleValue + scheduleValue * SERVICE_FEE);
 				}
 			},
@@ -366,7 +369,7 @@ export default function ReservationPaymentSign({
 				});
 			}
 
-			const totalSignalValue = signalAmount + Number(serviceValue.toFixed(2));
+			const totalSignalValue = signalAmount
 			const totalSignalValueCents = totalSignalValue * 100;
 
 			let brand = "Visa";
@@ -433,7 +436,7 @@ export default function ReservationPaymentSign({
 					neighborhood: values.district,
 					street: values.street,
 				},
-			}).then(({data: createdUserPayment}) => {
+			}).then(({ data: createdUserPayment }) => {
 				if (createdUserPayment) {
 					cieloRequestManager.authorizePayment(body)
 						.then(async cieloResponse => {
@@ -467,14 +470,14 @@ export default function ReservationPaymentSign({
 								})
 							}
 						}).catch(error => {
-						console.error(JSON.stringify(error, null, 2))
-						alert('Não foi possível realizar o pagamento');
-						deleteUserPaymentCard({
-							variables: {
-								userPaymentId: createdUserPayment.createUserPayment.data.id
-							}
+							console.error(JSON.stringify(error, null, 2))
+							alert('Não foi possível realizar o pagamento');
+							deleteUserPaymentCard({
+								variables: {
+									userPaymentId: createdUserPayment.createUserPayment.data.id
+								}
+							})
 						})
-					})
 				}
 			}).catch(error => {
 				console.error(JSON.stringify(error, null, 2))
@@ -550,7 +553,7 @@ export default function ReservationPaymentSign({
 				});
 			}
 
-			const totalSignalValue = signalAmount + Number(serviceValue.toFixed(2));
+			const totalSignalValue = signalAmount;
 			const totalSignalValueCents = totalSignalValue * 100;
 
 			const pixGenerated = await generatePix({
@@ -563,7 +566,7 @@ export default function ReservationPaymentSign({
 				},
 				Payment: {
 					Type: "Pix",
-					Amount: totalSignalValueCents,
+					Amount: 1,
 				},
 			});
 
@@ -581,7 +584,7 @@ export default function ReservationPaymentSign({
 
 			navigation.navigate("PixScreen", {
 				courtName: courtName!,
-        			value: totalSignalValue!.toString(),
+				value: totalSignalValue!.toString(),
 				userID: userId,
 				QRcodeURL: pixGenerated.Payment.QrCodeString,
 				paymentID: pixGenerated.Payment.PaymentId,
@@ -690,9 +693,9 @@ export default function ReservationPaymentSign({
 											name="date"
 											control={control}
 											render={({
-												         field: { value, onChange },
-												         fieldState: { error },
-											         }) => (
+												field: { value, onChange },
+												fieldState: { error },
+											}) => (
 												<Fragment>
 													<TextInputMask
 														className="p-3 border border-gray-500 rounded-md h-18"
@@ -723,9 +726,9 @@ export default function ReservationPaymentSign({
 											name="cvv"
 											control={control}
 											render={({
-												         field: { value, onChange },
-												         fieldState: { error },
-											         }) => (
+												field: { value, onChange },
+												fieldState: { error },
+											}) => (
 												<Fragment>
 													<TextInput
 														className="p-3 border border-gray-500 rounded-md h-18"
@@ -755,9 +758,9 @@ export default function ReservationPaymentSign({
 										name="name"
 										control={control}
 										render={({
-											         field: { value, onChange },
-											         fieldState: { error },
-										         }) => (
+											field: { value, onChange },
+											fieldState: { error },
+										}) => (
 											<Fragment>
 												<TextInput
 													className="p-3 border border-gray-500 rounded-md h-18"
@@ -786,9 +789,9 @@ export default function ReservationPaymentSign({
 										name="cardNumber"
 										control={control}
 										render={({
-											         field: { value, onChange },
-											         fieldState: { error },
-										         }) => (
+											field: { value, onChange },
+											fieldState: { error },
+										}) => (
 											<Fragment>
 												<MaskInput
 													className="p-3 border border-gray-500 rounded-md h-18"
@@ -815,9 +818,9 @@ export default function ReservationPaymentSign({
 										name="cpf"
 										control={control}
 										render={({
-											         field: { value, onChange },
-											         fieldState: { error },
-										         }) => (
+											field: { value, onChange },
+											fieldState: { error },
+										}) => (
 											<Fragment>
 												<MaskInput
 													className="p-3 border border-gray-500 rounded-md h-18"
@@ -852,9 +855,8 @@ export default function ReservationPaymentSign({
 													dataCountry.countries.data.map(country => ({
 														value: country.attributes.name,
 														label: country.attributes.name,
-														img: `${
-															country.attributes.flag.data?.attributes.url ?? ""
-														}`,
+														img: `${country.attributes.flag.data?.attributes.url ?? ""
+															}`,
 													}))) ||
 												[]
 											}
@@ -871,9 +873,9 @@ export default function ReservationPaymentSign({
 											name="cep"
 											control={control}
 											render={({
-												         field: { value, onChange },
-												         fieldState: { error },
-											         }) => (
+												field: { value, onChange },
+												fieldState: { error },
+											}) => (
 												<Fragment>
 													<MaskInput
 														className="p-3 border border-gray-500 rounded-md h-18"
@@ -926,9 +928,9 @@ export default function ReservationPaymentSign({
 											name="number"
 											control={control}
 											render={({
-												         field: { value, onChange },
-												         fieldState: { error },
-											         }) => (
+												field: { value, onChange },
+												fieldState: { error },
+											}) => (
 												<Fragment>
 													<TextInput
 														value={value}
@@ -956,9 +958,9 @@ export default function ReservationPaymentSign({
 										name="street"
 										control={control}
 										render={({
-											         field: { value, onChange },
-											         fieldState: { error },
-										         }) => (
+											field: { value, onChange },
+											fieldState: { error },
+										}) => (
 											<Fragment>
 												<TextInput
 													className="p-3 border border-gray-500 rounded-md h-18"
@@ -985,9 +987,9 @@ export default function ReservationPaymentSign({
 										name="district"
 										control={control}
 										render={({
-											         field: { value, onChange },
-											         fieldState: { error },
-										         }) => (
+											field: { value, onChange },
+											fieldState: { error },
+										}) => (
 											<Fragment>
 												<TextInput
 													className="p-3 border border-gray-500 rounded-md h-18"
@@ -1016,9 +1018,9 @@ export default function ReservationPaymentSign({
 										name="complement"
 										control={control}
 										render={({
-											         field: { value, onChange },
-											         fieldState: { error },
-										         }) => (
+											field: { value, onChange },
+											fieldState: { error },
+										}) => (
 											<Fragment>
 												<TextInput
 													className="p-3 border border-gray-500 rounded-md h-18"
@@ -1046,9 +1048,9 @@ export default function ReservationPaymentSign({
 											name="city"
 											control={control}
 											render={({
-												         field: { value, onChange },
-												         fieldState: { error },
-											         }) => (
+												field: { value, onChange },
+												fieldState: { error },
+											}) => (
 												<Fragment>
 													<TextInput
 														className="p-3 border border-gray-500 rounded-md h-18"
@@ -1076,9 +1078,9 @@ export default function ReservationPaymentSign({
 											name="state"
 											control={control}
 											render={({
-												         field: { value, onChange },
-												         fieldState: { error },
-											         }) => (
+												field: { value, onChange },
+												fieldState: { error },
+											}) => (
 												<Fragment>
 													<TextInput
 														className="p-3 border border-gray-500 rounded-md h-18"
@@ -1170,7 +1172,7 @@ export default function ReservationPaymentSign({
 								Valor da Reserva
 							</Text>
 							<Text className="font-bold text-xl text-right text-[#717171]">
-								R$ {amountToPay && amountToPay.toFixed(2)}
+								R$ {amountToPay && (amountToPay - serviceValue!)}
 							</Text>
 						</View>
 						<View className="flex flex-row gap-6">
@@ -1198,7 +1200,7 @@ export default function ReservationPaymentSign({
 							</Text>
 							<Text className="flex flex-row font-bold text-xl text-right text-[#717171]">
 								{" "}
-								R$ {(amountToPay! + serviceValue!).toFixed(2)}
+								R$ {(amountToPay!)}
 							</Text>
 						</View>
 					</View>
