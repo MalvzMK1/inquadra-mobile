@@ -34,7 +34,9 @@ export default function WithdrawScreen({
     useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
   const [isWithdrawalMade, setIsWithdrawalMade] = useState(false);
   const [selectedPixKey, setSelectedPixKey] = useState<string>("0");
-
+  const [errorPop, setErrorPop] = useState<string>()
+  const [havePixKey, setHavePixKey] = useState<boolean>()
+  const [infos, setInfos] = useState<{ id: string; key: string; }[]>([])
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [number, setNumber] = useState(0);
@@ -46,37 +48,57 @@ export default function WithdrawScreen({
       setValueCollected([]);
       if (!error && !loading) {
         const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
+        if (
+          data &&
+          data?.establishment.data.attributes.courts.data.length > 0
+        ) {
+          data?.establishment.data.attributes.courts.data.forEach(court => {
+            if (court.attributes.court_availabilities.data.length > 0) {
+              court.attributes.court_availabilities.data.forEach(availability => {
+                if (availability.attributes.schedulings.data.length > 0) {
+                  availability.attributes.schedulings.data.forEach(schedulings => {
+                    if (schedulings.attributes.user_payments.data.length > 0) {
+                      schedulings.attributes.user_payments.data.forEach(payment => {
+                        amountPaid.push({
+                          valuePayment: payment.attributes.value,
+                          payday: schedulings.attributes.date,
+                          activated: schedulings.attributes.activated
+                        })
+                      })
+                    } else {
+                      setErrorPop("Não foi encontrado nenhum pagamento")
+                    }
+                  })
+                } else {
+                  setErrorPop("Não foi encontrado nenhum agendamento")
+                }
 
-        data?.establishment.data.attributes.courts.data.forEach(court => {
-          court.attributes.court_availabilities.data.forEach(availability => {
-            availability.attributes.schedulings.data.forEach(schedulings => {
-              schedulings.attributes.user_payments.data.forEach(payment => {
-                amountPaid.push({
-                  valuePayment: payment.attributes.value,
-                  payday: schedulings.attributes.date,
-                  activated: schedulings.attributes.activated
-                });
-              });
-            });
-          });
-        });
-
-        const infos = data?.establishment.data.attributes.pix_keys.data.map(
-          item => {
-            return {
-              id: item.id,
-              key: item.attributes.key,
-            };
-          },
-        );
-
-        console.log("infos", infos)
-
-        if (infos) {
-          setWithdrawalInfo(prevState => [...prevState, ...infos]);
-          console.log("withdraw infos", infos)
+              })
+            } else {
+              setErrorPop("Não foi encontrado nenhuma disponibilidade")
+            }
+          })
+        } else {
+          setErrorPop("Não foi encontrado nenhuma quadra registrada")
         }
-
+        if (
+          data &&
+          data.establishment.data.attributes.pix_keys.data.length > 0
+        ) {
+          const infosHold = data?.establishment.data.attributes.pix_keys.data.map(
+            item => {
+              return {
+                id: item.id,
+                key: item.attributes.key,
+              };
+            },
+          );
+          setInfos(infosHold)
+          setHavePixKey(true)
+          setWithdrawalInfo(prevState => [...prevState, ...infosHold]);
+        } else {
+          setHavePixKey(false)
+        }
         if (amountPaid) {
           setValueCollected(prevState => {
             if (prevState === undefined) {
@@ -220,33 +242,43 @@ export default function WithdrawScreen({
                 />
 
                 <View className="p-5 flex flex-col justify-between">
-                  <Text className="text-xl font-bold">
-                    Selecione uma chave Pix
-                  </Text>
-                  <FlatList
-                    data={withdrawalInfo}
-                    keyExtractor={card => card.id}
-                    renderItem={({ item: card }) => {
-                      return (
-                        <TouchableOpacity
-                          className={`p-5 flex-row rounded-lg mt-5 ${card.id == selectedPixKey
-                            ? "bg-slate-300"
-                            : "bg-gray-300"
-                            }`}
-                          onPress={() => {
-                            if (card.id !== selectedPixKey)
-                              setSelectedPixKey(card.id);
-                            else setSelectedPixKey("0");
+                  {
+                    havePixKey
+                      ?
+                      <>
+                        <Text className="text-xl font-bold">
+                          Selecione uma chave Pix
+                        </Text>
+                        <FlatList
+                          data={withdrawalInfo}
+                          keyExtractor={card => card.id}
+                          renderItem={({ item: card }) => {
+                            return (
+                              <TouchableOpacity
+                                className={`p-5 flex-row rounded-lg mt-5 ${card.id == selectedPixKey
+                                  ? "bg-slate-300"
+                                  : "bg-gray-300"
+                                  }`}
+                                onPress={() => {
+                                  if (card.id !== selectedPixKey)
+                                    setSelectedPixKey(card.id);
+                                  else setSelectedPixKey("0");
+                                }}
+                              >
+                                <Text className="font-bold text-xl">
+                                  Chave pix: {card.key.substring(0, 6)}
+                                  {card.key.substring(6).replace(/./g, "*")}
+                                </Text>
+                              </TouchableOpacity>
+                            );
                           }}
-                        >
-                          <Text className="font-bold text-xl">
-                            Chave pix: {card.key.substring(0, 6)}
-                            {card.key.substring(6).replace(/./g, "*")}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    }}
-                  />
+                        />
+                      </>
+                      : <Text className="text-sm text-gray-400 p-5">
+                        Não foi encontrada nenhuma chave pix
+                      </Text>
+                  }
+
                 </View>
                 <Text className="text-sm text-gray-400 p-5">
                   Análise de pagamento em até 48 horas*
