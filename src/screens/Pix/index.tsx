@@ -104,8 +104,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       });
     }
 
-    console.log("value:", value);
-
     const checkTimeOut = () => {
       if (statusPix === "waiting") {
         setStatusPix("cancelled");
@@ -155,6 +153,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
     return () => {
       isMounted = false;
+      clearInterval(intervalId);
       clearInterval(timeOutPayment);
     };
   }, []);
