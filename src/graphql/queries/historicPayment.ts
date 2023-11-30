@@ -170,11 +170,11 @@ query getHistoryPayment($ID: ID!) {
                           date
                           valuePayed
                           user_payment_pixes{
-                            data{
-                              attributes{
+                            data {
+                              attributes {
                                 name
                                 value
-                                users_permissions_user{
+                                users_permissions_user {
                                   data {
                                     attributes {
                                       username
@@ -214,7 +214,7 @@ query getHistoryPayment($ID: ID!) {
                               }
                             }
                           }
-                          user_payment_pixes(pagination: { limit: -1 }) {
+                          user_payment_pixes_data: user_payment_pixes(pagination: { limit: -1 }) {
                             data {
                               id
                               attributes {

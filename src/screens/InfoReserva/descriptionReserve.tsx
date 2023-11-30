@@ -44,6 +44,10 @@ import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
 
+function getScheduleStartDate(date: string, time: string) {
+  return new Date(`${date}T${time}-03:00`);
+}
+
 export default function DescriptionReserve({
   navigation,
   route,
@@ -65,15 +69,10 @@ export default function DescriptionReserve({
   const [showPixPaymentModal, setShowPixPaymentModal] = useState(false);
   const [courtPicture, setCourtPicture] = useState<string>();
   const [schedulingPayDate, setSchedulingPayDate] = useState<Date>();
-  const [scheduleDay, setSchedulingDay] = useState<Date>();
   const [isPayed, setIsPayed] = useState("payed");
   const [timeDifferenceMs, setTimeDifferenceMs] = useState<number>();
-  const [timeDifferenceHours, setTimeDifferenceHours] = useState<number>();
   const [isWithin24Hours, setIsWithin24Hours] = useState<boolean>();
-  const [timeDifferenceMsPayDate, setTimeDifferenceMsPayDate] =
-    useState<number>();
   const [isWithinOneHour, setIsWithinOneHour] = useState<boolean>();
-  const [isVanquishedDate, setIsVanquishedDate] = useState<boolean>();
   const [isVanquished, setIsVanquished] = useState<boolean>();
   const [valueAvailableToPay, setValueAvailableToPay] = useState<number>();
   const [fantasyName, setFantasyName] = useState("");
@@ -90,9 +89,14 @@ export default function DescriptionReserve({
       setServiceRate(receivedServiceRate);
       setScheduleValuePayed(valuePayed);
       setSchedulingPayDate(new Date(data.scheduling.data.attributes.payDay));
-      setSchedulingDay(new Date(data.scheduling.data.attributes.date));
+      const schedulingDay = getScheduleStartDate(
+        data.scheduling.data.attributes.date,
+        data.scheduling.data.attributes.court_availability.data.attributes
+          .startsAt,
+      );
+
       setIsPayed(data.scheduling.data.attributes.payedStatus);
-      setTimeDifferenceMs(Number(scheduleDay) - Number(currentTime));
+      setTimeDifferenceMs(schedulingDay.getTime() - currentTime.getTime());
 
       if (data.scheduling.data.attributes.court_availability.data) {
         const _valueDisponibleToPay =
@@ -168,6 +172,7 @@ export default function DescriptionReserve({
       }
     },
   });
+
   const { data: dataCountry } = useCountries();
   const { data: dataUser } = useGetMenuUser(user_id);
   const { data: allUserData } = useGetUserById(user_id, {
@@ -190,19 +195,16 @@ export default function DescriptionReserve({
 
   useEffect(() => {
     const _timeDifferenceHours = timeDifferenceMs! / (1000 * 60 * 60);
-    setTimeDifferenceHours(_timeDifferenceHours);
     setIsWithin24Hours(_timeDifferenceHours <= 24);
 
     const _timeDifferenceMsPayDate =
       Number(schedulingPayDate) - Number(currentTime);
-    setTimeDifferenceMsPayDate(_timeDifferenceMsPayDate);
 
     const _isWithinOneHour = _timeDifferenceMsPayDate <= oneHourInMs;
     const _isVanquishedDate = schedulingPayDate! < currentTime;
     const _isVanquished = _isVanquishedDate && isPayed !== "payed";
 
     setIsWithinOneHour(_isWithinOneHour);
-    setIsVanquishedDate(_isVanquishedDate);
     setIsVanquished(_isVanquished);
   }, [timeDifferenceMs, schedulingPayDate]);
 
@@ -631,7 +633,7 @@ export default function DescriptionReserve({
   return (
     <View className="flex-1 bg-zinc-600">
       <View className="h-11 w-max bg-zinc-900"></View>
-      <View className="h-16 w-max bg-zinc-900 flex-row item-center justify-between px-5">
+      <View className="h-16 w-max bg-zinc-900 flex-row items-center justify-between px-5">
         <View className="flex item-center justify-center">
           <TouchableOpacity
             className="h-6 w-6"
@@ -818,12 +820,11 @@ export default function DescriptionReserve({
                 {reserveStatus ? (
                   <View className="w-60 pt-2 item-center">
                     <Countdown
-                      targetDate={
-                        new Date(
-                          infoScheduleData.scheduling.data.attributes.payDay ??
-                            new Date().toISOString(),
-                        )
-                      }
+                      targetDate={getScheduleStartDate(
+                        infoScheduleData.scheduling.data.attributes.date,
+                        infoScheduleData.scheduling.data.attributes
+                          .court_availability.data.attributes.startsAt,
+                      )}
                     />
                   </View>
                 ) : (
@@ -850,8 +851,8 @@ export default function DescriptionReserve({
                       width={null}
                       height={30}
                       borderRadius={5}
-                      color={"#0FA958"}
-                      unfilledColor={"#0FA95866"}
+                      color="#0FA958"
+                      unfilledColor="#0FA95866"
                     />
                   )}
                 </View>
@@ -860,15 +861,16 @@ export default function DescriptionReserve({
           )}
           {infoScheduleData?.scheduling.data?.attributes.owner.data &&
           isVanquished !== undefined &&
+          !isWithinOneHour &&
           infoScheduleData.scheduling.data.attributes.owner.data.id !==
             user_id ? (
             <>
               {!isVanquished && reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.payedStatus ===
-                  "waiting" && false ? (
+                "waiting" ? (
                   <View className="h-max w-full flex justify-center items-center pl-2">
                     <TouchableOpacity
-                      className="pt-2 pb-5 "
+                      className="pt-2 pb-5"
                       onPress={() => setShowCardPaymentModal(true)}
                       disabled={!reserveStatus}
                     >
@@ -914,6 +916,7 @@ export default function DescriptionReserve({
               serviceRate &&
               isVanquished !== undefined &&
               !isVanquished &&
+              !isWithinOneHour &&
               reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.valuePayed <
                 infoScheduleData.scheduling.data.attributes.court_availability

@@ -21,7 +21,8 @@ export default function FinancialEstablishment({
   const [date, setDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState<string | null>(null)
   const [establishmentPicture, setEstablishmentPicture] = useState<string | undefined>();
-
+  const [errorPop, setErrorPop] = useState<string>("")
+  const [courtPhoto, setCourtPhoto] = useState<string>("")
   const [infosHistoric, setInfosHistoric] = useState<
     Array<{
       username: string;
@@ -41,9 +42,6 @@ export default function FinancialEstablishment({
     establishmentId ?? "",
   );
 
-  console.log(establishmentId)
-  console.log({ data })
-
   useEffect(() => {
     if (date !== undefined) {
       const formattedDate = date.toISOString().split('T')[0];
@@ -57,11 +55,6 @@ export default function FinancialEstablishment({
     React.useCallback(() => {
       setInfosHistoric([]);
       setValueCollected([]);
-
-      const dataHistoric = data?.establishment.data.attributes.courts.data;
-
-      console.log(dataHistoric?.[0].attributes.court_availabilities.data[0].attributes.schedulings.data[0].attributes.date)
-
       if (!error && !loading) {
         const infosCard: {
           username: string;
@@ -76,60 +69,81 @@ export default function FinancialEstablishment({
 
         const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
 
-        dataHistoric?.forEach(court => {
-          let courtPhoto = court.attributes.photo.data[0].attributes.url;
+        if (
+          data &&
+          data?.establishment.data.attributes.courts.data.length > 0
+        ) {
+          const dataHistoric = data?.establishment.data.attributes.courts.data;
+          dataHistoric?.forEach(court => {
+            if (court.attributes.photo.data.length > 0) {
+              setCourtPhoto(court.attributes.photo.data[0].attributes.url)
+            }
+            if (court.attributes.court_availabilities.data.length > 0) {
+              court.attributes.court_availabilities.data.forEach(availability => {
+                if (availability.attributes.schedulings.data.length > 0) {
+                  availability.attributes.schedulings.data.forEach(schedulings => {
+                    if (schedulings.attributes.user_payments.data.length > 0) {
+                      schedulings.attributes.user_payments.data.forEach(payment => {
+                        const user = payment.attributes.users_permissions_user.data.attributes;
 
-          court.attributes.court_availabilities.data.forEach(availability => {
-            availability.attributes.schedulings.data.forEach(schedulings => {
-              schedulings.attributes.user_payments.data.forEach(payment => {
-                const user = payment.attributes.users_permissions_user.data.attributes;
+                        infosCard.push({
+                          startsAt: availability.attributes.startsAt,
+                          endsAt: availability.attributes.endsAt,
+                          username: user.username,
+                          photoUser: user.photo.data.attributes.url
+                            ? HOST_API + user.photo.data.attributes.url
+                            : null,
+                          photoCourt: HOST_API + courtPhoto,
+                          valuePayed: payment.attributes.value,
+                          courtName: court.attributes.name,
+                          date: schedulings.attributes.date,
+                        });
 
-                infosCard.push({
-                  startsAt: availability.attributes.startsAt,
-                  endsAt: availability.attributes.endsAt,
-                  username: user.username,
-                  photoUser: user.photo.data.attributes.url
-                    ? HOST_API + user.photo.data.attributes.url
-                    : null,
-                  photoCourt: HOST_API + courtPhoto,
-                  valuePayed: payment.attributes.value,
-                  courtName: court.attributes.name,
-                  date: schedulings.attributes.date,
-                });
+                        amountPaid.push({
+                          valuePayment: payment.attributes.value,
+                          payday: schedulings.attributes.date,
+                          activated: schedulings.attributes.activated
+                        });
+                      })
+                    }
 
+                    if (schedulings.attributes.user_payment_pixes.data.length > 0) {
+                      schedulings.attributes.user_payment_pixes.data.forEach(payment => {
+                        const user = payment.attributes.users_permissions_user.data.attributes;
 
-                amountPaid.push({
-                  valuePayment: payment.attributes.value,
-                  payday: schedulings.attributes.date,
-                  activated: schedulings.attributes.activated
-                });
-              });
-              schedulings.attributes.user_payment_pixes.data.forEach(payment => {
-                const user = payment.attributes.users_permissions_user.data.attributes;
+                        infosCard.push({
+                          startsAt: availability.attributes.startsAt,
+                          endsAt: availability.attributes.endsAt,
+                          username: user.username,
+                          photoUser: user.photo.data.attributes.url
+                            ? HOST_API + user.photo.data.attributes.url
+                            : null,
+                          photoCourt: HOST_API + courtPhoto,
+                          valuePayed: payment.attributes.value,
+                          courtName: court.attributes.name,
+                          date: schedulings.attributes.date,
+                        });
 
-                infosCard.push({
-                  startsAt: availability.attributes.startsAt,
-                  endsAt: availability.attributes.endsAt,
-                  username: user.username,
-                  photoUser: user.photo.data.attributes.url
-                    ? HOST_API + user.photo.data.attributes.url
-                    : null,
-                  photoCourt: HOST_API + courtPhoto,
-                  valuePayed: payment.attributes.value,
-                  courtName: court.attributes.name,
-                  date: schedulings.attributes.date,
-                });
+                        amountPaid.push({
+                          valuePayment: payment.attributes.value,
+                          payday: schedulings.attributes.date,
+                          activated: schedulings.attributes.activated
+                        });
 
-                amountPaid.push({
-                  valuePayment: payment.attributes.value,
-                  payday: schedulings.attributes.date,
-                  activated: schedulings.attributes.activated
-                });
-
+                      })
+                    }
+                  })
+                } else {
+                  setErrorPop("Não foi encontrado nenhum agendamento")
+                }
               })
-            });
-          });
-        });
+            } else {
+              setErrorPop("Não foi encontrado nenhuma disponibilidade")
+            }
+          })
+        }
+
+
 
         if (infosCard) {
           setInfosHistoric(prevState => {

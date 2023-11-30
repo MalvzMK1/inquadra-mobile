@@ -265,18 +265,18 @@ export default function EstablishmentInfo({
   return (
     <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
       <View className="flex flex-col">
-        <View className="flex flex-row justify-between items-center">
-          <Text className="font-black text-lg">
+        <View className="flex flex-row justify-between items-center gap-x-2 mb-2">
+          <Text className="font-black text-lg flex-1">
             {Establishment?.corporateName.toUpperCase()}
           </Text>
-          <View className="flex flex-row items-center gap-x-8">
+          <View className="w-2/5 flex flex-row items-center justify-between">
+          {/*<View className="flex-1 flex flex-row items-center gap-x-8 bg-violet-500">*/}
             <TouchableOpacity
-              className="flex justify-center items-center h-12 w-8"
               onPress={() => {
                 if (userId !== undefined && userId !== null) {
                   if (route.params.colorState !== undefined && route.params.setColorState !== undefined) {
                     handlePressFavoriteEstablishment()
-                    if (heart !== true) {
+                    if (!heart) {
                       route.params.setColorState("red")
                       setHeart(true)
                     } else {
@@ -288,20 +288,22 @@ export default function EstablishmentInfo({
                     heart ? setHeart(false) : setHeart(true)
                   }
                 }else{
-                 navigation.navigate('Login')
+                  navigation.navigate('Login')
                 }
               }
               }
             >
               {!heart ? (
-                <AntDesign name="hearto" size={26} color="black" />
+                <AntDesign name="hearto" size={30} color="black" />
               ) : (
-                <AntDesign name="heart" size={24} color="red" />
+                <AntDesign name="heart" size={28} color="red" />
               )}
             </TouchableOpacity>
+            {/*<View className='w-8' />*/}
             <TouchableOpacity onPress={onShare}>
               <Ionicons name="share-social" size={30} color="black" />
             </TouchableOpacity>
+            {/*<View className='w-8' />*/}
             <TouchableOpacity onPress={handleTelefoneClick}>
               <FontAwesome name="phone" size={30} color="black" />
             </TouchableOpacity>

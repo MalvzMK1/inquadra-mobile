@@ -5,12 +5,14 @@ import {
   ScrollView,
   Text,
   View,
+  ViewStyle,
 } from "react-native";
 import {
   State as GestureState,
   PanGestureHandler,
 } from "react-native-gesture-handler";
 import Animated, {
+  AnimatedStyleProp,
   FadeIn,
   FadeOut,
   useAnimatedStyle,
@@ -84,14 +86,14 @@ export default function HomeBar({
   const translateY = useSharedValue(0);
   const height = useSharedValue(minHeight);
 
-  const animatedStyle = useAnimatedStyle(() => {
+  const animatedStyle: AnimatedStyleProp<ViewStyle> = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.value }],
       height: height.value,
       backgroundColor: "#292929",
       borderTopEndRadius: 20,
       borderTopStartRadius: 20,
-    };
+    } as AnimatedStyleProp<ViewStyle>;
   });
 
   const {

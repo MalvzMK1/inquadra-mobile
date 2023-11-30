@@ -1,96 +1,109 @@
 import { gql } from "@apollo/client";
-
+import { WeekDay } from "../../types/WeekDay";
 
 export interface ICourtByIdResponse {
   court: {
     data: {
-      id: Court['id']
+      id: Court["id"];
       attributes: {
         court_types: {
           data: Array<{
-            id: SportType['id']
+            id: SportType["id"];
             attributes: {
-              name: SportType['name']
-            }
-          }>
-        }
-        name: Court['name']
-        fantasy_name: Court['fantasy_name']
-        court_availibilites: {
+              name: SportType["name"];
+            };
+          }>;
+        };
+        name: Court["name"];
+        fantasy_name: Court["fantasy_name"];
+        court_availabilities: {
           data: Array<{
+            id: string;
             attributes: {
-              id: CourtAvailability['id']
-            }
-          }>
-        }
-        photo:{
+              weekDay: WeekDay;
+              startsAt: string;
+              endsAt: string;
+              value: number;
+              dayUseService: boolean;
+            };
+          }>;
+        };
+        photo: {
           data: Array<{
-            id: Photo['id'],
-            attributes:{
-              url: Photo['url']
-            }
-          }>
-        }
-        minimumScheduleValue: CourtAdd['minimum_value']
-        establishment:{
-          data:{
-            id: Establishment['id']
+            id: Photo["id"];
             attributes: {
-              corporateName: Establishment['corporateName']
+              url: Photo["url"];
+            };
+          }>;
+        };
+        minimumScheduleValue: CourtAdd["minimum_value"];
+        establishment: {
+          data: {
+            id: Establishment["id"];
+            attributes: {
+              corporateName: Establishment["corporateName"];
               address: {
-                latitude: Address['latitude']
-                longitude: Address['longitude']
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+                latitude: Address["latitude"];
+                longitude: Address["longitude"];
+              };
+            };
+          };
+        };
+      };
+    };
+  };
 }
 
 export interface ICourtByIdVariables {
-	id: string
+  id: string;
 }
 
 export const courtByIdQuery = gql`
   query courtById($id: ID) {
-  court(id: $id) {
-    data {
-      id
-      attributes {
-        court_types {
-          data {
-            id
-            attributes {
-              name
+    court(id: $id) {
+      data {
+        id
+        attributes {
+          court_types {
+            data {
+              id
+              attributes {
+                name
+              }
             }
           }
-        }
-        name
-        fantasy_name
-        court_availabilities {
-          data {
-            id
-          }
-        }
-        photo {
-          data {
-            id
-            attributes {
-              url
+          name
+          fantasy_name
+          court_availabilities {
+            data {
+              id
+              attributes {
+                weekDay
+                startsAt
+                endsAt
+                value
+                dayUseService
+              }
             }
           }
-        }
-        minimumScheduleValue
-        establishment {
-          data {
-            id
-            attributes {
-              corporateName
-              address {
-                latitude
-                longitude
+          photo {
+            data {
+              id
+              attributes {
+                url
+              }
+            }
+          }
+          minimumScheduleValue
+          establishment {
+            data {
+              id
+              attributes {
+                corporateName
+                address {
+                  latitude
+                  longitude
+                }
               }
             }
           }
@@ -98,4 +111,4 @@ export const courtByIdQuery = gql`
       }
     }
   }
-}`;
+`;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform } from 'react-native'
 import FilterDropdown from '../FilterDropdown'
 import Animated, {
     FadeOut,
@@ -9,6 +9,7 @@ import { Button, Checkbox } from "react-native-paper"
 import DateTimePicker from "@react-native-community/datetimepicker"
 import FilterDate from '../FilterDate'
 
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 export default function FilterComponent(props: {
     setIsDisabled: React.Dispatch<React.SetStateAction<boolean>>,
     setBurguer: React.Dispatch<React.SetStateAction<boolean>>,
@@ -71,11 +72,6 @@ export default function FilterComponent(props: {
     const [weekDay, setWeekDay] = useState<number | undefined>(props.filter.weekDay ? getNumberArrayWeekDay(props.filter.weekDay) : undefined)
     const [showTimeInitPicker, setShowTimeInitPicker] = useState(false)
     const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false)
-    const handleDateSelectorPress = () => {
-        if (Platform.OS === 'ios') {
-            setShowTimeInitPicker(true);
-        }
-    };
     const [filter, setFilter] = useState<{
         amenities: string[] | [],
         dayUseService: boolean | undefined,
@@ -106,7 +102,7 @@ export default function FilterComponent(props: {
     const handleTimeInitPicker = () => {
         setShowTimeInitPicker(true)
     }
-    const handleTimeInitChange = (event: object, selectedTime: any) => {
+    const handleTimeInitChange = (selectedTime: any) => {
         setShowTimeInitPicker(false)
         if (selectedTime) {
             setTimeInit(selectedTime)
@@ -115,7 +111,7 @@ export default function FilterComponent(props: {
     const handleTimeFinalPicker = () => {
         setShowTimeFinalPicker(true)
     }
-    const handleTimeFinalChange = (event: object, selectedTime: any) => {
+    const handleTimeFinalChange = (selectedTime: any) => {
         setShowTimeFinalPicker(false)
         if (selectedTime) {
             setTimeFinal(selectedTime)
@@ -130,7 +126,6 @@ export default function FilterComponent(props: {
                 <ScrollView className='flex flex-col gap-y-4 h-full w-3/4 pt-9'>
                     <FilterDropdown amenities={amenities} setAmenities={setAmenities} />
                     <FilterDate setWeekDay={setWeekDay} dateSelector={dateSelector} setDateSelector={setDateSelector} />
-                    
 
                     <View className='flex flex-row justify-between'>
                         <View className='w-[41%]'>
@@ -149,13 +144,27 @@ export default function FilterComponent(props: {
                                 </Text>
                             </Button>
                             {showTimeInitPicker && (
+                                Platform.OS === 'ios' ? 
+                                (
+                                <DateTimePickerModal
+                                    isVisible={true}
+                                    mode="time"
+                                    onConfirm={handleTimeInitChange}
+                                    onCancel={() => setShowTimeInitPicker(false)}
+                                    locale="pt-BR"
+                                    cancelTextIOS="Cancelar"
+                                    confirmTextIOS="Confirmar"
+                                    textColor="#333"
+                                    isDarkModeEnabled={false}
+                            />
+                                ) :
+                                (
                                 <DateTimePicker
-                                value={timeInit}
-                                mode="time"
-                                is24Hour={true}
-                                display="spinner"
-                                onChange={handleTimeInitChange}
+                                    value={timeInit}
+                                    mode="time"
+                                    onChange={handleTimeInitChange}
                                 />
+                                )
                             )}
 
                         </View>
@@ -175,13 +184,25 @@ export default function FilterComponent(props: {
                                 </Text>
                             </Button>
                             {showTimeFinalPicker && (
-                                <DateTimePicker
-                                value={timeFinal}
-                                mode="time"
-                                is24Hour={true}
-                                display="spinner"
-                                onChange={handleTimeFinalChange}
-                                />
+                                Platform.OS === "ios" ? 
+                                (
+                                <DateTimePickerModal
+                                    isVisible={true}
+                                    mode="time"
+                                    onConfirm={handleTimeFinalChange}
+                                    onCancel={() => setShowTimeFinalPicker(false)}
+                                    locale="pt-BR"
+                                    cancelTextIOS="Cancelar"
+                                    confirmTextIOS="Confirmar"
+                                    textColor="#333"
+                                    isDarkModeEnabled={false}
+                            />
+                                ) : 
+                                (<DateTimePicker
+                                    value={timeFinal}
+                                    mode="time"
+                                    onChange={handleTimeFinalChange}
+                                />)
                             )}
                         </View>
                     </View>

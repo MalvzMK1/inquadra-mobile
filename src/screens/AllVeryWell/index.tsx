@@ -14,14 +14,18 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import { IRegisterUserVariables } from "../../graphql/mutations/register";
 import { IRegisterEstablishmentVariables } from "../../graphql/mutations/registerEstablishment";
+import useCreateCourtAvailabilities from "../../hooks/useCreateCourtAvailabilities";
 import useDeleteCourtAvailability from "../../hooks/useDeleteCourtAvailability";
 import useDeleteEstablishment from "../../hooks/useDeleteEstablishment";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import useRegisterCourt from "../../hooks/useRegisterCourt";
-import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import useRegisterEstablishment from "../../hooks/useRegisterEstablishment";
 import useRegisterUser from "../../hooks/useRegisterUser";
-import { API_BASE_URL } from "../../utils/constants";
+import {
+  API_BASE_URL,
+  AsyncStorageKeys,
+  indexToWeekDayMap,
+} from "../../utils/constants";
 
 interface ToDelete {
   userIdToRemove: string | undefined;
@@ -36,7 +40,7 @@ export default function AllVeryWell({
 }: NativeStackScreenProps<RootStackParamList, "AllVeryWell">) {
   const { goBack } = useNavigation();
   const [addCourt] = useRegisterCourt();
-  const [registerCourtAvailability] = useRegisterCourtAvailability();
+  const [createCourtAvailabilities] = useCreateCourtAvailabilities();
   const [registerUser] = useRegisterUser();
   const [deleteUser] = useDeleteUser();
   const [registerEstablishment] = useRegisterEstablishment();
@@ -45,17 +49,6 @@ export default function AllVeryWell({
   const [isLoading, setIsLoading] = useState(false);
 
   const courts = route.params.courtArray;
-
-  const indexToWeekDayMap: Record<number, string> = {
-    0: "Sunday",
-    1: "Monday",
-    2: "Tuesday",
-    3: "Wednesday",
-    4: "Thursday",
-    5: "Friday",
-    6: "Saturday",
-    7: "SpecialDays",
-  };
 
   const uploadImages = async (photos: string[]) => {
     const formData = new FormData();
@@ -204,11 +197,11 @@ export default function AllVeryWell({
       for (const court of courts) {
         const [newPhotosIds, courtAvailabilityIds] = await Promise.all([
           uploadImages(court.photos.map(photo => photo.uri)),
-          Promise.all(
-            court.court_availabilities.flatMap((availabilities, index) => {
-              return availabilities.map(async availability => {
-                const { data } = await registerCourtAvailability({
-                  variables: {
+          createCourtAvailabilities({
+            variables: {
+              data: court.court_availabilities.flatMap(
+                (availabilities, index) => {
+                  return availabilities.map(availability => ({
                     status: true,
                     starts_at: `${availability.startsAt}:00.000`,
                     day_use_service: court.dayUse[index],
@@ -222,19 +215,19 @@ export default function AllVeryWell({
                     ),
                     week_day: indexToWeekDayMap[index],
                     publishedAt: new Date().toISOString(),
-                  },
-                });
+                  }));
+                },
+              ),
+            },
+          }).then(response => {
+            if (!response.data?.createCourtAvailabilitiesCustom.success) {
+              throw new Error(
+                "Não foi possível criar as disponibilidades de quadra",
+              );
+            }
 
-                if (!data) {
-                  throw new Error(
-                    "Não foi possível criar as disponibilidades de quadra",
-                  );
-                }
-
-                return data.createCourtAvailability.data.id;
-              });
-            }),
-          ),
+            return response.data.createCourtAvailabilitiesCustom.ids;
+          }),
         ]);
 
         imageIdsToRemove.push(...newPhotosIds);
@@ -255,8 +248,8 @@ export default function AllVeryWell({
       }
 
       await Promise.all([
-        AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
-        AsyncStorage.removeItem("@inquadra/court-price-hour_all-appointments"),
+        AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourDayUse),
+        AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourAllAppointments),
       ]);
 
       navigation.navigate("CompletedEstablishmentRegistration");

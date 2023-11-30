@@ -89,11 +89,6 @@ export default function () {
       );
 
       const filteredEstablishments = establishments.filter(establishment => {
-        console.log(establishment.corporateName, corporateName, {
-          penis: establishment.corporateName
-            .toLowerCase()
-            .includes(corporateName.toLowerCase()),
-        });
         return establishment.corporateName
           .toLowerCase()
           .includes(corporateName.toLowerCase());
@@ -141,34 +136,34 @@ export default function () {
           },
           headerTitle: () => (
             <>
-            {Platform.OS === 'ios' ? 
-            <View className="w-[63vw]">
-              <TextInput
-                theme={{ colors: { placeholder: "#e9e9e9" } }}
-                placeholder="O que você está procurando?"
-                underlineColorAndroid="transparent"
-                underlineColor="transparent"
-                className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-                right={<TextInput.Icon icon={"magnify"} />}
-                onChangeText={e => {
-                  setCorporateName(e);
-                }}
-              />
-              </View> 
-              : 
-              <TextInput
-                theme={{ colors: { placeholder: "#e9e9e9" } }}
-                placeholder="O que você está procurando?"
-                underlineColorAndroid="transparent"
-                underlineColor="transparent"
-                className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-                right={<TextInput.Icon icon={"magnify"} />}
-                onChangeText={e => {
-                  setCorporateName(e);
-                }}
-              />
-            }
-              
+              {Platform.OS === "ios" ? (
+                <View className="w-[63vw]">
+                  <TextInput
+                    theme={{ colors: { placeholder: "#e9e9e9" } }}
+                    placeholder="O que você está procurando?"
+                    underlineColorAndroid="transparent"
+                    underlineColor="transparent"
+                    className="bg-white rounded-2xl w-full flex h-[45px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                    right={<TextInput.Icon icon={"magnify"} />}
+                    onChangeText={e => {
+                      setCorporateName(e);
+                    }}
+                  />
+                </View>
+              ) : (
+                <TextInput
+                  theme={{ colors: { placeholder: "#e9e9e9" } }}
+                  placeholder="O que você está procurando?"
+                  underlineColorAndroid="transparent"
+                  underlineColor="transparent"
+                  className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                  right={<TextInput.Icon icon={"magnify"} />}
+                  onChangeText={e => {
+                    setCorporateName(e);
+                  }}
+                />
+              )}
+
               <View className="absolute top-[55px] w-full">
                 {EstablishmentsInfos ? (
                   EstablishmentsInfos.length > 0 ? (
@@ -371,7 +366,7 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={navigation.goBack}>
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),
@@ -826,7 +821,7 @@ export default function () {
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                if (params.userId)
+                if (params.userId !== undefined && params.userId !== null)
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
                     userID: userId ?? "",
@@ -968,7 +963,7 @@ export default function () {
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
-                  establishmentId: params.establishmentId,
+                  establishmentId: params.establishmentId ?? "",
                   establishmentPhoto: params.logo ?? "",
                 })
               }
@@ -1012,7 +1007,7 @@ export default function () {
               }}
             >
               <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
-                FINANCEIRO
+                REQUISITAR PAGAMENTO
               </Text>
             </View>
           ),
