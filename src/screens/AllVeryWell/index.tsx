@@ -14,11 +14,11 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import { IRegisterUserVariables } from "../../graphql/mutations/register";
 import { IRegisterEstablishmentVariables } from "../../graphql/mutations/registerEstablishment";
+import useCreateCourtAvailabilities from "../../hooks/useCreateCourtAvailabilities";
 import useDeleteCourtAvailability from "../../hooks/useDeleteCourtAvailability";
 import useDeleteEstablishment from "../../hooks/useDeleteEstablishment";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import useRegisterCourt from "../../hooks/useRegisterCourt";
-import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import useRegisterEstablishment from "../../hooks/useRegisterEstablishment";
 import useRegisterUser from "../../hooks/useRegisterUser";
 import {
@@ -40,7 +40,7 @@ export default function AllVeryWell({
 }: NativeStackScreenProps<RootStackParamList, "AllVeryWell">) {
   const { goBack } = useNavigation();
   const [addCourt] = useRegisterCourt();
-  const [registerCourtAvailability] = useRegisterCourtAvailability();
+  const [createCourtAvailabilities] = useCreateCourtAvailabilities();
   const [registerUser] = useRegisterUser();
   const [deleteUser] = useDeleteUser();
   const [registerEstablishment] = useRegisterEstablishment();
@@ -197,11 +197,11 @@ export default function AllVeryWell({
       for (const court of courts) {
         const [newPhotosIds, courtAvailabilityIds] = await Promise.all([
           uploadImages(court.photos.map(photo => photo.uri)),
-          Promise.all(
-            court.court_availabilities.flatMap((availabilities, index) => {
-              return availabilities.map(async availability => {
-                const { data } = await registerCourtAvailability({
-                  variables: {
+          createCourtAvailabilities({
+            variables: {
+              data: court.court_availabilities.flatMap(
+                (availabilities, index) => {
+                  return availabilities.map(availability => ({
                     status: true,
                     starts_at: `${availability.startsAt}:00.000`,
                     day_use_service: court.dayUse[index],
@@ -215,19 +215,19 @@ export default function AllVeryWell({
                     ),
                     week_day: indexToWeekDayMap[index],
                     publishedAt: new Date().toISOString(),
-                  },
-                });
+                  }));
+                },
+              ),
+            },
+          }).then(response => {
+            if (!response.data?.createCourtAvailabilitiesCustom.success) {
+              throw new Error(
+                "Não foi possível criar as disponibilidades de quadra",
+              );
+            }
 
-                if (!data) {
-                  throw new Error(
-                    "Não foi possível criar as disponibilidades de quadra",
-                  );
-                }
-
-                return data.createCourtAvailability.data.id;
-              });
-            }),
-          ),
+            return response.data.createCourtAvailabilitiesCustom.ids;
+          }),
         ]);
 
         imageIdsToRemove.push(...newPhotosIds);
