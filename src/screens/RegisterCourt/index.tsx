@@ -20,6 +20,7 @@ import MaskInput, { Masks } from "react-native-mask-input";
 import { ActivityIndicator } from "react-native-paper";
 import { z } from "zod";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
+import { AsyncStorageKeys } from "../../utils/constants";
 import { Appointment } from "../CourtPriceHour";
 
 const availabilityTimeRegex = /^\d{2}:\d{2}$/;
@@ -66,8 +67,8 @@ export default function RegisterCourt({
     setIsLoading(true);
 
     const [storageDayUse, storageAvailabilities] = await Promise.all([
-      AsyncStorage.getItem("@inquadra/court-price-hour_day-use"),
-      AsyncStorage.getItem("@inquadra/court-price-hour_all-appointments"),
+      AsyncStorage.getItem(AsyncStorageKeys.CourtPriceHourDayUse),
+      AsyncStorage.getItem(AsyncStorageKeys.CourtPriceHourAllAppointments),
     ]);
 
     const selectedCourtTypeIds: string[] = [];
@@ -148,9 +149,9 @@ export default function RegisterCourt({
           });
         } else {
           await Promise.all([
-            AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
+            AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourDayUse),
             AsyncStorage.removeItem(
-              "@inquadra/court-price-hour_all-appointments",
+              AsyncStorageKeys.CourtPriceHourAllAppointments,
             ),
           ]);
 

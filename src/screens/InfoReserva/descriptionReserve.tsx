@@ -861,6 +861,7 @@ export default function DescriptionReserve({
           )}
           {infoScheduleData?.scheduling.data?.attributes.owner.data &&
           isVanquished !== undefined &&
+          !isWithinOneHour &&
           infoScheduleData.scheduling.data.attributes.owner.data.id !==
             user_id ? (
             <>
@@ -915,6 +916,7 @@ export default function DescriptionReserve({
               serviceRate &&
               isVanquished !== undefined &&
               !isVanquished &&
+              !isWithinOneHour &&
               reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.valuePayed <
                 infoScheduleData.scheduling.data.attributes.court_availability

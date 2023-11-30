@@ -141,34 +141,34 @@ export default function () {
           },
           headerTitle: () => (
             <>
-            {Platform.OS === 'ios' ? 
-            <View className="w-[63vw]">
-              <TextInput
-                theme={{ colors: { placeholder: "#e9e9e9" } }}
-                placeholder="O que você está procurando?"
-                underlineColorAndroid="transparent"
-                underlineColor="transparent"
-                className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-                right={<TextInput.Icon icon={"magnify"} />}
-                onChangeText={e => {
-                  setCorporateName(e);
-                }}
-              />
-              </View> 
-              : 
-              <TextInput
-                theme={{ colors: { placeholder: "#e9e9e9" } }}
-                placeholder="O que você está procurando?"
-                underlineColorAndroid="transparent"
-                underlineColor="transparent"
-                className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-                right={<TextInput.Icon icon={"magnify"} />}
-                onChangeText={e => {
-                  setCorporateName(e);
-                }}
-              />
-            }
-              
+              {Platform.OS === "ios" ? (
+                <View className="w-[63vw]">
+                  <TextInput
+                    theme={{ colors: { placeholder: "#e9e9e9" } }}
+                    placeholder="O que você está procurando?"
+                    underlineColorAndroid="transparent"
+                    underlineColor="transparent"
+                    className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                    right={<TextInput.Icon icon={"magnify"} />}
+                    onChangeText={e => {
+                      setCorporateName(e);
+                    }}
+                  />
+                </View>
+              ) : (
+                <TextInput
+                  theme={{ colors: { placeholder: "#e9e9e9" } }}
+                  placeholder="O que você está procurando?"
+                  underlineColorAndroid="transparent"
+                  underlineColor="transparent"
+                  className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                  right={<TextInput.Icon icon={"magnify"} />}
+                  onChangeText={e => {
+                    setCorporateName(e);
+                  }}
+                />
+              )}
+
               <View className="absolute top-[55px] w-full">
                 {EstablishmentsInfos ? (
                   EstablishmentsInfos.length > 0 ? (
@@ -371,7 +371,7 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={navigation.goBack}>
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),
@@ -968,7 +968,7 @@ export default function () {
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
-                  establishmentId: params.establishmentId,
+                  establishmentId: params.establishmentId ?? "",
                   establishmentPhoto: params.logo ?? "",
                 })
               }

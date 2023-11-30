@@ -6,6 +6,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import CourtAvailibilityDay from "../../components/CourtAvailibilityDay";
 import SetCourtAvailibility from "../../components/SetCourtAvailibility";
 import { useAsyncStorageState } from "../../hooks/useAsyncStorageState";
+import { AsyncStorageKeys } from "../../utils/constants";
 import { formatLocaleWeekDayName, getWeekDays } from "../../utils/getWeekDates";
 
 export interface Appointment {
@@ -22,7 +23,7 @@ export default function CourtPriceHour({
   // todos os horários de todos os dias
   const [allAppointments, setAllAppointments, isLoadingInitialAllAppointments] =
     useAsyncStorageState<Appointment[][]>(
-      "@inquadra/court-price-hour_all-appointments",
+      AsyncStorageKeys.CourtPriceHourAllAppointments,
       [
         [], // domingo
         [], // segunda
@@ -37,7 +38,7 @@ export default function CourtPriceHour({
 
   const [dayUse, setDayUse, isLoadingInitialDayUse] = useAsyncStorageState<
     boolean[]
-  >("@inquadra/court-price-hour_day-use", [
+  >(AsyncStorageKeys.CourtPriceHourDayUse, [
     false, // domingo
     false, // segunda
     false, // terça

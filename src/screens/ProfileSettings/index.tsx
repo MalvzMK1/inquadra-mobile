@@ -39,7 +39,7 @@ import { getUsersCountryId } from "../../utils/getUsersCountryId";
 import { ALERT_TYPE, AlertNotificationRoot, Dialog } from "react-native-alert-notification";
 import storage from "../../utils/storage";
 import useUpdateUserPassword from "../../hooks/useUpdateUserPassword";
-import {ApolloError} from "@apollo/client";
+import { ApolloError } from "@apollo/client";
 
 interface IFormData {
   photo: string;
@@ -126,6 +126,8 @@ export default function ProfileSettings({
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [countryId, setCountryId] = useState<string | number>();
+  const [photoData, setPhotoData] = useState<Photo>();
+
   const [countries, setCountries] = useState<Array<Country>>();
   const [countriesArray, setCountriesArray] = useState<
     Array<{ key: string; value: string }>
@@ -320,40 +322,49 @@ export default function ProfileSettings({
           setProfilePicture(result.assets[0].uri);
           setImageEdited(true);
           console.log("ID da imagem enviada:", uploadedImageID);
+        }).catch(error => {
+          console.error("Erro :", error);
         });
       }
     } catch (error) {
-      console.log("Erro ao carregar a imagem: ", error);
+      console.error("Erro ao carregar a imagem: ", error);
     }
   };
 
   const uploadImage = async (selectedImageUri: string) => {
     setIsLoading(true);
     const apiUrl = HOST_API;
-
-    const formData = new FormData();
-    formData.append("files", {
-      uri: selectedImageUri,
-      name: "profile.jpg",
-      type: "image/jpeg",
-    });
-
+  
     try {
-      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+      const formData = new FormData();
+  
+      const response = await fetch(selectedImageUri);
+      const blob = await response.blob();
+      
+      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as ArrayBuffer);
+        reader.onerror = (error) => reject(error);
+        reader.readAsArrayBuffer(blob);
+      });
+  
+      formData.append("files", new Blob([arrayBuffer]), "profile.jpg");
+  
+      const axiosResponse = await axios.post(`${apiUrl}/api/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      const uploadedImageID = response.data[0].id;
-
-      console.log("Imagem enviada com sucesso!", response.data);
-
+  
+      const uploadedImageID = axiosResponse.data[0].id;
+  
+      console.log("Imagem enviada com sucesso!", axiosResponse.data);
+  
       setIsLoading(false);
-
+  
       return uploadedImageID;
     } catch (error) {
-      console.error("Erro ao enviar imagem:", JSON.stringify(error, null, 2));
+      console.error("Erro ao enviar imagem:", error);
       setIsLoading(false);
       return "Deu erro";
     }
@@ -383,12 +394,15 @@ export default function ProfileSettings({
       })
     } else {
       await updateUser({
-        user_id: data.user_id,
-        email: data.email,
-        cpf: data.cpf,
-        phone_number: data.phone_number,
-        username: data.username,
-      })
+      variables: {
+          user_id: data.user_id,
+          email: data.email,
+          cpf: data.cpf,
+          phone_number: data.phone_number,
+          username: data.username,
+          photo: data.photo ?? ''
+        },
+      });
     }
   }
 
@@ -400,7 +414,7 @@ export default function ProfileSettings({
           uploadedImageID = await uploadImage(profilePicture);
 
           setPhoto(profilePicture);
-          console.log({photo});
+          console.log({ photo });
         }
 
         await updateUserValidatingPhoto({
@@ -438,18 +452,28 @@ export default function ProfileSettings({
 
   async function loadInformations() {
     let newUserInfos = userInfos;
+
     if (
       !loading &&
       data &&
       data.usersPermissionsUser.data
     ) {
+      setPhotoData({
+        id: data.usersPermissionsUser.data.attributes.photo.data?.id ?? '',
+        name:  data.usersPermissionsUser.data.attributes.photo.data?.attributes.name ?? '',
+        alternativeText: 'Request tela de perfil',
+        ext: 'jpg',
+        mime: 'image/jpg',
+        url:  data.usersPermissionsUser.data.attributes.photo.data?.attributes.url ?? '',
+        size: 1024,
+      })
       newUserInfos = {
         id: data.usersPermissionsUser.data.id,
         username: data.usersPermissionsUser.data.attributes.username,
         cpf: data.usersPermissionsUser.data.attributes.cpf,
         email: data.usersPermissionsUser.data.attributes.email,
         phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
-        photo: data.usersPermissionsUser.data.attributes.photo.data?.id ?? '',
+        photo: photoData,
         paymentCardInfos: {
           dueDate: data.usersPermissionsUser.data.attributes
             .paymentCardInformations.dueDate
@@ -553,7 +577,7 @@ export default function ProfileSettings({
         .catch((reason) => {
           if (reason instanceof ApolloError) {
             if (reason.message === 'The provided current password is invalid')
-              alert ('A senha atual informada não é válida')
+              alert('A senha atual informada não é válida')
             alert(reason.message)
           }
           alert('Erro na alteração de senha\n' + JSON.stringify(reason, null, 2))

@@ -21,7 +21,11 @@ import useRegisterCourt from "../../hooks/useRegisterCourt";
 import useRegisterCourtAvailability from "../../hooks/useRegisterCourtAvailability";
 import useRegisterEstablishment from "../../hooks/useRegisterEstablishment";
 import useRegisterUser from "../../hooks/useRegisterUser";
-import { API_BASE_URL } from "../../utils/constants";
+import {
+  API_BASE_URL,
+  AsyncStorageKeys,
+  indexToWeekDayMap,
+} from "../../utils/constants";
 
 interface ToDelete {
   userIdToRemove: string | undefined;
@@ -45,17 +49,6 @@ export default function AllVeryWell({
   const [isLoading, setIsLoading] = useState(false);
 
   const courts = route.params.courtArray;
-
-  const indexToWeekDayMap: Record<number, string> = {
-    0: "Sunday",
-    1: "Monday",
-    2: "Tuesday",
-    3: "Wednesday",
-    4: "Thursday",
-    5: "Friday",
-    6: "Saturday",
-    7: "SpecialDays",
-  };
 
   const uploadImages = async (photos: string[]) => {
     const formData = new FormData();
@@ -255,8 +248,8 @@ export default function AllVeryWell({
       }
 
       await Promise.all([
-        AsyncStorage.removeItem("@inquadra/court-price-hour_day-use"),
-        AsyncStorage.removeItem("@inquadra/court-price-hour_all-appointments"),
+        AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourDayUse),
+        AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourAllAppointments),
       ]);
 
       navigation.navigate("CompletedEstablishmentRegistration");
