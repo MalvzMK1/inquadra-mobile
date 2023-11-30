@@ -959,7 +959,7 @@ export default function () {
               }}
             >
               <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
-                REQUSITAR PAGAMENTO
+                FINANCEIRO
               </Text>
             </View>
           ),
@@ -1012,7 +1012,7 @@ export default function () {
               }}
             >
               <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
-                FINANCEIRO
+                REQUSITAR PAGAMENTO
               </Text>
             </View>
           ),
