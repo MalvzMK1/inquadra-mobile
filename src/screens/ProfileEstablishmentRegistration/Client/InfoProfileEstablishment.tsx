@@ -261,7 +261,7 @@ export default function InfoProfileEstablishment({
 
   const handleUpdateUser = async (data: IFormData): Promise<void> => {
     try {
-      if (profilePicture) {
+      if (!profilePicture) {
         setUpdateUserIsLoading(true);
         const uploadedImageID = await uploadImage(profilePicture);
 
@@ -572,7 +572,7 @@ export default function InfoProfileEstablishment({
 
   const uploadImage = async (selectedImageUri: string) => {
     setIsLoading(true);
-    const apiUrl = HOST_API;
+    const apiUrl = "https://api-inquadra-uat.qodeless.com.br";
 
     const formData = new FormData();
     formData.append("files", {
@@ -601,31 +601,30 @@ export default function InfoProfileEstablishment({
 
   const handleProfilePictureUpload = async () => {
     try {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (status !== "granted") {
-        alert("Desculpe, precisamos da permissão para acessar a galeria!");
-        return;
-      }
+        if (status !== 'granted') {
+            alert('Desculpe, precisamos da permissão para acessar a galeria!');
+            return;
+        }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        await uploadImage(result.assets[0].uri).then(uploadedImageID => {
-          setProfilePicture(result.assets[0].uri);
-          console.log("ID da imagem enviada:", uploadedImageID);
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
         });
-      }
+
+        if (!result.canceled) {
+            await uploadImage(result.assets[0].uri).then(uploadedImageID => {
+                setProfilePicture(result.assets[0].uri);
+                console.log("ID da imagem enviada:", uploadedImageID);
+            })
+        }
     } catch (error) {
-      console.log("Erro ao carregar a imagem: ", error);
+        console.log('Erro ao carregar a imagem: ', error);
     }
-  };
+}
 
   const [showCard, setShowCard] = useState(false);
 
