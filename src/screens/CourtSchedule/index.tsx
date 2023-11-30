@@ -46,6 +46,12 @@ import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import {
+  IBlockScheduleResponse,
+  IBlockScheduleVariable,
+  blockScheduleMutation,
+} from "../../graphql/mutations/blockScheduleByDate";
+import { courtByIdQuery } from "../../graphql/queries/nextToCourtsById";
 
 const portugueseMonths = [
   "Janeiro",
@@ -104,21 +110,23 @@ export default function CourtSchedule({
 }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
   const [userId, setUserId] = useState<string>(route.params.userId);
   const [establishmentId, setEstablishmentId] = useState<string>(
-    route.params.establishmentId,
+    route.params.establishmentId
   );
-  const [establishmentPicture, setEstablishmentPicture] = useState<string | undefined>("")
+  const [establishmentPicture, setEstablishmentPicture] = useState<
+    string | undefined
+  >("");
 
   useEffect(() => {
-    AsyncStorage.getItem('@inquadra/establishment-profile-photo')
-      .then(value => {
-        console.log({ photo: value })
-        setEstablishmentPicture(value ? value : undefined)
+    AsyncStorage.getItem("@inquadra/establishment-profile-photo").then(
+      (value) => {
+        console.log({ photo: value });
+        setEstablishmentPicture(value ? value : undefined);
         navigation.setParams({
           establishmentPhoto: value ?? undefined,
-        })
-      })
-  }, [])
-
+        });
+      }
+    );
+  }, []);
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [dateSelected, setDateSelected] = useState<Date>(new Date());
@@ -155,7 +163,6 @@ export default function CourtSchedule({
     error: courtsByEstablishmentIdError,
     loading: courtsByEstablishmentIdLoading,
   } = useCourtsByEstablishmentId(establishmentId!);
-  // const {data: courtAvailabilityData, error: courtAvailabilityError, loading: courtAvailabilityLoading} = useCourtAvailability("1")
   const {
     data: schedulesData,
     error: schedulesError,
@@ -209,56 +216,59 @@ export default function CourtSchedule({
     };
   }
 
-
-
-  const [establishmentSchedules, setEstablishmentSchedules] = useState<IEstablishmentSchedules[]>([])
+  const [establishmentSchedules, setEstablishmentSchedules] = useState<
+    IEstablishmentSchedules[]
+  >([]);
   useEffect(() => {
     if (
       schedulesData &&
       schedulesData.establishment.data &&
       schedulesData.establishment.data.attributes.courts.data.length > 0
     )
-      schedulesData.establishment.data?.attributes.courts.data.map(courtItem => {
-        if (
-          courtItem &&
-          courtItem.attributes.court_availabilities.data.length > 0
-        ) {
-          courtItem.attributes.court_availabilities.data.map(
-            courtAvailabilitieItem => {
-              if (courtAvailabilitieItem.attributes.schedulings.data.length > 0) {
-                courtAvailabilitieItem.attributes.schedulings.data.map(
-                  schedulingItem => {
-                    setEstablishmentSchedules([
-                      ...establishmentSchedules!,
-                      {
-                        courtId: courtItem.id,
-                        courtName: courtItem.attributes.name,
-                        courtType:
-                          courtItem?.attributes.court_types.data[0].attributes.name,
-                        startsAt: courtAvailabilitieItem.attributes.startsAt,
-                        endsAt: courtAvailabilitieItem.attributes.endsAt,
-                        weekDay: courtAvailabilitieItem.attributes.weekDay,
-                        scheduling: {
-                          schedulingId: schedulingItem.id,
-                          schedulingDate: schedulingItem.attributes.date,
-                          schedulingStatus: schedulingItem.attributes.status,
-                          reservedBy:
-                            schedulingItem.attributes.owner.data.attributes
-                              .username,
-                          payedStatus: schedulingItem.attributes.payedStatus,
+      schedulesData.establishment.data?.attributes.courts.data.map(
+        (courtItem) => {
+          if (
+            courtItem &&
+            courtItem.attributes.court_availabilities.data.length > 0
+          ) {
+            courtItem.attributes.court_availabilities.data.map(
+              (courtAvailabilitieItem) => {
+                if (
+                  courtAvailabilitieItem.attributes.schedulings.data.length > 0
+                ) {
+                  courtAvailabilitieItem.attributes.schedulings.data.map(
+                    (schedulingItem) => {
+                      setEstablishmentSchedules([
+                        ...establishmentSchedules!,
+                        {
+                          courtId: courtItem.id,
+                          courtName: courtItem.attributes.name,
+                          courtType:
+                            courtItem?.attributes.court_types.data[0].attributes
+                              .name,
+                          startsAt: courtAvailabilitieItem.attributes.startsAt,
+                          endsAt: courtAvailabilitieItem.attributes.endsAt,
+                          weekDay: courtAvailabilitieItem.attributes.weekDay,
+                          scheduling: {
+                            schedulingId: schedulingItem.id,
+                            schedulingDate: schedulingItem.attributes.date,
+                            schedulingStatus: schedulingItem.attributes.status,
+                            reservedBy:
+                              schedulingItem.attributes.owner.data.attributes
+                                .username,
+                            payedStatus: schedulingItem.attributes.payedStatus,
+                          },
                         },
-                      },
-                    ]);
-                  },
-                );
+                      ]);
+                    }
+                  );
+                }
               }
-            },
-          );
+            );
+          }
         }
-      });
-  }, [schedulesData])
-
-
+      );
+  }, [schedulesData]);
 
   interface ICourts {
     id: string;
@@ -270,13 +280,13 @@ export default function CourtSchedule({
   if (!courtsByEstablishmentIdLoading)
     if (courtsByEstablishmentIdData != undefined)
       courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map(
-        courtItem => {
+        (courtItem) => {
           courtNames.push(courtItem.attributes.name);
           allCourts = [
             ...allCourts,
             { id: courtItem.id, name: courtItem.attributes.name },
           ];
-        },
+        }
       );
 
   const today = new Date();
@@ -292,9 +302,13 @@ export default function CourtSchedule({
       .data.attributes.photo!
   ) {
     navigation.setParams({
-      establishmentPhoto: Array.isArray(userByEstablishmentData.usersPermissionsUser.data.attributes
-        .establishment.data.attributes.photo) ? userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.photo[0] : userByEstablishmentData.usersPermissionsUser.data.attributes
+      establishmentPhoto: Array.isArray(
+        userByEstablishmentData.usersPermissionsUser.data.attributes
+          .establishment.data.attributes.photo
+      )
+        ? userByEstablishmentData.usersPermissionsUser.data.attributes
+            .establishment.data.attributes.photo[0]
+        : userByEstablishmentData.usersPermissionsUser.data.attributes
             .establishment.data.attributes.photo,
     });
   }
@@ -304,7 +318,7 @@ export default function CourtSchedule({
   else weekDates = getWeekDays(today);
 
   const standardActiveStates: IActiveState[] = [];
-  weekDates.map(item => {
+  weekDates.map((item) => {
     standardActiveStates.push({
       active: false,
       date: item.date.toISOString().split("T")[0],
@@ -318,7 +332,7 @@ export default function CourtSchedule({
     useState<IActiveState[]>(standardActiveStates);
 
   const standardActiveCourts: IActiveCourt[] = [];
-  allCourts.map(item => {
+  allCourts.map((item) => {
     standardActiveCourts.push({
       active: false,
       id: item.id,
@@ -335,10 +349,9 @@ export default function CourtSchedule({
     setActiveStates(standardActiveStates);
     setActiveCourts(standardActiveCourts);
 
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
+    storage.load<UserInfos>({
+      key: "userInfos",
+    });
   }, [userByEstablishmentData]);
 
   const [shownSchedules, setShownSchedules] = useState<
@@ -349,7 +362,7 @@ export default function CourtSchedule({
     const schedules = establishmentSchedules;
 
     let newActiveStates: IActiveState[] = [];
-    weekDates.map(weekDayItem => {
+    weekDates.map((weekDayItem) => {
       newActiveStates = [
         ...newActiveStates,
         {
@@ -371,10 +384,10 @@ export default function CourtSchedule({
     if (schedules)
       setShownSchedules(
         establishmentSchedules.filter(
-          scheduleItem =>
+          (scheduleItem) =>
             scheduleItem.scheduling.schedulingDate ===
-            weekDates[index].date.toISOString().split("T")[0],
-        ),
+            weekDates[index].date.toISOString().split("T")[0]
+        )
       );
   }
 
@@ -386,7 +399,7 @@ export default function CourtSchedule({
     let newActiveStates: IActiveState[] = [];
     try {
       await Promise.all(
-        weekDates.map(weekDayItem => {
+        weekDates.map((weekDayItem) => {
           newActiveStates = [
             ...newActiveStates,
             {
@@ -394,15 +407,14 @@ export default function CourtSchedule({
               date: data.dateString,
             },
           ];
-        }),
+        })
       );
     } catch (error) {
-      alert(error)
+      alert(error);
     }
 
-
     const index = newActiveStates.findIndex(
-      activeItem => activeItem.date == date.toISOString().split("T")[0],
+      (activeItem) => activeItem.date == date.toISOString().split("T")[0]
     );
     newActiveStates[index] = {
       active: true,
@@ -413,22 +425,21 @@ export default function CourtSchedule({
 
     const schedules = establishmentSchedules;
     if (schedules)
-    setShownSchedules(
-      establishmentSchedules.filter(
-        scheduleItem =>
-          scheduleItem.scheduling.schedulingDate ===
-          data.dateString,
-      ),
-    );
+      setShownSchedules(
+        establishmentSchedules.filter(
+          (scheduleItem) =>
+            scheduleItem.scheduling.schedulingDate === data.dateString
+        )
+      );
   }
 
-  console.log("shown:", shownSchedules)
+  console.log("shown:", shownSchedules);
 
   // const [selectedCourts, setSelectedCourts] = useState("")
   const [blockedCourtId, setBlockedCourtId] = useState<string>("");
   function handleSelectedCourt(index: number) {
     let newActiveCourts: IActiveCourt[] = [];
-    allCourts.map(courtItem => {
+    allCourts.map((courtItem) => {
       newActiveCourts = [
         ...newActiveCourts,
         {
@@ -442,7 +453,7 @@ export default function CourtSchedule({
       id: allCourts[index].id,
     };
     const selectedCourtId = newActiveCourts.find(
-      courtItem => courtItem.active === true,
+      (courtItem) => courtItem.active === true
     );
     setBlockedCourtId(selectedCourtId?.id!);
     setActiveCourts(newActiveCourts);
@@ -454,20 +465,20 @@ export default function CourtSchedule({
   }
   const [selectedCourtId, setSelectedCourtId] = useState("0");
   const [schedulingsJson, setSchedulingsJson] = useState<ISchedulingsByDate[]>(
-    [],
+    []
   );
   const apolloClient = useApolloClient();
 
   const handleNextSchedules = async (selectedCourt: string) => {
     const foundCourt = allCourts.find(
-      courtItem => courtItem.name === selectedCourt,
+      (courtItem) => courtItem.name === selectedCourt
     );
     if (!foundCourt) return;
     setSelectedCourtId(foundCourt.id);
 
     if (parseFloat(foundCourt.id) > 0) {
       let scheduleInfoArray = await Promise.all(
-        nextWeekArray.map(async item => {
+        nextWeekArray.map(async (item) => {
           const {
             data: scheduleByDateData,
             error: scheduleByDateError,
@@ -491,7 +502,7 @@ export default function CourtSchedule({
             date: item,
             scheduling_quantity: scheduleByDateData?.schedulings.data?.length,
           };
-        }),
+        })
       );
       setSchedulingsJson(scheduleInfoArray);
     }
@@ -499,7 +510,7 @@ export default function CourtSchedule({
 
   const fill = "rgba(255, 97, 18, 1)";
   let data: number[] = [];
-  schedulingsJson.forEach(item => {
+  schedulingsJson.forEach((item) => {
     data.push(item.scheduling_quantity!);
   });
   const maxValue = Math.max.apply(null, data);
@@ -538,7 +549,7 @@ export default function CourtSchedule({
 
   async function setSchedulingsByDates(dates: string[], courtId: string) {
     let schedulingsByDatesArray = await Promise.all(
-      dates.map(async dateItem => {
+      dates.map(async (dateItem) => {
         const {
           data: scheduleByDateData,
           error: scheduleByDateError,
@@ -559,10 +570,10 @@ export default function CourtSchedule({
         });
 
         if (scheduleByDateData != undefined) return scheduleByDateData;
-      }),
+      })
     );
 
-    let schedulingsByDateObject = schedulingsByDatesArray.map(item => {
+    let schedulingsByDateObject = schedulingsByDatesArray.map((item) => {
       if (JSON.stringify(item?.schedulings.data) != "[]")
         return item?.schedulings.data;
     });
@@ -571,9 +582,9 @@ export default function CourtSchedule({
       schedulingId: number;
     }
     let schedulingsByDateJson: ISchedulingId[] = [];
-    schedulingsByDateObject?.forEach(item => {
+    schedulingsByDateObject?.forEach((item) => {
       if (item != undefined) {
-        item.map(item2 => {
+        item.map((item2) => {
           schedulingsByDateJson = [
             ...schedulingsByDateJson,
             {
@@ -589,45 +600,47 @@ export default function CourtSchedule({
 
   async function handleBlockScheduleByDate(data: IBlockScheduleByDateFormData) {
     setIsLoading(true);
-
     const blockScheduleData = {
       ...data,
     };
+    console.log("blockScheduleData", blockScheduleData);
 
     const datesRange = getDatesRange(
       blockScheduleData.initialDate,
-      blockScheduleData.endDate,
+      blockScheduleData.endDate
     );
-    const courtId = blockedCourtId;
-    const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId);
+    console.log("datesRange", datesRange);
 
-    if (courtId != "") {
-      if (schedulingsByDate.length > 0) {
-        try {
-          await Promise.all(
-            schedulingsByDate.map(async item => {
-              await blockSchedule({
-                variables: {
-                  scheduling_id: item.schedulingId.toString(),
-                },
-              });
-            }),
-          );
-          setBlockedCourtId("");
-          setBlockScheduleByDateModal(false);
-          setConfirmBlockSchedule(true);
-          setIsLoading(false);
-        } catch (error) {
-          console.log("Deu ruim patrão", error);
-          setIsLoading(false);
+    const courtId = selectedCourtId;
+    console.log("courtId ID:", courtId);
+    const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId);
+    console.log("Scheduling", schedulingsByDate);
+
+    if (schedulingsByDate.length > 0 && courtId) {
+      try {
+        for (const item of schedulingsByDate) {
+          const response = await apolloClient.mutate<
+            IBlockScheduleResponse,
+            IBlockScheduleVariable
+          >({
+            fetchPolicy: "no-cache",
+            mutation: blockScheduleMutation,
+            variables: {
+              scheduling_id: item.schedulingId.toString(),
+            },
+          });
+
+          console.log("Mutation Response:", response);
         }
-      } else {
-        alert("Não há nenhuma reserva nesse intervalo de datas!");
+        setBlockedCourtId("");
+        setBlockScheduleByDateModal(false);
+        setConfirmBlockSchedule(true);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        console.error("DEFAULT_ERROR_MESSAGE", { type: "error" });
         setIsLoading(false);
       }
-    } else {
-      alert("Selecione uma quadra para bloquear a agenda!");
-      setIsLoading(false);
     }
   }
 
@@ -652,7 +665,7 @@ export default function CourtSchedule({
         new Date(formatedInitialHour)
           .toISOString()
           .split("T")[1]
-          .replace("Z", ""),
+          .replace("Z", "")
       );
       formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 30);
     }
@@ -662,7 +675,7 @@ export default function CourtSchedule({
 
   async function setSchedulingsByHours(hours: string[], courtId: string) {
     let courtAvailabilitiesByHourArray = await Promise.all(
-      hours.map(async hourItem => {
+      hours.map(async (hourItem) => {
         const {
           data: courtAvailabilityByHourData,
           error: courtAvailabilityByHourError,
@@ -684,23 +697,23 @@ export default function CourtSchedule({
 
         if (courtAvailabilityByHourData != undefined)
           return courtAvailabilityByHourData;
-      }),
+      })
     );
 
     let courtAvailabilitiesByHourObject = courtAvailabilitiesByHourArray.map(
-      item => {
+      (item) => {
         if (JSON.stringify(item?.courtAvailabilities.data) != "[]")
           return item?.courtAvailabilities.data;
-      },
+      }
     );
 
     interface ICourtAvailabilityId {
       courtAvailabilityId: string;
     }
     let courtAvailabilitiesByHourJson: ICourtAvailabilityId[] = [];
-    courtAvailabilitiesByHourObject?.forEach(item => {
+    courtAvailabilitiesByHourObject?.forEach((item) => {
       if (item != undefined) {
-        item.map(item2 => {
+        item.map((item2) => {
           courtAvailabilitiesByHourJson = [
             ...courtAvailabilitiesByHourJson,
             {
@@ -723,16 +736,16 @@ export default function CourtSchedule({
 
     const hoursRange = getHoursRange(
       blockScheduleByTimeData.initialHour,
-      blockScheduleByTimeData.endHour,
+      blockScheduleByTimeData.endHour
     );
-    const courtId = blockedCourtId;
+    const courtId = selectedCourtId;
     const schedulingsByHour = await setSchedulingsByHours(hoursRange, courtId);
 
     if (courtId != "") {
       if (schedulingsByHour.length > 0) {
         try {
           await Promise.all(
-            schedulingsByHour.map(async item => {
+            schedulingsByHour.map(async (item) => {
               await blockScheduleByHour({
                 variables: {
                   court_availability_id: item.courtAvailabilityId.toString(),
@@ -742,7 +755,7 @@ export default function CourtSchedule({
               setConfirmBlockSchedule(true);
               setIsLoading(false);
               setBlockedCourtId("");
-            }),
+            })
           );
         } catch (error) {
           console.log("Deu erro: ", error);
@@ -784,7 +797,7 @@ export default function CourtSchedule({
                   key={index}
                   localeDayInitial={date.localeDayInitial}
                   day={date.day}
-                  onClick={isClicked => {
+                  onClick={(isClicked) => {
                     handleWeekDayClick(index);
                   }}
                   active={activeStates[index].active}
@@ -841,7 +854,7 @@ export default function CourtSchedule({
         <View className={`${showAll ? "max-h-[350px]" : "max-h-fit"}`}>
           <ScrollView className={`pl-[25px] pr-[40px] mt-[15px] w-full`}>
             {shownSchedules &&
-              shownSchedules.map(scheduleItem => {
+              shownSchedules.map((scheduleItem) => {
                 const startsAt = scheduleItem.startsAt.split(":");
                 const endsAt = scheduleItem.endsAt.split(":");
 
@@ -883,10 +896,11 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ${schedulingsFocus
-                ? "text-black"
-                : "text-[#292929]" && "opacity-40"
-                } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ${
+                schedulingsFocus
+                  ? "text-black"
+                  : "text-[#292929]" && "opacity-40"
+              } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
             >
               Reservas
             </Text>
@@ -897,18 +911,17 @@ export default function CourtSchedule({
               setSchedulingsHistoricFocus(true);
               setSchedulingsFocus(false);
               navigation.navigate("Schedulings", {
-                establishmentId:
-                  establishmentId,
-                establishmentPhoto:
-                  establishmentPicture,
+                establishmentId: establishmentId,
+                establishmentPhoto: establishmentPicture,
               });
             }}
           >
             <Text
-              className={`font-black text-[16px] ml-[10px] ${schedulingsHistoricFocus
-                ? "text-black"
-                : "text-[#292929]" && "opacity-40"
-                } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ml-[10px] ${
+                schedulingsHistoricFocus
+                  ? "text-black"
+                  : "text-[#292929]" && "opacity-40"
+              } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
             >
               Histórico de reservas
             </Text>
@@ -991,7 +1004,6 @@ export default function CourtSchedule({
                         )} */}
 
             {maxValue == 0 && (
-
               <View className="h-[100px] flex items-center justify-center">
                 <Text className="text-[16px] font-bold">
                   Não há reservas para os próximos 7 dias.
@@ -1083,14 +1095,14 @@ export default function CourtSchedule({
                           <CourtSlideButton
                             key={index}
                             name={courtItem.attributes.name}
-                            onClick={isClicked => {
+                            onClick={(isClicked) => {
                               handleSelectedCourt(index);
                             }}
                             active={activeCourts[index].active}
                           />
                         );
                       }
-                    },
+                    }
                   )}
               </View>
 
@@ -1099,10 +1111,11 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.initialHour
-                      ? "border-red-400"
-                      : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      blockScheduleByTimeErrors.initialHour
+                        ? "border-red-400"
+                        : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="initialHour"
@@ -1117,7 +1130,7 @@ export default function CourtSchedule({
                           options={{
                             format: "99:99",
                           }}
-                          onChangeText={text => {
+                          onChangeText={(text) => {
                             onChange(text);
                             setStartHour(text);
                           }}
@@ -1143,10 +1156,11 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.endHour
-                      ? "border-red-400"
-                      : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      blockScheduleByTimeErrors.endHour
+                        ? "border-red-400"
+                        : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="endHour"
@@ -1160,7 +1174,7 @@ export default function CourtSchedule({
                           options={{
                             format: "99:99",
                           }}
-                          onChangeText={text => {
+                          onChangeText={(text) => {
                             onChange(text);
                             setEndHour(text);
                           }}
@@ -1186,7 +1200,7 @@ export default function CourtSchedule({
               <View className="w-full h-fit mt-[20px] mb-[20px] justify-center items-center">
                 <Button
                   onPress={handleSubmitBlockScheduleByTime(
-                    handleBlockScheduleByTime,
+                    handleBlockScheduleByTime
                   )}
                   className="h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center"
                 >
@@ -1236,14 +1250,14 @@ export default function CourtSchedule({
                         return (
                           <CourtSlideButton
                             name={courtItem.attributes.name}
-                            onClick={isClicked => {
+                            onClick={(isClicked) => {
                               handleSelectedCourt(index);
                             }}
                             active={activeCourts[index].active}
                           />
                         );
                       }
-                    },
+                    }
                   )}
               </View>
 
@@ -1252,8 +1266,9 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${errors.initialDate ? "border-red-400" : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      errors.initialDate ? "border-red-400" : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="initialDate"
@@ -1290,8 +1305,9 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${errors.endDate ? "border-red-400" : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      errors.endDate ? "border-red-400" : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="endDate"
@@ -1367,10 +1383,8 @@ export default function CourtSchedule({
         <BottomBlackMenuEstablishment
           screen="Schedule"
           userID={userId ?? ""}
-          establishmentLogo={establishmentPicture}
-          establishmentID={
-            establishmentId
-          }
+          establishmentLogo={establishmentPicture ?? null}
+          establishmentID={establishmentId}
           key={1}
           paddingTop={2}
         />
