@@ -333,35 +333,28 @@ export default function ProfileSettings({
 
   const uploadImage = async (selectedImageUri: string) => {
     setIsLoading(true);
-    const apiUrl = HOST_API;
-  
+    const apiUrl = "https://api-inquadra-uat.qodeless.com.br"
+
+    const formData = new FormData();
+    formData.append("files", {
+      uri: selectedImageUri,
+      name: "profile.jpg",
+      type: "image/jpeg",
+    });
+
     try {
-      const formData = new FormData();
-  
-      const response = await fetch(selectedImageUri);
-      const blob = await response.blob();
-      
-      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as ArrayBuffer);
-        reader.onerror = (error) => reject(error);
-        reader.readAsArrayBuffer(blob);
-      });
-  
-      formData.append("files", new Blob([arrayBuffer]), "profile.jpg");
-  
-      const axiosResponse = await axios.post(`${apiUrl}/api/upload`, formData, {
+      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-  
-      const uploadedImageID = axiosResponse.data[0].id;
-  
-      console.log("Imagem enviada com sucesso!", axiosResponse.data);
-  
+
+      const uploadedImageID = response.data[0].id;
+
+      console.log("Imagem enviada com sucesso!", response.data);
+
       setIsLoading(false);
-  
+
       return uploadedImageID;
     } catch (error) {
       console.error("Erro ao enviar imagem:", error);
