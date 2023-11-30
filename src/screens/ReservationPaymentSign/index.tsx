@@ -366,7 +366,7 @@ export default function ReservationPaymentSign({
 				});
 			}
 
-			const totalSignalValue = signalAmount + Number(serviceValue.toFixed(2));
+			const totalSignalValue = signalAmount 
 			const totalSignalValueCents = totalSignalValue * 100;
 
 			let brand = "Visa";
