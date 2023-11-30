@@ -89,11 +89,6 @@ export default function () {
       );
 
       const filteredEstablishments = establishments.filter(establishment => {
-        console.log(establishment.corporateName, corporateName, {
-          penis: establishment.corporateName
-            .toLowerCase()
-            .includes(corporateName.toLowerCase()),
-        });
         return establishment.corporateName
           .toLowerCase()
           .includes(corporateName.toLowerCase());
