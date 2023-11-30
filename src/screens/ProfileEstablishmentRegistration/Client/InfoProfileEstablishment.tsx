@@ -220,7 +220,7 @@ export default function InfoProfileEstablishment({
   const [pixKeySelected, setPixKeySelected] = useState("");
   const [amenitieSelected, setAmeniniteSelected] = useState("");
   const [courtSelected, setCourtSelected] = useState("");
-
+  const [uploadedPictureID, setUploadedPictureID] = useState<number | string>()
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -261,9 +261,9 @@ export default function InfoProfileEstablishment({
 
   const handleUpdateUser = async (data: IFormData): Promise<void> => {
     try {
-      if (!profilePicture) {
+      if (profilePicture) {
         setUpdateUserIsLoading(true);
-        const uploadedImageID = await uploadImage(profilePicture);
+        const uploadedImageID = uploadedPictureID?.toString()!
 
         const userDatas = {
           ...data,
@@ -275,11 +275,20 @@ export default function InfoProfileEstablishment({
             username: userDatas.userName,
             email: userDatas.email,
             phone_number: userDatas.phoneNumber,
-            cpf: cpf!,
-          },
+            cpf: cpf!
+          }
+
+
         })
-          .then(value => {
-            // alert(value.data?.updateUsersPermissionsUser.data?.attributes.username)
+          .then(response => {
+            if (response.data && response.data.userPermissionsUser.data) {
+              updateEstablishmentLogo({
+                variables: {
+                  establishment_id: establishmentId!,
+                  photo_id: uploadedImageID,
+                },
+              });
+            }
           })
           .catch(reason => alert(reason))
           .finally(() => setUpdateUserIsLoading(false));
@@ -298,16 +307,7 @@ export default function InfoProfileEstablishment({
               phone_number: userDatas.phoneNumber,
               cpf: cpf!,
             },
-          }).then(response => {
-            if (response.data && response.data.userPermissionsUser.data) {
-              updateEstablishmentLogo({
-                variables: {
-                  establishment_id: establishmentId,
-                  photo_id: uploadedImageID,
-                },
-              });
-            }
-          });
+          })
         }
       }
     } catch (error) {
@@ -601,30 +601,31 @@ export default function InfoProfileEstablishment({
 
   const handleProfilePictureUpload = async () => {
     try {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-        if (status !== 'granted') {
-            alert('Desculpe, precisamos da permissão para acessar a galeria!');
-            return;
-        }
+      if (status !== 'granted') {
+        alert('Desculpe, precisamos da permissão para acessar a galeria!');
+        return;
+      }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
 
-        if (!result.canceled) {
-            await uploadImage(result.assets[0].uri).then(uploadedImageID => {
-                setProfilePicture(result.assets[0].uri);
-                console.log("ID da imagem enviada:", uploadedImageID);
-            })
-        }
+      if (!result.canceled) {
+        await uploadImage(result.assets[0].uri).then(uploadedImageID => {
+          setProfilePicture(result.assets[0].uri);
+          setUploadedPictureID(uploadedImageID)
+          console.log("ID da imagem enviada:", uploadedImageID);
+        })
+      }
     } catch (error) {
-        console.log('Erro ao carregar a imagem: ', error);
+      console.log('Erro ao carregar a imagem: ', error);
     }
-}
+  }
 
   const [showCard, setShowCard] = useState(false);
 
@@ -832,9 +833,8 @@ export default function InfoProfileEstablishment({
                   textContentType="username"
                   defaultValue={defaultUserName}
                   onChangeText={onChange}
-                  className={`p-4 border ${
-                    errors.userName ? "border-red-400" : "border-gray-500"
-                  }  rounded-lg h-45`}
+                  className={`p-4 border ${errors.userName ? "border-red-400" : "border-gray-500"
+                    }  rounded-lg h-45`}
                   placeholder="Jhon"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -863,9 +863,8 @@ export default function InfoProfileEstablishment({
                   defaultValue={defaultUserEmail}
                   onChangeText={onChange}
                   keyboardType="email-address"
-                  className={`p-4 border ${
-                    errors.email ? "border-red-400" : "border-gray-500"
-                  }  rounded-lg h-45`}
+                  className={`p-4 border ${errors.email ? "border-red-400" : "border-gray-500"
+                    }  rounded-lg h-45`}
                   placeholder="Jhon@mail.com.br"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -889,9 +888,8 @@ export default function InfoProfileEstablishment({
               }}
               render={({ field: { onChange } }) => (
                 <MaskInput
-                  className={`p-4 border ${
-                    errors.phoneNumber ? "border-red-400" : "border-gray-500"
-                  }  rounded-lg h-45`}
+                  className={`p-4 border ${errors.phoneNumber ? "border-red-400" : "border-gray-500"
+                    }  rounded-lg h-45`}
                   placeholder="Ex: (00) 0000-0000"
                   value={phoneNumber}
                   onChangeText={(masked, unmasked) => {
@@ -1055,11 +1053,10 @@ export default function InfoProfileEstablishment({
                       render={({ field: { onChange } }) => (
                         <TextInput
                           onChangeText={onChange}
-                          className={`p-4 border ${
-                            pixKeyErrors.pixKey
-                              ? "border-red-400"
-                              : "border-gray-500"
-                          }  rounded-lg h-45`}
+                          className={`p-4 border ${pixKeyErrors.pixKey
+                            ? "border-red-400"
+                            : "border-gray-500"
+                            }  rounded-lg h-45`}
                           placeholder="Coloque sua chave PIX"
                           placeholderTextColor="#B8B8B8"
                         />
@@ -1318,11 +1315,10 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={fantasyName}
                       onChangeText={onChange}
-                      className={`p-4 border ${
-                        fantasyNameErrors.fantasyName
-                          ? "border-red-400"
-                          : "border-gray-500"
-                      }  rounded-lg h-45`}
+                      className={`p-4 border ${fantasyNameErrors.fantasyName
+                        ? "border-red-400"
+                        : "border-gray-500"
+                        }  rounded-lg h-45`}
                       placeholder="Nome fantasia"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1386,9 +1382,8 @@ export default function InfoProfileEstablishment({
                   }}
                   render={({ field: { onChange } }) => (
                     <MaskInput
-                      className={`p-4 border ${
-                        addressErrors.cep ? "border-red-400" : "border-gray-500"
-                      }  rounded-lg h-45`}
+                      className={`p-4 border ${addressErrors.cep ? "border-red-400" : "border-gray-500"
+                        }  rounded-lg h-45`}
                       value={cep}
                       onChangeText={(masked, unmasked) => {
                         onChange(masked);
@@ -1420,11 +1415,10 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={streetName}
                       onChangeText={onChange}
-                      className={`p-4 border ${
-                        addressErrors.streetName
-                          ? "border-red-400"
-                          : "border-gray-500"
-                      }  rounded-lg h-45`}
+                      className={`p-4 border ${addressErrors.streetName
+                        ? "border-red-400"
+                        : "border-gray-500"
+                        }  rounded-lg h-45`}
                       placeholder="Nome da rua"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1693,11 +1687,11 @@ export default function InfoProfileEstablishment({
           establishmentLogo={
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined ||
-            dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-              ?.attributes?.url !== null
+              dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
+                ?.attributes?.url !== null
               ? HOST_API +
-                dataUserEstablishment?.establishment?.data?.attributes?.logo
-                  ?.data?.attributes?.url
+              dataUserEstablishment?.establishment?.data?.attributes?.logo
+                ?.data?.attributes?.url
               : null
           }
           establishmentID={
