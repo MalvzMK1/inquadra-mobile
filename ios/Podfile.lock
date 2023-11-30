@@ -39,6 +39,30 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.71.14)
   - fmt (6.2.1)
   - glog (0.3.5)
+  - Google-Maps-iOS-Utils (4.1.0):
+    - Google-Maps-iOS-Utils/Clustering (= 4.1.0)
+    - Google-Maps-iOS-Utils/Geometry (= 4.1.0)
+    - Google-Maps-iOS-Utils/GeometryUtils (= 4.1.0)
+    - Google-Maps-iOS-Utils/Heatmap (= 4.1.0)
+    - Google-Maps-iOS-Utils/QuadTree (= 4.1.0)
+    - GoogleMaps
+  - Google-Maps-iOS-Utils/Clustering (4.1.0):
+    - Google-Maps-iOS-Utils/QuadTree
+    - GoogleMaps
+  - Google-Maps-iOS-Utils/Geometry (4.1.0):
+    - GoogleMaps
+  - Google-Maps-iOS-Utils/GeometryUtils (4.1.0):
+    - GoogleMaps
+  - Google-Maps-iOS-Utils/Heatmap (4.1.0):
+    - Google-Maps-iOS-Utils/QuadTree
+    - GoogleMaps
+  - Google-Maps-iOS-Utils/QuadTree (4.1.0):
+    - GoogleMaps
+  - GoogleMaps (7.0.0):
+    - GoogleMaps/Maps (= 7.0.0)
+  - GoogleMaps/Base (7.0.0)
+  - GoogleMaps/Maps (7.0.0):
+    - GoogleMaps/Base
   - hermes-engine (0.71.14):
     - hermes-engine/Pre-built (= 0.71.14)
   - hermes-engine/Pre-built (0.71.14)
@@ -295,6 +319,10 @@ PODS:
   - React-jsinspector (0.71.14)
   - React-logger (0.71.14):
     - glog
+  - react-native-google-maps (1.3.2):
+    - Google-Maps-iOS-Utils (= 4.1.0)
+    - GoogleMaps (= 7.0.0)
+    - React-Core
   - react-native-image-picker (5.6.1):
     - React-Core
   - react-native-maps (1.3.2):
@@ -467,6 +495,8 @@ DEPENDENCIES:
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - Google-Maps-iOS-Utils
+  - GoogleMaps
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -484,6 +514,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-google-maps (from `../node_modules/react-native-maps`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -516,6 +547,8 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - fmt
+    - Google-Maps-iOS-Utils
+    - GoogleMaps
     - InputMask
     - libevent
     - TOCropViewController
@@ -585,6 +618,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-google-maps:
+    :path: "../node_modules/react-native-maps"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-maps:
@@ -661,6 +696,8 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: b6ae48e67aaba46442f84d6f9ba598ccfbe2ee66
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
+  Google-Maps-iOS-Utils: 3343332b18dfd5be8f1f44edd7d481ace3da4d9a
+  GoogleMaps: 6e9c923ca035989709fcb5771544fda4cc5fa2a4
   hermes-engine: d7cc127932c89c53374452d6f93473f1970d8e88
   InputMask: 71d291dc54d2deaeac6512afb6ec2304228c0bb7
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
@@ -678,6 +715,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 94cfc1788637ceaf8841ef1f69b10cc0d62baadc
   React-jsinspector: 7bf923954b4e035f494b01ac16633963412660d7
   React-logger: 655ff5db8bd922acfbe76a4983ffab048916343e
+  react-native-google-maps: 035ad2f9b4974f22af3d4d4c6993960a181b0aaf
   react-native-image-picker: 5fcac5a5ffcb3737837f0617d43fd767249290de
   react-native-maps: 085f614cf14d3637b2048bb9752da5b1c27c2886
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
@@ -708,6 +746,6 @@ SPEC CHECKSUMS:
   TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
   Yoga: e71803b4c1fff832ccf9b92541e00f9b873119b9
 
-PODFILE CHECKSUM: 5c643af9bac2e56d9f8b7e7e92c14525504ca224
+PODFILE CHECKSUM: 868ce800ebf800992b967efd7456f7908e83962f
 
 COCOAPODS: 1.12.1

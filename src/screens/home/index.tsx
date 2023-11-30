@@ -3,8 +3,8 @@ import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Callout, Marker } from "react-native-maps";
+import { ActivityIndicator, Platform, Text, TouchableOpacity, View } from "react-native";
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtBallon from "../../components/CourtBalloon";
@@ -17,6 +17,7 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
+import react from "react";
 
 
 interface Props extends NativeStackScreenProps<RootStackParamList, "Home"> {
@@ -33,6 +34,7 @@ interface EstablishmentObject {
 	distance: number;
 }
 
+export const mapref = react.createRef();
 export default function Home({ menuBurguer, setMenuBurguer, route, navigation }: Props) {
 	const pointerMap = require("../../assets/pointerMap.png");
 
@@ -123,6 +125,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 		}
 	}, [isFocused]);
 
+	
 	useFocusEffect(
 		React.useCallback(() => {
 			setIsUpdated(IsUpdated + 1)
@@ -410,7 +413,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 						onPress={() => setIsDisabled(false)}
 						customMapStyle={customMapStyle}
 						showsCompass={false}
-						showsMyLocationButton
+						showsMyLocationButton={true}
 						showsUserLocation
 						initialRegion={{
 							latitude: userGeolocation.latitude,

@@ -143,7 +143,7 @@ export default function () {
                     placeholder="O que você está procurando?"
                     underlineColorAndroid="transparent"
                     underlineColor="transparent"
-                    className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                    className="bg-white rounded-2xl w-full flex h-[45px] placeholder:text-[#e9e9e9] text-sm outline-none"
                     right={<TextInput.Icon icon={"magnify"} />}
                     onChangeText={e => {
                       setCorporateName(e);
