@@ -3,8 +3,8 @@ import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Platform, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtBallon from "../../components/CourtBalloon";
@@ -326,56 +326,71 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 	}, [userGeolocation]);
 
 	useEffect(() => {
-		storage
-			.load<{ latitude: number; longitude: number }>({
-				key: "userGeolocation",
-			})
-			.then(data => setUserGeolocation(data))
-			.catch(error => {
-				if (error instanceof Error) {
-					if (error.name === 'NotFoundError') {
-						console.log('The item wasn\'t found.');
-					} else if (error.name === 'ExpiredError') {
-						console.log('The item has expired.');
-						storage.remove({
-							key: 'userGeolocation'
-						}).then(() => {
-							console.log('The item has been removed.');
-						})
-					} else {
-						console.log('Unknown error:', error);
-					}
-				}
-			});
+		console.log(route.params)
 
-		storage
-			.load<UserInfos>({
-				key: "userInfos",
-			})
-			.then(data => {
-				setUserId(data.userId);
-				navigation.setParams({
-					userID: data.userId,
+		if (
+			route &&
+			route.params &&
+			route.params.userID &&
+			route.params.userID !== ''
+		) setUserId(route.params.userID)
+		else setUserId(undefined)
+		}, []);
+
+	useEffect(() => {
+		if (!userId) {
+			storage
+				.load<{ latitude: number; longitude: number }>({
+					key: "userGeolocation",
 				})
-			})
-			.catch(error => {
-				if (error instanceof Error) {
-					setUserId(undefined)
-					if (error.name === 'NotFoundError') {
-						console.log('The item wasn\'t found.');
-					} else if (error.name === 'ExpiredError') {
-						console.log('The item has expired.');
-						storage.remove({
-							key: 'userInfos'
-						}).then(() => {
-							console.log('The item has been removed.');
-						})
-					} else {
-						console.log('Unknown error:', error);
+				.then(data => setUserGeolocation(data))
+				.catch(error => {
+					if (error instanceof Error) {
+						if (error.name === 'NotFoundError') {
+							console.log('The item wasn\'t found.');
+						} else if (error.name === 'ExpiredError') {
+							console.log('The item has expired.');
+							storage.remove({
+								key: 'userGeolocation'
+							}).then(() => {
+								console.log('The item has been removed.');
+							})
+						} else {
+							console.log('Unknown error:', error);
+						}
 					}
-				}
-			});
-	}, []);
+				});
+
+			storage
+				.load<UserInfos>({
+					key: "userInfos",
+				})
+				.then(data => {
+					console.log({data})
+					setUserId(data.userId);
+					navigation.setParams({
+						userID: data.userId,
+					})
+				})
+				.catch(error => {
+					if (error instanceof Error) {
+						setUserId(undefined)
+						if (error.name === 'NotFoundError') {
+							console.log('The item wasn\'t found.');
+						} else if (error.name === 'ExpiredError') {
+							console.log('The item has expired.');
+							storage.remove({
+								key: 'userInfos'
+							}).then(() => {
+								console.log('The item has been removed.');
+							})
+						} else {
+							console.log('Unknown error:', error);
+						}
+					}
+				});
+		}
+	}, [userId]);
 
 	useEffect(() => {
 		if (

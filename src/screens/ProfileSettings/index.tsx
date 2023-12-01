@@ -271,9 +271,22 @@ export default function ProfileSettings({
   };
 
   const handleConfirmExit = () => {
-    storage.remove({
-      key: 'userInfos',
-    }).then(() => navigation.navigate('Login'))
+    storage
+      .load<{ latitude: number; longitude: number }>({
+        key: "userGeolocation",
+      })
+      .then(data => {
+        storage.remove({
+          key: 'userInfos',
+        }).then(() => navigation.navigate('Home', {
+          userPhoto: undefined,
+          userID: '',
+          userGeolocation: data
+        }))
+      })
+      .catch(error => console.error("erro ao capturar o userLocation: ", error));
+
+
     setShowExitConfirmation(false);
   };
 

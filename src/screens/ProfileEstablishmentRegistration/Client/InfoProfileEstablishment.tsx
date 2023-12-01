@@ -1284,7 +1284,22 @@ export default function InfoProfileEstablishment({
               <TouchableOpacity
                 className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
                 onPress={handleConfirmExit}
-                onPressIn={() => navigation.navigate("Login")}
+                onPressIn={() => {
+                  storage
+                    .load<{ latitude: number; longitude: number }>({
+                      key: "userGeolocation",
+                    })
+                    .then(data => {
+                      storage.remove({
+                        key: 'userInfos',
+                      }).then(() => navigation.navigate('Home', {
+                        userPhoto: undefined,
+                        userID: '',
+                        userGeolocation: data
+                      }))
+                    })
+                    .catch(error => console.error("erro ao capturar o userLocation: ", error));
+                }}
               >
                 <Text className="text-white">Confirmar</Text>
               </TouchableOpacity>
