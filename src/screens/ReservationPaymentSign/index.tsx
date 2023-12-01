@@ -39,7 +39,7 @@ import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { generatePix } from "../../services/pixCielo";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
-import { SERVICE_FEE } from "../../utils/constants";
+import { API_BASE_URL, SERVICE_FEE } from "../../utils/constants";
 import { convertToAmericanDate } from "../../utils/formatDate";
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
@@ -61,7 +61,7 @@ const formSchema = z.object({
   date: z
     .string({ required_error: "É necessário inserior a data de vencimento" })
     .refine(
-      value => {
+      (value) => {
         const [month, year] = value.split("/");
         const numericMonth = parseInt(month, 10);
         const numericYear = parseInt(year, 10);
@@ -78,7 +78,7 @@ const formSchema = z.object({
         }
         return inputDate > currentDate;
       },
-      { message: "A data de vencimento é inválida" },
+      { message: "A data de vencimento é inválida" }
     ),
   cep: z
     .string({ required_error: "É necessário inserir o CEP" })
@@ -175,7 +175,7 @@ export default function ReservationPaymentSign({
           setTotalValue(scheduleValue + scheduleValue * SERVICE_FEE);
         }
       },
-    },
+    }
   );
 
   const [userPaymentCard] = useUserPaymentCard();
@@ -189,7 +189,7 @@ export default function ReservationPaymentSign({
         if (data.usersPermissionsUser.data.attributes.address) {
           setValue(
             "cep",
-            data.usersPermissionsUser.data.attributes.address.cep,
+            data.usersPermissionsUser.data.attributes.address.cep
           );
         }
       }
@@ -211,34 +211,34 @@ export default function ReservationPaymentSign({
         .fantasy_name
         ? dataReserve?.courtAvailability.data.attributes.court.data.attributes
             .fantasy_name
-        : "",
+        : ""
     );
     setSignalValueValidate(
       dataReserve?.courtAvailability.data.attributes.value ===
-        amountToPayHold + (serviceValue ?? 0),
+        amountToPayHold + (serviceValue ?? 0)
     );
     console.log(
       "validação:",
       dataReserve?.courtAvailability.data.attributes.value ===
-        amountToPayHold + (serviceValue ?? 0),
+        amountToPayHold + (serviceValue ?? 0)
     );
     setUserPhoto(route.params.userPhoto);
     setValuePayed(
-      dataReserve?.courtAvailability?.data?.attributes?.minValue ?? 0,
+      dataReserve?.courtAvailability?.data?.attributes?.minValue ?? 0
     );
     setSignalValue(
       Number(
         dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-          2,
-        ),
-      ),
+          2
+        )
+      )
     );
     setSignalValuePix(
       Number(
         dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-          2,
-        ),
-      ) * 100,
+          2
+        )
+      ) * 100
     );
   };
 
@@ -247,7 +247,7 @@ export default function ReservationPaymentSign({
       if (!isScreenLoading) {
         loadingScreenInfos();
       }
-    }, [isScreenLoading]),
+    }, [isScreenLoading])
   );
 
   useEffect(() => {
@@ -287,27 +287,27 @@ export default function ReservationPaymentSign({
 
   const courtLatitude = parseFloat(
     dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes
-      ?.establishment?.data?.attributes?.address?.latitude ?? "0",
+      ?.establishment?.data?.attributes?.address?.latitude ?? "0"
   );
   const courtLongitude = parseFloat(
     dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes
-      ?.establishment?.data?.attributes?.address?.longitude ?? "0",
+      ?.establishment?.data?.attributes?.address?.longitude ?? "0"
   );
 
   const distanceInMeters = useMemo(() => {
     const userLatitude = parseFloat(
-      userGeolocation?.latitude.toString() ?? "0",
+      userGeolocation?.latitude.toString() ?? "0"
     );
 
     const userLongitude = parseFloat(
-      userGeolocation?.longitude.toString() ?? "0",
+      userGeolocation?.longitude.toString() ?? "0"
     );
 
     return calculateDistance(
       userLatitude,
       userLongitude,
       courtLatitude,
-      courtLongitude,
+      courtLongitude
     );
   }, [userGeolocation, courtLatitude, courtLongitude]);
 
@@ -329,7 +329,7 @@ export default function ReservationPaymentSign({
     try {
       if (countryName && dataCountry) {
         const selectedCountry = dataCountry.countries.data.find(
-          name => name.attributes.name === countryName,
+          (name) => name.attributes.name === countryName
         );
 
         if (selectedCountry) {
@@ -340,13 +340,13 @@ export default function ReservationPaymentSign({
     } catch (error) {
       Alert.alert(
         "Erro ao procurar país",
-        JSON.stringify(error) ?? String(error),
+        JSON.stringify(error) ?? String(error)
       );
       return "";
     }
   };
 
-  const handlePay = handleSubmit(async values => {
+  const handlePay = handleSubmit(async (values) => {
     try {
       const cieloRequestManager = new CieloRequestManager();
       const countryId = getCountryIdByName(selected);
@@ -357,8 +357,8 @@ export default function ReservationPaymentSign({
       const signalAmount = dataReserve
         ? Number(
             dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-              2,
-            ),
+              2
+            )
           )
         : undefined;
 
@@ -445,7 +445,7 @@ export default function ReservationPaymentSign({
           if (createdUserPayment) {
             cieloRequestManager
               .authorizePayment(body)
-              .then(async cieloResponse => {
+              .then(async (cieloResponse) => {
                 const newScheduleId = await createNewSchedule(totalSignalValue);
 
                 if (
@@ -478,14 +478,14 @@ export default function ReservationPaymentSign({
                           setPaymentStatus("failed");
                         });
                     })
-                    .catch(error => {
+                    .catch((error) => {
                       console.error(JSON.stringify(error, null, 2));
                       alert("Erro ao registrar a cobrança no banco de dados");
                       setPaymentStatus("failed");
                     });
                 }
               })
-              .catch(error => {
+              .catch((error) => {
                 console.error(JSON.stringify(error, null, 2));
                 alert("Não foi possível realizar o pagamento");
                 deleteUserPaymentCard({
@@ -496,7 +496,7 @@ export default function ReservationPaymentSign({
               });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(JSON.stringify(error, null, 2));
           setPaymentStatus("failed");
         });
@@ -555,8 +555,8 @@ export default function ReservationPaymentSign({
       const signalAmount = dataReserve
         ? Number(
             dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-              2,
-            ),
+              2
+            )
           )
         : undefined;
 
@@ -644,11 +644,11 @@ export default function ReservationPaymentSign({
             <Image source={{ uri: courtImage }} className="w-full h-[230]" />
           </View>
           <View className="pt-5 pb-4 flex justify-center flex-row">
-            <Text className="text-base text-center font-bold">
+            <Text className="text-base text-center font-bold px-5">
               Para realizar sua reserva é necessário pagar um sinal.
             </Text>
             <TouchableOpacity
-              className="py-1 px-3"
+              className="py-1 pr-5"
               onPress={handleRateInformation}
             >
               <FontAwesome name="question-circle-o" size={13} color="black" />
@@ -843,7 +843,7 @@ export default function ReservationPaymentSign({
                           className="p-3 border border-gray-500 rounded-md h-18"
                           placeholder="Ex: 000.000.000-00"
                           value={value}
-                          onChangeText={masked => onChange(masked)}
+                          onChangeText={(masked) => onChange(masked)}
                           mask={Masks.BRL_CPF}
                           keyboardType="numeric"
                         />
@@ -869,7 +869,7 @@ export default function ReservationPaymentSign({
                       }}
                       data={
                         (dataCountry &&
-                          dataCountry.countries.data.map(country => ({
+                          dataCountry.countries.data.map((country) => ({
                             value: country.attributes.name,
                             label: country.attributes.name,
                             img: `${
@@ -902,18 +902,18 @@ export default function ReservationPaymentSign({
                             keyboardType="numeric"
                             mask={Masks.ZIP_CODE}
                             maxLength={9}
-                            onChangeText={masked => {
+                            onChangeText={(masked) => {
                               onChange(masked);
 
                               if (masked.length === 9) {
                                 getAddress(masked)
-                                  .then(response => {
+                                  .then((response) => {
                                     setValue("street", response.address);
                                     setValue("district", response.district);
                                     setValue("city", response.city);
                                     setValue("state", response.state);
                                   })
-                                  .catch(error => {
+                                  .catch((error) => {
                                     console.log(error);
                                     Dialog.show({
                                       type: ALERT_TYPE.WARNING,
@@ -1105,7 +1105,9 @@ export default function ReservationPaymentSign({
                             placeholder="Ex: XX"
                             value={value}
                             maxLength={2}
-                            onChangeText={text => onChange(text.toUpperCase())}
+                            onChangeText={(text) =>
+                              onChange(text.toUpperCase())
+                            }
                           />
 
                           {error?.message && (
@@ -1151,11 +1153,7 @@ export default function ReservationPaymentSign({
                 }
               </Text>
               <Text className="text-base">{distanceText} de distância</Text>
-              <View className="flex flex-row">
-                <View className="pt-1.5 pl-1.5">
-                  <FontAwesome name="star" color="#FF4715" size={11} />
-                </View>
-              </View>
+              <View className="flex flex-row"></View>
               <Text className="text-base">
                 {
                   dataReserve?.courtAvailability?.data?.attributes?.court?.data
@@ -1168,19 +1166,20 @@ export default function ReservationPaymentSign({
               {dataReserve?.courtAvailability.data.attributes.court.data.attributes.establishment.data.attributes.amenities.data.map(
                 (amenitieInfo, index) => (
                   <View key={index} className="flex flex-row  items-center">
-                    <SvgUri
-                      width="14"
-                      height="14"
+                    <Image
+                      style={{ width: 24, height: 24 }}
                       source={{
-                        uri: amenitieInfo.attributes.iconAmenitie.data
-                          .attributes.url,
+                        uri:
+                          API_BASE_URL +
+                          amenitieInfo.attributes.iconAmenitie.data.attributes
+                            .url,
                       }}
                     />
                     <Text className="text-base pl-2">
                       {amenitieInfo.attributes.name}
                     </Text>
                   </View>
-                ),
+                )
               )}
             </View>
           </View>
