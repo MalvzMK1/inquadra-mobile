@@ -101,10 +101,6 @@ export default function Register({
         return Alert.alert("Erro", "Este e-mail já está em uso.");
       }
 
-      if (usernameData.usersPermissionsUsers.data.length > 0) {
-        return Alert.alert("Erro", "Este nome já está em uso.");
-      }
-
       if (cpfData.usersPermissionsUsers.data.length > 0) {
         return Alert.alert("Erro", "Este cpf já está em uso.");
       }
