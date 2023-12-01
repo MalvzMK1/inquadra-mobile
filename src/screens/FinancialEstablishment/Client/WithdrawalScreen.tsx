@@ -163,6 +163,7 @@ export default function WithdrawScreen({
   } = useGetUserIDByEstablishment(route.params.establishmentId);
 
   return (
+    <View> 
     <ScrollView>
       <View className="flex-1 justify-center items-center ">
         {isWithdrawalMade ? (
@@ -305,28 +306,30 @@ export default function WithdrawScreen({
             </View>
           </View>
         </View>
-        <View className={`absolute bottom-0 left-0 right-0`}>
-          <BottomBlackMenuEstablishment
-            screen="Any"
-            userID={
-              dataUserEstablishment?.establishment.data.attributes.owner.data.id!
-            }
-            establishmentLogo={
-              dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-                ?.attributes?.url !== undefined ||
-                dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-                  ?.attributes?.url !== null
-                ? HOST_API +
-                dataUserEstablishment?.establishment?.data?.attributes?.logo
-                  ?.data?.attributes?.url
-                : undefined
-            }
-            establishmentID={route.params.establishmentId}
-            key={1}
-            paddingTop={2}
-          />
-        </View>
+       
       </View>
     </ScrollView>
+    <View className={`absolute bottom-0 left-0 right-0`}>
+    <BottomBlackMenuEstablishment
+      screen="Any"
+      userID={
+        dataUserEstablishment?.establishment.data.attributes.owner.data.id!
+      }
+      establishmentLogo={
+        dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
+          ?.attributes?.url !== undefined ||
+          dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
+            ?.attributes?.url !== null
+          ? HOST_API +
+          dataUserEstablishment?.establishment?.data?.attributes?.logo
+            ?.data?.attributes?.url
+          : undefined
+      }
+      establishmentID={route.params.establishmentId}
+      key={1}
+      paddingTop={2}
+    />
+  </View>
+    </View>
   );
 }
