@@ -460,7 +460,7 @@ export default function () {
           headerTitleAlign: "center",
           headerTitle: () => (
             <View className="flex-1 justify-center items-center">
-              <Text className="text-white text-[18px] font-black">Agenda</Text>
+              <Text className="text-white text-[18px] font-black">AGENDA</Text>
             </View>
           ),
           headerRight: () => (
@@ -751,7 +751,7 @@ export default function () {
         name="FavoriteEstablishments"
         component={FavoriteEstablishments}
         options={({ route: { params } }) => ({
-          headerTitle: "Favoritos",
+          headerTitle: "FAVORITOS",
           headerTitleStyle: {
             fontSize: 26,
           },
