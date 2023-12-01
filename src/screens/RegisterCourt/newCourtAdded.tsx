@@ -41,7 +41,7 @@ export default function RegisterNewCourtAdded({
   route,
 }: NativeStackScreenProps<RootStackParamList, "RegisterNewCourtAdded">) {
   const [modalities, setModalities] = useState([]);
-
+  const [minimumValue, setMinimumValue] = useState<string>("")
   const [courtName, setCourtName] = useState("");
   const [courtType, setCourtType] = useState("");
   const [fantasyName, setFantasyName] = useState("");
@@ -398,9 +398,30 @@ export default function RegisterNewCourtAdded({
           </View>
           <View>
             <Text className="text-xl p-1">Valor aluguel/hora</Text>
-            <TouchableOpacity className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center">
-              <Text className="text-gray-50">Clique para Definir</Text>
-            </TouchableOpacity>
+            {
+              minimumValue !== undefined && minimumValue !== null && minimumValue !== ("")
+                ? <>
+                  <TouchableOpacity
+                    className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
+                    onPress={() => navigation.navigate("CourtPriceHour", { minimumCourtPrice: minimumValue })}
+                  >
+                    <Text className="text-white font-semibold text-base">
+                      Clique para definir
+                    </Text>
+                  </TouchableOpacity>
+                </>
+                : <>
+                  <TouchableOpacity
+                    className="h-14 w-81 rounded-md bg-gray-400 flex items-center justify-center"
+                    onPress={() => { }}
+                  >
+                    <Text className="text-white font-semibold text-base">
+                      Clique para definir
+                    </Text>
+                  </TouchableOpacity>
+                  <Text className="text-base text-gray-300 font-bold m-6 ">Defina um preço mínimo primeiramente para definir os horários</Text>
+                </>
+            }
           </View>
           <View>
             <Text className="text-xl p-1">Sinal mínimo para locação</Text>
@@ -413,7 +434,7 @@ export default function RegisterNewCourtAdded({
                   keyboardType="numeric"
                   value={value}
                   placeholder="Ex.: R$ 00.00"
-                  onChangeText={(masked, unmasked) => onChange(unmasked)}
+                  onChangeText={(masked, unmasked) => { onChange(unmasked), setMinimumValue(unmasked) }}
                   className="p-5 border border-neutral-400 rounded"
                 />
               )}
