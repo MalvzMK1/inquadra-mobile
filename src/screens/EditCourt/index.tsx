@@ -60,7 +60,7 @@ export default function EditCourt({
     resolver: zodResolver(courtFormSchema),
   });
 
-  const [photo, setPhoto] = useState("");
+  const [photo, setPhoto] = useState<string | undefined>();
   const [userId, setUserId] = useState("");
   const { data: sportTypesData } = useSportTypes();
   const [updateCourtHook] = useUpdateCourt();
@@ -71,9 +71,7 @@ export default function EditCourt({
     {
       fetchPolicy: "cache-and-network",
       onCompleted(data) {
-        setPhoto(
-          data.court.data.attributes.photo.data.at(0)?.attributes.url ?? "",
-        );
+        setPhoto(data.court.data?.attributes.photo.data[0]?.attributes.url ?? undefined);
 
         setValue("fantasyName", data.court.data.attributes.fantasy_name);
         setValue(

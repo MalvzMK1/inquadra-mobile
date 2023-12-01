@@ -1002,7 +1002,10 @@ export default function InfoProfileEstablishment({
             <View>
               <SelectList
                 setSelected={(val: string) => setPixKeySelected(val)}
-                data={pixKeys}
+                data={() => {
+                  console.log(pixKeys);
+                  return pixKeys;
+                }}
                 save="value"
                 notFoundText="Nenhuma chave pix cadastrada"
                 placeholder="Selecione um dado"
@@ -1110,6 +1113,7 @@ export default function InfoProfileEstablishment({
                     style={{ marginEnd: 10 }}
                   />
                 }
+                search={false}
                 arrowicon={
                   <AntDesign
                     name="down"
