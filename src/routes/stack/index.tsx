@@ -282,7 +282,6 @@ export default function () {
             </View>
           ),
           headerRight: () => {
-            console.log("picture", params.establishmentPhoto)
             return (
               <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
                 <Image
@@ -428,7 +427,8 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: HOST_API + params.establishmentPhoto ?? "",
+                  establishmentPhoto:
+                    HOST_API + params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -470,7 +470,8 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: HOST_API + params.establishmentPhoto ?? "",
+                  establishmentPhoto:
+                    HOST_API + params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -1161,10 +1162,7 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="ml-4"
-            >
+            <TouchableOpacity onPress={navigation.goBack} className="ml-4">
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),

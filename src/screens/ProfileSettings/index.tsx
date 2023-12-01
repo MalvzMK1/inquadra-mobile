@@ -1,3 +1,4 @@
+import { ApolloError } from "@apollo/client";
 import { HOST_API } from "@env";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +7,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -19,6 +20,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {
+  ALERT_TYPE,
+  AlertNotificationRoot,
+  Dialog,
+} from "react-native-alert-notification";
 import { SelectList } from "react-native-dropdown-select-list";
 import { showMessage } from "react-native-flash-message";
 import MaskInput, { Masks } from "react-native-mask-input";
@@ -29,17 +35,13 @@ import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CreditCardCard from "../../components/CreditCardInfoCard";
 import useCountries from "../../hooks/useCountries";
 import useDeleteUser from "../../hooks/useDeleteUser";
-import useUpdatePaymentCardInformations from "../../hooks/useUpdatePaymentCardInformations";
 import useUpdateUser from "../../hooks/useUpdateUser";
-import { useGetUserById } from "../../hooks/useUserById";
-import { Card } from "../../types/Card";
-import { useToast } from 'native-base';
-import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
-import { getUsersCountryId } from "../../utils/getUsersCountryId";
-import { ALERT_TYPE, AlertNotificationRoot, Dialog } from "react-native-alert-notification";
-import storage from "../../utils/storage";
 import useUpdateUserPassword from "../../hooks/useUpdateUserPassword";
-import { ApolloError } from "@apollo/client";
+import { useGetUserById } from "../../hooks/useUserById";
+import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
+import { Card } from "../../types/Card";
+import { getUsersCountryId } from "../../utils/getUsersCountryId";
+import storage from "../../utils/storage";
 
 interface IFormData {
   photo: string;
@@ -121,14 +123,13 @@ export default function ProfileSettings({
   const { userID } = route.params;
   const [userInfos, setUserInfos] = useState<UserConfigurationProps>();
   const [showCard, setShowCard] = useState(false);
-  const [showCreditCards, setShowCraditCards] = useState(false);
+  const [showCreditCards, setShowCreditCards] = useState(false);
   const [showCameraIcon, setShowCameraIcon] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [countryId, setCountryId] = useState<string | number>();
   const [photoData, setPhotoData] = useState<Photo>();
 
-  const [countries, setCountries] = useState<Array<Country>>();
   const [countriesArray, setCountriesArray] = useState<
     Array<{ key: string; value: string }>
   >([]);
@@ -140,24 +141,11 @@ export default function ProfileSettings({
   const [isLoading, setIsLoading] = useState(false);
   const [userCountry, setUserCountry] = useState<Country>();
 
-  const { data: userPaymentCountryData, error: userPaymentCountryError } = useUserPaymentCountry(userID)
-  const { loading, error, data, refetch } = useGetUserById(userID);
-  const {
-    data: countriesData,
-    loading: countriesLoading,
-    error: countriesError,
-  } = useCountries();
-  const [
-    updateUser,
-    { data: updatedUserData, loading: isUpdateLoading, error: updateUserError },
-  ] = useUpdateUser();
-  const [
-    updatePaymentCardInformations,
-    {
-      data: updatedPaymentCardInformations,
-      loading: isUpdatePaymentCardLoading,
-    },
-  ] = useUpdatePaymentCardInformations();
+  const { data: userPaymentCountryData } = useUserPaymentCountry(userID);
+  const { loading, data } = useGetUserById(userID);
+  const { data: countriesData, loading: countriesLoading } = useCountries();
+  const [updateUser] = useUpdateUser();
+
   const [deleteUser] = useDeleteUser();
 
   useEffect(() => {
@@ -203,7 +191,7 @@ export default function ProfileSettings({
   };
 
   const handleOpenCardsModal = () => {
-    setShowCraditCards(!showCreditCards);
+    setShowCreditCards(!showCreditCards);
   };
 
   const updateCardInfos = (data: IPaymentCardFormData) => {
@@ -219,13 +207,13 @@ export default function ProfileSettings({
       data.city,
       data.state,
     ).then(() => {
-      console.log('ur')
+      console.log("ur");
       Dialog.show({
-        title: 'Cartão adicionado com sucesso',
+        title: "Cartão adicionado com sucesso",
         type: ALERT_TYPE.SUCCESS,
         closeOnOverlayTap: true,
-        autoClose: true
-      })
+        autoClose: true,
+      });
     });
   };
 
@@ -276,16 +264,21 @@ export default function ProfileSettings({
         key: "userGeolocation",
       })
       .then(data => {
-        storage.remove({
-          key: 'userInfos',
-        }).then(() => navigation.navigate('Home', {
-          userPhoto: undefined,
-          userID: '',
-          userGeolocation: data
-        }))
+        storage
+          .remove({
+            key: "userInfos",
+          })
+          .then(() =>
+            navigation.navigate("Home", {
+              userPhoto: undefined,
+              userID: "",
+              userGeolocation: data,
+            }),
+          );
       })
-      .catch(error => console.error("erro ao capturar o userLocation: ", error));
-
+      .catch(error =>
+        console.error("erro ao capturar o userLocation: ", error),
+      );
 
     setShowExitConfirmation(false);
   };
@@ -295,7 +288,11 @@ export default function ProfileSettings({
   };
 
   const [profilePicture, setProfilePicture] = useState<string | undefined>();
-  const haveProfilePicture: boolean = data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined ? true : false
+  const haveProfilePicture: boolean =
+    data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !==
+    undefined
+      ? true
+      : false;
   const [photo, setPhoto] = useState("");
   const [imageEdited, setImageEdited] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
@@ -310,8 +307,6 @@ export default function ProfileSettings({
         data.usersPermissionsUser.data.attributes.photo.data.attributes.url,
       );
   });
-
-
 
   const handleProfilePictureUpload = async () => {
     try {
@@ -331,13 +326,15 @@ export default function ProfileSettings({
       });
 
       if (!result.canceled) {
-        await uploadImage(result.assets[0].uri).then(uploadedImageID => {
-          setProfilePicture(result.assets[0].uri);
-          setImageEdited(true);
-          console.log("ID da imagem enviada:", uploadedImageID);
-        }).catch(error => {
-          console.error("Erro :", error);
-        });
+        await uploadImage(result.assets[0].uri)
+          .then(uploadedImageID => {
+            setProfilePicture(result.assets[0].uri);
+            setImageEdited(true);
+            console.log("ID da imagem enviada:", uploadedImageID);
+          })
+          .catch(error => {
+            console.error("Erro :", error);
+          });
       }
     } catch (error) {
       console.error("Erro ao carregar a imagem: ", error);
@@ -346,7 +343,7 @@ export default function ProfileSettings({
 
   const uploadImage = async (selectedImageUri: string) => {
     setIsLoading(true);
-    const apiUrl = "https://api-inquadra-uat.qodeless.com.br"
+    const apiUrl = "https://api-inquadra-uat.qodeless.com.br";
 
     const formData = new FormData();
     formData.append("files", {
@@ -385,7 +382,9 @@ export default function ProfileSettings({
     photo?: string;
   }
 
-  async function updateUserValidatingPhoto(data: IUpdateUserValidatingPhotoProps): Promise<void> {
+  async function updateUserValidatingPhoto(
+    data: IUpdateUserValidatingPhotoProps,
+  ): Promise<void> {
     console.log(JSON.stringify(data, null, 2));
     if (data.photo) {
       await updateUser({
@@ -396,17 +395,17 @@ export default function ProfileSettings({
           phone_number: data.phone_number,
           username: data.username,
           photo: data.photo,
-        }
-      })
+        },
+      });
     } else {
       await updateUser({
-      variables: {
+        variables: {
           user_id: data.user_id,
           email: data.email,
           cpf: data.cpf,
           phone_number: data.phone_number,
           username: data.username,
-          photo: data.photo ?? ''
+          photo: data.photo ?? "",
         },
       });
     }
@@ -430,28 +429,33 @@ export default function ProfileSettings({
           phone_number: data.phoneNumber,
           user_id: userInfos.id,
           email: data.email,
-        }).catch(error => {
-          Dialog.show({
-            type: ALERT_TYPE.WARNING,
-            title: 'Erro',
-            textBody: 'Não foi possível atualizar as informações do usuário'
-          })
-          console.error("Erro ao atualizar informações do usuário:", JSON.stringify(error, null, 2));
-        }).then(() => {
-          Dialog.show({
-            type: ALERT_TYPE.SUCCESS,
-            title: 'Sucesso',
-            textBody: 'As informações foram atualizadas'
-          })
-          console.log("Informações do usuário atualizadas com sucesso!");
         })
+          .catch(error => {
+            Dialog.show({
+              type: ALERT_TYPE.WARNING,
+              title: "Erro",
+              textBody: "Não foi possível atualizar as informações do usuário",
+            });
+            console.error(
+              "Erro ao atualizar informações do usuário:",
+              JSON.stringify(error, null, 2),
+            );
+          })
+          .then(() => {
+            Dialog.show({
+              type: ALERT_TYPE.SUCCESS,
+              title: "Sucesso",
+              textBody: "As informações foram atualizadas",
+            });
+            console.log("Informações do usuário atualizadas com sucesso!");
+          });
       }
     } catch (error) {
       Dialog.show({
         type: ALERT_TYPE.WARNING,
-        title: 'Erro',
-        textBody: 'Não foi possível atualizar as informações do usuário'
-      })
+        title: "Erro",
+        textBody: "Não foi possível atualizar as informações do usuário",
+      });
       console.error("Erro ao atualizar informações do usuário:", error);
     }
   }
@@ -459,20 +463,20 @@ export default function ProfileSettings({
   async function loadInformations() {
     let newUserInfos = userInfos;
 
-    if (
-      !loading &&
-      data &&
-      data.usersPermissionsUser.data
-    ) {
+    if (!loading && data && data.usersPermissionsUser.data) {
       setPhotoData({
-        id: data.usersPermissionsUser.data.attributes.photo.data?.id ?? '',
-        name:  data.usersPermissionsUser.data.attributes.photo.data?.attributes.name ?? '',
-        alternativeText: 'Request tela de perfil',
-        ext: 'jpg',
-        mime: 'image/jpg',
-        url:  data.usersPermissionsUser.data.attributes.photo.data?.attributes.url ?? '',
+        id: data.usersPermissionsUser.data.attributes.photo.data?.id ?? "",
+        name:
+          data.usersPermissionsUser.data.attributes.photo.data?.attributes
+            .name ?? "",
+        alternativeText: "Request tela de perfil",
+        ext: "jpg",
+        mime: "image/jpg",
+        url:
+          data.usersPermissionsUser.data.attributes.photo.data?.attributes
+            .url ?? "",
         size: 1024,
-      })
+      });
       newUserInfos = {
         id: data.usersPermissionsUser.data.id,
         username: data.usersPermissionsUser.data.attributes.username,
@@ -484,15 +488,15 @@ export default function ProfileSettings({
           dueDate: data.usersPermissionsUser.data.attributes
             .paymentCardInformations.dueDate
             ? data.usersPermissionsUser.data.attributes.paymentCardInformations
-              .dueDate
+                .dueDate
             : "",
           cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations
             .cvv
             ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString()
             : "",
           country: {
-            id: userCountry?.id ?? '1',
-            name: userCountry?.name ?? 'Brasil',
+            id: userCountry?.id ?? "1",
+            name: userCountry?.name ?? "Brasil",
           },
         },
       };
@@ -504,8 +508,8 @@ export default function ProfileSettings({
   function defineDefaultFieldValues(
     userData:
       | (Omit<User, "id" | "cep" | "latitude" | "longitude" | "streetName"> & {
-        paymentCardInfos: { dueDate: string; cvv: string };
-      })
+          paymentCardInfos: { dueDate: string; cvv: string };
+        })
       | undefined,
   ): void {
     if (userData) {
@@ -524,7 +528,8 @@ export default function ProfileSettings({
     confirmPassword: string;
   }
 
-  const [updatePasswordIsLoading, setUpdatePasswordIsLoading] = useState<boolean>(false);
+  const [updatePasswordIsLoading, setUpdatePasswordIsLoading] =
+    useState<boolean>(false);
   const [jwtToken, setJwtToken] = useState<string>("");
   const [editPasswordModal, setEditPasswordModal] = useState<boolean>(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -534,67 +539,70 @@ export default function ProfileSettings({
   const [updateUserPassword] = useUpdateUserPassword();
 
   const passwordFormSchema = z.object({
-    currentPassword: z.string()
-      .nonempty('O campo não pode estar vazio'),
-    password: z.string()
-      .nonempty('O campo não pode estar vazio'),
-    confirmPassword: z.string()
-      .nonempty('O campo não pode estar vazio')
-  })
+    currentPassword: z.string().nonempty("O campo não pode estar vazio"),
+    password: z.string().nonempty("O campo não pode estar vazio"),
+    confirmPassword: z.string().nonempty("O campo não pode estar vazio"),
+  });
 
-  const { control: controlPassword, handleSubmit: handleSubmitPassword, formState: { errors: passwordErrors } } = useForm<IPasswordFormData>({
-    resolver: zodResolver(passwordFormSchema)
-  })
+  const {
+    control: controlPassword,
+    handleSubmit: handleSubmitPassword,
+    formState: { errors: passwordErrors },
+  } = useForm<IPasswordFormData>({
+    resolver: zodResolver(passwordFormSchema),
+  });
 
-  const closeEditPasswordModal = () => setEditPasswordModal(false)
+  const closeEditPasswordModal = () => setEditPasswordModal(false);
 
   const handleShowCurrentPassword = () => {
-    setShowCurrentPassword(!showCurrentPassword)
-  }
+    setShowCurrentPassword(!showCurrentPassword);
+  };
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
-  }
+  };
   const handleConfirmShowPassword = () => {
-    setShowConfirmedPassword(!showConfirmedPassword)
-  }
+    setShowConfirmedPassword(!showConfirmedPassword);
+  };
 
   function handleUpdateUserPassword(data: IPasswordFormData): void {
-    setUpdatePasswordIsLoading(true)
+    setUpdatePasswordIsLoading(true);
 
     if (data.password === data.confirmPassword) {
       const passwordData = {
-        ...data
-      }
+        ...data,
+      };
 
       updateUserPassword({
         context: {
           headers: {
-            Authorization: `bearer ${jwtToken}`
-          }
+            Authorization: `bearer ${jwtToken}`,
+          },
         },
         variables: {
           current_password: passwordData.currentPassword,
           password: passwordData.password,
-          password_confirmation: passwordData.confirmPassword
-        }
-      }).then(value => {
-        alert("Senha alterada com sucesso")
+          password_confirmation: passwordData.confirmPassword,
+        },
       })
-        .catch((reason) => {
+        .then(value => {
+          alert("Senha alterada com sucesso");
+        })
+        .catch(reason => {
           if (reason instanceof ApolloError) {
-            if (reason.message === 'The provided current password is invalid')
-              alert('A senha atual informada não é válida')
-            alert(reason.message)
+            if (reason.message === "The provided current password is invalid")
+              alert("A senha atual informada não é válida");
+            alert(reason.message);
           }
-          alert('Erro na alteração de senha\n' + JSON.stringify(reason, null, 2))
+          alert(
+            "Erro na alteração de senha\n" + JSON.stringify(reason, null, 2),
+          );
         })
         .finally(() => {
-          setUpdatePasswordIsLoading(false)
-          setEditPasswordModal(false)
-        })
+          setUpdatePasswordIsLoading(false);
+          setEditPasswordModal(false);
+        });
     }
   }
-
 
   useEffect(() => {
     loadInformations().then(data => {
@@ -603,12 +611,14 @@ export default function ProfileSettings({
       setUserInfos(data);
     });
 
-    storage.load<UserInfos>({
-      key: 'userInfos',
-    }).then((data) => {
-      console.error(data)
-      setJwtToken(data.token)
-    })
+    storage
+      .load<UserInfos>({
+        key: "userInfos",
+      })
+      .then(data => {
+        console.error(data);
+        setJwtToken(data.token);
+      });
   }, [loading]);
 
   let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!;
@@ -653,8 +663,8 @@ export default function ProfileSettings({
       city: city,
       state: state,
     };
+
     setCards(prevCards => [...prevCards, newCard]);
-    console.log("log cards", cards);
 
     await AsyncStorage.setItem(
       `user${userID}Cards`,
@@ -677,32 +687,36 @@ export default function ProfileSettings({
   };
 
   useEffect(() => {
-    let foundCountryId: string | number | undefined
+    let foundCountryId: string | number | undefined;
     if (userPaymentCountryData)
       foundCountryId = getUsersCountryId(userID, userPaymentCountryData);
     setCountryId(foundCountryId);
-  }, [userPaymentCountryData])
+  }, [userPaymentCountryData]);
 
   useEffect(() => {
     if (countriesData && countryId) {
-      const { data: newCountries } = countriesData.countries
+      const { data: newCountries } = countriesData.countries;
 
-      const foundCountry = newCountries.find(country => String(country.id) === String(countryId));
+      const foundCountry = newCountries.find(
+        country => String(country.id) === String(countryId),
+      );
 
-      if (foundCountry) setUserCountry({
-        name: foundCountry.attributes.name,
-        ISOCode: foundCountry.attributes.ISOCode,
-        flag: {
-          id: foundCountry.attributes.flag.data.id,
-          name: foundCountry.attributes.flag.data.attributes.name,
-          url: foundCountry.attributes.flag.data.attributes.url,
-          hash: foundCountry.attributes.flag.data.attributes.hash,
-          alternativeText: foundCountry.attributes.flag.data.attributes.alternativeText
-        },
-        id: foundCountry.id,
-      });
+      if (foundCountry)
+        setUserCountry({
+          name: foundCountry.attributes.name,
+          ISOCode: foundCountry.attributes.ISOCode,
+          flag: {
+            id: foundCountry.attributes.flag.data.id,
+            name: foundCountry.attributes.flag.data.attributes.name,
+            url: foundCountry.attributes.flag.data.attributes.url,
+            hash: foundCountry.attributes.flag.data.attributes.hash,
+            alternativeText:
+              foundCountry.attributes.flag.data.attributes.alternativeText,
+          },
+          id: foundCountry.id,
+        });
     }
-  }, [countriesData])
+  }, [countriesData]);
 
   return (
     <AlertNotificationRoot>
@@ -741,9 +755,15 @@ export default function ProfileSettings({
               <TouchableOpacity style={{ alignItems: "center", marginTop: 8 }}>
                 <View style={styles.container}>
                   {profilePicture ? (
-                    <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+                    <Image
+                      source={{ uri: profilePicture }}
+                      style={styles.profilePicture}
+                    />
                   ) : (
-                    <Image source={{ uri: HOST_API + photo }} style={styles.profilePicture} />
+                    <Image
+                      source={{ uri: HOST_API + photo }}
+                      style={styles.profilePicture}
+                    />
                   )}
 
                   <TouchableOpacity
@@ -860,12 +880,8 @@ export default function ProfileSettings({
                 <TouchableOpacity onPress={handleCardClick}>
                   <Text className="text-base">Adicionar Cartão</Text>
                   <View className="w-full h-14 border border-gray-500 rounded-md flex flex-row justify-between items-center px-4">
-                    <View className='flex flex-row items-center gap-2'>
-                      <FontAwesome
-                        name='plus'
-                        size={12}
-                        color='#FF6112'
-                      />
+                    <View className="flex flex-row items-center gap-2">
+                      <FontAwesome name="plus" size={12} color="#FF6112" />
                       <FontAwesome
                         name="credit-card-alt"
                         size={24}
@@ -892,10 +908,11 @@ export default function ProfileSettings({
                           <MaskInput
                             value={getPaymentCardValues("cardNumber")}
                             placeholder="Ex: 0000-0000-0000-0000"
-                            className={`p-3 border ${paymentCardErrors.cvv
-                              ? "border-red-400"
-                              : "border-gray-500"
-                              } rounded-md h-18`}
+                            className={`p-3 border ${
+                              paymentCardErrors.cvv
+                                ? "border-red-400"
+                                : "border-gray-500"
+                            } rounded-md h-18`}
                             onChangeText={onChange}
                             mask={Masks.CREDIT_CARD}
                             keyboardType="numeric"
@@ -920,10 +937,11 @@ export default function ProfileSettings({
                           render={({ field: { onChange } }) => (
                             <TextInputMask
                               value={getPaymentCardValues("dueDate")}
-                              className={`p-3 border ${paymentCardErrors.dueDate
-                                ? "border-red-400"
-                                : "border-gray-500"
-                                } rounded-md h-18 flex-1`}
+                              className={`p-3 border ${
+                                paymentCardErrors.dueDate
+                                  ? "border-red-400"
+                                  : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
                               type={"datetime"}
                               options={{
                                 format: "MM/YY",
@@ -949,10 +967,11 @@ export default function ProfileSettings({
                           render={({ field: { onChange } }) => (
                             <TextInput
                               value={getPaymentCardValues("cvv")}
-                              className={`p-3 border ${paymentCardErrors.cvv
-                                ? "border-red-400"
-                                : "border-gray-500"
-                                } rounded-md h-18 flex-1`}
+                              className={`p-3 border ${
+                                paymentCardErrors.cvv
+                                  ? "border-red-400"
+                                  : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
                               onChangeText={onChange}
                               placeholder="***"
                               keyboardType="numeric"
@@ -981,8 +1000,8 @@ export default function ProfileSettings({
                                   onChange(val);
                                 }}
                                 defaultOption={{
-                                  key: userCountry?.id ?? '1',
-                                  value: userCountry?.name ?? 'Brasil',
+                                  key: userCountry?.id ?? "1",
+                                  value: userCountry?.name ?? "Brasil",
                                 }}
                                 data={countriesArray}
                                 save="key"
@@ -1000,7 +1019,7 @@ export default function ProfileSettings({
                       </View>
                     </View>
                     <View className="flex flex-row justify-between gap-8">
-                      <View className='flex-1'>
+                      <View className="flex-1">
                         <Text className="text-sm text-[#FF6112]">CEP</Text>
                         <Controller
                           name="cep"
@@ -1010,7 +1029,9 @@ export default function ProfileSettings({
                               value={getPaymentCardValues("cep")}
                               className="p-3 border border-neutral-400 rounded bg-white flex-1"
                               placeholder="Ex: 00000-000"
-                              onChangeText={(masked, unmasked) => onChange(unmasked)}
+                              onChangeText={(masked, unmasked) =>
+                                onChange(unmasked)
+                              }
                               keyboardType="numeric"
                               mask={Masks.ZIP_CODE}
                               maxLength={9}
@@ -1023,7 +1044,7 @@ export default function ProfileSettings({
                           </Text>
                         )}
                       </View>
-                      <View className='flex-1'>
+                      <View className="flex-1">
                         <Text className="text-sm text-[#FF6112]">Numero</Text>
                         <Controller
                           name="houseNumber"
@@ -1086,7 +1107,9 @@ export default function ProfileSettings({
                       </Text>
                     )}
                     <View>
-                      <Text className="text-sm text-[#FF6112]">Complemento</Text>
+                      <Text className="text-sm text-[#FF6112]">
+                        Complemento
+                      </Text>
                       <Controller
                         name="complement"
                         control={paymentCardControl}
@@ -1106,7 +1129,7 @@ export default function ProfileSettings({
                       </Text>
                     )}
                     <View className="flex flex-row justify-between gap-8">
-                      <View className='flex-1'>
+                      <View className="flex-1">
                         <Text className="text-sm text-[#FF6112]">Cidade</Text>
                         <Controller
                           name="city"
@@ -1126,7 +1149,7 @@ export default function ProfileSettings({
                           </Text>
                         )}
                       </View>
-                      <View className='flex-1'>
+                      <View className="flex-1">
                         <Text className="text-sm text-[#FF6112]">Estado</Text>
                         <Controller
                           name="state"
@@ -1176,14 +1199,14 @@ export default function ProfileSettings({
                   cards.length > 0 ? (
                     <View className=" border-gray-500 flex w-max h-max">
                       {cards.map(card => (
-                        <>
+                        <Fragment key={card.id}>
                           <CreditCardCard
                             number={card.number}
                             id={card.id}
                             userID={userID}
                           />
-                          <View className="h-2"></View>
-                        </>
+                          <View className="h-2" />
+                        </Fragment>
                       ))}
                     </View>
                   ) : (
@@ -1195,9 +1218,11 @@ export default function ProfileSettings({
                 <View>
                   <TouchableOpacity
                     onPress={() => setEditPasswordModal(true)}
-                    className='flex-1 flex flex-row justify-end items-center'
+                    className="flex-1 flex flex-row justify-end items-center"
                   >
-                    <Text className='text-orange-600 border-b border-b-orange-600 text-base mb-4'>Alterar senha</Text>
+                    <Text className="text-orange-600 border-b border-b-orange-600 text-base mb-4">
+                      Alterar senha
+                    </Text>
                   </TouchableOpacity>
                   <View className="p-2">
                     <TouchableOpacity
@@ -1279,7 +1304,9 @@ export default function ProfileSettings({
               >
                 <View className="flex-1 justify-center items-center bg-black bg-opacity-10">
                   <View className="bg-white rounded-md p-20 items-center">
-                    <Text className=" font-bold text-lg mb-8">Sair do App?</Text>
+                    <Text className=" font-bold text-lg mb-8">
+                      Sair do App?
+                    </Text>
                     <TouchableOpacity
                       className="h-10 w-40 mb-4 rounded-md bg-orange-500 flex items-center justify-center"
                       onPress={handleCancelExit}
@@ -1306,105 +1333,178 @@ export default function ProfileSettings({
           paddingTop={50}
         />
       </View>
-      <Modal visible={editPasswordModal} animationType='fade' transparent={true} onRequestClose={closeEditPasswordModal}>
-        <View className='h-full w-full justify-center items-center'>
-          <View className='h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6'>
-
-            <View className='w-full'>
-              <Text className='text-[14px] font-bold'>Insira a sua senha atual:</Text>
-              <View className={passwordErrors.currentPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+      <Modal
+        visible={editPasswordModal}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={closeEditPasswordModal}
+      >
+        <View className="h-full w-full justify-center items-center">
+          <View className="h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6">
+            <View className="w-full">
+              <Text className="text-[14px] font-bold">
+                Insira a sua senha atual:
+              </Text>
+              <View
+                className={
+                  passwordErrors.currentPassword
+                    ? "flex flex-row items-center justify-between border border-red-400 rounded"
+                    : "flex flex-row items-center justify-between border border-neutral-400 rounded"
+                }
+              >
                 <Controller
-                  name='currentPassword'
+                  name="currentPassword"
                   control={controlPassword}
                   rules={{
                     required: true,
-                    minLength: 6
+                    minLength: 6,
                   }}
                   render={({ field: { onChange } }) => (
                     <TextInput
-                      textContentType='password'
+                      textContentType="password"
                       secureTextEntry={!showCurrentPassword}
                       onChangeText={onChange}
                       className="p-4 flex-1"
-                      placeholder='Senha atual'
+                      placeholder="Senha atual"
                       placeholderTextColor="#B8B8B8"
                     />
                   )}
                 />
                 <TouchableOpacity onPress={handleShowCurrentPassword}>
-                  <Image className="h-4 w-4 m-4" source={!showCurrentPassword ? require('../../assets/eye.png') : require('../../assets/eye-slash.png')}></Image>
+                  <Image
+                    className="h-4 w-4 m-4"
+                    source={
+                      !showCurrentPassword
+                        ? require("../../assets/eye.png")
+                        : require("../../assets/eye-slash.png")
+                    }
+                  ></Image>
                 </TouchableOpacity>
               </View>
-              {passwordErrors.currentPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.currentPassword.message}</Text>}
+              {passwordErrors.currentPassword && (
+                <Text className="text-red-400 text-sm -pt-[10px]">
+                  {passwordErrors.currentPassword.message}
+                </Text>
+              )}
             </View>
 
-            <View className='w-full'>
-              <Text className='text-[14px] font-bold'>Insira sua nova senha:</Text>
-              <View className={passwordErrors.password ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+            <View className="w-full">
+              <Text className="text-[14px] font-bold">
+                Insira sua nova senha:
+              </Text>
+              <View
+                className={
+                  passwordErrors.password
+                    ? "flex flex-row items-center justify-between border border-red-400 rounded"
+                    : "flex flex-row items-center justify-between border border-neutral-400 rounded"
+                }
+              >
                 <Controller
-                  name='password'
+                  name="password"
                   control={controlPassword}
                   rules={{
                     required: true,
-                    minLength: 6
+                    minLength: 6,
                   }}
                   render={({ field: { onChange } }) => (
                     <TextInput
-                      textContentType='password'
+                      textContentType="password"
                       secureTextEntry={!showPassword}
                       onChangeText={onChange}
                       className="p-4 flex-1"
-                      placeholder='Nova senha'
+                      placeholder="Nova senha"
                       placeholderTextColor="#B8B8B8"
                     />
                   )}
                 />
                 <TouchableOpacity onPress={handleShowPassword}>
-                  <Image className="h-4 w-4 m-4" source={!showPassword ? require('../../assets/eye.png') : require('../../assets/eye-slash.png')}></Image>
+                  <Image
+                    className="h-4 w-4 m-4"
+                    source={
+                      !showPassword
+                        ? require("../../assets/eye.png")
+                        : require("../../assets/eye-slash.png")
+                    }
+                  ></Image>
                 </TouchableOpacity>
               </View>
-              {passwordErrors.password && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.password.message}</Text>}
+              {passwordErrors.password && (
+                <Text className="text-red-400 text-sm -pt-[10px]">
+                  {passwordErrors.password.message}
+                </Text>
+              )}
             </View>
 
-            <View className='w-full'>
-              <Text className='text-[14px] font-bold'>Confirme sua nova senha:</Text>
-              <View className={passwordErrors.confirmPassword ? 'flex flex-row items-center justify-between border border-red-400 rounded' : 'flex flex-row items-center justify-between border border-neutral-400 rounded'}>
+            <View className="w-full">
+              <Text className="text-[14px] font-bold">
+                Confirme sua nova senha:
+              </Text>
+              <View
+                className={
+                  passwordErrors.confirmPassword
+                    ? "flex flex-row items-center justify-between border border-red-400 rounded"
+                    : "flex flex-row items-center justify-between border border-neutral-400 rounded"
+                }
+              >
                 <Controller
-                  name='confirmPassword'
+                  name="confirmPassword"
                   control={controlPassword}
                   rules={{
                     required: true,
-                    minLength: 6
+                    minLength: 6,
                   }}
                   render={({ field: { onChange } }) => (
                     <TextInput
-                      textContentType='password'
+                      textContentType="password"
                       secureTextEntry={!showConfirmedPassword}
                       onChangeText={onChange}
                       className="p-4 flex-1"
-                      placeholder='Confirme a nova senha'
+                      placeholder="Confirme a nova senha"
                       placeholderTextColor="#B8B8B8"
                     />
                   )}
                 />
                 <TouchableOpacity onPress={handleConfirmShowPassword}>
-                  <Image className="h-4 w-4 m-4" source={!showConfirmedPassword ? require('../../assets/eye.png') : require('../../assets/eye-slash.png')}></Image>
+                  <Image
+                    className="h-4 w-4 m-4"
+                    source={
+                      !showConfirmedPassword
+                        ? require("../../assets/eye.png")
+                        : require("../../assets/eye-slash.png")
+                    }
+                  ></Image>
                 </TouchableOpacity>
               </View>
-              {passwordErrors.confirmPassword && <Text className='text-red-400 text-sm -pt-[10px]'>{passwordErrors.confirmPassword.message}</Text>}
+              {passwordErrors.confirmPassword && (
+                <Text className="text-red-400 text-sm -pt-[10px]">
+                  {passwordErrors.confirmPassword.message}
+                </Text>
+              )}
             </View>
 
             <View className="flex flex-row items-center mt-[10px]">
               <TouchableOpacity
                 onPress={() => {
-                  closeEditPasswordModal()
+                  closeEditPasswordModal();
                 }}
-                className='h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]'>
-                <Text className="font-medium text-[14px] text-[#8D8D8D]">Cancelar</Text>
+                className="h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]"
+              >
+                <Text className="font-medium text-[14px] text-[#8D8D8D]">
+                  Cancelar
+                </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={handleSubmitPassword(handleUpdateUserPassword)} className='h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]'>
-                <Text className='text-white font-medium text-[14px]'>{updatePasswordIsLoading ? <ActivityIndicator size='small' color='#F5620F' /> : 'Confirmar'}</Text>
+              <TouchableOpacity
+                onPress={handleSubmitPassword(handleUpdateUserPassword)}
+                className="h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]"
+              >
+                <Text className="text-white font-medium text-[14px]">
+                  {updatePasswordIsLoading ? (
+                    <ActivityIndicator size="small" color="#F5620F" />
+                  ) : (
+                    "Confirmar"
+                  )}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
