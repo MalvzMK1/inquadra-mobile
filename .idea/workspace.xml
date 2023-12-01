@@ -6,6 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphql/mutations/updateEstablishmentFantasyName.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/mutations/updateEstablishmentFantasyName.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/EditCourt/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EditCourt/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
     </list>
@@ -34,12 +37,12 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="WI10580T10685" />
-                    <option name="lastUsedInstant" value="1701424282" />
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1701430615" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="release" />
-                    <option name="lastUsedInstant" value="1701422671" />
+                    <option name="branchName" value="WI10580T10685" />
+                    <option name="lastUsedInstant" value="1701424282" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI10580T10604" />
@@ -75,7 +78,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI10580T10685",
+    "git-widget-placeholder": "release",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -125,7 +128,7 @@
       <workItem from="1701076320205" duration="1855000" />
       <workItem from="1701248860601" duration="8699000" />
       <workItem from="1701336960419" duration="7475000" />
-      <workItem from="1701422534740" duration="6422000" />
+      <workItem from="1701422534740" duration="7756000" />
     </task>
     <servers />
   </component>

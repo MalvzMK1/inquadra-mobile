@@ -328,7 +328,7 @@ export default function EditCourt({
         variables: {
           court_id: courtId ?? "",
           court_availabilities: courtAvailabilityIds,
-          court_name: courtByIdData?.court.data.attributes.name ?? "",
+          court_name: data.fantasyName,
           court_types: courtTypesId,
           fantasy_name: data.fantasyName,
           minimum_value: data.minimumScheduleValue,

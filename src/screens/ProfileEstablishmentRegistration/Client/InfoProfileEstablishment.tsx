@@ -171,14 +171,7 @@ export default function InfoProfileEstablishment({
   const [updateEstablishmentLogo] = useUpdateEstablishmentLogo();
   const [updateEstablishmentAddressHook, { data, error, loading }] =
     useUpdateEstablishmentAddress();
-  const [
-    updateEstablishmentFantasyNameHook,
-    {
-      data: updateFantasyNameData,
-      error: updateFantasyNameError,
-      loading: updateFantasyNameLoading,
-    },
-  ] = useUpdateEstablishmentFantasyName();
+  const [updateEstablishmentFantasyNameHook] = useUpdateEstablishmentFantasyName();
 
   const [
     updateUserPassword,
@@ -460,6 +453,7 @@ export default function InfoProfileEstablishment({
           userByEstablishmentData?.usersPermissionsUser.data?.attributes
             .establishment.data?.id ?? "",
         fantasy_name: fantasyNameData.fantasyName,
+        corporate_name: fantasyNameData.fantasyName,
       },
     })
       .then(value => {
