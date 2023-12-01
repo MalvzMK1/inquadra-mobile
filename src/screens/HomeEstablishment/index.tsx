@@ -315,6 +315,28 @@ export default function HomeEstablishment({
 		}
 	}
 
+	function setDefaultCourtInSelectList(): {key: number, value: string} | undefined {
+		if (establishmentCourts[0]) {
+			const {fantasy_name} = establishmentCourts[0].attributes;
+
+			return {
+				key: 1,
+				value: fantasy_name,
+			}
+		}
+	}
+
+	const [defaultCortOption, setDefaultCortOption] = useState<{key: number, value: string}>()
+
+	useEffect(() => {
+		const defaultOption = setDefaultCourtInSelectList();
+
+		if (defaultOption) {
+			setDefaultCortOption(defaultOption);
+			setFantasyName(defaultOption.value);
+		}
+	}, [establishmentCourts[0]])
+
 	return (
 		<View className="flex-1">
 			<View className=" h-11 w-max  bg-[#292929]"></View>
@@ -496,17 +518,14 @@ export default function HomeEstablishment({
 								<Text className="font-extrabold text-xl">Por quadra</Text>
 								<View className="ml-auto flex flex-col items-start">
 									<SelectList
-										setSelected={(val: any) => {
-											console.log(val)
-											setFantasyName(val)
-										}}
+										setSelected={(val: any) => setFantasyName(val)}
 										data={
 											establishmentCourts.map((fantasy, index) => {
 												return {value: fantasy.attributes.fantasy_name, key: index};
 											}) ?? []
 										}
 										save="value"
-										defaultOption={{value: establishmentCourts[0]?.attributes.fantasy_name ?? '', key: 1}}
+										defaultOption={defaultCortOption}
 										searchPlaceholder="Pesquisar..."
 										boxStyles={{
 											borderColor: '#FF6112',
