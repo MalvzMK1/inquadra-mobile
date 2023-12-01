@@ -71,14 +71,26 @@ export default function EditCourt({
     {
       fetchPolicy: "cache-and-network",
       onCompleted(data) {
-        setPhoto(data.court.data?.attributes.photo.data[0]?.attributes.url ?? undefined);
+        let courtTypes: Array<string> = [];
 
-        setValue("fantasyName", data.court.data.attributes.fantasy_name);
-        setValue(
-          "minimumScheduleValue",
-          data.court.data.attributes.minimumScheduleValue,
-        );
-      },
+        if (
+          data &&
+          data.court.data &&
+          data.court.data.attributes.court_types.data.length > 0
+        ) {
+          setPhoto(HOST_API + data.court.data?.attributes.photo.data[0]?.attributes.url ?? undefined);
+
+          setValue("fantasyName", data.court.data.attributes.fantasy_name);
+          setValue(
+            "minimumScheduleValue",
+            data.court.data.attributes.minimumScheduleValue,
+          );
+
+          courtTypes = data.court.data.attributes.court_types.data.map(courtType => courtType.attributes.name);
+
+          setCourtTypeSelected(courtTypes);
+        }
+        },
     },
   );
 
@@ -459,7 +471,7 @@ export default function EditCourt({
           {photo ? (
             <Image
               className="h-[210px] w-[375px] rounded-[5px]"
-              source={{ uri: HOST_API + photo }}
+              source={{ uri: photo }}
             />
           ) : (
             <View className="h-[210px] w-[375px] rounded-[5px]" />
@@ -485,6 +497,7 @@ export default function EditCourt({
             <MultipleSelectList
               setSelected={setCourtTypeSelected}
               data={courtTypesData}
+              defaultOption={courtTypeSelected?.map((selected, index) => ({key: index, value: selected})) ?? undefined}
               save="value"
               placeholder="Selecione uma modalidade"
               searchPlaceholder="Pesquisar..."
