@@ -336,9 +336,7 @@ export default function InfoProfileEstablishment({
       },
     })
       .then(value => {
-        alert(
-          value.data?.updateEstablishment.data?.attributes.address.streetName,
-        );
+        alert('Endereço atualizado com sucesso!');
       })
       .catch(reason => alert(reason))
       .finally(() => {
@@ -461,7 +459,7 @@ export default function InfoProfileEstablishment({
       },
     })
       .then(value => {
-        alert(value.data?.updateEstablishment.data?.attributes.fantasyName);
+        alert('Nome fantasia alterado com sucesso!');
       })
       .catch(reason => alert(reason))
       .finally(() => {
@@ -1319,7 +1317,7 @@ export default function InfoProfileEstablishment({
                         ? "border-red-400"
                         : "border-gray-500"
                         }  rounded-lg h-45`}
-                      placeholder="Nome fantasia"
+                      placeholder="Nome Fantasia"
                       placeholderTextColor="#B8B8B8"
                     />
                   )}
