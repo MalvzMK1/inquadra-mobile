@@ -282,12 +282,13 @@ export default function () {
             </View>
           ),
           headerRight: () => {
+            console.log("picture", params.establishmentPhoto)
             return (
               <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
                 <Image
                   source={
                     params.establishmentPhoto
-                      ? { uri: HOST_API + params.establishmentPhoto }
+                      ? { uri: params.establishmentPhoto }
                       : require("../../assets/default-user-image.png")
                   }
                   className="w-full h-full"
@@ -427,7 +428,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: params.establishmentPhoto ?? "",
+                  establishmentPhoto: HOST_API + params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -469,7 +470,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: params.establishmentPhoto ?? "",
+                  establishmentPhoto: HOST_API + params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -656,7 +657,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: params.logo ?? "",
+                  establishmentPhoto: HOST_API + params.logo ?? "",
                 })
               }
             >
@@ -964,7 +965,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId ?? "",
-                  establishmentPhoto: params.logo ?? "",
+                  establishmentPhoto: HOST_API + params.logo ?? "",
                 })
               }
             >
@@ -1017,7 +1018,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: params.logo ?? "",
+                  establishmentPhoto: HOST_API + params.logo ?? "",
                 })
               }
             >
@@ -1058,7 +1059,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: params.logo ?? "",
+                  establishmentPhoto: HOST_API + params.logo ?? "",
                 })
               }
             >
@@ -1091,7 +1092,7 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: params.logo ?? "",
+                  establishmentPhoto: HOST_API + params.logo ?? "",
                 })
               }
             >
