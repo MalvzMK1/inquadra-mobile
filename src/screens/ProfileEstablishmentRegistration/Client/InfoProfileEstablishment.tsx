@@ -678,9 +678,7 @@ export default function InfoProfileEstablishment({
 
     navigation.navigate("EditCourt", {
       courtId: findCourt?.id,
-      userPhoto:
-        userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo
-          .data?.attributes.url,
+      userPhoto: logo
     });
   };
 
