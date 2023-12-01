@@ -682,16 +682,10 @@ export default function InfoProfileEstablishment({
     });
   };
 
-  const haveProfilePicture: boolean =
-    userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo.data
-      ?.attributes.url !== undefined
-      ? true
-      : false;
+  const haveProfilePicture: boolean = !!logo;
 
   const {
     data: dataUserEstablishment,
-    error: errorUserEstablishment,
-    loading: loadingUserEstablishment,
   } = useGetUserIDByEstablishment(route.params.establishmentId ?? "");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
