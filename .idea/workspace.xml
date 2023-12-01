@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,12 +33,12 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="WI10580T10685" />
-                    <option name="lastUsedInstant" value="1701337097" />
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1701422671" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="release" />
-                    <option name="lastUsedInstant" value="1701265911" />
+                    <option name="branchName" value="WI10580T10685" />
+                    <option name="lastUsedInstant" value="1701337097" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="WI10580T10604" />
@@ -73,7 +74,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI10580T10685",
+    "git-widget-placeholder": "release",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -123,6 +124,7 @@
       <workItem from="1701076320205" duration="1855000" />
       <workItem from="1701248860601" duration="8699000" />
       <workItem from="1701336960419" duration="7475000" />
+      <workItem from="1701422534740" duration="1484000" />
     </task>
     <servers />
   </component>

@@ -496,13 +496,17 @@ export default function HomeEstablishment({
 								<Text className="font-extrabold text-xl">Por quadra</Text>
 								<View className="ml-auto flex flex-col items-start">
 									<SelectList
-										setSelected={(val: any) => setFantasyName(val)}
+										setSelected={(val: any) => {
+											console.log(val)
+											setFantasyName(val)
+										}}
 										data={
-											establishmentCourts.map((fantasy) => {
-												return fantasy.attributes.fantasy_name;
+											establishmentCourts.map((fantasy, index) => {
+												return {value: fantasy.attributes.fantasy_name, key: index};
 											}) ?? []
 										}
 										save="value"
+										defaultOption={{value: establishmentCourts[0]?.attributes.fantasy_name ?? '', key: 1}}
 										searchPlaceholder="Pesquisar..."
 										boxStyles={{
 											borderColor: '#FF6112',
