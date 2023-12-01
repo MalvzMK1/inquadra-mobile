@@ -257,7 +257,7 @@ export default function WithdrawScreen({
                             return (
                               <TouchableOpacity
                                 className={`p-5 flex-row rounded-lg mt-5 ${card.id == selectedPixKey
-                                  ? "bg-slate-300"
+                                  ? "bg-slate-500"
                                   : "bg-gray-300"
                                   }`}
                                 onPress={() => {
