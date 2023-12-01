@@ -1,12 +1,12 @@
 import { Feather } from "@expo/vector-icons";
-import React from "react";
-import { Text, View } from "react-native";
+import React, { useState } from "react";
+import { Text, View, ViewStyle } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
-
 const timeMask = [/\d/, /\d/, ":", /\d/, /\d/];
 
 interface PriceHourProps {
+  minimumCourtValue?: string
   startsAt: string;
   setStartsAt: (value: string) => void;
   endsAt: string;
@@ -17,6 +17,7 @@ interface PriceHourProps {
 }
 
 export default function PriceHour({
+  minimumCourtValue,
   startsAt,
   setStartsAt,
   endsAt,
@@ -60,14 +61,21 @@ export default function PriceHour({
           />
         </View>
       </View>
-
       <View className="flex-row items-center gap-x-[10px]">
         <View className="h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] flex items-center justify-center">
           <MaskInput
             className="h-full items-center justify-center"
             mask={Masks.BRL_CURRENCY}
             value={price}
-            onChangeText={setPrice}
+            onChangeText={(masked, unmasked) => {
+              let priceTest = Number(unmasked);
+              let minimumCourtNumber = Number(minimumCourtValue)
+              if (isNaN(priceTest) || priceTest > minimumCourtNumber) {
+                setPrice(minimumCourtValue!);
+              } else {
+                setPrice(unmasked);
+              }
+            }}
             placeholder="Ex.: R$250"
             inputMode="numeric"
           />

@@ -4,11 +4,13 @@ import { CheckBox } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Appointment } from "../../screens/CourtPriceHour";
 import PriceHour from "../CourtPriceHour";
+import routes from "../../routes";
 
 interface SetCourtAvailibilityProps {
   appointments: Appointment[];
   hasCopy: boolean;
   isDayUse: boolean;
+  minimumCourtPrice?: string
   setDayUse: (isDayUse: boolean) => void;
   onCopy: () => void;
   onPaste: () => void;
@@ -20,6 +22,7 @@ interface SetCourtAvailibilityProps {
 }
 
 export default function SetCourtAvailibility({
+  minimumCourtPrice,
   appointments,
   hasCopy,
   isDayUse,
@@ -74,6 +77,7 @@ export default function SetCourtAvailibility({
         <View className="h-fit w-full flex">
           {appointments.map((appointment, index) => (
             <PriceHour
+              minimumCourtValue={minimumCourtPrice}
               key={index}
               startsAt={appointment.startsAt}
               endsAt={appointment.endsAt}

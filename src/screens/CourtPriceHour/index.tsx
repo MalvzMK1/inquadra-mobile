@@ -116,6 +116,7 @@ export default function CourtPriceHour({
               onToggleOpen={() => handleToggleOpen(index)}
             >
               <SetCourtAvailibility
+                minimumCourtPrice={route.params.minimumCourtPrice!}
                 appointments={allAppointments[index]}
                 hasCopy={Boolean(copiedAppointments)}
                 isDayUse={dayUse[index]}

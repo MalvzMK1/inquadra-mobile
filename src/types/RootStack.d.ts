@@ -37,7 +37,9 @@ type RootStackParamList = {
     establishmentId: string | undefined;
     logo: string | undefined;
   };
-  CourtPriceHour: undefined;
+  CourtPriceHour: {
+    minimumCourtPrice?: string
+  }
   EditCourt: {
     courtId: string | undefined;
     userPhoto: string | undefined;

@@ -41,6 +41,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
     const [courts, setCourts] = useState<CourtArrayObject[]>(route.params.courtArray)
     const [loadingMessage, setLoadingMessage] = useState("Fazendo upload das imagens");
     const [photoIDs, setPhotoIDs] = useState([]);
+    const [minimumValue, setMinimumValue] = useState<string>("")
 
     const addToCourtArray = (court: CourtAdd) => {
         setCourts(prevState => [...prevState, court]);
@@ -53,6 +54,10 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
             setSelected([])
         }, [route.params.courtArray])
     );
+
+    useFocusEffect(() => {
+        setMinimumValue(minimum_value!)
+    })
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
