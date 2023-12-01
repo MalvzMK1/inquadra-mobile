@@ -53,7 +53,7 @@ export const historicReserveOnQuery = gql`
     usersPermissionsUser(id: $id) {
       data {
         attributes {
-          schedulings {
+          schedulings(pagination: { pageSize: 100 }) {
             data {
               id
               attributes {

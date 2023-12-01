@@ -21,8 +21,11 @@ import { z } from "zod";
 const formSchema = z.object({
   cnpj: z
     .string()
-    .nonempty("Esse campo não pode estar vazio!")
-    .min(14, "Deve ser informado um CNPJ válido!"),
+    .optional()
+    .refine(value => {
+      console.log({ value });
+      return !value || value.length >= 14;
+    }, "Deve ser informado um CNPJ válido!"),
   phone: z
     .string()
     .nonempty("Esse campo não pode estar vazio!")
@@ -123,11 +126,11 @@ export default function RegisterEstablishment({
             <Text className="text-xl p-1">CNPJ</Text>
             <MaskInput
               className="p-5 border border-neutral-400 rounded"
-              placeholder="00. 000. 000/0001-00."
+              placeholder="00.000.000/0001-00"
               value={cnpj}
               onChangeText={setCnpj}
               mask={Masks.BRL_CNPJ}
-            ></MaskInput>
+            />
           </View>
           <View>
             <Text className="text-xl p-1">Telefone para Contato</Text>

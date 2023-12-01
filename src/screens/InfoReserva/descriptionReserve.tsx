@@ -779,7 +779,7 @@ export default function DescriptionReserve({
           </View>
           {infoScheduleData?.scheduling.data?.attributes.court_availability
             .data &&
-          serviceRate &&
+          typeof serviceRate === "number" &&
           infoScheduleData.scheduling.data.attributes.valuePayed <
             infoScheduleData.scheduling.data.attributes.court_availability.data
               .attributes.value +
@@ -913,7 +913,7 @@ export default function DescriptionReserve({
             <>
               {infoScheduleData?.scheduling.data?.attributes.court_availability
                 .data &&
-              serviceRate &&
+              typeof serviceRate === "number" &&
               isVanquished !== undefined &&
               !isVanquished &&
               !isWithinOneHour &&

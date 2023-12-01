@@ -871,7 +871,7 @@ export default function () {
               }}
             >
               <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
-                SINAL/PIX
+                SINAL
               </Text>
             </View>
           ),
