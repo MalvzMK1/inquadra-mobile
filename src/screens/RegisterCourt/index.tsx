@@ -9,6 +9,7 @@ import {
   Alert,
   FlatList,
   Image,
+  Modal,
   Text,
   TextInput,
   TouchableOpacity,
@@ -53,7 +54,7 @@ export default function RegisterCourt({
   const [isCourtTypeEmpty, setIsCourtTypeEmpty] = useState(false);
   const [photos, setPhotos] = useState<Array<{ uri: string }>>([]);
   const { data: dataSportTypeAvailable } = useSportTypes();
-  const [minimumValue, setMinimumValue] = useState<string>("")
+  const [minimumValue, setMinimumValue] = useState<string>("");
 
   const {
     reset,
@@ -74,8 +75,8 @@ export default function RegisterCourt({
 
     const selectedCourtTypeIds: string[] = [];
 
-    selectedCourtTypes.forEach(selectedType => {
-      courtTypes.forEach(type => {
+    selectedCourtTypes.forEach((selectedType) => {
+      courtTypes.forEach((type) => {
         if (type.value === selectedType) {
           selectedCourtTypeIds.push(type.label);
         }
@@ -91,20 +92,20 @@ export default function RegisterCourt({
         storageAvailabilities &&
         (dayUse = JSON.parse(storageDayUse) as typeof dayUse).length &&
         (allAvailabilities = JSON.parse(
-          storageAvailabilities,
+          storageAvailabilities
         ) as typeof allAvailabilities).some(
-          availabilities => availabilities.length > 0,
+          (availabilities) => availabilities.length > 0
         )
       ) {
         const areAvailabilitiesValid = allAvailabilities.every(
-          availabilities => {
-            return availabilities.every(availability => {
+          (availabilities) => {
+            return availabilities.every((availability) => {
               const isStartValid = availabilityTimeRegex.test(
-                availability.startsAt,
+                availability.startsAt
               );
 
               const isEndValid = availabilityTimeRegex.test(
-                availability.endsAt,
+                availability.endsAt
               );
 
               const isPriceValid =
@@ -115,19 +116,19 @@ export default function RegisterCourt({
                       .replace("R$", "")
                       .replace(".", "")
                       .replace(",", ".")
-                      .trim(),
-                  ),
+                      .trim()
+                  )
                 );
 
               return isStartValid && isEndValid && isPriceValid;
             });
-          },
+          }
         );
 
         if (!areAvailabilitiesValid) {
           return Alert.alert(
             "Erro",
-            "Preencha todos os horários e valores corretamente.",
+            "Preencha todos os horários e valores corretamente."
           );
         }
 
@@ -152,14 +153,14 @@ export default function RegisterCourt({
           await Promise.all([
             AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourDayUse),
             AsyncStorage.removeItem(
-              AsyncStorageKeys.CourtPriceHourAllAppointments,
+              AsyncStorageKeys.CourtPriceHourAllAppointments
             ),
           ]);
 
           reset();
           setPhotos([]);
           setSelectedCourtTypes([]);
-          setCourts(prevState => [...prevState, payload]);
+          setCourts((prevState) => [...prevState, payload]);
         }
       } else {
         Alert.alert("Erro", "Preencha os valores e horários.");
@@ -172,7 +173,7 @@ export default function RegisterCourt({
     }
   }
 
-  const registerNewCourt = handleSubmit(async data => {
+  const registerNewCourt = handleSubmit(async (data) => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
@@ -180,7 +181,7 @@ export default function RegisterCourt({
     await register(data);
   });
 
-  const finishCourtsRegisters = handleSubmit(async data => {
+  const finishCourtsRegisters = handleSubmit(async (data) => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
@@ -196,7 +197,7 @@ export default function RegisterCourt({
       if (status !== "granted") {
         return Alert.alert(
           "Erro",
-          "Desculpe, precisamos da permissão para acessar a galeria!",
+          "Desculpe, precisamos da permissão para acessar a galeria!"
         );
       }
 
@@ -208,9 +209,9 @@ export default function RegisterCourt({
       });
 
       if (!result.canceled) {
-        setPhotos(currentPhotos => {
+        setPhotos((currentPhotos) => {
           return currentPhotos.concat(
-            result.assets.map(asset => ({ uri: asset.uri })),
+            result.assets.map((asset) => ({ uri: asset.uri }))
           );
         });
       }
@@ -230,14 +231,14 @@ export default function RegisterCourt({
       return [];
     }
 
-    return dataSportTypeAvailable.courtTypes.data.map(sportType => {
+    return dataSportTypeAvailable.courtTypes.data.map((sportType) => {
       return {
         value: sportType.attributes.name,
         label: sportType.id,
       };
     });
   }, []);
-
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
   return (
     <ScrollView className="h-fit bg-white flex-1">
       <View className="items-center mt-9 p-4">
@@ -380,34 +381,44 @@ export default function RegisterCourt({
           </View>
           <View>
             <Text className="text-base p-1">Valor aluguel/hora</Text>
-            {
-              minimumValue !== undefined && minimumValue !== null && minimumValue !== ("")
-                ? <>
-                  <TouchableOpacity
-                    className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
-                    onPress={() => navigation.navigate("CourtPriceHour", { minimumCourtPrice: minimumValue })}
-                  >
-                    <Text className="text-white font-semibold text-base">
-                      Clique para definir
-                    </Text>
-                  </TouchableOpacity>
-                </>
-                : <>
-                  <TouchableOpacity
-                    className="h-14 w-81 rounded-md bg-gray-400 flex items-center justify-center"
-                    onPress={() => { }}
-                  >
-                    <Text className="text-white font-semibold text-base">
-                      Clique para definir
-                    </Text>
-                  </TouchableOpacity>
-                  <Text className="text-base text-gray-300 font-bold m-6 ">Defina um preço mínimo primeiramente para definir os horários</Text>
-                </>
-            }
-
+            {minimumValue !== undefined &&
+            minimumValue !== null &&
+            minimumValue !== "" ? (
+              <>
+                <TouchableOpacity
+                  className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
+                  onPress={() =>
+                    navigation.navigate("CourtPriceHour", {
+                      minimumCourtPrice: minimumValue,
+                    })
+                  }
+                >
+                  <Text className="text-white font-semibold text-base">
+                    Clique para definir
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  className="h-14 w-81 rounded-md bg-gray-400 flex items-center justify-center"
+                  onPress={() => {}}
+                >
+                  <Text className="text-white font-semibold text-base">
+                    Clique para definir
+                  </Text>
+                </TouchableOpacity>
+                <Text className="text-base text-gray-300 font-bold m-6 ">
+                  Defina um preço mínimo primeiramente para definir os horários
+                </Text>
+              </>
+            )}
           </View>
           <View>
             <Text className="text-base p-1">Sinal mínimo para locação</Text>
+            <TouchableOpacity onPress={() => setInfoModalVisible(true)}>
+              <Ionicons name="information-circle" size={25} color="#FF6112" />
+            </TouchableOpacity>
             <Controller
               name="minimum_value"
               control={control}
@@ -417,7 +428,9 @@ export default function RegisterCourt({
                   keyboardType="numeric"
                   value={value}
                   placeholder="Ex.: R$ 00.00"
-                  onChangeText={(masked, unmasked) => { onChange(unmasked), setMinimumValue(unmasked) }}
+                  onChangeText={(masked, unmasked) => {
+                    onChange(unmasked), setMinimumValue(unmasked);
+                  }}
                   className="p-5 border border-neutral-400 rounded"
                 />
               )}
@@ -429,6 +442,38 @@ export default function RegisterCourt({
               </Text>
             )}
           </View>
+          <Modal
+            visible={infoModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setInfoModalVisible(false)}
+          >
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#FF6112",
+                  padding: 20,
+                  borderRadius: 10,
+                }}
+              >
+                <Text className="text-white font-semibold text-base">
+                  O valor do sinal deve ser menor que o Valor/Hora de aluguel da
+                  quadra.
+                </Text>
+                <TouchableOpacity onPress={() => setInfoModalVisible(false)}>
+                  <Text className="text-black font-semibold text-base mt-2">
+                    Fechar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
           <TouchableOpacity
             className="border-t border-neutral-400 border-b flex flex-row p-5 items-center"
             onPress={() => {
