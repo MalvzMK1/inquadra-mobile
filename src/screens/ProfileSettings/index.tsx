@@ -129,6 +129,7 @@ export default function ProfileSettings({
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [countryId, setCountryId] = useState<string | number>();
   const [photoData, setPhotoData] = useState<Photo>();
+  const [userPhotoID, setUserPhotoID] = useState<string>()
 
   const [countriesArray, setCountriesArray] = useState<
     Array<{ key: string; value: string }>
@@ -298,6 +299,8 @@ export default function ProfileSettings({
   const [imageEdited, setImageEdited] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
 
+  console.log("id da foto atual:", userPhotoID)
+
   useFocusEffect(() => {
     if (
       data &&
@@ -388,7 +391,8 @@ export default function ProfileSettings({
     data: IUpdateUserValidatingPhotoProps,
   ): Promise<void> {
     console.log(JSON.stringify(data, null, 2));
-    if (data.photo) {
+
+    if (data.photo !== undefined && data.photo !== null) {
       await updateUser({
         variables: {
           user_id: data.user_id,
@@ -400,6 +404,15 @@ export default function ProfileSettings({
         },
       });
     } else {
+      console.log("ó", {
+        user_id: data.user_id,
+        email: data.email,
+        cpf: data.cpf,
+        phone_number: data.phone_number,
+        username: data.username,
+        photo: data.photo ?? "",
+      })
+
       await updateUser({
         variables: {
           user_id: data.user_id,
@@ -407,7 +420,7 @@ export default function ProfileSettings({
           cpf: data.cpf,
           phone_number: data.phone_number,
           username: data.username,
-          photo: data.photo ?? "",
+          photo: data.photo,
         },
       });
     }
@@ -424,8 +437,17 @@ export default function ProfileSettings({
           console.log({ photo });
         }
 
+        console.log("ala:", {
+          photo: uploadedImageID !== undefined && uploadedImageID !== null ? uploadedImageID : userPhotoID,
+          username: data.name,
+          cpf: data.cpf,
+          phone_number: data.phoneNumber,
+          user_id: userInfos.id,
+          email: data.email,
+        })
+
         await updateUserValidatingPhoto({
-          photo: uploadedImageID,
+          photo: uploadedImageID !== undefined && uploadedImageID !== null ? uploadedImageID : userPhotoID,
           username: data.name,
           cpf: data.cpf,
           phone_number: data.phoneNumber,
@@ -466,6 +488,7 @@ export default function ProfileSettings({
     let newUserInfos = userInfos;
 
     if (!loading && data && data.usersPermissionsUser.data) {
+      setUserPhotoID(data.usersPermissionsUser.data.attributes.photo.data?.id !== undefined && data.usersPermissionsUser.data.attributes.photo.data?.id !== null ? data.usersPermissionsUser.data.attributes.photo.data?.id : "")
       setPhotoData({
         id: data.usersPermissionsUser.data.attributes.photo.data?.id ?? "",
         name:
