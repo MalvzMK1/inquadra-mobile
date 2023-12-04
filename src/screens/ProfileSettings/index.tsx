@@ -143,6 +143,7 @@ export default function ProfileSettings({
 
   const { data: userPaymentCountryData } = useUserPaymentCountry(userID);
   const { loading, data } = useGetUserById(userID);
+  console.log(userID)
   const { data: countriesData, loading: countriesLoading } = useCountries();
   const [updateUser] = useUpdateUser();
 
@@ -290,7 +291,7 @@ export default function ProfileSettings({
   const [profilePicture, setProfilePicture] = useState<string | undefined>();
   const haveProfilePicture: boolean =
     data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !==
-    undefined
+      undefined
       ? true
       : false;
   const [photo, setPhoto] = useState("");
@@ -340,6 +341,7 @@ export default function ProfileSettings({
       console.error("Erro ao carregar a imagem: ", error);
     }
   };
+
 
   const uploadImage = async (selectedImageUri: string) => {
     setIsLoading(true);
@@ -460,7 +462,7 @@ export default function ProfileSettings({
     }
   }
 
-  async function loadInformations() {
+  const loadInformations = async () => {
     let newUserInfos = userInfos;
 
     if (!loading && data && data.usersPermissionsUser.data) {
@@ -477,39 +479,57 @@ export default function ProfileSettings({
             .url ?? "",
         size: 1024,
       });
-      newUserInfos = {
-        id: data.usersPermissionsUser.data.id,
-        username: data.usersPermissionsUser.data.attributes.username,
-        cpf: data.usersPermissionsUser.data.attributes.cpf,
-        email: data.usersPermissionsUser.data.attributes.email,
-        phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
-        photo: photoData,
-        paymentCardInfos: {
-          dueDate: data.usersPermissionsUser.data.attributes
-            .paymentCardInformations.dueDate
-            ? data.usersPermissionsUser.data.attributes.paymentCardInformations
+      if (data.usersPermissionsUser.data.attributes.paymentCardInformations !== null && data.usersPermissionsUser.data.attributes.paymentCardInformations !== undefined) {
+        newUserInfos = {
+          id: data.usersPermissionsUser.data.id,
+          username: data.usersPermissionsUser.data.attributes.username,
+          cpf: data.usersPermissionsUser.data.attributes.cpf,
+          email: data.usersPermissionsUser.data.attributes.email,
+          phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
+          photo: photoData,
+          paymentCardInfos: {
+            dueDate: data.usersPermissionsUser.data.attributes
+              .paymentCardInformations.dueDate
+              ? data.usersPermissionsUser.data.attributes.paymentCardInformations
                 .dueDate
-            : "",
-          cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations
-            .cvv
-            ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString()
-            : "",
-          country: {
-            id: userCountry?.id ?? "1",
-            name: userCountry?.name ?? "Brasil",
+              : "",
+            cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations
+              .cvv
+              ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString()
+              : "",
+            country: {
+              id: userCountry?.id ?? "1",
+              name: userCountry?.name ?? "Brasil",
+            },
           },
-        },
-      };
+        }
+      } else {
+        newUserInfos = {
+          id: data.usersPermissionsUser.data.id,
+          username: data.usersPermissionsUser.data.attributes.username,
+          cpf: data.usersPermissionsUser.data.attributes.cpf,
+          email: data.usersPermissionsUser.data.attributes.email,
+          phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
+          photo: photoData,
+          paymentCardInfos: {
+            dueDate: "",
+            cvv: "",
+            country: {
+              id: "",
+              name: "",
+            },
+          },
+        }
+      }
     }
-
     return newUserInfos;
   }
 
   function defineDefaultFieldValues(
     userData:
       | (Omit<User, "id" | "cep" | "latitude" | "longitude" | "streetName"> & {
-          paymentCardInfos: { dueDate: string; cvv: string };
-        })
+        paymentCardInfos: { dueDate: string; cvv: string };
+      })
       | undefined,
   ): void {
     if (userData) {
@@ -604,22 +624,24 @@ export default function ProfileSettings({
     }
   }
 
-  useEffect(() => {
-    loadInformations().then(data => {
-      console.log({ data });
-      defineDefaultFieldValues(data);
-      setUserInfos(data);
-    });
 
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => {
-        console.error(data);
-        setJwtToken(data.token);
+  useEffect(() => {
+    if (!loading && data) {
+      loadInformations().then(data => {
+        defineDefaultFieldValues(data);
+        setUserInfos(data);
       });
-  }, [loading]);
+
+      storage
+        .load<UserInfos>({
+          key: "userInfos",
+        })
+        .then(data => {
+          console.error(data);
+          setJwtToken(data.token);
+        })
+    }
+  }, [data, loading]);
 
   let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!;
   let emailDefault = data?.usersPermissionsUser.data?.attributes.email!;
@@ -629,11 +651,10 @@ export default function ProfileSettings({
   useEffect(() => {
     AsyncStorage.getItem(`user${userID}Cards`, (error, result) => {
       if (error) {
-        console.log("Deu ruim mano", error);
+        null
       } else {
         const parsedCards = JSON.parse(result || "[]");
         setCards(parsedCards);
-        console.log("Cartões recuperados com sucesso", parsedCards);
       }
     });
   }, [showCreditCards]);
@@ -908,11 +929,10 @@ export default function ProfileSettings({
                           <MaskInput
                             value={getPaymentCardValues("cardNumber")}
                             placeholder="Ex: 0000-0000-0000-0000"
-                            className={`p-3 border ${
-                              paymentCardErrors.cvv
-                                ? "border-red-400"
-                                : "border-gray-500"
-                            } rounded-md h-18`}
+                            className={`p-3 border ${paymentCardErrors.cvv
+                              ? "border-red-400"
+                              : "border-gray-500"
+                              } rounded-md h-18`}
                             onChangeText={onChange}
                             mask={Masks.CREDIT_CARD}
                             keyboardType="numeric"
@@ -937,11 +957,10 @@ export default function ProfileSettings({
                           render={({ field: { onChange } }) => (
                             <TextInputMask
                               value={getPaymentCardValues("dueDate")}
-                              className={`p-3 border ${
-                                paymentCardErrors.dueDate
-                                  ? "border-red-400"
-                                  : "border-gray-500"
-                              } rounded-md h-18 flex-1`}
+                              className={`p-3 border ${paymentCardErrors.dueDate
+                                ? "border-red-400"
+                                : "border-gray-500"
+                                } rounded-md h-18 flex-1`}
                               type={"datetime"}
                               options={{
                                 format: "MM/YY",
@@ -967,11 +986,10 @@ export default function ProfileSettings({
                           render={({ field: { onChange } }) => (
                             <TextInput
                               value={getPaymentCardValues("cvv")}
-                              className={`p-3 border ${
-                                paymentCardErrors.cvv
-                                  ? "border-red-400"
-                                  : "border-gray-500"
-                              } rounded-md h-18 flex-1`}
+                              className={`p-3 border ${paymentCardErrors.cvv
+                                ? "border-red-400"
+                                : "border-gray-500"
+                                } rounded-md h-18 flex-1`}
                               onChangeText={onChange}
                               placeholder="***"
                               keyboardType="numeric"
