@@ -16,7 +16,6 @@ export interface Appointment {
 }
 
 export default function CourtPriceHour({
-  navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtPriceHour">) {
   const [selectedDay, setSelectedDay] = useState<number | null>(0);
@@ -116,7 +115,7 @@ export default function CourtPriceHour({
               onToggleOpen={() => handleToggleOpen(index)}
             >
               <SetCourtAvailibility
-                minimumCourtPrice={route.params.minimumCourtPrice!}
+                minimumCourtPrice={route.params.minimumCourtPrice}
                 appointments={allAppointments[index]}
                 hasCopy={Boolean(copiedAppointments)}
                 isDayUse={dayUse[index]}

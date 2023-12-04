@@ -82,6 +82,8 @@ export default function EditCourt({
           setPhoto(HOST_API + data.court.data?.attributes.photo.data[0]?.attributes.url ?? undefined);
 
           setValue("fantasyName", data.court.data.attributes.fantasy_name);
+
+          setMinimumScheduleValue(data.court.data.attributes.minimumScheduleValue);
           setValue(
             "minimumScheduleValue",
             data.court.data.attributes.minimumScheduleValue,
@@ -217,6 +219,7 @@ export default function EditCourt({
   >([]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [minimumScheduleValue, setMinimumScheduleValue] = useState<number>();
 
   const handleUpdateCourt = handleSubmit(async data => {
     setIsLoading(true);
@@ -490,7 +493,9 @@ export default function EditCourt({
         await Promise.all(promises);
       }
 
-      navigation.navigate("CourtPriceHour");
+      navigation.navigate("CourtPriceHour", {
+        minimumCourtPrice: String(minimumScheduleValue)
+      });
     } catch (error) {
       console.log(JSON.stringify(error, null, 2));
       console.log(error);
