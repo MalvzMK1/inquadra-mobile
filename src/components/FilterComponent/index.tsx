@@ -146,8 +146,6 @@ export default function FilterComponent(props: {
                                             isVisible={true}
                                             mode="time"
                                             onConfirm={handleTimeInitChange}
-                                        handleTimeInitChange(data);
-                                    }}
                                             onCancel={() => setShowTimeInitPicker(false)}
                                             locale="pt-BR"
                                             cancelTextIOS="Cancelar"
@@ -190,8 +188,6 @@ export default function FilterComponent(props: {
                                             isVisible={true}
                                             mode="time"
                                             onConfirm={handleTimeFinalChange}
-                                        handleTimeFinalChange(data);
-                                    }}
                                             onCancel={() => setShowTimeFinalPicker(false)}
                                             locale="pt-BR"
                                             cancelTextIOS="Cancelar"

@@ -5,7 +5,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Platform, TouchableOpacity, View } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtBallon from "../../components/CourtBalloon";
