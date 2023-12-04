@@ -128,7 +128,7 @@ export default function DescriptionReserve({
       if (receivedServiceRate) {
         const denominator =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value + receivedServiceRate;
+            .value 
 
         if (denominator !== 0) {
           const newValuePayedPercentage =
@@ -177,7 +177,7 @@ export default function DescriptionReserve({
       if (data.scheduling.data.attributes.court_availability.data) {
         const receivedSchedulePrice =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value + receivedServiceRate;
+            .value 
         setSchedulePrice(receivedSchedulePrice);
         if (
           data.scheduling.data.attributes.court_availability.data.attributes
@@ -815,7 +815,7 @@ export default function DescriptionReserve({
                   / R${" "}
                   {(
                     infoScheduleData.scheduling.data.attributes
-                      .court_availability.data.attributes.value + serviceRate
+                      .court_availability.data.attributes.value 
                   ).toFixed(2)}
                 </Text>
                 {infoScheduleData.scheduling.data.attributes.valuePayed &&
