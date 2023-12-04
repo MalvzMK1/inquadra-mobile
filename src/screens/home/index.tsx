@@ -497,7 +497,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                                     <TouchableOpacity
 									className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
                                     onPress={() => {
-                                        mapView.current.animateToRegion({
+                                        (mapView && mapView.current) && mapView.current.animateToRegion({
                                         latitude: userGeolocation.latitude,
                                         longitude: userGeolocation.longitude,
                                         latitudeDelta: userGeolocationDelta.latDelta,
