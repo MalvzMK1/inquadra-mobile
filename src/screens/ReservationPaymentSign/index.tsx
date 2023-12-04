@@ -171,7 +171,7 @@ export default function ReservationPaymentSign({
               .minimumScheduleValue;
 
           setReserveValue(scheduleValue);
-          setServiceValue(signalValue * SERVICE_FEE);
+          setServiceValue(scheduleValue * SERVICE_FEE);
           setTotalValue(scheduleValue + scheduleValue * SERVICE_FEE);
         }
       },
