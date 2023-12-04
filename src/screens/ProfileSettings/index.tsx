@@ -1240,44 +1240,46 @@ export default function ProfileSettings({
                       Alterar senha
                     </Text>
                   </TouchableOpacity>
-                  <View className="p-2">
-                    <TouchableOpacity
-                      onPress={handleSubmit(updateUserInfos)}
-                      className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
-                    >
-                      <Text className="text-white">
-                        {isLoading ? (
-                          <View style={{ alignItems: "center", paddingTop: 5 }}>
-                            <ActivityIndicator size="small" color="#FFFF" />
-                            <Text style={{ marginTop: 6, color: "white" }}>
-                              {loadingMessage}
-                            </Text>
-                          </View>
-                        ) : (
-                          "Salvar"
-                        )}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  <View className='mb-20'>
+                    <View className="p-2">
+                      <TouchableOpacity
+                        onPress={handleSubmit(updateUserInfos)}
+                        className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center"
+                      >
+                        <Text className="text-white">
+                          {isLoading ? (
+                            <View style={{ alignItems: "center", paddingTop: 5 }}>
+                              <ActivityIndicator size="small" color="#FFFF" />
+                              <Text style={{ marginTop: 6, color: "white" }}>
+                                {loadingMessage}
+                              </Text>
+                            </View>
+                          ) : (
+                            "Salvar"
+                          )}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
 
-                  <View className="p-2">
-                    <TouchableOpacity
-                      onPress={handleExitApp}
-                      className="h-14 w-81 rounded-md bg-red-500 flex items-center justify-center"
-                    >
-                      <Text className="text-gray-50">Sair do App</Text>
-                    </TouchableOpacity>
-                  </View>
+                    <View className="p-2">
+                      <TouchableOpacity
+                        onPress={handleExitApp}
+                        className="h-14 w-81 rounded-md bg-red-500 flex items-center justify-center"
+                      >
+                        <Text className="text-gray-50">Sair do App</Text>
+                      </TouchableOpacity>
+                    </View>
 
-                  <View className="p-2">
-                    <TouchableOpacity
-                      onPress={handleDeleteAccount}
-                      className="h-14 w-81 rounded-md  flex items-center justify-center"
-                    >
-                      <Text className="text-base text-gray-400">
-                        Excluir essa conta
-                      </Text>
-                    </TouchableOpacity>
+                    <View className="p-2">
+                      <TouchableOpacity
+                        onPress={handleDeleteAccount}
+                        className="h-14 w-81 rounded-md  flex items-center justify-center"
+                      >
+                        <Text className="text-base text-gray-400">
+                          Excluir essa conta
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               </View>
