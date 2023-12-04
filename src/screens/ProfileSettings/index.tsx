@@ -794,7 +794,7 @@ export default function ProfileSettings({
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>
-              <View className="p-6 space-y-6">
+              <View className="p-6 space-y-6 h-fit">
                 <View>
                   <Text className="text-base">Nome</Text>
                   <Controller
@@ -1231,12 +1231,12 @@ export default function ProfileSettings({
                     </Text>
                   )
                 ) : null}
-                <View>
+                <View className='h-fit'>
                   <TouchableOpacity
                     onPress={() => setEditPasswordModal(true)}
-                    className="flex-1 flex flex-row justify-end items-center"
+                    className="flex flex-row justify-end items-center h-fit"
                   >
-                    <Text className="text-orange-600 border-b border-b-orange-600 text-base mb-4">
+                    <Text className="text-orange-600 border-b border-b-orange-600 text-base mb-4 h-fit">
                       Alterar senha
                     </Text>
                   </TouchableOpacity>
