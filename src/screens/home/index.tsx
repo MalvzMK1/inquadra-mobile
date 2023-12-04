@@ -405,6 +405,10 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                 userID: userHookData.usersPermissionsUser.data.id,
             })
         }
+
+				establishments.forEach((establishment) => {
+					console.log(establishment.distance)
+				})
     }, [userHookData])
 
     const mapView = useRef(null);
@@ -527,7 +531,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                     isUpdated={IsUpdated}
                     loggedUserId={userId}
                     chosenType={sportSelected}
-                    courts={establishments}
+                    courts={establishments.filter(({distance}) => distance < 5)}
                     userName={
                         userHookData?.usersPermissionsUser?.data?.attributes?.username
                     }
