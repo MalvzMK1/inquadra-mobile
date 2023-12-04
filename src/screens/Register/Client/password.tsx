@@ -25,6 +25,7 @@ import useLoginUser from "../../../hooks/useLoginUser";
 import useRegisterUser from "../../../hooks/useRegisterUser";
 import type { UserGeolocation } from "../../../types/UserGeolocation";
 import storage from "../../../utils/storage";
+import {ScrollView} from "react-native-gesture-handler";
 
 type RegisterPasswordProps = NativeStackScreenProps<
   RootStackParamList,
@@ -192,7 +193,8 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   });
 
   return (
-    <View className="flex flex-col bg-white h-screen items-center p-5">
+    <ScrollView className='h-fit min-h-full'>
+      <View className="flex flex-col bg-white h-screen items-center p-5">
       <View>
         <RegisterHeader
           title="Senha"
@@ -328,5 +330,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         </TouchableOpacity>
       </View>
     </View>
+    </ScrollView>
   );
 }

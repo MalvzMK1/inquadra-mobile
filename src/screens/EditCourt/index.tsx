@@ -32,6 +32,7 @@ import {
 import { formatCurrency } from "../../utils/formatCurrency";
 import storage from "../../utils/storage";
 import { Appointment } from "../CourtPriceHour";
+import axios from "axios/index";
 
 interface ICourtFormData {
   fantasyName: string;
@@ -81,6 +82,8 @@ export default function EditCourt({
           setPhoto(HOST_API + data.court.data?.attributes.photo.data[0]?.attributes.url ?? undefined);
 
           setValue("fantasyName", data.court.data.attributes.fantasy_name);
+
+          setMinimumScheduleValue(data.court.data.attributes.minimumScheduleValue);
           setValue(
             "minimumScheduleValue",
             data.court.data.attributes.minimumScheduleValue,
@@ -120,10 +123,50 @@ export default function EditCourt({
     ]).catch(console.error);
   }, []);
 
-  const courtPhotos: string[] = [];
+  let courtPhotos: string[] = [];
   courtByIdData?.court.data.attributes.photo.data.forEach(photoItem => {
     courtPhotos.push(photoItem.id);
   });
+
+    console.log(courtPhotos)
+
+  async function uploadNewCourtImage(): Promise<string[] | undefined> {
+    try {
+      setIsLoading(true);
+
+      if (photo) {
+        const formData = new FormData();
+
+        const fetchResponse = await fetch(photo);
+        const blob = await fetchResponse.blob();
+
+        formData.append('files', {
+          uri: photo,
+          name: "court.jpg",
+          type: "image/jpeg",
+        });
+
+        const response = await axios.post(`${HOST_API}/api/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        const uploadedImageIDs: string[] = response.data.map((image: any) => image.id);
+
+        console.log('Imagens enviadas com sucesso!', response.data);
+        return uploadedImageIDs;
+      }
+    } catch (error) {
+      console.error('Erro ao enviar imagens:', JSON.stringify(error, null, 2));
+      throw new Error('Não foi possível realizar o upload', {
+        cause: JSON.stringify(error, null, 2),
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
 
   const courtTypes: string[] = [];
   if (
@@ -145,7 +188,7 @@ export default function EditCourt({
     },
   );
 
-  const handleProfilePictureUpload = async () => {
+  const handleCourtPictureUpload = async () => {
     try {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -176,6 +219,7 @@ export default function EditCourt({
   >([]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [minimumScheduleValue, setMinimumScheduleValue] = useState<number>();
 
   const handleUpdateCourt = handleSubmit(async data => {
     setIsLoading(true);
@@ -336,6 +380,12 @@ export default function EditCourt({
         );
       }
 
+      let photoId: string[] | undefined = await uploadNewCourtImage();
+
+      if (photoId && photoId[0]) {
+        courtPhotos = [photoId[0], ...courtPhotos];
+      }
+
       await updateCourtHook({
         variables: {
           court_id: courtId ?? "",
@@ -443,7 +493,9 @@ export default function EditCourt({
         await Promise.all(promises);
       }
 
-      navigation.navigate("CourtPriceHour");
+      navigation.navigate("CourtPriceHour", {
+        minimumCourtPrice: String(minimumScheduleValue)
+      });
     } catch (error) {
       console.log(JSON.stringify(error, null, 2));
       console.log(error);
@@ -481,7 +533,7 @@ export default function EditCourt({
             <Text className="text-[16px] text-[#FF6112] font-semibold">
               Editar
             </Text>
-            <TouchableOpacity onPress={handleProfilePictureUpload}>
+            <TouchableOpacity onPress={handleCourtPictureUpload}>
               <Image source={require("../../assets/edit_icon.png")} />
             </TouchableOpacity>
           </View>

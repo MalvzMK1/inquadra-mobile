@@ -59,8 +59,32 @@ export default function EstablishmentInfo({
     Array<{ id: any }>
   >([]);
 
-  const [heart, setHeart] = useState<boolean>(route.params.colorState === "red" ? true : false);
+  console.log("favoritos:", arrayfavoriteEstablishment)
+
+  const [heart, setHeart] = useState<boolean>(false);
+  const setHeartColor = () => {
+    if (route.params.colorState !== undefined && route.params.setColorState !== undefined) {
+      if (route.params.colorState === "red") {
+        setHeart(true)
+      } else {
+        setHeart(false)
+      }
+    } else {
+      const isCurrentlyFavorite = arrayfavoriteEstablishment.some(
+        item => item.id === Establishment?.id,
+      );
+      setHeart(isCurrentlyFavorite)
+    }
+  }
   const [footerHeartColor, setFooterHeartColor] = useState("white");
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (arrayfavoriteEstablishment !== undefined && arrayfavoriteEstablishment !== null) {
+        setHeartColor()
+      }
+    }, [arrayfavoriteEstablishment])
+  )
 
   const [Court, setCourt] = useState<
     Array<{
@@ -270,7 +294,7 @@ export default function EstablishmentInfo({
             {Establishment?.corporateName.toUpperCase()}
           </Text>
           <View className="w-2/5 flex flex-row items-center justify-between">
-          {/*<View className="flex-1 flex flex-row items-center gap-x-8 bg-violet-500">*/}
+            {/*<View className="flex-1 flex flex-row items-center gap-x-8 bg-violet-500">*/}
             <TouchableOpacity
               onPress={() => {
                 if (userId !== undefined && userId !== null) {
@@ -287,7 +311,7 @@ export default function EstablishmentInfo({
                     handlePressFavoriteEstablishment()
                     heart ? setHeart(false) : setHeart(true)
                   }
-                }else{
+                } else {
                   navigation.navigate('Login')
                 }
               }

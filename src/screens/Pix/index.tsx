@@ -3,7 +3,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
 import React, { useCallback, useEffect, useState } from "react";
-import { Image, ImageSourcePropType, Text, View } from "react-native";
+import { Alert, Image, ImageSourcePropType, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import QRCode from "react-native-qrcode-svg";
@@ -78,13 +78,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const handleCopiarTexto = async () => {
     await Clipboard.setStringAsync(QRcodeURL);
-    Toast.show({
-      type: "success",
-      text1: "Texto copiado",
-      text2: "O texto foi copiado para a área de transferência.",
-      position: "bottom",
-      visibilityTime: 2000,
-    });
+    alert("Código PIX copiado para área de transferência.")
   };
 
   useEffect(() => {

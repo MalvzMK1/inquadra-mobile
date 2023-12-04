@@ -1,8 +1,10 @@
 import { HOST_API } from "@env";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -10,16 +12,17 @@ import {
   Modal,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { SelectList } from "react-native-dropdown-select-list";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { TextInputMask } from "react-native-masked-text";
 import { Button, TextInput } from "react-native-paper";
 import ProgressBar from "react-native-progress/Bar";
 import Toast from "react-native-toast-message";
+import Icon from "react-native-vector-icons/Ionicons";
 import { z } from "zod";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import Countdown from "../../components/countdown/Countdown";
@@ -34,7 +37,9 @@ import { useUserPaymentCard } from "../../hooks/useUserPaymentCard";
 import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
 import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { generatePix } from "../../services/pixCielo";
+import { Card } from "../../types/Card";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
+import { formatCardNumber } from "../../utils/formatCardNumber";
 import {
   convertToAmericanDate,
   formatDate,
@@ -56,7 +61,6 @@ export default function DescriptionReserve({
   const schedule_id = route.params.scheduleId;
   const currentTime = new Date();
   const oneHourInMs = 60 * 60 * 1000;
-
   const [serviceRate, setServiceRate] = useState<number>();
   const [schedulePrice, setSchedulePrice] = useState<number>();
   const [scheduleValuePayed, setScheduleValuePayed] = useState<number>();
@@ -78,6 +82,20 @@ export default function DescriptionReserve({
   const [fantasyName, setFantasyName] = useState("");
   const [payedPercentage, setPayedPercentage] = useState<number>();
   const [reserveStatus, setReserveStatus] = useState(false);
+  const [showCreditCards, setShowCreditCards] = useState(false);
+  const [cards, setCards] = useState<Card[]>([]);
+
+  useEffect(() => {
+    AsyncStorage.getItem(`user${route.params.userId}Cards`, (error, result) => {
+      if (error) {
+        console.log("Deu ruim mano", error);
+      } else {
+        const parsedCards = JSON.parse(result || "[]");
+        setCards(parsedCards);
+        console.log("Cartões recuperados com sucesso", parsedCards);
+      }
+    });
+  }, [route.params.userId]);
 
   const { data: infoScheduleData } = useInfoSchedule(schedule_id, user_id, {
     onCompleted(data) {
@@ -110,7 +128,7 @@ export default function DescriptionReserve({
       if (receivedServiceRate) {
         const denominator =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value + receivedServiceRate;
+            .value 
 
         if (denominator !== 0) {
           const newValuePayedPercentage =
@@ -159,7 +177,7 @@ export default function DescriptionReserve({
       if (data.scheduling.data.attributes.court_availability.data) {
         const receivedSchedulePrice =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value + receivedServiceRate;
+            .value 
         setSchedulePrice(receivedSchedulePrice);
         if (
           data.scheduling.data.attributes.court_availability.data.attributes
@@ -797,7 +815,7 @@ export default function DescriptionReserve({
                   / R${" "}
                   {(
                     infoScheduleData.scheduling.data.attributes
-                      .court_availability.data.attributes.value + serviceRate
+                      .court_availability.data.attributes.value 
                   ).toFixed(2)}
                 </Text>
                 {infoScheduleData.scheduling.data.attributes.valuePayed &&
@@ -1119,15 +1137,83 @@ export default function DescriptionReserve({
         />
       </View>
       <Modal
-        visible={showCardPaymentModal}
+        transparent
         animationType="slide"
-        transparent={true}
+        visible={showCardPaymentModal}
         onRequestClose={closeCardPayment}
       >
         <View className="bg-black bg-opacity-10 flex-1 justify-center items-center">
-          <View className="bg-[#292929] h-fit w-11/12 p-6 justify-center">
-            <ScrollView>
-              <View className="flex gap-y-[10px]">
+          <View className="bg-[#292929] h-fit w-11/12 justify-center">
+            <TouchableOpacity
+              disabled={isSubmitting}
+              onPress={closeCardPayment}
+              className="bg-[#FF6112] mt-8 mb-4 mr-4 rounded-full w-6 aspect-square items-center justify-center self-end"
+            >
+              <AntDesign name="close" size={20} color="white" />
+            </TouchableOpacity>
+
+            <ScrollView
+              contentContainerStyle={{
+                paddingHorizontal: 24,
+                paddingBottom: 36,
+              }}
+            >
+              <TouchableOpacity onPress={() => setShowCreditCards(true)}>
+                <Text className="text-sm text-[#FF6112]">Cartões</Text>
+                <View className="w-full h-14 flex flex-row justify-between items-center p-3 border border-neutral-400 rounded bg-white">
+                  <FontAwesome
+                    name="credit-card-alt"
+                    size={24}
+                    color="#FF6112"
+                  />
+                  <Icon
+                    size={25}
+                    color="#FF4715"
+                    name={showCreditCards ? "chevron-up" : "chevron-down"}
+                  />
+                </View>
+              </TouchableOpacity>
+              {showCreditCards ? (
+                cards.length > 0 ? (
+                  <View className="border-gray-500 mt-2">
+                    {cards.map(card => (
+                      <Fragment key={card.id}>
+                        <TouchableOpacity
+                          className="flex h-[60px] w-full rounded-xl border justify-center items-start bg-white"
+                          onPress={() => {
+                            setShowCreditCards(false);
+                            setValue("cardNumber", card.number);
+                            setValue("date", card.maturityDate);
+                            setValue("cep", card.cep);
+                            setValue("number", card.houseNumber);
+                            setValue("street", card.street);
+                            setValue("district", card.district);
+                            setValue("complement", card.complement ?? "");
+                            setValue("city", card.city);
+                            setValue("state", card.state);
+                          }}
+                        >
+                          <View className="before:absolute before:w-1 before:h-12 before:bg-[#F5620F] before:content left-2.5" />
+
+                          <View className="flex-row pl-5 items-center">
+                            <Text className="font-bold text-base">
+                              {formatCardNumber(card.number)}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+
+                        <View className="h-2" />
+                      </Fragment>
+                    ))}
+                  </View>
+                ) : (
+                  <Text className="font-bold text-sm text-[#808080] text-center">
+                    Você não possui nenhum cartão cadastrado no momento
+                  </Text>
+                )
+              ) : null}
+
+              <View className="flex gap-y-2.5 mt-2.5">
                 <View>
                   <Text className="text-sm text-[#FF6112]">Nome</Text>
                   <Controller

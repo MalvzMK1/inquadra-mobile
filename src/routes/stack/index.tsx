@@ -143,7 +143,7 @@ export default function () {
                     placeholder="O que você está procurando?"
                     underlineColorAndroid="transparent"
                     underlineColor="transparent"
-                className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
+                    className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
                     right={<TextInput.Icon icon={"magnify"} />}
                     onChangeText={e => {
                       setCorporateName(e);
@@ -282,7 +282,6 @@ export default function () {
             </View>
           ),
           headerRight: () => {
-            console.log("picture", params.establishmentPhoto)
             return (
               <TouchableOpacity className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden">
                 <Image
@@ -428,7 +427,8 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: HOST_API + params.establishmentPhoto ?? "",
+                  establishmentPhoto:
+                    HOST_API + params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -470,7 +470,8 @@ export default function () {
               onPress={() =>
                 navigation.navigate("InfoProfileEstablishment", {
                   establishmentId: params.establishmentId,
-                  establishmentPhoto: HOST_API + params.establishmentPhoto ?? "",
+                  establishmentPhoto:
+                    HOST_API + params.establishmentPhoto ?? "",
                 })
               }
             >
@@ -1008,7 +1009,7 @@ export default function () {
               }}
             >
               <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
-                REQUISITAR PAGAMENTO
+                SAQUE
               </Text>
             </View>
           ),
@@ -1142,7 +1143,12 @@ export default function () {
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                if (params.userId)
+                // console.log(params.userId)
+                if (
+                  params.userId &&
+                  params.userId !== '0' &&
+                  params.userId !== ''
+                )
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
                     userID: userId ?? "",
@@ -1161,10 +1167,7 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="ml-4"
-            >
+            <TouchableOpacity onPress={navigation.goBack} className="ml-4">
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),

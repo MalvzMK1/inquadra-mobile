@@ -210,7 +210,6 @@ export default function InfoProfileEstablishment({
   const [editPasswordModal, setEditPasswordModal] = useState(false);
   const closeEditPasswordModal = () => setEditPasswordModal(false);
   const [selected, setSelected] = useState("");
-  const [pixKeySelected, setPixKeySelected] = useState("");
   const [amenitieSelected, setAmeniniteSelected] = useState("");
   const [courtSelected, setCourtSelected] = useState("");
   const [uploadedPictureID, setUploadedPictureID] = useState<number | string>()
@@ -986,45 +985,6 @@ export default function InfoProfileEstablishment({
               </View>
             </View>
           </TouchableOpacity>
-
-          {showCard && (
-            <View>
-              <SelectList
-                setSelected={(val: string) => setPixKeySelected(val)}
-                data={() => {
-                  console.log(pixKeys);
-                  return pixKeys;
-                }}
-                save="value"
-                notFoundText="Nenhuma chave pix cadastrada"
-                placeholder="Selecione um dado"
-                searchPlaceholder="Pesquisar..."
-                dropdownTextStyles={{ color: "#FF6112" }}
-                inputStyles={{
-                  alignSelf: "center",
-                  height: 14,
-                  color: "#B8B8B8",
-                }}
-                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-                searchicon={
-                  <Ionicons
-                    name="search"
-                    size={18}
-                    color="#FF6112"
-                    style={{ marginEnd: 10 }}
-                  />
-                }
-                arrowicon={
-                  <AntDesign
-                    name="down"
-                    size={20}
-                    color="#FF6112"
-                    style={{ alignSelf: "center" }}
-                  />
-                }
-              />
-            </View>
-          )}
 
           {showCard && (
             <View className="border border-gray-500 p-4 ">

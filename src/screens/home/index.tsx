@@ -3,7 +3,7 @@ import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Platform, TouchableOpacity, View } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
@@ -115,7 +115,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
     const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] = useState<boolean>()
     const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>()
-
+    const [color, setColor] = useState<string>("white")
 
     const isFocused = useIsFocused();
 
@@ -405,6 +405,10 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                 userID: userHookData.usersPermissionsUser.data.id,
             })
         }
+
+				establishments.forEach((establishment) => {
+					console.log(establishment.distance)
+				})
     }, [userHookData])
 
     const mapView = useRef(null);
@@ -451,6 +455,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                                         return true;
                                     }
                                 })
+	                              .filter(establishment => establishment.distance < 5)
                                 .map(item => {
                                     return (
                                         <Marker
@@ -467,11 +472,16 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                                                 key={item.id}
                                                 tooltip
                                                 onPress={() =>
-                                                    navigation.navigate("EstablishmentInfo", {
+                                                    {
+                                                       
+                                                        
+                                                        navigation.navigate("EstablishmentInfo", {                                             
                                                         establishmentId: item.id,
                                                         userId: userId,
-                                                        userPhoto: userPicture,
-                                                    })
+                                                        userPhoto: route.params.userPhoto,
+                                                        colorState: undefined,
+                                                        setColorState: undefined,
+                                                    })}
                                                 }
                                             >
                                                 <CourtBallon
@@ -492,7 +502,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                                     <TouchableOpacity
 									className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
                                     onPress={() => {
-                                        mapView.current.animateToRegion({
+                                        (mapView && mapView.current) && mapView.current.animateToRegion({
                                         latitude: userGeolocation.latitude,
                                         longitude: userGeolocation.longitude,
                                         latitudeDelta: userGeolocationDelta.latDelta,
@@ -527,7 +537,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                     isUpdated={IsUpdated}
                     loggedUserId={userId}
                     chosenType={sportSelected}
-                    courts={establishments}
+                    courts={establishments.sort((a, b) => a.distance - b.distance)}
                     userName={
                         userHookData?.usersPermissionsUser?.data?.attributes?.username
                     }
