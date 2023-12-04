@@ -145,7 +145,9 @@ export default function FilterComponent(props: {
                                         <DateTimePickerModal
                                             isVisible={true}
                                             mode="time"
-                                            onConfirm={handleTimeInitChange}
+                                            onConfirm={(date) => {
+                                                handleTimeInitChange({}, date);
+                                            }}
                                             onCancel={() => setShowTimeInitPicker(false)}
                                             locale="pt-BR"
                                             cancelTextIOS="Cancelar"
@@ -187,7 +189,9 @@ export default function FilterComponent(props: {
                                         <DateTimePickerModal
                                             isVisible={true}
                                             mode="time"
-                                            onConfirm={handleTimeFinalChange}
+                                            onConfirm={(date) => {
+                                                handleTimeFinalChange({}, date);
+                                            }}
                                             onCancel={() => setShowTimeFinalPicker(false)}
                                             locale="pt-BR"
                                             cancelTextIOS="Cancelar"
