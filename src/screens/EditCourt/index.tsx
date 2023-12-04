@@ -121,7 +121,7 @@ export default function EditCourt({
     ]).catch(console.error);
   }, []);
 
-  const courtPhotos: string[] = [];
+  let courtPhotos: string[] = [];
   courtByIdData?.court.data.attributes.photo.data.forEach(photoItem => {
     courtPhotos.push(photoItem.id);
   });
@@ -377,10 +377,10 @@ export default function EditCourt({
         );
       }
 
-      let photoId: string | undefined = await uploadNewCourtImage();
+      let photoId: string[] | undefined = await uploadNewCourtImage();
 
-      if (photoId) {
-        courtPhotos.push(photoId)
+      if (photoId && photoId[0]) {
+        courtPhotos = [photoId[0], ...courtPhotos];
       }
 
       await updateCourtHook({
