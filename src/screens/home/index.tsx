@@ -455,6 +455,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                                         return true;
                                     }
                                 })
+	                              .filter(establishment => establishment.distance < 5)
                                 .map(item => {
                                     return (
                                         <Marker
@@ -531,7 +532,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                     isUpdated={IsUpdated}
                     loggedUserId={userId}
                     chosenType={sportSelected}
-                    courts={establishments.filter(({distance}) => distance < 5)}
+                    courts={establishments.sort((a, b) => a.distance - b.distance)}
                     userName={
                         userHookData?.usersPermissionsUser?.data?.attributes?.username
                     }
