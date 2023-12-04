@@ -191,7 +191,7 @@ export default function HomeBar({
           </Text>
         </View>
       </PanGestureHandler>
-      <ScrollView className="p-5">
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 48 }}>
         {courts.length !== 0 ? (
           chosenType ? (
             result.length > 0 ? (

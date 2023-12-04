@@ -1,5 +1,5 @@
 import { HOST_API } from "@env";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -92,7 +92,7 @@ export default function DescriptionReserve({
       } else {
         const parsedCards = JSON.parse(result || "[]");
         setCards(parsedCards);
-        console.log("Cartões recuperados com sucesso", parsedCards);
+        // console.log("Cartões recuperados com sucesso", parsedCards);
       }
     });
   }, [route.params.userId]);
@@ -128,7 +128,7 @@ export default function DescriptionReserve({
       if (receivedServiceRate) {
         const denominator =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value 
+            .value;
 
         if (denominator !== 0) {
           const newValuePayedPercentage =
@@ -141,7 +141,7 @@ export default function DescriptionReserve({
           ) {
             setPayedPercentage(newValuePayedPercentage);
           } else {
-            console.error(
+            console.log(
               "Valor inválido para payedPercentage:",
               newValuePayedPercentage,
             );
@@ -177,7 +177,7 @@ export default function DescriptionReserve({
       if (data.scheduling.data.attributes.court_availability.data) {
         const receivedSchedulePrice =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value 
+            .value;
         setSchedulePrice(receivedSchedulePrice);
         if (
           data.scheduling.data.attributes.court_availability.data.attributes
@@ -652,46 +652,45 @@ export default function DescriptionReserve({
     <View className="flex-1 bg-zinc-600">
       <View className="h-11 w-max bg-zinc-900"></View>
       <View className="h-16 w-max bg-zinc-900 flex-row items-center justify-between px-5">
-        <View className="flex item-center justify-center">
-          <TouchableOpacity
-            className="h-6 w-6"
-            onPress={() => {
-              navigation.navigate("InfoReserva", { userId: user_id });
-            }}
-          >
-            <TextInput.Icon icon="chevron-left" size={25} color="white" />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={navigation.goBack}>
+          <Entypo name="chevron-left" size={24} color="white" />
+        </TouchableOpacity>
+
         <View className="flex item-center justify-center">
           <Text className="text-lg font-bold text-white">RESERVA</Text>
         </View>
         <View className="h-max w-max flex justify-center items-center">
-          <TouchableOpacity
-            className="h-12 W-12"
-            onPress={() =>
-              navigation.navigate("ProfileSettings", {
-                userID: user_id,
-                userPhoto:
-                  dataUser?.usersPermissionsUser.data?.attributes.photo.data
-                    ?.attributes.url ?? undefined,
-              })
-            }
-          >
-            <Image
-              source={{
-                uri:
-                  HOST_API +
-                    dataUser?.usersPermissionsUser.data?.attributes.photo.data
-                      ?.attributes.url ?? "",
+          {dataUser?.usersPermissionsUser.data?.attributes.photo.data
+            ?.attributes.url ? (
+            <TouchableOpacity
+              className="w-12 h-12"
+              onPress={() => {
+                navigation.navigate("ProfileSettings", {
+                  userID: user_id,
+                  userPhoto:
+                    dataUser!.usersPermissionsUser.data!.attributes.photo.data!
+                      .attributes.url,
+                });
               }}
-              style={{ width: 46, height: 46 }}
-              borderRadius={100}
-            />
-          </TouchableOpacity>
+            >
+              <Image
+                source={{
+                  uri:
+                    HOST_API +
+                      dataUser?.usersPermissionsUser.data?.attributes.photo.data
+                        ?.attributes.url ?? "",
+                }}
+                style={{ width: 46, height: 46 }}
+                borderRadius={100}
+              />
+            </TouchableOpacity>
+          ) : (
+            <View className="w-12 h-12" />
+          )}
         </View>
       </View>
       <ScrollView>
-        <View className="h-6"></View>
+        <View className="h-6" />
         <View className="flex w-max h-fit bg-zinc-900 px-5 pb-2">
           <View className="flex-row items-start justify-start w-max h-max pt-2">
             <View>
@@ -813,10 +812,9 @@ export default function DescriptionReserve({
                     2,
                   )}{" "}
                   / R${" "}
-                  {(
-                    infoScheduleData.scheduling.data.attributes
-                      .court_availability.data.attributes.value 
-                  ).toFixed(2)}
+                  {infoScheduleData.scheduling.data.attributes.court_availability.data.attributes.value.toFixed(
+                    2,
+                  )}
                 </Text>
                 {infoScheduleData.scheduling.data.attributes.valuePayed &&
                   infoScheduleData.scheduling.data.attributes.court_availability

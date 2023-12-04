@@ -897,7 +897,7 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={navigation.goBack}>
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),
@@ -1146,8 +1146,8 @@ export default function () {
                 // console.log(params.userId)
                 if (
                   params.userId &&
-                  params.userId !== '0' &&
-                  params.userId !== ''
+                  params.userId !== "0" &&
+                  params.userId !== ""
                 )
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
