@@ -115,7 +115,7 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
 
     const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] = useState<boolean>()
     const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>()
-
+    const [color, setColor] = useState<string>("white")
 
     const isFocused = useIsFocused();
 
@@ -467,11 +467,16 @@ export default function Home({ menuBurguer, setMenuBurguer, route, navigation }:
                                                 key={item.id}
                                                 tooltip
                                                 onPress={() =>
-                                                    navigation.navigate("EstablishmentInfo", {
+                                                    {
+                                                       
+                                                        
+                                                        navigation.navigate("EstablishmentInfo", {                                             
                                                         establishmentId: item.id,
                                                         userId: userId,
-                                                        userPhoto: userPicture,
-                                                    })
+                                                        userPhoto: route.params.userPhoto,
+                                                        colorState: undefined,
+                                                        setColorState: undefined,
+                                                    })}
                                                 }
                                             >
                                                 <CourtBallon
