@@ -638,6 +638,20 @@ export default function ProfileSettings({
     });
   }, [showCreditCards]);
 
+  function clearCardDatas(): void {
+    setPaymentCardValue('cardNumber', '');
+    setPaymentCardValue('cvv', '');
+    setPaymentCardValue('cep', '');
+    setPaymentCardValue('district', '');
+    setPaymentCardValue('state', '');
+    setPaymentCardValue('street', '');
+    setPaymentCardValue('dueDate', '');
+    setPaymentCardValue('complement', '');
+    setPaymentCardValue('country', '');
+    setPaymentCardValue('houseNumber', '');
+    setPaymentCardValue('city', '');
+  }
+
   const addCard = async (
     number: string,
     maturityDate: string,
@@ -684,6 +698,8 @@ export default function ProfileSettings({
         }
       },
     );
+
+    clearCardDatas();
   };
 
   useEffect(() => {
