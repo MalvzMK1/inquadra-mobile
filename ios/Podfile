@@ -43,11 +43,6 @@ target 'InQuadra' do
   use_expo_modules!
   config = use_native_modules!
   
-  pod 'react-native-maps', path: '../node_modules/react-native-maps'
-  pod 'react-native-google-maps', path: '../node_modules/react-native-maps'  
-  pod 'GoogleMaps' 
-  pod 'Google-Maps-iOS-Utils' 
-
 
   pod 'react-native-text-input-mask', :path => '../node_modules/react-native-text-input-mask', :modular_headers => true
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
