@@ -9,13 +9,14 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Modal,
   ScrollView,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { MultipleSelectList } from "react-native-dropdown-select-list";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
@@ -33,6 +34,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import storage from "../../utils/storage";
 import { Appointment } from "../CourtPriceHour";
 import axios from "axios/index";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ICourtFormData {
   fantasyName: string;
@@ -67,6 +69,7 @@ export default function EditCourt({
   const [updateCourtHook] = useUpdateCourt();
   const [isOpeningCourtPriceHour, setIsOpeningCourtPriceHour] = useState(false);
   const [createCourtAvailabilities] = useCreateCourtAvailabilities();
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
   const { data: courtByIdData, loading: loadingCourt } = useCourtById(
     courtId ?? "",
     {
@@ -79,26 +82,34 @@ export default function EditCourt({
           data.court.data &&
           data.court.data.attributes.court_types.data.length > 0
         ) {
-          setPhoto(HOST_API + data.court.data?.attributes.photo.data[0]?.attributes.url ?? undefined);
+          setPhoto(
+            HOST_API +
+              data.court.data?.attributes.photo.data[0]?.attributes.url ??
+              undefined
+          );
 
           setValue("fantasyName", data.court.data.attributes.fantasy_name);
 
-          setMinimumScheduleValue(data.court.data.attributes.minimumScheduleValue);
+          setMinimumScheduleValue(
+            data.court.data.attributes.minimumScheduleValue
+          );
           setValue(
             "minimumScheduleValue",
-            data.court.data.attributes.minimumScheduleValue,
+            data.court.data.attributes.minimumScheduleValue
           );
 
-          courtTypes = data.court.data.attributes.court_types.data.map(courtType => courtType.attributes.name);
+          courtTypes = data.court.data.attributes.court_types.data.map(
+            (courtType) => courtType.attributes.name
+          );
 
           setCourtTypeSelected(courtTypes);
         }
-        },
-    },
+      },
+    }
   );
 
   const courtTypesData: string[] = [];
-  sportTypesData?.courtTypes.data.forEach(sportItem => {
+  sportTypesData?.courtTypes.data.forEach((sportItem) => {
     courtTypesData.push(sportItem.attributes.name);
   });
 
@@ -108,7 +119,7 @@ export default function EditCourt({
   }
 
   const allCourtTypesJson: ICourtTypes[] = [];
-  sportTypesData?.courtTypes.data.forEach(sportTypeItem => {
+  sportTypesData?.courtTypes.data.forEach((sportTypeItem) => {
     allCourtTypesJson.push({
       id: sportTypeItem.id,
       name: sportTypeItem.attributes.name,
@@ -124,11 +135,11 @@ export default function EditCourt({
   }, []);
 
   let courtPhotos: string[] = [];
-  courtByIdData?.court.data.attributes.photo.data.forEach(photoItem => {
+  courtByIdData?.court.data.attributes.photo.data.forEach((photoItem) => {
     courtPhotos.push(photoItem.id);
   });
 
-    console.log(courtPhotos)
+  console.log(courtPhotos);
 
   async function uploadNewCourtImage(): Promise<string[] | undefined> {
     try {
@@ -140,7 +151,7 @@ export default function EditCourt({
         const fetchResponse = await fetch(photo);
         const blob = await fetchResponse.blob();
 
-        formData.append('files', {
+        formData.append("files", {
           uri: photo,
           name: "court.jpg",
           type: "image/jpeg",
@@ -148,18 +159,20 @@ export default function EditCourt({
 
         const response = await axios.post(`${HOST_API}/api/upload`, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         });
 
-        const uploadedImageIDs: string[] = response.data.map((image: any) => image.id);
+        const uploadedImageIDs: string[] = response.data.map(
+          (image: any) => image.id
+        );
 
-        console.log('Imagens enviadas com sucesso!', response.data);
+        console.log("Imagens enviadas com sucesso!", response.data);
         return uploadedImageIDs;
       }
     } catch (error) {
-      console.error('Erro ao enviar imagens:', JSON.stringify(error, null, 2));
-      throw new Error('Não foi possível realizar o upload', {
+      console.error("Erro ao enviar imagens:", JSON.stringify(error, null, 2));
+      throw new Error("Não foi possível realizar o upload", {
         cause: JSON.stringify(error, null, 2),
       });
     } finally {
@@ -167,25 +180,24 @@ export default function EditCourt({
     }
   }
 
-
   const courtTypes: string[] = [];
   if (
     courtByIdData?.court.data.attributes.court_types != null ||
     courtByIdData?.court.data.attributes.court_types != undefined
   ) {
     courtByIdData?.court.data.attributes.court_types.data.forEach(
-      courtTypeItem => courtTypes.push(courtTypeItem.id),
+      (courtTypeItem) => courtTypes.push(courtTypeItem.id)
     );
   }
 
   const courtTypesJson: ICourtTypes[] = [];
   courtByIdData?.court.data.attributes.court_types.data.forEach(
-    courtTypeItem => {
+    (courtTypeItem) => {
       courtTypesJson.push({
         id: courtTypeItem.id,
         name: courtTypeItem.attributes.name,
       });
-    },
+    }
   );
 
   const handleCourtPictureUpload = async () => {
@@ -221,16 +233,16 @@ export default function EditCourt({
   const [isLoading, setIsLoading] = useState(false);
   const [minimumScheduleValue, setMinimumScheduleValue] = useState<number>();
 
-  const handleUpdateCourt = handleSubmit(async data => {
+  const handleUpdateCourt = handleSubmit(async (data) => {
     setIsLoading(true);
 
     try {
       const courtTypesId: string[] = [];
 
       if (courtTypeSelected) {
-        courtTypeSelected?.map(courtTypeSelectedItem => {
+        courtTypeSelected?.map((courtTypeSelectedItem) => {
           const courtTypeIdItem = allCourtTypesJson.find(
-            courtTypeItem => courtTypeItem.name === courtTypeSelectedItem,
+            (courtTypeItem) => courtTypeItem.name === courtTypeSelectedItem
           )?.id;
 
           if (courtTypeIdItem) {
@@ -274,7 +286,7 @@ export default function EditCourt({
               false, // sábado
               false, // dia especial
             ],
-          },
+          }
         );
 
       const [storageDayUse, storageAvailabilities] = await Promise.all([
@@ -292,7 +304,7 @@ export default function EditCourt({
 
       if (
         !dayUse.length ||
-        !allAvailabilities.some(availabilities => availabilities.length > 0)
+        !allAvailabilities.some((availabilities) => availabilities.length > 0)
       ) {
         return Alert.alert("Erro", "Preencha os valores e horários.");
       }
@@ -301,7 +313,7 @@ export default function EditCourt({
 
       const courtAvailabilitiesData = allAvailabilities.reduce(
         (data, availabilities, index) => {
-          availabilities.forEach(availability => {
+          availabilities.forEach((availability) => {
             const isDayUse = dayUse[index];
             const weekDay = indexToWeekDayMap[index];
             const startsAt = `${availability.startsAt}:00.000`;
@@ -311,13 +323,13 @@ export default function EditCourt({
                 .replace("R$", "")
                 .replace(".", "")
                 .replace(",", ".")
-                .trim(),
+                .trim()
             );
 
             // para não criar outro se não mudou nada
             const existingId =
               courtByIdData?.court.data.attributes.court_availabilities.data.find(
-                availabilityData => {
+                (availabilityData) => {
                   return (
                     availabilityData.attributes.dayUseService === isDayUse &&
                     availabilityData.attributes.weekDay === weekDay &&
@@ -325,7 +337,7 @@ export default function EditCourt({
                     availabilityData.attributes.endsAt === endsAt &&
                     availabilityData.attributes.value === price
                   );
-                },
+                }
               )?.id;
 
             if (existingId) {
@@ -346,7 +358,7 @@ export default function EditCourt({
 
           return data;
         },
-        [] as CreateCourtAvailabilitiesVariables["data"],
+        [] as CreateCourtAvailabilitiesVariables["data"]
       );
 
       if (courtAvailabilitiesData.length > 0) {
@@ -371,12 +383,12 @@ export default function EditCourt({
         ) {
           console.log("erro", createAvailabilitiesData);
           throw new Error(
-            "Não foi possível criar as disponibilidades de quadra",
+            "Não foi possível criar as disponibilidades de quadra"
           );
         }
 
         courtAvailabilityIds.push(
-          ...createAvailabilitiesData.createCourtAvailabilitiesCustom.ids,
+          ...createAvailabilitiesData.createCourtAvailabilitiesCustom.ids
         );
       }
 
@@ -411,7 +423,7 @@ export default function EditCourt({
   useEffect(() => {
     storage
       .load<UserInfos>({ key: "userInfos" })
-      .then(data => setUserId(data.userId))
+      .then((data) => setUserId(data.userId))
       .catch(console.log);
   }, []);
 
@@ -462,7 +474,7 @@ export default function EditCourt({
               false, // sábado
               false, // dia especial
             ],
-          },
+          }
         );
 
       const promises: Array<Promise<unknown>> = [];
@@ -475,8 +487,8 @@ export default function EditCourt({
         promises.push(
           AsyncStorage.setItem(
             AsyncStorageKeys.CourtPriceHourDayUse,
-            JSON.stringify(dayUse),
-          ),
+            JSON.stringify(dayUse)
+          )
         );
       }
 
@@ -484,8 +496,8 @@ export default function EditCourt({
         promises.push(
           AsyncStorage.setItem(
             AsyncStorageKeys.CourtPriceHourAllAppointments,
-            JSON.stringify(allAvailabilities),
-          ),
+            JSON.stringify(allAvailabilities)
+          )
         );
       }
 
@@ -494,14 +506,14 @@ export default function EditCourt({
       }
 
       navigation.navigate("CourtPriceHour", {
-        minimumCourtPrice: String(minimumScheduleValue)
+        minimumCourtPrice: String(minimumScheduleValue),
       });
     } catch (error) {
       console.log(JSON.stringify(error, null, 2));
       console.log(error);
       Alert.alert(
         "Erro",
-        "Não é possível alterar os valores de aluguel e horários no momento.",
+        "Não é possível alterar os valores de aluguel e horários no momento."
       );
     } finally {
       setIsOpeningCourtPriceHour(false);
@@ -515,7 +527,6 @@ export default function EditCourt({
       </View>
     );
   }
-
   return (
     <View className="h-full w-full flex flex-col">
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
@@ -549,7 +560,12 @@ export default function EditCourt({
             <MultipleSelectList
               setSelected={setCourtTypeSelected}
               data={courtTypesData}
-              defaultOption={courtTypeSelected?.map((selected, index) => ({key: index, value: selected})) ?? undefined}
+              defaultOption={
+                courtTypeSelected?.map((selected, index) => ({
+                  key: index,
+                  value: selected,
+                })) ?? undefined
+              }
               save="value"
               placeholder="Selecione uma modalidade"
               searchPlaceholder="Pesquisar..."
@@ -585,6 +601,9 @@ export default function EditCourt({
             <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">
               Sinal mínimo para locação
             </Text>
+            <TouchableOpacity onPress={() => setInfoModalVisible(true)}>
+              <Ionicons name="information-circle" size={25} color="#FF6112" />
+            </TouchableOpacity>
             <Controller
               name="minimumScheduleValue"
               control={control}
@@ -611,7 +630,38 @@ export default function EditCourt({
               </Text>
             )}
           </View>
-
+          <Modal
+            visible={infoModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setInfoModalVisible(false)}
+          >
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#FF6112",
+                  padding: 20,
+                  borderRadius: 10,
+                }}
+              >
+                <Text className="text-white font-semibold text-base">
+                  O valor do sinal deve ser menor que o Valor/Hora de aluguel da
+                  quadra.
+                </Text>
+                <TouchableOpacity onPress={() => setInfoModalVisible(false)}>
+                  <Text className="text-black font-semibold text-base mt-2">
+                    Fechar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
           <View className="">
             <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">
               Valor aluguel/hora
