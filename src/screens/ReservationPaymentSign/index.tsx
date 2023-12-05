@@ -618,7 +618,7 @@ export default function ReservationPaymentSign({
         courtId: courtId,
         courtImage: courtImage,
         userPhoto: userPhoto!,
-        scheduleValuePayed: signalValue
+        scheduleValuePayed: 0
       });
     } catch (error) {
       console.error(error);
