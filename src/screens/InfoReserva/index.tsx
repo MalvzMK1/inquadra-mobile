@@ -13,7 +13,7 @@ import { useGetMenuUser } from "../../hooks/useMenuUser";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { API_BASE_URL } from "../../utils/constants";
 import storage from "../../utils/storage";
-import {courtAvailabilityByHourQuery} from "../../graphql/queries/schedulingByHour";
+import { courtAvailabilityByHourQuery } from "../../graphql/queries/schedulingByHour";
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -158,9 +158,8 @@ export default function InfoReserva({
                           (Number(courtInfo.attributes.valuePayed) /
                             (Number(
                               courtInfo.attributes.court_availability.data?.attributes.value ?? 0,
-                            ) +
-                              Number(courtInfo.attributes.serviceRate!))) *
-                            100,
+                            ))) *
+                          100,
                         );
 
                         return (
@@ -232,16 +231,12 @@ export default function InfoReserva({
                                     </Text>
                                     <Text className="font-black text-xs text-white">
                                       R$
-                                      {`${
-                                        Number(
-                                          courtInfo?.attributes
-                                            ?.court_availability?.data
-                                            ?.attributes?.value,
-                                        ) +
-                                        Number(
-                                          courtInfo.attributes.serviceRate!,
-                                        )
-                                      }`}
+                                      {`${Number(
+                                        courtInfo?.attributes
+                                          ?.court_availability?.data
+                                          ?.attributes?.value,
+                                      )
+                                        }`}
                                     </Text>
                                   </View>
                                 </View>
@@ -450,7 +445,7 @@ export default function InfoReserva({
 
                                   <View>
                                     {courtInfo.attributes.payedStatus ===
-                                    "payed" ? (
+                                      "payed" ? (
                                       <Text className="font-normal text-xs text-white">
                                         Finalizado{" "}
                                       </Text>
@@ -518,8 +513,8 @@ export default function InfoReserva({
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                  ?.attributes?.url
+              dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                ?.attributes?.url
               : ""
           }
           key={1}
