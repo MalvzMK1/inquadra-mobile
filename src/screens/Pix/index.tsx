@@ -22,7 +22,7 @@ import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
 
 interface RouteParams
-  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> {}
+  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> { }
 
 interface IPixInfos {
   txid: string;
@@ -160,17 +160,23 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     value: number,
     schedule_id: number | null,
   ) => {
+    let valuePayedUpdate: number
     let validatePayment =
       value + scheduleValuePayed! >= schedulePrice &&
-      scheduleValuePayed !== undefined!
+        scheduleValuePayed !== undefined!
         ? "payed"
         : "waiting";
-    let valuePayedUpdate =
-      value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
-    console.log(valuePayedUpdate);
+
+    if (route.params.screen === "signal") {
+      valuePayedUpdate =
+        value
+    } else {
+      value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0)
+    }
+
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice! &&
-      scheduleValuePayed !== undefined
+        scheduleValuePayed !== undefined
         ? generateRandomKey(4)
         : "";
     console.log("rodou aqui");
@@ -179,7 +185,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         variables: {
           payed_status: validatePayment,
           scheduling_id: schedule_id!,
-          value_payed: valuePayedUpdate,
+          value_payed: valuePayedUpdate!,
           activated: false,
           activation_key: activation_key,
         },
@@ -188,7 +194,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       console.log({
         payed_status: validatePayment,
         scheduling_id: schedule_id!,
-        value_payed: valuePayedUpdate,
+        value_payed: valuePayedUpdate!,
         activated: false,
         activation_key: activation_key,
       });
