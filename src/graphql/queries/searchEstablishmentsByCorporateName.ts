@@ -13,18 +13,17 @@ export interface IAllEstablishmentsResponse {
 
 
 export const allEstablishmentsQuery = gql`
-    query getAllEstablishments($name: String){
-        establishments(filters:{
-            corporateName: {
-                contains: $name
-            }
-        }){
-            data{
+    query getAllEstablishments($name: String) {
+        establishments(
+            filters: { corporateName: { contains: $name } }
+            pagination: { limit: -1 }
+        ) {
+            data {
                 id
-                attributes{
+                attributes {
                     corporateName
                 }
-            } 
+            }
         }
     }
 `

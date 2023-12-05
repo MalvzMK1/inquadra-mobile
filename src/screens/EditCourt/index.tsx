@@ -1,7 +1,9 @@
 import { HOST_API } from "@env";
+import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import axios from "axios/index";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -33,8 +35,6 @@ import {
 import { formatCurrency } from "../../utils/formatCurrency";
 import storage from "../../utils/storage";
 import { Appointment } from "../CourtPriceHour";
-import axios from "axios/index";
-import { Ionicons } from "@expo/vector-icons";
 
 interface ICourtFormData {
   fantasyName: string;
