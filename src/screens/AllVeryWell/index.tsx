@@ -71,10 +71,10 @@ export default function AllVeryWell({
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      },
+      }
     );
 
-    const uploadedImageIDs = response.data.map(image => image.id);
+    const uploadedImageIDs = response.data.map((image) => image.id);
     console.log("Imagens enviadas com sucesso!", response.data);
     return uploadedImageIDs;
   };
@@ -100,7 +100,7 @@ export default function AllVeryWell({
           variables: {
             user_id: userIdToRemove,
           },
-        }).then(response => console.log("DELETED_USER", response)),
+        }).then((response) => console.log("DELETED_USER", response))
       );
     }
 
@@ -110,20 +110,20 @@ export default function AllVeryWell({
           variables: {
             establishment_id: establishmentIdToRemove,
           },
-        }).then(response => console.log("DELETED_ESTABLISHMENT", response)),
+        }).then((response) => console.log("DELETED_ESTABLISHMENT", response))
       );
     }
 
     if (courtAvailabilityIdsToRemove.length > 0) {
-      courtAvailabilityIdsToRemove.forEach(id => {
+      courtAvailabilityIdsToRemove.forEach((id) => {
         promises.push(
           deleteCourtAvailability({
             variables: {
               court_availability_id: id,
             },
-          }).then(response =>
-            console.log("DELETED_COURT_AVAILABILITY", response),
-          ),
+          }).then((response) =>
+            console.log("DELETED_COURT_AVAILABILITY", response)
+          )
         );
       });
     }
@@ -149,9 +149,9 @@ export default function AllVeryWell({
         variables: registerUserPayload,
       });
 
-      if (!newUserData) {
+      if (!newUserData || !newUserData.createUsersPermissionsUser.data) {
         throw new Error("Não foi possível criar o usuário", {
-          cause: newUserErrors?.map(error => error),
+          cause: newUserErrors?.map((error) => error),
         });
       }
 
@@ -188,7 +188,7 @@ export default function AllVeryWell({
 
       if (!establishmentData) {
         throw new Error("Não foi possível criar o estabelecimento", {
-          cause: establishmentErrors?.map(error => error),
+          cause: establishmentErrors?.map((error) => error),
         });
       }
 
@@ -196,12 +196,12 @@ export default function AllVeryWell({
 
       for (const court of courts) {
         const [newPhotosIds, courtAvailabilityIds] = await Promise.all([
-          uploadImages(court.photos.map(photo => photo.uri)),
+          uploadImages(court.photos.map((photo) => photo.uri)),
           createCourtAvailabilities({
             variables: {
               data: court.court_availabilities.flatMap(
                 (availabilities, index) => {
-                  return availabilities.map(availability => ({
+                  return availabilities.map((availability) => ({
                     status: true,
                     starts_at: `${availability.startsAt}:00.000`,
                     day_use_service: court.dayUse[index],
@@ -211,18 +211,18 @@ export default function AllVeryWell({
                         .replace("R$", "")
                         .replace(".", "")
                         .replace(",", ".")
-                        .trim(),
+                        .trim()
                     ),
                     week_day: indexToWeekDayMap[index],
                     publishedAt: new Date().toISOString(),
                   }));
-                },
+                }
               ),
             },
-          }).then(response => {
+          }).then((response) => {
             if (!response.data?.createCourtAvailabilitiesCustom.success) {
               throw new Error(
-                "Não foi possível criar as disponibilidades de quadra",
+                "Não foi possível criar as disponibilidades de quadra"
               );
             }
 
@@ -255,8 +255,13 @@ export default function AllVeryWell({
       navigation.navigate("CompletedEstablishmentRegistration");
     } catch (error) {
       console.error(error);
-      console.error(JSON.stringify(error, null, 2));
-      Alert.alert("Erro", "Não foi possível concluir o cadastro.");
+      const msgError = JSON.stringify(error, null, 2);
+
+      if (process.env.APP_DEBUG_VERBOSE) {
+        Alert.alert("Erro", msgError);
+      } else {
+        Alert.alert("Erro", "Não foi possível concluir o cadastro.");
+      }
 
       removeRegisteredInfos({
         userIdToRemove,
@@ -305,7 +310,7 @@ export default function AllVeryWell({
                 Total de{" "}
                 {courts.reduce(
                   (totalPhotos, court) => totalPhotos + court.photos.length,
-                  0,
+                  0
                 )}{" "}
                 fotos
               </Text>
