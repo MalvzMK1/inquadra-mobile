@@ -70,6 +70,10 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     value.replace(/[^\d.,]/g, "").replace(",", "."),
   );
 
+
+  console.log("value to pay:", valueToPay)
+  console.log("updateded sla:", scheduleValuePayed)
+
   useFocusEffect(
     useCallback(() => {
       setHasExecuted(false);
