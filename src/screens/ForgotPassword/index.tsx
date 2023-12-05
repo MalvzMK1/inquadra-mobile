@@ -47,7 +47,7 @@ export default function ForgotPassword({
     resolver: zodResolver(formSchema),
   });
 
-  const handleSendCodePassword = handleSubmit(async data => {
+  const handleSendCodePassword = handleSubmit(async (data) => {
     try {
       const { data: userData } = await apolloClient.query<
         IUserByEmailResponse,
@@ -85,8 +85,12 @@ export default function ForgotPassword({
       });
     } catch (error) {
       console.error(error);
-      console.error(JSON.stringify(error, null, 2));
-      Alert.alert("Erro", "Não foi possível enviar o e-mail.");
+      const msgError = JSON.stringify(error, null, 2);
+      if (process.env.APP_DEBUG_VERBOSE) {
+        Alert.alert("Erro", msgError);
+      } else {
+        Alert.alert("Erro", "Não foi possível enviar o e-mail.");
+      }
     }
   });
 

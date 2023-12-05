@@ -542,7 +542,7 @@ export default function ReservationPaymentSign({
   const updateStatusDisponibleCourt = () => {
     return updateStatusCourtAvailability({
       variables: {
-        id: courtAvailabilityDate,
+        id: courtAvailabilities,
         status: true,
       },
     });

@@ -56,7 +56,7 @@ export function SetNewPassword({
     resolver: zodResolver(formSchema),
   });
 
-  const handleResetPassword = handleSubmit(async values => {
+  const handleResetPassword = handleSubmit(async (values) => {
     try {
       const { data } = await apolloClient.mutate<
         ResetPasswordResponse,
@@ -76,8 +76,13 @@ export function SetNewPassword({
       navigation.navigate("Login");
     } catch (error) {
       console.error(error);
-      console.error(JSON.stringify(error, null, 2));
-      Alert.alert("Erro", "Não foi possível alterar a senha.");
+      const msgError = JSON.stringify(error, null, 2);
+      console.error(msgError);
+      if (process.env.APP_DEBUG_VERBOSE) {
+        Alert.alert("Erro", msgError);
+      } else {
+        Alert.alert("Erro", "Não foi possível alterar a senha.");
+      }
     }
   });
 
