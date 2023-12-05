@@ -160,20 +160,14 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     value: number,
     schedule_id: number | null,
   ) => {
-    let valuePayedUpdate: number
+
     let validatePayment =
       value + scheduleValuePayed! >= schedulePrice &&
         scheduleValuePayed !== undefined!
         ? "payed"
         : "waiting";
 
-    if (route.params.screen === "signal") {
-      valuePayedUpdate =
-        value
-    } else {
-      value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0)
-    }
-
+    let valuePayedUpdate = value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0)
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice! &&
         scheduleValuePayed !== undefined
