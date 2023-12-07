@@ -146,10 +146,11 @@ export default function Home({
       setIsUpdated(IsUpdated + 1);
       refetchUserInfos().then(() => {
         if (
-          userHookData?.usersPermissionsUser.data?.attributes.photo.data
+          (userHookData?.usersPermissionsUser.data?.attributes.photo.data
             ?.attributes.url! !== undefined ||
           userHookData?.usersPermissionsUser.data?.attributes.photo.data
-            ?.attributes.url! !== null
+            ?.attributes.url! !== null) &&
+          !userData
         ) {
           setUserPicture(
             HOST_API +
@@ -370,14 +371,25 @@ export default function Home({
   }, [userHookData]);
 
   useEffect(() => {
-    if (APP_DEBUG_VERBOSE) alert(JSON.stringify(userData));
+    try {
+      if (APP_DEBUG_VERBOSE) alert(JSON.stringify(userData));
 
-    if (userData) {
-      setUserId(userData.id);
-      navigation.setParams({
-        userID: userData.id,
-        userGeolocation: userData.geolocation
-      })
+      if (userData && userData.id) {
+        setUserId(userData.id);
+        navigation.setParams({
+
+          userGeolocation: userData.geolocation
+        })
+      } else {
+        setUserId(undefined)
+        navigation.setParams({
+          userID: undefined,
+          userPhoto: undefined,
+        })
+      }
+    } catch (error) {
+      if (APP_DEBUG_VERBOSE) alert(JSON.stringify(error, null, 2))
+      console.error(JSON.stringify(error, null, 2));
     }
   }, [userData])
 
