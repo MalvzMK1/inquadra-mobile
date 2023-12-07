@@ -84,40 +84,6 @@ export default function Login() {
         },
       });
 
-      storage
-        .save({
-          key: "userInfos",
-          data: {
-            token: authData.data.login.jwt,
-            userId: authData.data.login.user.id,
-          },
-          expires: 1000 * 3600,
-        })
-        .then(() => {
-          storage
-            .load<UserInfos>({
-              key: "userInfos",
-            })
-            .catch(error => {
-              if (error instanceof Error) {
-                if (error.name === "NotFoundError") {
-                  console.log("The item wasn't found.");
-                } else if (error.name === "ExpiredError") {
-                  console.log("The item has expired.");
-                  storage
-                    .remove({
-                      key: "userInfos",
-                    })
-                    .then(() => {
-                      console.log("The item has been removed.");
-                    });
-                } else {
-                  console.log("Unknown error:", error);
-                }
-              }
-            });
-        });
-
       if (
         userData &&
         userData.usersPermissionsUser.data &&
