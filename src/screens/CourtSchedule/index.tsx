@@ -348,10 +348,6 @@ export default function CourtSchedule({
   useEffect(() => {
     setActiveStates(standardActiveStates);
     setActiveCourts(standardActiveCourts);
-
-    storage.load<UserInfos>({
-      key: "userInfos",
-    });
   }, [userByEstablishmentData]);
 
   const [shownSchedules, setShownSchedules] = useState<

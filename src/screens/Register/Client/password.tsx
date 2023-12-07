@@ -23,9 +23,8 @@ import {
 } from "../../../graphql/queries/userById";
 import useLoginUser from "../../../hooks/useLoginUser";
 import useRegisterUser from "../../../hooks/useRegisterUser";
-import type { UserGeolocation } from "../../../types/UserGeolocation";
-import storage from "../../../utils/storage";
 import {ScrollView} from "react-native-gesture-handler";
+import {useUser} from "../../../context/userContext";
 
 type RegisterPasswordProps = NativeStackScreenProps<
   RootStackParamList,
@@ -53,6 +52,7 @@ const formSchema = z
   });
 
 export default function Password({ route, navigation }: RegisterPasswordProps) {
+  const {userData: storageUserData, setUserData} = useUser();
   const apolloClient = useApolloClient();
   const {
     control,
@@ -127,47 +127,22 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           throw new Error("No user data.");
         }
 
-        storage.save({
-          key: "userInfos",
-          data: {
-            token: authData.data.login.jwt,
-            userId: authData.data.login.user.id,
-          },
-          expires: 1000 * 3600,
-        });
+        const newUserId = authData.data.login.user.id;
+        const newUserJwt = authData.data.login.jwt;
 
-        storage.load<UserInfos>({ key: "userInfos" }).catch(error => {
-          if (error instanceof Error) {
-            if (error.name === "NotFoundError") {
-              console.log("The item wasn't found.");
-            } else if (error.name === "ExpiredError") {
-              console.log("The item has expired.");
-              storage.remove({ key: "userInfos" }).then(() => {
-                console.log("The item has been removed.");
-              });
-            } else {
-              console.log("Unknown error:", error);
-            }
-          }
-        });
-
-        const userGeolocation = await storage.load<UserGeolocation>({
-          key: "userGeolocation",
-        });
-
-        navigation.navigate("RegisterSuccess", {
-          nextRoute: "Home",
-          routePayload: {
-            userGeolocation: userGeolocation
-              ? userGeolocation
-              : {
-                  latitude: 78.23570781291714,
-                  longitude: 15.491400000982967,
-                },
-            userID: authData.data.login.user.id,
-            userPhoto: undefined,
-          },
-        });
+        setUserData({
+          id: newUserId,
+          jwt: newUserJwt,
+        }).then(() => {
+          navigation.navigate("RegisterSuccess", {
+            nextRoute: "Home",
+            routePayload: {
+              userGeolocation: storageUserData?.geolocation ?? undefined,
+              userID: newUserId,
+              userPhoto: undefined,
+            },
+          });
+        })
       } else if (route.params.flow === "establishment") {
         navigation.navigate("EstablishmentRegister", {
           password: data.password,
