@@ -42,6 +42,7 @@ import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
 import { Card } from "../../types/Card";
 import { getUsersCountryId } from "../../utils/getUsersCountryId";
 import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 
 interface IFormData {
   photo: string;
@@ -120,7 +121,8 @@ export default function ProfileSettings({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "ProfileSettings">) {
-  const { userID } = route.params;
+  const { userData, setUserData } = useUser();
+
   const [userInfos, setUserInfos] = useState<UserConfigurationProps>();
   const [showCard, setShowCard] = useState(false);
   const [showCreditCards, setShowCreditCards] = useState(false);
@@ -142,9 +144,8 @@ export default function ProfileSettings({
   const [isLoading, setIsLoading] = useState(false);
   const [userCountry, setUserCountry] = useState<Country>();
 
-  const { data: userPaymentCountryData } = useUserPaymentCountry(userID);
-  const { loading, data } = useGetUserById(userID);
-  console.log(userID)
+  const { data: userPaymentCountryData } = useUserPaymentCountry(userData?.id ?? '');
+  const { loading, data } = useGetUserById(userData?.id ?? '');
   const { data: countriesData, loading: countriesLoading } = useCountries();
   const [updateUser] = useUpdateUser();
 
@@ -261,28 +262,14 @@ export default function ProfileSettings({
   };
 
   const handleConfirmExit = () => {
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => {
-        storage
-          .remove({
-            key: "userInfos",
-          })
-          .then(() =>
-            navigation.navigate("Home", {
-              userPhoto: undefined,
-              userID: "",
-              userGeolocation: data,
-            }),
-          );
-      })
-      .catch(error =>
-        console.error("erro ao capturar o userLocation: ", error),
-      );
+    setUserData(undefined);
 
     setShowExitConfirmation(false);
+
+    navigation.navigate("Home", {
+      userPhoto: undefined,
+      userGeolocation: userData?.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
+    })
   };
 
   const handleCancelExit = () => {
@@ -672,7 +659,7 @@ export default function ProfileSettings({
   let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!;
 
   useEffect(() => {
-    AsyncStorage.getItem(`user${userID}Cards`, (error, result) => {
+    AsyncStorage.getItem(`user${userData?.id}Cards`, (error, result) => {
       if (error) {
         null
       } else {
@@ -725,7 +712,7 @@ export default function ProfileSettings({
     setCards(prevCards => [...prevCards, newCard]);
 
     await AsyncStorage.setItem(
-      `user${userID}Cards`,
+      `user${userData?.id}Cards`,
       JSON.stringify([...cards, newCard]),
       error => {
         if (error) {
@@ -749,7 +736,7 @@ export default function ProfileSettings({
   useEffect(() => {
     let foundCountryId: string | number | undefined;
     if (userPaymentCountryData)
-      foundCountryId = getUsersCountryId(userID, userPaymentCountryData);
+      foundCountryId = getUsersCountryId(userData?.id, userPaymentCountryData);
     setCountryId(foundCountryId);
   }, [userPaymentCountryData]);
 
@@ -1260,7 +1247,7 @@ export default function ProfileSettings({
                           <CreditCardCard
                             number={card.number}
                             id={card.id}
-                            userID={userID}
+                            userID={userData?.id}
                           />
                           <View className="h-2" />
                         </Fragment>
@@ -1388,7 +1375,7 @@ export default function ProfileSettings({
           screen="Home"
           isDisabled={true}
           userPhoto={route.params.userPhoto ? route.params.userPhoto : ""}
-          userID={route.params.userID}
+          userID={userData?.id}
           paddingTop={50}
         />
       </View>
