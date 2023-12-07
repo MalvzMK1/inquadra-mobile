@@ -6,8 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/BarHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BarHome/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomBlackMenu/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/BottomBlackMenuEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BottomBlackMenuEstablishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtCardHome/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/context/userContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/userContext.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/apolloClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/apolloClient.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/CourtSchedule/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CourtSchedule/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/EditCourt/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EditCourt/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/home/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

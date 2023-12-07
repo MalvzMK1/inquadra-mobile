@@ -13,6 +13,7 @@ import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSc
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 const { parse, format } = require("date-fns");
 
 interface ICourtProps {
@@ -82,6 +83,8 @@ export default function HomeEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "HomeEstablishment">) {
+  const {userData} = useUser();
+
   const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string>("");
   const [selected, setSelected] = useState<string>("");
@@ -118,7 +121,7 @@ export default function HomeEstablishment({
     data: dataEstablishmentId,
     error: errorEstablishmentId,
     loading: loadingEstablishmentId,
-  } = useGetUserEstablishmentInfos(userId ? userId : "");
+  } = useGetUserEstablishmentInfos(userId ?? "");
   const {
     data: dataSchedulings,
     error: errorSchedulings,
@@ -241,14 +244,15 @@ export default function HomeEstablishment({
   }, [dataSchedulings]);
 
   useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => {
-        setUserId(data.userId);
-      })
-      .catch(console.error);
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id);
+    else navigation.navigate('Home', {
+      userID: undefined,
+      userPhoto: undefined,
+      userGeolocation: userData?.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
+    });
   }, []);
 
   useEffect(() => {
@@ -491,7 +495,6 @@ export default function HomeEstablishment({
                 navigation.navigate("CourtSchedule", {
                   establishmentPhoto: undefined,
                   establishmentId: establishmentId,
-                  userId: userId,
                 })
               }
             >
@@ -768,7 +771,6 @@ export default function HomeEstablishment({
         <View className={`absolute bottom-0 left-0 right-0`}>
           <BottomBlackMenuEstablishment
             screen="Home"
-            userID={route.params.userID || ""}
             establishmentLogo={photo ? photo : null}
             establishmentID={establishmentId}
             key={1}

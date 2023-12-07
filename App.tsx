@@ -5,7 +5,6 @@ import { StatusBar } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { client } from "./src/lib/apolloClient";
 import Routes from "./src/routes";
-import storage from "./src/utils/storage";
 import {UserProvider} from "./src/context/userContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

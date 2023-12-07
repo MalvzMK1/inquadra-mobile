@@ -13,7 +13,6 @@ type RootStackParamList = {
   CourtSchedule: {
     establishmentPhoto: string | undefined;
     establishmentId: string;
-    userId: string;
   };
   AmountAvailableWithdrawal: {
     establishmentId: string;
@@ -24,7 +23,6 @@ type RootStackParamList = {
   CompletedEstablishmentResgistration: undefined;
   HomeEstablishment: {
     userPhoto?: string | undefined;
-    userID?: string;
   };
   DeleteAccountEstablishment: {
     establishmentName: string | undefined;
@@ -68,11 +66,11 @@ type RootStackParamList = {
     establishmentPicture: string;
   };
   Home: {
-    userGeolocation: {
+    userGeolocation?: {
       latitude: number;
       longitude: number;
-    };
-    userPhoto: string | undefined;
+    } | undefined;
+    userPhoto?: string | undefined;
     userID?: string;
   };
   HomeVariant: {

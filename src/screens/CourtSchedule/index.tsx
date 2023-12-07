@@ -52,6 +52,7 @@ import {
   blockScheduleMutation,
 } from "../../graphql/mutations/blockScheduleByDate";
 import { courtByIdQuery } from "../../graphql/queries/nextToCourtsById";
+import {useUser} from "../../context/userContext";
 
 const portugueseMonths = [
   "Janeiro",
@@ -108,7 +109,9 @@ export default function CourtSchedule({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
-  const [userId, setUserId] = useState<string>(route.params.userId);
+  const {userData} = useUser();
+
+  const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string>(
     route.params.establishmentId
   );
@@ -126,6 +129,12 @@ export default function CourtSchedule({
         });
       }
     );
+
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id)
+    else navigation.navigate('Login');
   }, []);
 
   const [showCalendar, setShowCalendar] = useState(false);
@@ -1378,7 +1387,6 @@ export default function CourtSchedule({
       <View className={`absolute bottom-0 left-0 right-0`}>
         <BottomBlackMenuEstablishment
           screen="Schedule"
-          userID={userId ?? ""}
           establishmentLogo={establishmentPicture ?? null}
           establishmentID={establishmentId}
           key={1}

@@ -21,7 +21,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useGetUserById } from "../../hooks/useUserById";
-import storage from "../../utils/storage";
 import EstablishmentCardHome from "../CourtCardHome";
 import {useUser} from "../../context/userContext";
 

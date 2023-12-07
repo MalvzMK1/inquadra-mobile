@@ -145,21 +145,20 @@ export default function Home({
       setIsUpdated(IsUpdated + 1);
       refetchUserInfos().then(() => {
         if (
-          (userHookData?.usersPermissionsUser.data?.attributes.photo.data
-            ?.attributes.url! !== undefined ||
-          userHookData?.usersPermissionsUser.data?.attributes.photo.data
-            ?.attributes.url! !== null) &&
-          userData
+          userData &&
+          userHookData &&
+          userHookData.usersPermissionsUser.data &&
+          userHookData.usersPermissionsUser.data.attributes.photo.data
         ) {
           setUserPicture(
             HOST_API +
-              userHookData?.usersPermissionsUser.data?.attributes.photo.data
-                ?.attributes.url!,
+              userHookData.usersPermissionsUser.data.attributes.photo.data
+                .attributes.url,
           );
           navigation.setParams({
             userPhoto:
-              userHookData?.usersPermissionsUser.data?.attributes.photo.data
-                ?.attributes.url!,
+              userHookData.usersPermissionsUser.data.attributes.photo.data
+                .attributes.url,
           });
         } else {
           setUserPicture("../../assets/default-user-image.png");
@@ -360,7 +359,6 @@ export default function Home({
       userRole === "4" &&
         navigation.navigate("HomeEstablishment", {
           userPhoto: undefined,
-          userID: userHookData.usersPermissionsUser.data.id,
         });
     }
 
@@ -376,7 +374,7 @@ export default function Home({
       if (userData && userData.id) {
         setUserId(userData.id);
         navigation.setParams({
-
+          userID: userData.id,
           userGeolocation: userData.geolocation
         })
       } else {

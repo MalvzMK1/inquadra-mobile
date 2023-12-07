@@ -5,20 +5,21 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import storage from "../../utils/storage";
 import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import BottomAppVersion from "../BottomAppVersion";
+import {useUser} from "../../context/userContext";
 
 interface IBottomBlackMenuEstablishment {
     screen: string
     establishmentID: string
-    userID: string
     establishmentLogo: string | null
     paddingTop: number
 }
 
 export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEstablishment) {
+    const {userData} = useUser();
+
     const [screen, setScreen] = useState("")
     const [establishmentID, setEstablishmentID] = useState("")
     const [establishmentLogo, setEstablishmentLogo] = useState("")
-    const [userID, setUserID] = useState("")
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
     const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const [showButtons, setShowButtons] = useState(true)
@@ -28,7 +29,6 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
         setScreen(props.screen)
         setEstablishmentID(props.establishmentID)
         setEstablishmentLogo(props.establishmentLogo!)
-        setUserID(props.userID)
     }, [props])
 
     const buttonsContainerStyle = useAnimatedStyle(() => {
@@ -49,7 +49,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                 (
                     <View className="bg-black h-[75px] w-2/3 rounded-[20px] items-center justify-around flex flex-row">
                         {
-                            screen === "Home" && userID && establishmentID && userID
+                            screen === "Home" && userData && userData.id && establishmentID
                                 ?
                                 showButtons && (<>
                                     <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishmentID, logo: establishmentLogo ?? "" })}>
@@ -63,7 +63,6 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                     <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
                                         establishmentPhoto: establishmentLogo ?? "",
                                         establishmentId: establishmentID,
-                                        userId: userID
                                     })}>
                                         <MaterialIcons name="calendar-today" color={"white"} size={25} />
                                     </TouchableOpacity>
@@ -76,14 +75,13 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                             <MaterialCommunityIcons name="piggy-bank-outline" size={38} color="#F5620F" />
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "", userID: userID })}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "" })}>
                                             <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
                                             establishmentPhoto: establishmentLogo ?? "",
                                             establishmentId: establishmentID,
-                                            userId: userID
                                         })}>
                                             <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                         </TouchableOpacity>
@@ -114,7 +112,6 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                             <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
                                                 establishmentPhoto: establishmentLogo ?? "",
                                                 establishmentId: establishmentID,
-                                                userId: userID
                                             })}>
                                                 <MaterialIcons name="calendar-today" color={"white"} size={26} />
                                             </TouchableOpacity>

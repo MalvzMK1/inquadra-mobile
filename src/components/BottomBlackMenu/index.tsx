@@ -2,7 +2,6 @@ import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Image, TouchableOpacity, View } from "react-native";
-import storage from "../../utils/storage";
 import {useUser} from "../../context/userContext";
 
 interface IBottomBlackMenu {

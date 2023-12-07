@@ -5,7 +5,6 @@ import { ActivityIndicator, Image, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useUpdateFavoriteCourt from "../../hooks/useUpdateFavoriteCourt";
 import { useGetUserById } from "../../hooks/useUserById";
-import storage from "../../utils/storage";
 import {useUser} from "../../context/userContext";
 
 export default function EstablishmentCardHome(props: CourtCardInfos) {

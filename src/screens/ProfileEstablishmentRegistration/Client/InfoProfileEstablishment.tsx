@@ -36,13 +36,16 @@ import useUpdateEstablishmentUser from "../../../hooks/useUpdateEstablishmentUse
 import useUpdateUserPassword from "../../../hooks/useUpdateUserPassword";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import storage from "../../../utils/storage";
+import {useUser} from "../../../context/userContext";
 type DateTime = Date;
 
 export default function InfoProfileEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
-  const [userId, setUserId] = useState("");
+  const {userData, setUserData} = useUser();
+
+  const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string | number>();
   const [jwtToken, setJwtToken] = useState("");
 
@@ -345,8 +348,7 @@ export default function InfoProfileEstablishment({
     if (
       userByEstablishmentData &&
       userByEstablishmentData.usersPermissionsUser.data &&
-      userByEstablishmentData.usersPermissionsUser.data.attributes.establishment
-        .data
+      userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data
     ) {
       setCep(
         userByEstablishmentData.usersPermissionsUser.data.attributes
@@ -423,15 +425,15 @@ export default function InfoProfileEstablishment({
           .establishment.data?.attributes.fantasyName!,
       );
     }
-
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => {
-        setUserId(data.userId);
-        setJwtToken(data.token);
-      });
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id)
+    else navigation.navigate('Home', {
+      userPhoto: undefined,
+      userID: undefined,
+      userGeolocation: userData?.geolocation ?? undefined
+    })
   }, [userByEstablishmentData]);
 
   const [updateFantasyNameIsLoading, setUpdateFantasyNameIsLoading] =
@@ -1237,20 +1239,11 @@ export default function InfoProfileEstablishment({
                 className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
                 onPress={handleConfirmExit}
                 onPressIn={() => {
-                  storage
-                    .load<{ latitude: number; longitude: number }>({
-                      key: "userGeolocation",
-                    })
-                    .then(data => {
-                      storage.remove({
-                        key: 'userInfos',
-                      }).then(() => navigation.navigate('Home', {
-                        userPhoto: undefined,
-                        userID: '',
-                        userGeolocation: data
-                      }))
-                    })
-                    .catch(error => console.error("erro ao capturar o userLocation: ", error));
+                  setUserData(undefined);
+
+                  navigation.navigate('Home', {
+                    userGeolocation: userData?.geolocation ?? undefined
+                  })
                 }}
               >
                 <Text className="text-white">Confirmar</Text>

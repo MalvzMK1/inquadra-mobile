@@ -1,5 +1,4 @@
 import {createContext, FC, ReactNode, useContext, useEffect, useState} from "react";
-import storage from "../utils/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {APP_DEBUG_VERBOSE} from "@env";
 import {UserGeolocation} from "../types/UserGeolocation";
