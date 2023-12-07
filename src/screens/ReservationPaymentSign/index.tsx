@@ -210,21 +210,21 @@ export default function ReservationPaymentSign({
       dataReserve?.courtAvailability.data.attributes.court.data.attributes
         .fantasy_name
         ? dataReserve?.courtAvailability.data.attributes.court.data.attributes
-            .fantasy_name
+          .fantasy_name
         : ""
     );
     setSignalValueValidate(
       dataReserve?.courtAvailability.data.attributes.value ===
-        amountToPayHold + (serviceValue ?? 0)
+      amountToPayHold + (serviceValue ?? 0)
     );
     console.log(
       "validação:",
       dataReserve?.courtAvailability.data.attributes.value ===
-        amountToPayHold + (serviceValue ?? 0)
+      amountToPayHold + (serviceValue ?? 0)
     );
     setUserPhoto(route.params.userPhoto);
     setValuePayed(
-      dataReserve?.courtAvailability?.data?.attributes?.minValue ?? 0
+      dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue ?? 0
     );
     setSignalValue(
       Number(
@@ -356,10 +356,10 @@ export default function ReservationPaymentSign({
 
       const signalAmount = dataReserve
         ? Number(
-            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-              2
-            )
+          dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+            2
           )
+        )
         : undefined;
 
       if (
@@ -513,8 +513,8 @@ export default function ReservationPaymentSign({
 
   const createNewSchedule = async (valuePayed: number) => {
     let isPayed =
-      dataReserve?.courtAvailability.data?.attributes.minValue ===
-      dataReserve?.courtAvailability.data.attributes.value;
+      dataReserve?.courtAvailability.data?.attributes.court.data.attributes.minimumScheduleValue ===
+      dataReserve?.courtAvailability.data?.attributes.court.data.attributes.minimumScheduleValue
 
     try {
       const { data } = await createSchedule({
@@ -554,10 +554,10 @@ export default function ReservationPaymentSign({
     try {
       const signalAmount = dataReserve
         ? Number(
-            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-              2
-            )
+          dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+            2
           )
+        )
         : undefined;
 
       if (
@@ -873,9 +873,8 @@ export default function ReservationPaymentSign({
                           dataCountry.countries.data.map((country) => ({
                             value: country.attributes.name,
                             label: country.attributes.name,
-                            img: `${
-                              country.attributes.flag.data?.attributes.url ?? ""
-                            }`,
+                            img: `${country.attributes.flag.data?.attributes.url ?? ""
+                              }`,
                           }))) ||
                         []
                       }
