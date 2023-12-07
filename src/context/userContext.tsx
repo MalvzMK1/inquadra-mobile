@@ -15,7 +15,7 @@ interface IUserData {
 
 interface IUserContextProps {
 	userData: IUserData | undefined;
-	setUserData: (userData: IUserData) => void;
+	setUserData: (userData: IUserData | undefined) => void;
 }
 
 const UserContext = createContext<IUserContextProps | undefined>(undefined);
