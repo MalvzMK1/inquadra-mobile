@@ -8,7 +8,7 @@ interface IBottomBlackMenu {
   screen: string;
   userID: string | undefined;
   userPhoto: string | null;
-  isDisabled: boolean;
+  isMenuVisible: boolean;
   paddingTop: number;
   onMiddleButtonPress?: () => void;
 }

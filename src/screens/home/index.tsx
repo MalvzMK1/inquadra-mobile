@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtBallon from "../../components/CourtBalloon";
@@ -46,7 +46,7 @@ export default function Home({
   navigation,
 }: Props) {
   const [userPicture, setUserPicture] = useState<string>();
-  const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | undefined>();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
@@ -122,7 +122,7 @@ export default function Home({
   };
 
   useEffect(() => {
-    if (menuBurguer) setIsDisabled(false);
+    if (menuBurguer) setIsMenuVisible(false);
   }, [menuBurguer]);
 
   const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] =
@@ -418,6 +418,13 @@ export default function Home({
     }
   }, [userId]);
 
+  const buttonCoordinates = {
+    top: 1,
+    left: 1,
+    right: 13,
+    bottom: 13
+   };
+
   useEffect(() => {
     if (
       userHookData &&
@@ -445,7 +452,7 @@ export default function Home({
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
-        isDisabled &&
+        isMenuVisible &&
         !menuBurguer && (
           <SportsMenu
             sports={sportTypes}
@@ -454,12 +461,13 @@ export default function Home({
           />
         )
       )}
+     
       <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
             loadingEnabled
             className="w-screen flex-1"
-            onPress={() => setIsDisabled(false)}
+            onPress={() => setIsMenuVisible(false)}
             customMapStyle={customMapStyle}
             showsCompass={false}
             showsMyLocationButton={true}
@@ -520,43 +528,44 @@ export default function Home({
                     </Marker>
                   );
                 })}
-            {Platform.OS === "ios" && (
+            
+          </MapView>
+        )}
+
+        {!isMenuVisible && (
+          <TouchableOpacity
+            className={`absolute left-3 top-3`}
+            onPress={() => setIsMenuVisible(prevState => !prevState)}
+          >
+            <AntDesign name="left" size={30} color="black" />
+          </TouchableOpacity>
+        )}
+        {Platform.OS === "ios" && (
               <TouchableOpacity
                 className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
                 onPress={() => {
                   mapView.current?.animateToRegion({
-                    latitude: userGeolocation.latitude,
-                    longitude: userGeolocation.longitude,
-                    latitudeDelta: userGeolocationDelta.latDelta,
-                    longitudeDelta: userGeolocationDelta.longDelta,
+                    latitude: userGeolocation?.latitude,
+                    longitude: userGeolocation?.longitude,
+                    latitudeDelta: userGeolocationDelta?.latDelta,
+                    longitudeDelta: userGeolocationDelta?.longDelta,
                   });
                 }}
               >
                 <FontAwesome name="location-arrow" size={24} color="black" />
               </TouchableOpacity>
             )}
-          </MapView>
-        )}
-
-        {!isDisabled && (
-          <TouchableOpacity
-            className={`absolute left-3 top-3`}
-            onPress={() => setIsDisabled(prevState => !prevState)}
-          >
-            <AntDesign name="left" size={30} color="black" />
-          </TouchableOpacity>
-        )}
         {menuBurguer && (
           <FilterComponent
             setBurguer={setMenuBurguer!}
             setFilter={setFilter}
-            setIsDisabled={setIsDisabled}
+            setIsMenuVisible={setIsMenuVisible}
             filter={filter}
           />
         )}
       </View>
 
-      {isDisabled && !menuBurguer && (
+      {isMenuVisible && !menuBurguer && (
         <HomeBar
           key={uniqueIdGenerate}
           isUpdated={IsUpdated}
@@ -574,7 +583,7 @@ export default function Home({
           screen="Home"
           userID={userId}
           userPhoto={userPicture!}
-          isDisabled={!isDisabled}
+          isMenuVisible={!isMenuVisible}
           paddingTop={2}
           onMiddleButtonPress={
             menuBurguer ? () => setMenuBurguer?.(false) : undefined

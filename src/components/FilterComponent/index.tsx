@@ -14,7 +14,7 @@ import FilterDropdown from "../FilterDropdown";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 export default function FilterComponent(props: {
-  setIsDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setBurguer: React.Dispatch<React.SetStateAction<boolean>>;
   setFilter: React.Dispatch<React.SetStateAction<any>>;
   filter: {
@@ -208,7 +208,9 @@ export default function FilterComponent(props: {
                   <DateTimePickerModal
                     isVisible={true}
                     mode="time"
-                    onConfirm={handleTimeInitChange}
+                    onConfirm={(date) => {
+                      handleTimeInitChange({}, date);
+                    }}
                     onCancel={() => setShowTimeInitPicker(false)}
                     locale="pt-BR"
                     cancelTextIOS="Cancelar"
@@ -244,7 +246,9 @@ export default function FilterComponent(props: {
                   <DateTimePickerModal
                     isVisible={true}
                     mode="time"
-                    onConfirm={handleTimeFinalChange}
+                    onConfirm={(date) => {
+                      handleTimeFinalChange({}, date);
+                    }}
                     onCancel={() => setShowTimeFinalPicker(false)}
                     locale="pt-BR"
                     cancelTextIOS="Cancelar"
