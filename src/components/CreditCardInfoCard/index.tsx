@@ -4,11 +4,15 @@ import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { formatCardNumber } from "../../utils/formatCardNumber";
+import { Card } from "../../types/Card";
+import { color } from "react-native-reanimated";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 type CreditCardInfosT = {
   id: number;
   number: string;
   userID: string;
+  isRegister: boolean;
 };
 
 export default function CreditCardCard(props: CreditCardInfosT) {
@@ -67,40 +71,44 @@ export default function CreditCardCard(props: CreditCardInfosT) {
       console.error("Erro ao excluir o cartão", error);
     }
   };
-
+  console.log("isRegister: ", props.isRegister)
   return !cardDeleted ? (
-    <View className="flex h-[90px] w-full rounded-xl border justify-center items-start border-[#292929]">
+
+    <View className="flex h-[90px] w-full rounded-xl border  justify-center items-start border-[#292929]">
       <View className="before:absolute before:w-1 before:h-[69px] before:bg-[#F5620F] before:content '' left-[10px] "></View>
-      <View className="flex w-full items-end pr-4 pt-2">
-        <MaterialIcons
-          name="delete"
-          color="#F5620F"
-          size={25}
-          onPress={() => handleDeleteCard(props.id)}
-        />
-      </View>
-      <View className="flex-row pl-5 items-center">
-        <Text className="font-bold text-base">
+
+      <View className="flex-row pl-5 items-center space-x-5">
+        <Text className="font-bold text-base pl-3">
           {formatCardNumber(props.number)}
         </Text>
         {label === "visa" ? (
           <Image
-            className="h-[15px] w-[48px] pl-2"
+            className="h-[15px] w-[48px]"
             source={require("../../assets/visaLogo.png")}
           ></Image>
         ) : label === "masterCard" ? (
           <Image
-            className="h-[15px] w-[43px] pl-2"
+            className="h-[15px] w-[43px]"
             source={require("../../assets/masterCardLogo.png")}
           ></Image>
         ) : label === "elo" ? (
           <Image
-            className="h-[18px] w-[48px] pl-6"
+            className="h-[18px] w-[48px]"
             source={require("../../assets/eloLogo.png")}
           ></Image>
         ) : null}
+        <View className="flex items-end pl-3">
+          {props.isRegister === true ? (<MaterialIcons
+            name="delete"
+            color="#F5620F"
+            size={25}
+            onPress={() => handleDeleteCard(props.id)}
+          />) : null}
+
+
+        </View>
       </View>
-      <View className="h-[25]"></View>
-    </View>
+    </View >
+
   ) : null;
 }

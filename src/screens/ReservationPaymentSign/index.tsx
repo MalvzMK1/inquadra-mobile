@@ -45,6 +45,9 @@ import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import storage from "../../utils/storage";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Card } from "../../types/Card";
+import CreditCardCard from "../../components/CreditCardInfoCard";
 
 const formSchema = z.object({
   name: z
@@ -153,8 +156,9 @@ export default function ReservationPaymentSign({
   const [signalValue, setSignalValue] = useState<number>();
   const [signalValuePix, setSignalValuePix] = useState<number>();
   const [cardPaymentLoading, setCardPaymentLoading] = useState<boolean>(false);
-  const [paymentStatus, setPaymentStatus] =
-    useState<TPaymentStatus>("processing");
+  const [paymentStatus, setPaymentStatus] = useState<TPaymentStatus>("processing");
+  const [cards, setCards] = useState<Card[]>([]);
+  const [selectedCard, setSelectedCard] = useState<Card>();
 
   const { data: dataReserve, loading: loadingReserve } = useReserveInfo(
     courtAvailabilities,
@@ -259,6 +263,17 @@ export default function ReservationPaymentSign({
       .load<UserGeolocation>({ key: "userGeolocation" })
       .then(setUserGeolocation);
   }, []);
+
+  useEffect(() => {
+    AsyncStorage.getItem(`user${userId}Cards`, (error, result) => {
+      if (error) {
+        null
+      } else {
+        const parsedCards = JSON.parse(result || "[]");
+        setCards(parsedCards);
+      }
+    });
+  }, [showCard]);
 
   const handleCardClick = () => {
     setShowCard(!showCard);
@@ -510,6 +525,170 @@ export default function ReservationPaymentSign({
       });
     }
   });
+  const handlePayCardSave = (card: Card) => {
+    try {
+      const cieloRequestManager = new CieloRequestManager();
+      const countryId = getCountryIdByName(selected);
+
+      setCardPaymentLoading(true);
+      setPaymentStatus("processing");
+
+      const signalAmount = dataReserve
+        ? Number(
+          dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+            2
+          )
+        )
+        : undefined;
+
+      if (
+        !userData?.usersPermissionsUser.data ||
+        typeof signalAmount === "undefined" ||
+        typeof serviceValue === "undefined"
+      ) {
+        return Dialog.show({
+          type: ALERT_TYPE.DANGER,
+          title: "Pagamento não efetuado",
+        });
+      }
+
+      const totalSignalValue = signalAmount;
+      const totalSignalValueCents = totalSignalValue * 100;
+
+      let brand = "Visa";
+
+      const address: CieloAddress = {
+        Street: card.street,
+        Number: card.number,
+        Complement: card.complement || "",
+        ZipCode: card.cep,
+        City: card.city,
+        State: card.state,
+        Country: "BRA",
+      };
+
+      const body: AuthorizeCreditCardPaymentResponse = {
+        MerchantOrderId: "2014111701",
+        Customer: {
+          Name: card.name,
+          Identity: card.cpf,
+          IdentityType: "cpf",
+          Email: userData.usersPermissionsUser.data.attributes.email,
+          Birthdate: "1991-01-02",
+          Address: address,
+          DeliveryAddress: address,
+        },
+        Payment: {
+          Type: "CreditCard",
+          Amount: totalSignalValueCents,
+          Currency: "BRL",
+          Country: "BRA",
+          Provider: "Simulado",
+          ServiceTaxAmount: 0,
+          Installments: 1,
+          Interest: "ByMerchant",
+          Capture: "true",
+          Authenticate: "false",
+          Recurrent: "false",
+          CreditCard: {
+            CardNumber: card.number.split(" ").join(""),
+            Holder: card.name,
+            ExpirationDate: transformCardExpirationDate(card.maturityDate),
+            SecurityCode: card.cvv,
+            SaveCard: false,
+            Brand: brand,
+          },
+        },
+      };
+
+      userPaymentCard({
+        variables: {
+          value: totalSignalValue,
+          userId: Number(userId),
+          name: card.name,
+          cpf: card.cpf,
+          cvv: parseInt(card.cvv),
+          date: convertToAmericanDate(card.maturityDate),
+          countryID: Number(countryId),
+          publishedAt: new Date().toISOString(),
+          cep: card.cep,
+          city: card.city,
+          complement: card.complement,
+          number: card.number,
+          state: card.state,
+          neighborhood: card.district,
+          street: card.street,
+        },
+      })
+        .then(({ data: createdUserPayment }) => {
+          if (createdUserPayment) {
+            cieloRequestManager
+              .authorizePayment(body)
+              .then(async (cieloResponse) => {
+                const newScheduleId = await createNewSchedule(totalSignalValue);
+
+                if (
+                  newScheduleId &&
+                  cieloResponse &&
+                  cieloResponse.Payment &&
+                  cieloResponse.Payment.Status === 2 &&
+                  cieloResponse.Payment.PaymentId
+                ) {
+                  updateUserPaymentCard({
+                    variables: {
+                      paymentId: cieloResponse.Payment.PaymentId,
+                      paymentStatus:
+                        cieloResponse.Payment.Status === 2
+                          ? "Payed"
+                          : "Waiting",
+                      userPaymentId:
+                        createdUserPayment.createUserPayment.data.id,
+                      scheduleId: newScheduleId,
+                    },
+                  })
+                    .then(async () => {
+                      updateStatusDisponibleCourt()
+                        .then(() => {
+                          handleSaveCard();
+                          setPaymentStatus("completed");
+                        })
+                        .catch((error) => {
+                          console.error(error);
+                          setPaymentStatus("failed");
+                        });
+                    })
+                    .catch((error) => {
+                      console.error(JSON.stringify(error, null, 2));
+                      alert("Erro ao registrar a cobrança no banco de dados");
+                      setPaymentStatus("failed");
+                    });
+                }
+              })
+              .catch((error) => {
+                console.error(JSON.stringify(error, null, 2));
+                alert("Não foi possível realizar o pagamento");
+                deleteUserPaymentCard({
+                  variables: {
+                    userPaymentId: createdUserPayment.createUserPayment.data.id,
+                  },
+                });
+              });
+          }
+        })
+        .catch((error) => {
+          console.error(JSON.stringify(error, null, 2));
+          setPaymentStatus("failed");
+        });
+    } catch (error) {
+      console.error("Erro ao criar o agendamento:", error);
+      setPaymentStatus("failed");
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Pagamento não efetuado",
+        textBody: String(error),
+      });
+    }
+  };
 
   const createNewSchedule = async (valuePayed: number) => {
     let isPayed =
@@ -701,47 +880,100 @@ export default function ReservationPaymentSign({
               </View>
             </TouchableOpacity>
             {showCard && (
-              <View className="border border-gray-500 rounded-xl p-4 mt-3 space-y-2">
-                <View className="flex-row space-x-4">
-                  <View className="flex-1">
-                    <Text className="text-sm text-[#FF6112] mb-1">
-                      Data de Venc.
-                    </Text>
-                    <Controller
-                      name="date"
-                      control={control}
-                      render={({
-                        field: { value, onChange },
-                        fieldState: { error },
-                      }) => (
-                        <Fragment>
-                          <TextInputMask
-                            className="p-3 border border-gray-500 rounded-md h-18"
-                            type="datetime"
-                            options={{ format: "MM/YY" }}
-                            value={value}
-                            onChangeText={onChange}
-                            placeholder="MM/YY"
-                            keyboardType="numeric"
-                            maxLength={5}
+              cards.length > 0 ? (
+                <View>
+                  <View className=" border-gray-500 flex w-max h-max mt-3">
+                    {cards.map(card => (
+                      <TouchableOpacity onPress={()=>{
+                        handlePayCardSave(card)
+                      }}>
+                        <Fragment key={card.id}>
+                          <CreditCardCard
+                            number={card.number}
+                            id={card.id}
+                            userID={userId}
+                            isRegister={false}
                           />
-
-                          {error?.message && (
-                            <Text
-                              className="text-red-400 text-sm mt-1"
-                              numberOfLines={1}
-                            >
-                              {error.message}
-                            </Text>
-                          )}
+                          <View className="h-2" />
                         </Fragment>
-                      )}
-                    />
+                      </TouchableOpacity>
+                    ))}
+                  </View>           
+                </View>
+              ) :
+                <View className="border border-gray-500 rounded-xl p-4 mt-3 space-y-2">
+                  <View className="flex-row space-x-4">
+                    <View className="flex-1">
+                      <Text className="text-sm text-[#FF6112] mb-1">
+                        Data de Venc.
+                      </Text>
+                      <Controller
+                        name="date"
+                        control={control}
+                        render={({
+                          field: { value, onChange },
+                          fieldState: { error },
+                        }) => (
+                          <Fragment>
+                            <TextInputMask
+                              className="p-3 border border-gray-500 rounded-md h-18"
+                              type="datetime"
+                              options={{ format: "MM/YY" }}
+                              value={value}
+                              onChangeText={onChange}
+                              placeholder="MM/YY"
+                              keyboardType="numeric"
+                              maxLength={5}
+                            />
+
+                            {error?.message && (
+                              <Text
+                                className="text-red-400 text-sm mt-1"
+                                numberOfLines={1}
+                              >
+                                {error.message}
+                              </Text>
+                            )}
+                          </Fragment>
+                        )}
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-sm text-[#FF6112] mb-1">CVV</Text>
+                      <Controller
+                        name="cvv"
+                        control={control}
+                        render={({
+                          field: { value, onChange },
+                          fieldState: { error },
+                        }) => (
+                          <Fragment>
+                            <TextInput
+                              className="p-3 border border-gray-500 rounded-md h-18"
+                              placeholder="123"
+                              value={value}
+                              onChangeText={onChange}
+                              keyboardType="numeric"
+                              maxLength={3}
+                            />
+
+                            {error?.message && (
+                              <Text
+                                className="text-red-400 text-sm mt-1"
+                                numberOfLines={1}
+                              >
+                                {error.message}
+                              </Text>
+                            )}
+                          </Fragment>
+                        )}
+                      />
+                    </View>
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-sm text-[#FF6112] mb-1">CVV</Text>
+                  <View>
+                    <Text className="text-sm text-[#FF6112] mb-1">Nome</Text>
                     <Controller
-                      name="cvv"
+                      name="name"
                       control={control}
                       render={({
                         field: { value, onChange },
@@ -750,11 +982,9 @@ export default function ReservationPaymentSign({
                         <Fragment>
                           <TextInput
                             className="p-3 border border-gray-500 rounded-md h-18"
-                            placeholder="123"
-                            value={value}
+                            placeholder="Ex: nome"
                             onChangeText={onChange}
-                            keyboardType="numeric"
-                            maxLength={3}
+                            value={value}
                           />
 
                           {error?.message && (
@@ -769,126 +999,12 @@ export default function ReservationPaymentSign({
                       )}
                     />
                   </View>
-                </View>
-                <View>
-                  <Text className="text-sm text-[#FF6112] mb-1">Nome</Text>
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({
-                      field: { value, onChange },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <TextInput
-                          className="p-3 border border-gray-500 rounded-md h-18"
-                          placeholder="Ex: nome"
-                          onChangeText={onChange}
-                          value={value}
-                        />
-
-                        {error?.message && (
-                          <Text
-                            className="text-red-400 text-sm mt-1"
-                            numberOfLines={1}
-                          >
-                            {error.message}
-                          </Text>
-                        )}
-                      </Fragment>
-                    )}
-                  />
-                </View>
-                <View>
-                  <Text className="text-sm text-[#FF6112] mb-1">
-                    Número do Cartão
-                  </Text>
-                  <Controller
-                    name="cardNumber"
-                    control={control}
-                    render={({
-                      field: { value, onChange },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <MaskInput
-                          className="p-3 border border-gray-500 rounded-md h-18"
-                          placeholder="Ex: 0000 0000 0000 0000"
-                          mask={Masks.CREDIT_CARD}
-                          maxLength={19}
-                          keyboardType={"numeric"}
-                          value={value}
-                          onChangeText={onChange}
-                        />
-
-                        {error?.message && (
-                          <Text className="text-red-400 text-sm mt-1">
-                            {error.message}
-                          </Text>
-                        )}
-                      </Fragment>
-                    )}
-                  />
-                </View>
-                <View>
-                  <Text className="text-sm text-[#FF6112] mb-1">CPF</Text>
-                  <Controller
-                    name="cpf"
-                    control={control}
-                    render={({
-                      field: { value, onChange },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <MaskInput
-                          className="p-3 border border-gray-500 rounded-md h-18"
-                          placeholder="Ex: 000.000.000-00"
-                          value={value}
-                          onChangeText={(masked) => onChange(masked)}
-                          mask={Masks.BRL_CPF}
-                          keyboardType="numeric"
-                        />
-
-                        {error?.message && (
-                          <Text
-                            className="text-red-400 text-sm mt-1"
-                            numberOfLines={1}
-                          >
-                            {error.message}
-                          </Text>
-                        )}
-                      </Fragment>
-                    )}
-                  />
-                </View>
-                <View>
-                  <Text className="text-sm text-[#FF6112] mb-1">País</Text>
-                  <View className="flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white">
-                    <SelectList
-                      setSelected={(val: string) => {
-                        setSelected(val);
-                      }}
-                      data={
-                        (dataCountry &&
-                          dataCountry.countries.data.map((country) => ({
-                            value: country.attributes.name,
-                            label: country.attributes.name,
-                            img: `${country.attributes.flag.data?.attributes.url ?? ""
-                              }`,
-                          }))) ||
-                        []
-                      }
-                      save="value"
-                      placeholder="Selecione um país"
-                      searchPlaceholder="Pesquisar..."
-                    />
-                  </View>
-                </View>
-                <View className="flex-row space-x-4">
-                  <View className="flex-1">
-                    <Text className="text-sm text-[#FF6112] mb-1">CEP</Text>
+                  <View>
+                    <Text className="text-sm text-[#FF6112] mb-1">
+                      Número do Cartão
+                    </Text>
                     <Controller
-                      name="cep"
+                      name="cardNumber"
                       control={control}
                       render={({
                         field: { value, onChange },
@@ -897,246 +1013,330 @@ export default function ReservationPaymentSign({
                         <Fragment>
                           <MaskInput
                             className="p-3 border border-gray-500 rounded-md h-18"
-                            placeholder="Ex: 00000-000"
+                            placeholder="Ex: 0000 0000 0000 0000"
+                            mask={Masks.CREDIT_CARD}
+                            maxLength={19}
+                            keyboardType={"numeric"}
                             value={value}
+                            onChangeText={onChange}
+                          />
+
+                          {error?.message && (
+                            <Text className="text-red-400 text-sm mt-1">
+                              {error.message}
+                            </Text>
+                          )}
+                        </Fragment>
+                      )}
+                    />
+                  </View>
+                  <View>
+                    <Text className="text-sm text-[#FF6112] mb-1">CPF</Text>
+                    <Controller
+                      name="cpf"
+                      control={control}
+                      render={({
+                        field: { value, onChange },
+                        fieldState: { error },
+                      }) => (
+                        <Fragment>
+                          <MaskInput
+                            className="p-3 border border-gray-500 rounded-md h-18"
+                            placeholder="Ex: 000.000.000-00"
+                            value={value}
+                            onChangeText={(masked) => onChange(masked)}
+                            mask={Masks.BRL_CPF}
                             keyboardType="numeric"
-                            mask={Masks.ZIP_CODE}
-                            maxLength={9}
-                            onChangeText={(masked) => {
-                              onChange(masked);
+                          />
 
-                              if (masked.length === 9) {
-                                getAddress(masked)
-                                  .then((response) => {
-                                    setValue("street", response.address);
-                                    setValue("district", response.district);
-                                    setValue("city", response.city);
-                                    setValue("state", response.state);
-                                  })
-                                  .catch((error) => {
-                                    console.log(error);
-                                    Dialog.show({
-                                      type: ALERT_TYPE.WARNING,
-                                      title:
-                                        "Não foi possível encontrar o endereço",
-                                      textBody:
-                                        "Verifique se o CEP inserido é válido",
+                          {error?.message && (
+                            <Text
+                              className="text-red-400 text-sm mt-1"
+                              numberOfLines={1}
+                            >
+                              {error.message}
+                            </Text>
+                          )}
+                        </Fragment>
+                      )}
+                    />
+                  </View>
+                  <View>
+                    <Text className="text-sm text-[#FF6112] mb-1">País</Text>
+                    <View className="flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white">
+                      <SelectList
+                        setSelected={(val: string) => {
+                          setSelected(val);
+                        }}
+                        data={
+                          (dataCountry &&
+                            dataCountry.countries.data.map((country) => ({
+                              value: country.attributes.name,
+                              label: country.attributes.name,
+                              img: `${country.attributes.flag.data?.attributes.url ?? ""
+                                }`,
+                            }))) ||
+                          []
+                        }
+                        save="value"
+                        placeholder="Selecione um país"
+                        searchPlaceholder="Pesquisar..."
+                      />
+                    </View>
+                  </View>
+                  <View className="flex-row space-x-4">
+                    <View className="flex-1">
+                      <Text className="text-sm text-[#FF6112] mb-1">CEP</Text>
+                      <Controller
+                        name="cep"
+                        control={control}
+                        render={({
+                          field: { value, onChange },
+                          fieldState: { error },
+                        }) => (
+                          <Fragment>
+                            <MaskInput
+                              className="p-3 border border-gray-500 rounded-md h-18"
+                              placeholder="Ex: 00000-000"
+                              value={value}
+                              keyboardType="numeric"
+                              mask={Masks.ZIP_CODE}
+                              maxLength={9}
+                              onChangeText={(masked) => {
+                                onChange(masked);
+
+                                if (masked.length === 9) {
+                                  getAddress(masked)
+                                    .then((response) => {
+                                      setValue("street", response.address);
+                                      setValue("district", response.district);
+                                      setValue("city", response.city);
+                                      setValue("state", response.state);
+                                    })
+                                    .catch((error) => {
+                                      console.log(error);
+                                      Dialog.show({
+                                        type: ALERT_TYPE.WARNING,
+                                        title:
+                                          "Não foi possível encontrar o endereço",
+                                        textBody:
+                                          "Verifique se o CEP inserido é válido",
+                                      });
                                     });
-                                  });
+                                }
+                              }}
+                            />
+
+                            {error?.message && (
+                              <Text
+                                className="text-red-400 text-sm mt-1"
+                                numberOfLines={1}
+                              >
+                                {error.message}
+                              </Text>
+                            )}
+                          </Fragment>
+                        )}
+                      />
+                    </View>
+
+                    <View className="flex-1">
+                      <Text className="text-sm text-[#FF6112] mb-1">Número</Text>
+                      <Controller
+                        name="number"
+                        control={control}
+                        render={({
+                          field: { value, onChange },
+                          fieldState: { error },
+                        }) => (
+                          <Fragment>
+                            <TextInput
+                              value={value}
+                              placeholder="Ex: 123"
+                              onChangeText={onChange}
+                              className="p-3 border border-gray-500 rounded-md h-18"
+                            />
+
+                            {error?.message && (
+                              <Text
+                                className="text-red-400 text-sm mt-1"
+                                numberOfLines={1}
+                              >
+                                {error.message}
+                              </Text>
+                            )}
+                          </Fragment>
+                        )}
+                      />
+                    </View>
+                  </View>
+                  <View>
+                    <Text className="text-sm text-[#FF6112] mb-1">Rua</Text>
+                    <Controller
+                      name="street"
+                      control={control}
+                      render={({
+                        field: { value, onChange },
+                        fieldState: { error },
+                      }) => (
+                        <Fragment>
+                          <TextInput
+                            className="p-3 border border-gray-500 rounded-md h-18"
+                            placeholder="Ex: Rua xxxxxx"
+                            value={value}
+                            onChangeText={onChange}
+                          />
+
+                          {error?.message && (
+                            <Text
+                              className="text-red-400 text-sm mt-1"
+                              numberOfLines={1}
+                            >
+                              {error.message}
+                            </Text>
+                          )}
+                        </Fragment>
+                      )}
+                    />
+                  </View>
+                  <View>
+                    <Text className="text-sm text-[#FF6112] mb-1">Bairro</Text>
+                    <Controller
+                      name="district"
+                      control={control}
+                      render={({
+                        field: { value, onChange },
+                        fieldState: { error },
+                      }) => (
+                        <Fragment>
+                          <TextInput
+                            className="p-3 border border-gray-500 rounded-md h-18"
+                            placeholder="Ex: Jd. xxxxxxx"
+                            value={value}
+                            onChangeText={onChange}
+                          />
+
+                          {error?.message && (
+                            <Text
+                              className="text-red-400 text-sm mt-1"
+                              numberOfLines={1}
+                            >
+                              {error.message}
+                            </Text>
+                          )}
+                        </Fragment>
+                      )}
+                    />
+                  </View>
+                  <View>
+                    <Text className="text-sm text-[#FF6112] mb-1">
+                      Complemento
+                    </Text>
+                    <Controller
+                      name="complement"
+                      control={control}
+                      render={({
+                        field: { value, onChange },
+                        fieldState: { error },
+                      }) => (
+                        <Fragment>
+                          <TextInput
+                            className="p-3 border border-gray-500 rounded-md h-18"
+                            placeholder="Ex: Lado ABC"
+                            onChangeText={onChange}
+                            value={value}
+                          />
+
+                          {error?.message && (
+                            <Text
+                              className="text-red-400 text-sm mt-1"
+                              numberOfLines={1}
+                            >
+                              {error.message}
+                            </Text>
+                          )}
+                        </Fragment>
+                      )}
+                    />
+                  </View>
+                  <View className="flex-row space-x-4">
+                    <View className="flex-1">
+                      <Text className="text-sm text-[#FF6112] mb-1">Cidade</Text>
+                      <Controller
+                        name="city"
+                        control={control}
+                        render={({
+                          field: { value, onChange },
+                          fieldState: { error },
+                        }) => (
+                          <Fragment>
+                            <TextInput
+                              className="p-3 border border-gray-500 rounded-md h-18"
+                              placeholder="Ex: xxxxx"
+                              value={value}
+                              onChangeText={onChange}
+                            />
+
+                            {error?.message && (
+                              <Text
+                                className="text-red-400 text-sm mt-1"
+                                numberOfLines={1}
+                              >
+                                {error.message}
+                              </Text>
+                            )}
+                          </Fragment>
+                        )}
+                      />
+                    </View>
+
+                    <View className="flex-1">
+                      <Text className="text-sm text-[#FF6112] mb-1">Estado</Text>
+                      <Controller
+                        name="state"
+                        control={control}
+                        render={({
+                          field: { value, onChange },
+                          fieldState: { error },
+                        }) => (
+                          <Fragment>
+                            <TextInput
+                              className="p-3 border border-gray-500 rounded-md h-18"
+                              placeholder="Ex: XX"
+                              value={value}
+                              maxLength={2}
+                              onChangeText={(text) =>
+                                onChange(text.toUpperCase())
                               }
-                            }}
-                          />
+                            />
 
-                          {error?.message && (
-                            <Text
-                              className="text-red-400 text-sm mt-1"
-                              numberOfLines={1}
-                            >
-                              {error.message}
-                            </Text>
-                          )}
-                        </Fragment>
-                      )}
-                    />
-                  </View>
-
-                  <View className="flex-1">
-                    <Text className="text-sm text-[#FF6112] mb-1">Número</Text>
-                    <Controller
-                      name="number"
-                      control={control}
-                      render={({
-                        field: { value, onChange },
-                        fieldState: { error },
-                      }) => (
-                        <Fragment>
-                          <TextInput
-                            value={value}
-                            placeholder="Ex: 123"
-                            onChangeText={onChange}
-                            className="p-3 border border-gray-500 rounded-md h-18"
-                          />
-
-                          {error?.message && (
-                            <Text
-                              className="text-red-400 text-sm mt-1"
-                              numberOfLines={1}
-                            >
-                              {error.message}
-                            </Text>
-                          )}
-                        </Fragment>
-                      )}
-                    />
-                  </View>
-                </View>
-                <View>
-                  <Text className="text-sm text-[#FF6112] mb-1">Rua</Text>
-                  <Controller
-                    name="street"
-                    control={control}
-                    render={({
-                      field: { value, onChange },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <TextInput
-                          className="p-3 border border-gray-500 rounded-md h-18"
-                          placeholder="Ex: Rua xxxxxx"
-                          value={value}
-                          onChangeText={onChange}
-                        />
-
-                        {error?.message && (
-                          <Text
-                            className="text-red-400 text-sm mt-1"
-                            numberOfLines={1}
-                          >
-                            {error.message}
-                          </Text>
+                            {error?.message && (
+                              <Text
+                                className="text-red-400 text-sm mt-1"
+                                numberOfLines={1}
+                              >
+                                {error.message}
+                              </Text>
+                            )}
+                          </Fragment>
                         )}
-                      </Fragment>
-                    )}
-                  />
-                </View>
-                <View>
-                  <Text className="text-sm text-[#FF6112] mb-1">Bairro</Text>
-                  <Controller
-                    name="district"
-                    control={control}
-                    render={({
-                      field: { value, onChange },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <TextInput
-                          className="p-3 border border-gray-500 rounded-md h-18"
-                          placeholder="Ex: Jd. xxxxxxx"
-                          value={value}
-                          onChangeText={onChange}
-                        />
-
-                        {error?.message && (
-                          <Text
-                            className="text-red-400 text-sm mt-1"
-                            numberOfLines={1}
-                          >
-                            {error.message}
-                          </Text>
-                        )}
-                      </Fragment>
-                    )}
-                  />
-                </View>
-                <View>
-                  <Text className="text-sm text-[#FF6112] mb-1">
-                    Complemento
-                  </Text>
-                  <Controller
-                    name="complement"
-                    control={control}
-                    render={({
-                      field: { value, onChange },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <TextInput
-                          className="p-3 border border-gray-500 rounded-md h-18"
-                          placeholder="Ex: Lado ABC"
-                          onChangeText={onChange}
-                          value={value}
-                        />
-
-                        {error?.message && (
-                          <Text
-                            className="text-red-400 text-sm mt-1"
-                            numberOfLines={1}
-                          >
-                            {error.message}
-                          </Text>
-                        )}
-                      </Fragment>
-                    )}
-                  />
-                </View>
-                <View className="flex-row space-x-4">
-                  <View className="flex-1">
-                    <Text className="text-sm text-[#FF6112] mb-1">Cidade</Text>
-                    <Controller
-                      name="city"
-                      control={control}
-                      render={({
-                        field: { value, onChange },
-                        fieldState: { error },
-                      }) => (
-                        <Fragment>
-                          <TextInput
-                            className="p-3 border border-gray-500 rounded-md h-18"
-                            placeholder="Ex: xxxxx"
-                            value={value}
-                            onChangeText={onChange}
-                          />
-
-                          {error?.message && (
-                            <Text
-                              className="text-red-400 text-sm mt-1"
-                              numberOfLines={1}
-                            >
-                              {error.message}
-                            </Text>
-                          )}
-                        </Fragment>
-                      )}
-                    />
+                      />
+                    </View>
                   </View>
-
-                  <View className="flex-1">
-                    <Text className="text-sm text-[#FF6112] mb-1">Estado</Text>
-                    <Controller
-                      name="state"
-                      control={control}
-                      render={({
-                        field: { value, onChange },
-                        fieldState: { error },
-                      }) => (
-                        <Fragment>
-                          <TextInput
-                            className="p-3 border border-gray-500 rounded-md h-18"
-                            placeholder="Ex: XX"
-                            value={value}
-                            maxLength={2}
-                            onChangeText={(text) =>
-                              onChange(text.toUpperCase())
-                            }
-                          />
-
-                          {error?.message && (
-                            <Text
-                              className="text-red-400 text-sm mt-1"
-                              numberOfLines={1}
-                            >
-                              {error.message}
-                            </Text>
-                          )}
-                        </Fragment>
+                  <View className="p-2 justify-center items-center pt-5">
+                    <TouchableOpacity
+                      onPress={handlePay}
+                      disabled={isSubmitting}
+                      className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
+                    >
+                      {isSubmitting ? (
+                        <ActivityIndicator size="small" color="white" />
+                      ) : (
+                        <Text className="text-white">Pagar</Text>
                       )}
-                    />
+                    </TouchableOpacity>
                   </View>
                 </View>
-                <View className="p-2 justify-center items-center pt-5">
-                  <TouchableOpacity
-                    onPress={handlePay}
-                    disabled={isSubmitting}
-                    className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
-                  >
-                    {isSubmitting ? (
-                      <ActivityIndicator size="small" color="white" />
-                    ) : (
-                      <Text className="text-white">Pagar</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
             )}
             <View>
               <Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">

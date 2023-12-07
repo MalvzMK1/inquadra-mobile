@@ -9,5 +9,8 @@ export type Card = {
     district: string
     complement: string | null
     city: string
-    state: string 
+    state: string
+    name: string
+    cvv: string
+    cpf:string
 }
