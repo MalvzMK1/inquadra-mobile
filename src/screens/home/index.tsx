@@ -525,7 +525,6 @@ export default function Home({
       {
         <BottomBlackMenu
           screen="Home"
-          userID={userId}
           userPhoto={userPicture!}
           isDisabled={!isDisabled}
           paddingTop={2}

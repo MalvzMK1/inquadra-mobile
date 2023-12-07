@@ -4,14 +4,15 @@ import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { formatCardNumber } from "../../utils/formatCardNumber";
+import {useUser} from "../../context/userContext";
 
 type CreditCardInfosT = {
   id: number;
   number: string;
-  userID: string;
 };
 
 export default function CreditCardCard(props: CreditCardInfosT) {
+  const {userData} = useUser();
   const [cardDeleted, setCardDeleted] = useState(false);
 
   const creditCardNumber = props.number.replace(/\D/g, "");
@@ -38,27 +39,29 @@ export default function CreditCardCard(props: CreditCardInfosT) {
         title: "Deseja excluir o cartão?",
         button: "Sim",
         onPressButton: async () => {
-          const userCardsJSON = await AsyncStorage.getItem(
-            `user${props.userID}Cards`,
-          );
-          if (userCardsJSON) {
-            const userCards = JSON.parse(userCardsJSON) as CreditCardInfosT[];
+          if (userData && userData.id) {
+            const userCardsJSON = await AsyncStorage.getItem(
+              `user${userData?.id}Cards`,
+            );
+            if (userCardsJSON) {
+              const userCards = JSON.parse(userCardsJSON) as CreditCardInfosT[];
 
-            const cardIndex = userCards.findIndex(card => card.id === cardId);
+              const cardIndex = userCards.findIndex(card => card.id === cardId);
 
-            if (cardIndex !== -1) {
-              userCards.splice(cardIndex, 1);
+              if (cardIndex !== -1) {
+                userCards.splice(cardIndex, 1);
 
-              await AsyncStorage.setItem(
-                `user${props.userID}Cards`,
-                JSON.stringify(userCards),
-              );
+                await AsyncStorage.setItem(
+                  `user${userData?.id}Cards`,
+                  JSON.stringify(userCards),
+                );
 
-              setCardDeleted(true);
-              Dialog.show({
-                title: "Cartão deletado com sucesso",
-                type: ALERT_TYPE.SUCCESS,
-              });
+                setCardDeleted(true);
+                Dialog.show({
+                  title: "Cartão deletado com sucesso",
+                  type: ALERT_TYPE.SUCCESS,
+                });
+              }
             }
           }
         },

@@ -1247,7 +1247,6 @@ export default function ProfileSettings({
                           <CreditCardCard
                             number={card.number}
                             id={card.id}
-                            userID={userData?.id}
                           />
                           <View className="h-2" />
                         </Fragment>
@@ -1375,7 +1374,6 @@ export default function ProfileSettings({
           screen="Home"
           isDisabled={true}
           userPhoto={route.params.userPhoto ? route.params.userPhoto : ""}
-          userID={userData?.id}
           paddingTop={50}
         />
       </View>
