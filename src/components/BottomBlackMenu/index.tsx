@@ -168,7 +168,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                           userData.id
                         )
                           navigation.navigate("Home", {
-                            userGeolocation: userData.geolocation, TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
+                            userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
                             userID: userData.id,
                             userPhoto: userPhoto ?? "",
                           });
@@ -218,7 +218,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                           userData.id
                         ) {
                           navigation.navigate("Home", {
-                            userGeolocation: userData.geolocation, TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
+                            userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
                             userID: userData.id,
                             userPhoto: userPhoto ?? "",
                           });
