@@ -1,4 +1,4 @@
-import { HOST_API } from "@env";
+import {APP_DEBUG_VERBOSE, HOST_API} from "@env";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -22,6 +22,7 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -45,9 +46,11 @@ export default function Home({
   route,
   navigation,
 }: Props) {
+  const {userData} = useUser();
+
   const [userPicture, setUserPicture] = useState<string>();
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
-  const [userId, setUserId] = useState<string | undefined>();
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -290,7 +293,7 @@ export default function Home({
           navigation.setParams({
             userPhoto:
               userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url ?? "",
+                ?.attributes?.url ?? undefined,
           });
         }
       }
@@ -347,78 +350,6 @@ export default function Home({
   }, [userGeolocation]);
 
   useEffect(() => {
-    console.log(route.params);
-
-    if (
-      route &&
-      route.params &&
-      route.params.userID &&
-      route.params.userID !== ""
-    )
-      setUserId(route.params.userID);
-    else setUserId(undefined);
-  }, []);
-
-  useEffect(() => {
-    if (!userId) {
-      storage
-        .load<{ latitude: number; longitude: number }>({
-          key: "userGeolocation",
-        })
-        .then(data => setUserGeolocation(data))
-        .catch(error => {
-          if (error instanceof Error) {
-            if (error.name === "NotFoundError") {
-              console.log("The item wasn't found.");
-            } else if (error.name === "ExpiredError") {
-              console.log("The item has expired.");
-              storage
-                .remove({
-                  key: "userGeolocation",
-                })
-                .then(() => {
-                  console.log("The item has been removed.");
-                });
-            } else {
-              console.log("Unknown error:", error);
-            }
-          }
-        });
-
-      storage
-        .load<UserInfos>({
-          key: "userInfos",
-        })
-        .then(data => {
-          console.log({ data });
-          setUserId(data.userId);
-          navigation.setParams({
-            userID: data.userId,
-          });
-        })
-        .catch(error => {
-          if (error instanceof Error) {
-            setUserId(undefined);
-            if (error.name === "NotFoundError") {
-              console.log("The item wasn't found.");
-            } else if (error.name === "ExpiredError") {
-              console.log("The item has expired.");
-              storage
-                .remove({
-                  key: "userInfos",
-                })
-                .then(() => {
-                  console.log("The item has been removed.");
-                });
-            } else {
-              console.log("Unknown error:", error);
-            }
-          }
-        });
-    }
-  }, [userId]);
-
-  useEffect(() => {
     if (
       userHookData &&
       userHookData.usersPermissionsUser.data &&
@@ -437,6 +368,18 @@ export default function Home({
       console.log(establishment.distance);
     });
   }, [userHookData]);
+
+  useEffect(() => {
+    if (APP_DEBUG_VERBOSE) alert(JSON.stringify(userData));
+
+    if (userData) {
+      setUserId(userData.id);
+      navigation.setParams({
+        userID: userData.id,
+        userGeolocation: userData.geolocation
+      })
+    }
+  }, [userData])
 
   const mapView = useRef(null);
 
@@ -513,7 +456,6 @@ export default function Home({
                           distance={item.distance ?? ""}
                           image={item.image}
                           type={item.type}
-                          userId={userId ?? ""}
                           liked={true}
                         />
                       </Callout>
