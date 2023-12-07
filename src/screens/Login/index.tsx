@@ -16,6 +16,7 @@ import {
 import useLoginUser from "../../hooks/useLoginUser";
 import storage from "../../utils/storage";
 import {Ionicons} from "@expo/vector-icons";
+import {useUser} from "../../context/userContext";
 
 interface IFormData {
   identifier: string;
@@ -29,6 +30,7 @@ const formSchema = z.object({
 
 export default function Login() {
   const apolloClient = useApolloClient();
+  const {setUserData} = useUser();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -116,7 +118,16 @@ export default function Login() {
             });
         });
 
-      if (userData && userData.usersPermissionsUser.data) {
+      if (
+        userData &&
+        userData.usersPermissionsUser.data &&
+        authData.data &&
+        authData.data.login
+      ) {
+        setUserData({
+          id: userData.usersPermissionsUser.data.id,
+          jwt: authData.data.login.jwt,
+        })
         if (
           userData.usersPermissionsUser.data.attributes.role.data.id === "3"
         ) {
