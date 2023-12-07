@@ -73,7 +73,7 @@ type RootStackParamList = {
       longitude: number;
     };
     userPhoto: string | undefined;
-    userID: string;
+    userID?: string;
   };
   HomeVariant: {
     userPhoto: string;
