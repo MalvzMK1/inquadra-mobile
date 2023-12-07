@@ -1367,7 +1367,7 @@ export default function ReservationPaymentSign({
                 (amenitieInfo, index) => (
                   <View key={index} className="flex flex-row  items-center">
                     <Image
-                      style={{ width: 24, height: 24 }}
+                      style={{ width: 24, height: 24, tintColor:"#f6993f"}}
                       source={{
                         uri:
                           API_BASE_URL +
