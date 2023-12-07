@@ -15,7 +15,7 @@ interface IUserData {
 
 interface IUserContextProps {
 	userData: IUserData | undefined;
-	setUserData: (userData: IUserData | undefined) => void;
+	setUserData: (userData: IUserData | undefined) => Promise<void>;
 }
 
 const UserContext = createContext<IUserContextProps | undefined>(undefined);
@@ -27,7 +27,7 @@ interface IUserProviderProps {
 export function UserProvider({children}: IUserProviderProps) {
 	const [userData, setUserData] = useState<IUserData | undefined>(undefined)
 
-	async function handleSetUserData(props: IUserData): Promise<void> {
+	async function handleSetUserData(props: IUserData | undefined): Promise<void> {
 		if (props !== undefined)
 			await AsyncStorage.setItem(
 				'@inquadra/user_data',
