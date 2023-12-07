@@ -23,34 +23,7 @@ import Animated, {
 import { useGetUserById } from "../../hooks/useUserById";
 import storage from "../../utils/storage";
 import EstablishmentCardHome from "../CourtCardHome";
-
-let userId: string;
-
-storage
-  .load({
-    key: "userInfos",
-  })
-  .then(data => {
-    userId = data.userId;
-  })
-  .catch(error => {
-    if (error instanceof Error) {
-      if (error.name === "NotFoundError") {
-        console.log("The item wasn't found.");
-      } else if (error.name === "ExpiredError") {
-        console.log("The item has expired.");
-        storage
-          .remove({
-            key: "userInfos",
-          })
-          .then(() => {
-            console.log("The item has been removed.");
-          });
-      } else {
-        console.log("Unknown error:", error);
-      }
-    }
-  });
+import {useUser} from "../../context/userContext";
 
 interface HomeBarProps {
   courts: Array<{
@@ -83,6 +56,7 @@ export default function HomeBar({
   isUpdated,
   loggedUserId,
 }: HomeBarProps) {
+  const {userData} = useUser();
   const translateY = useSharedValue(0);
   const height = useSharedValue(minHeight);
 
@@ -100,7 +74,7 @@ export default function HomeBar({
     data: userByIdData,
     error: userByIdError,
     loading: userByIdLoading,
-  } = useGetUserById(userId ?? "");
+  } = useGetUserById(userData?.id ?? "");
 
   const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
     [],
@@ -209,7 +183,6 @@ export default function HomeBar({
                       updated={isUpdated}
                       key={Math.random()}
                       id={item.id}
-                      userId={userId}
                       type={item.type}
                       name={item.name}
                       image={item.image}
@@ -227,7 +200,6 @@ export default function HomeBar({
               <EstablishmentCardHome
                 id={item.id}
                 key={Math.random()}
-                userId={userId}
                 name={item.name}
                 type={item.type}
                 image={item.image}
