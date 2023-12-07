@@ -234,7 +234,7 @@ export default function CourtSchedule({
             courtItem.attributes.court_availabilities.data.map(
               (courtAvailabilitieItem) => {
                 if (
-                  courtAvailabilitieItem.attributes.schedulings.data.length > 0
+                  courtAvailabilitieItem.attributes.schedulings.data.length >0 
                 ) {
                   courtAvailabilitieItem.attributes.schedulings.data.map(
                     (schedulingItem) => {
