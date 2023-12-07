@@ -21,7 +21,6 @@ import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
-import storage from "../../utils/storage";
 import {useUser} from "../../context/userContext";
 
 const pointerMap = require("../../assets/pointerMap.png");
