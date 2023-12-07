@@ -46,7 +46,7 @@ export default function Home({
   navigation,
 }: Props) {
   const [userPicture, setUserPicture] = useState<string>();
-  const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
+  // const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | undefined>();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
@@ -121,9 +121,9 @@ export default function Home({
     setSportSelected(nameSport);
   };
 
-  useEffect(() => {
-    if (menuBurguer) setIsMenuVisible(false);
-  }, [menuBurguer]);
+  // useEffect(() => {
+  //   if (menuBurguer) setIsMenuVisible(false);
+  // }, [menuBurguer]);
 
   const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] =
     useState<boolean>();
@@ -151,7 +151,7 @@ export default function Home({
           setUserPicture(
             HOST_API +
               userHookData?.usersPermissionsUser.data?.attributes.photo.data
-                ?.attributes.url!,
+                ?.attributes.url!
           );
           navigation.setParams({
             userPhoto:
@@ -178,8 +178,8 @@ export default function Home({
         ) {
           if (data && data.establishments.data) {
             const newEstablishments = data.establishments.data
-              .filter(establishment => establishment.attributes.courts.data)
-              .map(establishment => {
+              .filter((establishment) => establishment.attributes.courts.data)
+              .map((establishment) => {
                 let establishmentObject: EstablishmentObject = {
                   id: "",
                   latitude: 0,
@@ -193,11 +193,11 @@ export default function Home({
                 let courtTypes =
                   establishment.attributes.courts.data
                     .filter(
-                      court => court.attributes.court_types.data.length > 0,
+                      (court) => court.attributes.court_types.data.length > 0
                     )
-                    .map(court => court.attributes.court_types.data)
-                    .map(courtType =>
-                      courtType.map(type => type.attributes.name),
+                    .map((court) => court.attributes.court_types.data)
+                    .map((courtType) =>
+                      courtType.map((type) => type.attributes.name)
                     ) ?? [];
 
                 if (!courtTypes) courtTypes = [];
@@ -207,17 +207,17 @@ export default function Home({
                     id: establishment.id,
                     name: establishment.attributes.corporateName,
                     latitude: Number(
-                      establishment.attributes.address?.latitude,
+                      establishment.attributes.address?.latitude
                     ),
                     longitude: Number(
-                      establishment.attributes.address?.longitude,
+                      establishment.attributes.address?.longitude
                     ),
                     distance:
                       calculateDistance(
                         userGeolocation.latitude,
                         userGeolocation.longitude,
                         Number(establishment.attributes.address?.latitude),
-                        Number(establishment.attributes.address?.longitude),
+                        Number(establishment.attributes.address?.longitude)
                       ) / 1000,
                     image:
                       HOST_API +
@@ -234,12 +234,12 @@ export default function Home({
         } else {
           const newEstablishments = establishmentsFiltered?.establishments.data
             .filter(
-              establishment =>
+              (establishment) =>
                 establishment?.attributes?.photos.data &&
                 establishment?.attributes?.photos.data.length > 0 &&
-                establishment?.attributes?.courts.data,
+                establishment?.attributes?.courts.data
             )
-            .map(establishment => {
+            .map((establishment) => {
               let establishmentObject: EstablishmentObject = {
                 id: "",
                 latitude: 0,
@@ -252,11 +252,11 @@ export default function Home({
 
               let courtTypes = establishment?.attributes?.courts
                 .data!.filter(
-                  court => court?.attributes?.court_types.data.length > 0,
+                  (court) => court?.attributes?.court_types.data.length > 0
                 )
-                .map(court => court?.attributes?.court_types.data)
-                .map(courtType =>
-                  courtType.map(type => type?.attributes?.name),
+                .map((court) => court?.attributes?.court_types.data)
+                .map((courtType) =>
+                  courtType.map((type) => type?.attributes?.name)
                 );
 
               if (!courtTypes) courtTypes = [];
@@ -267,14 +267,14 @@ export default function Home({
                   name: establishment?.attributes?.corporateName,
                   latitude: Number(establishment?.attributes?.address.latitude),
                   longitude: Number(
-                    establishment?.attributes?.address.longitude,
+                    establishment?.attributes?.address.longitude
                   ),
                   distance:
                     calculateDistance(
                       userGeolocation.latitude,
                       userGeolocation.longitude,
                       Number(establishment?.attributes?.address.latitude),
-                      Number(establishment?.attributes?.address.longitude),
+                      Number(establishment?.attributes?.address.longitude)
                     ) / 1000,
                   image:
                     HOST_API +
@@ -300,15 +300,15 @@ export default function Home({
       } else {
         setIsEstablishmentsLoaded(false);
       }
-    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation]),
+    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation])
   );
 
   useEffect(() => {
     const newAvailableSportTypes: SportType[] = [];
 
-    availableSportTypes?.courtTypes.data.forEach(courtType => {
+    availableSportTypes?.courtTypes.data.forEach((courtType) => {
       const sportAlreadyAdded = newAvailableSportTypes.some(
-        sport => sport.id === courtType.id,
+        (sport) => sport.id === courtType.id
       );
 
       if (!sportAlreadyAdded)
@@ -365,8 +365,8 @@ export default function Home({
         .load<{ latitude: number; longitude: number }>({
           key: "userGeolocation",
         })
-        .then(data => setUserGeolocation(data))
-        .catch(error => {
+        .then((data) => setUserGeolocation(data))
+        .catch((error) => {
           if (error instanceof Error) {
             if (error.name === "NotFoundError") {
               console.log("The item wasn't found.");
@@ -389,14 +389,14 @@ export default function Home({
         .load<UserInfos>({
           key: "userInfos",
         })
-        .then(data => {
+        .then((data) => {
           console.log({ data });
           setUserId(data.userId);
           navigation.setParams({
             userID: data.userId,
           });
         })
-        .catch(error => {
+        .catch((error) => {
           if (error instanceof Error) {
             setUserId(undefined);
             if (error.name === "NotFoundError") {
@@ -422,8 +422,8 @@ export default function Home({
     top: 1,
     left: 1,
     right: 13,
-    bottom: 13
-   };
+    bottom: 13,
+  };
 
   useEffect(() => {
     if (
@@ -440,7 +440,7 @@ export default function Home({
         });
     }
 
-    establishments.forEach(establishment => {
+    establishments.forEach((establishment) => {
       console.log(establishment.distance);
     });
   }, [userHookData]);
@@ -452,7 +452,7 @@ export default function Home({
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
-        isMenuVisible &&
+        // isMenuVisible &&
         !menuBurguer && (
           <SportsMenu
             sports={sportTypes}
@@ -461,13 +461,13 @@ export default function Home({
           />
         )
       )}
-     
+
       <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
             loadingEnabled
             className="w-screen flex-1"
-            onPress={() => setIsMenuVisible(false)}
+            onPress={() => setMenuBurguer?.(false)}
             customMapStyle={customMapStyle}
             showsCompass={false}
             showsMyLocationButton={true}
@@ -482,15 +482,15 @@ export default function Home({
           >
             {establishments.length > 0 &&
               establishments
-                .filter(item => {
+                .filter((item) => {
                   if (sportSelected) {
                     return item.type.split(" & ").includes(sportSelected);
                   } else {
                     return true;
                   }
                 })
-                .filter(establishment => establishment.distance < 5)
-                .map(item => {
+                .filter((establishment) => establishment.distance < 5)
+                .map((item) => {
                   return (
                     <Marker
                       key={item.id}
@@ -528,44 +528,43 @@ export default function Home({
                     </Marker>
                   );
                 })}
-            
           </MapView>
         )}
 
-        {!isMenuVisible && (
+        {!menuBurguer && (
           <TouchableOpacity
             className={`absolute left-3 top-3`}
-            onPress={() => setIsMenuVisible(prevState => !prevState)}
+            onPress={() => setMenuBurguer?.((prevState) => !prevState)}
           >
             <AntDesign name="left" size={30} color="black" />
           </TouchableOpacity>
         )}
         {Platform.OS === "ios" && (
-              <TouchableOpacity
-                className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
-                onPress={() => {
-                  mapView.current?.animateToRegion({
-                    latitude: userGeolocation?.latitude,
-                    longitude: userGeolocation?.longitude,
-                    latitudeDelta: userGeolocationDelta?.latDelta,
-                    longitudeDelta: userGeolocationDelta?.longDelta,
-                  });
-                }}
-              >
-                <FontAwesome name="location-arrow" size={24} color="black" />
-              </TouchableOpacity>
-            )}
+          <TouchableOpacity
+            className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
+            onPress={() => {
+              mapView.current?.animateToRegion({
+                latitude: userGeolocation?.latitude,
+                longitude: userGeolocation?.longitude,
+                latitudeDelta: userGeolocationDelta?.latDelta,
+                longitudeDelta: userGeolocationDelta?.longDelta,
+              });
+            }}
+          >
+            <FontAwesome name="location-arrow" size={24} color="black" />
+          </TouchableOpacity>
+        )}
         {menuBurguer && (
           <FilterComponent
             setBurguer={setMenuBurguer!}
             setFilter={setFilter}
-            setIsMenuVisible={setIsMenuVisible}
+            setIsMenuVisible={setMenuBurguer!}
             filter={filter}
           />
         )}
       </View>
 
-      {isMenuVisible && !menuBurguer && (
+      {!menuBurguer && (
         <HomeBar
           key={uniqueIdGenerate}
           isUpdated={IsUpdated}
@@ -583,7 +582,7 @@ export default function Home({
           screen="Home"
           userID={userId}
           userPhoto={userPicture!}
-          isMenuVisible={!isMenuVisible}
+          isMenuVisible={menuBurguer}
           paddingTop={2}
           onMiddleButtonPress={
             menuBurguer ? () => setMenuBurguer?.(false) : undefined

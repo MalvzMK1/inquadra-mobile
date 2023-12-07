@@ -75,38 +75,38 @@ export default function FilterComponent(props: {
   };
 
   const [dateSelector, setDateSelector] = useState(
-    props.filter.date ? props.filter.date.toISOString() : "__/__/____",
+    props.filter.date ? props.filter.date.toISOString() : "__/__/____"
   );
   const [amenities, setAmenities] = useState<Array<string> | null>(
-    props.filter.amenities,
+    props.filter.amenities
   );
   const [dayUseYes, setDayUseYes] = useState<boolean | undefined>(
-    props.filter.dayUseService,
+    props.filter.dayUseService
   );
   const [timeInit, setTimeInit] = useState(
     props.filter.startsAt
       ? new Date(
           date.setHours(
             parseInt(props.filter.startsAt.split(":")[0]),
-            parseInt(props.filter.startsAt.split(":")[1]),
-          ),
+            parseInt(props.filter.startsAt.split(":")[1])
+          )
         )
-      : new Date(date.setHours(0, 0, 0, 0)),
+      : new Date(date.setHours(0, 0, 0, 0))
   );
   const [timeFinal, setTimeFinal] = useState(
     props.filter.endsAt
       ? new Date(
           date.setHours(
             parseInt(props.filter.endsAt.split(":")[0]),
-            parseInt(props.filter.endsAt.split(":")[1]),
-          ),
+            parseInt(props.filter.endsAt.split(":")[1])
+          )
         )
-      : new Date(date.setHours(0, 0, 0, 0)),
+      : new Date(date.setHours(0, 0, 0, 0))
   );
   const [weekDay, setWeekDay] = useState<number | undefined>(
     props.filter.weekDay
       ? getNumberArrayWeekDay(props.filter.weekDay)
-      : undefined,
+      : undefined
   );
   const [showTimeInitPicker, setShowTimeInitPicker] = useState(false);
   const [showTimeFinalPicker, setShowTimeFinalPicker] = useState(false);
@@ -290,7 +290,7 @@ export default function FilterComponent(props: {
               onPress={() => {
                 props.setFilter(filter);
                 props.setBurguer(false);
-                props.setIsDisabled(true);
+                // props.setIsDisabled(true);
               }}
             >
               <Text className="font-medium text-base">Filtrar</Text>
