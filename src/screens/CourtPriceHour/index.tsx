@@ -32,7 +32,7 @@ export default function CourtPriceHour({
         [], // sexta
         [], // sábado
         [], // dia especial
-      ],
+      ]
     );
 
   const [dayUse, setDayUse, isLoadingInitialDayUse] = useAsyncStorageState<
@@ -76,7 +76,7 @@ export default function CourtPriceHour({
   });
 
   function handleToggleOpen(index: number) {
-    setSelectedDay(currentSelectedDay => {
+    setSelectedDay((currentSelectedDay) => {
       if (currentSelectedDay === index) {
         return null;
       }
@@ -96,7 +96,7 @@ export default function CourtPriceHour({
           {weekDays.map((day, index) => (
             <TouchableOpacity
               key={day.dayName}
-              className="h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center"
+              className="h-[40px] w-[90px] bg-white border border-[#FF6112] rounded-[5px] items-center justify-center"
               onPress={() => handleToggleOpen(index)}
             >
               <Text className="font-normal text-[#FF6112] text-[11px]">
@@ -119,8 +119,8 @@ export default function CourtPriceHour({
                 appointments={allAppointments[index]}
                 hasCopy={Boolean(copiedAppointments)}
                 isDayUse={dayUse[index]}
-                setDayUse={isDayUse => {
-                  setDayUse(currentDayUse => {
+                setDayUse={(isDayUse) => {
+                  setDayUse((currentDayUse) => {
                     const newDayUse = [...currentDayUse];
                     newDayUse.splice(index, 1, isDayUse);
                     return newDayUse;
@@ -131,7 +131,7 @@ export default function CourtPriceHour({
                 }}
                 onPaste={() => {
                   if (!copiedAppointments) return;
-                  setAllAppointments(currentAllAppointments => {
+                  setAllAppointments((currentAllAppointments) => {
                     const newAllAppointments = [...currentAllAppointments];
                     newAllAppointments.splice(index, 1, copiedAppointments);
                     return newAllAppointments;
@@ -140,7 +140,7 @@ export default function CourtPriceHour({
                   setCopiedAppointments(null);
                 }}
                 onAddNewAppointment={() => {
-                  setAllAppointments(currentAllAppointments => {
+                  setAllAppointments((currentAllAppointments) => {
                     const newAllAppointments = [...currentAllAppointments];
                     newAllAppointments.splice(index, 1, [
                       ...newAllAppointments[index],
@@ -155,7 +155,7 @@ export default function CourtPriceHour({
                   });
                 }}
                 setStartsAt={(value, appointmentIndex) => {
-                  setAllAppointments(currentAllAppointments => {
+                  setAllAppointments((currentAllAppointments) => {
                     const newAllAppointments = [...currentAllAppointments];
                     const newAppointments = [...newAllAppointments[index]];
                     newAppointments.splice(appointmentIndex, 1, {
@@ -168,7 +168,7 @@ export default function CourtPriceHour({
                   });
                 }}
                 setEndsAt={(value, appointmentIndex) => {
-                  setAllAppointments(currentAllAppointments => {
+                  setAllAppointments((currentAllAppointments) => {
                     const newAllAppointments = [...currentAllAppointments];
                     const newAppointments = [...newAllAppointments[index]];
                     newAppointments.splice(appointmentIndex, 1, {
@@ -181,7 +181,7 @@ export default function CourtPriceHour({
                   });
                 }}
                 setPrice={(value, appointmentIndex) => {
-                  setAllAppointments(currentAllAppointments => {
+                  setAllAppointments((currentAllAppointments) => {
                     const newAllAppointments = [...currentAllAppointments];
                     const newAppointments = [...newAllAppointments[index]];
                     newAppointments.splice(appointmentIndex, 1, {
@@ -193,8 +193,8 @@ export default function CourtPriceHour({
                     return newAllAppointments;
                   });
                 }}
-                onDeleteAppointment={appointmentIndex => {
-                  setAllAppointments(currentAllAppointments => {
+                onDeleteAppointment={(appointmentIndex) => {
+                  setAllAppointments((currentAllAppointments) => {
                     const newAllAppointments = [...currentAllAppointments];
                     const newAppointments = [...newAllAppointments[index]];
                     newAppointments.splice(appointmentIndex, 1);
