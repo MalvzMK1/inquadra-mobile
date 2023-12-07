@@ -150,7 +150,7 @@ export default function Home({
             ?.attributes.url! !== undefined ||
           userHookData?.usersPermissionsUser.data?.attributes.photo.data
             ?.attributes.url! !== null) &&
-          !userData
+          userData
         ) {
           setUserPicture(
             HOST_API +
