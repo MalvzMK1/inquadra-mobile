@@ -6,6 +6,7 @@ import { PaperProvider } from "react-native-paper";
 import { client } from "./src/lib/apolloClient";
 import Routes from "./src/routes";
 import storage from "./src/utils/storage";
+import {UserProvider} from "./src/context/userContext";
 
 export default function App() {
   useEffect(() => {
@@ -88,16 +89,16 @@ export default function App() {
 
   return (
     <ApolloProvider client={client}>
-      <PaperProvider>
-        {/*<ComponentProvider>*/}
-        <StatusBar
-          translucent
-          backgroundColor="#292929"
-          barStyle="light-content"
-        />
-        <Routes />
-        {/*</ComponentProvider>*/}
-      </PaperProvider>
+      <UserProvider>
+        <PaperProvider>
+          <StatusBar
+            translucent
+            backgroundColor="#292929"
+            barStyle="light-content"
+          />
+          <Routes />
+        </PaperProvider>
+      </UserProvider>
     </ApolloProvider>
   );
 }
