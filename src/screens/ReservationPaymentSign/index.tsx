@@ -844,7 +844,7 @@ export default function ReservationPaymentSign({
           </View>
           <View className="bg-gray-300 p-4">
             <Text className="text-5xl text-center font-extrabold text-gray-700">
-              R$ {signalValue}
+              R$ {signalValue?.toFixed(2)}
             </Text>
           </View>
           <View className="px-10 py-5">
@@ -1397,7 +1397,7 @@ export default function ReservationPaymentSign({
                 Valor da Reserva
               </Text>
               <Text className="font-bold text-xl text-right text-[#717171]">
-                R$ {amountToPay && amountToPay - serviceValue!}
+                R$ {(amountToPay && amountToPay - serviceValue!)?.toFixed(2)}
               </Text>
             </View>
             <View className="flex flex-row gap-6">
@@ -1425,7 +1425,7 @@ export default function ReservationPaymentSign({
               </Text>
               <Text className="flex flex-row font-bold text-xl text-right text-[#717171]">
                 {" "}
-                R$ {amountToPay}
+                R$ {amountToPay?.toFixed(2)}
               </Text>
             </View>
           </View>
