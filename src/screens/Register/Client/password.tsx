@@ -169,7 +169,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   });
 
   return (
-    <ScrollView className='h-fit min-h-full'>
+    <ScrollView className='h-screen min-h-full'>
       <View className="flex flex-col bg-white h-screen items-center p-5">
       <View>
         <RegisterHeader
