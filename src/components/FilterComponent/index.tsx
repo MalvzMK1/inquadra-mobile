@@ -17,6 +17,7 @@ import BottomBlackMenu from "../BottomBlackMenu";
 export default function FilterComponent(props: {
   setBurguer: React.Dispatch<React.SetStateAction<boolean>>;
   setFilter: React.Dispatch<React.SetStateAction<any>>;
+  setIsMenuVisible: React.Dispatch<React.SetStateAction<boolean>>
   filter: {
     amenities: string[] | [];
     dayUseService: boolean | undefined;
@@ -290,7 +291,7 @@ export default function FilterComponent(props: {
               onPress={() => {
                 props.setFilter(filter);
                 props.setBurguer(false);
-                // props.setIsDisabled(true);
+                props.setIsMenuVisible(true);
               }}
             >
               <Text className="font-medium text-base">Filtrar</Text>

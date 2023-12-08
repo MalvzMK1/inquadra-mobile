@@ -51,7 +51,7 @@ export default function Home({
 }: Props) {
   const [userPicture, setUserPicture] = useState<string>();
   const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
-  // const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
+  const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | undefined>();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
@@ -484,76 +484,107 @@ export default function Home({
   }, [corporateName]);
 
   const mapView = useRef(null);
-
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
-      <View className=" h-11 w-screen bg-[#292929]"></View>
-      <View className="bg-[#292929] flex-row justify-between w-full">
-        <TouchableOpacity
-          className="pl-5 pr-2"
-          onPress={() => {
-            setMenuBurguer(prevState => !prevState);
-          }}
-        >
-          {!menuBurguer ? (
-            <Entypo name="menu" size={48} color={"white"} />
-          ) : (
-            <MaterialIcons name="filter-list" size={48} color="white" />
-          )}
-        </TouchableOpacity>
-        {Platform.OS === "ios" ? (
-          <View className="w-[50vw]">
-            <TextInput
-              theme={{ colors: { placeholder: "#e9e9e9" } }}
-              placeholder="O que você está procurando?"
-              underlineColorAndroid="transparent"
-              underlineColor="transparent"
-              className=" pr-2 bg-white rounded-2xl w-56 flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
-              right={<TextInput.Icon icon={"magnify"} />}
-              onChangeText={e => {
-                setCorporateName(e);
+      <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
+      <TouchableOpacity
+              className="ml-3"
+              onPress={() => {
+                setMenuBurguer(prevState => !prevState);
               }}
-            />
-          </View>
-        ) : (
-          <TextInput
-            theme={{ colors: { placeholder: "#e9e9e9" } }}
-            placeholder="O que você está procurando?"
-            underlineColorAndroid="transparent"
-            underlineColor="transparent"
-            className="bg-white pr-10 rounded-2xl w-56 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none z-10"
-            right={<TextInput.Icon icon={"magnify"} />}
-            onChangeText={e => {
-              setCorporateName(e);
-            }}
-          />
-        )}
-        <TouchableOpacity
-          className="w-12 h-12 bg-gray-500 rounded-full overflow-hidden mr-20 ml-1"
-          onPress={() => {
-            if (userId)
-              navigation.navigate("ProfileSettings", {
-                userPhoto: userPicture ?? undefined,
-                userID: userId,
-              });
-            else navigation.navigate("Login");
-          }}
-        >
-          <Image
-            source={
-              userPicture
-                ? { uri: `${userPicture}` }
-                : require("../../assets/default-user-image.png")
-            }
-            className="w-full h-full"
-          />
+            >
+              {!menuBurguer ? (
+                <Entypo name="menu" size={48} color={"white"} />
+              ) : (
+                <MaterialIcons name="filter-list" size={48} color="white" />
+              )}
+            </TouchableOpacity>
+            <>
+              {Platform.OS === "ios" ? (
+                <View className="w-[63vw]">
+                  <TextInput
+                    theme={{ colors: { placeholder: "#e9e9e9" } }}
+                    placeholder="O que você está procurando?"
+                    underlineColorAndroid="transparent"
+                    underlineColor="transparent"
+                    className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
+                    right={<TextInput.Icon icon={"magnify"} />}
+                    onChangeText={e => {
+                      setCorporateName(e);
+                    }}
+                  />
+                </View>
+              ) : (
+                <TextInput
+                  theme={{ colors: { placeholder: "#e9e9e9" } }}
+                  placeholder="O que você está procurando?"
+                  underlineColorAndroid="transparent"
+                  underlineColor="transparent"
+                  className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+                  right={<TextInput.Icon icon={"magnify"} />}
+                  onChangeText={e => {
+                    setCorporateName(e);
+                  }}
+                />
+              )}
 
-        </TouchableOpacity>
+              <View className="absolute top-[55px] w-full">
+                {EstablishmentsInfos ? (
+                  EstablishmentsInfos.length > 0 ? (
+                    EstablishmentsInfos.map(item => {
+                      return (
+                        <TouchableOpacity
+                          key={item.establishmentsId}
+                          className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
+                          onPress={() => {
+                            if (userId)
+                              navigation.navigate("EstablishmentInfo", {
+                                establishmentId: item.establishmentsId,
+                                userPhoto: userPicture,
+                                userId: userId,
+                              });
+                            else navigation.navigate("Login");
+                          }}
+                        >
+                          <Text className="text-sm outline-none">
+                            {item.corporateName}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })
+                  ) : (
+                    <></>
+                  )
+                ) : (
+                  <></>
+                )}
+              </View>
+            </>
+            <TouchableOpacity
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              onPress={() => {
+                if (userId)
+                  navigation.navigate("ProfileSettings", {
+                    userPhoto: HOST_API + userPicture ?? undefined,
+                    userID: userId,
+                  });
+                else navigation.navigate("Login");
+              }}
+            >
+              <Image
+                source={
+                  userPicture
+                    ? { uri: userPicture }
+                    : require("../../assets/default-user-image.png")
+                }
+                className="w-full h-full"
+              />
+            </TouchableOpacity>
       </View>
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
-        // isMenuVisible &&
+        isMenuVisible &&
         !menuBurguer && (
           <SportsMenu
             sports={sportTypes}
@@ -562,12 +593,13 @@ export default function Home({
           />
         )
       )}
-      <View className="flex-1 h-max w-max">
+     
+      <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
             loadingEnabled
             className="w-screen flex-1"
-            onPress={() => setMenuBurguer?.(false)}
+            onPress={() => setIsMenuVisible(false)}
             customMapStyle={customMapStyle}
             showsCompass={false}
             showsMyLocationButton={true}
@@ -582,15 +614,15 @@ export default function Home({
           >
             {establishments.length > 0 &&
               establishments
-                .filter((item) => {
+                .filter(item => {
                   if (sportSelected) {
                     return item.type.split(" & ").includes(sportSelected);
                   } else {
                     return true;
                   }
                 })
-                .filter((establishment) => establishment.distance < 5)
-                .map((item) => {
+                .filter(establishment => establishment.distance < 5)
+                .map(item => {
                   return (
                     <Marker
                       key={item.id}
@@ -628,72 +660,44 @@ export default function Home({
                     </Marker>
                   );
                 })}
+            
           </MapView>
         )}
-        <View className="w-screen justify-center flex items-center absolute">
-          {EstablishmentsInfos ? (
-            EstablishmentsInfos.length > 0 ? (
-              EstablishmentsInfos.map(item => {
-                return (
-                  <TouchableOpacity
-                    key={item.establishmentsId}
-                    className="h-[35px] w-[150px] bg-white justify-center border-b-2 border-neutral-300 pl-1 "
-                    style={{ zIndex: 1 }}
-                    onPress={() => {
-                      navigation.navigate("EstablishmentInfo", {
-                        establishmentId: item.establishmentsId,
-                        userPhoto: userPictureWithoutUrl !== undefined ? userPictureWithoutUrl : undefined,
-                        userId: userId,
-                      });
-                    }}
-                  >
-                    <Text className="text-sm outline-none">
-                      {item.corporateName}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })
-            ) : (
-              <></>
-            )
-          ) : (
-            <></>
-          )}
-        </View>
 
-        {!menuBurguer && (
+        {!isMenuVisible && (
           <TouchableOpacity
             className={`absolute left-3 top-3`}
-            onPress={() => setMenuBurguer?.((prevState) => !prevState)}
+            onPress={() => setIsMenuVisible(prevState => !prevState)}
           >
             <AntDesign name="left" size={30} color="black" />
           </TouchableOpacity>
         )}
         {Platform.OS === "ios" && (
-          <TouchableOpacity
-            className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
-            onPress={() => {
-              mapView.current?.animateToRegion({
-                latitude: userGeolocation?.latitude,
-                longitude: userGeolocation?.longitude,
-                latitudeDelta: userGeolocationDelta?.latDelta,
-                longitudeDelta: userGeolocationDelta?.longDelta,
-              });
-            }}
-          >
-            <FontAwesome name="location-arrow" size={24} color="black" />
-          </TouchableOpacity>
-        )}
+              <TouchableOpacity
+                className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
+                onPress={() => {
+                  mapView.current?.animateToRegion({
+                    latitude: userGeolocation?.latitude,
+                    longitude: userGeolocation?.longitude,
+                    latitudeDelta: userGeolocationDelta?.latDelta,
+                    longitudeDelta: userGeolocationDelta?.longDelta,
+                  });
+                }}
+              >
+                <FontAwesome name="location-arrow" size={24} color="black" />
+              </TouchableOpacity>
+            )}
         {menuBurguer && (
           <FilterComponent
             setBurguer={setMenuBurguer!}
             setFilter={setFilter}
+            setIsMenuVisible={setIsMenuVisible}
             filter={filter}
           />
         )}
       </View>
 
-      {!menuBurguer && (
+      {isMenuVisible && !menuBurguer && (
         <HomeBar
           key={uniqueIdGenerate}
           isUpdated={IsUpdated}
@@ -706,17 +710,18 @@ export default function Home({
           HandleSportSelected={HandleSportSelected}
         />
       )}
-      
-        <View className={`absolute bottom-0 left-0 right-0`}>
-          <BottomBlackMenu
-            screen="Home"
-            userID={userId}
-            userPhoto={userPicture!}
-            isMenuVisible={true}
-            paddingTop={2}
-          />
-        </View>
-      
+      {
+        <BottomBlackMenu
+          screen="Home"
+          userID={userId}
+          userPhoto={userPicture!}
+          isMenuVisible={!isMenuVisible}
+          paddingTop={2}
+          onMiddleButtonPress={
+            menuBurguer ? () => setMenuBurguer?.(false) : undefined
+          }
+        />
+      }
     </View>
   );
 }
