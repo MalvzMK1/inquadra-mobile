@@ -23,6 +23,7 @@ import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
 import { TextInput } from "react-native-paper";
+import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -47,6 +48,7 @@ export default function Home({
   navigation,
 }: Props) {
   const [userPicture, setUserPicture] = useState<string>();
+  const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   // const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | undefined>();
   const [userGeolocation, setUserGeolocation] = useState<{
@@ -64,14 +66,14 @@ export default function Home({
     startsAt: string | undefined;
     date: Date | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
   }>({
     amenities: [],
     dayUseService: undefined,
@@ -149,11 +151,15 @@ export default function Home({
           userHookData?.usersPermissionsUser.data?.attributes.photo.data
             ?.attributes.url! !== null
         ) {
-          setUserPicture(
-            HOST_API +
+          if (userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined) {
+            setUserPicture(
+              HOST_API +
               userHookData?.usersPermissionsUser.data?.attributes.photo.data
-                ?.attributes.url!
-          );
+                ?.attributes.url!)
+
+            setUserPictureWithoutUrl(userHookData?.usersPermissionsUser.data?.attributes.photo.data
+              ?.attributes.url!)
+          }
           navigation.setParams({
             userPhoto:
               userHookData?.usersPermissionsUser.data?.attributes.photo.data
@@ -488,7 +494,7 @@ export default function Home({
   return (
     <View className="flex-1 flex flex-col justify-center items-center">
 
-<View className=" h-11 w-max bg-[#292929]"></View>
+      <View className=" h-11 w-max bg-[#292929]"></View>
       <View className="bg-[#292929] flex-row justify-between w-full">
         <TouchableOpacity
           className="pl-5 pr-2"
@@ -549,12 +555,12 @@ export default function Home({
             }
             className="w-full h-full"
           />
-          
+
         </TouchableOpacity>
       </View>
 
-      
-<View className="top-[55px] w-[170px] h-max flex-1 z-[1] absolute justify-center flex items-center">
+
+      <View className="top-[55px] w-[170px] h-max flex-1 z-[1] absolute justify-center flex items-center">
         {EstablishmentsInfos ? (
           EstablishmentsInfos.length > 0 ? (
             EstablishmentsInfos.map(item => {
@@ -597,7 +603,7 @@ export default function Home({
         )
       )}
 
-          
+
       <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
