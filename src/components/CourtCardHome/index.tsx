@@ -115,7 +115,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
               </Text>
             </View>
           </TouchableOpacity>
-          {props.loggedUserId ? (
+          {userData && userData.id ? (
             !isLikeLoading ? (
               <TouchableOpacity
                 onPress={() => {

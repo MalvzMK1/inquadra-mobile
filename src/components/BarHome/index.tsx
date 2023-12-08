@@ -37,7 +37,6 @@ interface HomeBarProps {
   userName: string | undefined;
   chosenType: string | undefined;
   HandleSportSelected: Function;
-  loggedUserId?: string;
   isUpdated?: any;
 }
 
@@ -53,7 +52,6 @@ export default function HomeBar({
   userName,
   chosenType,
   isUpdated,
-  loggedUserId,
 }: HomeBarProps) {
   const {userData} = useUser();
   const translateY = useSharedValue(0);
@@ -186,7 +184,6 @@ export default function HomeBar({
                       name={item.name}
                       image={item.image}
                       distance={item.distance}
-                      loggedUserId={loggedUserId}
                       liked={verifyCourtLike(item.id)}
                       setUserFavoriteCourts={setUserFavoriteCourts}
                       userFavoriteCourts={userFavoriteCourts}
@@ -203,7 +200,6 @@ export default function HomeBar({
                 type={item.type}
                 image={item.image}
                 distance={item.distance}
-                loggedUserId={loggedUserId}
                 liked={verifyCourtLike(item.id)}
                 setUserFavoriteCourts={setUserFavoriteCourts}
                 userFavoriteCourts={userFavoriteCourts}

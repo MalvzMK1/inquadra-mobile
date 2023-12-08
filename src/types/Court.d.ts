@@ -5,7 +5,6 @@ type CourtCardInfos = {
   type: string | string[];
   distance: number;
   liked: boolean;
-  loggedUserId?: string;
   updated?: any
   setUserFavoriteCourts?: any
   userFavoriteCourts?: any
