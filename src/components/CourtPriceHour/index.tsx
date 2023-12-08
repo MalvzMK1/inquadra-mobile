@@ -59,7 +59,7 @@ export default function PriceHour({
   return (
     <View className="flex-row w-full justify-between items-center mt-[10px]">
       <View className="flex-row items-center">
-        <View className="h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] flex items-center justify-center">
+        <View className="h-[40px] w-[95px] bg-white border border-[#FF6112] rounded-[5px] flex items-center justify-center">
           <MaskInput
             className="h-full items-center justify-center"
             mask={timeMask}
@@ -76,7 +76,7 @@ export default function PriceHour({
           />
         </View>
         <Text className="text-white text-[14px]"> às </Text>
-        <View className="h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] flex items-center justify-center">
+        <View className="h-[40px] w-[95px] bg-white border border-[#FF6112] rounded-[5px] flex items-center justify-center">
           <MaskInput
             className="h-full items-center justify-center"
             mask={timeMask}
@@ -92,7 +92,7 @@ export default function PriceHour({
         </View>
       </View>
       <View className="flex-row items-center gap-x-[10px]">
-        <View className="h-[32px] w-[86px] bg-white border border-[#FF6112] rounded-[5px] flex items-center justify-center">
+        <View className="h-[40px] w-[95px] bg-white border border-[#FF6112] rounded-[5px] flex items-center justify-center">
           <MaskInput
             className="h-full items-center justify-center"
             mask={Masks.BRL_CURRENCY}

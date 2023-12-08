@@ -1,5 +1,5 @@
 import {APP_DEBUG_VERBOSE, HOST_API} from "@env";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useRef, useState } from "react";
@@ -8,6 +8,7 @@ import {
   Platform,
   TouchableOpacity,
   View,
+  Image
 } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
@@ -22,6 +23,9 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import {useUser} from "../../context/userContext";
+import { Text, TextInput } from "react-native-paper";
+import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
+
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -48,6 +52,7 @@ export default function Home({
   const {userData} = useUser();
 
   const [userPicture, setUserPicture] = useState<string>();
+  const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [userGeolocation, setUserGeolocation] = useState<{
@@ -65,14 +70,14 @@ export default function Home({
     startsAt: string | undefined;
     date: Date | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
   }>({
     amenities: [],
     dayUseService: undefined,
@@ -123,9 +128,9 @@ export default function Home({
     setSportSelected(nameSport);
   };
 
-  useEffect(() => {
-    if (menuBurguer) setIsDisabled(false);
-  }, [menuBurguer]);
+  // useEffect(() => {
+  //   if (menuBurguer) setIsMenuVisible(false);
+  // }, [menuBurguer]);
 
   const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] =
     useState<boolean>();
@@ -180,8 +185,8 @@ export default function Home({
         ) {
           if (data && data.establishments.data) {
             const newEstablishments = data.establishments.data
-              .filter(establishment => establishment.attributes.courts.data)
-              .map(establishment => {
+              .filter((establishment) => establishment.attributes.courts.data)
+              .map((establishment) => {
                 let establishmentObject: EstablishmentObject = {
                   id: "",
                   latitude: 0,
@@ -195,11 +200,11 @@ export default function Home({
                 let courtTypes =
                   establishment.attributes.courts.data
                     .filter(
-                      court => court.attributes.court_types.data.length > 0,
+                      (court) => court.attributes.court_types.data.length > 0
                     )
-                    .map(court => court.attributes.court_types.data)
-                    .map(courtType =>
-                      courtType.map(type => type.attributes.name),
+                    .map((court) => court.attributes.court_types.data)
+                    .map((courtType) =>
+                      courtType.map((type) => type.attributes.name)
                     ) ?? [];
 
                 if (!courtTypes) courtTypes = [];
@@ -209,17 +214,17 @@ export default function Home({
                     id: establishment.id,
                     name: establishment.attributes.corporateName,
                     latitude: Number(
-                      establishment.attributes.address?.latitude,
+                      establishment.attributes.address?.latitude
                     ),
                     longitude: Number(
-                      establishment.attributes.address?.longitude,
+                      establishment.attributes.address?.longitude
                     ),
                     distance:
                       calculateDistance(
                         userGeolocation.latitude,
                         userGeolocation.longitude,
                         Number(establishment.attributes.address?.latitude),
-                        Number(establishment.attributes.address?.longitude),
+                        Number(establishment.attributes.address?.longitude)
                       ) / 1000,
                     image:
                       HOST_API +
@@ -236,12 +241,12 @@ export default function Home({
         } else {
           const newEstablishments = establishmentsFiltered?.establishments.data
             .filter(
-              establishment =>
+              (establishment) =>
                 establishment?.attributes?.photos.data &&
                 establishment?.attributes?.photos.data.length > 0 &&
-                establishment?.attributes?.courts.data,
+                establishment?.attributes?.courts.data
             )
-            .map(establishment => {
+            .map((establishment) => {
               let establishmentObject: EstablishmentObject = {
                 id: "",
                 latitude: 0,
@@ -254,11 +259,11 @@ export default function Home({
 
               let courtTypes = establishment?.attributes?.courts
                 .data!.filter(
-                  court => court?.attributes?.court_types.data.length > 0,
+                  (court) => court?.attributes?.court_types.data.length > 0
                 )
-                .map(court => court?.attributes?.court_types.data)
-                .map(courtType =>
-                  courtType.map(type => type?.attributes?.name),
+                .map((court) => court?.attributes?.court_types.data)
+                .map((courtType) =>
+                  courtType.map((type) => type?.attributes?.name)
                 );
 
               if (!courtTypes) courtTypes = [];
@@ -269,14 +274,14 @@ export default function Home({
                   name: establishment?.attributes?.corporateName,
                   latitude: Number(establishment?.attributes?.address.latitude),
                   longitude: Number(
-                    establishment?.attributes?.address.longitude,
+                    establishment?.attributes?.address.longitude
                   ),
                   distance:
                     calculateDistance(
                       userGeolocation.latitude,
                       userGeolocation.longitude,
                       Number(establishment?.attributes?.address.latitude),
-                      Number(establishment?.attributes?.address.longitude),
+                      Number(establishment?.attributes?.address.longitude)
                     ) / 1000,
                   image:
                     HOST_API +
@@ -302,15 +307,15 @@ export default function Home({
       } else {
         setIsEstablishmentsLoaded(false);
       }
-    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation]),
+    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation])
   );
 
   useEffect(() => {
     const newAvailableSportTypes: SportType[] = [];
 
-    availableSportTypes?.courtTypes.data.forEach(courtType => {
+    availableSportTypes?.courtTypes.data.forEach((courtType) => {
       const sportAlreadyAdded = newAvailableSportTypes.some(
-        sport => sport.id === courtType.id,
+        (sport) => sport.id === courtType.id
       );
 
       if (!sportAlreadyAdded)
@@ -349,6 +354,13 @@ export default function Home({
   }, [userGeolocation]);
 
   useEffect(() => {
+  const buttonCoordinates = {
+    top: 1,
+    left: 1,
+    right: 13,
+    bottom: 13,
+  };
+
     if (
       userHookData &&
       userHookData.usersPermissionsUser.data &&
@@ -362,11 +374,42 @@ export default function Home({
         });
     }
 
-    establishments.forEach(establishment => {
+    establishments.forEach((establishment) => {
       console.log(establishment.distance);
     });
   }, [userHookData]);
 
+  const [corporateName, setCorporateName] = useState<string>("")
+  const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
+    Array<{
+      establishmentsId: string;
+      corporateName: string;
+    }>
+  >([]);
+
+  const { data: allEstablishments } = useAllEstablishments();
+  useEffect(() => {
+    if (corporateName === "") setEstablishmentsInfos([]);
+    else if (allEstablishments) {
+      const establishments = allEstablishments.establishments.data.map(
+        (establishment: { id: any; attributes: { corporateName: any; }; }) => {
+          return {
+            establishmentsId: establishment.id,
+            corporateName: establishment.attributes.corporateName,
+          };
+        },
+      );
+      const filteredEstablishments = establishments.filter((establishment: { corporateName: string; }) => {
+        return establishment.corporateName
+          .toLowerCase()          
+          .includes(corporateName.toLowerCase());
+      });
+      setEstablishmentsInfos(filteredEstablishments);
+    }
+  }, [corporateName]);
+
+  const mapView = useRef(null);
+  
   useEffect(() => {
     try {
       if (APP_DEBUG_VERBOSE) alert(JSON.stringify(userData));
@@ -390,14 +433,75 @@ export default function Home({
     }
   }, [userData])
 
-  const mapView = useRef(null);
-
   return (
-    <View className="flex-1 flex flex-col justify-center items-center">
+    <View className="flex-1 flex flex-col justify-center items-center h-full">
+      <View className=" h-11 w-screen bg-[#292929]"></View>
+      <View className="bg-[#292929] flex-row justify-between w-full">
+        <TouchableOpacity
+          className="pl-5 pr-2"
+          onPress={() => {
+            setMenuBurguer(prevState => !prevState);
+          }}
+        >
+          {!menuBurguer ? (
+            <Entypo name="menu" size={48} color={"white"} />
+          ) : (
+            <MaterialIcons name="filter-list" size={48} color="white" />
+          )}
+        </TouchableOpacity>
+        {Platform.OS === "ios" ? (
+          <View className="w-[50vw]">
+            <TextInput
+              theme={{ colors: { placeholder: "#e9e9e9" } }}
+              placeholder="O que você está procurando?"
+              underlineColorAndroid="transparent"
+              underlineColor="transparent"
+              className=" pr-2 bg-white rounded-2xl w-56 flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
+              right={<TextInput.Icon icon={"magnify"} />}
+              onChangeText={e => {
+                setCorporateName(e);
+              }}
+            />
+          </View>
+        ) : (
+          <TextInput
+            theme={{ colors: { placeholder: "#e9e9e9" } }}
+            placeholder="O que você está procurando?"
+            underlineColorAndroid="transparent"
+            underlineColor="transparent"
+            className="bg-white pr-10 rounded-2xl w-56 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none z-10"
+            right={<TextInput.Icon icon={"magnify"} />}
+            onChangeText={e => {
+              setCorporateName(e);
+            }}
+          />
+        )}
+        <TouchableOpacity
+          className="w-12 h-12 bg-gray-500 rounded-full overflow-hidden mr-20 ml-1"
+          onPress={() => {
+            if (userId)
+              navigation.navigate("ProfileSettings", {
+                userPhoto: userPicture ?? undefined,
+                userID: userId,
+              });
+            else navigation.navigate("Login");
+          }}
+        >
+          <Image
+            source={
+              userPicture
+                ? { uri: `${userPicture}` }
+                : require("../../assets/default-user-image.png")
+            }
+            className="w-full h-full"
+          />
+
+        </TouchableOpacity>
+      </View>
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
-        isDisabled &&
+        // isMenuVisible &&
         !menuBurguer && (
           <SportsMenu
             sports={sportTypes}
@@ -406,12 +510,12 @@ export default function Home({
           />
         )
       )}
-      <View className="flex-1">
+      <View className="flex-1 h-max w-max">
         {userGeolocation && userGeolocationDelta && (
           <MapView
             loadingEnabled
             className="w-screen flex-1"
-            onPress={() => setIsDisabled(false)}
+            onPress={() => setMenuBurguer?.(false)}
             customMapStyle={customMapStyle}
             showsCompass={false}
             showsMyLocationButton={true}
@@ -426,15 +530,15 @@ export default function Home({
           >
             {establishments.length > 0 &&
               establishments
-                .filter(item => {
+                .filter((item) => {
                   if (sportSelected) {
                     return item.type.split(" & ").includes(sportSelected);
                   } else {
                     return true;
                   }
                 })
-                .filter(establishment => establishment.distance < 5)
-                .map(item => {
+                .filter((establishment) => establishment.distance < 5)
+                .map((item) => {
                   return (
                     <Marker
                       key={item.id}
@@ -471,43 +575,73 @@ export default function Home({
                     </Marker>
                   );
                 })}
-            {Platform.OS === "ios" && (
-              <TouchableOpacity
-                className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
-                onPress={() => {
-                  mapView.current?.animateToRegion({
-                    latitude: userGeolocation.latitude,
-                    longitude: userGeolocation.longitude,
-                    latitudeDelta: userGeolocationDelta.latDelta,
-                    longitudeDelta: userGeolocationDelta.longDelta,
-                  });
-                }}
-              >
-                <FontAwesome name="location-arrow" size={24} color="black" />
-              </TouchableOpacity>
-            )}
           </MapView>
         )}
+        <View className="w-screen justify-center flex items-center absolute">
+          {EstablishmentsInfos ? (
+            EstablishmentsInfos.length > 0 ? (
+              EstablishmentsInfos.map(item => {
+                return (
+                  <TouchableOpacity
+                    key={item.establishmentsId}
+                    className="h-[35px] w-[150px] bg-white justify-center border-b-2 border-neutral-300 pl-1 "
+                    style={{ zIndex: 1 }}
+                    onPress={() => {
+                      navigation.navigate("EstablishmentInfo", {
+                        establishmentId: item.establishmentsId,
+                        userPhoto: userPictureWithoutUrl !== undefined ? userPictureWithoutUrl : undefined,
+                        userId: userId,
+                      });
+                    }}
+                  >
+                    <Text className="text-sm outline-none">
+                      {item.corporateName}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })
+            ) : (
+              <></>
+            )
+          ) : (
+            <></>
+          )}
+        </View>
 
-        {!isDisabled && (
+        {!menuBurguer && (
           <TouchableOpacity
             className={`absolute left-3 top-3`}
-            onPress={() => setIsDisabled(prevState => !prevState)}
+            onPress={() => setMenuBurguer?.((prevState) => !prevState)}
           >
             <AntDesign name="left" size={30} color="black" />
+          </TouchableOpacity>
+        )}
+        {Platform.OS === "ios" && (
+          <TouchableOpacity
+            className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
+            onPress={() => {
+              mapView.current?.animateToRegion({
+                latitude: userGeolocation?.latitude,
+                longitude: userGeolocation?.longitude,
+                latitudeDelta: userGeolocationDelta?.latDelta,
+                longitudeDelta: userGeolocationDelta?.longDelta,
+              });
+            }}
+          >
+            <FontAwesome name="location-arrow" size={24} color="black" />
           </TouchableOpacity>
         )}
         {menuBurguer && (
           <FilterComponent
             setBurguer={setMenuBurguer!}
             setFilter={setFilter}
-            setIsDisabled={setIsDisabled}
+            setIsMenuVisible={setMenuBurguer!}
             filter={filter}
           />
         )}
       </View>
 
-      {isDisabled && !menuBurguer && (
+      {!menuBurguer && (
         <HomeBar
           key={uniqueIdGenerate}
           isUpdated={IsUpdated}
@@ -524,7 +658,7 @@ export default function Home({
         <BottomBlackMenu
           screen="Home"
           userPhoto={userPicture!}
-          isDisabled={!isDisabled}
+          isMenuVisible={menuBurguer}
           paddingTop={2}
           onMiddleButtonPress={
             menuBurguer ? () => setMenuBurguer?.(false) : undefined

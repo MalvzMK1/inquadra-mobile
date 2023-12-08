@@ -53,7 +53,9 @@ export default function EstablishmentInfo({
   const { data: FavoriteEstablishment, loading: loadingFavoriteEstablishment, error: errorFavoriteEstablishment, refetch } = useGetFavoriteEstablishmentByUserId(userId ? userId : "0");
 
 
-  useFocusEffect(() => refetch)
+  useEffect(() => {
+    refetch
+  }, [route.params.establishmentId])
 
   const [arrayfavoriteEstablishment, setArrayFavoriteEstablishment] = useState<
     Array<{ id: any }>

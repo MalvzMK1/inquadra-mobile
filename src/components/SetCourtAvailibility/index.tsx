@@ -10,7 +10,7 @@ interface SetCourtAvailibilityProps {
   appointments: Appointment[];
   hasCopy: boolean;
   isDayUse: boolean;
-  minimumCourtPrice?: string
+  minimumCourtPrice?: string;
   setDayUse: (isDayUse: boolean) => void;
   onCopy: () => void;
   onPaste: () => void;
@@ -82,9 +82,9 @@ export default function SetCourtAvailibility({
               startsAt={appointment.startsAt}
               endsAt={appointment.endsAt}
               price={appointment.price}
-              setStartsAt={value => setStartsAt(value, index)}
-              setEndsAt={value => setEndsAt(value, index)}
-              setPrice={value => setPrice(value, index)}
+              setStartsAt={(value) => setStartsAt(value, index)}
+              setEndsAt={(value) => setEndsAt(value, index)}
+              setPrice={(value) => setPrice(value, index)}
               onDelete={() => onDeleteAppointment(index)}
             />
           ))}
@@ -93,9 +93,9 @@ export default function SetCourtAvailibility({
 
       <TouchableOpacity
         onPress={onAddNewAppointment}
-        className="h-[32px] w-[86px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]"
+        className="h-[50px] w-[105px] bg-[#FF6112] rounded-[5px] items-center justify-center ml-[105px] mt-[20px]"
       >
-        <Text className="text-white text-[10px]">Adicionar horário</Text>
+        <Text className="text-white text-[12px]">Adicionar horário</Text>
       </TouchableOpacity>
 
       {!hasCopy && appointments.length > 0 && (

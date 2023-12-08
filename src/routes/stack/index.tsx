@@ -112,11 +112,7 @@ export default function () {
       <Screen
         name="Home"
         options={({ route: { params } }) => ({
-          headerTintColor: "white",
-          headerStyle: {
-            height: 105,
-            backgroundColor: "#292929",
-          },
+         headerShown: false,
           headerTitle: () => (
             <>
               {Platform.OS === "ios" ? (
@@ -147,37 +143,7 @@ export default function () {
                 />
               )}
 
-              <View className="absolute top-[55px] w-full">
-                {EstablishmentsInfos ? (
-                  EstablishmentsInfos.length > 0 ? (
-                    EstablishmentsInfos.map(item => {
-                      return (
-                        <TouchableOpacity
-                          key={item.establishmentsId}
-                          className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
-                          onPress={() => {
-                            if (params && params.userID)
-                              navigation.navigate("EstablishmentInfo", {
-                                establishmentId: item.establishmentsId,
-                                userPhoto: params.userPhoto,
-                                userId: params.userID,
-                              });
-                            else navigation.navigate("Login");
-                          }}
-                        >
-                          <Text className="text-sm outline-none">
-                            {item.corporateName}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })
-                  ) : (
-                    <></>
-                  )
-                ) : (
-                  <></>
-                )}
-              </View>
+            
             </>
           ),
           headerRight: () => (

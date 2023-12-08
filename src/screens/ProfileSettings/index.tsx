@@ -149,7 +149,10 @@ export default function ProfileSettings({
   const [updateUser] = useUpdateUser();
 
   const [deleteUser] = useDeleteUser();
-
+  let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!;
+  let emailDefault = data?.usersPermissionsUser.data?.attributes.email!;
+  let phoneDefault = data?.usersPermissionsUser.data?.attributes.phoneNumber!;
+  let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!;
   useEffect(() => {
     let newCountriesArray: Array<{ key: string; value: string; img: string }> =
       [];
@@ -196,18 +199,21 @@ export default function ProfileSettings({
     setShowCreditCards(!showCreditCards);
   };
 
-  const updateCardInfos = (data: IPaymentCardFormData) => {
+  const updateCardInfos = (dataCard: IPaymentCardFormData) => {
     addCard(
-      data.cardNumber,
-      data.dueDate,
-      data.country.toString(),
-      data.cep,
-      data.houseNumber,
-      data.street,
-      data.district,
-      data.complement,
-      data.city,
-      data.state,
+      dataCard.cardNumber,
+      dataCard.dueDate,
+      dataCard.country.toString(),
+      dataCard.cep,
+      dataCard.houseNumber,
+      dataCard.street,
+      dataCard.district,
+      dataCard.complement,
+      dataCard.city,
+      dataCard.state,
+      dataCard.cvv,
+      userNameDefault,
+      cpfDefault,
     ).then(() => {
       console.log("ur");
       Dialog.show({
@@ -642,11 +648,6 @@ export default function ProfileSettings({
     }
   }, [data, loading]);
 
-  let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!;
-  let emailDefault = data?.usersPermissionsUser.data?.attributes.email!;
-  let phoneDefault = data?.usersPermissionsUser.data?.attributes.phoneNumber!;
-  let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!;
-
   useEffect(() => {
     AsyncStorage.getItem(`user${userData?.id}Cards`, (error, result) => {
       if (error) {
@@ -683,9 +684,12 @@ export default function ProfileSettings({
     complement: string,
     city: string,
     state: string,
+    cvv: string,
+    name: string,
+    cpf: string
   ): Promise<void> => {
     const newCard: Card = {
-      id: cards.length, // Use cards.length para obter o próximo ID.
+      id: cards.length,
       number: number,
       maturityDate: maturityDate,
       countryID: countryID,
@@ -696,6 +700,9 @@ export default function ProfileSettings({
       complement: complement,
       city: city,
       state: state,
+      cvv: cvv,
+      name: name,
+      cpf: cpf
     };
 
     setCards(prevCards => [...prevCards, newCard]);
@@ -1242,6 +1249,7 @@ export default function ProfileSettings({
                           <CreditCardCard
                             number={card.number}
                             id={card.id}
+                            isRegister
                           />
                           <View className="h-2" />
                         </Fragment>

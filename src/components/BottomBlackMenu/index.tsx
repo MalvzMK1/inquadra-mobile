@@ -7,7 +7,7 @@ import {useUser} from "../../context/userContext";
 interface IBottomBlackMenu {
   screen: string;
   userPhoto: string | null;
-  isDisabled: boolean;
+  isMenuVisible: boolean;
   paddingTop: number;
   onMiddleButtonPress?: () => void;
 }
