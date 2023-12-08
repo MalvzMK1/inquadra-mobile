@@ -688,7 +688,6 @@ export default function Home({
           <FilterComponent
             setBurguer={setMenuBurguer!}
             setFilter={setFilter}
-            setIsMenuVisible={setMenuBurguer!}
             filter={filter}
           />
         )}
@@ -707,18 +706,19 @@ export default function Home({
           HandleSportSelected={HandleSportSelected}
         />
       )}
+
+
       {
         <BottomBlackMenu
           screen="Home"
           userID={userId}
           userPhoto={userPicture!}
-          isMenuVisible={menuBurguer}
+          isMenuVisible={true}
           paddingTop={2}
-          onMiddleButtonPress={
-            menuBurguer ? () => setMenuBurguer?.(false) : undefined
-          }
         />
       }
+
+      
     </View>
   );
 }
