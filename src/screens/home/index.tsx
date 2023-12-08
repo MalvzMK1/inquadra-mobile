@@ -706,18 +706,16 @@ export default function Home({
           HandleSportSelected={HandleSportSelected}
         />
       )}
-
-
-      {
-        <BottomBlackMenu
-          screen="Home"
-          userID={userId}
-          userPhoto={userPicture!}
-          isMenuVisible={true}
-          paddingTop={2}
-        />
-      }
-
+      
+        <View className={`absolute bottom-0 left-0 right-0`}>
+          <BottomBlackMenu
+            screen="Home"
+            userID={userId}
+            userPhoto={userPicture!}
+            isMenuVisible={true}
+            paddingTop={2}
+          />
+        </View>
       
     </View>
   );

@@ -13,6 +13,7 @@ import FilterDate from "../FilterDate";
 import FilterDropdown from "../FilterDropdown";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import BottomBlackMenu from "../BottomBlackMenu";
 export default function FilterComponent(props: {
   setBurguer: React.Dispatch<React.SetStateAction<boolean>>;
   setFilter: React.Dispatch<React.SetStateAction<any>>;
@@ -22,14 +23,14 @@ export default function FilterComponent(props: {
     endsAt: string | undefined;
     startsAt: string | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
     date: Date | undefined;
   };
 }) {
@@ -85,21 +86,21 @@ export default function FilterComponent(props: {
   const [timeInit, setTimeInit] = useState(
     props.filter.startsAt
       ? new Date(
-          date.setHours(
-            parseInt(props.filter.startsAt.split(":")[0]),
-            parseInt(props.filter.startsAt.split(":")[1])
-          )
+        date.setHours(
+          parseInt(props.filter.startsAt.split(":")[0]),
+          parseInt(props.filter.startsAt.split(":")[1])
         )
+      )
       : new Date(date.setHours(0, 0, 0, 0))
   );
   const [timeFinal, setTimeFinal] = useState(
     props.filter.endsAt
       ? new Date(
-          date.setHours(
-            parseInt(props.filter.endsAt.split(":")[0]),
-            parseInt(props.filter.endsAt.split(":")[1])
-          )
+        date.setHours(
+          parseInt(props.filter.endsAt.split(":")[0]),
+          parseInt(props.filter.endsAt.split(":")[1])
         )
+      )
       : new Date(date.setHours(0, 0, 0, 0))
   );
   const [weekDay, setWeekDay] = useState<number | undefined>(
@@ -115,14 +116,14 @@ export default function FilterComponent(props: {
     endsAt: string | undefined;
     startsAt: string | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
     date: Date | undefined;
   }>();
 

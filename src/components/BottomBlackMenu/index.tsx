@@ -30,10 +30,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
     .then(data => setUserGeolocation(data))
     .catch(error => console.error("erro ao capturar o userLocation: ", error));
 
-  useEffect(() => {
-    if (screen === "Home") setShowButtons(true);
-  }, [screen]);
-
   return (
     <View className="absolute bottom-0 left-0 right-0">
       <View
