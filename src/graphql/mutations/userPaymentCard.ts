@@ -10,7 +10,7 @@ export interface IUserPaymentCardResponse {
 
 export interface IUserPaymentCardVariables {
   value: number;
-  schedulingId: string | number;
+  schedulingId?: string | number;
   userId: string | number;
   name: string;
   cpf: string;

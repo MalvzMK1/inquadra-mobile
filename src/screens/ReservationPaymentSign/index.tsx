@@ -430,13 +430,14 @@ export default function ReservationPaymentSign({
           CreditCard: {
             CardNumber: values.cardNumber.split(" ").join(""),
             Holder: values.name,
-            ExpirationDate: transformCardExpirationDate({ expirationDate: values.date }),
+            ExpirationDate: transformCardExpirationDate(values.date),
             SecurityCode: values.cvv,
             SaveCard: false,
             Brand: brand,
           },
         },
       };
+      const response = await cieloRequestManager.authorizePayment(body);
 
       if (storageUserData && storageUserData.id)
         userPaymentCard({
@@ -456,6 +457,8 @@ export default function ReservationPaymentSign({
             state: values.state,
             neighborhood: values.district,
             street: values.street,
+            paymentId: response.Payment.PaymentId!,
+            payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
           },
         })
           .then(({ data: createdUserPayment }) => {
@@ -527,7 +530,7 @@ export default function ReservationPaymentSign({
       });
     }
   });
-  const handlePayCardSave = (card: Card) => {
+  const handlePayCardSave = async (card: Card) => {
 
     try {
       const cieloRequestManager = new CieloRequestManager();
@@ -596,13 +599,14 @@ export default function ReservationPaymentSign({
           CreditCard: {
             CardNumber: card.number.split(" ").join(""),
             Holder: card.name,
-            ExpirationDate: transformCardExpirationDate({ expirationDate: card.maturityDate }),
+            ExpirationDate: transformCardExpirationDate(card.maturityDate),
             SecurityCode: card.cvv,
             SaveCard: false,
             Brand: brand,
           },
         },
-      };
+      };      
+      const response = await cieloRequestManager.authorizePayment(body);
 
       userPaymentCard({
         variables: {
@@ -621,6 +625,8 @@ export default function ReservationPaymentSign({
           state: card.state,
           neighborhood: card.district,
           street: card.street,
+          paymentId: response.Payment.PaymentId!,
+          payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
         },
       })
         .then(({ data: createdUserPayment }) => {
