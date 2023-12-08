@@ -267,7 +267,11 @@ export default function ProfileSettings({
   };
 
   const handleConfirmExit = () => {
-    setUserData(undefined);
+    setUserData({
+      id: undefined,
+      jwt: undefined,
+      geolocation: userData?.geolocation
+    });
 
     setShowExitConfirmation(false);
 

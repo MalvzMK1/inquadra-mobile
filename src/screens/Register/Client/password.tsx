@@ -133,6 +133,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         setUserData({
           id: newUserId,
           jwt: newUserJwt,
+          geolocation: storageUserData?.geolocation,
         }).then(() => {
           navigation.navigate("RegisterSuccess", {
             nextRoute: "Home",

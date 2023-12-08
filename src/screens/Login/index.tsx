@@ -29,7 +29,7 @@ const formSchema = z.object({
 
 export default function Login() {
   const apolloClient = useApolloClient();
-  const {setUserData} = useUser();
+  const {userData: storageUserData, setUserData} = useUser();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -84,14 +84,14 @@ export default function Login() {
         setUserData({
           id: userData.usersPermissionsUser.data.id,
           jwt: authData.data.login.jwt,
+          geolocation: storageUserData?.geolocation,
         })
+
         if (
           userData.usersPermissionsUser.data.attributes.role.data.id === "3"
         ) {
           navigation.navigate("Home", {
-            userGeolocation: userGeolocation
-              ? userGeolocation
-              : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
+            userGeolocation: storageUserData?.geolocation,
             userPhoto: undefined,
           });
         } else if (
@@ -134,17 +134,13 @@ export default function Login() {
                   setUserData({
                     id: response.data.login.user.id,
                     jwt: response.data.login.jwt,
+                    geolocation: storageUserData?.geolocation
                   }).then(() => {
                       alert(
                         `entered with enzao@gmail.com\nid: ${response.data?.login.user.id ?? ''}\nJWT: ${response.data?.login.jwt ?? ''}`,
                       );
                       navigation.navigate("Home", {
-                        userGeolocation: userGeolocation
-                          ? userGeolocation
-                          : {
-                              latitude: 78.23570781291714,
-                              longitude: 15.491400000982967,
-                            },
+                        userGeolocation: storageUserData?.geolocation,
                         userPhoto: undefined,
                       });
                     });

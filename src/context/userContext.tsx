@@ -72,7 +72,7 @@ export function UserProvider({children}: IUserProviderProps) {
 
 			// ADICIONAR AS INFORMAÇÕES DA GEOLOCALIZAÇÃO
 
-			if (newUserData && loadedUserGeolocation) {
+			if (loadedUserGeolocation) {
 				try {
 					const parsedLoadedUserGeolocation = JSON.parse(loadedUserGeolocation);
 

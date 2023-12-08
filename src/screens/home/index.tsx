@@ -25,6 +25,7 @@ import customMapStyle from "../../utils/customMapStyle";
 import {useUser} from "../../context/userContext";
 import { Text, TextInput } from "react-native-paper";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const pointerMap = require("../../assets/pointerMap.png");
@@ -51,7 +52,7 @@ export default function Home({
 }: Props) {
   const {userData} = useUser();
 
-  const [userPicture, setUserPicture] = useState<string>();
+  const [userPicture, setUserPicture] = useState<string | undefined>();
   const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -147,24 +148,23 @@ export default function Home({
       refetchUserInfos().then(() => {
         if (
           userData &&
+          userData.id &&
           userHookData &&
           userHookData.usersPermissionsUser.data &&
           userHookData.usersPermissionsUser.data.attributes.photo.data
         ) {
+          const profilePicture = userHookData.usersPermissionsUser.data.attributes.photo.data.attributes.url;
+
           setUserPicture(
-            HOST_API +
-              userHookData.usersPermissionsUser.data.attributes.photo.data
-                .attributes.url,
+            HOST_API + profilePicture,
           );
           navigation.setParams({
-            userPhoto:
-              userHookData.usersPermissionsUser.data.attributes.photo.data
-                .attributes.url,
+            userPhoto: profilePicture,
           });
         } else {
-          setUserPicture("../../assets/default-user-image.png");
+          setUserPicture(undefined);
           navigation.setParams({
-            userPhoto: "../../assets/default-user-image.png",
+            userPhoto: undefined,
           });
         }
       });
@@ -303,7 +303,7 @@ export default function Home({
       } else {
         setIsEstablishmentsLoaded(false);
       }
-    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation])
+    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation, userData])
   );
 
   useEffect(() => {
@@ -408,14 +408,18 @@ export default function Home({
   
   useEffect(() => {
     try {
-      if (APP_DEBUG_VERBOSE) alert(JSON.stringify(userData));
+      alert(JSON.stringify(userData))
 
-      if (userData && userData.id) {
-        setUserId(userData.id);
-        userData.geolocation && setUserGeolocation(userData.geolocation)
-        navigation.setParams({
-          userGeolocation: userData.geolocation
-        })
+      if (userData) {
+        if (userData.id) {
+          setUserId(userData.id);
+        } else {
+          navigation.setParams({
+            userPhoto: undefined
+          });
+        }
+
+        userData.geolocation && setUserGeolocation(userData.geolocation);
       } else {
         setUserId(undefined)
         navigation.setParams({
@@ -474,11 +478,12 @@ export default function Home({
         <TouchableOpacity
           className="w-12 h-12 bg-gray-500 rounded-full overflow-hidden mr-20 ml-1"
           onPress={() => {
-            if (userId)
-              navigation.navigate("ProfileSettings", {
-                userPhoto: userPicture ?? undefined,
-              });
-            else navigation.navigate("Login");
+            alert(userPicture)
+            // if (userId)
+            //   navigation.navigate("ProfileSettings", {
+            //     userPhoto: userPicture ?? undefined,
+            //   });
+            // else navigation.navigate("Login");
           }}
         >
           <Image

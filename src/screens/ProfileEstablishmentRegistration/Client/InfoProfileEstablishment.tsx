@@ -1238,11 +1238,15 @@ export default function InfoProfileEstablishment({
                 className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
                 onPress={handleConfirmExit}
                 onPressIn={() => {
-                  setUserData(undefined);
-
-                  navigation.navigate('Home', {
-                    userGeolocation: userData?.geolocation ?? undefined
-                  })
+                  setUserData({
+                    id: undefined,
+                    jwt: undefined,
+                    geolocation: userData?.geolocation
+                  }).then(() => {
+                    navigation.navigate('Home', {
+                      userGeolocation: userData?.geolocation ?? undefined
+                    })
+                  });
                 }}
               >
                 <Text className="text-white">Confirmar</Text>
