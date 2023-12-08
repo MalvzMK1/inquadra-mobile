@@ -1,5 +1,5 @@
 import { HOST_API } from "@env";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useRef, useState } from "react";
@@ -22,6 +22,7 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
+import { TextInput } from "react-native-paper";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -449,6 +450,71 @@ export default function Home({
 
   return (
     <View className="flex-1 flex flex-col justify-center items-center">
+
+<View className=" h-11 w-max bg-[#292929]"></View>
+      <View className="bg-[#292929] flex-row justify-between w-full">
+        <TouchableOpacity
+          className="pl-5 pr-2"
+          onPress={() => {
+            setMenuBurguer(prevState => !prevState);
+          }}
+        >
+          {!menuBurguer ? (
+            <Entypo name="menu" size={48} color={"white"} />
+          ) : (
+            <MaterialIcons name="filter-list" size={48} color="white" />
+          )}
+        </TouchableOpacity>
+
+        {Platform.OS === "ios" ? (
+          <View className="w-[50vw]">
+            <TextInput
+              theme={{ colors: { placeholder: "#e9e9e9" } }}
+              placeholder="O que você está procurando?"
+              underlineColorAndroid="transparent"
+              underlineColor="transparent"
+              className=" pr-2 bg-white rounded-2xl w-56 flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
+              right={<TextInput.Icon icon={"magnify"} />}
+              onChangeText={e => {
+                setCorporateName(e);
+              }}
+            />
+          </View>
+        ) : (
+          <TextInput
+            theme={{ colors: { placeholder: "#e9e9e9" } }}
+            placeholder="O que você está procurando?"
+            underlineColorAndroid="transparent"
+            underlineColor="transparent"
+            className="bg-white pr-10 rounded-2xl w-56 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none z-10"
+            right={<TextInput.Icon icon={"magnify"} />}
+            onChangeText={e => {
+              setCorporateName(e);
+            }}
+          />
+        )}
+        <TouchableOpacity
+          className="w-12 h-12 bg-gray-500 rounded-full overflow-hidden mr-20 ml-1"
+          onPress={() => {
+            if (userId)
+              navigation.navigate("ProfileSettings", {
+                userPhoto: userPicture ?? undefined,
+                userID: userId,
+              });
+            else navigation.navigate("Login");
+          }}
+        >
+          <Image
+            source={
+              userPicture
+                ? { uri: `${userPicture}` }
+                : require("../../assets/default-user-image.png")
+            }
+            className="w-full h-full"
+          />
+          
+        </TouchableOpacity>
+      </View>
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
