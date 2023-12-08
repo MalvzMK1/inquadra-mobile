@@ -148,7 +148,6 @@ export default function HistoryPayment({ route }: NativeStackScreenProps<RootSta
             <View className={`absolute bottom-0 left-0 right-0`}>
                 <BottomBlackMenuEstablishment
                     screen="Any"
-                    userID={dataUserEstablishment?.establishment.data.attributes.owner.data.id!}
                     establishmentLogo={dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== undefined || dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url !== null ? HOST_API + dataUserEstablishment?.establishment?.data?.attributes?.logo?.data?.attributes?.url : null}
                     establishmentID={route.params.establishmentId}
                     key={1}

@@ -248,7 +248,6 @@ export default function HomeEstablishment({
       userData.id
     ) setUserId(userData.id);
     else navigation.navigate('Home', {
-      userID: undefined,
       userPhoto: undefined,
       userGeolocation: userData?.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
     });

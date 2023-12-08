@@ -388,9 +388,6 @@ export default function FinancialEstablishment({
       <View className={`absolute bottom-0 left-0 right-0`}>
         <BottomBlackMenuEstablishment
           screen="Finance"
-          userID={
-            dataUserEstablishment?.establishment.data.attributes.owner.data.id!
-          }
           establishmentLogo={route.params.logo!}
           establishmentID={route.params.establishmentId ?? ""}
           key={1}

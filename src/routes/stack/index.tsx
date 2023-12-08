@@ -52,12 +52,12 @@ import Schedulings from "../../screens/Schedulings";
 import UpdateSchedule from "../../screens/UpdateSchedule";
 import PaymentScheduleUpdate from "../../screens/UpdateSchedule/updateSchedule";
 import Home from "../../screens/home";
-import {useUser} from "../../context/userContext";
+import { useUser } from "../../context/userContext";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
-  const {userData} = useUser();
+  const { userData } = useUser();
   const [menuBurguer, setMenuBurguer] = useState(false);
   const [userId, setUserId] = useState<string>();
   const [corporateName, setCorporateName] = useState("");
@@ -112,7 +112,7 @@ export default function () {
       <Screen
         name="Home"
         options={({ route: { params } }) => ({
-         headerShown: false,
+          headerShown: false,
         })}
       >
         {props => (
@@ -499,8 +499,7 @@ export default function () {
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
                 navigation.navigate("ProfileSettings", {
-                  userPhoto: params.userPhoto,
-                  userID: userId ?? "",
+                  userPhoto: params.userPhoto
                 });
               }}
             >
@@ -650,10 +649,9 @@ export default function () {
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                if (params && params.userID) {
+                if (params && userData?.id) {
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
-                    userID: params.userID,
                   });
                 } else navigation.navigate("Login");
               }}
@@ -703,10 +701,9 @@ export default function () {
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                if (params.userId !== undefined && params.userId !== null)
+                if (userData?.id !== undefined && userData?.id !== null)
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
-                    userID: userId ?? "",
                   });
                 else navigation.navigate("Login");
               }}
@@ -751,7 +748,7 @@ export default function () {
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
+              <Text className="py-5" style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
                 SINAL
               </Text>
             </View>
@@ -761,7 +758,6 @@ export default function () {
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() =>
                 navigation.navigate("ProfileSettings", {
-                  userID: userId ?? "",
                   userPhoto: params.userPhoto,
                 })
               }
@@ -1025,13 +1021,12 @@ export default function () {
               onPress={() => {
                 // console.log(params.userId)
                 if (
-                  params.userId &&
-                  params.userId !== "0" &&
-                  params.userId !== ""
+                  userData?.id &&
+                  userData?.id !== "0" &&
+                  userData?.id !== ""
                 )
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
-                    userID: userId ?? "",
                   });
                 else navigation.navigate("Login");
               }}

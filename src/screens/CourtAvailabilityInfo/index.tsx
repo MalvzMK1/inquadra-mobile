@@ -339,7 +339,7 @@ export default function CourtAvailabilityInfo({
                   : ""
               }
               key={1}
-              isDisabled={true}
+              isMenuVisible={false}
               paddingTop={2}
             />
           </View>

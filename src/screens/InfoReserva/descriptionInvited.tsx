@@ -16,7 +16,7 @@ export default function DescriptionInvited() {
             <View className=' h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5'>
 
                 <View className='flex item-center justify-center'>
-                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva', { userId: "" })}>
+                    <TouchableOpacity className='h-6 w-6' onPress={() => navigation.navigate('InfoReserva',)}>
                         <TextInput.Icon icon={'chevron-left'} size={25} color={'white'} />
                     </TouchableOpacity>
                 </View>

@@ -501,7 +501,6 @@ export default function Home({
                           navigation.navigate("EstablishmentInfo", {
                             establishmentId: item.establishmentsId,
                             userPhoto: userPicture,
-                            userId: userId,
                           });
                         else navigation.navigate("Login");
                       }}

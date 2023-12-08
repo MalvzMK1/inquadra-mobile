@@ -34,12 +34,12 @@ export default function InfoReserva({
   route,
 }: NativeStackScreenProps<RootStackParamList, "InfoReserva">) {
   const { userData } = useUser();
-  const { data: dataUser } = useGetMenuUser(userData?.id);
+  const { data: dataUser } = useGetMenuUser(userData?.id ?? "");
   const [userPicture, setUserPicture] = useState<string | undefined>();
   const [userGeolocation, setUserGeolocation] = useState<
     UserGeolocation | undefined
   >(userData?.geolocation);
-  const { data, loading, refetch } = useGetHistoricReserveOn(userData?.id);
+  const { data, loading, refetch } = useGetHistoricReserveOn(userData?.id ?? "");
 
   useFocusEffect(
     useCallback(() => {
@@ -389,7 +389,6 @@ export default function InfoReserva({
                             key={courtInfo.id}
                             onPress={() => {
                               navigation.navigate("DescriptionReserve", {
-                                userId: userId,
                                 scheduleId: courtInfo.id,
                               });
                             }}
@@ -511,7 +510,7 @@ export default function InfoReserva({
               : ""
           }
           key={1}
-          isDisabled={true}
+          isMenuVisible={false}
           paddingTop={2}
         />
       </View>

@@ -20,6 +20,7 @@ import { useCreateCharge } from "../../services/inter";
 import { verifyPixStatus } from "../../services/pixCielo";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
+import { useUser } from "../../context/userContext";
 
 interface RouteParams
   extends NativeStackScreenProps<RootStackParamList, "PixScreen"> { }
@@ -30,14 +31,16 @@ interface IPixInfos {
 }
 
 export default function PixScreen({ navigation, route }: RouteParams) {
-  const { courtName, value, userID, scheduleID, QRcodeURL, paymentID } =
+  const { courtName, value, scheduleID, QRcodeURL, paymentID } =
     route.params;
   const formattedValue = Number(value).toFixed(2);
 
   const { data: scheduleData } = useGetSchedulingsDetails(
     route.params.scheduleID?.toString() ?? "",
   );
-  const { data: userData } = useGetUserById(route.params.userID, {
+  const {userData} = useUser();
+
+  const { data: userDataById } = useGetUserById(userData?.id ?? "", {
     onCompleted(data) {
       if (data?.usersPermissionsUser.data?.attributes.address) {
         getAddress(data.usersPermissionsUser.data.attributes.address.cep).then(
@@ -117,7 +120,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
               courtAvailabilities: route.params.court_availabilityID!,
               courtAvailabilityDate: route.params.date!,
               courtName: courtName,
-              userId: userID,
               userPhoto: route.params.userPhoto,
               courtId: route.params.courtId!,
               courtImage: route.params.courtImage!,
@@ -125,7 +127,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           } else if (route.params.screen === "historic") {
             navigation.navigate("DescriptionReserve", {
               scheduleId: scheduleID?.toString()!,
-              userId: userID,
             });
           } else {
             navigation.navigate("PaymentScheduleUpdate", {
@@ -137,7 +138,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
               courtImage: route.params.courtImage!,
               courtName: courtName,
               pricePayed: route.params.pricePayed!,
-              userId: userID,
               userPhoto: route.params.userPhoto!,
               scheduleUpdateID: scheduleID?.toString()!,
             });
@@ -208,8 +208,8 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           date: route.params.date!,
           pay_day: route.params.pay_day!,
           value_payed: route.params.value_payed!,
-          owner: userID,
-          users: [userID],
+          owner: userData?.id ?? "",
+          users: [userData?.id ?? ""],
           activation_key: isPayed ? generateRandomKey(4) : "",
           service_value: route.params.service_value!,
           publishedAt: new Date().toISOString(),
@@ -263,7 +263,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           });
 
           scheduleValueUpdate(valueToPay, scheduleID!).then(() => {
-            navigation.navigate("InfoReserva", { userId: userID });
+            navigation.navigate("InfoReserva");
             setStatusPix("waiting");
           });
         }
@@ -279,7 +279,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                 },
               }).then(() => {
                 scheduleValueUpdate(valueToPay, schedule_id!).then(() => {
-                  navigation.navigate("InfoReserva", { userId: userID });
+                  navigation.navigate("InfoReserva");
                   setStatusPix("waiting");
                 });
               });
@@ -298,7 +298,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                 scheduleID: route.params.scheduleID!.toString()!,
               },
             }).then(() => {
-              navigation.navigate("InfoReserva", { userId: userID });
+              navigation.navigate("InfoReserva");
               setStatusPix("waiting");
             });
           });
@@ -309,18 +309,18 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   useEffect(() => {
     if (
-      userData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
+      userDataById?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
     ) {
       setUserPhotoUri({
         uri:
           HOST_API +
-          userData.usersPermissionsUser.data.attributes.photo.data.attributes
+          userDataById.usersPermissionsUser.data.attributes.photo.data.attributes
             .url,
       });
     }
 
     if (
-      userData?.usersPermissionsUser.data?.attributes.address &&
+      userDataById?.usersPermissionsUser.data?.attributes.address &&
       userAddress &&
       scheduleData?.scheduling.data?.attributes.court_availability.data
         ?.attributes.court.data?.attributes.establishment.data &&
@@ -348,11 +348,11 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
           dueDate,
           debtorName:
-            userData.usersPermissionsUser.data.attributes.username ?? "",
+          userDataById.usersPermissionsUser.data.attributes.username ?? "",
           debtorStreet: userAddress.address,
           debtorUf: userAddress.state,
           debtorCity: userAddress.city,
-          debtorCpf: userData.usersPermissionsUser.data.attributes.cpf,
+          debtorCpf: userDataById.usersPermissionsUser.data.attributes.cpf,
           debtorCep: userAddress.code.split("-").join(""),
           discountDate: new Date().toISOString().split("T")[0],
         },
@@ -366,7 +366,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
             variables: {
               code: response.data.CreateCharge.pixCopiaECola,
               txid: response.data.CreateCharge.txid,
-              userID,
+              userID: userData?.id ?? "",
               establishmentID:
                 scheduleData.scheduling.data!.attributes.court_availability
                   .data!.attributes.court.data!.attributes.establishment.data!

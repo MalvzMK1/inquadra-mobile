@@ -8,6 +8,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import FilterDate from "../../components/FilterDateCourtAvailability"
 import { useFocusEffect } from "@react-navigation/native"
+import { useUser } from "../../context/userContext"
 
 LocaleConfig.locales['pt-br'] = {
     monthNames: [
@@ -38,6 +39,7 @@ export default function UpdateSchedule({ navigation, route }: NativeStackScreenP
         loading: isCourtAvailabilityLoading,
         error: isCourtAvailabilityError
     } = useCourtAvailability(route.params.courtId)
+    const {userData} = useUser();
 
     const [dateSelector, setDateSelector] = useState(`${String(new Date().getDate()).padStart(2, '0')}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`)
     const [selectedWeekDate, setSelectedWeekDate] = useState<string>()
@@ -213,9 +215,8 @@ export default function UpdateSchedule({ navigation, route }: NativeStackScreenP
                                     if (selectedTime)
                                         navigation.navigate('PaymentScheduleUpdate', {
                                             courtName: route.params.courtName,
-                                            courtImage: route.params.courtImage,
+                                            courtImage: route.params.courtImage!,
                                             courtId: route.params.courtId,
-                                            userId: route.params.userId,
                                             amountToPay: selectedTime?.value,
                                             courtAvailabilities: selectedTime?.id,
                                             courtAvailabilityDate: selectedDate,
@@ -234,10 +235,9 @@ export default function UpdateSchedule({ navigation, route }: NativeStackScreenP
                     <View className="absolute bottom-0 left-0 right-0">
                         <BottomBlackMenu
                             screen="Any"
-                            userID={route.params.userId}
                             userPhoto={route.params.userPhoto !== null && route.params.userPhoto !== undefined ? route.params.userPhoto : ''}
                             key={1}
-                            isDisabled={true}
+                            isMenuVisible={false}
                             paddingTop={2}
                         />
                     </View>

@@ -79,7 +79,6 @@ export default function ForgotPassword({
       }
 
       navigation.navigate("InsertResetCode", {
-        id: userInfos.id,
         username: userInfos.attributes.username,
         email: userInfos.attributes.email,
       });

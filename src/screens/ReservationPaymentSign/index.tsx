@@ -47,6 +47,7 @@ import { transformCardExpirationDate } from "../../utils/transformCardExpiration
 import {useUser} from "../../context/userContext";
 import { Card } from "../../types/Card";
 import CreditCardCard from "../../components/CreditCardInfoCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const formSchema = z.object({
   name: z
@@ -159,6 +160,7 @@ export default function ReservationPaymentSign({
   const [cards, setCards] = useState<Card[]>([]);
   const [showConfirmPayment, setShowConfirmPayment] = useState(false);
   const [selectedCard, setSelectedCard] = useState<Card>()
+  const {userData} = useUser();
 
   const { data: dataReserve, loading: loadingReserve } = useReserveInfo(
     courtAvailabilities,
@@ -186,7 +188,7 @@ export default function ReservationPaymentSign({
   const [updateUserPaymentCard] = useUpdateUserPaymentCard();
   const [deleteUserPaymentCard] = useDeleteUserPaymentCard();
   const { data: dataCountry } = useCountries();
-  const { data: userData } = useGetUserById(userId, {
+  const { data: userDataById } = useGetUserById(userData?.id!, {
     onCompleted(data) {
       if (data?.usersPermissionsUser.data) {
         setValue("cpf", data.usersPermissionsUser.data.attributes.cpf);
@@ -202,7 +204,7 @@ export default function ReservationPaymentSign({
 
   const [updateStatusCourtAvailability] = useUpdateCourtAvailabilityStatus();
   const [createSchedule] = useRegisterSchedule();
-  const { data: dataUser, loading: loadingUser } = useGetUserById(userId);
+  const { data: dataUser, loading: loadingUser } = useGetUserById(userData?.id!);
   const [addPaymentPix] = useUserPaymentPix();
 
   const loadingScreenInfos = () => {
@@ -264,7 +266,7 @@ export default function ReservationPaymentSign({
   }, []);
 
   useEffect(() => {
-    AsyncStorage.getItem(`user${userId}Cards`, (error, result) => {
+    AsyncStorage.getItem(`user${userData?.id}Cards`, (error, result) => {
       if (error) {
         null
       } else {
@@ -377,7 +379,7 @@ export default function ReservationPaymentSign({
         : undefined;
 
       if (
-        !userData?.usersPermissionsUser.data ||
+        !userDataById?.usersPermissionsUser.data ||
         typeof signalAmount === "undefined" ||
         typeof serviceValue === "undefined"
       ) {
@@ -408,7 +410,7 @@ export default function ReservationPaymentSign({
           Name: values.name,
           Identity: values.cpf,
           IdentityType: "cpf",
-          Email: userData.usersPermissionsUser.data.attributes.email,
+          Email: userDataById.usersPermissionsUser.data.attributes.email,
           Birthdate: "1991-01-02",
           Address: address,
           DeliveryAddress: address,
@@ -428,7 +430,7 @@ export default function ReservationPaymentSign({
           CreditCard: {
             CardNumber: values.cardNumber.split(" ").join(""),
             Holder: values.name,
-            ExpirationDate: transformCardExpirationDate(values.date),
+            ExpirationDate: transformCardExpirationDate({ expirationDate: values.date }),
             SecurityCode: values.cvv,
             SaveCard: false,
             Brand: brand,
@@ -543,7 +545,7 @@ export default function ReservationPaymentSign({
         : undefined;
 
       if (
-        !userData?.usersPermissionsUser.data ||
+        !userDataById?.usersPermissionsUser.data ||
         typeof signalAmount === "undefined" ||
         typeof serviceValue === "undefined"
       ) {
@@ -574,7 +576,7 @@ export default function ReservationPaymentSign({
           Name: card.name,
           Identity: card.cpf,
           IdentityType: "cpf",
-          Email: userData.usersPermissionsUser.data.attributes.email,
+          Email: userDataById.usersPermissionsUser.data.attributes.email,
           Birthdate: "1991-01-02",
           Address: address,
           DeliveryAddress: address,
@@ -594,7 +596,7 @@ export default function ReservationPaymentSign({
           CreditCard: {
             CardNumber: card.number.split(" ").join(""),
             Holder: card.name,
-            ExpirationDate: transformCardExpirationDate(card.maturityDate),
+            ExpirationDate: transformCardExpirationDate({ expirationDate: card.maturityDate }),
             SecurityCode: card.cvv,
             SaveCard: false,
             Brand: brand,
@@ -605,7 +607,7 @@ export default function ReservationPaymentSign({
       userPaymentCard({
         variables: {
           value: totalSignalValue,
-          userId: Number(userId),
+          userId: Number(userData?.id),
           name: card.name,
           cpf: card.cpf,
           cvv: parseInt(card.cvv),
@@ -791,7 +793,6 @@ export default function ReservationPaymentSign({
         navigation.navigate("PixScreen", {
           courtName: courtName!,
           value: totalSignalValue!.toString(),
-          userID: storageUserData.id,
           QRcodeURL: pixGenerated.Payment.QrCodeString,
           paymentID: pixGenerated.Payment.PaymentId,
           userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
@@ -902,7 +903,6 @@ export default function ReservationPaymentSign({
                           <CreditCardCard
                             number={card.number}
                             id={card.id}
-                            userID={userId}
                             isRegister={false}
                           />
                           <View className="h-2" />

@@ -1379,7 +1379,7 @@ export default function ProfileSettings({
         )}
         <BottomBlackMenu
           screen="Home"
-          isDisabled={true}
+          isMenuVisible={false}
           userPhoto={route.params.userPhoto ? route.params.userPhoto : ""}
           paddingTop={50}
         />

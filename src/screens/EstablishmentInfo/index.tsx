@@ -375,7 +375,6 @@ export default function EstablishmentInfo({
               <CourtCard
                 key={court.id}
                 id={court.id}
-                userId={userId ? userId : "0"}
                 userPhoto={route.params.userPhoto}
                 availabilities={court.court_availabilities}
                 image={court.photo}
@@ -390,19 +389,14 @@ export default function EstablishmentInfo({
       <View className={`absolute bottom-20 left-0 right-0`}>
         <BottomBlackMenu
           screen="EstablishmentInfo"
-          userID={userId ? userId : "0"}
-          userPhoto={
-            dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-              ?.attributes?.url
-              ? HOST_API +
-              dataUser.usersPermissionsUser.data.attributes.photo.data
-                ?.attributes.url
-              : ""
-          }
+          userPhoto={dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+            ?.attributes?.url
+            ? HOST_API +
+            dataUser.usersPermissionsUser.data.attributes.photo.data
+              ?.attributes.url
+            : ""}
           key={1}
-          isDisabled={true}
-          paddingTop={2}
-        />
+          paddingTop={2} isMenuVisible={false}        />
       </View>
       <View className="h-2"></View>
     </View >

@@ -221,7 +221,7 @@ export default function FavoriteEstablishments({
               : ""
           }
           key={1}
-          isDisabled={true}
+          isMenuVisible={false}
           paddingTop={2}
         />
       </View>)}

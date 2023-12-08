@@ -88,7 +88,7 @@ export default function DescriptionReserve({
   const [cards, setCards] = useState<Card[]>([]);
 
   useEffect(() => {
-    AsyncStorage.getItem(`user${route.params.userId}Cards`, (error, result) => {
+    AsyncStorage.getItem(`user${userData?.id}Cards`, (error, result) => {
       if (error) {
         console.log("Deu ruim mano", error);
       } else {
@@ -97,7 +97,7 @@ export default function DescriptionReserve({
         // console.log("Cartões recuperados com sucesso", parsedCards);
       }
     });
-  }, [route.params.userId]);
+  }, [userData?.id]);
 
   const { data: infoScheduleData } = useInfoSchedule(schedule_id, user_id, {
     onCompleted(data) {
@@ -576,7 +576,6 @@ export default function DescriptionReserve({
       navigation.navigate("PixScreen", {
         courtName: fantasyName ?? "",
         value: parsedValue.toString()!,
-        userID: user_id,
         QRcodeURL: pixGenerated.Payment.QrCodeString,
         paymentID: pixGenerated.Payment.PaymentId,
         userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
@@ -599,7 +598,7 @@ export default function DescriptionReserve({
       });
 
       !loadingCancelSchedule || !errorCancelSchedule
-        ? navigation.navigate("InfoReserva", { userId: user_id })
+        ? navigation.navigate("InfoReserva")
         : null;
     } catch (error) {
       null;
@@ -668,7 +667,6 @@ export default function DescriptionReserve({
               className="w-12 h-12"
               onPress={() => {
                 navigation.navigate("ProfileSettings", {
-                  userID: user_id,
                   userPhoto:
                     dataUser!.usersPermissionsUser.data!.attributes.photo.data!
                       .attributes.url,
@@ -725,7 +723,6 @@ export default function DescriptionReserve({
                                 .id,
                             courtName: fantasyName,
                             courtImage: courtPicture!,
-                            userId: user_id,
                             userPhoto:
                               dataUser?.usersPermissionsUser?.data?.attributes
                                 ?.photo?.data?.attributes?.url!,
@@ -1120,7 +1117,6 @@ export default function DescriptionReserve({
       <View className="absolute bottom-0 left-0 right-0">
         <BottomBlackMenu
           screen="EstablishmentInfo"
-          userID={user_id}
           userPhoto={
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
@@ -1130,7 +1126,7 @@ export default function DescriptionReserve({
               : null
           }
           key={1}
-          isDisabled={true}
+          isMenuVisible={false}
           paddingTop={2}
         />
       </View>

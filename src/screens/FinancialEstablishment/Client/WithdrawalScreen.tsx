@@ -313,10 +313,7 @@ export default function WithdrawScreen({
     <View className={`absolute bottom-0 left-0 right-0`}>
     <BottomBlackMenuEstablishment
       screen="Any"
-      userID={
-        dataUserEstablishment?.establishment.data.attributes.owner.data.id!
-      }
-      establishmentLogo={
+      establishmentLogo={ 
         dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
           ?.attributes?.url !== undefined ||
           dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
@@ -324,7 +321,7 @@ export default function WithdrawScreen({
           ? HOST_API +
           dataUserEstablishment?.establishment?.data?.attributes?.logo
             ?.data?.attributes?.url
-          : undefined
+          : null
       }
       establishmentID={route.params.establishmentId}
       key={1}
