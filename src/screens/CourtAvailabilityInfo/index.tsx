@@ -256,7 +256,7 @@ export default function CourtAvailabilityInfo({
                   >
                     LOGIN
                   </Text>{" "}
-                  NO APP PARA PODER FAVORITAR UM ESTABELECIMENTO!
+                  NO APP PARA PODER REALIZAR A RESERVA!
                 </Text>
               ) : (
                 <FlatList
