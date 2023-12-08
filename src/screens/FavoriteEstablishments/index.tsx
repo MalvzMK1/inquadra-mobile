@@ -94,21 +94,9 @@ export default function FavoriteEstablishments({
     else { console.error("userPhoto vazio ou nulo") }
   }, [route.params.userPhoto]);
 
-  useFocusEffect(() => {
-    try {
-      refetch
-    } catch (error) {
-      console.error('Erro na requisição useGetFavoriteEstablishmentsByUserId: ', error)
-    }
-  })
+  useFocusEffect(() => refetch)
 
-  useFocusEffect(() => {
-    try {
-      refetchUserInfos
-    } catch (error) {
-      console.error('Erro na requisição useGetUserById: ', error)
-    }
-  })
+  useFocusEffect(() => refetchUserInfos)
 
   useFocusEffect(() => {
     setIsLoaded(false)

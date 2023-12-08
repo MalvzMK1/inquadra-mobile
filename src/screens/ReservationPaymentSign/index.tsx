@@ -206,7 +206,7 @@ export default function ReservationPaymentSign({
   const [addPaymentPix] = useUserPaymentPix();
 
   const loadingScreenInfos = () => {
-    setAmountToPay(route.params.amountToPay);
+    setAmountToPay(route.params.amountToPay!);
     let amountToPayHold = route.params.amountToPay;
     setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!);
     setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!);
@@ -793,7 +793,7 @@ export default function ReservationPaymentSign({
         ownerID: userId,
         service_value: serviceValue,
         isPayed: signalValueValidate,
-        schedulePrice: signalValue!,
+        schedulePrice: signalValue + signalValue!,
         courtId: courtId,
         courtImage: courtImage,
         userPhoto: userPhoto!,
@@ -1389,7 +1389,7 @@ export default function ReservationPaymentSign({
                 Valor da Reserva
               </Text>
               <Text className="font-bold text-xl text-right text-[#717171]">
-                R$ {(amountToPay && amountToPay - serviceValue!)?.toFixed(2)}
+                R$ {(amountToPay && amountToPay )?.toFixed(2)}
               </Text>
             </View>
             <View className="flex flex-row gap-6">
@@ -1417,7 +1417,7 @@ export default function ReservationPaymentSign({
               </Text>
               <Text className="flex flex-row font-bold text-xl text-right text-[#717171]">
                 {" "}
-                R$ {amountToPay?.toFixed(2)}
+                R$ {(amountToPay! + serviceValue!).toFixed(2)}
               </Text>
             </View>
           </View>
