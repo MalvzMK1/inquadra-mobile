@@ -478,7 +478,7 @@ export default function Home({
         <TouchableOpacity
           className="w-12 h-12 bg-gray-500 rounded-full overflow-hidden mr-20 ml-1"
           onPress={() => {
-            if (userId)
+            if (userData && userData.id)
               navigation.navigate("ProfileSettings", {
                 userPhoto: userPicture ?? undefined,
               });
