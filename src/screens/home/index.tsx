@@ -128,10 +128,6 @@ export default function Home({
     setSportSelected(nameSport);
   };
 
-  // useEffect(() => {
-  //   if (menuBurguer) setIsMenuVisible(false);
-  // }, [menuBurguer]);
-
   const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] =
     useState<boolean>();
   const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>();
@@ -416,14 +412,13 @@ export default function Home({
 
       if (userData && userData.id) {
         setUserId(userData.id);
+        userData.geolocation && setUserGeolocation(userData.geolocation)
         navigation.setParams({
-          userID: userData.id,
           userGeolocation: userData.geolocation
         })
       } else {
         setUserId(undefined)
         navigation.setParams({
-          userID: undefined,
           userPhoto: undefined,
         })
       }
@@ -482,7 +477,6 @@ export default function Home({
             if (userId)
               navigation.navigate("ProfileSettings", {
                 userPhoto: userPicture ?? undefined,
-                userID: userId,
               });
             else navigation.navigate("Login");
           }}
@@ -513,7 +507,7 @@ export default function Home({
       <View className="flex-1 h-max w-max">
         {userGeolocation && userGeolocationDelta && (
           <MapView
-            loadingEnabled
+            // loadingEnabled
             className="w-screen flex-1"
             onPress={() => setMenuBurguer?.(false)}
             customMapStyle={customMapStyle}
@@ -556,7 +550,6 @@ export default function Home({
                         onPress={() => {
                           navigation.navigate("EstablishmentInfo", {
                             establishmentId: item.id,
-                            userId: userId,
                             userPhoto: route.params.userPhoto,
                             colorState: undefined,
                             setColorState: undefined,
@@ -590,7 +583,6 @@ export default function Home({
                       navigation.navigate("EstablishmentInfo", {
                         establishmentId: item.establishmentsId,
                         userPhoto: userPictureWithoutUrl !== undefined ? userPictureWithoutUrl : undefined,
-                        userId: userId,
                       });
                     }}
                   >
