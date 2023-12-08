@@ -446,6 +446,43 @@ export default function Home({
     });
   }, [userHookData]);
 
+
+
+  const [corporateName, setCorporateName] = useState<string>("")
+  const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
+    Array<{
+      establishmentsId: string;
+      corporateName: string;
+    }>
+  >([]);
+
+
+  const { data: allEstablishments } = useAllEstablishments();
+
+  useEffect(() => {
+    if (corporateName === "") setEstablishmentsInfos([]);
+    else if (allEstablishments) {
+      const establishments = allEstablishments.establishments.data.map(
+        (establishment: { id: any; attributes: { corporateName: any; }; }) => {
+          return {
+            establishmentsId: establishment.id,
+            corporateName: establishment.attributes.corporateName,
+          };
+        },
+      );
+
+      const filteredEstablishments = establishments.filter((establishment: { corporateName: string; }) => {
+        return establishment.corporateName
+          .toLowerCase()
+          .includes(corporateName.toLowerCase());
+      });
+      setEstablishmentsInfos(filteredEstablishments);
+    }
+  }, [corporateName]);
+
+
+
+
   const mapView = useRef(null);
 
   return (
@@ -515,6 +552,38 @@ export default function Home({
           
         </TouchableOpacity>
       </View>
+
+      
+<View className="top-[55px] w-[170px] h-max flex-1 z-[1] absolute justify-center flex items-center">
+        {EstablishmentsInfos ? (
+          EstablishmentsInfos.length > 0 ? (
+            EstablishmentsInfos.map(item => {
+              return (
+                <TouchableOpacity
+                  key={item.establishmentsId}
+                  className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1 "
+                  style={{ zIndex: 1 }}
+                  onPress={() => {
+                    navigation.navigate("EstablishmentInfo", {
+                      establishmentId: item.establishmentsId,
+                      userPhoto: userPictureWithoutUrl !== undefined ? userPictureWithoutUrl : undefined,
+                      userId: userId,
+                    });
+                  }}
+                >
+                  <Text className="text-sm outline-none">
+                    {item.corporateName}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
+          ) : (
+            <></>
+          )
+        ) : (
+          <></>
+        )}
+      </View>
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
@@ -528,6 +597,7 @@ export default function Home({
         )
       )}
 
+          
       <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
