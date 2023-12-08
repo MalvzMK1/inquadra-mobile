@@ -18,7 +18,7 @@ import CourtAvailibility from "../../components/CourtAvailibility";
 import FilterDate from "../../components/FilterDateCourtAvailability";
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import { useGetUserById } from "../../hooks/useUserById";
-import {useUser} from "../../context/userContext";
+import { useUser } from "../../context/userContext";
 
 interface ICourtAvailabilityInfoProps
   extends NativeStackScreenProps<RootStackParamList, "CourtAvailabilityInfo"> {}
@@ -87,7 +87,7 @@ export default function CourtAvailabilityInfo({
 
   const [dateSelector, setDateSelector] = useState(() => {
     return `${String(new Date().getDate()).padStart(2, "0")}/${String(
-      new Date().getMonth() + 1,
+      new Date().getMonth() + 1
     ).padStart(2, "0")}/${new Date().getFullYear()}`;
   });
   const [selectedWeekDate, setSelectedWeekDate] = useState<string>();
@@ -122,9 +122,9 @@ export default function CourtAvailabilityInfo({
       if (!isCourtAvailabilityLoading && !isCourtAvailabilityError) {
         const courtsAvailable =
           courtAvailability?.court.data.attributes.court_availabilities.data
-            .map(availability => {
+            .map((availability) => {
               if (availability.attributes.schedulings.data.length > 0) {
-                return availability.attributes.schedulings.data.map(item => {
+                return availability.attributes.schedulings.data.map((item) => {
                   return {
                     id: availability.id,
                     startsAt: availability.attributes.startsAt,
@@ -152,16 +152,16 @@ export default function CourtAvailabilityInfo({
         if (courtsAvailable && courtAvailability) {
           const uniqueCourtsAvailable = courtsAvailable.filter(
             (court, index, self) =>
-              index === self.findIndex(c => c.id === court.id),
+              index === self.findIndex((c) => c.id === court.id)
           );
           if (uniqueCourtsAvailable.length > 0)
-            setAvailabilities(prevState => [
+            setAvailabilities((prevState) => [
               ...prevState,
               ...uniqueCourtsAvailable,
             ]);
         }
       }
-    }, [isCourtAvailabilityLoading, isCourtAvailabilityError]),
+    }, [isCourtAvailabilityLoading, isCourtAvailabilityError])
   );
 
   function handleCalendarClick(data: DateData) {
@@ -173,8 +173,8 @@ export default function CourtAvailabilityInfo({
     setSelectedDate(date.toISOString());
     setDateSelector(
       `${String(date.getDate() + 1).padStart(2, "0")}/${String(
-        date.getMonth() + 1,
-      ).padStart(2, "0")}/${date.getFullYear()}`,
+        date.getMonth() + 1
+      ).padStart(2, "0")}/${date.getFullYear()}`
     );
   }
 
@@ -188,9 +188,9 @@ export default function CourtAvailabilityInfo({
     }
   };
 
-  const {userData} = useUser();
+  const { userData } = useUser();
 
-  const { data: dataUser } = useGetUserById(userData?.id ?? '');
+  const { data: dataUser } = useGetUserById(userData?.id ?? "");
 
   return (
     <SafeAreaView className="flex flex-col justify-between  h-full">
@@ -247,7 +247,7 @@ export default function CourtAvailabilityInfo({
               </View>
             </View>
             <ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[15px] flex">
-              {userData && userData.id ? (
+              {!userData?.id ? (
                 <Text className="text-xl font-black text-center">
                   FAÇA{" "}
                   <Text
@@ -261,7 +261,7 @@ export default function CourtAvailabilityInfo({
               ) : (
                 <FlatList
                   data={availabilities}
-                  keyExtractor={availability => availability.id}
+                  keyExtractor={(availability) => availability.id}
                   ListEmptyComponent={() => (
                     <Text className="text-xl font-black text-center">
                       No momento não é possível Alugar essa quadra
@@ -307,11 +307,7 @@ export default function CourtAvailabilityInfo({
                 } flex items-center justify-center`}
                 disabled={!selectedTime || availabilities.length <= 0} // tora grande
                 onPress={() => {
-                  if (
-                    userData &&
-                    userData.id &&
-                    selectedTime
-                  ) {
+                  if (userData && userData.id && selectedTime) {
                     navigation.navigate("ReservationPaymentSign", {
                       courtName: route.params.courtName,
                       courtImage: route.params.courtImage,
