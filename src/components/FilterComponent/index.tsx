@@ -14,7 +14,6 @@ import FilterDropdown from "../FilterDropdown";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 export default function FilterComponent(props: {
-  setIsMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setBurguer: React.Dispatch<React.SetStateAction<boolean>>;
   setFilter: React.Dispatch<React.SetStateAction<any>>;
   filter: {

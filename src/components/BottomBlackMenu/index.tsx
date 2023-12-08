@@ -36,7 +36,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
         {showButtons && (
           <View className="bg-black h-[75px] w-2/3 rounded-[20px] items-center justify-around flex flex-row">
             {screen === "Home"
-              ? showButtons && (
+              ?  (
                   <>
                     <TouchableOpacity
                       onPress={() => {
