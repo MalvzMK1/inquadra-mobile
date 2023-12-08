@@ -8,8 +8,9 @@ import {
   Platform,
   TouchableOpacity,
   View,
+  Image
 } from "react-native";
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtBallon from "../../components/CourtBalloon";
@@ -22,8 +23,9 @@ import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
 import storage from "../../utils/storage";
-import { TextInput } from "react-native-paper";
+import { Text, TextInput } from "react-native-paper";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
+
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -452,8 +454,6 @@ export default function Home({
     });
   }, [userHookData]);
 
-
-
   const [corporateName, setCorporateName] = useState<string>("")
   const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
     Array<{
@@ -462,9 +462,7 @@ export default function Home({
     }>
   >([]);
 
-
   const { data: allEstablishments } = useAllEstablishments();
-
   useEffect(() => {
     if (corporateName === "") setEstablishmentsInfos([]);
     else if (allEstablishments) {
@@ -476,7 +474,6 @@ export default function Home({
           };
         },
       );
-
       const filteredEstablishments = establishments.filter((establishment: { corporateName: string; }) => {
         return establishment.corporateName
           .toLowerCase()
@@ -486,15 +483,11 @@ export default function Home({
     }
   }, [corporateName]);
 
-
-
-
   const mapView = useRef(null);
 
   return (
-    <View className="flex-1 flex flex-col justify-center items-center">
-
-      <View className=" h-11 w-max bg-[#292929]"></View>
+    <View className="flex-1 flex flex-col justify-center items-center h-full">
+      <View className=" h-11 w-screen bg-[#292929]"></View>
       <View className="bg-[#292929] flex-row justify-between w-full">
         <TouchableOpacity
           className="pl-5 pr-2"
@@ -508,7 +501,6 @@ export default function Home({
             <MaterialIcons name="filter-list" size={48} color="white" />
           )}
         </TouchableOpacity>
-
         {Platform.OS === "ios" ? (
           <View className="w-[50vw]">
             <TextInput
@@ -558,38 +550,6 @@ export default function Home({
 
         </TouchableOpacity>
       </View>
-
-
-      <View className="top-[55px] w-[170px] h-max flex-1 z-[1] absolute justify-center flex items-center">
-        {EstablishmentsInfos ? (
-          EstablishmentsInfos.length > 0 ? (
-            EstablishmentsInfos.map(item => {
-              return (
-                <TouchableOpacity
-                  key={item.establishmentsId}
-                  className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1 "
-                  style={{ zIndex: 1 }}
-                  onPress={() => {
-                    navigation.navigate("EstablishmentInfo", {
-                      establishmentId: item.establishmentsId,
-                      userPhoto: userPictureWithoutUrl !== undefined ? userPictureWithoutUrl : undefined,
-                      userId: userId,
-                    });
-                  }}
-                >
-                  <Text className="text-sm outline-none">
-                    {item.corporateName}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })
-          ) : (
-            <></>
-          )
-        ) : (
-          <></>
-        )}
-      </View>
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
@@ -602,9 +562,7 @@ export default function Home({
           />
         )
       )}
-
-
-      <View className="flex-1">
+      <View className="flex-1 h-max w-max">
         {userGeolocation && userGeolocationDelta && (
           <MapView
             loadingEnabled
@@ -672,6 +630,36 @@ export default function Home({
                 })}
           </MapView>
         )}
+        <View className="w-screen justify-center flex items-center absolute">
+          {EstablishmentsInfos ? (
+            EstablishmentsInfos.length > 0 ? (
+              EstablishmentsInfos.map(item => {
+                return (
+                  <TouchableOpacity
+                    key={item.establishmentsId}
+                    className="h-[35px] w-[150px] bg-white justify-center border-b-2 border-neutral-300 pl-1 "
+                    style={{ zIndex: 1 }}
+                    onPress={() => {
+                      navigation.navigate("EstablishmentInfo", {
+                        establishmentId: item.establishmentsId,
+                        userPhoto: userPictureWithoutUrl !== undefined ? userPictureWithoutUrl : undefined,
+                        userId: userId,
+                      });
+                    }}
+                  >
+                    <Text className="text-sm outline-none">
+                      {item.corporateName}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })
+            ) : (
+              <></>
+            )
+          ) : (
+            <></>
+          )}
+        </View>
 
         {!menuBurguer && (
           <TouchableOpacity
