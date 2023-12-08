@@ -157,7 +157,8 @@ export default function ReservationPaymentSign({
   const [cardPaymentLoading, setCardPaymentLoading] = useState<boolean>(false);
   const [paymentStatus, setPaymentStatus] = useState<TPaymentStatus>("processing");
   const [cards, setCards] = useState<Card[]>([]);
-  const [selectedCard, setSelectedCard] = useState<Card>();
+  const [showConfirmPayment, setShowConfirmPayment] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<Card>()
 
   const { data: dataReserve, loading: loadingReserve } = useReserveInfo(
     courtAvailabilities,
@@ -205,7 +206,7 @@ export default function ReservationPaymentSign({
   const [addPaymentPix] = useUserPaymentPix();
 
   const loadingScreenInfos = () => {
-    setAmountToPay(route.params.amountToPay);
+    setAmountToPay(route.params.amountToPay!);
     let amountToPayHold = route.params.amountToPay;
     setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!);
     setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!);
@@ -525,6 +526,7 @@ export default function ReservationPaymentSign({
     }
   });
   const handlePayCardSave = (card: Card) => {
+
     try {
       const cieloRequestManager = new CieloRequestManager();
       const countryId = getCountryIdByName(selected);
@@ -892,8 +894,9 @@ export default function ReservationPaymentSign({
                 <View>
                   <View className=" border-gray-500 flex w-max h-max mt-3">
                     {cards.map(card => (
-                      <TouchableOpacity onPress={()=>{
-                        handlePayCardSave(card)
+                      <TouchableOpacity onPress={() => {
+                        setSelectedCard(card)
+                        setShowConfirmPayment(true)
                       }}>
                         <Fragment key={card.id}>
                           <CreditCardCard
@@ -906,7 +909,7 @@ export default function ReservationPaymentSign({
                         </Fragment>
                       </TouchableOpacity>
                     ))}
-                  </View>           
+                  </View>
                 </View>
               ) :
                 <View className="border border-gray-500 rounded-xl p-4 mt-3 space-y-2">
@@ -1375,7 +1378,7 @@ export default function ReservationPaymentSign({
                 (amenitieInfo, index) => (
                   <View key={index} className="flex flex-row  items-center">
                     <Image
-                      style={{ width: 24, height: 24, tintColor:"#f6993f"}}
+                      style={{ width: 24, height: 24, tintColor: "#f6993f" }}
                       source={{
                         uri:
                           API_BASE_URL +
@@ -1397,7 +1400,7 @@ export default function ReservationPaymentSign({
                 Valor da Reserva
               </Text>
               <Text className="font-bold text-xl text-right text-[#717171]">
-                R$ {(amountToPay && amountToPay - serviceValue!)?.toFixed(2)}
+                R$ {(amountToPay && amountToPay )?.toFixed(2)}
               </Text>
             </View>
             <View className="flex flex-row gap-6">
@@ -1425,7 +1428,7 @@ export default function ReservationPaymentSign({
               </Text>
               <Text className="flex flex-row font-bold text-xl text-right text-[#717171]">
                 {" "}
-                R$ {amountToPay?.toFixed(2)}
+                R$ {(amountToPay! + serviceValue!).toFixed(2)}
               </Text>
             </View>
           </View>
@@ -1446,6 +1449,35 @@ export default function ReservationPaymentSign({
                 >
                   <Text className="text-white">OK</Text>
                 </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+          <Modal
+            transparent
+            animationType="fade"
+            visible={showConfirmPayment}
+          >
+            <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
+              <View className="bg-white rounded-md items-center ">
+                <Text className="bg-white p-8 rounded text-base text-center">
+                  Deseja realizar o pagamento com esse cartão ?
+                </Text>
+                <View className="flex-row">
+                <TouchableOpacity
+                    className="h-10 mb-4 w-28 rounded-md bg-orange-500 flex items-center justify-center mx-2"
+                    onPress={()=> setShowConfirmPayment(false)}
+                  >
+                    <Text className="text-white">CANCELAR</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="h-10 mb-4 w-28 rounded-md bg-orange-500 flex items-center justify-center mx-2"
+                    onPress={() => handlePayCardSave(selectedCard!)}
+                  >
+                    <Text className="text-white">CONFIRMAR</Text>
+                  </TouchableOpacity>
+                
+                </View>
+
               </View>
             </View>
           </Modal>
