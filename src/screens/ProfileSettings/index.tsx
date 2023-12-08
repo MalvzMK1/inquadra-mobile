@@ -41,7 +41,6 @@ import { useGetUserById } from "../../hooks/useUserById";
 import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
 import { Card } from "../../types/Card";
 import { getUsersCountryId } from "../../utils/getUsersCountryId";
-import storage from "../../utils/storage";
 import {useUser} from "../../context/userContext";
 
 interface IFormData {
@@ -634,22 +633,12 @@ export default function ProfileSettings({
     }
   }
 
-
   useEffect(() => {
     if (!loading && data) {
       loadInformations().then(data => {
         defineDefaultFieldValues(data);
         setUserInfos(data);
       });
-
-      storage
-        .load<UserInfos>({
-          key: "userInfos",
-        })
-        .then(data => {
-          console.error(data);
-          setJwtToken(data.token);
-        })
     }
   }, [data, loading]);
 
@@ -764,6 +753,12 @@ export default function ProfileSettings({
         });
     }
   }, [countriesData]);
+
+  useEffect(() => {
+    if (userData) {
+      userData.jwt && setJwtToken(userData.jwt);
+    }
+  }, [userData])
 
   return (
     <AlertNotificationRoot>

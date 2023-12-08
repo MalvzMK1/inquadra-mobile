@@ -33,7 +33,6 @@ import {
   weekDayToIndexMap,
 } from "../../utils/constants";
 import { formatCurrency } from "../../utils/formatCurrency";
-import storage from "../../utils/storage";
 import { Appointment } from "../CourtPriceHour";
 import {useUser} from "../../context/userContext";
 

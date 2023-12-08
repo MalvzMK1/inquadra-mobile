@@ -36,16 +36,12 @@ import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedul
 import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import { getWeekDays } from "../../utils/getWeekDates";
-import storage from "../../utils/storage";
 
-// import { BarChart, Grid } from 'react-native-svg-charts'
 import { useApolloClient } from "@apollo/client";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
-// import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
 import {
   IBlockScheduleResponse,
   IBlockScheduleVariable,

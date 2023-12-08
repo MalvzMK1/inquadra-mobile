@@ -27,10 +27,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-
-  }, []);
-
-  useEffect(() => {
     client
       .resetStore()
       .then(() => console.log("Cache resetado com sucesso..."));

@@ -14,7 +14,6 @@ import {
   userByIdQuery,
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
-import storage from "../../utils/storage";
 import {Ionicons} from "@expo/vector-icons";
 import {useUser} from "../../context/userContext";
 
@@ -46,14 +45,6 @@ export default function Login() {
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
   });
-
-  useEffect(() => {
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => setUserGeolocation(data));
-  }, []);
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -101,14 +92,12 @@ export default function Login() {
             userGeolocation: userGeolocation
               ? userGeolocation
               : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-            userID: authData.data.login.user.id,
             userPhoto: undefined,
           });
         } else if (
           userData.usersPermissionsUser.data.attributes.role.data.id === "4"
         ) {
           navigation.navigate("HomeEstablishment", {
-            userID: authData.data.login.user.id,
             userPhoto: undefined,
           });
         }
@@ -142,35 +131,22 @@ export default function Login() {
                   response.data.login &&
                   response.data.login.user.id
                 ) {
-                  storage
-                    .save({
-                      key: "userInfos",
-                      data: {
-                        jwt: response.data.login.jwt,
-                        userId: response.data.login.user.id,
-                      },
-                      expires: 1000 * 3600,
-                    })
-                    .then(() => {
-                      storage
-                        .load<UserInfos>({
-                          key: "userInfos",
-                        })
-                        .then(response => {
-                          alert(
-                            `entered with enzao@gmail.com\nid: ${response.userId}\nJWT: ${response.token}`,
-                          );
-                          navigation.navigate("Home", {
-                            userGeolocation: userGeolocation
-                              ? userGeolocation
-                              : {
-                                  latitude: 78.23570781291714,
-                                  longitude: 15.491400000982967,
-                                },
-                            userID: response.userId,
-                            userPhoto: undefined,
-                          });
-                        });
+                  setUserData({
+                    id: response.data.login.user.id,
+                    jwt: response.data.login.jwt,
+                  }).then(() => {
+                      alert(
+                        `entered with enzao@gmail.com\nid: ${response.data?.login.user.id ?? ''}\nJWT: ${response.data?.login.jwt ?? ''}`,
+                      );
+                      navigation.navigate("Home", {
+                        userGeolocation: userGeolocation
+                          ? userGeolocation
+                          : {
+                              latitude: 78.23570781291714,
+                              longitude: 15.491400000982967,
+                            },
+                        userPhoto: undefined,
+                      });
                     });
                 }
               });

@@ -18,6 +18,7 @@ import CourtAvailibility from "../../components/CourtAvailibility";
 import FilterDate from "../../components/FilterDateCourtAvailability";
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import { useGetUserById } from "../../hooks/useUserById";
+import {useUser} from "../../context/userContext";
 
 interface ICourtAvailabilityInfoProps
   extends NativeStackScreenProps<RootStackParamList, "CourtAvailabilityInfo"> {}
@@ -187,7 +188,9 @@ export default function CourtAvailabilityInfo({
     }
   };
 
-  const { data: dataUser } = useGetUserById(route.params!.userId!);
+  const {userData} = useUser();
+
+  const { data: dataUser } = useGetUserById(userData?.id ?? '');
 
   return (
     <SafeAreaView className="flex flex-col justify-between  h-full">
@@ -244,7 +247,7 @@ export default function CourtAvailabilityInfo({
               </View>
             </View>
             <ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[15px] flex">
-              {!route.params.userId ? (
+              {userData && userData.id ? (
                 <Text className="text-xl font-black text-center">
                   FAÇA{" "}
                   <Text
@@ -305,15 +308,14 @@ export default function CourtAvailabilityInfo({
                 disabled={!selectedTime || availabilities.length <= 0} // tora grande
                 onPress={() => {
                   if (
-                    route.params.userId &&
-                    route.params.userId != "0" &&
+                    userData &&
+                    userData.id &&
                     selectedTime
                   ) {
                     navigation.navigate("ReservationPaymentSign", {
                       courtName: route.params.courtName,
                       courtImage: route.params.courtImage,
                       courtId: route.params.courtId,
-                      userId: route.params.userId,
                       amountToPay: selectedTime.value,
                       courtAvailabilities: selectedTime.id,
                       courtAvailabilityDate: selectedDate,
@@ -332,7 +334,6 @@ export default function CourtAvailabilityInfo({
           <View className="absolute bottom-0 left-0 right-0">
             <BottomBlackMenu
               screen="any"
-              userID={route?.params?.userId}
               userPhoto={
                 dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
                   ?.attributes?.url

@@ -13,8 +13,8 @@ import useGetFavoriteEstablishmentByUserId from "../../hooks/useGetFavoriteEstab
 import useUpdateFavoriteEstablishment from "../../hooks/useUpdateFavoriteEstablishment";
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
-import storage from "../../utils/storage";
 import SvgUri from "react-native-svg-uri";
+import {useUser} from "../../context/userContext";
 
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH * 0.4;
@@ -235,17 +235,13 @@ export default function EstablishmentInfo({
 
   const uniqueCourtTypes = [...new Set(Court.map(court => court.court_type))];
 
+  const {userData} = useUser();
+
   useEffect(() => {
-    storage
-      .load<{ latitude: string; longitude: string }>({
-        key: "userGeolocation",
-      })
-      .then(response =>
-        setUserLocation({
-          latitude: Number(response.latitude),
-          longitude: Number(response.longitude),
-        }),
-      );
+    if (userData) {
+      userData.geolocation && setUserLocation(userData.geolocation);
+      userData.id && setUserId(userData.id);
+    }
   }, []);
 
   const {
@@ -253,33 +249,6 @@ export default function EstablishmentInfo({
     loading: loadingUser,
     error: errorUser,
   } = useGetUserById(userId ? userId : "0");
-
-  useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => {
-        setUserId(data.userId);
-      })
-      .catch(error => {
-        setUserId(undefined)
-        if (error instanceof Error) {
-          if (error.name === 'NotFoundError') {
-            console.log('The item wasn\'t found.');
-          } else if (error.name === 'ExpiredError') {
-            console.log('The item has expired.');
-            storage.remove({
-              key: 'userInfos'
-            }).then(() => {
-              console.log('The item has been removed.');
-            })
-          } else {
-            console.log('Unknown error:', error);
-          }
-        }
-      });
-  }, []);
 
   const handleTelefoneClick = () => {
     const cellPhoneNumber = `tel:${Establishment?.cellPhoneNumber}`;

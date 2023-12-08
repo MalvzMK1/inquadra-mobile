@@ -35,7 +35,6 @@ import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentP
 import useUpdateEstablishmentUser from "../../../hooks/useUpdateEstablishmentUser";
 import useUpdateUserPassword from "../../../hooks/useUpdateUserPassword";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
-import storage from "../../../utils/storage";
 import {useUser} from "../../../context/userContext";
 type DateTime = Date;
 
@@ -53,7 +52,7 @@ export default function InfoProfileEstablishment({
     data: userByEstablishmentData,
     error: userByEstablishmentError,
     loading: userByEstablishmentLoading,
-  } = useGetUserEstablishmentInfos(userId);
+  } = useGetUserEstablishmentInfos(userId ?? '');
 
   const [cep, setCep] = useState<string>("");
   const [fantasyName, setFantasyName] = useState<string>("");
@@ -220,11 +219,6 @@ export default function InfoProfileEstablishment({
     latitude: number;
     longitude: number;
   }>();
-  storage
-    .load<{ latitude: number; longitude: number }>({
-      key: "userGeolocation",
-    })
-    .then(data => setUserGeolocation(data));
 
   const setAllFalse = () => {
     setEditFantasyNameModal(false);
@@ -272,25 +266,26 @@ export default function InfoProfileEstablishment({
           cpf: cpf!,
         })
 
-        updateUserHook({
-          variables: {
-            user_id: userId,
-            username: userDatas.userName,
-            email: userDatas.email,
-            phone_number: userDatas.phoneNumber,
-            cpf: cpf!,
-          }
-        }).then(response => {
-          console.log(response)
-            updateEstablishmentLogo({
-              variables: {
-                establishment_id: establishmentId!,
-                photo_id: uploadedImageID,
-              },
-            });
-        })
-          .catch((reason) => alert(reason))
-          .finally(() => {setIsLoading(false), navigation.setParams({establishmentPhoto: profilePicture})})
+        userId &&
+          updateUserHook({
+            variables: {
+              user_id: userId,
+              username: userDatas.userName,
+              email: userDatas.email,
+              phone_number: userDatas.phoneNumber,
+              cpf: cpf!,
+            }
+          }).then(response => {
+            console.log(response)
+              updateEstablishmentLogo({
+                variables: {
+                  establishment_id: establishmentId!,
+                  photo_id: uploadedImageID,
+                },
+              });
+          })
+            .catch((reason) => alert(reason))
+            .finally(() => {setIsLoading(false), navigation.setParams({establishmentPhoto: profilePicture})})
 
       } else {
         const uploadedImageID = await uploadImage(profilePicture!);
@@ -298,15 +293,17 @@ export default function InfoProfileEstablishment({
         const userDatas = {
           ...data,
         }
-        updateUserHook({
-          variables: {
-            user_id: userId,
-            username: userDatas.userName,
-            email: userDatas.email,
-            phone_number: userDatas.phoneNumber,
-            cpf: cpf!
-          }
-        })
+
+        userId &&
+          updateUserHook({
+            variables: {
+              user_id: userId,
+              username: userDatas.userName,
+              email: userDatas.email,
+              phone_number: userDatas.phoneNumber,
+              cpf: cpf!
+            }
+          })
       }
 
     } catch (error) {
@@ -378,9 +375,10 @@ export default function InfoProfileEstablishment({
       );
 
       navigation.setParams({
-        userPhoto:
+        establishmentPhoto:
           userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo
             .data?.attributes.url ?? undefined,
+        establishmentId: userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.id
       });
 
       userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.amenities.data.map(
@@ -425,15 +423,16 @@ export default function InfoProfileEstablishment({
           .establishment.data?.attributes.fantasyName!,
       );
     }
-    if (
-      userData &&
-      userData.id
-    ) setUserId(userData.id)
-    else navigation.navigate('Home', {
-      userPhoto: undefined,
-      userID: undefined,
-      userGeolocation: userData?.geolocation ?? undefined
-    })
+    if (userData) {
+      if (userData.id) {
+        setUserId(userData.id);
+        setUserGeolocation(userData.geolocation);
+      }
+      else navigation.navigate('Home', {
+        userGeolocation: userData.geolocation,
+        userPhoto: undefined,
+      })
+    }
   }, [userByEstablishmentData]);
 
   const [updateFantasyNameIsLoading, setUpdateFantasyNameIsLoading] =
@@ -1639,15 +1638,9 @@ export default function InfoProfileEstablishment({
       <View className="absolute bottom-0 left-0 right-0">
         <BottomBlackMenuEstablishment
           screen="Any"
-          userID={
-            dataUserEstablishment?.establishment.data?.attributes.owner.data
-              ?.id!
-          }
           establishmentLogo={
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-              ?.attributes?.url !== undefined ||
-              dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-                ?.attributes?.url !== null
+              ?.attributes?.url !== undefined
               ? HOST_API +
               dataUserEstablishment?.establishment?.data?.attributes?.logo
                 ?.data?.attributes?.url

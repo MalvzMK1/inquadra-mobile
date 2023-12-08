@@ -8,7 +8,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { useReserveInfo } from "../../hooks/useInfoReserve";
 import SvgUri from 'react-native-svg-uri';
-import storage from "../../utils/storage";
 import { calculateDistance } from "../../components/calculateDistance/calculateDistance";
 import { useUserPaymentCard } from '../../hooks/useUserPaymentCard';
 import { z } from "zod";
@@ -27,11 +26,14 @@ import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import { generatePix } from "../../services/pixCielo";
 import { useGetUserById } from "../../hooks/useUserById";
 import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
+import {useUser} from "../../context/userContext";
+import {APP_DEBUG_VERBOSE} from "@env";
 
 
 export default function PaymentScheduleUpdate({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PaymentScheduleUpdate'>) {
+    const {userData} = useUser();
 
-    const { courtId, courtImage, courtName, userId, courtAvailabilityDate, courtAvailabilities } = route.params
+    const { courtId, courtImage, courtName, courtAvailabilityDate, courtAvailabilities } = route.params
     const ogPrice = route.params.amountToPay
     let amountToPay = route.params.amountToPay
     let signalPay = route.params.pricePayed
@@ -47,6 +49,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
         amountToPay = route.params.pricePayed
     }
 
+    const [userId, setUserId] = useState<string>();
     const [addPaymentPix, { data: dataPaymentPix, loading: loadingPaymentPix, error: errorPaymentPix }] = useUserPaymentPix()
     const [generateActivationKey, { data: dataGenerateKey, loading: loadingGenerateKey, error: errorGenerateKey }] = useGenerateActivationKey()
     const { data: dataReserve, error: errorReserve, loading: loadingReserve } = useReserveInfo(courtAvailabilities)
@@ -65,7 +68,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
         country: ''
     });
     const [showCameraIcon, setShowCameraIcon] = useState(false);
-    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId)
+    const { data: dataUser, error: errorUser, loading: loadingUser } = useGetUserById(userId ?? '')
     const handleCardClick = () => {
         setShowCard(!showCard);
         setShowCameraIcon(false);
@@ -109,11 +112,6 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
         setShowRateInformation(false);
     };
 
-    storage.load<{ latitude: number, longitude: number }>({
-        key: 'userGeolocation'
-    }).then(data => setUserGeolocation(data));
-
-
     if (dataReserve?.courtAvailability?.data.attributes.court.data.attributes.minimumScheduleValue! > route.params.pricePayed) {
         minPriceBigger = true
         signalPay = dataReserve?.courtAvailability?.data.attributes.court.data.attributes.minimumScheduleValue! - route.params.pricePayed
@@ -125,6 +123,13 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
             ? setIsScreenLoading(true)
             : setIsScreenLoading(false)
     }, [dataReserve, dataUser])
+
+    useEffect(() => {
+        if (userData) {
+            userData.id && setUserId(userData.id);
+            userData.geolocation && setUserGeolocation(userData.geolocation);
+        }
+    }, [userData])
 
 
     const courtLatitude = parseFloat(dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes?.establishment?.data?.attributes?.address?.latitude ?? '0');
@@ -161,10 +166,8 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
             if (isNaN(inputDate.getTime())) {
                 return false;
             }
-            if (inputDate <= currentDate) {
-                return false;
-            }
-            return true;
+            return inputDate > currentDate;
+
         }, { message: "A data de vencimento é inválida" }),
     })
 
@@ -199,28 +202,29 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
 
     const pay = async (data: iFormCardPayment) => {
         try {
-            const countryId = getCountryIdByName(selected);
+            if (userId) {
+                const countryId = getCountryIdByName(selected);
 
-            userPaymentCard({
-                variables: {
-                    value: signalPay,
-                    schedulingId: route.params.scheduleUpdateID,
-                    userId: userId,
-                    name: data.name,
-                    cpf: data.cpf,
-                    cvv: parseInt(data.cvv),
-                    date: convertToAmericanDate(data.date),
-                    countryID: countryId,
-                    publishedAt: new Date().toISOString()
+                userPaymentCard({
+                    variables: {
+                        value: signalPay,
+                        schedulingId: route.params.scheduleUpdateID,
+                        userId: userId,
+                        name: data.name,
+                        cpf: data.cpf,
+                        cvv: parseInt(data.cvv),
+                        date: convertToAmericanDate(data.date),
+                        countryID: countryId,
+                        publishedAt: new Date().toISOString()
+                    }
+                });
+
+                if (!userCardLoading && !userCardError) {
+                    updateScheduleDay(!priceBigger, validateKey(generateRandomKey(4))!)
                 }
-            });
 
-
-            if (!userCardLoading && !userCardError) {
-                updateScheduleDay(priceBigger ? false : true, validateKey(generateRandomKey(4))!)
+                handleSaveCard();
             }
-
-            handleSaveCard();
         } catch (error) {
 
             console.error("Erro ao criar o agendamento:", error);
@@ -229,21 +233,22 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
 
     const createNewSchedule = async () => {
         try {
-            const create = await createSchedule({
-                variables: {
-                    title: 'newnew',
-                    court_availability: parseFloat(courtAvailabilities).toString(),
-                    date: courtAvailabilityDate.split("T")[0],
-                    pay_day: courtAvailabilityDate.split("T")[0],
-                    value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
-                    owner: parseFloat(userId).toString(),
-                    users: [parseFloat(userId).toString()],
-                    publishedAt: new Date().toISOString(),
+            if (userId) {
+                const create = await createSchedule({
+                    variables: {
+                        title: 'newnew',
+                        court_availability: parseFloat(courtAvailabilities).toString(),
+                        date: courtAvailabilityDate.split("T")[0],
+                        pay_day: courtAvailabilityDate.split("T")[0],
+                        value_payed: dataReserve?.courtAvailability?.data?.attributes?.minValue ? dataReserve?.courtAvailability?.data?.attributes?.minValue : 0,
+                        owner: parseFloat(userId).toString(),
+                        users: [parseFloat(userId).toString()],
+                        publishedAt: new Date().toISOString(),
 
-                }
-            });
-            return create.data?.createScheduling?.data?.id
-
+                    }
+                });
+                return create.data?.createScheduling?.data?.id
+            }
         } catch (error) {
             console.error("Erro na mutação createSchedule:", error);
         }
@@ -261,12 +266,12 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
 
 
     const validateKey = (randomKey: string) => {
-        if (route.params.activationKey === null && priceBigger === false) {
+        if (route.params.activationKey === null && !priceBigger) {
             return randomKey
-        } else if (route.params.activationKey !== null && priceBigger === false) {
-            route.params.activationKey
+        } else if (route.params.activationKey !== null && !priceBigger) {
+            return route.params.activationKey
         } else {
-            null
+            return null
         }
     }
 
@@ -286,7 +291,7 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
             })
 
             !loadingUpdateSchedule && !errorUpdateSchedule
-            navigation.navigate('InfoReserva', { userId: route.params.userId })
+            navigation.navigate('InfoReserva')
 
         } catch (error) {
             console.log(error)
@@ -295,58 +300,59 @@ export default function PaymentScheduleUpdate({ navigation, route }: NativeStack
 
     const generatePixSignal = async () => {
         try {
-            setIsLoadingPayment(true)
-            const signalValue = signalPay
-            const signalValuePix = signalPay * 100
+            if (userId) {
+                setIsLoadingPayment(true)
+                const signalValue = signalPay
+                const signalValuePix = signalPay * 100
 
-            const generatePixJSON: RequestGeneratePix = {
-                MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
-                Customer: {
-                    Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
-                    Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
-                    IdentityType: "CPF",
-                },
-                Payment: {
-                    Type: "Pix",
-                    Amount: 1
+                const generatePixJSON: RequestGeneratePix = {
+                    MerchantOrderId: userId + generateRandomKey(3) + new Date().toISOString(),
+                    Customer: {
+                        Name: dataUser?.usersPermissionsUser.data?.attributes.username!,
+                        Identity: dataUser?.usersPermissionsUser.data?.attributes.cpf!,
+                        IdentityType: "CPF",
+                    },
+                    Payment: {
+                        Type: "Pix",
+                        Amount: 1
+                    }
                 }
-            }
-            const pixGenerated = await generatePix(generatePixJSON)
-            await addPaymentPix({
-                variables: {
-                    name: dataUser?.usersPermissionsUser.data!.attributes.username!,
-                    cpf: dataUser?.usersPermissionsUser.data!.attributes.cpf!,
-                    value: signalValue,
-                    schedulingID: route.params.scheduleUpdateID!,
-                    paymentID: pixGenerated.Payment.PaymentId,
-                    publishedAt: new Date().toISOString(),
-                    userID: userId
-                }
-            }).then((response) => {
-                navigation.navigate('PixScreen', {
-                    courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
-                    value: signalValue.toString(),
-                    userID: userId,
-                    QRcodeURL: pixGenerated.Payment.QrCodeString,
-                    paymentID: pixGenerated.Payment.PaymentId,
-                    screen: "updateSchedule",
-                    userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
-                    court_availabilityID: courtAvailabilities,
-                    newDate: courtAvailabilityDate.split("T")[0],
-                    scheduleID: Number(route.params.scheduleUpdateID!),
-                    isPayed: priceBigger ? false : true,
-                    randomKey: validateKey(generateRandomKey(4))!,
-                    userMoney: userMoney,
-                    pricePayed: route.params.pricePayed!,
-                    courtId: courtId,
-                    courtImage: courtImage!,
-                    userPhoto: route.params.userPhoto!
+                const pixGenerated = await generatePix(generatePixJSON)
+                await addPaymentPix({
+                    variables: {
+                        name: dataUser?.usersPermissionsUser.data!.attributes.username!,
+                        cpf: dataUser?.usersPermissionsUser.data!.attributes.cpf!,
+                        value: signalValue,
+                        schedulingID: route.params.scheduleUpdateID!,
+                        paymentID: pixGenerated.Payment.PaymentId,
+                        publishedAt: new Date().toISOString(),
+                        userID: userId
+                    }
+                }).then((response) => {
+                    navigation.navigate('PixScreen', {
+                        courtName: dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name ? dataReserve?.courtAvailability.data.attributes.court.data.attributes.fantasy_name : "",
+                        value: signalValue.toString(),
+                        QRcodeURL: pixGenerated.Payment.QrCodeString,
+                        paymentID: pixGenerated.Payment.PaymentId,
+                        screen: "updateSchedule",
+                        userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+                        court_availabilityID: courtAvailabilities,
+                        newDate: courtAvailabilityDate.split("T")[0],
+                        scheduleID: Number(route.params.scheduleUpdateID!),
+                        isPayed: priceBigger ? false : true,
+                        randomKey: validateKey(generateRandomKey(4))!,
+                        userMoney: userMoney,
+                        pricePayed: route.params.pricePayed!,
+                        courtId: courtId,
+                        courtImage: courtImage!,
+                        userPhoto: route.params.userPhoto!
+                    })
+                    setIsLoadingPayment(false)
                 })
-                setIsLoadingPayment(false)
-            })
+            }
         } catch (error) {
             console.log(error)
-            alert(error)
+            if (APP_DEBUG_VERBOSE) alert(JSON.stringify(error, null, 2));
         }
     }
     return (

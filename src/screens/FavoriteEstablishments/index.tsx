@@ -6,12 +6,12 @@ import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import { InfosEstablishment } from "../../components/InfosEstablishment";
 import { calculateDistance } from "../../utils/calculateDistance";
-import storage from "../../utils/storage";
 import { useFocusEffect } from "@react-navigation/native";
 import useGetFavoriteEstablishmentsByUserId from "../../hooks/useGetFavoriteEstablishmentsById";
 import useUpdateFavoriteEstablishment from "../../hooks/useUpdateFavoriteEstablishment";
 import { useGetUserById } from "../../hooks/useUserById";
 import React from "react";
+import {useUser} from "../../context/userContext";
 
 interface Colors {
   [key: string]: string;
@@ -21,6 +21,8 @@ export default function FavoriteEstablishments({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "FavoriteEstablishments">) {
+  const {userData} = useUser();
+
   const [userId, setUserId] = useState<string>();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [isUnliking, setIsUnliking] = useState<boolean>(false);
@@ -28,9 +30,9 @@ export default function FavoriteEstablishments({
   const USER_ID = userId;
   const [colors, setColors] = useState<Colors>({});
   const [userFavoriteEstablishments, setUserFavoriteEstablishments] = useState<Array<string>>([]);
-  const { data, error, loading, refetch } = useGetFavoriteEstablishmentsByUserId(route.params.userID);
-  const { data: userByIdData, refetch: refetchUserInfos } = useGetUserById(route.params.userID);
-  const { data: dataUser } = useGetUserById(route.params.userID);
+  const { data, error, loading, refetch } = useGetFavoriteEstablishmentsByUserId(userId ?? '');
+  const { data: userByIdData, refetch: refetchUserInfos } = useGetUserById(userId ?? '');
+  const { data: dataUser } = useGetUserById(userId ?? '');
   const [updateLikedEstablishments] = useUpdateFavoriteEstablishment();
 
   const handleUpdateEstablishmentLike = (establishmentId: string): void => {
@@ -60,28 +62,9 @@ export default function FavoriteEstablishments({
   };
 
   useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => setUserId(data.userId))
-      .catch(error => console.error("Erro ao preencher o user Id:", error))
-  }, []);
-
-  useEffect(() => {
-    try {
-      storage
-        .load<{ latitude: string; longitude: string }>({
-          key: "userGeolocation",
-        })
-        .then(response =>
-          setUserLocation({
-            latitude: Number(response.latitude),
-            longitude: Number(response.longitude),
-          }),
-        );
-    } catch (error) {
-      console.error(" Erro no Preenchimento do userLocation:", error)
+    if (userData) {
+      userData.id && setUserId(userData.id);
+      userData.geolocation && setUserLocation(userData.geolocation);
     }
   }, []);
 
@@ -229,7 +212,6 @@ export default function FavoriteEstablishments({
       {dataUser && (<View className="absolute bottom-0 left-0 right-0">
         <BottomBlackMenu
           screen="Favorite"
-          userID={USER_ID!}
           userPhoto={
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url

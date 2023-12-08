@@ -52,11 +52,12 @@ import Schedulings from "../../screens/Schedulings";
 import UpdateSchedule from "../../screens/UpdateSchedule";
 import PaymentScheduleUpdate from "../../screens/UpdateSchedule/updateSchedule";
 import Home from "../../screens/home";
-import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
+  const {userData} = useUser();
   const [menuBurguer, setMenuBurguer] = useState(false);
   const [userId, setUserId] = useState<string>();
   const [corporateName, setCorporateName] = useState("");
@@ -98,31 +99,13 @@ export default function () {
   }, [corporateName]);
 
   useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(response => setUserId(response.userId));
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => setUserGeolocation(data));
-  }, []);
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id);
+  }, [userData])
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(response => setUserId(response.userId));
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => setUserGeolocation(data));
-  }, []);
 
   return (
     <Navigator>

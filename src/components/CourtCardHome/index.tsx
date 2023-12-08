@@ -89,7 +89,6 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
             onPress={() => {
               navigation.navigate("EstablishmentInfo", {
                 establishmentId: props.id,
-                userId: userData?.id,
                 userPhoto:
                   userByIdData?.usersPermissionsUser.data?.attributes.photo.data
                     ?.attributes.url ?? undefined,
@@ -146,7 +145,6 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
             onPress={() => {
               navigation.navigate("EstablishmentInfo", {
                 establishmentId: props.id,
-                userId: userData?.id,
                 userPhoto:
                   userByIdData?.usersPermissionsUser.data?.attributes.photo.data
                     ?.attributes.url ?? undefined,

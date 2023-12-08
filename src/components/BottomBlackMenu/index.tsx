@@ -168,7 +168,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                         )
                           navigation.navigate("Home", {
                             userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
-                            userID: userData.id,
                             userPhoto: userPhoto ?? "",
                           });
                         else
@@ -200,7 +199,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                         ) {
                           navigation.navigate('FavoriteEstablishments', {
                             userPhoto: userPhoto ?? "",
-                            userID: userData.id,
                           });
                         } else
                           navigation.navigate('Login');
@@ -218,7 +216,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                         ) {
                           navigation.navigate("Home", {
                             userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
-                            userID: userData.id,
                             userPhoto: userPhoto ?? "",
                           });
                         }
@@ -237,9 +234,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                           userData &&
                           userData.id
                         ) {
-                          navigation.navigate('InfoReserva', {
-                            userId: userData.id
-                          })
+                          navigation.navigate('InfoReserva')
                         } else
                           navigation.navigate('Login');
                       }}
@@ -267,7 +262,6 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                         ) {
                           navigation.navigate("Home", {
                             userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
-                            userID: userData.id,
                             userPhoto: userPhoto ?? "",
                           });
                         }
@@ -286,9 +280,7 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                           userData &&
                           userData.id
                         ) {
-                          navigation.navigate('InfoReserva', {
-                            userId: userData.id
-                          })
+                          navigation.navigate('InfoReserva')
                         } else
                           navigation.navigate('Login');
                       }}

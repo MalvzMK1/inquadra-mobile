@@ -12,7 +12,6 @@ import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
 import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSchedulingsByDay";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
-import storage from "../../utils/storage";
 import {useUser} from "../../context/userContext";
 const { parse, format } = require("date-fns");
 

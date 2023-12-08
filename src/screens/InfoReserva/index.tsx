@@ -12,8 +12,7 @@ import { useGetHistoricReserveOn } from "../../hooks/useHistoricReserveOn";
 import { useGetMenuUser } from "../../hooks/useMenuUser";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { API_BASE_URL } from "../../utils/constants";
-import storage from "../../utils/storage";
-import { courtAvailabilityByHourQuery } from "../../graphql/queries/schedulingByHour";
+import {useUser} from "../../context/userContext";
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -34,11 +33,11 @@ export default function InfoReserva({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "InfoReserva">) {
-  let userId = route?.params?.userId;
-  const { data: dataUser } = useGetMenuUser(userId);
+  const {userData} = useUser();
+  const { data: dataUser } = useGetMenuUser(userData?.id);
   const [userPicture, setUserPicture] = useState<string | undefined>();
-  const [userGeolocation, setUserGeolocation] = useState<UserGeolocation>();
-  const { data, loading, refetch } = useGetHistoricReserveOn(userId);
+  const [userGeolocation, setUserGeolocation] = useState<UserGeolocation | undefined>(userData?.geolocation);
+  const { data, loading, refetch } = useGetHistoricReserveOn(userData?.id);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,12 +54,6 @@ export default function InfoReserva({
       }
     }, [refetch]),
   );
-
-  useEffect(() => {
-    storage
-      .load<UserGeolocation>({ key: "userGeolocation" })
-      .then(setUserGeolocation);
-  }, []);
 
   const schedulings = useMemo((): {
     active: Scheduling[];
@@ -99,7 +92,6 @@ export default function InfoReserva({
             onPress={() => {
               if (userGeolocation) {
                 navigation.navigate("Home", {
-                  userID: userId,
                   userPhoto: undefined,
                   userGeolocation: userGeolocation,
                 });
@@ -126,7 +118,7 @@ export default function InfoReserva({
       </View>
       {/* Div maior para carregar todos os itens inseridos do historico*/}
       <ScrollView>
-        {userId && (
+        {(userData && userData.id) && (
           <View className="h-max w-max bg-zinc-600 flex-1">
             <View className="flex items-start w-max pl-4 mt-2">
               <Text className="text-base font-semibold text-white">
@@ -167,7 +159,6 @@ export default function InfoReserva({
                             key={courtInfo.id}
                             onPress={() => {
                               navigation.navigate("DescriptionReserve", {
-                                userId: userId,
                                 scheduleId: courtInfo.id,
                               });
                             }}
@@ -508,7 +499,6 @@ export default function InfoReserva({
       <View className="absolute bottom-0 left-0 right-0">
         <BottomBlackMenu
           screen="Historic"
-          userID={userId}
           userPhoto={
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url

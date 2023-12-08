@@ -48,6 +48,7 @@ import {
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import {useUser} from "../../context/userContext";
 
 function getScheduleStartDate(date: string, time: string) {
   return new Date(`${date}T${time}-03:00`);
@@ -57,7 +58,8 @@ export default function DescriptionReserve({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "DescriptionReserve">) {
-  const user_id = route.params.userId.toString();
+  const {userData} = useUser();
+  const user_id = userData?.id ?? '';
   const schedule_id = route.params.scheduleId;
   const currentTime = new Date();
   const oneHourInMs = 60 * 60 * 1000;

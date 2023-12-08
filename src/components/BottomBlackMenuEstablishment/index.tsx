@@ -2,9 +2,7 @@ import { View, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } f
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import React, { useEffect, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import storage from "../../utils/storage";
 import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import BottomAppVersion from "../BottomAppVersion";
 import {useUser} from "../../context/userContext";
 
 interface IBottomBlackMenuEstablishment {
@@ -21,7 +19,6 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
     const [establishmentID, setEstablishmentID] = useState("")
     const [establishmentLogo, setEstablishmentLogo] = useState("")
     const navigation = useNavigation<NavigationProp<RootStackParamList>>()
-    const [userGeolocation, setUserGeolocation] = useState<{ latitude: number, longitude: number }>()
     const [showButtons, setShowButtons] = useState(true)
     const opacityValue = useSharedValue(0)
 
@@ -36,10 +33,6 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
             opacity: withTiming(opacityValue.value, { duration: 300 }), // Duração da animação (300ms)
         };
     });
-
-    storage.load<{ latitude: number, longitude: number }>({
-        key: 'userGeolocation'
-    }).then(data => setUserGeolocation(data))
 
     return (
         <View className={`items-center bg-transparent w-full pb-1`}>
@@ -93,7 +86,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                             <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishmentID ?? "", logo: establishmentLogo ?? "" })}>
                                                 <MaterialCommunityIcons name="piggy-bank-outline" size={30} color={"white"} />
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "", userID: userID })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "" })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
                                             <TouchableOpacity>
@@ -106,7 +99,7 @@ export default function BottomBlackMenuEstablishment(props: IBottomBlackMenuEsta
                                             <TouchableOpacity onPress={() => navigation.navigate('FinancialEstablishment', { establishmentId: establishmentID, logo: establishmentLogo ?? "" })}>
                                                 <MaterialCommunityIcons name="piggy-bank-outline" size={30} color={"white"} />
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "", userID: userID })}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('HomeEstablishment', { userPhoto: establishmentLogo ?? "" })}>
                                                 <Image source={require('../../assets/logo_inquadra_colored.png')}></Image>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => navigation.navigate('CourtSchedule', {
