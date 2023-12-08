@@ -8,7 +8,7 @@ import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstabl
 import CourtScheduling from "../../components/CourtScheduling";
 import CourtSchedulingContainer from "../../components/CourtSchedulingContainer";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
-import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 
 interface ScheduleCardInfos {
   id: string;
@@ -29,6 +29,7 @@ export default function Schedulings({
   route,
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "Schedulings">) {
+  const {userData} = useUser();
   const [userId, setUserId] = useState<string>();
   const [schedules, setSchedules] = useState<Array<ScheduleArray>>([]);
   const [filteredSchedules, setFilteredSchedules] = useState<
@@ -54,23 +55,10 @@ export default function Schedulings({
   }
 
   useEffect(() => {
-    storage
-      .load<UserInfos>({ key: "userInfos" })
-      .then(data => setUserId(data.userId))
-      .catch(error => {
-        if (error instanceof Error) {
-          if (error.name === "NotFoundError") {
-            console.log("The item wasn't found.");
-          } else if (error.name === "ExpiredError") {
-            console.log("The item has expired.");
-            storage.remove({ key: "userInfos" }).then(() => {
-              console.log("The item has been removed.");
-            });
-          } else {
-            console.log("Unknown error:", error);
-          }
-        }
-      });
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id)
   }, []);
 
   useEffect(() => {
@@ -190,7 +178,6 @@ export default function Schedulings({
         <View className={`absolute bottom-0 left-0 right-0`}>
           <BottomBlackMenuEstablishment
             screen="Schedule"
-            userID={userId ? userId : ""}
             establishmentLogo={route?.params?.establishmentPhoto || ""}
             establishmentID={route?.params?.establishmentId}
             key={1}

@@ -12,19 +12,16 @@ enum EStatus {
 export type TPaymentStatus = keyof typeof EStatus;
 
 interface IPaymentCompletedProps {
-	userId: string;
 	name: string;
 	image: string;
 	status: keyof typeof EStatus;
 }
 
-export default function PaymentCompleted({name, image, status, userId}: IPaymentCompletedProps) {
+export default function PaymentCompleted({name, image, status}: IPaymentCompletedProps) {
 	const COUNTDOWN_START_VALUE = 5;
 
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const [failedCountDown, setFailedCountDown] = useState<number>(COUNTDOWN_START_VALUE);
-
-	console.log(status)
 
 	useEffect(() => {
 		if (status === 'failed') {
@@ -66,9 +63,7 @@ export default function PaymentCompleted({name, image, status, userId}: IPayment
 							<Text className='font-bold text-xl text-center flex flex-row'>Você pode verificar sua reserva no ícone
 								<Text
 									className='font-bold text-xl text-center flex flex-row text-orange-500'
-									onPress={() => navigation.navigate('InfoReserva', {
-										userId
-									})}
+									onPress={() => navigation.navigate('InfoReserva')}
 								>
 									{' calendário'}
 								</Text>

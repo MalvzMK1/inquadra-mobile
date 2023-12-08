@@ -2,11 +2,10 @@ import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Image, TouchableOpacity, View } from "react-native";
-import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 
 interface IBottomBlackMenu {
   screen: string;
-  userID: string | undefined;
   userPhoto: string | null;
   isMenuVisible: boolean;
   paddingTop: number;
@@ -14,21 +13,20 @@ interface IBottomBlackMenu {
 }
 
 export default function BottomBlackMenu(props: IBottomBlackMenu) {
-  const { screen, userID, userPhoto, paddingTop } = props;
+  const {userData} = useUser();
+
+  const { screen, userPhoto, paddingTop } = props;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
-  }>();
+  } | undefined>(userData?.geolocation ?? undefined);
   const [userIdStorage, setUserIdStorage] = useState<string | undefined>();
   const [showButtons, setShowButtons] = useState(true);
 
-  storage
-    .load<{ latitude: number; longitude: number }>({
-      key: "userGeolocation",
-    })
-    .then(data => setUserGeolocation(data))
-    .catch(error => console.error("erro ao capturar o userLocation: ", error));
+  useEffect(() => {
+    if (screen === "Home") setShowButtons(true);
+  }, [screen]);
 
   return (
     <View className="absolute bottom-0 left-0 right-0">
@@ -43,31 +41,18 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     <TouchableOpacity
                       onPress={() => {
                         if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          storage
-                            .load<UserInfos>({
-                              key: "userInfos",
-                            })
-                            .then(data => {
-                              setUserIdStorage(data.userId);
-                              navigation.navigate("FavoriteEstablishments", {
-                                userPhoto: userPhoto ?? "",
-                                userID: userIdStorage ?? "",
-                              });
-                            })
-                            .catch(error => {
-                              console.log(error);
-                              navigation.navigate("Login");
-                            });
-                        } else
-                          navigation.navigate("FavoriteEstablishments", {
-                            userPhoto: userPhoto ?? "",
-                            userID: userID,
-                          });
-                      }}
+                          navigation.navigate('FavoriteEstablishments', {
+                            userID: userData.id,
+                            userPhoto: userPhoto ?? undefined,
+                          })
+                        } else {
+                          navigation.navigate('Login');
+                        }
+                      }
+                    }
                     >
                       <AntDesign name="heart" size={25} color={"white"} />
                     </TouchableOpacity>
@@ -81,29 +66,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     <TouchableOpacity
                       onPress={() => {
                         if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          storage
-                            .load<UserInfos>({
-                              key: "userInfos",
-                            })
-                            .then(data => {
-                              setUserIdStorage(data.userId);
-                              navigation.navigate("InfoReserva", {
-                                userId: userID ?? "",
-                              });
-                            })
-                            .catch(error => {
-                              console.log(error);
-                              navigation.navigate("Login");
-                            });
-                        } else
-                          navigation.navigate("InfoReserva", {
-                            userId: userID,
-                          });
-                      }}
+                          navigation.navigate('InfoReserva', {
+                            userId: userData.id
+                          })
+                        } else {
+                          navigation.navigate('Login');
+                        }
+                      }
+                    }
                     >
                       <MaterialIcons
                         name="calendar-today"
@@ -123,19 +96,18 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                       onPress={() => {
                         if (props.onMiddleButtonPress) {
                           props.onMiddleButtonPress();
-                        } else if (userID === "" || userID === "0" || !userID) {
-                          navigation.navigate("Login");
-                        } else {
+                        } else if (
+                          userData &&
+                          userData.id
+                        ) {
                           navigation.navigate("Home", {
-                            userGeolocation: userGeolocation
-                              ? userGeolocation
-                              : {
-                                  latitude: 78.23570781291714,
-                                  longitude: 15.491400000982967,
-                                },
-                            userID: userID,
+                            userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
+                            userID: userData.id,
                             userPhoto: userPhoto ?? "",
                           });
+
+                        } else {
+                          navigation.navigate('Login');
                         }
                       }}
                     >
@@ -147,28 +119,15 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     <TouchableOpacity
                       onPress={() => {
                         if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          storage
-                            .load<UserInfos>({
-                              key: "userInfos",
-                            })
-                            .then(data => {
-                              setUserIdStorage(data.userId);
-                              navigation.navigate("InfoReserva", {
-                                userId: userID ?? "",
-                              });
-                            })
-                            .catch(error => {
-                              console.log(error);
-                              navigation.navigate("Login");
-                            });
-                        } else
-                          navigation.navigate("InfoReserva", {
-                            userId: userID,
+                          navigation.navigate('InfoReserva', {
+                            userId: userData.id
                           });
+                        } else {
+                          navigation.navigate('Login');
+                        }
                       }}
                     >
                       <MaterialIcons
@@ -185,30 +144,16 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     <TouchableOpacity
                       onPress={() => {
                         if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          storage
-                            .load<UserInfos>({
-                              key: "userInfos",
-                            })
-                            .then(data => {
-                              setUserIdStorage(data.userId);
-                              navigation.navigate("FavoriteEstablishments", {
-                                userPhoto: userPhoto ?? "",
-                                userID: userIdStorage ?? "",
-                              });
-                            })
-                            .catch(error => {
-                              console.log(error);
-                              navigation.navigate("Login");
-                            });
-                        } else
                           navigation.navigate("FavoriteEstablishments", {
                             userPhoto: userPhoto ?? "",
-                            userID: userID,
+                            userID: userData.id,
                           });
+                        } else {
+                          navigation.navigate('Login');
+                        }
                       }}
                     >
                       <AntDesign name="heart" size={25} color={"white"} />
@@ -217,19 +162,16 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                       onPress={() => {
                         if (props.onMiddleButtonPress) {
                           props.onMiddleButtonPress();
-                        } else if (userID === "" || userID === "0" || !userID)
-                          navigation.navigate("Login");
-                        else
+                        } else if (
+                          userData &&
+                          userData.id
+                        )
                           navigation.navigate("Home", {
-                            userGeolocation: userGeolocation
-                              ? userGeolocation
-                              : {
-                                  latitude: 78.23570781291714,
-                                  longitude: 15.491400000982967,
-                                },
-                            userID: userID,
+                            userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
                             userPhoto: userPhoto ?? "",
                           });
+                        else
+                          navigation.navigate('Login');
                       }}
                     >
                       <Image
@@ -252,30 +194,14 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     <TouchableOpacity
                       onPress={() => {
                         if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          storage
-                            .load<UserInfos>({
-                              key: "userInfos",
-                            })
-                            .then(data => {
-                              setUserIdStorage(data.userId);
-                              navigation.navigate("FavoriteEstablishments", {
-                                userPhoto: userPhoto ?? "",
-                                userID: userIdStorage ?? "",
-                              });
-                            })
-                            .catch(error => {
-                              console.log(error);
-                              navigation.navigate("Login");
-                            });
-                        } else
-                          navigation.navigate("FavoriteEstablishments", {
+                          navigation.navigate('FavoriteEstablishments', {
                             userPhoto: userPhoto ?? "",
-                            userID: userID,
                           });
+                        } else
+                          navigation.navigate('Login');
                       }}
                     >
                       <AntDesign name="heart" size={25} color={"white"} />
@@ -284,19 +210,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                       onPress={() => {
                         if (props.onMiddleButtonPress) {
                           props.onMiddleButtonPress();
-                        } else if (userID === "" || userID === "0" || !userID) {
-                          navigation.navigate("Login");
-                        } else {
+                        } else if (
+                          userData &&
+                          userData.id
+                        ) {
                           navigation.navigate("Home", {
-                            userGeolocation: userGeolocation
-                              ? userGeolocation
-                              : {
-                                  latitude: 78.23570781291714,
-                                  longitude: 15.491400000982967,
-                                },
-                            userID: userID,
+                            userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
                             userPhoto: userPhoto ?? "",
                           });
+                        }
+                        else {
+                          navigation.navigate('Login');
                         }
                       }}
                     >
@@ -307,28 +231,12 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     <TouchableOpacity
                       onPress={() => {
                         if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          storage
-                            .load<UserInfos>({
-                              key: "userInfos",
-                            })
-                            .then(data => {
-                              setUserIdStorage(data.userId);
-                              navigation.navigate("InfoReserva", {
-                                userId: userID ?? "",
-                              });
-                            })
-                            .catch(error => {
-                              console.log(error);
-                              navigation.navigate("Login");
-                            });
+                          navigation.navigate('InfoReserva')
                         } else
-                          navigation.navigate("InfoReserva", {
-                            userId: userID,
-                          });
+                          navigation.navigate('Login');
                       }}
                     >
                       <MaterialIcons
@@ -349,22 +257,17 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                         if (props.onMiddleButtonPress) {
                           props.onMiddleButtonPress();
                         } else if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          navigation.navigate("Login");
-                        } else
                           navigation.navigate("Home", {
-                            userGeolocation: userGeolocation
-                              ? userGeolocation
-                              : {
-                                  latitude: 78.23570781291714,
-                                  longitude: 15.491400000982967,
-                                },
-                            userID: userID,
+                            userGeolocation: userData.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
                             userPhoto: userPhoto ?? "",
                           });
+                        }
+                        else {
+                          navigation.navigate('Login');
+                        }
                       }}
                     >
                       <Image
@@ -374,28 +277,12 @@ export default function BottomBlackMenu(props: IBottomBlackMenu) {
                     <TouchableOpacity
                       onPress={() => {
                         if (
-                          userID === "" ||
-                          userID === "0" ||
-                          userID === undefined
+                          userData &&
+                          userData.id
                         ) {
-                          storage
-                            .load<UserInfos>({
-                              key: "userInfos",
-                            })
-                            .then(data => {
-                              setUserIdStorage(data.userId);
-                              navigation.navigate("InfoReserva", {
-                                userId: userID ?? "",
-                              });
-                            })
-                            .catch(error => {
-                              console.log(error);
-                              navigation.navigate("Login");
-                            });
+                          navigation.navigate('InfoReserva')
                         } else
-                          navigation.navigate("InfoReserva", {
-                            userId: userID,
-                          });
+                          navigation.navigate('Login');
                       }}
                     >
                       <MaterialIcons

@@ -4,7 +4,6 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface CourtCardInfo {
   id: string;
-  userId: string;
   userPhoto: string | undefined;
   name: string;
   type: string;
@@ -23,7 +22,6 @@ export function CourtCard(props: CourtCardInfo) {
             courtName: props.name,
             courtImage: props.image,
             courtId: props.id,
-            userId: props.userId,
             userPhoto: props.userPhoto,
           });
         }}

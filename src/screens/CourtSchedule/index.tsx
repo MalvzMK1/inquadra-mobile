@@ -36,22 +36,19 @@ import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedul
 import useCourtsByEstablishmentId from "../../hooks/useCourtsByEstablishmentId";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import { getWeekDays } from "../../utils/getWeekDates";
-import storage from "../../utils/storage";
 
-// import { BarChart, Grid } from 'react-native-svg-charts'
 import { useApolloClient } from "@apollo/client";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
-// import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
 import {
   IBlockScheduleResponse,
   IBlockScheduleVariable,
   blockScheduleMutation,
 } from "../../graphql/mutations/blockScheduleByDate";
 import { courtByIdQuery } from "../../graphql/queries/nextToCourtsById";
+import {useUser} from "../../context/userContext";
 
 const portugueseMonths = [
   "Janeiro",
@@ -108,7 +105,9 @@ export default function CourtSchedule({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
-  const [userId, setUserId] = useState<string>(route.params.userId);
+  const {userData} = useUser();
+
+  const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string>(
     route.params.establishmentId
   );
@@ -126,6 +125,12 @@ export default function CourtSchedule({
         });
       }
     );
+
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id)
+    else navigation.navigate('Login');
   }, []);
 
   const [showCalendar, setShowCalendar] = useState(false);
@@ -348,10 +353,6 @@ export default function CourtSchedule({
   useEffect(() => {
     setActiveStates(standardActiveStates);
     setActiveCourts(standardActiveCourts);
-
-    storage.load<UserInfos>({
-      key: "userInfos",
-    });
   }, [userByEstablishmentData]);
 
   const [shownSchedules, setShownSchedules] = useState<
@@ -1382,7 +1383,6 @@ export default function CourtSchedule({
       <View className={`absolute bottom-0 left-0 right-0`}>
         <BottomBlackMenuEstablishment
           screen="Schedule"
-          userID={userId ?? ""}
           establishmentLogo={establishmentPicture ?? null}
           establishmentID={establishmentId}
           key={1}

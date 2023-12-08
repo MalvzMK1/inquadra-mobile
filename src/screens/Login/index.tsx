@@ -14,8 +14,8 @@ import {
   userByIdQuery,
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
-import storage from "../../utils/storage";
 import {Ionicons} from "@expo/vector-icons";
+import {useUser} from "../../context/userContext";
 
 interface IFormData {
   identifier: string;
@@ -29,6 +29,7 @@ const formSchema = z.object({
 
 export default function Login() {
   const apolloClient = useApolloClient();
+  const {userData: storageUserData, setUserData} = useUser();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -44,14 +45,6 @@ export default function Login() {
   } = useForm<IFormData>({
     resolver: zodResolver(formSchema),
   });
-
-  useEffect(() => {
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => setUserGeolocation(data));
-  }, []);
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -82,56 +75,29 @@ export default function Login() {
         },
       });
 
-      storage
-        .save({
-          key: "userInfos",
-          data: {
-            token: authData.data.login.jwt,
-            userId: authData.data.login.user.id,
-          },
-          expires: 1000 * 3600,
+      if (
+        userData &&
+        userData.usersPermissionsUser.data &&
+        authData.data &&
+        authData.data.login
+      ) {
+        setUserData({
+          id: userData.usersPermissionsUser.data.id,
+          jwt: authData.data.login.jwt,
+          geolocation: storageUserData?.geolocation,
         })
-        .then(() => {
-          storage
-            .load<UserInfos>({
-              key: "userInfos",
-            })
-            .catch(error => {
-              if (error instanceof Error) {
-                if (error.name === "NotFoundError") {
-                  console.log("The item wasn't found.");
-                } else if (error.name === "ExpiredError") {
-                  console.log("The item has expired.");
-                  storage
-                    .remove({
-                      key: "userInfos",
-                    })
-                    .then(() => {
-                      console.log("The item has been removed.");
-                    });
-                } else {
-                  console.log("Unknown error:", error);
-                }
-              }
-            });
-        });
 
-      if (userData && userData.usersPermissionsUser.data) {
         if (
           userData.usersPermissionsUser.data.attributes.role.data.id === "3"
         ) {
           navigation.navigate("Home", {
-            userGeolocation: userGeolocation
-              ? userGeolocation
-              : { latitude: 78.23570781291714, longitude: 15.491400000982967 },
-            userID: authData.data.login.user.id,
+            userGeolocation: storageUserData?.geolocation,
             userPhoto: undefined,
           });
         } else if (
           userData.usersPermissionsUser.data.attributes.role.data.id === "4"
         ) {
           navigation.navigate("HomeEstablishment", {
-            userID: authData.data.login.user.id,
             userPhoto: undefined,
           });
         }
@@ -165,35 +131,18 @@ export default function Login() {
                   response.data.login &&
                   response.data.login.user.id
                 ) {
-                  storage
-                    .save({
-                      key: "userInfos",
-                      data: {
-                        jwt: response.data.login.jwt,
-                        userId: response.data.login.user.id,
-                      },
-                      expires: 1000 * 3600,
-                    })
-                    .then(() => {
-                      storage
-                        .load<UserInfos>({
-                          key: "userInfos",
-                        })
-                        .then(response => {
-                          alert(
-                            `entered with enzao@gmail.com\nid: ${response.userId}\nJWT: ${response.token}`,
-                          );
-                          navigation.navigate("Home", {
-                            userGeolocation: userGeolocation
-                              ? userGeolocation
-                              : {
-                                  latitude: 78.23570781291714,
-                                  longitude: 15.491400000982967,
-                                },
-                            userID: response.userId,
-                            userPhoto: undefined,
-                          });
-                        });
+                  setUserData({
+                    id: response.data.login.user.id,
+                    jwt: response.data.login.jwt,
+                    geolocation: storageUserData?.geolocation
+                  }).then(() => {
+                      alert(
+                        `entered with enzao@gmail.com\nid: ${response.data?.login.user.id ?? ''}\nJWT: ${response.data?.login.jwt ?? ''}`,
+                      );
+                      navigation.navigate("Home", {
+                        userGeolocation: storageUserData?.geolocation,
+                        userPhoto: undefined,
+                      });
                     });
                 }
               });

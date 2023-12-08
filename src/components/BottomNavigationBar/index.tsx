@@ -32,7 +32,6 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('ProfileSettings', {
 								userPhoto: undefined,
-								userID: props.userID
 							})}>
 							<Image
 								source={require('../../assets/settings_black_icon.png')}
@@ -42,7 +41,6 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('FavoriteEstablishments', {
 								userPhoto: undefined,
-								userID: props?.userID
 							})}>
 							<Image
 								source={require('../../assets/black_heart.png')}
@@ -71,7 +69,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 						</TouchableOpacity >
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
-							onPress={() => navigation.navigate('InfoReserva', { userId: props.userID })}>
+							onPress={() => navigation.navigate('InfoReserva')}>
 							<Image
 								source={require('../../assets/calendar_black_icon.png')}
 							/>
@@ -132,7 +130,7 @@ export function BottomNavigationBar(props: BottomNavigationType) {
 						<TouchableOpacity
 							className="flex flex-row items-center justify-center w-[45px] h-[45px] rounded-full overflow-hidden bg-slate-100"
 							onPress={() => navigation.navigate('CourtSchedule', {
-								establishmentPhoto: '', userId: props.userID, establishmentId: ''
+								establishmentPhoto: '', establishmentId: ''
 							})}>
 							<Image
 								source={require('../../assets/calendar_black_icon.png')}

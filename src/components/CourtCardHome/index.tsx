@@ -5,10 +5,11 @@ import { ActivityIndicator, Image, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useUpdateFavoriteCourt from "../../hooks/useUpdateFavoriteCourt";
 import { useGetUserById } from "../../hooks/useUserById";
-import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 
 export default function EstablishmentCardHome(props: CourtCardInfos) {
-  const [userId, setUserId] = useState<string | undefined>("");
+  const {userData} = useUser();
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [color, setColor] = useState<string>("white");
   const [isLoaded, setIsLoaded] = useState<boolean>();
@@ -18,7 +19,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
     data: userByIdData,
     error: userByIdError,
     loading: userByIdLoading,
-  } = useGetUserById(userId ?? "");
+  } = useGetUserById(userData?.id ?? "");
 
   useEffect(() => {
     if (!userByIdError && !userByIdLoading) {
@@ -32,37 +33,6 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
     }
   }, [isLoaded]);
 
-  useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(data => {
-        setUserId(data.userId);
-      })
-      .catch(error => {
-        if (error instanceof Error) {
-          if (error.name === "NotFoundError") {
-            console.log("The item wasn't found.");
-            setUserId(undefined);
-          } else if (error.name === "ExpiredError") {
-            console.log("The item has expired.");
-            storage
-              .remove({
-                key: "userInfos",
-              })
-              .then(() => {
-                console.log("The item has been removed.");
-                setUserId(undefined);
-              });
-          } else {
-            console.log("Unknown error:", error);
-            setUserId(undefined);
-          }
-        }
-      });
-  }, [userByIdData]);
-
   const [updateLikedCourts, { data, error, loading }] =
     useUpdateFavoriteCourt();
 
@@ -74,10 +44,13 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
       const arrayWithoutDeletedItem = courtsData.filter(
         (item: string) => item !== courtId,
       );
-      if (userId)
+      if (
+        userData &&
+        userData.id
+      )
         updateLikedCourts({
           variables: {
-            user_id: userId,
+            user_id: userData.id,
             favorite_establishment: arrayWithoutDeletedItem,
           },
         })
@@ -87,11 +60,11 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
             setIsLikeLoading(false);
           });
     } else {
-      if (userId) {
+      if (userData && userData.id) {
         const updatedCourts = [...props.userFavoriteCourts, courtId];
         await updateLikedCourts({
           variables: {
-            user_id: userId,
+            user_id: userData.id,
             favorite_establishment: updatedCourts,
           },
         })
@@ -116,7 +89,6 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
             onPress={() => {
               navigation.navigate("EstablishmentInfo", {
                 establishmentId: props.id,
-                userId: userId,
                 userPhoto:
                   userByIdData?.usersPermissionsUser.data?.attributes.photo.data
                     ?.attributes.url ?? undefined,
@@ -143,7 +115,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
               </Text>
             </View>
           </TouchableOpacity>
-          {props.loggedUserId ? (
+          {userData && userData.id ? (
             !isLikeLoading ? (
               <TouchableOpacity
                 onPress={() => {
@@ -162,7 +134,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
             )
           ) : null}
         </>
-      ) : userId !== "" && userId !== undefined ? (
+      ) : userData && userData.id && userData.id !== "" ? (
         <View className="w-max h-max flex justify-center items-center">
           <ActivityIndicator size={48} color="#FF6112" />
         </View>
@@ -173,7 +145,6 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
             onPress={() => {
               navigation.navigate("EstablishmentInfo", {
                 establishmentId: props.id,
-                userId: userId,
                 userPhoto:
                   userByIdData?.usersPermissionsUser.data?.attributes.photo.data
                     ?.attributes.url ?? undefined,

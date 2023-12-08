@@ -13,7 +13,6 @@ type RootStackParamList = {
   CourtSchedule: {
     establishmentPhoto: string | undefined;
     establishmentId: string;
-    userId: string;
   };
   AmountAvailableWithdrawal: {
     establishmentId: string;
@@ -24,7 +23,6 @@ type RootStackParamList = {
   CompletedEstablishmentResgistration: undefined;
   HomeEstablishment: {
     userPhoto?: string | undefined;
-    userID?: string;
   };
   DeleteAccountEstablishment: {
     establishmentName: string | undefined;
@@ -60,7 +58,6 @@ type RootStackParamList = {
     password: string;
     phone_number: string;
     role: string;
-    // id: string;
   };
   CancelScheduling: {
     scheduleID: string;
@@ -68,12 +65,11 @@ type RootStackParamList = {
     establishmentPicture: string;
   };
   Home: {
-    userGeolocation: {
+    userGeolocation?: {
       latitude: number;
       longitude: number;
-    };
-    userPhoto: string | undefined;
-    userID: string;
+    } | undefined;
+    userPhoto?: string | undefined;
   };
   HomeVariant: {
     userPhoto: string;
@@ -92,16 +88,12 @@ type RootStackParamList = {
     nextRoute: "Home" | "HomeEstablishment";
     routePayload: any;
   };
-  InfoReserva: {
-    userId: string;
-  };
+  InfoReserva: undefined;
   FavoriteEstablishments: {
     userPhoto: string | undefined;
-    userID: string;
   };
   ProfileSettings: {
     userPhoto: string | undefined;
-    userID: string;
   };
   WithdrawScreen: {
     establishmentId: string;
@@ -110,13 +102,11 @@ type RootStackParamList = {
   };
   DeleteAccountSuccess: undefined;
   DescriptionReserve: {
-    userId: string;
     scheduleId: string;
   };
   DescriptionInvited: undefined;
   EstablishmentInfo: {
     establishmentId: string;
-    userId: string | undefined;
     userPhoto: string | undefined;
     colorState?: string;
     setColorState?: React.Dispatch<React.SetStateAction<string>>;
@@ -125,14 +115,12 @@ type RootStackParamList = {
     courtId: string;
     courtImage: string;
     courtName: string;
-    userId: string | undefined;
     userPhoto: string | undefined;
   };
   ReservationPaymentSign: {
     courtId: string;
     courtImage: string;
     courtName: string;
-    userId: string;
     userPhoto: string | undefined;
     courtAvailabilities: string;
     amountToPay: number;
@@ -154,7 +142,7 @@ type RootStackParamList = {
     establishmentInfos: {
       amenities: string[];
       cellphone_number: string;
-      cnpj: string;
+      cnpj: string | undefined;
       cep: string;
       corporate_name: string;
       phone_number: string;
@@ -168,7 +156,6 @@ type RootStackParamList = {
   PixScreen: {
     courtName: string;
     value: string;
-    userID: string;
     scheduleID?: number;
     QRcodeURL: string;
     paymentID: string;
@@ -232,7 +219,6 @@ type RootStackParamList = {
   };
   UpdateSchedule: {
     userPhoto: string;
-    userId: string;
     courtId: string;
     courtImage: string | undefined;
     courtName: string;
@@ -244,7 +230,6 @@ type RootStackParamList = {
     courtId: string;
     courtImage: string;
     courtName: string;
-    userId: string;
     userPhoto: string | undefined;
     courtAvailabilities: string;
     amountToPay: number;
@@ -257,7 +242,6 @@ type RootStackParamList = {
   InsertResetCode: {
     email: string;
     username: string;
-    id: string;
   };
   SetNewPassword: {
     code: string;

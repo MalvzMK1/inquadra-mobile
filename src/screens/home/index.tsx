@@ -1,4 +1,4 @@
-import { HOST_API } from "@env";
+import {APP_DEBUG_VERBOSE, HOST_API} from "@env";
 import { AntDesign, Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -22,9 +22,10 @@ import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
-import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 import { Text, TextInput } from "react-native-paper";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const pointerMap = require("../../assets/pointerMap.png");
@@ -49,10 +50,13 @@ export default function Home({
   route,
   navigation,
 }: Props) {
-  const [userPicture, setUserPicture] = useState<string>();
+  const {userData} = useUser();
+
+  const [userPicture, setUserPicture] = useState<string | undefined>();
   const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
-  const [userId, setUserId] = useState<string | undefined>();
+  const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -126,10 +130,6 @@ export default function Home({
     setSportSelected(nameSport);
   };
 
-  // useEffect(() => {
-  //   if (menuBurguer) setIsMenuVisible(false);
-  // }, [menuBurguer]);
-
   const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] =
     useState<boolean>();
   const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>();
@@ -148,29 +148,24 @@ export default function Home({
       setIsUpdated(IsUpdated + 1);
       refetchUserInfos().then(() => {
         if (
-          userHookData?.usersPermissionsUser.data?.attributes.photo.data
-            ?.attributes.url! !== undefined ||
-          userHookData?.usersPermissionsUser.data?.attributes.photo.data
-            ?.attributes.url! !== null
+          userData &&
+          userData.id &&
+          userHookData &&
+          userHookData.usersPermissionsUser.data &&
+          userHookData.usersPermissionsUser.data.attributes.photo.data
         ) {
-          if (userHookData?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !== undefined) {
-            setUserPicture(
-              HOST_API +
-              userHookData?.usersPermissionsUser.data?.attributes.photo.data
-                ?.attributes.url!)
+          const profilePicture = userHookData.usersPermissionsUser.data.attributes.photo.data.attributes.url;
 
-            setUserPictureWithoutUrl(userHookData?.usersPermissionsUser.data?.attributes.photo.data
-              ?.attributes.url!)
-          }
+          setUserPicture(
+            HOST_API + profilePicture,
+          );
           navigation.setParams({
-            userPhoto:
-              userHookData?.usersPermissionsUser.data?.attributes.photo.data
-                ?.attributes.url!,
+            userPhoto: profilePicture,
           });
         } else {
-          setUserPicture("../../assets/default-user-image.png");
+          setUserPicture(undefined);
           navigation.setParams({
-            userPhoto: "../../assets/default-user-image.png",
+            userPhoto: undefined,
           });
         }
       });
@@ -299,7 +294,7 @@ export default function Home({
           navigation.setParams({
             userPhoto:
               userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url ?? "",
+                ?.attributes?.url ?? undefined,
           });
         }
       }
@@ -309,7 +304,7 @@ export default function Home({
       } else {
         setIsEstablishmentsLoaded(false);
       }
-    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation])
+    }, [data, userHookData, filter, establishmentsFiltered, userGeolocation, userData])
   );
 
   useEffect(() => {
@@ -356,77 +351,6 @@ export default function Home({
   }, [userGeolocation]);
 
   useEffect(() => {
-    console.log(route.params);
-
-    if (
-      route &&
-      route.params &&
-      route.params.userID &&
-      route.params.userID !== ""
-    )
-      setUserId(route.params.userID);
-    else setUserId(undefined);
-  }, []);
-
-  useEffect(() => {
-    if (!userId) {
-      storage
-        .load<{ latitude: number; longitude: number }>({
-          key: "userGeolocation",
-        })
-        .then((data) => setUserGeolocation(data))
-        .catch((error) => {
-          if (error instanceof Error) {
-            if (error.name === "NotFoundError") {
-              console.log("The item wasn't found.");
-            } else if (error.name === "ExpiredError") {
-              console.log("The item has expired.");
-              storage
-                .remove({
-                  key: "userGeolocation",
-                })
-                .then(() => {
-                  console.log("The item has been removed.");
-                });
-            } else {
-              console.log("Unknown error:", error);
-            }
-          }
-        });
-
-      storage
-        .load<UserInfos>({
-          key: "userInfos",
-        })
-        .then((data) => {
-          console.log({ data });
-          setUserId(data.userId);
-          navigation.setParams({
-            userID: data.userId,
-          });
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            setUserId(undefined);
-            if (error.name === "NotFoundError") {
-              console.log("The item wasn't found.");
-            } else if (error.name === "ExpiredError") {
-              console.log("The item has expired.");
-              storage
-                .remove({
-                  key: "userInfos",
-                })
-                .then(() => {
-                  console.log("The item has been removed.");
-                });
-            } else {
-              console.log("Unknown error:", error);
-            }
-          }
-        });
-    }
-  }, [userId]);
-
   const buttonCoordinates = {
     top: 1,
     left: 1,
@@ -434,7 +358,6 @@ export default function Home({
     bottom: 13,
   };
 
-  useEffect(() => {
     if (
       userHookData &&
       userHookData.usersPermissionsUser.data &&
@@ -445,7 +368,6 @@ export default function Home({
       userRole === "4" &&
         navigation.navigate("HomeEstablishment", {
           userPhoto: undefined,
-          userID: userHookData.usersPermissionsUser.data.id,
         });
     }
 
@@ -476,7 +398,7 @@ export default function Home({
       );
       const filteredEstablishments = establishments.filter((establishment: { corporateName: string; }) => {
         return establishment.corporateName
-          .toLowerCase()
+          .toLowerCase()          
           .includes(corporateName.toLowerCase());
       });
       setEstablishmentsInfos(filteredEstablishments);
@@ -484,6 +406,33 @@ export default function Home({
   }, [corporateName]);
 
   const mapView = useRef(null);
+  
+  useEffect(() => {
+    try {
+      alert(JSON.stringify(userData))
+
+      if (userData) {
+        if (userData.id) {
+          setUserId(userData.id);
+        } else {
+          navigation.setParams({
+            userPhoto: undefined
+          });
+        }
+
+        userData.geolocation && setUserGeolocation(userData.geolocation);
+      } else {
+        setUserId(undefined)
+        navigation.setParams({
+          userPhoto: undefined,
+        })
+      }
+    } catch (error) {
+      if (APP_DEBUG_VERBOSE) alert(JSON.stringify(error, null, 2))
+      console.error(JSON.stringify(error, null, 2));
+    }
+  }, [userData])
+
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
@@ -563,10 +512,9 @@ export default function Home({
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                if (userId)
+            if (userData && userData.id)
                   navigation.navigate("ProfileSettings", {
                     userPhoto: HOST_API + userPicture ?? undefined,
-                    userID: userId,
                   });
                 else navigation.navigate("Login");
               }}
@@ -597,7 +545,7 @@ export default function Home({
       <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
-            loadingEnabled
+            // loadingEnabled
             className="w-screen flex-1"
             onPress={() => setIsMenuVisible(false)}
             customMapStyle={customMapStyle}
@@ -640,7 +588,6 @@ export default function Home({
                         onPress={() => {
                           navigation.navigate("EstablishmentInfo", {
                             establishmentId: item.id,
-                            userId: userId,
                             userPhoto: route.params.userPhoto,
                             colorState: undefined,
                             setColorState: undefined,
@@ -653,7 +600,6 @@ export default function Home({
                           distance={item.distance ?? ""}
                           image={item.image}
                           type={item.type}
-                          userId={userId ?? ""}
                           liked={true}
                         />
                       </Callout>
@@ -701,11 +647,10 @@ export default function Home({
         <HomeBar
           key={uniqueIdGenerate}
           isUpdated={IsUpdated}
-          loggedUserId={userId}
           chosenType={sportSelected}
           courts={establishments.sort((a, b) => a.distance - b.distance)}
           userName={
-            userHookData?.usersPermissionsUser?.data?.attributes?.username
+            (userData && userData.id) ? userHookData?.usersPermissionsUser?.data?.attributes?.username : undefined
           }
           HandleSportSelected={HandleSportSelected}
         />
@@ -713,7 +658,6 @@ export default function Home({
       {
         <BottomBlackMenu
           screen="Home"
-          userID={userId}
           userPhoto={userPicture!}
           isMenuVisible={!isMenuVisible}
           paddingTop={2}

@@ -7,4 +7,5 @@ declare module '@env' {
     export const INTER_API: string;
     export const APP_VERSION_ANDROID: string;
     export const APP_VERSION_IPHONE: string;
+    export const APP_DEBUG_VERBOSE: string;
 }

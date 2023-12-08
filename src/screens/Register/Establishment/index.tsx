@@ -18,8 +18,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import useAllAmenities from "../../../hooks/useAllAmenities";
-import type { UserGeolocation } from "../../../types/UserGeolocation";
-import storage from "../../../utils/storage";
+import {useUser} from "../../../context/userContext";
 
 const formSchema = z.object({
   corporateName: z
@@ -56,6 +55,8 @@ export default function RegisterEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "EstablishmentRegister">) {
+  const {userData} = useUser();
+
   const [photos, setPhotos] = useState<{ uri: string }[]>([]);
   const [logo, setLogo] = useState<{ uri: string }>();
   const { data: allAmenitiesData } = useAllAmenities();
@@ -139,32 +140,31 @@ export default function RegisterEstablishment({
     }
 
     try {
-      const userGeolocation = await storage.load<UserGeolocation>({
-        key: "userGeolocation",
-      });
+      if (userData) {
+        const establishmentRegisterData = {
+          amenities: amenities,
+          cellphone_number: values.phone,
+          cnpj: values.cnpj,
+          cep: values.address.cep,
+          corporate_name: values.corporateName,
+          phone_number: values.phone,
+          street_name: values.address.streetName,
+          photos: photos.map(photo => photo.uri),
+          logo: logo.uri,
+          latitude: userData.geolocation?.latitude.toString() ?? '0',
+          longitude: userData.geolocation?.longitude.toString() ?? '0',
+        };
 
-      const establishmentRegisterData = {
-        amenities: amenities,
-        cellphone_number: values.phone,
-        cnpj: values.cnpj,
-        cep: values.address.cep,
-        corporate_name: values.corporateName,
-        phone_number: values.phone,
-        street_name: values.address.streetName,
-        photos: photos.map(photo => photo.uri),
-        logo: logo.uri,
-        latitude: userGeolocation.latitude.toString(),
-        longitude: userGeolocation.longitude.toString(),
-      };
+        navigation.navigate("RegisterCourts", {
+          profileInfos: route.params,
+          establishmentInfos: establishmentRegisterData,
+          cnpj: values.cnpj,
+          address: values.address,
+          corporateName: values.corporateName,
+          phoneNumber: values.phone,
+        });
 
-      navigation.navigate("RegisterCourts", {
-        profileInfos: route.params,
-        establishmentInfos: establishmentRegisterData,
-        cnpj: values.cnpj,
-        address: values.address,
-        corporateName: values.corporateName,
-        phoneNumber: values.phone,
-      });
+      }
     } catch (error) {
       console.error("Erro: ", error);
       Alert.alert("Erro", "Não foi possível continuar.");

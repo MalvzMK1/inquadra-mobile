@@ -43,9 +43,8 @@ import { API_BASE_URL, SERVICE_FEE } from "../../utils/constants";
 import { convertToAmericanDate } from "../../utils/formatDate";
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
-import storage from "../../utils/storage";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useUser} from "../../context/userContext";
 import { Card } from "../../types/Card";
 import CreditCardCard from "../../components/CreditCardInfoCard";
 
@@ -129,10 +128,10 @@ export default function ReservationPaymentSign({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "ReservationPaymentSign">) {
+  const {userData: storageUserData} = useUser();
   const {
     courtId,
     courtImage,
-    userId,
     courtAvailabilityDate,
     courtAvailabilities,
   } = route.params;
@@ -207,7 +206,7 @@ export default function ReservationPaymentSign({
   const [addPaymentPix] = useUserPaymentPix();
 
   const loadingScreenInfos = () => {
-    setAmountToPay(route.params.amountToPay);
+    setAmountToPay(route.params.amountToPay!);
     let amountToPayHold = route.params.amountToPay;
     setUserName(dataUser?.usersPermissionsUser.data?.attributes.username!);
     setUserCPF(dataUser?.usersPermissionsUser.data?.attributes.cpf!);
@@ -260,9 +259,8 @@ export default function ReservationPaymentSign({
   }, [dataUser, dataReserve]);
 
   useEffect(() => {
-    storage
-      .load<UserGeolocation>({ key: "userGeolocation" })
-      .then(setUserGeolocation);
+    if (storageUserData && storageUserData.geolocation)
+      setUserGeolocation(storageUserData.geolocation);
   }, []);
 
   useEffect(() => {
@@ -438,84 +436,85 @@ export default function ReservationPaymentSign({
         },
       };
 
-      userPaymentCard({
-        variables: {
-          value: totalSignalValue,
-          userId: Number(userId),
-          name: values.name,
-          cpf: values.cpf,
-          cvv: parseInt(values.cvv),
-          date: convertToAmericanDate(values.date),
-          countryID: Number(countryId),
-          publishedAt: new Date().toISOString(),
-          cep: values.cep,
-          city: values.city,
-          complement: values.complement,
-          number: values.number,
-          state: values.state,
-          neighborhood: values.district,
-          street: values.street,
-        },
-      })
-        .then(({ data: createdUserPayment }) => {
-          if (createdUserPayment) {
-            cieloRequestManager
-              .authorizePayment(body)
-              .then(async (cieloResponse) => {
-                const newScheduleId = await createNewSchedule(totalSignalValue);
-
-                if (
-                  newScheduleId &&
-                  cieloResponse &&
-                  cieloResponse.Payment &&
-                  cieloResponse.Payment.Status === 2 &&
-                  cieloResponse.Payment.PaymentId
-                ) {
-                  updateUserPaymentCard({
-                    variables: {
-                      paymentId: cieloResponse.Payment.PaymentId,
-                      paymentStatus:
-                        cieloResponse.Payment.Status === 2
-                          ? "Payed"
-                          : "Waiting",
-                      userPaymentId:
-                        createdUserPayment.createUserPayment.data.id,
-                      scheduleId: newScheduleId,
-                    },
-                  })
-                    .then(async () => {
-                      updateStatusDisponibleCourt()
-                        .then(() => {
-                          handleSaveCard();
-                          setPaymentStatus("completed");
-                        })
-                        .catch((error) => {
-                          console.error(error);
-                          setPaymentStatus("failed");
-                        });
-                    })
-                    .catch((error) => {
-                      console.error(JSON.stringify(error, null, 2));
-                      alert("Erro ao registrar a cobrança no banco de dados");
-                      setPaymentStatus("failed");
-                    });
-                }
-              })
-              .catch((error) => {
-                console.error(JSON.stringify(error, null, 2));
-                alert("Não foi possível realizar o pagamento");
-                deleteUserPaymentCard({
-                  variables: {
-                    userPaymentId: createdUserPayment.createUserPayment.data.id,
-                  },
-                });
-              });
-          }
+      if (storageUserData && storageUserData.id)
+        userPaymentCard({
+          variables: {
+            value: totalSignalValue,
+            userId: Number(storageUserData.id),
+            name: values.name,
+            cpf: values.cpf,
+            cvv: parseInt(values.cvv),
+            date: convertToAmericanDate(values.date),
+            countryID: Number(countryId),
+            publishedAt: new Date().toISOString(),
+            cep: values.cep,
+            city: values.city,
+            complement: values.complement,
+            number: values.number,
+            state: values.state,
+            neighborhood: values.district,
+            street: values.street,
+          },
         })
-        .catch((error) => {
-          console.error(JSON.stringify(error, null, 2));
-          setPaymentStatus("failed");
-        });
+          .then(({ data: createdUserPayment }) => {
+            if (createdUserPayment) {
+              cieloRequestManager
+                .authorizePayment(body)
+                .then(async (cieloResponse) => {
+                  const newScheduleId = await createNewSchedule(totalSignalValue);
+
+                  if (
+                    newScheduleId &&
+                    cieloResponse &&
+                    cieloResponse.Payment &&
+                    cieloResponse.Payment.Status === 2 &&
+                    cieloResponse.Payment.PaymentId
+                  ) {
+                    updateUserPaymentCard({
+                      variables: {
+                        paymentId: cieloResponse.Payment.PaymentId,
+                        paymentStatus:
+                          cieloResponse.Payment.Status === 2
+                            ? "Payed"
+                            : "Waiting",
+                        userPaymentId:
+                          createdUserPayment.createUserPayment.data.id,
+                        scheduleId: newScheduleId,
+                      },
+                    })
+                      .then(async () => {
+                        updateStatusDisponibleCourt()
+                          .then(() => {
+                            handleSaveCard();
+                            setPaymentStatus("completed");
+                          })
+                          .catch((error) => {
+                            console.error(error);
+                            setPaymentStatus("failed");
+                          });
+                      })
+                      .catch((error) => {
+                        console.error(JSON.stringify(error, null, 2));
+                        alert("Erro ao registrar a cobrança no banco de dados");
+                        setPaymentStatus("failed");
+                      });
+                  }
+                })
+                .catch((error) => {
+                  console.error(JSON.stringify(error, null, 2));
+                  alert("Não foi possível realizar o pagamento");
+                  deleteUserPaymentCard({
+                    variables: {
+                      userPaymentId: createdUserPayment.createUserPayment.data.id,
+                    },
+                  });
+                });
+            }
+          })
+          .catch((error) => {
+            console.error(JSON.stringify(error, null, 2));
+            setPaymentStatus("failed");
+          });
     } catch (error) {
       console.error("Erro ao criar o agendamento:", error);
       setPaymentStatus("failed");
@@ -698,22 +697,27 @@ export default function ReservationPaymentSign({
       dataReserve?.courtAvailability.data?.attributes.court.data.attributes.minimumScheduleValue
 
     try {
-      const { data } = await createSchedule({
-        variables: {
-          title: "r",
-          court_availability: courtAvailabilities,
-          date: courtAvailabilityDate.split("T")[0],
-          pay_day: courtAvailabilityDate.split("T")[0],
-          value_payed: valuePayed,
-          owner: userId,
-          users: [userId],
-          activation_key: isPayed ? generateRandomKey(4) : null,
-          service_value: serviceValue!,
-          publishedAt: new Date().toISOString(),
-        },
-      });
+      if (
+        storageUserData &&
+        storageUserData.id
+      ) {
+        const {data} = await createSchedule({
+          variables: {
+            title: "r",
+            court_availability: courtAvailabilities,
+            date: courtAvailabilityDate.split("T")[0],
+            pay_day: courtAvailabilityDate.split("T")[0],
+            value_payed: valuePayed,
+            owner: storageUserData.id,
+            users: [storageUserData.id],
+            activation_key: isPayed ? generateRandomKey(4) : null,
+            service_value: serviceValue!,
+            publishedAt: new Date().toISOString(),
+          },
+        });
 
-      return data?.createScheduling.data.id ?? undefined;
+        return data?.createScheduling.data.id ?? undefined;
+      }
     } catch (error) {
       alert(error);
       console.error("Erro na mutação createSchedule:", error);
@@ -733,74 +737,79 @@ export default function ReservationPaymentSign({
     setIsPaymentLoading(true);
 
     try {
-      const signalAmount = dataReserve
-        ? Number(
+      if (
+        storageUserData &&
+        storageUserData.id
+      ) {
+        const signalAmount = dataReserve
+          ? Number(
           dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
             2
           )
         )
-        : undefined;
+          : undefined;
 
-      if (
-        typeof signalAmount === "undefined" ||
-        typeof serviceValue === "undefined"
-      ) {
-        return Dialog.show({
-          type: ALERT_TYPE.DANGER,
-          title: "Não foi possível gerar o código pix.",
+        if (
+          typeof signalAmount === "undefined" ||
+          typeof serviceValue === "undefined"
+        ) {
+          return Dialog.show({
+            type: ALERT_TYPE.DANGER,
+            title: "Não foi possível gerar o código pix.",
+          });
+        }
+
+        const totalSignalValue = signalAmount;
+        const totalSignalValueCents = totalSignalValue * 100;
+
+        const pixGenerated = await generatePix({
+          MerchantOrderId:
+            storageUserData?.id + generateRandomKey(3) + new Date().toISOString(),
+          Customer: {
+            Name: userName!,
+            Identity: userCPF!,
+            IdentityType: "cpf",
+          },
+          Payment: {
+            Type: "Pix",
+            Amount: 1,
+          },
+        });
+
+        const response = await addPaymentPix({
+          variables: {
+            name: userName!,
+            cpf: userCPF!,
+            value: signalValue!,
+            schedulingID: null,
+            paymentID: pixGenerated.Payment.PaymentId,
+            publishedAt: new Date().toISOString(),
+            userID: storageUserData?.id,
+          },
+        });
+
+        navigation.navigate("PixScreen", {
+          courtName: courtName!,
+          value: totalSignalValue!.toString(),
+          userID: storageUserData.id,
+          QRcodeURL: pixGenerated.Payment.QrCodeString,
+          paymentID: pixGenerated.Payment.PaymentId,
+          userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
+          screen: "signal",
+          court_availabilityID: courtAvailabilities,
+          date: courtAvailabilityDate.split("T")[0],
+          pay_day: courtAvailabilityDate.split("T")[0],
+          value_payed: signalValue || 0,
+          ownerID: storageUserData?.id,
+          service_value: serviceValue,
+          isPayed: signalValueValidate,
+          schedulePrice: signalValue!,
+          courtId: courtId,
+          courtImage: courtImage,
+          userPhoto: userPhoto!,
+          scheduleValuePayed: 0
         });
       }
-
-      const totalSignalValue = signalAmount;
-      const totalSignalValueCents = totalSignalValue * 100;
-
-      const pixGenerated = await generatePix({
-        MerchantOrderId:
-          userId + generateRandomKey(3) + new Date().toISOString(),
-        Customer: {
-          Name: userName!,
-          Identity: userCPF!,
-          IdentityType: "cpf",
-        },
-        Payment: {
-          Type: "Pix",
-          Amount: 1,
-        },
-      });
-
-      const response = await addPaymentPix({
-        variables: {
-          name: userName!,
-          cpf: userCPF!,
-          value: signalValue!,
-          schedulingID: null,
-          paymentID: pixGenerated.Payment.PaymentId,
-          publishedAt: new Date().toISOString(),
-          userID: userId,
-        },
-      });
-
-      navigation.navigate("PixScreen", {
-        courtName: courtName!,
-        value: totalSignalValue!.toString(),
-        userID: userId,
-        QRcodeURL: pixGenerated.Payment.QrCodeString,
-        paymentID: pixGenerated.Payment.PaymentId,
-        userPaymentPixID: response.data?.createUserPaymentPix.data.id!,
-        screen: "signal",
-        court_availabilityID: courtAvailabilities,
-        date: courtAvailabilityDate.split("T")[0],
-        pay_day: courtAvailabilityDate.split("T")[0],
-        value_payed: signalValue || 0,
-        ownerID: userId,
-        service_value: serviceValue,
-        isPayed: signalValueValidate,
-        schedulePrice: signalValue!,
-        courtId: courtId,
-        courtImage: courtImage,
-        userPhoto: userPhoto!,
-        scheduleValuePayed: 0
-      });
     } catch (error) {
       console.error(error);
       console.error(JSON.stringify(error, null, 2));
@@ -814,7 +823,6 @@ export default function ReservationPaymentSign({
     <View className="flex-1 bg-white w-full h-full pb-10">
       {cardPaymentLoading && amountToPay ? (
         <PaymentCompleted
-          userId={userId}
           name={courtName !== undefined ? courtName : ""}
           status={paymentStatus}
           image={courtImage}
@@ -1392,7 +1400,7 @@ export default function ReservationPaymentSign({
                 Valor da Reserva
               </Text>
               <Text className="font-bold text-xl text-right text-[#717171]">
-                R$ {(amountToPay && amountToPay - serviceValue!)?.toFixed(2)}
+                R$ {(amountToPay && amountToPay )?.toFixed(2)}
               </Text>
             </View>
             <View className="flex flex-row gap-6">
@@ -1420,7 +1428,7 @@ export default function ReservationPaymentSign({
               </Text>
               <Text className="flex flex-row font-bold text-xl text-right text-[#717171]">
                 {" "}
-                R$ {amountToPay?.toFixed(2)}
+                R$ {(amountToPay! + serviceValue!).toFixed(2)}
               </Text>
             </View>
           </View>

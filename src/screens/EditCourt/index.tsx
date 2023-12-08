@@ -33,8 +33,8 @@ import {
   weekDayToIndexMap,
 } from "../../utils/constants";
 import { formatCurrency } from "../../utils/formatCurrency";
-import storage from "../../utils/storage";
 import { Appointment } from "../CourtPriceHour";
+import {useUser} from "../../context/userContext";
 
 interface ICourtFormData {
   fantasyName: string;
@@ -52,6 +52,7 @@ export default function EditCourt({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "EditCourt">) {
+  const {userData} = useUser();
   const courtId = route.params.courtId;
 
   const {
@@ -64,7 +65,7 @@ export default function EditCourt({
   });
 
   const [photo, setPhoto] = useState<string | undefined>();
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState<string>();
   const { data: sportTypesData } = useSportTypes();
   const [updateCourtHook] = useUpdateCourt();
   const [isOpeningCourtPriceHour, setIsOpeningCourtPriceHour] = useState(false);
@@ -362,9 +363,8 @@ export default function EditCourt({
       );
 
       if (courtAvailabilitiesData.length > 0) {
-        const accessToken = (
-          await storage.load<UserInfos>({ key: "userInfos" })
-        ).token;
+
+        const accessToken = userData?.jwt
 
         const { data: createAvailabilitiesData } =
           await createCourtAvailabilities({
@@ -421,10 +421,11 @@ export default function EditCourt({
   });
 
   useEffect(() => {
-    storage
-      .load<UserInfos>({ key: "userInfos" })
-      .then((data) => setUserId(data.userId))
-      .catch(console.log);
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id)
+    else navigation.navigate('Login');
   }, []);
 
   const { data: dataUserEstablishment } = useCourtById(courtId!);
@@ -701,7 +702,6 @@ export default function EditCourt({
         <BottomBlackMenuEstablishment
           screen="Any"
           paddingTop={2}
-          userID={userId}
           establishmentID={
             dataUserEstablishment?.court.data.attributes.establishment.data.id!
           }

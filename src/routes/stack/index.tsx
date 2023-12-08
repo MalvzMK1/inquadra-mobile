@@ -52,11 +52,12 @@ import Schedulings from "../../screens/Schedulings";
 import UpdateSchedule from "../../screens/UpdateSchedule";
 import PaymentScheduleUpdate from "../../screens/UpdateSchedule/updateSchedule";
 import Home from "../../screens/home";
-import storage from "../../utils/storage";
+import {useUser} from "../../context/userContext";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
+  const {userData} = useUser();
   const [menuBurguer, setMenuBurguer] = useState(false);
   const [userId, setUserId] = useState<string>();
   const [corporateName, setCorporateName] = useState("");
@@ -98,31 +99,13 @@ export default function () {
   }, [corporateName]);
 
   useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(response => setUserId(response.userId));
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => setUserGeolocation(data));
-  }, []);
+    if (
+      userData &&
+      userData.id
+    ) setUserId(userData.id);
+  }, [userData])
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  useEffect(() => {
-    storage
-      .load<UserInfos>({
-        key: "userInfos",
-      })
-      .then(response => setUserId(response.userId));
-    storage
-      .load<{ latitude: number; longitude: number }>({
-        key: "userGeolocation",
-      })
-      .then(data => setUserGeolocation(data));
-  }, []);
 
   return (
     <Navigator>
@@ -130,75 +113,6 @@ export default function () {
         name="Home"
         options={({ route: { params } }) => ({
          headerShown: false,
-          headerTitle: () => (
-            <>
-              {Platform.OS === "ios" ? (
-                <View className="w-[63vw]">
-                  <TextInput
-                    theme={{ colors: { placeholder: "#e9e9e9" } }}
-                    placeholder="O que você está procurando?"
-                    underlineColorAndroid="transparent"
-                    underlineColor="transparent"
-                    className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
-                    right={<TextInput.Icon icon={"magnify"} />}
-                    onChangeText={e => {
-                      setCorporateName(e);
-                    }}
-                  />
-                </View>
-              ) : (
-                <TextInput
-                  theme={{ colors: { placeholder: "#e9e9e9" } }}
-                  placeholder="O que você está procurando?"
-                  underlineColorAndroid="transparent"
-                  underlineColor="transparent"
-                  className="bg-white rounded-2xl w-full flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-                  right={<TextInput.Icon icon={"magnify"} />}
-                  onChangeText={e => {
-                    setCorporateName(e);
-                  }}
-                />
-              )}
-
-            
-            </>
-          ),
-          headerRight: () => (
-            <TouchableOpacity
-              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-              onPress={() => {
-                if (params && params.userID)
-                  navigation.navigate("ProfileSettings", {
-                    userPhoto: HOST_API + params.userPhoto ?? undefined,
-                    userID: params.userID,
-                  });
-                else navigation.navigate("Login");
-              }}
-            >
-              <Image
-                source={
-                  params?.userPhoto
-                    ? { uri: `${HOST_API}${params.userPhoto}` }
-                    : require("../../assets/default-user-image.png")
-                }
-                className="w-full h-full"
-              />
-            </TouchableOpacity>
-          ),
-          headerLeft: () => (
-            <TouchableOpacity
-              className="ml-3"
-              onPress={() => {
-                setMenuBurguer(prevState => !prevState);
-              }}
-            >
-              {!menuBurguer ? (
-                <Entypo name="menu" size={48} color={"white"} />
-              ) : (
-                <MaterialIcons name="filter-list" size={48} color="white" />
-              )}
-            </TouchableOpacity>
-          ),
         })}
       >
         {props => (

@@ -122,7 +122,7 @@ export default function Register({
     behavior={Platform.OS === "ios" ? "padding" : "height"}
     style={{flex: 1}}
     >
-  <ScrollView className="bg-white" contentContainerStyle={{ padding: 24 }}>
+  <ScrollView className="bg-white h-screen" contentContainerStyle={{ padding: 24 }}>
         <RegisterHeader
           title="Cadastro"
           subtitle="Vamos precisar de alguns dados seus..."
