@@ -478,12 +478,11 @@ export default function Home({
         <TouchableOpacity
           className="w-12 h-12 bg-gray-500 rounded-full overflow-hidden mr-20 ml-1"
           onPress={() => {
-            alert(userPicture)
-            // if (userId)
-            //   navigation.navigate("ProfileSettings", {
-            //     userPhoto: userPicture ?? undefined,
-            //   });
-            // else navigation.navigate("Login");
+            if (userId)
+              navigation.navigate("ProfileSettings", {
+                userPhoto: userPicture ?? undefined,
+              });
+            else navigation.navigate("Login");
           }}
         >
           <Image
@@ -641,11 +640,10 @@ export default function Home({
         <HomeBar
           key={uniqueIdGenerate}
           isUpdated={IsUpdated}
-          loggedUserId={userId}
           chosenType={sportSelected}
           courts={establishments.sort((a, b) => a.distance - b.distance)}
           userName={
-            userHookData?.usersPermissionsUser?.data?.attributes?.username
+            (userData && userData.id) ? userHookData?.usersPermissionsUser?.data?.attributes?.username : undefined
           }
           HandleSportSelected={HandleSportSelected}
         />
