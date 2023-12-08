@@ -81,6 +81,7 @@ export default function WithdrawScreen({
         } else {
           setErrorPop("Não foi encontrado nenhuma quadra registrada")
         }
+        
         if (
           data &&
           data.establishment.data.attributes.pix_keys.data.length > 0

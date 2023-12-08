@@ -36,6 +36,8 @@ import useUpdateEstablishmentUser from "../../../hooks/useUpdateEstablishmentUse
 import useUpdateUserPassword from "../../../hooks/useUpdateUserPassword";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
 import storage from "../../../utils/storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 type DateTime = Date;
 
 export default function InfoProfileEstablishment({
@@ -248,6 +250,39 @@ export default function InfoProfileEstablishment({
       setAllFalse();
     }
   };
+  const [selectedPixKey, setSelectedPixKey] = useState<string>("0");
+
+  const { data: dataPayment, loading: loadingPayment, error: errorPayment } = useGetUserHistoricPayment(
+    route.params.establishmentId,
+  );
+  const [withdrawalInfo, setWithdrawalInfo] = useState<
+    Array<{
+      id: string;
+      key: string;
+    }>
+  >([]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setWithdrawalInfo([]);
+      if (!errorPayment && !loadingPayment) {
+        if (
+          dataPayment &&
+          dataPayment.establishment.data.attributes.pix_keys.data.length > 0
+        ) {
+          const infosHold = dataPayment?.establishment.data.attributes.pix_keys.data.map(
+            item => {
+              return {
+                id: item.id,
+                key: item.attributes.key,
+              };
+            },
+          )
+          setWithdrawalInfo(prevState => [...prevState, ...infosHold]);
+        }
+      }
+    }, [error, loading, data]),
+  );
 
   const [updateUserIsLoading, setUpdateUserIsLoading] = useState(false);
 
@@ -279,15 +314,15 @@ export default function InfoProfileEstablishment({
           }
         }).then(response => {
           console.log(response)
-            updateEstablishmentLogo({
-              variables: {
-                establishment_id: establishmentId!,
-                photo_id: uploadedImageID,
-              },
-            });
+          updateEstablishmentLogo({
+            variables: {
+              establishment_id: establishmentId!,
+              photo_id: uploadedImageID,
+            },
+          });
         })
           .catch((reason) => alert(reason))
-          .finally(() => {setIsLoading(false), navigation.setParams({establishmentPhoto: profilePicture})})
+          .finally(() => { setIsLoading(false), navigation.setParams({ establishmentPhoto: profilePicture }) })
 
       } else {
         const uploadedImageID = await uploadImage(profilePicture!);
@@ -609,6 +644,7 @@ export default function InfoProfileEstablishment({
         aspect: [1, 1],
         quality: 1,
       });
+
 
       if (!result.canceled) {
         await uploadImage(result.assets[0].uri).then(uploadedImageID => {
@@ -987,53 +1023,79 @@ export default function InfoProfileEstablishment({
           </TouchableOpacity>
 
           {showCard && (
-            <View className="border border-gray-500 p-4 ">
-              <View className="flex-row justify-between">
-                <View className="flex-1">
-                  <Text className="text-base text-[#FF6112] mb-3">
-                    Chave PIX
-                  </Text>
-                  <View>
-                    <Controller
-                      name="pixKey"
-                      control={controlPixKey}
-                      rules={{
-                        required: true,
+            <View>
+              <FlatList
+                data={withdrawalInfo}
+                keyExtractor={card => card.id}
+                renderItem={({ item: card }) => {
+                  return (
+                    <TouchableOpacity
+                      className={`p-5 flex-row rounded-lg mt-2 ${card.id == selectedPixKey
+                        ? "bg-slate-500"
+                        : "bg-gray-300"
+                        }`}
+                      onPress={() => {
+                        if (card.id !== selectedPixKey)
+                          setSelectedPixKey(card.id);
+                        else setSelectedPixKey("0");
                       }}
-                      render={({ field: { onChange } }) => (
-                        <TextInput
-                          onChangeText={onChange}
-                          className={`p-4 border ${pixKeyErrors.pixKey
-                            ? "border-red-400"
-                            : "border-gray-500"
-                            }  rounded-lg h-45`}
-                          placeholder="Coloque sua chave PIX"
-                          placeholderTextColor="#B8B8B8"
-                        />
-                      )}
-                    />
-                    {pixKeyErrors.pixKey && (
-                      <Text className="text-red-400 text-sm -pt-[10px]">
-                        {pixKeyErrors.pixKey.message}
+                    >
+                      <Text className="font-bold text-xl">
+                        Chave pix: {card.key.substring(0, 6)}
+                        {card.key.substring(6).replace(/./g, "*")}
                       </Text>
-                    )}
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+              <View className="border border-gray-500 p-4 mt-3 ">
+                <View className="flex-row justify-between">
+                  <View className="flex-1">
+                    <Text className="text-base text-[#FF6112] mb-3">
+                      Chave PIX
+                    </Text>
+                    <View>
+                      <Controller
+                        name="pixKey"
+                        control={controlPixKey}
+                        rules={{
+                          required: true,
+                        }}
+                        render={({ field: { onChange } }) => (
+                          <TextInput
+                            onChangeText={onChange}
+                            className={`p-4 border ${pixKeyErrors.pixKey
+                              ? "border-red-400"
+                              : "border-gray-500"
+                              }  rounded-lg h-45`}
+                            placeholder="Coloque sua chave PIX"
+                            placeholderTextColor="#B8B8B8"
+                          />
+                        )}
+                      />
+                      {pixKeyErrors.pixKey && (
+                        <Text className="text-red-400 text-sm -pt-[10px]">
+                          {pixKeyErrors.pixKey.message}
+                        </Text>
+                      )}
+                    </View>
                   </View>
                 </View>
-              </View>
 
-              <View className="p-5 justify-center items-center">
-                <TouchableOpacity
-                  onPress={handleSubmitPixKey(handleNewPixKey)}
-                  className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center"
-                >
-                  <Text className="text-white font-medium text-[14px]">
-                    {newPixKeyIsLoading ? (
-                      <ActivityIndicator size="small" color="#F5620F" />
-                    ) : (
-                      "Salvar"
-                    )}
-                  </Text>
-                </TouchableOpacity>
+                <View className="p-5 justify-center items-center">
+                  <TouchableOpacity
+                    onPress={handleSubmitPixKey(handleNewPixKey)}
+                    className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center"
+                  >
+                    <Text className="text-white font-medium text-[14px]">
+                      {newPixKeyIsLoading ? (
+                        <ActivityIndicator size="small" color="#F5620F" />
+                      ) : (
+                        "Salvar"
+                      )}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           )}
@@ -1709,3 +1771,4 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
+
