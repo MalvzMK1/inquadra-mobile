@@ -461,9 +461,7 @@ export default function Home({
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
         <TouchableOpacity
           className="ml-3"
-          onPress={() => {
-            setMenuBurguer((prevState) => !prevState);
-          }}
+          onPress={() => handlePress}
         >
           {!menuBurguer ? (
             <Entypo name="menu" size={48} color={"white"} />
