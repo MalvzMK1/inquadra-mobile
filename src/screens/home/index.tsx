@@ -442,8 +442,8 @@ export default function Home({
           ) : (
             <MaterialIcons name="filter-list" size={48} color="white" />
           )}
+          
         </TouchableOpacity>
-        <>
           {Platform.OS === "ios" ? (
             <View className="w-[63vw]">
               <TextInput
@@ -472,40 +472,7 @@ export default function Home({
               }}
             />
           )}
-
-          <View className="absolute top-[55px] w-full">
-            {EstablishmentsInfos ? (
-              EstablishmentsInfos.length > 0 ? (
-                EstablishmentsInfos.map((item) => {
-                  return (
-                    <TouchableOpacity
-                      key={item.establishmentsId}
-                      className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
-                      onPress={() => {
-                        if (userId)
-                          navigation.navigate("EstablishmentInfo", {
-                            establishmentId: item.establishmentsId,
-                            userPhoto: userPicture,
-                          });
-                        else navigation.navigate("Login");
-                      }}
-                    >
-                      <Text className="text-sm outline-none">
-                        {item.corporateName}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })
-              ) : (
-                <></>
-              )
-            ) : (
-              <></>
-            )}
-          </View>
-        </>
-        {
-          isUserInfosLoading ?
+        {isUserInfosLoading ?
             <ActivityIndicator size={'small'} color={'#FF1116'} className={'w-12 h-12'} />
             :
             <TouchableOpacity
@@ -533,7 +500,7 @@ export default function Home({
       {EstablishmentsInfos && EstablishmentsInfos.length > 0 && (
         EstablishmentsInfos.map((item) => {
           return (
-            <View className="flex absolute top-[55px] w-full">
+            <View className="flex absolute top-[80px] w-full">
               <TouchableOpacity
                 key={item.establishmentsId}
                 className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
@@ -555,8 +522,7 @@ export default function Home({
             </View>
           );
         })
-      )
-      }
+      )}
 
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
@@ -571,7 +537,7 @@ export default function Home({
         )
       )}
 
-      {userGeolocation && userGeolocationDelta && (
+       {userGeolocation && userGeolocationDelta && (
         <MapView
           className="w-screen flex-1"
           onPress={() => setIsMenuVisible(false)}
@@ -659,7 +625,7 @@ export default function Home({
           <FontAwesome name="location-arrow" size={24} color="black" />
         </TouchableOpacity>
       )}
-      
+
       {menuBurguer && (
         <FilterComponent
           setBurguer={setMenuBurguer!}
