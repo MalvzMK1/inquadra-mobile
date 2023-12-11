@@ -76,14 +76,14 @@ export default function Home({
     startsAt: string | undefined;
     date: Date | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
   }>({
     amenities: [],
     dayUseService: undefined,
@@ -444,14 +444,18 @@ export default function Home({
     }
   }, [userData]);
 
+  const handlePress = () => {
+    if (setMenuBurguer) {
+      setMenuBurguer((prevState) => !prevState);
+    }
+  };
+  
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
         <TouchableOpacity
           className="ml-3"
-          onPress={() => {
-            setMenuBurguer((prevState) => !prevState);
-          }}
+          onPress={() => handlePress}
         >
           {!menuBurguer ? (
             <Entypo name="menu" size={48} color={"white"} />
@@ -459,66 +463,34 @@ export default function Home({
             <MaterialIcons name="filter-list" size={48} color="white" />
           )}
         </TouchableOpacity>
-        <>
-          {Platform.OS === "ios" ? (
-            <View className="w-[63vw]">
-              <TextInput
-                theme={{ colors: { placeholder: "#e9e9e9" } }}
-                placeholder="O que você está procurando?"
-                underlineColorAndroid="transparent"
-                underlineColor="transparent"
-                className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
-                right={<TextInput.Icon icon={"magnify"} />}
-                onChangeText={(e) => {
-                  setCorporateName(e);
-                }}
-              />
-            </View>
-          ) : (
+        {Platform.OS === "ios" ? (
+          <View className="w-[63vw]">
             <TextInput
               theme={{ colors: { placeholder: "#e9e9e9" } }}
               placeholder="O que você está procurando?"
               underlineColorAndroid="transparent"
               underlineColor="transparent"
-              className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+              className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
               right={<TextInput.Icon icon={"magnify"} />}
               onChangeText={(e) => {
                 setCorporateName(e);
               }}
             />
-          )}
-
-          <View className="absolute top-[55px] w-full">
-            {EstablishmentsInfos ? (
-              EstablishmentsInfos.length > 0 ? (
-                EstablishmentsInfos.map((item) => {
-                  return (
-                    <TouchableOpacity
-                      key={item.establishmentsId}
-                      className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
-                      onPress={() => {
-                        if (userId)
-                          navigation.navigate("EstablishmentInfo", {
-                            establishmentId: item.establishmentsId,
-                            userPhoto: userPicture,
-                          });
-                        else navigation.navigate("Login");
-                      }}
-                    >
-                      <Text className="text-sm outline-none">
-                        {item.corporateName}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })
-              ) : (
-                <></>
-              )
-            ) : (
-              <></>
-            )}
           </View>
-        </>
+        ) : (
+          <TextInput
+            theme={{ colors: { placeholder: "#e9e9e9" } }}
+            placeholder="O que você está procurando?"
+            underlineColorAndroid="transparent"
+            underlineColor="transparent"
+            activeUnderlineColor="transparent"
+            className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+            right={<TextInput.Icon icon={"magnify"} />}
+            onChangeText={(e) => {
+              setCorporateName(e);
+            }}
+          />
+        )}
         <TouchableOpacity
           className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
           onPress={() => {
@@ -539,6 +511,40 @@ export default function Home({
           />
         </TouchableOpacity>
       </View>
+
+      {EstablishmentsInfos ? (
+
+        EstablishmentsInfos.length > 0 ? (
+          EstablishmentsInfos.map((item) => {
+            return (
+              <View className="absolute top-[55px] w-full">
+                <TouchableOpacity
+                  key={item.establishmentsId}
+                  className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
+                  onPress={() => {
+                    if (userId) {
+                      navigation.navigate("EstablishmentInfo", {
+                        establishmentId: item.establishmentsId,
+                        userPhoto: userPicture,
+                      });
+                      setCorporateName("")
+                    }
+                    else navigation.navigate("Login");
+                  }}
+                >
+                  <Text className="text-sm outline-none">
+                    {item.corporateName}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })
+        ) : (
+          <></>
+        )
+      ) : (
+        <></>
+      )}
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
@@ -555,7 +561,6 @@ export default function Home({
       <View className="flex-1">
         {userGeolocation && userGeolocationDelta && (
           <MapView
-            // loadingEnabled
             className="w-screen flex-1"
             onPress={() => setIsMenuVisible(false)}
             customMapStyle={customMapStyle}
@@ -631,14 +636,13 @@ export default function Home({
           <TouchableOpacity
             className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
             onPress={() => {
-              mapView.current?.animateToRegion({
+              mapView.current ? ({
                 latitude: userGeolocation?.latitude,
                 longitude: userGeolocation?.longitude,
                 latitudeDelta: userGeolocationDelta?.latDelta,
-                longitudeDelta: userGeolocationDelta?.longDelta,
-              });
-            }}
-          >
+                longitudeDelta: userGeolocationDelta?.longDelta
+              }) : null
+            }}>
             <FontAwesome name="location-arrow" size={24} color="black" />
           </TouchableOpacity>
         )}
