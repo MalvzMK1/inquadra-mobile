@@ -30,6 +30,7 @@ import customMapStyle from "../../utils/customMapStyle";
 import { useUser } from "../../context/userContext";
 import { Text, TextInput } from "react-native-paper";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
+import { ScrollView } from "react-native-gesture-handler";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -442,86 +443,88 @@ export default function Home({
           ) : (
             <MaterialIcons name="filter-list" size={48} color="white" />
           )}
-          
+
         </TouchableOpacity>
-          {Platform.OS === "ios" ? (
-            <View className="w-[63vw]">
-              <TextInput
-                theme={{ colors: { placeholder: "#e9e9e9" } }}
-                placeholder="O que você está procurando?"
-                underlineColorAndroid="transparent"
-                underlineColor="transparent"
-                className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
-                right={<TextInput.Icon icon={"magnify"} />}
-                onChangeText={(e) => {
-                  setCorporateName(e);
-                }}
-              />
-            </View>
-          ) : (
+        {Platform.OS === "ios" ? (
+          <View className="w-[63vw]">
             <TextInput
               theme={{ colors: { placeholder: "#e9e9e9" } }}
               placeholder="O que você está procurando?"
               underlineColorAndroid="transparent"
               underlineColor="transparent"
-              activeUnderlineColor="transparent"
-              className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+              className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
               right={<TextInput.Icon icon={"magnify"} />}
               onChangeText={(e) => {
                 setCorporateName(e);
               }}
             />
-          )}
+          </View>
+        ) : (
+          <TextInput
+            theme={{ colors: { placeholder: "#e9e9e9" } }}
+            placeholder="O que você está procurando?"
+            underlineColorAndroid="transparent"
+            underlineColor="transparent"
+            activeUnderlineColor="transparent"
+            className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
+            right={<TextInput.Icon icon={"magnify"} />}
+            onChangeText={(e) => {
+              setCorporateName(e);
+            }}
+          />
+        )}
         {isUserInfosLoading ?
-            <ActivityIndicator size={'small'} color={'#FF1116'} className={'w-12 h-12'} />
-            :
-            <TouchableOpacity
-              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-              onPress={() => {
-                if (userData && userData.id)
-                  navigation.navigate("ProfileSettings", {
-                    userPhoto: HOST_API + userPicture ?? undefined,
-                  });
-                else navigation.navigate("Login");
-              }}
-            >
-              <Image
-                source={
-                  userPicture
-                    ? { uri: userPicture }
-                    : require("../../assets/default-user-image.png")
-                }
-                className="w-full h-full"
-              />
-            </TouchableOpacity>
+          <ActivityIndicator size={'small'} color={'#FF1116'} className={'w-12 h-12'} />
+          :
+          <TouchableOpacity
+            className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+            onPress={() => {
+              if (userData && userData.id)
+                navigation.navigate("ProfileSettings", {
+                  userPhoto: HOST_API + userPicture ?? undefined,
+                });
+              else navigation.navigate("Login");
+            }}
+          >
+            <Image
+              source={
+                userPicture
+                  ? { uri: userPicture }
+                  : require("../../assets/default-user-image.png")
+              }
+              className="w-full h-full"
+            />
+          </TouchableOpacity>
         }
       </View>
 
       {EstablishmentsInfos && EstablishmentsInfos.length > 0 && (
-        EstablishmentsInfos.map((item) => {
-          return (
-            <View className="flex absolute top-[80px] w-full">
-              <TouchableOpacity
-                key={item.establishmentsId}
-                className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
-                onPress={() => {
-                  if (userId) {
-                    navigation.navigate("EstablishmentInfo", {
-                      establishmentId: item.establishmentsId,
-                      userPhoto: userPicture,
-                    });
-                    setCorporateName("")
-                  }
-                  else navigation.navigate("Login");
-                }}
-              >
-                <Text className="text-sm outline-none">
-                  {item.corporateName}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          );
-        })
+        <View className="flex top-[30px] h-48 w-full">
+          <ScrollView>
+            {EstablishmentsInfos.map((item) => {
+              return (
+                <TouchableOpacity
+                  key={item.establishmentsId}
+                  className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
+                  onPress={() => {
+                    if (userId) {
+                      navigation.navigate("EstablishmentInfo", {
+                        establishmentId: item.establishmentsId,
+                        userPhoto: userPicture,
+                      });
+                      setCorporateName("")
+                    }
+                    else navigation.navigate("Login");
+                  }}
+                >
+                  <Text className="text-sm outline-none">
+                    {item.corporateName}
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
+            )}</ScrollView>
+        </View>
       )}
 
       {availableSportTypesLoading ? (
@@ -537,7 +540,7 @@ export default function Home({
         )
       )}
 
-       {userGeolocation && userGeolocationDelta && (
+      {userGeolocation && userGeolocationDelta && (
         <MapView
           className="w-screen flex-1"
           onPress={() => setIsMenuVisible(false)}
