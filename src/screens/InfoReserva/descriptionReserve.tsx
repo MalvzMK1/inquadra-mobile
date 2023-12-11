@@ -475,32 +475,39 @@ export default function DescriptionReserve({
         },
       };
 
-      const response = await cieloRequestManager.authorizePayment(body);
-      console.log(response);
+      const response = await cieloRequestManager.authorizePayment(body).then((response) => {
+          console.log(response.Payment.PaymentId)
+          console.log(response.Payment.Status)
+         userPaymentCard({
+          variables: {
+            value: Number(response.Payment.Amount / 100),
+            schedulingId: schedule_id,
+            userId: user_id,
+            name: data.name,
+            cpf: data.cpf,
+            cvv: parseInt(data.cvv),
+            date: convertToAmericanDate(data.date),
+            countryID: "1",
+            publishedAt: new Date().toISOString(),
+            cep: data.cep,
+            city: data.city,
+            complement: data.complement,
+            number: data.number,
+            state: data.state,
+            neighborhood: data.district,
+            street: data.street,
+            paymentId: response.Payment.PaymentId!,
+            payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
+          },
+        });
+      });
+      
+      
       if (!schedule_id) return;
 
-      await userPaymentCard({
-        variables: {
-          value: Number(response.Payment.Amount / 100),
-          schedulingId: schedule_id,
-          userId: user_id,
-          name: data.name,
-          cpf: data.cpf,
-          cvv: parseInt(data.cvv),
-          date: convertToAmericanDate(data.date),
-          countryID: "1",
-          publishedAt: new Date().toISOString(),
-          cep: data.cep,
-          city: data.city,
-          complement: data.complement,
-          number: data.number,
-          state: data.state,
-          neighborhood: data.district,
-          street: data.street,
-          paymentId: response.Payment.PaymentId!,
-          payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
-        },
-      });
+     
+
+      
 
       console.log("pronto, agora descansa filho");
       await scheduleValueUpdate(
