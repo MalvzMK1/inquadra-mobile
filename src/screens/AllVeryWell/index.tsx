@@ -204,7 +204,7 @@ export default function AllVeryWell({
       });
 
       if (!loginResponse.data) {
-        throw loginResponse.data;
+        throw loginResponse;
       }
 
       for (const court of courts) {
