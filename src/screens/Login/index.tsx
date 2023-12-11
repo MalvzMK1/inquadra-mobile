@@ -85,22 +85,26 @@ export default function Login() {
           id: userData.usersPermissionsUser.data.id,
           jwt: authData.data.login.jwt,
           geolocation: storageUserData?.geolocation,
-        })
+        }).then(() => {
+          if (
+            userData &&
+            userData.usersPermissionsUser.data
+          ) {
+            const userRole = String(userData.usersPermissionsUser.data.attributes.role.data.id);
 
-        if (
-          userData.usersPermissionsUser.data.attributes.role.data.id === "3"
-        ) {
-          navigation.navigate("Home", {
-            userGeolocation: storageUserData?.geolocation,
-            userPhoto: undefined,
-          });
-        } else if (
-          userData.usersPermissionsUser.data.attributes.role.data.id === "4"
-        ) {
-          navigation.navigate("HomeEstablishment", {
-            userPhoto: undefined,
-          });
-        }
+            if (userRole === '3') {
+              navigation.navigate("Home", {
+                userGeolocation: storageUserData?.geolocation,
+                userPhoto: undefined,
+                loadUserInfos: true,
+              });
+            } else if (userRole === '4') {
+              navigation.navigate("HomeEstablishment", {
+                userPhoto: undefined,
+              });
+            }
+          }
+        })
       }
     } catch (error) {
       console.error(error);
@@ -142,6 +146,7 @@ export default function Login() {
                       navigation.navigate("Home", {
                         userGeolocation: storageUserData?.geolocation,
                         userPhoto: undefined,
+                        loadUserInfos: true,
                       });
                     });
                 }

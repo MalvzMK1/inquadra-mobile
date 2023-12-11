@@ -466,6 +466,7 @@ export default function InfoProfileEstablishment({
       else navigation.navigate('Home', {
         userGeolocation: userData.geolocation,
         userPhoto: undefined,
+        loadUserInfos: true,
       })
     }
   }, [userByEstablishmentData]);
