@@ -53,8 +53,8 @@ export default function Home({
   route,
   navigation,
 }: Props) {
-  const { userData } = useUser();
 
+  const { userData } = useUser();
   const [isUserInfosLoading, setIsUserInfosLoading] = useState<boolean>(route?.params?.loadUserInfos ?? false);
   const [userPicture, setUserPicture] = useState<string | undefined>();
   const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
@@ -124,15 +124,17 @@ export default function Home({
     loading: loadingFilter,
     error: errorFilter,
   } = useFilters(filter);
-
-  const HandleSportSelected = (nameSport: string) => {
-    setSportSelected(nameSport);
-  };
-
-    useState<boolean>();
   const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>();
   const isFocused = useIsFocused();
-
+  const { data: allEstablishments } = useAllEstablishments();
+  const [corporateName, setCorporateName] = useState<string>("");
+  const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
+    Array<{
+      establishmentsId: string;
+      corporateName: string;
+    }>
+  >([]);
+  
   useEffect(() => {
     if (isFocused) {
       setUniqueIdGenerate(Math.random());
@@ -366,15 +368,7 @@ export default function Home({
     }
   }, [userHookData]);
 
-  const [corporateName, setCorporateName] = useState<string>("");
-  const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
-    Array<{
-      establishmentsId: string;
-      corporateName: string;
-    }>
-  >([]);
 
-  const { data: allEstablishments } = useAllEstablishments();
   useEffect(() => {
     if (corporateName === "") setEstablishmentsInfos([]);
     else if (allEstablishments) {
@@ -430,6 +424,10 @@ export default function Home({
     if (setMenuBurguer) {
       setMenuBurguer((prevState) => !prevState);
     }
+  };
+
+  const HandleSportSelected = (nameSport: string) => {
+    setSportSelected(nameSport);
   };
 
   return (
@@ -691,6 +689,7 @@ export default function Home({
           isUserInfosLoading={isUserInfosLoading}
         />
       )}
+
       <BottomBlackMenu
         screen="Home"
         userPhoto={userPicture!}
