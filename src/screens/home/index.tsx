@@ -134,7 +134,7 @@ export default function Home({
       corporateName: string;
     }>
   >([]);
-  
+
   useEffect(() => {
     if (isFocused) {
       setUniqueIdGenerate(Math.random());
@@ -464,6 +464,7 @@ export default function Home({
               placeholder="O que você está procurando?"
               underlineColorAndroid="transparent"
               underlineColor="transparent"
+              activeUnderlineColor="transparent"
               className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
               right={<TextInput.Icon icon={"magnify"} />}
               onChangeText={(e) => {
@@ -534,7 +535,7 @@ export default function Home({
         EstablishmentsInfos.length > 0 ? (
           EstablishmentsInfos.map((item) => {
             return (
-              <View className="absolute top-[55px] w-full">
+              <View className="flex absolute top-[55px] w-full">
                 <TouchableOpacity
                   key={item.establishmentsId}
                   className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
