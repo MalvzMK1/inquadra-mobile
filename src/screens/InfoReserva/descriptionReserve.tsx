@@ -483,10 +483,10 @@ export default function DescriptionReserve({
         },
       };
 
-      const response = await cieloRequestManager.authorizePayment(body).then((response) => {
-          console.log(response.Payment.PaymentId)
-          console.log(response.Payment.Status)
-         userPaymentCard({
+      const response = await cieloRequestManager.authorizePayment(body);
+      console.log(response);
+      if (!schedule_id) return;
+
       try {
         await userPaymentCard({
           variables: {
@@ -513,11 +513,6 @@ export default function DescriptionReserve({
       }catch(error){
         alert(error)
       }
-      if (!schedule_id) return;
-
-     
-
-      
       await scheduleValueUpdate(
         parseFloat(data.value.replace(/[^\d.,]/g, "").replace(",", ".")),
       );

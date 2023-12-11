@@ -6,14 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BarHome/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BarHome/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Login/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileSettings/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/password.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/home/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +33,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1702306722" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI10580T10821" />
                     <option name="lastUsedInstant" value="1702299243" />
                   </RecentBranch>
@@ -54,10 +51,6 @@
                   <RecentBranch>
                     <option name="branchName" value="release" />
                     <option name="lastUsedInstant" value="1701787880" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI10580T10737" />
-                    <option name="lastUsedInstant" value="1701787727" />
                   </RecentBranch>
                 </list>
               </option>
@@ -81,7 +74,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI10580T10821",
+    "git-widget-placeholder": "develop",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
