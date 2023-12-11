@@ -56,6 +56,7 @@ export default function Home({
 }: Props) {
   const { userData } = useUser();
 
+  const [isUserInfosLoading, setIsUserInfosLoading] = useState<boolean>(route?.params?.loadUserInfos ?? false);
   const [userPicture, setUserPicture] = useState<string | undefined>();
   const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
@@ -149,8 +150,11 @@ export default function Home({
 
   useFocusEffect(
     React.useCallback(() => {
+      setIsUserInfosLoading(true);
+
       setIsUpdated(IsUpdated + 1);
       refetchUserInfos().then(() => {
+        setIsUserInfosLoading(true);
         if (
           userData &&
           userData.id &&
@@ -172,6 +176,7 @@ export default function Home({
             userPhoto: undefined,
           });
         }
+        setIsUserInfosLoading(false);
       });
       setEstablishments([]);
       if (!error && !loading) {
@@ -308,6 +313,8 @@ export default function Home({
       } else {
         setIsEstablishmentsLoaded(false);
       }
+
+      // setIsUserInfosLoading(false);
     }, [
       data,
       userHookData,
@@ -381,10 +388,6 @@ export default function Home({
           userPhoto: undefined,
         });
     }
-
-    establishments.forEach((establishment) => {
-      console.log(establishment.distance);
-    });
   }, [userHookData]);
 
   const [corporateName, setCorporateName] = useState<string>("");
@@ -422,6 +425,7 @@ export default function Home({
 
   useEffect(() => {
     try {
+      setIsUserInfosLoading(true);
       if (userData) {
         if (userData.id) {
           setUserId(userData.id);
@@ -441,6 +445,8 @@ export default function Home({
     } catch (error) {
       if (APP_DEBUG_VERBOSE) alert(JSON.stringify(error, null, 2));
       console.error(JSON.stringify(error, null, 2));
+    } finally {
+      setIsUserInfosLoading(false);
     }
   }, [userData]);
 
@@ -450,7 +456,7 @@ export default function Home({
         <TouchableOpacity
           className="ml-3"
           onPress={() => {
-            setMenuBurguer((prevState) => !prevState);
+            setMenuBurguer && setMenuBurguer((prevState) => !prevState);
           }}
         >
           {!menuBurguer ? (
@@ -519,25 +525,30 @@ export default function Home({
             )}
           </View>
         </>
-        <TouchableOpacity
-          className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-          onPress={() => {
-            if (userData && userData.id)
-              navigation.navigate("ProfileSettings", {
-                userPhoto: HOST_API + userPicture ?? undefined,
-              });
-            else navigation.navigate("Login");
-          }}
-        >
-          <Image
-            source={
-              userPicture
-                ? { uri: userPicture }
-                : require("../../assets/default-user-image.png")
-            }
-            className="w-full h-full"
-          />
-        </TouchableOpacity>
+        {
+          isUserInfosLoading ?
+            <ActivityIndicator size={'small'} color={'#FF1116'} className={'w-12 h-12'} />
+            :
+            <TouchableOpacity
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              onPress={() => {
+                if (userData && userData.id)
+                  navigation.navigate("ProfileSettings", {
+                    userPhoto: HOST_API + userPicture ?? undefined,
+                  });
+                else navigation.navigate("Login");
+              }}
+            >
+              <Image
+                source={
+                  userPicture
+                    ? { uri: userPicture }
+                    : require("../../assets/default-user-image.png")
+                }
+                className="w-full h-full"
+              />
+            </TouchableOpacity>
+        }
       </View>
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
@@ -664,6 +675,7 @@ export default function Home({
               : undefined
           }
           HandleSportSelected={HandleSportSelected}
+          isUserInfosLoading={isUserInfosLoading}
         />
       )}
       {

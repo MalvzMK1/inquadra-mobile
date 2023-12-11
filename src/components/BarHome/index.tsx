@@ -38,6 +38,7 @@ interface HomeBarProps {
   chosenType: string | undefined;
   HandleSportSelected: Function;
   isUpdated?: any;
+  isUserInfosLoading: boolean;
 }
 
 const screenHeight = Dimensions.get("window").height;
@@ -52,6 +53,7 @@ export default function HomeBar({
   userName,
   chosenType,
   isUpdated,
+  isUserInfosLoading,
 }: HomeBarProps) {
   const {userData} = useUser();
   const translateY = useSharedValue(0);
@@ -76,10 +78,6 @@ export default function HomeBar({
   const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
     [],
   );
-
-  // useEffect(() => {
-  //   console.log("array:", userFavoriteCourts);
-  // }, [userFavoriteCourts]);
 
   const [isLoaded, setIsLoaded] = useState<boolean>();
 
@@ -157,9 +155,14 @@ export default function HomeBar({
       >
         <View className="flex items-center">
           <View className="w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]"></View>
-          <Text className="text-white text-lg font-black mt-3">
-            Olá{userName ? `, ${userName}` : null}!
-          </Text>
+          {
+            isUserInfosLoading ?
+              <ActivityIndicator size={'small'} color={'#FF6112'} className={'h-7'} />
+              :
+              <Text className="text-white text-lg font-black mt-3">
+                Olá{userName ? `, ${userName}` : null}!
+              </Text>
+          }
         </View>
       </PanGestureHandler>
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 48 }}>
