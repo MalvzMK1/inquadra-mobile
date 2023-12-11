@@ -56,6 +56,7 @@ export default function Home({
 }: Props) {
   const { userData } = useUser();
 
+  const [isUserInfosLoading, setIsUserInfosLoading] = useState<boolean>(route?.params?.loadUserInfos ?? false);
   const [userPicture, setUserPicture] = useState<string | undefined>();
   const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
@@ -149,8 +150,11 @@ export default function Home({
 
   useFocusEffect(
     React.useCallback(() => {
+      setIsUserInfosLoading(true);
+
       setIsUpdated(IsUpdated + 1);
       refetchUserInfos().then(() => {
+        setIsUserInfosLoading(true);
         if (
           userData &&
           userData.id &&
@@ -172,6 +176,7 @@ export default function Home({
             userPhoto: undefined,
           });
         }
+        setIsUserInfosLoading(false);
       });
       setEstablishments([]);
       if (!error && !loading) {
@@ -308,6 +313,8 @@ export default function Home({
       } else {
         setIsEstablishmentsLoaded(false);
       }
+
+      // setIsUserInfosLoading(false);
     }, [
       data,
       userHookData,
@@ -381,10 +388,6 @@ export default function Home({
           userPhoto: undefined,
         });
     }
-
-    establishments.forEach((establishment) => {
-      console.log(establishment.distance);
-    });
   }, [userHookData]);
 
   const [corporateName, setCorporateName] = useState<string>("");
@@ -422,6 +425,7 @@ export default function Home({
 
   useEffect(() => {
     try {
+      setIsUserInfosLoading(true);
       if (userData) {
         if (userData.id) {
           setUserId(userData.id);
@@ -441,6 +445,8 @@ export default function Home({
     } catch (error) {
       if (APP_DEBUG_VERBOSE) alert(JSON.stringify(error, null, 2));
       console.error(JSON.stringify(error, null, 2));
+    } finally {
+      setIsUserInfosLoading(false);
     }
   }, [userData]);
 
@@ -455,7 +461,9 @@ export default function Home({
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
         <TouchableOpacity
           className="ml-3"
-          onPress={() => handlePress}
+          onPress={() => {
+            setMenuBurguer((prevState) => !prevState);
+          }}
         >
           {!menuBurguer ? (
             <Entypo name="menu" size={48} color={"white"} />
@@ -463,53 +471,90 @@ export default function Home({
             <MaterialIcons name="filter-list" size={48} color="white" />
           )}
         </TouchableOpacity>
-        {Platform.OS === "ios" ? (
-          <View className="w-[63vw]">
+        <>
+          {Platform.OS === "ios" ? (
+            <View className="w-[63vw]">
+              <TextInput
+                theme={{ colors: { placeholder: "#e9e9e9" } }}
+                placeholder="O que você está procurando?"
+                underlineColorAndroid="transparent"
+                underlineColor="transparent"
+                className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
+                right={<TextInput.Icon icon={"magnify"} />}
+                onChangeText={(e) => {
+                  setCorporateName(e);
+                }}
+              />
+            </View>
+          ) : (
             <TextInput
               theme={{ colors: { placeholder: "#e9e9e9" } }}
               placeholder="O que você está procurando?"
               underlineColorAndroid="transparent"
               underlineColor="transparent"
-              className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
+              className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
               right={<TextInput.Icon icon={"magnify"} />}
               onChangeText={(e) => {
                 setCorporateName(e);
               }}
             />
+          )}
+
+          <View className="absolute top-[55px] w-full">
+            {EstablishmentsInfos ? (
+              EstablishmentsInfos.length > 0 ? (
+                EstablishmentsInfos.map((item) => {
+                  return (
+                    <TouchableOpacity
+                      key={item.establishmentsId}
+                      className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
+                      onPress={() => {
+                        if (userId)
+                          navigation.navigate("EstablishmentInfo", {
+                            establishmentId: item.establishmentsId,
+                            userPhoto: userPicture,
+                          });
+                        else navigation.navigate("Login");
+                      }}
+                    >
+                      <Text className="text-sm outline-none">
+                        {item.corporateName}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
+                <></>
+              )
+            ) : (
+              <></>
+            )}
           </View>
-        ) : (
-          <TextInput
-            theme={{ colors: { placeholder: "#e9e9e9" } }}
-            placeholder="O que você está procurando?"
-            underlineColorAndroid="transparent"
-            underlineColor="transparent"
-            activeUnderlineColor="transparent"
-            className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-            right={<TextInput.Icon icon={"magnify"} />}
-            onChangeText={(e) => {
-              setCorporateName(e);
-            }}
-          />
-        )}
-        <TouchableOpacity
-          className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-          onPress={() => {
-            if (userData && userData.id)
-              navigation.navigate("ProfileSettings", {
-                userPhoto: HOST_API + userPicture ?? undefined,
-              });
-            else navigation.navigate("Login");
-          }}
-        >
-          <Image
-            source={
-              userPicture
-                ? { uri: userPicture }
-                : require("../../assets/default-user-image.png")
-            }
-            className="w-full h-full"
-          />
-        </TouchableOpacity>
+        </>
+        {
+          isUserInfosLoading ?
+            <ActivityIndicator size={'small'} color={'#FF1116'} className={'w-12 h-12'} />
+            :
+            <TouchableOpacity
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              onPress={() => {
+                if (userData && userData.id)
+                  navigation.navigate("ProfileSettings", {
+                    userPhoto: HOST_API + userPicture ?? undefined,
+                  });
+                else navigation.navigate("Login");
+              }}
+            >
+              <Image
+                source={
+                  userPicture
+                    ? { uri: userPicture }
+                    : require("../../assets/default-user-image.png")
+                }
+                className="w-full h-full"
+              />
+            </TouchableOpacity>
+        }
       </View>
 
       {EstablishmentsInfos ? (
@@ -668,6 +713,7 @@ export default function Home({
               : undefined
           }
           HandleSportSelected={HandleSportSelected}
+          isUserInfosLoading={isUserInfosLoading}
         />
       )}
       {

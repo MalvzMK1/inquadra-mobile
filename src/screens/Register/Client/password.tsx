@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -169,7 +171,12 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   });
 
   return (
-    <ScrollView className='h-screen min-h-full'>
+   <KeyboardAvoidingView 
+   behavior={Platform.OS === "ios" ? "padding" : "height"}
+   keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+   style={{flex: 1}}
+   >
+     <ScrollView className='h-fit min-h-full'>
       <View className="flex flex-col bg-white h-screen items-center p-5">
       <View>
         <RegisterHeader
@@ -307,5 +314,6 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
       </View>
     </View>
     </ScrollView>
+   </KeyboardAvoidingView>
   );
 }

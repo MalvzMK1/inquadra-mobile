@@ -278,6 +278,7 @@ export default function ProfileSettings({
     navigation.navigate("Home", {
       userPhoto: undefined,
       userGeolocation: userData?.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
+      loadUserInfos: true
     })
   };
 
