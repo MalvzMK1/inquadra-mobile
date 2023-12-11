@@ -7,7 +7,7 @@ import {
 } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import MapView, { Callout, Marker } from "react-native-maps";
 import { Text, TextInput } from "react-native-paper";
 import HomeBar from "../../components/BarHome";
@@ -139,7 +140,7 @@ export default function Home({
   }, [isFocused]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       setIsUserInfosLoading(true);
 
       setIsUpdated(IsUpdated + 1);
@@ -493,31 +494,33 @@ export default function Home({
         )}
       </View>
 
-      {EstablishmentsInfos &&
-        EstablishmentsInfos.length > 0 &&
-        EstablishmentsInfos.map(item => {
-          return (
-            <View className="flex absolute top-[80px] w-full">
-              <TouchableOpacity
-                key={item.establishmentsId}
-                className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
-                onPress={() => {
-                  if (userId) {
-                    navigation.navigate("EstablishmentInfo", {
-                      establishmentId: item.establishmentsId,
-                      userPhoto: userPicture,
-                    });
-                    setCorporateName("");
-                  } else navigation.navigate("Login");
-                }}
-              >
-                <Text className="text-sm outline-none">
-                  {item.corporateName}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          );
-        })}
+      {EstablishmentsInfos && EstablishmentsInfos.length > 0 && (
+        <View className="flex top-[30px] h-48 w-full">
+          <ScrollView>
+            {EstablishmentsInfos.map(item => {
+              return (
+                <TouchableOpacity
+                  key={item.establishmentsId}
+                  className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
+                  onPress={() => {
+                    if (userId) {
+                      navigation.navigate("EstablishmentInfo", {
+                        establishmentId: item.establishmentsId,
+                        userPhoto: userPicture,
+                      });
+                      setCorporateName("");
+                    } else navigation.navigate("Login");
+                  }}
+                >
+                  <Text className="text-sm outline-none">
+                    {item.corporateName}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
 
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
