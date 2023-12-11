@@ -266,27 +266,29 @@ export default function DescriptionReserve({
 
   const formSchema = z.object({
     value: z
-      .string()
-      .nonempty("É necessário inserir um valor")
-      .min(1)
-      .refine(value => {
-        const schedulingAmount = valueAvailableToPay;
+    .string()
+    .nonempty("É necessário inserir um valor")
+    .refine(value => {
+      const schedulingAmount = valueAvailableToPay;
 
-        if (schedulingAmount) {
-          // Remover caracteres não numéricos
-          const cleanedValue = value.replace(/[^\d]/g, '');
+      if (schedulingAmount) {
+        // Remover caracteres não numéricos
+        const cleanedValue = value.replace(/[^\d,]/g, '');
 
-          const parsedValue = parseFloat(cleanedValue);
+        // Substituir a vírgula por ponto
+        const dotValue = cleanedValue.replace(',', '.');
 
-          if (isNaN(parsedValue)) {
-            return false;
-          }
+        const parsedValue = parseFloat(dotValue);
 
-          return parsedValue <= schedulingAmount;
+        if (isNaN(parsedValue)) {
+          return false;
         }
 
-        return false;
-      }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
+        return parsedValue <= schedulingAmount;
+      }
+
+      return false;
+    }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
     name: z
       .string()
       .nonempty("É necessário inserir o nome")
@@ -353,26 +355,29 @@ export default function DescriptionReserve({
 
   const formSchemaPixPayment = z.object({
     value: z
-      .string()
-      .nonempty("É necessário inserir um valor")
-      .refine(value => {
-        const schedulingAmount = valueAvailableToPay;
+    .string()
+    .nonempty("É necessário inserir um valor")
+    .refine(value => {
+      const schedulingAmount = valueAvailableToPay;
 
-        if (schedulingAmount) {
-          // Remover caracteres não numéricos
-          const cleanedValue = value.replace(/[^\d]/g, '');
+      if (schedulingAmount) {
+        // Remover caracteres não numéricos
+        const cleanedValue = value.replace(/[^\d,]/g, '');
 
-          const parsedValue = parseFloat(cleanedValue);
+        // Substituir a vírgula por ponto
+        const dotValue = cleanedValue.replace(',', '.');
 
-          if (isNaN(parsedValue)) {
-            return false;
-          }
+        const parsedValue = parseFloat(dotValue);
 
-          return parsedValue <= schedulingAmount;
+        if (isNaN(parsedValue)) {
+          return false;
         }
 
-        return false;
-      }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
+        return parsedValue <= schedulingAmount;
+      }
+
+      return false;
+    }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
     name: z
       .string()
       .nonempty("É necessário inserir o nome")
