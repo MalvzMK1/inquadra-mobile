@@ -925,7 +925,7 @@ export default function DescriptionReserve({
                         )}
                       >
                         <Text className="text-gray-50 font-bold">
-                          Copiar código PIX
+                          Adicionar pagamento PIX
                         </Text>
                       </View>
                     </TouchableOpacity>
