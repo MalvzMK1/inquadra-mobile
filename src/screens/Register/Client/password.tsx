@@ -290,7 +290,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           <Text className="text-red-400 text-sm">Leia os termos</Text>
         )}
       </View>
-      <View className="flex-1 mb-14 flex w-full items-center justify-center">
+      <View className="flex-1  flex w-full items-center justify-center">
         <TouchableOpacity
           disabled={isSubmitting}
           className="h-14 w-full rounded-md bg-orange-500 flex items-center justify-center"

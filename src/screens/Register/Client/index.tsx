@@ -256,7 +256,7 @@ export default function Register({
 
         <TouchableOpacity
           disabled={isSubmitting}
-          className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6"
+          className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6 mb-24"
           onPress={handleGoToNextRegisterPage}
         >
           {isSubmitting ? (
