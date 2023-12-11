@@ -532,11 +532,12 @@ export default function ReservationPaymentSign({
       });
     }
   });
+  
   const handlePayCardSave = async (card: Card) => {
     try {
       const cieloRequestManager = new CieloRequestManager();
       const countryId = getCountryIdByName(selected);
-
+      setShowConfirmPayment(false)
       setCardPaymentLoading(true);
       setPaymentStatus("processing");
 
@@ -664,6 +665,7 @@ export default function ReservationPaymentSign({
                         })
                         .catch(error => {
                           console.error(error);
+                          alert("Não foi possível realizar o pagamento");
                           setPaymentStatus("failed");
                         });
                     })
@@ -672,6 +674,8 @@ export default function ReservationPaymentSign({
                       alert("Erro ao registrar a cobrança no banco de dados");
                       setPaymentStatus("failed");
                     });
+                }else{
+                  alert("Não foi possível realizar o pagamento");
                 }
               })
               .catch(error => {
