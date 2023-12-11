@@ -4,7 +4,7 @@ export interface IDeleteUserResponse {
   deleteUsersPermissionsUser: {
     data: {
       attributes: {
-        username: User["username"];
+        name: User["name"];
         email: User["email"];
         phoneNumber: User["phoneNumber"];
       };
@@ -21,7 +21,7 @@ export const deleteUserMutation = gql`
     deleteUsersPermissionsUser(id: $user_id) {
       data {
         attributes {
-          username
+          name
           email
           phoneNumber
         }

@@ -1,6 +1,7 @@
 import { HOST_API } from "@env";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
@@ -24,8 +25,10 @@ import MaskInput, { Masks } from "react-native-mask-input";
 import Icon from "react-native-vector-icons/Ionicons";
 import { z } from "zod";
 import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
+import { useUser } from "../../../context/userContext";
 import useDeletePhoto from "../../../hooks/useDeletePhoto";
 import useDeleteUser from "../../../hooks/useDeleteUser";
+import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 import { useGetUserEstablishmentInfos } from "../../../hooks/useGetUserEstablishmentInfos";
 import useRegisterPixKey from "../../../hooks/useRegisterPixKey";
 import useUpdateEstablishmentAddress from "../../../hooks/useUpdateEstablishmentAddress";
@@ -35,16 +38,13 @@ import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentP
 import useUpdateEstablishmentUser from "../../../hooks/useUpdateEstablishmentUser";
 import useUpdateUserPassword from "../../../hooks/useUpdateUserPassword";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
-import {useUser} from "../../../context/userContext";
-import { useFocusEffect } from "@react-navigation/native";
-import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 type DateTime = Date;
 
 export default function InfoProfileEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "InfoProfileEstablishment">) {
-  const {userData, setUserData} = useUser();
+  const { userData, setUserData } = useUser();
 
   const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string | number>();
@@ -54,7 +54,7 @@ export default function InfoProfileEstablishment({
     data: userByEstablishmentData,
     error: userByEstablishmentError,
     loading: userByEstablishmentLoading,
-  } = useGetUserEstablishmentInfos(userId ?? '');
+  } = useGetUserEstablishmentInfos(userId ?? "");
 
   const [cep, setCep] = useState<string>("");
   const [fantasyName, setFantasyName] = useState<string>("");
@@ -113,13 +113,13 @@ export default function InfoProfileEstablishment({
   });
 
   const defaultUserName =
-    userByEstablishmentData?.usersPermissionsUser.data?.attributes.username!;
+    userByEstablishmentData?.usersPermissionsUser.data?.attributes.name || "";
   const [phoneNumber, setPhoneNumber] = useState<string | undefined>();
   const defaultUserEmail =
     userByEstablishmentData?.usersPermissionsUser.data?.attributes.email!;
 
   const formSchema = z.object({
-    userName: z
+    name: z
       .string()
       .nonempty("O campo não pode estar vazio")
       .default(defaultUserName),
@@ -175,7 +175,8 @@ export default function InfoProfileEstablishment({
   const [updateEstablishmentLogo] = useUpdateEstablishmentLogo();
   const [updateEstablishmentAddressHook, { data, error, loading }] =
     useUpdateEstablishmentAddress();
-  const [updateEstablishmentFantasyNameHook] = useUpdateEstablishmentFantasyName();
+  const [updateEstablishmentFantasyNameHook] =
+    useUpdateEstablishmentFantasyName();
 
   const [
     updateUserPassword,
@@ -216,7 +217,7 @@ export default function InfoProfileEstablishment({
   const [selected, setSelected] = useState("");
   const [amenitieSelected, setAmeniniteSelected] = useState("");
   const [courtSelected, setCourtSelected] = useState("");
-  const [uploadedPictureID, setUploadedPictureID] = useState<number | string>()
+  const [uploadedPictureID, setUploadedPictureID] = useState<number | string>();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -249,9 +250,11 @@ export default function InfoProfileEstablishment({
   };
   const [selectedPixKey, setSelectedPixKey] = useState<string>("0");
 
-  const { data: dataPayment, loading: loadingPayment, error: errorPayment } = useGetUserHistoricPayment(
-    route.params.establishmentId,
-  );
+  const {
+    data: dataPayment,
+    loading: loadingPayment,
+    error: errorPayment,
+  } = useGetUserHistoricPayment(route.params.establishmentId);
   const [withdrawalInfo, setWithdrawalInfo] = useState<
     Array<{
       id: string;
@@ -267,14 +270,15 @@ export default function InfoProfileEstablishment({
           dataPayment &&
           dataPayment.establishment.data.attributes.pix_keys.data.length > 0
         ) {
-          const infosHold = dataPayment?.establishment.data.attributes.pix_keys.data.map(
-            item => {
-              return {
-                id: item.id,
-                key: item.attributes.key,
-              };
-            },
-          )
+          const infosHold =
+            dataPayment?.establishment.data.attributes.pix_keys.data.map(
+              item => {
+                return {
+                  id: item.id,
+                  key: item.attributes.key,
+                };
+              },
+            );
           setWithdrawalInfo(prevState => [...prevState, ...infosHold]);
         }
       }
@@ -286,65 +290,61 @@ export default function InfoProfileEstablishment({
   const handleUpdateUser = async (data: IFormData): Promise<void> => {
     try {
       if (profilePicture) {
-        setIsLoading(true)
-        const uploadedImageID = uploadedPictureID?.toString()!
+        setIsLoading(true);
+        const uploadedImageID = uploadedPictureID?.toString()!;
 
         const userDatas = {
           ...data,
-        }
-
-        console.log({
-          user_id: userId,
-          username: userDatas.userName,
-          email: userDatas.email,
-          phone_number: userDatas.phoneNumber,
-          cpf: cpf!,
-        })
+        };
 
         userId &&
           updateUserHook({
             variables: {
               user_id: userId,
-              username: userDatas.userName,
               email: userDatas.email,
+              name: userDatas.userName,
+              username: userDatas.email,
               phone_number: userDatas.phoneNumber,
               cpf: cpf!,
-            }
-          }).then(response => {
-            console.log(response)
+            },
+          })
+            .then(response => {
+              console.log(response);
               updateEstablishmentLogo({
                 variables: {
                   establishment_id: establishmentId!,
                   photo_id: uploadedImageID,
                 },
               });
-          })
-            .catch((reason) => alert(reason))
-            .finally(() => {setIsLoading(false), navigation.setParams({establishmentPhoto: profilePicture})})
-
+            })
+            .catch(reason => alert(reason))
+            .finally(() => {
+              setIsLoading(false),
+                navigation.setParams({ establishmentPhoto: profilePicture });
+            });
       } else {
         const uploadedImageID = await uploadImage(profilePicture!);
 
         const userDatas = {
           ...data,
-        }
+        };
 
         userId &&
           updateUserHook({
             variables: {
               user_id: userId,
-              username: userDatas.userName,
+              name: userDatas.userName,
               email: userDatas.email,
+              username: userDatas.email,
               phone_number: userDatas.phoneNumber,
-              cpf: cpf!
-            }
-          })
+              cpf: cpf!,
+            },
+          });
       }
-
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const [updateAddressIsLoading, setUpdateAddressIsLoading] = useState(false);
 
@@ -367,7 +367,7 @@ export default function InfoProfileEstablishment({
       },
     })
       .then(value => {
-        alert('Endereço atualizado com sucesso!');
+        alert("Endereço atualizado com sucesso!");
       })
       .catch(reason => alert(reason))
       .finally(() => {
@@ -380,7 +380,8 @@ export default function InfoProfileEstablishment({
     if (
       userByEstablishmentData &&
       userByEstablishmentData.usersPermissionsUser.data &&
-      userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data
+      userByEstablishmentData.usersPermissionsUser.data.attributes.establishment
+        .data
     ) {
       setCep(
         userByEstablishmentData.usersPermissionsUser.data.attributes
@@ -413,7 +414,9 @@ export default function InfoProfileEstablishment({
         establishmentPhoto:
           userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo
             .data?.attributes.url ?? undefined,
-        establishmentId: userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.id
+        establishmentId:
+          userByEstablishmentData.usersPermissionsUser.data.attributes
+            .establishment.data.id,
       });
 
       userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.amenities.data.map(
@@ -462,12 +465,12 @@ export default function InfoProfileEstablishment({
       if (userData.id) {
         setUserId(userData.id);
         setUserGeolocation(userData.geolocation);
-      }
-      else navigation.navigate('Home', {
-        userGeolocation: userData.geolocation,
-        userPhoto: undefined,
-        loadUserInfos: true,
-      })
+      } else
+        navigation.navigate("Home", {
+          userGeolocation: userData.geolocation,
+          userPhoto: undefined,
+          loadUserInfos: true,
+        });
     }
   }, [userByEstablishmentData]);
 
@@ -493,7 +496,7 @@ export default function InfoProfileEstablishment({
       },
     })
       .then(value => {
-        alert('Nome fantasia alterado com sucesso!');
+        alert("Nome fantasia alterado com sucesso!");
       })
       .catch(reason => alert(reason))
       .finally(() => {
@@ -611,7 +614,7 @@ export default function InfoProfileEstablishment({
       uri: selectedImageUri,
       name: "profile.jpg",
       type: "image/jpeg",
-    });
+    } as any);
 
     try {
       const response = await axios.post(`${apiUrl}/api/upload`, formData, {
@@ -633,10 +636,11 @@ export default function InfoProfileEstablishment({
 
   const handleProfilePictureUpload = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (status !== 'granted') {
-        alert('Desculpe, precisamos da permissão para acessar a galeria!');
+      if (status !== "granted") {
+        alert("Desculpe, precisamos da permissão para acessar a galeria!");
         return;
       }
 
@@ -647,17 +651,16 @@ export default function InfoProfileEstablishment({
         quality: 1,
       });
 
-
       if (!result.canceled) {
         await uploadImage(result.assets[0].uri).then(uploadedImageID => {
           setProfilePicture(result.assets[0].uri);
-          setUploadedPictureID(uploadedImageID)
-        })
+          setUploadedPictureID(uploadedImageID);
+        });
       }
     } catch (error) {
-      console.log('Erro ao carregar a imagem: ', error);
+      console.log("Erro ao carregar a imagem: ", error);
     }
-  }
+  };
 
   const [showCard, setShowCard] = useState(false);
 
@@ -715,15 +718,15 @@ export default function InfoProfileEstablishment({
 
     navigation.navigate("EditCourt", {
       courtId: findCourt?.id,
-      userPhoto: logo
+      userPhoto: logo,
     });
   };
 
   const haveProfilePicture: boolean = !!logo;
 
-  const {
-    data: dataUserEstablishment,
-  } = useGetUserIDByEstablishment(route.params.establishmentId ?? "");
+  const { data: dataUserEstablishment } = useGetUserIDByEstablishment(
+    route.params.establishmentId ?? "",
+  );
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<number>();
@@ -857,8 +860,9 @@ export default function InfoProfileEstablishment({
                   textContentType="username"
                   defaultValue={defaultUserName}
                   onChangeText={onChange}
-                  className={`p-4 border ${errors.userName ? "border-red-400" : "border-gray-500"
-                    }  rounded-lg h-45`}
+                  className={`p-4 border ${
+                    errors.userName ? "border-red-400" : "border-gray-500"
+                  }  rounded-lg h-45`}
                   placeholder="Jhon"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -887,8 +891,9 @@ export default function InfoProfileEstablishment({
                   defaultValue={defaultUserEmail}
                   onChangeText={onChange}
                   keyboardType="email-address"
-                  className={`p-4 border ${errors.email ? "border-red-400" : "border-gray-500"
-                    }  rounded-lg h-45`}
+                  className={`p-4 border ${
+                    errors.email ? "border-red-400" : "border-gray-500"
+                  }  rounded-lg h-45`}
                   placeholder="Jhon@mail.com.br"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -912,8 +917,9 @@ export default function InfoProfileEstablishment({
               }}
               render={({ field: { onChange } }) => (
                 <MaskInput
-                  className={`p-4 border ${errors.phoneNumber ? "border-red-400" : "border-gray-500"
-                    }  rounded-lg h-45`}
+                  className={`p-4 border ${
+                    errors.phoneNumber ? "border-red-400" : "border-gray-500"
+                  }  rounded-lg h-45`}
                   placeholder="Ex: (00) 0000-0000"
                   value={phoneNumber}
                   onChangeText={(masked, unmasked) => {
@@ -1032,10 +1038,11 @@ export default function InfoProfileEstablishment({
                 renderItem={({ item: card }) => {
                   return (
                     <TouchableOpacity
-                      className={`p-5 flex-row rounded-lg mt-2 ${card.id == selectedPixKey
-                        ? "bg-slate-500"
-                        : "bg-gray-300"
-                        }`}
+                      className={`p-5 flex-row rounded-lg mt-2 ${
+                        card.id == selectedPixKey
+                          ? "bg-slate-500"
+                          : "bg-gray-300"
+                      }`}
                       onPress={() => {
                         if (card.id !== selectedPixKey)
                           setSelectedPixKey(card.id);
@@ -1066,10 +1073,11 @@ export default function InfoProfileEstablishment({
                         render={({ field: { onChange } }) => (
                           <TextInput
                             onChangeText={onChange}
-                            className={`p-4 border ${pixKeyErrors.pixKey
-                              ? "border-red-400"
-                              : "border-gray-500"
-                              }  rounded-lg h-45`}
+                            className={`p-4 border ${
+                              pixKeyErrors.pixKey
+                                ? "border-red-400"
+                                : "border-gray-500"
+                            }  rounded-lg h-45`}
                             placeholder="Coloque sua chave PIX"
                             placeholderTextColor="#B8B8B8"
                           />
@@ -1304,11 +1312,11 @@ export default function InfoProfileEstablishment({
                   setUserData({
                     id: undefined,
                     jwt: undefined,
-                    geolocation: userData?.geolocation
+                    geolocation: userData?.geolocation,
                   }).then(() => {
-                    navigation.navigate('Home', {
-                      userGeolocation: userData?.geolocation ?? undefined
-                    })
+                    navigation.navigate("Home", {
+                      userGeolocation: userData?.geolocation ?? undefined,
+                    });
                   });
                 }}
               >
@@ -1340,10 +1348,11 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={fantasyName}
                       onChangeText={onChange}
-                      className={`p-4 border ${fantasyNameErrors.fantasyName
-                        ? "border-red-400"
-                        : "border-gray-500"
-                        }  rounded-lg h-45`}
+                      className={`p-4 border ${
+                        fantasyNameErrors.fantasyName
+                          ? "border-red-400"
+                          : "border-gray-500"
+                      }  rounded-lg h-45`}
                       placeholder="Nome Fantasia"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1407,8 +1416,9 @@ export default function InfoProfileEstablishment({
                   }}
                   render={({ field: { onChange } }) => (
                     <MaskInput
-                      className={`p-4 border ${addressErrors.cep ? "border-red-400" : "border-gray-500"
-                        }  rounded-lg h-45`}
+                      className={`p-4 border ${
+                        addressErrors.cep ? "border-red-400" : "border-gray-500"
+                      }  rounded-lg h-45`}
                       value={cep}
                       onChangeText={(masked, unmasked) => {
                         onChange(masked);
@@ -1440,10 +1450,11 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={streetName}
                       onChangeText={onChange}
-                      className={`p-4 border ${addressErrors.streetName
-                        ? "border-red-400"
-                        : "border-gray-500"
-                        }  rounded-lg h-45`}
+                      className={`p-4 border ${
+                        addressErrors.streetName
+                          ? "border-red-400"
+                          : "border-gray-500"
+                      }  rounded-lg h-45`}
                       placeholder="Nome da rua"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1709,8 +1720,8 @@ export default function InfoProfileEstablishment({
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined
               ? HOST_API +
-              dataUserEstablishment?.establishment?.data?.attributes?.logo
-                ?.data?.attributes?.url
+                dataUserEstablishment?.establishment?.data?.attributes?.logo
+                  ?.data?.attributes?.url
               : null
           }
           establishmentID={
@@ -1762,4 +1773,3 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
-

@@ -26,6 +26,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { z } from "zod";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import Countdown from "../../components/countdown/Countdown";
+import { useUser } from "../../context/userContext";
 import { useAllPaymentsSchedulingById } from "../../hooks/useAllPaymentsScheduling";
 import useCountries from "../../hooks/useCountries";
 import useDeleteSchedule from "../../hooks/useDeleteSchedule";
@@ -48,7 +49,6 @@ import {
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
-import { useUser } from "../../context/userContext";
 
 function getScheduleStartDate(date: string, time: string) {
   return new Date(`${date}T${time}-03:00`);
@@ -59,7 +59,7 @@ export default function DescriptionReserve({
   route,
 }: NativeStackScreenProps<RootStackParamList, "DescriptionReserve">) {
   const { userData } = useUser();
-  const user_id = userData?.id ?? '';
+  const user_id = userData?.id ?? "";
   const schedule_id = route.params.scheduleId;
   const currentTime = new Date();
   const oneHourInMs = 60 * 60 * 1000;
@@ -121,9 +121,7 @@ export default function DescriptionReserve({
       if (data.scheduling.data.attributes.court_availability.data) {
         const _valueDisponibleToPay =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value
-          -
-          valuePayed;
+            .value - valuePayed;
         setValueAvailableToPay(_valueDisponibleToPay);
       }
 
@@ -266,29 +264,29 @@ export default function DescriptionReserve({
 
   const formSchema = z.object({
     value: z
-    .string()
-    .nonempty("É necessário inserir um valor")
-    .refine(value => {
-      const schedulingAmount = valueAvailableToPay;
+      .string()
+      .nonempty("É necessário inserir um valor")
+      .refine(value => {
+        const schedulingAmount = valueAvailableToPay;
 
-      if (schedulingAmount) {
-        // Remover caracteres não numéricos
-        const cleanedValue = value.replace(/[^\d,]/g, '');
+        if (schedulingAmount) {
+          // Remover caracteres não numéricos
+          const cleanedValue = value.replace(/[^\d,]/g, "");
 
-        // Substituir a vírgula por ponto
-        const dotValue = cleanedValue.replace(',', '.');
+          // Substituir a vírgula por ponto
+          const dotValue = cleanedValue.replace(",", ".");
 
-        const parsedValue = parseFloat(dotValue);
+          const parsedValue = parseFloat(dotValue);
 
-        if (isNaN(parsedValue)) {
-          return false;
+          if (isNaN(parsedValue)) {
+            return false;
+          }
+
+          return parsedValue <= schedulingAmount;
         }
 
-        return parsedValue <= schedulingAmount;
-      }
-
-      return false;
-    }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
+        return false;
+      }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
     name: z
       .string()
       .nonempty("É necessário inserir o nome")
@@ -355,29 +353,29 @@ export default function DescriptionReserve({
 
   const formSchemaPixPayment = z.object({
     value: z
-    .string()
-    .nonempty("É necessário inserir um valor")
-    .refine(value => {
-      const schedulingAmount = valueAvailableToPay;
+      .string()
+      .nonempty("É necessário inserir um valor")
+      .refine(value => {
+        const schedulingAmount = valueAvailableToPay;
 
-      if (schedulingAmount) {
-        // Remover caracteres não numéricos
-        const cleanedValue = value.replace(/[^\d,]/g, '');
+        if (schedulingAmount) {
+          // Remover caracteres não numéricos
+          const cleanedValue = value.replace(/[^\d,]/g, "");
 
-        // Substituir a vírgula por ponto
-        const dotValue = cleanedValue.replace(',', '.');
+          // Substituir a vírgula por ponto
+          const dotValue = cleanedValue.replace(",", ".");
 
-        const parsedValue = parseFloat(dotValue);
+          const parsedValue = parseFloat(dotValue);
 
-        if (isNaN(parsedValue)) {
-          return false;
+          if (isNaN(parsedValue)) {
+            return false;
+          }
+
+          return parsedValue <= schedulingAmount;
         }
 
-        return parsedValue <= schedulingAmount;
-      }
-
-      return false;
-    }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
+        return false;
+      }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
     name: z
       .string()
       .nonempty("É necessário inserir o nome")
@@ -510,8 +508,8 @@ export default function DescriptionReserve({
             payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
           },
         });
-      }catch(error){
-        alert(error)
+      } catch (error) {
+        alert(error);
       }
       await scheduleValueUpdate(
         parseFloat(data.value.replace(/[^\d.,]/g, "").replace(",", ".")),
@@ -553,9 +551,7 @@ export default function DescriptionReserve({
   };
 
   const handlePayPix = handleSubmitPayment(async info => {
-    const parsedValue = parseFloat(
-      info.value.replace(/[^\d.,]/g, ""),
-    );
+    const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, ""));
 
     const generatePixJSON: RequestGeneratePix = {
       MerchantOrderId:
@@ -687,8 +683,8 @@ export default function DescriptionReserve({
                 source={{
                   uri:
                     HOST_API +
-                    dataUser?.usersPermissionsUser.data?.attributes.photo.data
-                      ?.attributes.url ?? "",
+                      dataUser?.usersPermissionsUser.data?.attributes.photo.data
+                        ?.attributes.url ?? "",
                 }}
                 style={{ width: 46, height: 46 }}
                 borderRadius={100}
@@ -719,7 +715,7 @@ export default function DescriptionReserve({
                     </Text>
                   </View>
                   {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-                    user_id ===
+                  user_id ===
                     infoScheduleData.scheduling.data.attributes.owner.data
                       .id ? (
                     !isWithin24Hours && reserveStatus ? (
@@ -773,28 +769,28 @@ export default function DescriptionReserve({
                         Reserva feita em{" "}
                         {formatDateTime(
                           infoScheduleData?.scheduling?.data?.attributes?.createdAt.toString()! ??
-                          "",
+                            "",
                         )}
                       </Text>
                     </View>
                   )}
                 </View>
                 {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-                  isWithinOneHour !== undefined &&
-                  user_id ===
+                isWithinOneHour !== undefined &&
+                user_id ===
                   infoScheduleData.scheduling.data.attributes.owner.data.id
                   ? !isWithinOneHour && (
-                    <View className="pt-2">
-                      {reserveStatus && (
-                        <Text
-                          className="font-black text-xs text-red-500"
-                          onPress={() => setShowCancelCardModal(true)}
-                        >
-                          CANCELAR
-                        </Text>
-                      )}
-                    </View>
-                  )
+                      <View className="pt-2">
+                        {reserveStatus && (
+                          <Text
+                            className="font-black text-xs text-red-500"
+                            onPress={() => setShowCancelCardModal(true)}
+                          >
+                            CANCELAR
+                          </Text>
+                        )}
+                      </View>
+                    )
                   : null}
               </View>
             </View>
@@ -805,8 +801,8 @@ export default function DescriptionReserve({
           </View>
           {infoScheduleData?.scheduling.data?.attributes.court_availability
             .data &&
-            typeof serviceRate === "number" &&
-            infoScheduleData.scheduling.data.attributes.valuePayed <
+          typeof serviceRate === "number" &&
+          infoScheduleData.scheduling.data.attributes.valuePayed <
             infoScheduleData.scheduling.data.attributes.court_availability.data
               .attributes.value ? (
             <>
@@ -862,36 +858,36 @@ export default function DescriptionReserve({
             <>
               {infoScheduleData?.scheduling.data?.attributes.court_availability
                 .data && (
-                  <View
-                    style={{ width: "100%", justifyContent: "center" }}
-                    className="relative"
-                  >
-                    <Text className="absolute z-10 self-center text-white font-bold">
-                      Pagamento efetuado
-                    </Text>
-                    {payedPercentage !== undefined && (
-                      <ProgressBar
-                        progress={payedPercentage}
-                        width={null}
-                        height={30}
-                        borderRadius={5}
-                        color="#0FA958"
-                        unfilledColor="#0FA95866"
-                      />
-                    )}
-                  </View>
-                )}
+                <View
+                  style={{ width: "100%", justifyContent: "center" }}
+                  className="relative"
+                >
+                  <Text className="absolute z-10 self-center text-white font-bold">
+                    Pagamento efetuado
+                  </Text>
+                  {payedPercentage !== undefined && (
+                    <ProgressBar
+                      progress={payedPercentage}
+                      width={null}
+                      height={30}
+                      borderRadius={5}
+                      color="#0FA958"
+                      unfilledColor="#0FA95866"
+                    />
+                  )}
+                </View>
+              )}
             </>
           )}
           {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-            isVanquished !== undefined &&
-            !isWithinOneHour &&
-            infoScheduleData.scheduling.data.attributes.owner.data.id !==
+          isVanquished !== undefined &&
+          !isWithinOneHour &&
+          infoScheduleData.scheduling.data.attributes.owner.data.id !==
             user_id ? (
             <>
               {!isVanquished && reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.payedStatus ===
-                  "waiting" ? (
+                "waiting" ? (
                   <View className="h-max w-full flex justify-center items-center pl-2">
                     <TouchableOpacity
                       className="pt-2 pb-5"
@@ -937,14 +933,14 @@ export default function DescriptionReserve({
             <>
               {infoScheduleData?.scheduling.data?.attributes.court_availability
                 .data &&
-                typeof serviceRate === "number" &&
-                isVanquished !== undefined &&
-                !isVanquished &&
-                !isWithinOneHour &&
-                reserveStatus ? (
+              typeof serviceRate === "number" &&
+              isVanquished !== undefined &&
+              !isVanquished &&
+              !isWithinOneHour &&
+              reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.valuePayed <
-                  infoScheduleData.scheduling.data.attributes.court_availability
-                    .data.attributes.value ? (
+                infoScheduleData.scheduling.data.attributes.court_availability
+                  .data.attributes.value ? (
                   <View className="h-28 w-60 flex-row  pr-5">
                     <View className="h-max w-max  justify-center items-start">
                       <View className="flex-row item-center justify-center">
@@ -1061,7 +1057,7 @@ export default function DescriptionReserve({
                     <Text className="text-black font-normal pl-4">
                       {
                         paymentInfo?.attributes?.users_permissions_user?.data
-                          ?.attributes?.username
+                          ?.attributes?.name
                       }
                     </Text>
                     <Text className="text-black font-normal">
@@ -1131,8 +1127,8 @@ export default function DescriptionReserve({
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-              dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url
+                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                  ?.attributes?.url
               : null
           }
           key={1}
@@ -1401,8 +1397,9 @@ export default function DescriptionReserve({
                         dataCountry?.countries.data.map(country => ({
                           value: country.attributes.ISOCode,
                           label: country.attributes.ISOCode,
-                          img: `${HOST_API}${country.attributes.flag.data?.attributes.url ?? ""
-                            }`,
+                          img: `${HOST_API}${
+                            country.attributes.flag.data?.attributes.url ?? ""
+                          }`,
                         })) ?? []
                       }
                       save="value"

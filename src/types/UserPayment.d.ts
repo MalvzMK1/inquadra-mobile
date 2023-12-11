@@ -1,5 +1,6 @@
 type user_payment = {
-    username: string
-    value: number
-    createdAt: Date
-}
+  name: string;
+  username: string;
+  value: number;
+  createdAt: Date;
+};

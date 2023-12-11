@@ -15,8 +15,10 @@ import {
   View,
 } from "react-native";
 import { CheckBox } from "react-native-elements";
+import { ScrollView } from "react-native-gesture-handler";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
+import { useUser } from "../../../context/userContext";
 import type { IRegisterUserVariables } from "../../../graphql/mutations/register";
 import {
   IUserByIdResponse,
@@ -25,8 +27,6 @@ import {
 } from "../../../graphql/queries/userById";
 import useLoginUser from "../../../hooks/useLoginUser";
 import useRegisterUser from "../../../hooks/useRegisterUser";
-import {ScrollView} from "react-native-gesture-handler";
-import {useUser} from "../../../context/userContext";
 
 type RegisterPasswordProps = NativeStackScreenProps<
   RootStackParamList,
@@ -54,7 +54,7 @@ const formSchema = z
   });
 
 export default function Password({ route, navigation }: RegisterPasswordProps) {
-  const {userData: storageUserData, setUserData} = useUser();
+  const { userData: storageUserData, setUserData } = useUser();
   const apolloClient = useApolloClient();
   const {
     control,
@@ -91,9 +91,10 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
           password: data.password,
           cpf: route.params.data.cpf,
           email: route.params.data.email,
+          username: route.params.data.email,
           role: "3",
           phone_number: route.params.data.phoneNumber,
-          username: route.params.data.name,
+          name: route.params.data.name,
         };
 
         const registerResponse = await registerUser({
@@ -145,13 +146,13 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
               userPhoto: undefined,
             },
           });
-        })
+        });
       } else if (route.params.flow === "establishment") {
         navigation.navigate("EstablishmentRegister", {
           password: data.password,
           cpf: route.params.data.cpf,
+          name: route.params.data.email,
           email: route.params.data.email,
-          username: route.params.data.name,
           phone_number: route.params.data.phoneNumber,
           role: "4",
         });
@@ -171,149 +172,151 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
   });
 
   return (
-   <KeyboardAvoidingView 
-   behavior={Platform.OS === "ios" ? "padding" : "height"}
-   keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-   style={{flex: 1}}
-   >
-     <ScrollView className='h-fit min-h-full'>
-      <View className="flex flex-col bg-white h-screen items-center p-5">
-      <View>
-        <RegisterHeader
-          title="Senha"
-          subtitle="Antes de concluir escolha uma senha de acesso."
-        />
-      </View>
-
-      <View className="gap-2 flex flex-col justify-between items-center w-full mt-2">
-        <View className="w-full">
-          <Text className="text-base mb-2">Escolha uma senha</Text>
-          <View
-            className={
-              errors.password
-                ? "flex flex-row items-center justify-between border border-red-400 rounded"
-                : "flex flex-row items-center justify-between border border-neutral-400 rounded"
-            }
-          >
-            <Controller
-              name="password"
-              control={control}
-              rules={{
-                required: true,
-                minLength: 6,
-              }}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  textContentType="password"
-                  value={value}
-                  secureTextEntry={!showPassword}
-                  onChangeText={onChange}
-                  className="p-4 flex-1"
-                  placeholder="**********"
-                />
-              )}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      style={{ flex: 1 }}
+    >
+      <ScrollView className="h-fit min-h-full">
+        <View className="flex flex-col bg-white h-screen items-center p-5">
+          <View>
+            <RegisterHeader
+              title="Senha"
+              subtitle="Antes de concluir escolha uma senha de acesso."
             />
-            <TouchableOpacity onPress={handleShowPassword}>
-              <Image
-                className="h-6 w-6 m-4"
-                source={
-                  !showPassword
-                    ? require("../../../assets/eye.png")
-                    : require("../../../assets/eye-slash.png")
-                }
-              ></Image>
-            </TouchableOpacity>
           </View>
-          {errors.password && (
-            <Text className="text-red-400 text-sm">
-              {errors.password.message}
-            </Text>
-          )}
-        </View>
 
-        <View className="w-full">
-          <Text className="text-base mt-4 mb-2">Repita a senha escolhida</Text>
-          <View
-            className={
-              errors.confirmPassword
-                ? "flex flex-row items-center justify-between border border-red-400 rounded"
-                : "flex flex-row items-center justify-between border border-neutral-400 rounded"
-            }
-          >
-            <Controller
-              name="confirmPassword"
-              control={control}
-              rules={{
-                required: true,
-                minLength: 6,
-              }}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  textContentType="password"
-                  value={value}
-                  secureTextEntry={!showConfirmedPassword}
-                  onChangeText={onChange}
-                  className="p-4 flex-1"
-                  placeholder="**********"
-                  onSubmitEditing={handleSignup}
-                  returnKeyType="send"
-                />
-              )}
-            />
-            <TouchableOpacity onPress={handleConfirmShowPassword}>
-              <Image
-                className="h-6 w-6 m-4"
-                source={
-                  !showConfirmedPassword
-                    ? require("../../../assets/eye.png")
-                    : require("../../../assets/eye-slash.png")
+          <View className="gap-2 flex flex-col justify-between items-center w-full mt-2">
+            <View className="w-full">
+              <Text className="text-base mb-2">Escolha uma senha</Text>
+              <View
+                className={
+                  errors.password
+                    ? "flex flex-row items-center justify-between border border-red-400 rounded"
+                    : "flex flex-row items-center justify-between border border-neutral-400 rounded"
                 }
+              >
+                <Controller
+                  name="password"
+                  control={control}
+                  rules={{
+                    required: true,
+                    minLength: 6,
+                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      textContentType="password"
+                      value={value}
+                      secureTextEntry={!showPassword}
+                      onChangeText={onChange}
+                      className="p-4 flex-1"
+                      placeholder="**********"
+                    />
+                  )}
+                />
+                <TouchableOpacity onPress={handleShowPassword}>
+                  <Image
+                    className="h-6 w-6 m-4"
+                    source={
+                      !showPassword
+                        ? require("../../../assets/eye.png")
+                        : require("../../../assets/eye-slash.png")
+                    }
+                  ></Image>
+                </TouchableOpacity>
+              </View>
+              {errors.password && (
+                <Text className="text-red-400 text-sm">
+                  {errors.password.message}
+                </Text>
+              )}
+            </View>
+
+            <View className="w-full">
+              <Text className="text-base mt-4 mb-2">
+                Repita a senha escolhida
+              </Text>
+              <View
+                className={
+                  errors.confirmPassword
+                    ? "flex flex-row items-center justify-between border border-red-400 rounded"
+                    : "flex flex-row items-center justify-between border border-neutral-400 rounded"
+                }
+              >
+                <Controller
+                  name="confirmPassword"
+                  control={control}
+                  rules={{
+                    required: true,
+                    minLength: 6,
+                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      textContentType="password"
+                      value={value}
+                      secureTextEntry={!showConfirmedPassword}
+                      onChangeText={onChange}
+                      className="p-4 flex-1"
+                      placeholder="**********"
+                      onSubmitEditing={handleSignup}
+                      returnKeyType="send"
+                    />
+                  )}
+                />
+                <TouchableOpacity onPress={handleConfirmShowPassword}>
+                  <Image
+                    className="h-6 w-6 m-4"
+                    source={
+                      !showConfirmedPassword
+                        ? require("../../../assets/eye.png")
+                        : require("../../../assets/eye-slash.png")
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+              {errors.confirmPassword && (
+                <Text className="text-red-400 text-sm">
+                  {errors.confirmPassword.message}
+                </Text>
+              )}
+            </View>
+
+            <View className="flex flex-row justify-start items-center w-full">
+              <CheckBox
+                checked={isTermChecked}
+                onPress={() => setIsTermChecked(!isTermChecked)}
               />
+              <Text className="text-base flex-wrap flex-1">
+                Li e estou de acordo com o{" "}
+                <Text
+                  className="text-[#3D58DB] flex-wrap"
+                  onPress={() => navigation.navigate("TermsOfService")}
+                >
+                  Termo de Uso e Política de Privacidade
+                </Text>{" "}
+              </Text>
+            </View>
+            {isTermCheckedError && (
+              <Text className="text-red-400 text-sm">Leia os termos</Text>
+            )}
+          </View>
+          <View className="flex-1 mb-14 flex w-full items-center justify-center">
+            <TouchableOpacity
+              disabled={isSubmitting}
+              className="h-14 w-full rounded-md bg-orange-500 flex items-center justify-center"
+              onPress={handleSignup}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Text className="text-white font-semibold text-base">
+                  Continuar
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
-          {errors.confirmPassword && (
-            <Text className="text-red-400 text-sm">
-              {errors.confirmPassword.message}
-            </Text>
-          )}
         </View>
-
-        <View className="flex flex-row justify-start items-center w-full">
-          <CheckBox
-            checked={isTermChecked}
-            onPress={() => setIsTermChecked(!isTermChecked)}
-          />
-          <Text className="text-base flex-wrap flex-1">
-            Li e estou de acordo com o{" "}
-            <Text
-              className="text-[#3D58DB] flex-wrap"
-              onPress={() => navigation.navigate("TermsOfService")}
-            >
-              Termo de Uso e Política de Privacidade
-            </Text>{" "}
-          </Text>
-        </View>
-        {isTermCheckedError && (
-          <Text className="text-red-400 text-sm">Leia os termos</Text>
-        )}
-      </View>
-      <View className="flex-1 mb-14 flex w-full items-center justify-center">
-        <TouchableOpacity
-          disabled={isSubmitting}
-          className="h-14 w-full rounded-md bg-orange-500 flex items-center justify-center"
-          onPress={handleSignup}
-        >
-          {isSubmitting ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <Text className="text-white font-semibold text-base">
-              Continuar
-            </Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
-    </ScrollView>
-   </KeyboardAvoidingView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

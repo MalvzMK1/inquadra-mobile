@@ -1,17 +1,17 @@
 import { useApolloClient } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   Text,
   TextInput,
   View,
-  KeyboardAvoidingView,
-  Platform
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
@@ -27,11 +27,6 @@ import {
   IUserByEmailVariables,
   userByEmailQuery,
 } from "../../../graphql/queries/userByEmail";
-import {
-  UserByUsernameResponse,
-  UserByUsernameVariables,
-  userByUsernameQuery,
-} from "../../../graphql/queries/userByUsername";
 import validateCpf from "../../../utils/validateCPF";
 
 interface IFormDatas {
@@ -74,30 +69,32 @@ export default function Register({
 
   const handleGoToNextRegisterPage = handleSubmit(async data => {
     try {
-      const [{ data: emailData }, { data: usernameData }, { data: cpfData }] =
-        await Promise.all([
-          apolloClient.query<IUserByEmailResponse, IUserByEmailVariables>({
-            fetchPolicy: "network-only",
-            query: userByEmailQuery,
-            variables: {
-              email: data.email,
-            },
-          }),
-          apolloClient.query<UserByUsernameResponse, UserByUsernameVariables>({
-            fetchPolicy: "network-only",
-            query: userByUsernameQuery,
-            variables: {
-              username: data.name,
-            },
-          }),
-          apolloClient.query<UserByCpfResponse, UserByCpfVariables>({
-            fetchPolicy: "network-only",
-            query: userByCpfQuery,
-            variables: {
-              cpf: data.cpf,
-            },
-          }),
-        ]);
+      const [
+        { data: emailData },
+        /*{ data: usernameData }, */ { data: cpfData },
+      ] = await Promise.all([
+        apolloClient.query<IUserByEmailResponse, IUserByEmailVariables>({
+          fetchPolicy: "network-only",
+          query: userByEmailQuery,
+          variables: {
+            email: data.email,
+          },
+        }),
+        // apolloClient.query<UserByUsernameResponse, UserByUsernameVariables>({
+        //   fetchPolicy: "network-only",
+        //   query: userByUsernameQuery,
+        //   variables: {
+        //     username: data.name,
+        //   },
+        // }),
+        apolloClient.query<UserByCpfResponse, UserByCpfVariables>({
+          fetchPolicy: "network-only",
+          query: userByCpfQuery,
+          variables: {
+            cpf: data.cpf,
+          },
+        }),
+      ]);
 
       if (emailData.usersPermissionsUsers.data.length > 0) {
         return Alert.alert("Erro", "Este e-mail já está em uso.");
@@ -116,13 +113,15 @@ export default function Register({
     }
   });
 
-
   return (
     <KeyboardAvoidingView
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={{flex: 1}}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
     >
-  <ScrollView className="bg-white h-screen" contentContainerStyle={{ padding: 24 }}>
+      <ScrollView
+        className="bg-white h-screen"
+        contentContainerStyle={{ padding: 24 }}
+      >
         <RegisterHeader
           title="Cadastro"
           subtitle="Vamos precisar de alguns dados seus..."
@@ -148,7 +147,9 @@ export default function Register({
               )}
             />
             {errors.name && (
-              <Text className="text-red-400 text-sm">{errors.name.message}</Text>
+              <Text className="text-red-400 text-sm">
+                {errors.name.message}
+              </Text>
             )}
           </View>
 
@@ -178,7 +179,9 @@ export default function Register({
               )}
             />
             {errors.email && (
-              <Text className="text-red-400 text-sm">{errors.email.message}</Text>
+              <Text className="text-red-400 text-sm">
+                {errors.email.message}
+              </Text>
             )}
           </View>
 
@@ -262,7 +265,9 @@ export default function Register({
           {isSubmitting ? (
             <ActivityIndicator size="small" color="white" />
           ) : (
-            <Text className="text-white text-base font-semibold">Continuar</Text>
+            <Text className="text-white text-base font-semibold">
+              Continuar
+            </Text>
           )}
         </TouchableOpacity>
       </ScrollView>

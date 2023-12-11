@@ -36,8 +36,8 @@ type RootStackParamList = {
     logo: string | undefined;
   };
   CourtPriceHour: {
-    minimumCourtPrice?: string
-  }
+    minimumCourtPrice?: string;
+  };
   EditCourt: {
     courtId: string | undefined;
     userPhoto: string | undefined;
@@ -52,12 +52,12 @@ type RootStackParamList = {
     flow: "normal" | "establishment";
   };
   EstablishmentRegister: {
-    username: string;
+    name: string;
     cpf: string;
     email: string;
     password: string;
-    phone_number: string;
     role: string;
+    phone_number: string;
   };
   CancelScheduling: {
     scheduleID: string;
@@ -65,10 +65,12 @@ type RootStackParamList = {
     establishmentPicture: string;
   };
   Home: {
-    userGeolocation?: {
-      latitude: number;
-      longitude: number;
-    } | undefined;
+    userGeolocation?:
+      | {
+          latitude: number;
+          longitude: number;
+        }
+      | undefined;
     userPhoto?: string | undefined;
     loadUserInfos?: boolean | undefined;
   };
@@ -133,7 +135,7 @@ type RootStackParamList = {
   > & {
     address: Omit<Address, "id" | "longitude" | "latitude">;
     profileInfos: {
-      username: string;
+      name: string;
       cpf: string;
       email: string;
       password: string;
@@ -189,7 +191,7 @@ type RootStackParamList = {
   };
   AllVeryWell: {
     profileInfos: {
-      username: string;
+      name: string;
       cpf: string;
       email: string;
       password: string;

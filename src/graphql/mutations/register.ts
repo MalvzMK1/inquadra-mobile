@@ -5,8 +5,9 @@ export interface IRegisterUserResponse {
     data: {
       id: string;
       attributes: {
-        username: User["username"];
+        name: User["name"];
         email: User["email"];
+        username: User["username"];
         phoneNumber: User["phoneNumber"];
         role: {
           data: {
@@ -20,6 +21,7 @@ export interface IRegisterUserResponse {
 }
 
 export interface IRegisterUserVariables {
+  name: string;
   username: string;
   email: string;
   phone_number: string;
@@ -30,6 +32,7 @@ export interface IRegisterUserVariables {
 
 export const registerUserMutation = gql`
   mutation newUser(
+    $name: String!
     $username: String
     $email: String
     $phone_number: String
@@ -39,6 +42,7 @@ export const registerUserMutation = gql`
   ) {
     createUsersPermissionsUser(
       data: {
+        name: $name
         username: $username
         email: $email
         phoneNumber: $phone_number
@@ -50,8 +54,9 @@ export const registerUserMutation = gql`
       data {
         id
         attributes {
-          username
+          name
           email
+          username
           phoneNumber
           role {
             data {

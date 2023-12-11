@@ -33,6 +33,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { z } from "zod";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CreditCardCard from "../../components/CreditCardInfoCard";
+import { useUser } from "../../context/userContext";
 import useCountries from "../../hooks/useCountries";
 import useDeleteUser from "../../hooks/useDeleteUser";
 import useUpdateUser from "../../hooks/useUpdateUser";
@@ -41,7 +42,6 @@ import { useGetUserById } from "../../hooks/useUserById";
 import useUserPaymentCountry from "../../hooks/useUserPaymentCountry";
 import { Card } from "../../types/Card";
 import { getUsersCountryId } from "../../utils/getUsersCountryId";
-import {useUser} from "../../context/userContext";
 
 interface IFormData {
   photo: string;
@@ -130,7 +130,7 @@ export default function ProfileSettings({
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [countryId, setCountryId] = useState<string | number>();
   const [photoData, setPhotoData] = useState<Photo>();
-  const [userPhotoID, setUserPhotoID] = useState<string>()
+  const [userPhotoID, setUserPhotoID] = useState<string>();
 
   const [countriesArray, setCountriesArray] = useState<
     Array<{ key: string; value: string }>
@@ -143,13 +143,15 @@ export default function ProfileSettings({
   const [isLoading, setIsLoading] = useState(false);
   const [userCountry, setUserCountry] = useState<Country>();
 
-  const { data: userPaymentCountryData } = useUserPaymentCountry(userData?.id ?? '');
-  const { loading, data } = useGetUserById(userData?.id ?? '');
+  const { data: userPaymentCountryData } = useUserPaymentCountry(
+    userData?.id ?? "",
+  );
+  const { loading, data } = useGetUserById(userData?.id ?? "");
   const { data: countriesData, loading: countriesLoading } = useCountries();
   const [updateUser] = useUpdateUser();
 
   const [deleteUser] = useDeleteUser();
-  let userNameDefault = data?.usersPermissionsUser.data?.attributes.username!;
+  let userNameDefault = data?.usersPermissionsUser.data?.attributes.name!;
   let emailDefault = data?.usersPermissionsUser.data?.attributes.email!;
   let phoneDefault = data?.usersPermissionsUser.data?.attributes.phoneNumber!;
   let cpfDefault = data?.usersPermissionsUser.data?.attributes.cpf!;
@@ -270,7 +272,7 @@ export default function ProfileSettings({
     setUserData({
       id: undefined,
       jwt: undefined,
-      geolocation: userData?.geolocation
+      geolocation: userData?.geolocation,
     });
 
     setShowExitConfirmation(false);
@@ -278,8 +280,8 @@ export default function ProfileSettings({
     navigation.navigate("Home", {
       userPhoto: undefined,
       userGeolocation: userData?.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
-      loadUserInfos: true
-    })
+      loadUserInfos: true,
+    });
   };
 
   const handleCancelExit = () => {
@@ -289,14 +291,14 @@ export default function ProfileSettings({
   const [profilePicture, setProfilePicture] = useState<string | undefined>();
   const haveProfilePicture: boolean =
     data?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url !==
-      undefined
+    undefined
       ? true
       : false;
   const [photo, setPhoto] = useState("");
   const [imageEdited, setImageEdited] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
 
-  console.log("id da foto atual:", userPhotoID)
+  console.log("id da foto atual:", userPhotoID);
 
   useFocusEffect(() => {
     if (
@@ -342,7 +344,6 @@ export default function ProfileSettings({
     }
   };
 
-
   const uploadImage = async (selectedImageUri: string) => {
     setIsLoading(true);
     const apiUrl = "https://api-inquadra-uat.qodeless.com.br";
@@ -352,7 +353,7 @@ export default function ProfileSettings({
       uri: selectedImageUri,
       name: "profile.jpg",
       type: "image/jpeg",
-    });
+    } as any);
 
     try {
       const response = await axios.post(`${apiUrl}/api/upload`, formData, {
@@ -396,27 +397,20 @@ export default function ProfileSettings({
           email: data.email,
           cpf: data.cpf,
           phone_number: data.phone_number,
-          username: data.username,
+          name: data.username,
+          username: data.email,
           photo: data.photo,
         },
       });
     } else {
-      console.log("ó", {
-        user_id: data.user_id,
-        email: data.email,
-        cpf: data.cpf,
-        phone_number: data.phone_number,
-        username: data.username,
-        photo: data.photo ?? "",
-      })
-
       await updateUser({
         variables: {
           user_id: data.user_id,
           email: data.email,
           cpf: data.cpf,
           phone_number: data.phone_number,
-          username: data.username,
+          name: data.username,
+          username: data.email,
           photo: data.photo,
         },
       });
@@ -434,17 +428,11 @@ export default function ProfileSettings({
           console.log({ photo });
         }
 
-        console.log("ala:", {
-          photo: uploadedImageID !== undefined && uploadedImageID !== null ? uploadedImageID : userPhotoID,
-          username: data.name,
-          cpf: data.cpf,
-          phone_number: data.phoneNumber,
-          user_id: userInfos.id,
-          email: data.email,
-        })
-
         await updateUserValidatingPhoto({
-          photo: uploadedImageID !== undefined && uploadedImageID !== null ? uploadedImageID : userPhotoID,
+          photo:
+            uploadedImageID !== undefined && uploadedImageID !== null
+              ? uploadedImageID
+              : userPhotoID,
           username: data.name,
           cpf: data.cpf,
           phone_number: data.phoneNumber,
@@ -485,7 +473,13 @@ export default function ProfileSettings({
     let newUserInfos = userInfos;
 
     if (!loading && data && data.usersPermissionsUser.data) {
-      setUserPhotoID(data.usersPermissionsUser.data.attributes.photo.data?.id !== undefined && data.usersPermissionsUser.data.attributes.photo.data?.id !== null ? data.usersPermissionsUser.data.attributes.photo.data?.id : "")
+      setUserPhotoID(
+        data.usersPermissionsUser.data.attributes.photo.data?.id !==
+          undefined &&
+          data.usersPermissionsUser.data.attributes.photo.data?.id !== null
+          ? data.usersPermissionsUser.data.attributes.photo.data?.id
+          : "",
+      );
       setPhotoData({
         id: data.usersPermissionsUser.data.attributes.photo.data?.id ?? "",
         name:
@@ -499,22 +493,28 @@ export default function ProfileSettings({
             .url ?? "",
         size: 1024,
       });
-      if (data.usersPermissionsUser.data.attributes.paymentCardInformations !== null && data.usersPermissionsUser.data.attributes.paymentCardInformations !== undefined) {
+      if (
+        data.usersPermissionsUser.data.attributes.paymentCardInformations !==
+          null &&
+        data.usersPermissionsUser.data.attributes.paymentCardInformations !==
+          undefined
+      ) {
         newUserInfos = {
           id: data.usersPermissionsUser.data.id,
-          username: data.usersPermissionsUser.data.attributes.username,
           cpf: data.usersPermissionsUser.data.attributes.cpf,
+          name: data.usersPermissionsUser.data.attributes.name,
           email: data.usersPermissionsUser.data.attributes.email,
+          username: data.usersPermissionsUser.data.attributes.username,
           phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
           photo: photoData,
           paymentCardInfos: {
             dueDate: data.usersPermissionsUser.data.attributes
               .paymentCardInformations.dueDate
-              ? data.usersPermissionsUser.data.attributes.paymentCardInformations
-                .dueDate
+              ? data.usersPermissionsUser.data.attributes
+                  .paymentCardInformations.dueDate
               : "",
-            cvv: data.usersPermissionsUser.data.attributes.paymentCardInformations
-              .cvv
+            cvv: data.usersPermissionsUser.data.attributes
+              .paymentCardInformations.cvv
               ? data.usersPermissionsUser.data.attributes.paymentCardInformations.cvv.toString()
               : "",
             country: {
@@ -522,13 +522,14 @@ export default function ProfileSettings({
               name: userCountry?.name ?? "Brasil",
             },
           },
-        }
+        };
       } else {
         newUserInfos = {
           id: data.usersPermissionsUser.data.id,
-          username: data.usersPermissionsUser.data.attributes.username,
           cpf: data.usersPermissionsUser.data.attributes.cpf,
+          name: data.usersPermissionsUser.data.attributes.name,
           email: data.usersPermissionsUser.data.attributes.email,
+          username: data.usersPermissionsUser.data.attributes.username,
           phoneNumber: data.usersPermissionsUser.data.attributes.phoneNumber,
           photo: photoData,
           paymentCardInfos: {
@@ -539,21 +540,21 @@ export default function ProfileSettings({
               name: "",
             },
           },
-        }
+        };
       }
     }
     return newUserInfos;
-  }
+  };
 
   function defineDefaultFieldValues(
     userData:
       | (Omit<User, "id" | "cep" | "latitude" | "longitude" | "streetName"> & {
-        paymentCardInfos: { dueDate: string; cvv: string };
-      })
+          paymentCardInfos: { dueDate: string; cvv: string };
+        })
       | undefined,
   ): void {
     if (userData) {
-      setValue("name", userData.username);
+      setValue("name", userData.name);
       setValue("email", userData.email);
       setValue("phoneNumber", userData.phoneNumber);
       setValue("cpf", userData.cpf);
@@ -656,7 +657,7 @@ export default function ProfileSettings({
   useEffect(() => {
     AsyncStorage.getItem(`user${userData?.id}Cards`, (error, result) => {
       if (error) {
-        null
+        null;
       } else {
         const parsedCards = JSON.parse(result || "[]");
         setCards(parsedCards);
@@ -665,17 +666,17 @@ export default function ProfileSettings({
   }, [showCreditCards]);
 
   function clearCardDatas(): void {
-    setPaymentCardValue('cardNumber', '');
-    setPaymentCardValue('cvv', '');
-    setPaymentCardValue('cep', '');
-    setPaymentCardValue('district', '');
-    setPaymentCardValue('state', '');
-    setPaymentCardValue('street', '');
-    setPaymentCardValue('dueDate', '');
-    setPaymentCardValue('complement', '');
-    setPaymentCardValue('country', '');
-    setPaymentCardValue('houseNumber', '');
-    setPaymentCardValue('city', '');
+    setPaymentCardValue("cardNumber", "");
+    setPaymentCardValue("cvv", "");
+    setPaymentCardValue("cep", "");
+    setPaymentCardValue("district", "");
+    setPaymentCardValue("state", "");
+    setPaymentCardValue("street", "");
+    setPaymentCardValue("dueDate", "");
+    setPaymentCardValue("complement", "");
+    setPaymentCardValue("country", "");
+    setPaymentCardValue("houseNumber", "");
+    setPaymentCardValue("city", "");
   }
 
   const addCard = async (
@@ -691,7 +692,7 @@ export default function ProfileSettings({
     state: string,
     cvv: string,
     name: string,
-    cpf: string
+    cpf: string,
   ): Promise<void> => {
     const newCard: Card = {
       id: cards.length,
@@ -707,7 +708,7 @@ export default function ProfileSettings({
       state: state,
       cvv: cvv,
       name: name,
-      cpf: cpf
+      cpf: cpf,
     };
 
     setCards(prevCards => [...prevCards, newCard]);
@@ -770,7 +771,7 @@ export default function ProfileSettings({
     if (userData) {
       userData.jwt && setJwtToken(userData.jwt);
     }
-  }, [userData])
+  }, [userData]);
 
   return (
     <AlertNotificationRoot>
@@ -962,10 +963,11 @@ export default function ProfileSettings({
                           <MaskInput
                             value={getPaymentCardValues("cardNumber")}
                             placeholder="Ex: 0000-0000-0000-0000"
-                            className={`p-3 border ${paymentCardErrors.cvv
-                              ? "border-red-400"
-                              : "border-gray-500"
-                              } rounded-md h-18`}
+                            className={`p-3 border ${
+                              paymentCardErrors.cvv
+                                ? "border-red-400"
+                                : "border-gray-500"
+                            } rounded-md h-18`}
                             onChangeText={onChange}
                             mask={Masks.CREDIT_CARD}
                             keyboardType="numeric"
@@ -990,10 +992,11 @@ export default function ProfileSettings({
                           render={({ field: { onChange } }) => (
                             <TextInputMask
                               value={getPaymentCardValues("dueDate")}
-                              className={`p-3 border ${paymentCardErrors.dueDate
-                                ? "border-red-400"
-                                : "border-gray-500"
-                                } rounded-md h-18 flex-1`}
+                              className={`p-3 border ${
+                                paymentCardErrors.dueDate
+                                  ? "border-red-400"
+                                  : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
                               type={"datetime"}
                               options={{
                                 format: "MM/YY",
@@ -1019,10 +1022,11 @@ export default function ProfileSettings({
                           render={({ field: { onChange } }) => (
                             <TextInput
                               value={getPaymentCardValues("cvv")}
-                              className={`p-3 border ${paymentCardErrors.cvv
-                                ? "border-red-400"
-                                : "border-gray-500"
-                                } rounded-md h-18 flex-1`}
+                              className={`p-3 border ${
+                                paymentCardErrors.cvv
+                                  ? "border-red-400"
+                                  : "border-gray-500"
+                              } rounded-md h-18 flex-1`}
                               onChangeText={onChange}
                               placeholder="***"
                               keyboardType="numeric"
@@ -1266,7 +1270,7 @@ export default function ProfileSettings({
                     </Text>
                   )
                 ) : null}
-                <View className='h-fit'>
+                <View className="h-fit">
                   <TouchableOpacity
                     onPress={() => setEditPasswordModal(true)}
                     className="flex flex-row justify-end items-center h-fit"
@@ -1275,7 +1279,7 @@ export default function ProfileSettings({
                       Alterar senha
                     </Text>
                   </TouchableOpacity>
-                  <View className='mb-20'>
+                  <View className="mb-20">
                     <View className="p-2">
                       <TouchableOpacity
                         onPress={handleSubmit(updateUserInfos)}
@@ -1283,7 +1287,9 @@ export default function ProfileSettings({
                       >
                         <Text className="text-white">
                           {isLoading ? (
-                            <View style={{ alignItems: "center", paddingTop: 5 }}>
+                            <View
+                              style={{ alignItems: "center", paddingTop: 5 }}
+                            >
                               <ActivityIndicator size="small" color="#FFFF" />
                               <Text style={{ marginTop: 6, color: "white" }}>
                                 {loadingMessage}

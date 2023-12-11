@@ -1,5 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
@@ -19,13 +20,14 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { TextInputMask } from "react-native-masked-text";
-import SvgUri from "react-native-svg-uri";
 import Icon from "react-native-vector-icons/Ionicons";
 import { z } from "zod";
+import CreditCardCard from "../../components/CreditCardInfoCard";
 import PaymentCompleted, {
   TPaymentStatus,
 } from "../../components/PaymentCompleted";
 import { calculateDistance } from "../../components/calculateDistance/calculateDistance";
+import { useUser } from "../../context/userContext";
 import useCountries from "../../hooks/useCountries";
 import useDeleteUserPaymentCard from "../../hooks/useDeleteUserPaymentCard";
 import { useReserveInfo } from "../../hooks/useInfoReserve";
@@ -37,6 +39,7 @@ import { useUserPaymentCard } from "../../hooks/useUserPaymentCard";
 import { useUserPaymentPix } from "../../hooks/useUserPaymentPix";
 import { CieloRequestManager } from "../../services/cieloRequestManager";
 import { generatePix } from "../../services/pixCielo";
+import { Card } from "../../types/Card";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import { API_BASE_URL, SERVICE_FEE } from "../../utils/constants";
@@ -44,10 +47,6 @@ import { convertToAmericanDate } from "../../utils/formatDate";
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
-import {useUser} from "../../context/userContext";
-import { Card } from "../../types/Card";
-import CreditCardCard from "../../components/CreditCardInfoCard";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const formSchema = z.object({
   name: z
@@ -64,7 +63,7 @@ const formSchema = z.object({
   date: z
     .string({ required_error: "É necessário inserior a data de vencimento" })
     .refine(
-      (value) => {
+      value => {
         const [month, year] = value.split("/");
         const numericMonth = parseInt(month, 10);
         const numericYear = parseInt(year, 10);
@@ -81,7 +80,7 @@ const formSchema = z.object({
         }
         return inputDate > currentDate;
       },
-      { message: "A data de vencimento é inválida" }
+      { message: "A data de vencimento é inválida" },
     ),
   cep: z
     .string({ required_error: "É necessário inserir o CEP" })
@@ -129,13 +128,9 @@ export default function ReservationPaymentSign({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "ReservationPaymentSign">) {
-  const {userData: storageUserData} = useUser();
-  const {
-    courtId,
-    courtImage,
-    courtAvailabilityDate,
-    courtAvailabilities,
-  } = route.params;
+  const { userData: storageUserData } = useUser();
+  const { courtId, courtImage, courtAvailabilityDate, courtAvailabilities } =
+    route.params;
 
   const [showCameraIcon, setShowCameraIcon] = useState(false);
   const [showCard, setShowCard] = useState(false);
@@ -156,11 +151,12 @@ export default function ReservationPaymentSign({
   const [signalValue, setSignalValue] = useState<number>();
   const [signalValuePix, setSignalValuePix] = useState<number>();
   const [cardPaymentLoading, setCardPaymentLoading] = useState<boolean>(false);
-  const [paymentStatus, setPaymentStatus] = useState<TPaymentStatus>("processing");
+  const [paymentStatus, setPaymentStatus] =
+    useState<TPaymentStatus>("processing");
   const [cards, setCards] = useState<Card[]>([]);
   const [showConfirmPayment, setShowConfirmPayment] = useState(false);
-  const [selectedCard, setSelectedCard] = useState<Card>()
-  const {userData} = useUser();
+  const [selectedCard, setSelectedCard] = useState<Card>();
+  const { userData } = useUser();
 
   const { data: dataReserve, loading: loadingReserve } = useReserveInfo(
     courtAvailabilities,
@@ -172,16 +168,16 @@ export default function ReservationPaymentSign({
             .minimumScheduleValue
         ) {
           const scheduleValue = data.courtAvailability.data.attributes.value;
-          const signalValue =
-            data?.courtAvailability.data.attributes.court.data.attributes
-              .minimumScheduleValue;
+          // const signalValue =
+          //   data?.courtAvailability.data.attributes.court.data.attributes
+          //     .minimumScheduleValue;
 
           setReserveValue(scheduleValue);
           setServiceValue(scheduleValue * SERVICE_FEE);
           setTotalValue(scheduleValue + scheduleValue * SERVICE_FEE);
         }
       },
-    }
+    },
   );
 
   const [userPaymentCard] = useUserPaymentCard();
@@ -195,7 +191,7 @@ export default function ReservationPaymentSign({
         if (data.usersPermissionsUser.data.attributes.address) {
           setValue(
             "cep",
-            data.usersPermissionsUser.data.attributes.address.cep
+            data.usersPermissionsUser.data.attributes.address.cep,
           );
         }
       }
@@ -204,7 +200,9 @@ export default function ReservationPaymentSign({
 
   const [updateStatusCourtAvailability] = useUpdateCourtAvailabilityStatus();
   const [createSchedule] = useRegisterSchedule();
-  const { data: dataUser, loading: loadingUser } = useGetUserById(userData?.id!);
+  const { data: dataUser, loading: loadingUser } = useGetUserById(
+    userData?.id!,
+  );
   const [addPaymentPix] = useUserPaymentPix();
 
   const loadingScreenInfos = () => {
@@ -216,35 +214,36 @@ export default function ReservationPaymentSign({
       dataReserve?.courtAvailability.data.attributes.court.data.attributes
         .fantasy_name
         ? dataReserve?.courtAvailability.data.attributes.court.data.attributes
-          .fantasy_name
-        : ""
+            .fantasy_name
+        : "",
     );
     setSignalValueValidate(
       dataReserve?.courtAvailability.data.attributes.value ===
-      amountToPayHold + (serviceValue ?? 0)
+        amountToPayHold + (serviceValue ?? 0),
     );
     console.log(
       "validação:",
       dataReserve?.courtAvailability.data.attributes.value ===
-      amountToPayHold + (serviceValue ?? 0)
+        amountToPayHold + (serviceValue ?? 0),
     );
     setUserPhoto(route.params.userPhoto);
     setValuePayed(
-      dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue ?? 0
+      dataReserve?.courtAvailability.data.attributes.court.data.attributes
+        .minimumScheduleValue ?? 0,
     );
     setSignalValue(
       Number(
         dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-          2
-        )
-      )
+          2,
+        ),
+      ),
     );
     setSignalValuePix(
       Number(
         dataReserve?.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-          2
-        )
-      ) * 100
+          2,
+        ),
+      ) * 100,
     );
   };
 
@@ -253,7 +252,7 @@ export default function ReservationPaymentSign({
       if (!isScreenLoading) {
         loadingScreenInfos();
       }
-    }, [isScreenLoading])
+    }, [isScreenLoading]),
   );
 
   useEffect(() => {
@@ -268,7 +267,7 @@ export default function ReservationPaymentSign({
   useEffect(() => {
     AsyncStorage.getItem(`user${userData?.id}Cards`, (error, result) => {
       if (error) {
-        null
+        null;
       } else {
         const parsedCards = JSON.parse(result || "[]");
         setCards(parsedCards);
@@ -303,27 +302,27 @@ export default function ReservationPaymentSign({
 
   const courtLatitude = parseFloat(
     dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes
-      ?.establishment?.data?.attributes?.address?.latitude ?? "0"
+      ?.establishment?.data?.attributes?.address?.latitude ?? "0",
   );
   const courtLongitude = parseFloat(
     dataReserve?.courtAvailability?.data?.attributes?.court?.data?.attributes
-      ?.establishment?.data?.attributes?.address?.longitude ?? "0"
+      ?.establishment?.data?.attributes?.address?.longitude ?? "0",
   );
 
   const distanceInMeters = useMemo(() => {
     const userLatitude = parseFloat(
-      userGeolocation?.latitude.toString() ?? "0"
+      userGeolocation?.latitude.toString() ?? "0",
     );
 
     const userLongitude = parseFloat(
-      userGeolocation?.longitude.toString() ?? "0"
+      userGeolocation?.longitude.toString() ?? "0",
     );
 
     return calculateDistance(
       userLatitude,
       userLongitude,
       courtLatitude,
-      courtLongitude
+      courtLongitude,
     );
   }, [userGeolocation, courtLatitude, courtLongitude]);
 
@@ -345,7 +344,7 @@ export default function ReservationPaymentSign({
     try {
       if (countryName && dataCountry) {
         const selectedCountry = dataCountry.countries.data.find(
-          (name) => name.attributes.name === countryName
+          name => name.attributes.name === countryName,
         );
 
         if (selectedCountry) {
@@ -356,13 +355,13 @@ export default function ReservationPaymentSign({
     } catch (error) {
       Alert.alert(
         "Erro ao procurar país",
-        JSON.stringify(error) ?? String(error)
+        JSON.stringify(error) ?? String(error),
       );
       return "";
     }
   };
 
-  const handlePay = handleSubmit(async (values) => {
+  const handlePay = handleSubmit(async values => {
     try {
       const cieloRequestManager = new CieloRequestManager();
       const countryId = getCountryIdByName(selected);
@@ -372,10 +371,10 @@ export default function ReservationPaymentSign({
 
       const signalAmount = dataReserve
         ? Number(
-          dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-            2
+            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+              2,
+            ),
           )
-        )
         : undefined;
 
       if (
@@ -465,8 +464,10 @@ export default function ReservationPaymentSign({
             if (createdUserPayment) {
               cieloRequestManager
                 .authorizePayment(body)
-                .then(async (cieloResponse) => {
-                  const newScheduleId = await createNewSchedule(totalSignalValue);
+                .then(async cieloResponse => {
+                  const newScheduleId = await createNewSchedule(
+                    totalSignalValue,
+                  );
 
                   if (
                     newScheduleId &&
@@ -493,30 +494,31 @@ export default function ReservationPaymentSign({
                             handleSaveCard();
                             setPaymentStatus("completed");
                           })
-                          .catch((error) => {
+                          .catch(error => {
                             console.error(error);
                             setPaymentStatus("failed");
                           });
                       })
-                      .catch((error) => {
+                      .catch(error => {
                         console.error(JSON.stringify(error, null, 2));
                         alert("Erro ao registrar a cobrança no banco de dados");
                         setPaymentStatus("failed");
                       });
                   }
                 })
-                .catch((error) => {
+                .catch(error => {
                   console.error(JSON.stringify(error, null, 2));
                   alert("Não foi possível realizar o pagamento");
                   deleteUserPaymentCard({
                     variables: {
-                      userPaymentId: createdUserPayment.createUserPayment.data.id,
+                      userPaymentId:
+                        createdUserPayment.createUserPayment.data.id,
                     },
                   });
                 });
             }
           })
-          .catch((error) => {
+          .catch(error => {
             console.error(JSON.stringify(error, null, 2));
             setPaymentStatus("failed");
           });
@@ -531,7 +533,6 @@ export default function ReservationPaymentSign({
     }
   });
   const handlePayCardSave = async (card: Card) => {
-
     try {
       const cieloRequestManager = new CieloRequestManager();
       const countryId = getCountryIdByName(selected);
@@ -541,10 +542,10 @@ export default function ReservationPaymentSign({
 
       const signalAmount = dataReserve
         ? Number(
-          dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-            2
+            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+              2,
+            ),
           )
-        )
         : undefined;
 
       if (
@@ -605,7 +606,7 @@ export default function ReservationPaymentSign({
             Brand: brand,
           },
         },
-      };      
+      };
       const response = await cieloRequestManager.authorizePayment(body);
 
       userPaymentCard({
@@ -633,7 +634,7 @@ export default function ReservationPaymentSign({
           if (createdUserPayment) {
             cieloRequestManager
               .authorizePayment(body)
-              .then(async (cieloResponse) => {
+              .then(async cieloResponse => {
                 const newScheduleId = await createNewSchedule(totalSignalValue);
 
                 if (
@@ -661,19 +662,19 @@ export default function ReservationPaymentSign({
                           handleSaveCard();
                           setPaymentStatus("completed");
                         })
-                        .catch((error) => {
+                        .catch(error => {
                           console.error(error);
                           setPaymentStatus("failed");
                         });
                     })
-                    .catch((error) => {
+                    .catch(error => {
                       console.error(JSON.stringify(error, null, 2));
                       alert("Erro ao registrar a cobrança no banco de dados");
                       setPaymentStatus("failed");
                     });
                 }
               })
-              .catch((error) => {
+              .catch(error => {
                 console.error(JSON.stringify(error, null, 2));
                 alert("Não foi possível realizar o pagamento");
                 deleteUserPaymentCard({
@@ -684,7 +685,7 @@ export default function ReservationPaymentSign({
               });
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.error(JSON.stringify(error, null, 2));
           setPaymentStatus("failed");
         });
@@ -701,15 +702,14 @@ export default function ReservationPaymentSign({
 
   const createNewSchedule = async (valuePayed: number) => {
     let isPayed =
-      dataReserve?.courtAvailability.data?.attributes.court.data.attributes.minimumScheduleValue ===
-      dataReserve?.courtAvailability.data?.attributes.court.data.attributes.minimumScheduleValue
+      dataReserve?.courtAvailability.data?.attributes.court.data.attributes
+        .minimumScheduleValue ===
+      dataReserve?.courtAvailability.data?.attributes.court.data.attributes
+        .minimumScheduleValue;
 
     try {
-      if (
-        storageUserData &&
-        storageUserData.id
-      ) {
-        const {data} = await createSchedule({
+      if (storageUserData && storageUserData.id) {
+        const { data } = await createSchedule({
           variables: {
             title: "r",
             court_availability: courtAvailabilities,
@@ -745,16 +745,13 @@ export default function ReservationPaymentSign({
     setIsPaymentLoading(true);
 
     try {
-      if (
-        storageUserData &&
-        storageUserData.id
-      ) {
+      if (storageUserData && storageUserData.id) {
         const signalAmount = dataReserve
           ? Number(
-          dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-            2
-          )
-        )
+              dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+                2,
+              ),
+            )
           : undefined;
 
         if (
@@ -772,7 +769,9 @@ export default function ReservationPaymentSign({
 
         const pixGenerated = await generatePix({
           MerchantOrderId:
-            storageUserData?.id + generateRandomKey(3) + new Date().toISOString(),
+            storageUserData?.id +
+            generateRandomKey(3) +
+            new Date().toISOString(),
           Customer: {
             Name: userName!,
             Identity: userCPF!,
@@ -814,7 +813,7 @@ export default function ReservationPaymentSign({
           courtId: courtId,
           courtImage: courtImage,
           userPhoto: userPhoto!,
-          scheduleValuePayed: 0
+          scheduleValuePayed: 0,
         });
       }
     } catch (error) {
@@ -896,15 +895,17 @@ export default function ReservationPaymentSign({
                 </View>
               </View>
             </TouchableOpacity>
-            {showCard && (
-              cards.length > 0 ? (
+            {showCard &&
+              (cards.length > 0 ? (
                 <View>
                   <View className=" border-gray-500 flex w-max h-max mt-3">
                     {cards.map(card => (
-                      <TouchableOpacity onPress={() => {
-                        setSelectedCard(card)
-                        setShowConfirmPayment(true)
-                      }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectedCard(card);
+                          setShowConfirmPayment(true);
+                        }}
+                      >
                         <Fragment key={card.id}>
                           <CreditCardCard
                             number={card.number}
@@ -917,7 +918,7 @@ export default function ReservationPaymentSign({
                     ))}
                   </View>
                 </View>
-              ) :
+              ) : (
                 <View className="border border-gray-500 rounded-xl p-4 mt-3 space-y-2">
                   <View className="flex-row space-x-4">
                     <View className="flex-1">
@@ -1061,7 +1062,7 @@ export default function ReservationPaymentSign({
                             className="p-3 border border-gray-500 rounded-md h-18"
                             placeholder="Ex: 000.000.000-00"
                             value={value}
-                            onChangeText={(masked) => onChange(masked)}
+                            onChangeText={masked => onChange(masked)}
                             mask={Masks.BRL_CPF}
                             keyboardType="numeric"
                           />
@@ -1087,11 +1088,13 @@ export default function ReservationPaymentSign({
                         }}
                         data={
                           (dataCountry &&
-                            dataCountry.countries.data.map((country) => ({
+                            dataCountry.countries.data.map(country => ({
                               value: country.attributes.name,
                               label: country.attributes.name,
-                              img: `${country.attributes.flag.data?.attributes.url ?? ""
-                                }`,
+                              img: `${
+                                country.attributes.flag.data?.attributes.url ??
+                                ""
+                              }`,
                             }))) ||
                           []
                         }
@@ -1119,18 +1122,18 @@ export default function ReservationPaymentSign({
                               keyboardType="numeric"
                               mask={Masks.ZIP_CODE}
                               maxLength={9}
-                              onChangeText={(masked) => {
+                              onChangeText={masked => {
                                 onChange(masked);
 
                                 if (masked.length === 9) {
                                   getAddress(masked)
-                                    .then((response) => {
+                                    .then(response => {
                                       setValue("street", response.address);
                                       setValue("district", response.district);
                                       setValue("city", response.city);
                                       setValue("state", response.state);
                                     })
-                                    .catch((error) => {
+                                    .catch(error => {
                                       console.log(error);
                                       Dialog.show({
                                         type: ALERT_TYPE.WARNING,
@@ -1158,7 +1161,9 @@ export default function ReservationPaymentSign({
                     </View>
 
                     <View className="flex-1">
-                      <Text className="text-sm text-[#FF6112] mb-1">Número</Text>
+                      <Text className="text-sm text-[#FF6112] mb-1">
+                        Número
+                      </Text>
                       <Controller
                         name="number"
                         control={control}
@@ -1278,7 +1283,9 @@ export default function ReservationPaymentSign({
                   </View>
                   <View className="flex-row space-x-4">
                     <View className="flex-1">
-                      <Text className="text-sm text-[#FF6112] mb-1">Cidade</Text>
+                      <Text className="text-sm text-[#FF6112] mb-1">
+                        Cidade
+                      </Text>
                       <Controller
                         name="city"
                         control={control}
@@ -1308,7 +1315,9 @@ export default function ReservationPaymentSign({
                     </View>
 
                     <View className="flex-1">
-                      <Text className="text-sm text-[#FF6112] mb-1">Estado</Text>
+                      <Text className="text-sm text-[#FF6112] mb-1">
+                        Estado
+                      </Text>
                       <Controller
                         name="state"
                         control={control}
@@ -1322,7 +1331,7 @@ export default function ReservationPaymentSign({
                               placeholder="Ex: XX"
                               value={value}
                               maxLength={2}
-                              onChangeText={(text) =>
+                              onChangeText={text =>
                                 onChange(text.toUpperCase())
                               }
                             />
@@ -1354,7 +1363,7 @@ export default function ReservationPaymentSign({
                     </TouchableOpacity>
                   </View>
                 </View>
-            )}
+              ))}
             <View>
               <Text className="text-center font-extrabold text-3xl text-gray-700 pt-10 pb-4">
                 Detalhes Reserva
@@ -1396,7 +1405,7 @@ export default function ReservationPaymentSign({
                       {amenitieInfo.attributes.name}
                     </Text>
                   </View>
-                )
+                ),
               )}
             </View>
           </View>
@@ -1406,7 +1415,7 @@ export default function ReservationPaymentSign({
                 Valor da Reserva
               </Text>
               <Text className="font-bold text-xl text-right text-[#717171]">
-                R$ {(amountToPay && amountToPay )?.toFixed(2)}
+                R$ {(amountToPay && amountToPay)?.toFixed(2)}
               </Text>
             </View>
             <View className="flex flex-row gap-6">
@@ -1458,20 +1467,16 @@ export default function ReservationPaymentSign({
               </View>
             </View>
           </Modal>
-          <Modal
-            transparent
-            animationType="fade"
-            visible={showConfirmPayment}
-          >
+          <Modal transparent animationType="fade" visible={showConfirmPayment}>
             <View className="flex-1 justify-center items-center bg-black bg-opacity-0 rounded">
               <View className="bg-white rounded-md items-center ">
                 <Text className="bg-white p-8 rounded text-base text-center">
                   Deseja realizar o pagamento com esse cartão ?
                 </Text>
                 <View className="flex-row">
-                <TouchableOpacity
+                  <TouchableOpacity
                     className="h-10 mb-4 w-28 rounded-md bg-orange-500 flex items-center justify-center mx-2"
-                    onPress={()=> setShowConfirmPayment(false)}
+                    onPress={() => setShowConfirmPayment(false)}
                   >
                     <Text className="text-white">CANCELAR</Text>
                   </TouchableOpacity>
@@ -1481,9 +1486,7 @@ export default function ReservationPaymentSign({
                   >
                     <Text className="text-white">CONFIRMAR</Text>
                   </TouchableOpacity>
-                
                 </View>
-
               </View>
             </View>
           </Modal>

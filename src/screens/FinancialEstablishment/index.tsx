@@ -1,5 +1,6 @@
 import { HOST_API } from "@env";
 import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -9,20 +10,23 @@ import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstabl
 import CardFinancialEstablishment from "../../components/CardFinancialEstablishment";
 import { useGetUserHistoricPayment } from "../../hooks/useGetHistoricPayment";
 import { useGetUserIDByEstablishment } from "../../hooks/useUserByEstablishmentID";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function FinancialEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "FinancialEstablishment">) {
   const [valueCollected, setValueCollected] =
-    useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
+    useState<
+      Array<{ valuePayment: number; payday: string; activated: boolean }>
+    >();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
-  const [formattedDate, setFormattedDate] = useState<string | null>(null)
-  const [establishmentPicture, setEstablishmentPicture] = useState<string | undefined>();
-  const [errorPop, setErrorPop] = useState<string>("")
-  const [courtPhoto, setCourtPhoto] = useState<string>("")
+  const [formattedDate, setFormattedDate] = useState<string | null>(null);
+  const [establishmentPicture, setEstablishmentPicture] = useState<
+    string | undefined
+  >();
+  const [errorPop, setErrorPop] = useState<string>("");
+  const [courtPhoto, setCourtPhoto] = useState<string>("");
   const [infosHistoric, setInfosHistoric] = useState<
     Array<{
       username: string;
@@ -44,12 +48,12 @@ export default function FinancialEstablishment({
 
   useEffect(() => {
     if (date !== undefined) {
-      const formattedDate = date.toISOString().split('T')[0];
-      setFormattedDate(formattedDate)
+      const formattedDate = date.toISOString().split("T")[0];
+      setFormattedDate(formattedDate);
     } else {
-      setFormattedDate(null)
+      setFormattedDate(null);
     }
-  }, [date])
+  }, [date]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -67,7 +71,11 @@ export default function FinancialEstablishment({
           endsAt: string;
         }[] = [];
 
-        const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
+        const amountPaid: {
+          valuePayment: number;
+          payday: string;
+          activated: boolean;
+        }[] = [];
 
         if (
           data &&
@@ -76,74 +84,88 @@ export default function FinancialEstablishment({
           const dataHistoric = data?.establishment.data.attributes.courts.data;
           dataHistoric?.forEach(court => {
             if (court.attributes.photo.data.length > 0) {
-              setCourtPhoto(court.attributes.photo.data[0].attributes.url)
+              setCourtPhoto(court.attributes.photo.data[0].attributes.url);
             }
             if (court.attributes.court_availabilities.data.length > 0) {
-              court.attributes.court_availabilities.data.forEach(availability => {
-                if (availability.attributes.schedulings.data.length > 0) {
-                  availability.attributes.schedulings.data.forEach(schedulings => {
-                    if (schedulings.attributes.user_payments.data.length > 0) {
-                      schedulings.attributes.user_payments.data.forEach(payment => {
-                        const user = payment.attributes.users_permissions_user.data.attributes;
+              court.attributes.court_availabilities.data.forEach(
+                availability => {
+                  if (availability.attributes.schedulings.data.length > 0) {
+                    availability.attributes.schedulings.data.forEach(
+                      schedulings => {
+                        if (
+                          schedulings.attributes.user_payments.data.length > 0
+                        ) {
+                          schedulings.attributes.user_payments.data.forEach(
+                            payment => {
+                              const user =
+                                payment.attributes.users_permissions_user.data
+                                  .attributes;
 
-                        infosCard.push({
-                          startsAt: availability.attributes.startsAt,
-                          endsAt: availability.attributes.endsAt,
-                          username: user.username,
-                          photoUser: user.photo.data.attributes.url
-                            ? HOST_API + user.photo.data.attributes.url
-                            : null,
-                          photoCourt: HOST_API + courtPhoto,
-                          valuePayed: payment.attributes.value,
-                          courtName: court.attributes.name,
-                          date: schedulings.attributes.date,
-                        });
+                              infosCard.push({
+                                startsAt: availability.attributes.startsAt,
+                                endsAt: availability.attributes.endsAt,
+                                username: user.name,
+                                photoUser: user.photo.data.attributes.url
+                                  ? HOST_API + user.photo.data.attributes.url
+                                  : null,
+                                photoCourt: HOST_API + courtPhoto,
+                                valuePayed: payment.attributes.value,
+                                courtName: court.attributes.name,
+                                date: schedulings.attributes.date,
+                              });
 
-                        amountPaid.push({
-                          valuePayment: payment.attributes.value,
-                          payday: schedulings.attributes.date,
-                          activated: schedulings.attributes.activated
-                        });
-                      })
-                    }
+                              amountPaid.push({
+                                valuePayment: payment.attributes.value,
+                                payday: schedulings.attributes.date,
+                                activated: schedulings.attributes.activated,
+                              });
+                            },
+                          );
+                        }
 
-                    if (schedulings.attributes.user_payment_pixes.data.length > 0) {
-                      schedulings.attributes.user_payment_pixes.data.forEach(payment => {
-                        const user = payment.attributes.users_permissions_user.data.attributes;
+                        if (
+                          schedulings.attributes.user_payment_pixes.data
+                            .length > 0
+                        ) {
+                          schedulings.attributes.user_payment_pixes.data.forEach(
+                            payment => {
+                              const user =
+                                payment.attributes.users_permissions_user.data
+                                  .attributes;
 
-                        infosCard.push({
-                          startsAt: availability.attributes.startsAt,
-                          endsAt: availability.attributes.endsAt,
-                          username: user.username,
-                          photoUser: user.photo.data.attributes.url
-                            ? HOST_API + user.photo.data.attributes.url
-                            : null,
-                          photoCourt: HOST_API + courtPhoto,
-                          valuePayed: payment.attributes.value,
-                          courtName: court.attributes.name,
-                          date: schedulings.attributes.date,
-                        });
+                              infosCard.push({
+                                startsAt: availability.attributes.startsAt,
+                                endsAt: availability.attributes.endsAt,
+                                username: user.name,
+                                photoUser: user.photo.data.attributes.url
+                                  ? HOST_API + user.photo.data.attributes.url
+                                  : null,
+                                photoCourt: HOST_API + courtPhoto,
+                                valuePayed: payment.attributes.value,
+                                courtName: court.attributes.name,
+                                date: schedulings.attributes.date,
+                              });
 
-                        amountPaid.push({
-                          valuePayment: payment.attributes.value,
-                          payday: schedulings.attributes.date,
-                          activated: schedulings.attributes.activated
-                        });
-
-                      })
-                    }
-                  })
-                } else {
-                  setErrorPop("Não foi encontrado nenhum agendamento")
-                }
-              })
+                              amountPaid.push({
+                                valuePayment: payment.attributes.value,
+                                payday: schedulings.attributes.date,
+                                activated: schedulings.attributes.activated,
+                              });
+                            },
+                          );
+                        }
+                      },
+                    );
+                  } else {
+                    setErrorPop("Não foi encontrado nenhum agendamento");
+                  }
+                },
+              );
             } else {
-              setErrorPop("Não foi encontrado nenhuma disponibilidade")
+              setErrorPop("Não foi encontrado nenhuma disponibilidade");
             }
-          })
+          });
         }
-
-
 
         if (infosCard) {
           setInfosHistoric(prevState => {
@@ -176,10 +198,26 @@ export default function FinancialEstablishment({
   };
 
   function isAvailableForWithdrawal() {
-    const creditValue: { valuePayment: number; payday: string; activated: boolean }[] = [];
-    const cashout: { valuePayment: number; payday: string; activated: boolean }[] = [];
-    const futureDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
-    const pastDates: { valuePayment: number; payday: string; activated: boolean }[] = [];
+    const creditValue: {
+      valuePayment: number;
+      payday: string;
+      activated: boolean;
+    }[] = [];
+    const cashout: {
+      valuePayment: number;
+      payday: string;
+      activated: boolean;
+    }[] = [];
+    const futureDates: {
+      valuePayment: number;
+      payday: string;
+      activated: boolean;
+    }[] = [];
+    const pastDates: {
+      valuePayment: number;
+      payday: string;
+      activated: boolean;
+    }[] = [];
 
     valueCollected?.forEach(item => {
       if (!item.activated) {
@@ -202,14 +240,15 @@ export default function FinancialEstablishment({
   } = useGetUserIDByEstablishment(route.params.establishmentId ?? "");
 
   useEffect(() => {
-    AsyncStorage.getItem('@inquadra/establishment-profile-photo')
-      .then(value => {
-        setEstablishmentPicture(value ? value : undefined)
+    AsyncStorage.getItem("@inquadra/establishment-profile-photo").then(
+      value => {
+        setEstablishmentPicture(value ? value : undefined);
         navigation.setParams({
           logo: value ?? undefined,
-        })
-      })
-  }, [])
+        });
+      },
+    );
+  }, []);
   return (
     <View className="flex-1">
       <ScrollView>
@@ -223,11 +262,10 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? (
-                      isAvailableForWithdrawal().cashout.reduce(
+                    ? isAvailableForWithdrawal().cashout.reduce(
                         (total, current) => total + current.valuePayment,
                         0,
-                      ))
+                      )
                     : 0}
                 </Text>
               </View>
@@ -240,10 +278,10 @@ export default function FinancialEstablishment({
                       logo: logo ?? "",
                       valueDisponible: valueCollected
                         ? isAvailableForWithdrawal().cashout.reduce(
-                          (total, current) => total + current.valuePayment,
-                          0,
-                        )
-                        : 0
+                            (total, current) => total + current.valuePayment,
+                            0,
+                          )
+                        : 0,
                     });
                   }}
                 >
@@ -259,10 +297,10 @@ export default function FinancialEstablishment({
                   logo: logo ?? "",
                   valueDisponible: valueCollected
                     ? isAvailableForWithdrawal().cashout.reduce(
-                      (total, current) => total + current.valuePayment,
-                      0,
-                    )
-                    : 0
+                        (total, current) => total + current.valuePayment,
+                        0,
+                      )
+                    : 0,
                 })
               }
             >
@@ -280,10 +318,10 @@ export default function FinancialEstablishment({
                 <Text className="text-white text-3xl font-extrabold text-center">
                   R${" "}
                   {valueCollected
-                    ? (isAvailableForWithdrawal().creditValue.reduce(
-                      (total, current) => total + current.valuePayment,
-                      0,
-                    ))
+                    ? isAvailableForWithdrawal().creditValue.reduce(
+                        (total, current) => total + current.valuePayment,
+                        0,
+                      )
                     : 0}
                 </Text>
               </View>
@@ -293,7 +331,7 @@ export default function FinancialEstablishment({
               onPress={() =>
                 navigation.navigate("DetailsAmountReceivable", {
                   establishmentId: establishmentId ?? "",
-                  logo: logo ?? ""
+                  logo: logo ?? "",
                 })
               }
             >
@@ -308,7 +346,7 @@ export default function FinancialEstablishment({
                   navigation.navigate("HistoryPayment", {
                     establishmentId: establishmentId ?? "",
                     logo: logo ?? "",
-                    dateFilter: formattedDate
+                    dateFilter: formattedDate,
                   })
                 }
               >
@@ -358,9 +396,9 @@ export default function FinancialEstablishment({
               )
                 .toString()
                 .padStart(2, "0")}-${currentDate
-                  .getDate()
-                  .toString()
-                  .padStart(2, "0")}`;
+                .getDate()
+                .toString()
+                .padStart(2, "0")}`;
 
               const cardDate = card.date;
 

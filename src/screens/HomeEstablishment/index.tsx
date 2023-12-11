@@ -8,11 +8,11 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { TextInput } from "react-native-paper";
 import { CourtType } from "../../__generated__/graphql";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
+import { useUser } from "../../context/userContext";
 import useAllCourtsEstablishment from "../../hooks/useAllCourtsEstablishment";
 import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSchedulingsByDay";
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
-import {useUser} from "../../context/userContext";
 const { parse, format } = require("date-fns");
 
 interface ICourtProps {
@@ -43,6 +43,7 @@ interface ICourtProps {
                 owner: {
                   data: {
                     attributes: {
+                      name: User["name"];
                       username: User["username"];
                     };
                   };
@@ -82,7 +83,7 @@ export default function HomeEstablishment({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "HomeEstablishment">) {
-  const {userData} = useUser();
+  const { userData } = useUser();
 
   const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string>("");
@@ -243,14 +244,12 @@ export default function HomeEstablishment({
   }, [dataSchedulings]);
 
   useEffect(() => {
-    if (
-      userData &&
-      userData.id
-    ) setUserId(userData.id);
-    else navigation.navigate('Home', {
-      userPhoto: undefined,
-      userGeolocation: userData?.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
-    });
+    if (userData && userData.id) setUserId(userData.id);
+    else
+      navigation.navigate("Home", {
+        userPhoto: undefined,
+        userGeolocation: userData?.geolocation, // TODO: IMPLEMENTAR VALIDAÇÃO DE GEOLOCALIZAÇÃO INDEFINIDA
+      });
   }, []);
 
   useEffect(() => {
@@ -269,10 +268,10 @@ export default function HomeEstablishment({
           .data?.attributes.logo.data?.attributes.url ?? undefined,
       );
       setUserName(
-        dataEstablishmentId.usersPermissionsUser.data.attributes.username,
+        dataEstablishmentId.usersPermissionsUser.data.attributes.name,
       );
       setFirstName(
-        dataEstablishmentId.usersPermissionsUser.data.attributes.username.split(
+        dataEstablishmentId.usersPermissionsUser.data.attributes.name.split(
           " ",
         )[0],
       );
@@ -314,27 +313,32 @@ export default function HomeEstablishment({
     }
   }
 
-	function setDefaultCourtInSelectList(): {key: number, value: string} | undefined {
-		if (establishmentCourts[0]) {
-			const {fantasy_name} = establishmentCourts[0].attributes;
+  function setDefaultCourtInSelectList():
+    | { key: number; value: string }
+    | undefined {
+    if (establishmentCourts[0]) {
+      const { fantasy_name } = establishmentCourts[0].attributes;
 
-			return {
-				key: 1,
-				value: fantasy_name,
-			}
-		}
-	}
+      return {
+        key: 1,
+        value: fantasy_name,
+      };
+    }
+  }
 
-	const [defaultCortOption, setDefaultCortOption] = useState<{key: number, value: string}>()
+  const [defaultCortOption, setDefaultCortOption] = useState<{
+    key: number;
+    value: string;
+  }>();
 
-	useEffect(() => {
-		const defaultOption = setDefaultCourtInSelectList();
+  useEffect(() => {
+    const defaultOption = setDefaultCourtInSelectList();
 
-		if (defaultOption) {
-			setDefaultCortOption(defaultOption);
-			setFantasyName(defaultOption.value);
-		}
-	}, [establishmentCourts[0]])
+    if (defaultOption) {
+      setDefaultCortOption(defaultOption);
+      setFantasyName(defaultOption.value);
+    }
+  }, [establishmentCourts[0]]);
 
   return (
     <View className="flex-1">
@@ -512,7 +516,7 @@ export default function HomeEstablishment({
                       }) ?? []
                     }
                     save="value"
-										defaultOption={defaultCortOption}
+                    defaultOption={defaultCortOption}
                     searchPlaceholder="Pesquisar..."
                     boxStyles={{
                       borderColor: "#FF6112",
@@ -702,7 +706,7 @@ export default function HomeEstablishment({
                                       <Text>
                                         {
                                           scheduling.attributes.owner.data
-                                            .attributes.username
+                                            .attributes.name
                                         }
                                       </Text>
                                     </View>

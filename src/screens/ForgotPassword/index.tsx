@@ -47,7 +47,7 @@ export default function ForgotPassword({
     resolver: zodResolver(formSchema),
   });
 
-  const handleSendCodePassword = handleSubmit(async (data) => {
+  const handleSendCodePassword = handleSubmit(async data => {
     try {
       const { data: userData } = await apolloClient.query<
         IUserByEmailResponse,
@@ -79,7 +79,7 @@ export default function ForgotPassword({
       }
 
       navigation.navigate("InsertResetCode", {
-        username: userInfos.attributes.username,
+        username: userInfos.attributes.name,
         email: userInfos.attributes.email,
       });
     } catch (error) {

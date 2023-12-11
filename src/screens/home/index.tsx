@@ -10,27 +10,26 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   Platform,
   TouchableOpacity,
   View,
-  Image,
 } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
+import { Text, TextInput } from "react-native-paper";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtBallon from "../../components/CourtBalloon";
 import FilterComponent from "../../components/FilterComponent";
 import SportsMenu from "../../components/SportsMenu";
+import { useUser } from "../../context/userContext";
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 import useFilters from "../../hooks/useFilters";
+import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
-import { useUser } from "../../context/userContext";
-import { Text, TextInput } from "react-native-paper";
-import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -56,7 +55,9 @@ export default function Home({
 }: Props) {
   const { userData } = useUser();
 
-  const [isUserInfosLoading, setIsUserInfosLoading] = useState<boolean>(route?.params?.loadUserInfos ?? false);
+  const [isUserInfosLoading, setIsUserInfosLoading] = useState<boolean>(
+    route?.params?.loadUserInfos ?? false,
+  );
   const [userPicture, setUserPicture] = useState<string | undefined>();
   const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
@@ -191,8 +192,8 @@ export default function Home({
         ) {
           if (data && data.establishments.data) {
             const newEstablishments = data.establishments.data
-              .filter((establishment) => establishment.attributes.courts.data)
-              .map((establishment) => {
+              .filter(establishment => establishment.attributes.courts.data)
+              .map(establishment => {
                 let establishmentObject: EstablishmentObject = {
                   id: "",
                   latitude: 0,
@@ -206,11 +207,11 @@ export default function Home({
                 let courtTypes =
                   establishment.attributes.courts.data
                     .filter(
-                      (court) => court.attributes.court_types.data.length > 0
+                      court => court.attributes.court_types.data.length > 0,
                     )
-                    .map((court) => court.attributes.court_types.data)
-                    .map((courtType) =>
-                      courtType.map((type) => type.attributes.name)
+                    .map(court => court.attributes.court_types.data)
+                    .map(courtType =>
+                      courtType.map(type => type.attributes.name),
                     ) ?? [];
 
                 if (!courtTypes) courtTypes = [];
@@ -220,17 +221,17 @@ export default function Home({
                     id: establishment.id,
                     name: establishment.attributes.corporateName,
                     latitude: Number(
-                      establishment.attributes.address?.latitude
+                      establishment.attributes.address?.latitude,
                     ),
                     longitude: Number(
-                      establishment.attributes.address?.longitude
+                      establishment.attributes.address?.longitude,
                     ),
                     distance:
                       calculateDistance(
                         userGeolocation.latitude,
                         userGeolocation.longitude,
                         Number(establishment.attributes.address?.latitude),
-                        Number(establishment.attributes.address?.longitude)
+                        Number(establishment.attributes.address?.longitude),
                       ) / 1000,
                     image:
                       HOST_API +
@@ -247,12 +248,12 @@ export default function Home({
         } else {
           const newEstablishments = establishmentsFiltered?.establishments.data
             .filter(
-              (establishment) =>
+              establishment =>
                 establishment?.attributes?.photos.data &&
                 establishment?.attributes?.photos.data.length > 0 &&
-                establishment?.attributes?.courts.data
+                establishment?.attributes?.courts.data,
             )
-            .map((establishment) => {
+            .map(establishment => {
               let establishmentObject: EstablishmentObject = {
                 id: "",
                 latitude: 0,
@@ -265,11 +266,11 @@ export default function Home({
 
               let courtTypes = establishment?.attributes?.courts
                 .data!.filter(
-                  (court) => court?.attributes?.court_types.data.length > 0
+                  court => court?.attributes?.court_types.data.length > 0,
                 )
-                .map((court) => court?.attributes?.court_types.data)
-                .map((courtType) =>
-                  courtType.map((type) => type?.attributes?.name)
+                .map(court => court?.attributes?.court_types.data)
+                .map(courtType =>
+                  courtType.map(type => type?.attributes?.name),
                 );
 
               if (!courtTypes) courtTypes = [];
@@ -280,14 +281,14 @@ export default function Home({
                   name: establishment?.attributes?.corporateName,
                   latitude: Number(establishment?.attributes?.address.latitude),
                   longitude: Number(
-                    establishment?.attributes?.address.longitude
+                    establishment?.attributes?.address.longitude,
                   ),
                   distance:
                     calculateDistance(
                       userGeolocation.latitude,
                       userGeolocation.longitude,
                       Number(establishment?.attributes?.address.latitude),
-                      Number(establishment?.attributes?.address.longitude)
+                      Number(establishment?.attributes?.address.longitude),
                     ) / 1000,
                   image:
                     HOST_API +
@@ -322,15 +323,15 @@ export default function Home({
       establishmentsFiltered,
       userGeolocation,
       userData,
-    ])
+    ]),
   );
 
   useEffect(() => {
     const newAvailableSportTypes: SportType[] = [];
 
-    availableSportTypes?.courtTypes.data.forEach((courtType) => {
+    availableSportTypes?.courtTypes.data.forEach(courtType => {
       const sportAlreadyAdded = newAvailableSportTypes.some(
-        (sport) => sport.id === courtType.id
+        sport => sport.id === courtType.id,
       );
 
       if (!sportAlreadyAdded)
@@ -408,14 +409,14 @@ export default function Home({
             establishmentsId: establishment.id,
             corporateName: establishment.attributes.corporateName,
           };
-        }
+        },
       );
       const filteredEstablishments = establishments.filter(
         (establishment: { corporateName: string }) => {
           return establishment.corporateName
             .toLowerCase()
             .includes(corporateName.toLowerCase());
-        }
+        },
       );
       setEstablishmentsInfos(filteredEstablishments);
     }
@@ -456,7 +457,7 @@ export default function Home({
         <TouchableOpacity
           className="ml-3"
           onPress={() => {
-            setMenuBurguer && setMenuBurguer((prevState) => !prevState);
+            setMenuBurguer && setMenuBurguer(prevState => !prevState);
           }}
         >
           {!menuBurguer ? (
@@ -475,7 +476,7 @@ export default function Home({
                 underlineColor="transparent"
                 className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
                 right={<TextInput.Icon icon={"magnify"} />}
-                onChangeText={(e) => {
+                onChangeText={e => {
                   setCorporateName(e);
                 }}
               />
@@ -488,7 +489,7 @@ export default function Home({
               underlineColor="transparent"
               className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
               right={<TextInput.Icon icon={"magnify"} />}
-              onChangeText={(e) => {
+              onChangeText={e => {
                 setCorporateName(e);
               }}
             />
@@ -497,7 +498,7 @@ export default function Home({
           <View className="absolute top-[55px] w-full">
             {EstablishmentsInfos ? (
               EstablishmentsInfos.length > 0 ? (
-                EstablishmentsInfos.map((item) => {
+                EstablishmentsInfos.map(item => {
                   return (
                     <TouchableOpacity
                       key={item.establishmentsId}
@@ -525,30 +526,33 @@ export default function Home({
             )}
           </View>
         </>
-        {
-          isUserInfosLoading ?
-            <ActivityIndicator size={'small'} color={'#FF1116'} className={'w-12 h-12'} />
-            :
-            <TouchableOpacity
-              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
-              onPress={() => {
-                if (userData && userData.id)
-                  navigation.navigate("ProfileSettings", {
-                    userPhoto: HOST_API + userPicture ?? undefined,
-                  });
-                else navigation.navigate("Login");
-              }}
-            >
-              <Image
-                source={
-                  userPicture
-                    ? { uri: userPicture }
-                    : require("../../assets/default-user-image.png")
-                }
-                className="w-full h-full"
-              />
-            </TouchableOpacity>
-        }
+        {isUserInfosLoading ? (
+          <ActivityIndicator
+            size={"small"}
+            color={"#FF1116"}
+            className={"w-12 h-12"}
+          />
+        ) : (
+          <TouchableOpacity
+            className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+            onPress={() => {
+              if (userData && userData.id)
+                navigation.navigate("ProfileSettings", {
+                  userPhoto: HOST_API + userPicture ?? undefined,
+                });
+              else navigation.navigate("Login");
+            }}
+          >
+            <Image
+              source={
+                userPicture
+                  ? { uri: userPicture }
+                  : require("../../assets/default-user-image.png")
+              }
+              className="w-full h-full"
+            />
+          </TouchableOpacity>
+        )}
       </View>
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
@@ -583,15 +587,15 @@ export default function Home({
           >
             {establishments.length > 0 &&
               establishments
-                .filter((item) => {
+                .filter(item => {
                   if (sportSelected) {
                     return item.type.split(" & ").includes(sportSelected);
                   } else {
                     return true;
                   }
                 })
-                .filter((establishment) => establishment.distance < 5)
-                .map((item) => {
+                .filter(establishment => establishment.distance < 5)
+                .map(item => {
                   return (
                     <Marker
                       key={item.id}
@@ -633,7 +637,7 @@ export default function Home({
         {!isMenuVisible && (
           <TouchableOpacity
             className={`absolute left-3 top-3`}
-            onPress={() => setIsMenuVisible((prevState) => !prevState)}
+            onPress={() => setIsMenuVisible(prevState => !prevState)}
           >
             <AntDesign name="left" size={30} color="black" />
           </TouchableOpacity>
@@ -671,7 +675,7 @@ export default function Home({
           courts={establishments.sort((a, b) => a.distance - b.distance)}
           userName={
             userData && userData.id
-              ? userHookData?.usersPermissionsUser?.data?.attributes?.username
+              ? userHookData?.usersPermissionsUser?.data?.attributes?.name
               : undefined
           }
           HandleSportSelected={HandleSportSelected}
