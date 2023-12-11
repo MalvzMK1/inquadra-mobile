@@ -30,7 +30,6 @@ import customMapStyle from "../../utils/customMapStyle";
 import { useUser } from "../../context/userContext";
 import { Text, TextInput } from "react-native-paper";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -58,9 +57,7 @@ export default function Home({
 
   const [isUserInfosLoading, setIsUserInfosLoading] = useState<boolean>(route?.params?.loadUserInfos ?? false);
   const [userPicture, setUserPicture] = useState<string | undefined>();
-  const [userPictureWithoutUrl, setUserPictureWithoutUrl] = useState<string>();
   const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
-  const [isDisabled, setIsDisabled] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
@@ -117,12 +114,9 @@ export default function Home({
     data,
     loading,
     error,
-    refetch: refetchEstablishments,
   } = useEstablishmentCardInformations();
   const {
     data: userHookData,
-    loading: userHookLoading,
-    error: userHookError,
     refetch: refetchUserInfos,
   } = useGetUserById(userId ?? "");
   const {
@@ -135,11 +129,8 @@ export default function Home({
     setSportSelected(nameSport);
   };
 
-  const [isEstablishmentsLoaded, setIsEstablishmentsLoaded] =
     useState<boolean>();
   const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>();
-  const [color, setColor] = useState<string>("white");
-
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -307,14 +298,6 @@ export default function Home({
           });
         }
       }
-
-      if (!error && !loading) {
-        setIsEstablishmentsLoaded(true);
-      } else {
-        setIsEstablishmentsLoaded(false);
-      }
-
-      // setIsUserInfosLoading(false);
     }, [
       data,
       userHookData,
@@ -369,13 +352,6 @@ export default function Home({
   }, [userGeolocation]);
 
   useEffect(() => {
-    const buttonCoordinates = {
-      top: 1,
-      left: 1,
-      right: 13,
-      bottom: 13,
-    };
-
     if (
       userHookData &&
       userHookData.usersPermissionsUser.data &&
@@ -455,7 +431,7 @@ export default function Home({
       setMenuBurguer((prevState) => !prevState);
     }
   };
-  
+
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
@@ -588,6 +564,7 @@ export default function Home({
       ) : (
         <></>
       )}
+
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
@@ -714,17 +691,15 @@ export default function Home({
           isUserInfosLoading={isUserInfosLoading}
         />
       )}
-      {
-        <BottomBlackMenu
-          screen="Home"
-          userPhoto={userPicture!}
-          isMenuVisible={!isMenuVisible}
-          paddingTop={2}
-          onMiddleButtonPress={
-            menuBurguer ? () => setMenuBurguer?.(false) : undefined
-          }
-        />
-      }
+      <BottomBlackMenu
+        screen="Home"
+        userPhoto={userPicture!}
+        isMenuVisible={!isMenuVisible}
+        paddingTop={2}
+        onMiddleButtonPress={
+          menuBurguer ? () => setMenuBurguer?.(false) : undefined
+        }
+      />
     </View>
   );
 }
