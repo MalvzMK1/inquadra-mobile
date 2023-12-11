@@ -530,39 +530,33 @@ export default function Home({
         }
       </View>
 
-      {EstablishmentsInfos ? (
-
-        EstablishmentsInfos.length > 0 ? (
-          EstablishmentsInfos.map((item) => {
-            return (
-              <View className="flex absolute top-[55px] w-full">
-                <TouchableOpacity
-                  key={item.establishmentsId}
-                  className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
-                  onPress={() => {
-                    if (userId) {
-                      navigation.navigate("EstablishmentInfo", {
-                        establishmentId: item.establishmentsId,
-                        userPhoto: userPicture,
-                      });
-                      setCorporateName("")
-                    }
-                    else navigation.navigate("Login");
-                  }}
-                >
-                  <Text className="text-sm outline-none">
-                    {item.corporateName}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            );
-          })
-        ) : (
-          <></>
-        )
-      ) : (
-        <></>
-      )}
+      {EstablishmentsInfos && EstablishmentsInfos.length > 0 && (
+        EstablishmentsInfos.map((item) => {
+          return (
+            <View className="flex absolute top-[55px] w-full">
+              <TouchableOpacity
+                key={item.establishmentsId}
+                className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
+                onPress={() => {
+                  if (userId) {
+                    navigation.navigate("EstablishmentInfo", {
+                      establishmentId: item.establishmentsId,
+                      userPhoto: userPicture,
+                    });
+                    setCorporateName("")
+                  }
+                  else navigation.navigate("Login");
+                }}
+              >
+                <Text className="text-sm outline-none">
+                  {item.corporateName}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          );
+        })
+      )
+      }
 
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
@@ -577,103 +571,103 @@ export default function Home({
         )
       )}
 
-      <View className="flex-1">
-        {userGeolocation && userGeolocationDelta && (
-          <MapView
-            className="w-screen flex-1"
-            onPress={() => setIsMenuVisible(false)}
-            customMapStyle={customMapStyle}
-            showsCompass={false}
-            showsMyLocationButton={true}
-            ref={mapView}
-            showsUserLocation
-            initialRegion={{
-              latitude: userGeolocation.latitude,
-              longitude: userGeolocation.longitude,
-              latitudeDelta: userGeolocationDelta.latDelta,
-              longitudeDelta: userGeolocationDelta.longDelta,
-            }}
-          >
-            {establishments.length > 0 &&
-              establishments
-                .filter((item) => {
-                  if (sportSelected) {
-                    return item.type.split(" & ").includes(sportSelected);
-                  } else {
-                    return true;
-                  }
-                })
-                .filter((establishment) => establishment.distance < 5)
-                .map((item) => {
-                  return (
-                    <Marker
+      {userGeolocation && userGeolocationDelta && (
+        <MapView
+          className="w-screen flex-1"
+          onPress={() => setIsMenuVisible(false)}
+          customMapStyle={customMapStyle}
+          showsCompass={false}
+          showsMyLocationButton={true}
+          ref={mapView}
+          showsUserLocation
+          initialRegion={{
+            latitude: userGeolocation.latitude,
+            longitude: userGeolocation.longitude,
+            latitudeDelta: userGeolocationDelta.latDelta,
+            longitudeDelta: userGeolocationDelta.longDelta,
+          }}
+        >
+          {establishments.length > 0 &&
+            establishments
+              .filter((item) => {
+                if (sportSelected) {
+                  return item.type.split(" & ").includes(sportSelected);
+                } else {
+                  return true;
+                }
+              })
+              .filter((establishment) => establishment.distance < 5)
+              .map((item) => {
+                return (
+                  <Marker
+                    key={item.id}
+                    coordinate={{
+                      latitude: item.latitude,
+                      longitude: item.longitude,
+                    }}
+                    image={pointerMap}
+                    title={item.name}
+                    description={item.name}
+                  >
+                    <Callout
                       key={item.id}
-                      coordinate={{
-                        latitude: item.latitude,
-                        longitude: item.longitude,
+                      tooltip
+                      onPress={() => {
+                        navigation.navigate("EstablishmentInfo", {
+                          establishmentId: item.id,
+                          userPhoto: route.params.userPhoto,
+                          colorState: undefined,
+                          setColorState: undefined,
+                        });
                       }}
-                      image={pointerMap}
-                      title={item.name}
-                      description={item.name}
                     >
-                      <Callout
-                        key={item.id}
-                        tooltip
-                        onPress={() => {
-                          navigation.navigate("EstablishmentInfo", {
-                            establishmentId: item.id,
-                            userPhoto: route.params.userPhoto,
-                            colorState: undefined,
-                            setColorState: undefined,
-                          });
-                        }}
-                      >
-                        <CourtBallon
-                          id={item.id}
-                          name={item.name}
-                          distance={item.distance ?? ""}
-                          image={item.image}
-                          type={item.type}
-                          liked={true}
-                        />
-                      </Callout>
-                    </Marker>
-                  );
-                })}
-          </MapView>
-        )}
+                      <CourtBallon
+                        id={item.id}
+                        name={item.name}
+                        distance={item.distance ?? ""}
+                        image={item.image}
+                        type={item.type}
+                        liked={true}
+                      />
+                    </Callout>
+                  </Marker>
+                );
+              })}
+        </MapView>
+      )}
 
-        {!isMenuVisible && (
-          <TouchableOpacity
-            className={`absolute left-3 top-3`}
-            onPress={() => setIsMenuVisible((prevState) => !prevState)}
-          >
-            <AntDesign name="left" size={30} color="black" />
-          </TouchableOpacity>
-        )}
-        {Platform.OS === "ios" && (
-          <TouchableOpacity
-            className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
-            onPress={() => {
-              mapView.current ? ({
-                latitude: userGeolocation?.latitude,
-                longitude: userGeolocation?.longitude,
-                latitudeDelta: userGeolocationDelta?.latDelta,
-                longitudeDelta: userGeolocationDelta?.longDelta
-              }) : null
-            }}>
-            <FontAwesome name="location-arrow" size={24} color="black" />
-          </TouchableOpacity>
-        )}
-        {menuBurguer && (
-          <FilterComponent
-            setBurguer={setMenuBurguer!}
-            setFilter={setFilter}
-            setIsMenuVisible={setIsMenuVisible}
-            filter={filter}
-          />
-        )}
-      </View>
+      {!isMenuVisible && (
+        <TouchableOpacity
+          className={`absolute left-3 top-3`}
+          onPress={() => setIsMenuVisible((prevState) => !prevState)}
+        >
+          <AntDesign name="left" size={30} color="black" />
+        </TouchableOpacity>
+      )}
+
+      {Platform.OS === "ios" && (
+        <TouchableOpacity
+          className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
+          onPress={() => {
+            mapView.current ? ({
+              latitude: userGeolocation?.latitude,
+              longitude: userGeolocation?.longitude,
+              latitudeDelta: userGeolocationDelta?.latDelta,
+              longitudeDelta: userGeolocationDelta?.longDelta
+            }) : null
+          }}>
+          <FontAwesome name="location-arrow" size={24} color="black" />
+        </TouchableOpacity>
+      )}
+      
+      {menuBurguer && (
+        <FilterComponent
+          setBurguer={setMenuBurguer!}
+          setFilter={setFilter}
+          setIsMenuVisible={setIsMenuVisible}
+          filter={filter}
+        />
+      )}
 
       {isMenuVisible && !menuBurguer && (
         <HomeBar
