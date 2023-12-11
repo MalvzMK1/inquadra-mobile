@@ -48,7 +48,7 @@ import {
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
-import {useUser} from "../../context/userContext";
+import { useUser } from "../../context/userContext";
 
 function getScheduleStartDate(date: string, time: string) {
   return new Date(`${date}T${time}-03:00`);
@@ -58,7 +58,7 @@ export default function DescriptionReserve({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "DescriptionReserve">) {
-  const {userData} = useUser();
+  const { userData } = useUser();
   const user_id = userData?.id ?? '';
   const schedule_id = route.params.scheduleId;
   const currentTime = new Date();
@@ -273,9 +273,10 @@ export default function DescriptionReserve({
         const schedulingAmount = valueAvailableToPay;
 
         if (schedulingAmount) {
-          const parsedValue = parseFloat(
-            value?.replace(/[^\d,.]/g, "").replace(",", "."),
-          );
+          // Remover caracteres não numéricos
+          const cleanedValue = value.replace(/[^\d]/g, '');
+
+          const parsedValue = parseFloat(cleanedValue);
 
           if (isNaN(parsedValue)) {
             return false;
@@ -354,13 +355,14 @@ export default function DescriptionReserve({
     value: z
       .string()
       .nonempty("É necessário inserir um valor")
-      .min(1)
       .refine(value => {
         const schedulingAmount = valueAvailableToPay;
+
         if (schedulingAmount) {
-          const parsedValue = parseFloat(
-            value.replace(/[^\d,.]/g, "").replace(",", "."),
-          );
+          // Remover caracteres não numéricos
+          const cleanedValue = value.replace(/[^\d]/g, '');
+
+          const parsedValue = parseFloat(cleanedValue);
 
           if (isNaN(parsedValue)) {
             return false;
@@ -368,6 +370,7 @@ export default function DescriptionReserve({
 
           return parsedValue <= schedulingAmount;
         }
+
         return false;
       }, `O valor inserido excede o valor disponível para pagamento, é possível pagar até R$${valueAvailableToPay}`),
     name: z
@@ -479,30 +482,32 @@ export default function DescriptionReserve({
       console.log(response);
       if (!schedule_id) return;
 
-      await userPaymentCard({
-        variables: {
-          value: Number(response.Payment.Amount / 100),
-          schedulingId: schedule_id,
-          userId: user_id,
-          name: data.name,
-          cpf: data.cpf,
-          cvv: parseInt(data.cvv),
-          date: convertToAmericanDate(data.date),
-          countryID: "1",
-          publishedAt: new Date().toISOString(),
-          cep: data.cep,
-          city: data.city,
-          complement: data.complement,
-          number: data.number,
-          state: data.state,
-          neighborhood: data.district,
-          street: data.street,
-          paymentId: response.Payment.PaymentId!,
-          payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
-        },
-      });
-
-      console.log("pronto, agora descansa filho");
+      try {
+        await userPaymentCard({
+          variables: {
+            value: Number(response.Payment.Amount / 100),
+            schedulingId: schedule_id,
+            userId: user_id,
+            name: data.name,
+            cpf: data.cpf,
+            cvv: parseInt(data.cvv),
+            date: convertToAmericanDate(data.date),
+            countryID: "1",
+            publishedAt: new Date().toISOString(),
+            cep: data.cep,
+            city: data.city,
+            complement: data.complement,
+            number: data.number,
+            state: data.state,
+            neighborhood: data.district,
+            street: data.street,
+            paymentId: response.Payment.PaymentId!,
+            payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
+          },
+        });
+      }catch(error){
+        alert(error)
+      }
       await scheduleValueUpdate(
         parseFloat(data.value.replace(/[^\d.,]/g, "").replace(",", ".")),
       );
@@ -544,7 +549,7 @@ export default function DescriptionReserve({
 
   const handlePayPix = handleSubmitPayment(async info => {
     const parsedValue = parseFloat(
-      info.value.replace(/[^\d.,]/g, "").replace(",", "."),
+      info.value.replace(/[^\d.,]/g, ""),
     );
 
     const generatePixJSON: RequestGeneratePix = {
