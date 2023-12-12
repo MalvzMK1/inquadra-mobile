@@ -940,7 +940,7 @@ export default function InfoProfileEstablishment({
           <View>
             <Text className="text-base">CPF</Text>
             <MaskInput
-              className="p-4 border border-gray-500 rounded-lg h-45"
+              className="p-4 border border-gray-500 rounded-lg"
               placeholder="Ex: 000.000.000-00"
               value={cpf}
               mask={Masks.BRL_CPF}
@@ -1013,7 +1013,7 @@ export default function InfoProfileEstablishment({
 
           <TouchableOpacity onPress={handleCardClick}>
             <Text className="text-base">Chave PIX</Text>
-            <View className="h-12 border border-gray-500 rounded-lg">
+            <View className="h-16 border border-gray-500 rounded-lg flex flex-row items-center">
               <View className="flex-row justify-center items-center m-2">
                 <Text className="flex-1 text-base text-[#B8B8B8]">
                   {" "}
@@ -1110,7 +1110,7 @@ export default function InfoProfileEstablishment({
             </View>
           )}
           <View>
-            <View className="">
+            <View>
               <Text className="text-base mb-1">Dados Estabelecimento</Text>
               <SelectList
                 setSelected={(val: string) => setSelected(val)}
@@ -1122,7 +1122,7 @@ export default function InfoProfileEstablishment({
                 dropdownTextStyles={{ color: "#FF6112" }}
                 inputStyles={{
                   alignSelf: "center",
-                  height: 14,
+                  height: 32,
                   color: "#B8B8B8",
                 }}
                 closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
@@ -1158,7 +1158,7 @@ export default function InfoProfileEstablishment({
               dropdownTextStyles={{ color: "#FF6112" }}
               inputStyles={{
                 alignSelf: "center",
-                height: 14,
+                height: 32,
                 color: "#B8B8B8",
               }}
               closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
@@ -1196,7 +1196,7 @@ export default function InfoProfileEstablishment({
               dropdownTextStyles={{ color: "#FF6112" }}
               inputStyles={{
                 alignSelf: "center",
-                height: 14,
+                height: 32,
                 color: "#B8B8B8",
               }}
               closeicon={<Ionicons name="close" size={20} color="#FF6112" />}

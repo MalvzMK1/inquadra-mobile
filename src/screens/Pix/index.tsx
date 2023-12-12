@@ -21,9 +21,10 @@ import { useCreateCharge } from "../../services/inter";
 import { verifyPixStatus } from "../../services/pixCielo";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
+import { useIsFocused } from '@react-navigation/native';
 
 interface RouteParams
-  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> {}
+  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> { }
 
 interface IPixInfos {
   txid: string;
@@ -104,43 +105,38 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     }
 
     const checkTimeOut = () => {
-      if (statusPix === "waiting") {
+      const isFocused = useIsFocused()
+      if (statusPix === "waiting" && isFocused) {
         setStatusPix("cancelled");
         clearInterval(intervalId);
-        deletePaymentPix({
-          variables: {
-            id: route.params.userPaymentPixID!,
-          },
-        }).then(() => {
-          if (route.params.screen === "signal") {
-            navigation.navigate("ReservationPaymentSign", {
-              amountToPay: valueToPay,
-              courtAvailabilities: route.params.court_availabilityID!,
-              courtAvailabilityDate: route.params.date!,
-              courtName: courtName,
-              userPhoto: route.params.userPhoto,
-              courtId: route.params.courtId!,
-              courtImage: route.params.courtImage!,
-            });
-          } else if (route.params.screen === "historic") {
-            navigation.navigate("DescriptionReserve", {
-              scheduleId: scheduleID?.toString()!,
-            });
-          } else {
-            navigation.navigate("PaymentScheduleUpdate", {
-              amountToPay: valueToPay,
-              activationKey: null,
-              courtAvailabilities: route.params.court_availabilityID!,
-              courtAvailabilityDate: route.params.newDate!,
-              courtId: route.params.courtId!,
-              courtImage: route.params.courtImage!,
-              courtName: courtName,
-              pricePayed: route.params.pricePayed!,
-              userPhoto: route.params.userPhoto!,
-              scheduleUpdateID: scheduleID?.toString()!,
-            });
-          }
-        });
+        if (route.params.screen === "signal") {
+          navigation.navigate("ReservationPaymentSign", {
+            amountToPay: valueToPay,
+            courtAvailabilities: route.params.court_availabilityID!,
+            courtAvailabilityDate: route.params.date!,
+            courtName: courtName,
+            userPhoto: route.params.userPhoto,
+            courtId: route.params.courtId!,
+            courtImage: route.params.courtImage!,
+          });
+        } else if (route.params.screen === "historic") {
+          navigation.navigate("DescriptionReserve", {
+            scheduleId: scheduleID?.toString()!,
+          });
+        } else {
+          navigation.navigate("PaymentScheduleUpdate", {
+            amountToPay: valueToPay,
+            activationKey: null,
+            courtAvailabilities: route.params.court_availabilityID!,
+            courtAvailabilityDate: route.params.newDate!,
+            courtId: route.params.courtId!,
+            courtImage: route.params.courtImage!,
+            courtName: courtName,
+            pricePayed: route.params.pricePayed!,
+            userPhoto: route.params.userPhoto!,
+            scheduleUpdateID: scheduleID?.toString()!,
+          });
+        }
       }
     };
 
@@ -160,7 +156,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   ) => {
     let validatePayment =
       value + scheduleValuePayed! >= schedulePrice &&
-      scheduleValuePayed !== undefined!
+        scheduleValuePayed !== undefined!
         ? "payed"
         : "waiting";
 
@@ -168,7 +164,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice! &&
-      scheduleValuePayed !== undefined
+        scheduleValuePayed !== undefined
         ? generateRandomKey(4)
         : "";
     console.log("rodou aqui");

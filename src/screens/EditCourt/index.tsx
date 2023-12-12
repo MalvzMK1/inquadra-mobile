@@ -65,12 +65,12 @@ export default function EditCourt({
   });
 
   const [photo, setPhoto] = useState<string | undefined>();
-  const [userId, setUserId] = useState<string>();
   const { data: sportTypesData } = useSportTypes();
   const [updateCourtHook] = useUpdateCourt();
   const [isOpeningCourtPriceHour, setIsOpeningCourtPriceHour] = useState(false);
   const [createCourtAvailabilities] = useCreateCourtAvailabilities();
   const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [selectedCourtTypesObject, setSelectedCourtTypesObject] = useState<{id: string, name: string}[]>([]);
   const { data: courtByIdData, loading: loadingCourt } = useCourtById(
     courtId ?? "",
     {
@@ -98,20 +98,14 @@ export default function EditCourt({
             "minimumScheduleValue",
             data.court.data.attributes.minimumScheduleValue
           );
-
-          courtTypes = data.court.data.attributes.court_types.data.map(
-            (courtType) => courtType.attributes.name
-          );
-
-          setCourtTypeSelected(courtTypes);
         }
       },
     }
   );
 
-  const courtTypesData: string[] = [];
+  const courtTypesData: {name: string, id: string}[] = [];
   sportTypesData?.courtTypes.data.forEach((sportItem) => {
-    courtTypesData.push(sportItem.attributes.name);
+    courtTypesData.push({name: sportItem.attributes.name, id: sportItem.id});
   });
 
   interface ICourtTypes {
@@ -181,13 +175,13 @@ export default function EditCourt({
     }
   }
 
-  const courtTypes: string[] = [];
+  const courtTypes: { id: string, name: string }[] = [];
   if (
     courtByIdData?.court.data.attributes.court_types != null ||
     courtByIdData?.court.data.attributes.court_types != undefined
   ) {
     courtByIdData?.court.data.attributes.court_types.data.forEach(
-      (courtTypeItem) => courtTypes.push(courtTypeItem.id)
+      (courtTypeItem) => courtTypes.push({id: courtTypeItem.id, name: courtTypeItem.attributes.name})
     );
   }
 
@@ -238,19 +232,8 @@ export default function EditCourt({
     setIsLoading(true);
 
     try {
-      const courtTypesId: string[] = [];
-
-      if (courtTypeSelected) {
-        courtTypeSelected?.map((courtTypeSelectedItem) => {
-          const courtTypeIdItem = allCourtTypesJson.find(
-            (courtTypeItem) => courtTypeItem.name === courtTypeSelectedItem
-          )?.id;
-
-          if (courtTypeIdItem) {
-            courtTypesId.push(courtTypeIdItem);
-          }
-        });
-      }
+      console.log({selectedCourtTypesObject});
+      const courtTypesId: string[] = selectedCourtTypesObject.map(selected => selected.id);
 
       let { allAvailabilities, dayUse } =
         courtByIdData!.court.data.attributes.court_availabilities.data.reduce(
@@ -398,6 +381,16 @@ export default function EditCourt({
         courtPhotos = [photoId[0], ...courtPhotos];
       }
 
+      console.log({payload: {
+          court_id: courtId ?? "",
+          court_availabilities: courtAvailabilityIds,
+          court_name: data.fantasyName,
+          court_types: courtTypesId,
+          fantasy_name: data.fantasyName,
+          minimum_value: data.minimumScheduleValue,
+          photos: courtPhotos,
+        }})
+
       await updateCourtHook({
         variables: {
           court_id: courtId ?? "",
@@ -421,12 +414,15 @@ export default function EditCourt({
   });
 
   useEffect(() => {
-    if (
-      userData &&
-      userData.id
-    ) setUserId(userData.id)
-    else navigation.navigate('Login');
-  }, []);
+    const newCourtTypeSelected: {id: string, name: string}[] = [];
+
+    courtTypeSelected?.forEach(selected => {
+      const foundCourtType = courtTypesData.find(courtType => courtType.name === selected);
+      foundCourtType && newCourtTypeSelected.push(foundCourtType);
+    })
+
+    setSelectedCourtTypesObject(newCourtTypeSelected);
+  }, [courtTypeSelected])
 
   const { data: dataUserEstablishment } = useCourtById(courtId!);
 
@@ -560,13 +556,7 @@ export default function EditCourt({
             </View>
             <MultipleSelectList
               setSelected={setCourtTypeSelected}
-              data={courtTypesData}
-              defaultOption={
-                courtTypeSelected?.map((selected, index) => ({
-                  key: index,
-                  value: selected,
-                })) ?? undefined
-              }
+              data={courtTypesData.map(courtType => courtType.name)}
               save="value"
               placeholder="Selecione uma modalidade"
               searchPlaceholder="Pesquisar..."
