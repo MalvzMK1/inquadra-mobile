@@ -3,11 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
+import { useUser } from "../../context/userContext";
 import { formatCardNumber } from "../../utils/formatCardNumber";
-import {useUser} from "../../context/userContext";
-import { Card } from "../../types/Card";
-import { color } from "react-native-reanimated";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 type CreditCardInfosT = {
   id: number;
@@ -16,7 +13,7 @@ type CreditCardInfosT = {
 };
 
 export default function CreditCardCard(props: CreditCardInfosT) {
-  const {userData} = useUser();
+  const { userData } = useUser();
   const [cardDeleted, setCardDeleted] = useState(false);
 
   const creditCardNumber = props.number.replace(/\D/g, "");
@@ -74,9 +71,12 @@ export default function CreditCardCard(props: CreditCardInfosT) {
       console.error("Erro ao excluir o cartão", error);
     }
   };
-  console.log("isRegister: ", props.isRegister)
-  return !cardDeleted ? (
 
+  if (cardDeleted) {
+    return null;
+  }
+
+  return (
     <View className="flex h-[90px] w-full rounded-xl border  justify-center items-start border-[#292929]">
       <View className="before:absolute before:w-1 before:h-[69px] before:bg-[#F5620F] before:content '' left-[10px] "></View>
 
@@ -88,30 +88,30 @@ export default function CreditCardCard(props: CreditCardInfosT) {
           <Image
             className="h-[15px] w-[48px]"
             source={require("../../assets/visaLogo.png")}
-          ></Image>
+          />
         ) : label === "masterCard" ? (
           <Image
             className="h-[15px] w-[43px]"
             source={require("../../assets/masterCardLogo.png")}
-          ></Image>
+          />
         ) : label === "elo" ? (
           <Image
             className="h-[18px] w-[48px]"
             source={require("../../assets/eloLogo.png")}
-          ></Image>
+          />
         ) : null}
+
         <View className="flex items-end pl-3">
-          {props.isRegister === true ? (<MaterialIcons
-            name="delete"
-            color="#F5620F"
-            size={25}
-            onPress={() => handleDeleteCard(props.id)}
-          />) : null}
-
-
+          {props.isRegister === true ? (
+            <MaterialIcons
+              name="delete"
+              color="#F5620F"
+              size={25}
+              onPress={() => handleDeleteCard(props.id)}
+            />
+          ) : null}
         </View>
       </View>
-    </View >
-
-  ) : null;
+    </View>
+  );
 }
