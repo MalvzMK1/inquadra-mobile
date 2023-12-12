@@ -145,6 +145,7 @@ export default function AllVeryWell({
     try {
       const registerUserPayload: IRegisterUserVariables = {
         ...route.params.profileInfos,
+        username: route.params.profileInfos.email,
       };
 
       const { data: newUserData, errors: newUserErrors } = await registerUser({
@@ -204,7 +205,7 @@ export default function AllVeryWell({
       });
 
       if (!loginResponse.data) {
-        throw loginResponse.data;
+        throw loginResponse;
       }
 
       for (const court of courts) {

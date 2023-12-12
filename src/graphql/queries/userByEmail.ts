@@ -5,8 +5,9 @@ export interface IUserByEmailResponse {
     data: Array<{
       id: User["id"];
       attributes: {
-        username: User["username"];
+        name: User["name"];
         email: User["email"];
+        username: User["username"];
       };
     }>;
   };
@@ -22,8 +23,9 @@ export const userByEmailQuery = gql`
       data {
         id
         attributes {
-          username
+          name
           email
+          username
         }
       }
     }

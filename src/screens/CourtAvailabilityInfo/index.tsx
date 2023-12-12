@@ -1,6 +1,7 @@
 import { HOST_API } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,9 +17,9 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtAvailibility from "../../components/CourtAvailibility";
 import FilterDate from "../../components/FilterDateCourtAvailability";
+import { useUser } from "../../context/userContext";
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import { useGetUserById } from "../../hooks/useUserById";
-import { useUser } from "../../context/userContext";
 
 interface ICourtAvailabilityInfoProps
   extends NativeStackScreenProps<RootStackParamList, "CourtAvailabilityInfo"> {}
@@ -86,10 +87,9 @@ export default function CourtAvailabilityInfo({
   } = useCourtAvailability(route.params.courtId);
 
   const [dateSelector, setDateSelector] = useState(() => {
-    return `${String(new Date().getDate()).padStart(2, "0")}/${String(
-      new Date().getMonth() + 1
-    ).padStart(2, "0")}/${new Date().getFullYear()}`;
+    return format(new Date(), "dd/MM/yyyy");
   });
+
   const [selectedWeekDate, setSelectedWeekDate] = useState<string>();
   const [availabilities, setAvailabilities] = useState<
     Array<{
@@ -102,6 +102,7 @@ export default function CourtAvailabilityInfo({
       scheduling: Date | undefined;
     }>
   >([]);
+
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString());
   const [selectedTime, setSelectedTime] = useState<{
@@ -122,9 +123,9 @@ export default function CourtAvailabilityInfo({
       if (!isCourtAvailabilityLoading && !isCourtAvailabilityError) {
         const courtsAvailable =
           courtAvailability?.court.data.attributes.court_availabilities.data
-            .map((availability) => {
+            .map(availability => {
               if (availability.attributes.schedulings.data.length > 0) {
-                return availability.attributes.schedulings.data.map((item) => {
+                return availability.attributes.schedulings.data.map(item => {
                   return {
                     id: availability.id,
                     startsAt: availability.attributes.startsAt,
@@ -152,16 +153,16 @@ export default function CourtAvailabilityInfo({
         if (courtsAvailable && courtAvailability) {
           const uniqueCourtsAvailable = courtsAvailable.filter(
             (court, index, self) =>
-              index === self.findIndex((c) => c.id === court.id)
+              index === self.findIndex(c => c.id === court.id),
           );
           if (uniqueCourtsAvailable.length > 0)
-            setAvailabilities((prevState) => [
+            setAvailabilities(prevState => [
               ...prevState,
               ...uniqueCourtsAvailable,
             ]);
         }
       }
-    }, [isCourtAvailabilityLoading, isCourtAvailabilityError])
+    }, [isCourtAvailabilityLoading, isCourtAvailabilityError]),
   );
 
   function handleCalendarClick(data: DateData) {
@@ -173,8 +174,8 @@ export default function CourtAvailabilityInfo({
     setSelectedDate(date.toISOString());
     setDateSelector(
       `${String(date.getDate() + 1).padStart(2, "0")}/${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}/${date.getFullYear()}`
+        date.getMonth() + 1,
+      ).padStart(2, "0")}/${date.getFullYear()}`,
     );
   }
 
@@ -189,7 +190,6 @@ export default function CourtAvailabilityInfo({
   };
 
   const { userData } = useUser();
-
   const { data: dataUser } = useGetUserById(userData?.id ?? "");
 
   return (
@@ -261,7 +261,7 @@ export default function CourtAvailabilityInfo({
               ) : (
                 <FlatList
                   data={availabilities}
-                  keyExtractor={(availability) => availability.id}
+                  keyExtractor={availability => availability.id}
                   ListEmptyComponent={() => (
                     <Text className="text-xl font-black text-center">
                       No momento não é possível Alugar essa quadra

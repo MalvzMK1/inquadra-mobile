@@ -28,13 +28,15 @@ export default function AmountAvailableWithdrawal({
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const currentDate = new Date();
   const [valueCollected, setValueCollected] =
-    useState<Array<{ valuePayment: number; payday: string; activated: boolean }>>();
+    useState<
+      Array<{ valuePayment: number; payday: string; activated: boolean }>
+    >();
   const [infosHistoric, setInfosHistoric] = useState<
     Array<{
       username: string;
       valuePayed: number;
       date: string;
-      activated: boolean
+      activated: boolean;
     }>
   >();
 
@@ -53,42 +55,50 @@ export default function AmountAvailableWithdrawal({
           username: string;
           valuePayed: number;
           date: string;
-          activated: boolean
+          activated: boolean;
         }[] = [];
 
-        const amountPaid: { valuePayment: number; payday: string; activated: boolean }[] = [];
+        const amountPaid: {
+          valuePayment: number;
+          payday: string;
+          activated: boolean;
+        }[] = [];
 
         dataHistoric?.forEach(court => {
           court.attributes.court_availabilities.data.forEach(availability => {
             availability.attributes.schedulings.data.forEach(schedulings => {
               schedulings.attributes.user_payments.data.forEach(payment => {
-                const user = payment.attributes.users_permissions_user.data.attributes;
+                const user =
+                  payment.attributes.users_permissions_user.data.attributes;
                 infosCard.push({
-                  username: user.username,
+                  username: user.name,
                   valuePayed: payment.attributes.value,
                   date: schedulings.attributes.date,
-                  activated: schedulings.attributes.activated
+                  activated: schedulings.attributes.activated,
                 });
                 amountPaid.push({
                   valuePayment: payment.attributes.value,
                   payday: schedulings.attributes.date,
-                  activated: schedulings.attributes.activated
+                  activated: schedulings.attributes.activated,
                 });
               });
-              schedulings.attributes.user_payment_pixes.data.forEach(payment => {
-                const user = payment.attributes.users_permissions_user.data.attributes;
-                infosCard.push({
-                  username: user.username,
-                  valuePayed: payment.attributes.value,
-                  date: schedulings.attributes.date,
-                  activated: schedulings.attributes.activated
-                });
-                amountPaid.push({
-                  valuePayment: payment.attributes.value,
-                  payday: schedulings.attributes.date,
-                  activated: schedulings.attributes.activated
-                });
-              });
+              schedulings.attributes.user_payment_pixes.data.forEach(
+                payment => {
+                  const user =
+                    payment.attributes.users_permissions_user.data.attributes;
+                  infosCard.push({
+                    username: user.name,
+                    valuePayed: payment.attributes.value,
+                    date: schedulings.attributes.date,
+                    activated: schedulings.attributes.activated,
+                  });
+                  amountPaid.push({
+                    valuePayment: payment.attributes.value,
+                    payday: schedulings.attributes.date,
+                    activated: schedulings.attributes.activated,
+                  });
+                },
+              );
             });
           });
         });
@@ -115,10 +125,8 @@ export default function AmountAvailableWithdrawal({
   );
 
   function isAvailableForWithdrawal() {
-
     const activatedFilter = valueCollected?.filter(item => {
-
-      return item.activated === true
+      return item.activated === true;
     });
 
     return activatedFilter;
@@ -157,22 +165,26 @@ export default function AmountAvailableWithdrawal({
               </Text>
             </View>
             <View>
-              {infosHistoric?.filter(item => { return item.activated }).map((card, index) => {
-                const currentDate = new Date();
-                const cardDate = new Date(card.date.split("T")[0]);
+              {infosHistoric
+                ?.filter(item => {
+                  return item.activated;
+                })
+                .map((card, index) => {
+                  const currentDate = new Date();
+                  const cardDate = new Date(card.date.split("T")[0]);
 
-                if (cardDate <= currentDate) {
-                  return (
-                    <CardAmountAvailableWithdrawal
-                      key={index}
-                      username={card.username}
-                      valuePayed={card.valuePayed}
-                    />
-                  );
-                }
+                  if (cardDate <= currentDate) {
+                    return (
+                      <CardAmountAvailableWithdrawal
+                        key={index}
+                        username={card.username}
+                        valuePayed={card.valuePayed}
+                      />
+                    );
+                  }
 
-                return null;
-              })}
+                  return null;
+                })}
             </View>
             <View className="p-4 flex flex-row justify-center">
               <Text className="text-lg flex flex-row items-center text-gray-500">
@@ -187,7 +199,7 @@ export default function AmountAvailableWithdrawal({
                   navigation.navigate("WithdrawScreen", {
                     establishmentId: route.params.establishmentId,
                     logo: route.params.logo,
-                    valueDisponible: route.params.valueDisponible
+                    valueDisponible: route.params.valueDisponible,
                   })
                 }
               >
@@ -204,11 +216,11 @@ export default function AmountAvailableWithdrawal({
           establishmentLogo={
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined ||
-              dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-                ?.attributes?.url !== null
+            dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
+              ?.attributes?.url !== null
               ? HOST_API +
-              dataUserEstablishment?.establishment?.data?.attributes?.logo
-                ?.data?.attributes?.url
+                dataUserEstablishment?.establishment?.data?.attributes?.logo
+                  ?.data?.attributes?.url
               : null
           }
           establishmentID={route.params.establishmentId}

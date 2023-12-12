@@ -45,6 +45,7 @@ export interface IinfoScheduleResponse {
               users_permissions_user: {
                 data: {
                   attributes: {
+                    name: string;
                     username: string;
                   };
                 };
@@ -60,6 +61,7 @@ export interface IinfoScheduleResponse {
               users_permissions_user: {
                 data: {
                   attributes: {
+                    name: string;
                     username: string;
                   };
                 };
@@ -135,6 +137,7 @@ export const infoSchedule = gql`
                 users_permissions_user {
                   data {
                     attributes {
+                      name
                       username
                     }
                   }
@@ -155,6 +158,7 @@ export const infoSchedule = gql`
                 users_permissions_user {
                   data {
                     attributes {
+                      name
                       username
                     }
                   }

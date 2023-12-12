@@ -64,7 +64,7 @@ export default function ProfileEstablishmentRegistration() {
       if (isChecked) {
         if (validateCpf(data.cpf)) {
           navigation.navigate("EstablishmentRegister", {
-            username: data.name,
+            name: data.name,
             cpf: data.cpf,
             email: data.email,
             password: data.password,

@@ -1,12 +1,12 @@
 import { HOST_API } from "@env";
-import { Entypo, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
-import { Image, Platform, View } from "react-native";
+import { Image, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Text, TextInput } from "react-native-paper";
+import { Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useUser } from "../../context/userContext";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 import AllVeryWell from "../../screens/AllVeryWell";
 import CourtDetails from "../../screens/AllVeryWell/CourtDetails";
@@ -52,30 +52,21 @@ import Schedulings from "../../screens/Schedulings";
 import UpdateSchedule from "../../screens/UpdateSchedule";
 import PaymentScheduleUpdate from "../../screens/UpdateSchedule/updateSchedule";
 import Home from "../../screens/home";
-import { useUser } from "../../context/userContext";
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
 
 export default function () {
   const { userData } = useUser();
   const [menuBurguer, setMenuBurguer] = useState(false);
-  const [userId, setUserId] = useState<string>();
   const [corporateName, setCorporateName] = useState("");
+  const { data: allEstablishments } = useAllEstablishments();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
     Array<{
       establishmentsId: string;
       corporateName: string;
     }>
   >([]);
-  const [userGeolocation, setUserGeolocation] = useState<{
-    latitude: number;
-    longitude: number;
-  }>({
-    latitude: 0,
-    longitude: 0,
-  });
-
-  const { data: allEstablishments } = useAllEstablishments();
 
   useEffect(() => {
     if (corporateName === "") setEstablishmentsInfos([]);
@@ -97,15 +88,6 @@ export default function () {
       setEstablishmentsInfos(filteredEstablishments);
     }
   }, [corporateName]);
-
-  useEffect(() => {
-    if (
-      userData &&
-      userData.id
-    ) setUserId(userData.id);
-  }, [userData])
-
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <Navigator>
@@ -499,7 +481,7 @@ export default function () {
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
                 navigation.navigate("ProfileSettings", {
-                  userPhoto: params.userPhoto
+                  userPhoto: params.userPhoto,
                 });
               }}
             >
@@ -748,7 +730,10 @@ export default function () {
                 alignItems: "center",
               }}
             >
-              <Text className="py-5" style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
+              <Text
+                className="py-5"
+                style={{ color: "white", fontSize: 18, fontWeight: "900" }}
+              >
                 SINAL
               </Text>
             </View>
@@ -1006,8 +991,8 @@ export default function () {
             <View
               style={{
                 flex: 1,
-                justifyContent: "center",
                 alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <Text style={{ color: "white", fontSize: 18, fontWeight: "900" }}>
@@ -1019,16 +1004,17 @@ export default function () {
             <TouchableOpacity
               className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
               onPress={() => {
-                // console.log(params.userId)
                 if (
                   userData?.id &&
                   userData?.id !== "0" &&
                   userData?.id !== ""
-                )
+                ) {
                   navigation.navigate("ProfileSettings", {
                     userPhoto: params.userPhoto,
                   });
-                else navigation.navigate("Login");
+                } else {
+                  navigation.navigate("Login");
+                }
               }}
             >
               <Image

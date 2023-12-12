@@ -3,11 +3,12 @@ import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Image, ImageSourcePropType, Text, View } from "react-native";
+import { Image, ImageSourcePropType, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import QRCode from "react-native-qrcode-svg";
 import Toast from "react-native-toast-message";
+import { useUser } from "../../context/userContext";
 import { useCreateStrapiPixCharge } from "../../hooks/useCreateStrapiPixCharge";
 import useDeletePaymentPix from "../../hooks/useDeletePaymentPix";
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
@@ -20,10 +21,9 @@ import { useCreateCharge } from "../../services/inter";
 import { verifyPixStatus } from "../../services/pixCielo";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
-import { useUser } from "../../context/userContext";
 
 interface RouteParams
-  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> { }
+  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> {}
 
 interface IPixInfos {
   txid: string;
@@ -31,14 +31,13 @@ interface IPixInfos {
 }
 
 export default function PixScreen({ navigation, route }: RouteParams) {
-  const { courtName, value, scheduleID, QRcodeURL, paymentID } =
-    route.params;
+  const { courtName, value, scheduleID, QRcodeURL, paymentID } = route.params;
   const formattedValue = Number(value).toFixed(2);
 
   const { data: scheduleData } = useGetSchedulingsDetails(
     route.params.scheduleID?.toString() ?? "",
   );
-  const {userData} = useUser();
+  const { userData } = useUser();
 
   const { data: userDataById } = useGetUserById(userData?.id ?? "", {
     onCompleted(data) {
@@ -73,9 +72,8 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     value.replace(/[^\d.,]/g, "").replace(",", "."),
   );
 
-
-  console.log("value to pay:", valueToPay)
-  console.log("updateded sla:", scheduleValuePayed)
+  console.log("value to pay:", valueToPay);
+  console.log("updateded sla:", scheduleValuePayed);
 
   useFocusEffect(
     useCallback(() => {
@@ -85,7 +83,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const handleCopiarTexto = async () => {
     await Clipboard.setStringAsync(QRcodeURL);
-    alert("Código PIX copiado para área de transferência.")
+    alert("Código PIX copiado para área de transferência.");
   };
 
   useEffect(() => {
@@ -160,17 +158,17 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     value: number,
     schedule_id: number | null,
   ) => {
-
     let validatePayment =
       value + scheduleValuePayed! >= schedulePrice &&
-        scheduleValuePayed !== undefined!
+      scheduleValuePayed !== undefined!
         ? "payed"
         : "waiting";
 
-    let valuePayedUpdate = value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0)
+    let valuePayedUpdate =
+      value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice! &&
-        scheduleValuePayed !== undefined
+      scheduleValuePayed !== undefined
         ? generateRandomKey(4)
         : "";
     console.log("rodou aqui");
@@ -309,13 +307,14 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   useEffect(() => {
     if (
-      userDataById?.usersPermissionsUser.data?.attributes.photo.data?.attributes.url
+      userDataById?.usersPermissionsUser.data?.attributes.photo.data?.attributes
+        .url
     ) {
       setUserPhotoUri({
         uri:
           HOST_API +
-          userDataById.usersPermissionsUser.data.attributes.photo.data.attributes
-            .url,
+          userDataById.usersPermissionsUser.data.attributes.photo.data
+            .attributes.url,
       });
     }
 
@@ -348,7 +347,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           message: `Aluguel da quadra de ${courtName} do estabelecimento ${establishmentName}`,
           dueDate,
           debtorName:
-          userDataById.usersPermissionsUser.data.attributes.username ?? "",
+            userDataById.usersPermissionsUser.data.attributes.name ?? "",
           debtorStreet: userAddress.address,
           debtorUf: userAddress.state,
           debtorCity: userAddress.city,
