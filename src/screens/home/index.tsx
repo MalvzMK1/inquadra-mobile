@@ -430,13 +430,13 @@ export default function Home({
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
-        <TouchableOpacity className="ml-3" onPress={() => handlePress}>
-          {!menuBurguer ? (
-            <Entypo name="menu" size={48} color={"white"} />
-          ) : (
-            <MaterialIcons name="filter-list" size={48} color="white" />
-          )}
-        </TouchableOpacity>
+      <TouchableOpacity className="ml-3" onPress={handlePress}>
+    {!menuBurguer ? (
+      <Entypo name="menu" size={48} color={"white"} />
+    ) : (
+      <MaterialIcons name="filter-list" size={48} color="white" />
+    )}
+    </TouchableOpacity>
         {Platform.OS === "ios" ? (
           <View className="w-[63vw]">
             <TextInput
@@ -534,75 +534,79 @@ export default function Home({
           />
         )
       )}
-
+      <View className="flex-1">
       {userGeolocation && userGeolocationDelta && (
         <MapView
-          className="w-screen flex-1"
-          onPress={() => setIsMenuVisible(false)}
-          customMapStyle={customMapStyle}
-          showsCompass={false}
-          showsMyLocationButton={true}
-          ref={mapView}
-          showsUserLocation
-          initialRegion={{
-            latitude: userGeolocation.latitude,
-            longitude: userGeolocation.longitude,
-            latitudeDelta: userGeolocationDelta.latDelta,
-            longitudeDelta: userGeolocationDelta.longDelta,
-          }}
-        >
-          {establishments.length > 0 &&
-            establishments
-              .filter(item => {
-                if (sportSelected) {
-                  return item.type.split(" & ").includes(sportSelected);
-                } else {
-                  return true;
-                }
-              })
-              .filter(establishment => establishment.distance < 5)
-              .map(item => {
-                return (
-                  <Marker
+        loadingEnabled
+        className="w-screen flex-1"
+        onPress={() => setIsMenuVisible(false)}
+        customMapStyle={customMapStyle}
+        showsCompass={false}
+        showsMyLocationButton={true}
+        ref={mapView}
+        showsUserLocation
+        initialRegion={{
+          latitude: userGeolocation.latitude,
+          longitude: userGeolocation.longitude,
+          latitudeDelta: userGeolocationDelta.latDelta,
+          longitudeDelta: userGeolocationDelta.longDelta,
+        }}
+      >
+        {establishments.length > 0 &&
+          establishments
+            .filter(item => {
+              if (sportSelected) {
+                return item.type.split(" & ").includes(sportSelected);
+              } else {
+                return true;
+              }
+            })
+            .filter(establishment => establishment.distance < 5)
+            .map(item => {
+              return (
+                <Marker
+                  key={item.id}
+                  coordinate={{
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                  }}
+                  image={pointerMap}
+                  title={item.name}
+                  description={item.name}
+                >
+                  <Callout
                     key={item.id}
-                    coordinate={{
-                      latitude: item.latitude,
-                      longitude: item.longitude,
+                    tooltip
+                    onPress={() => {
+                      navigation.navigate("EstablishmentInfo", {
+                        establishmentId: item.id,
+                        userId: userId,
+                        userPhoto: route.params.userPhoto,
+                        colorState: undefined,
+                        setColorState: undefined,
+                      });
                     }}
-                    image={pointerMap}
-                    title={item.name}
-                    description={item.name}
                   >
-                    <Callout
-                      key={item.id}
-                      tooltip
-                      onPress={() => {
-                        navigation.navigate("EstablishmentInfo", {
-                          establishmentId: item.id,
-                          userPhoto: route.params.userPhoto,
-                          colorState: undefined,
-                          setColorState: undefined,
-                        });
-                      }}
-                    >
-                      <CourtBallon
-                        id={item.id}
-                        name={item.name}
-                        distance={item.distance ?? ""}
-                        image={item.image}
-                        type={item.type}
-                        liked={true}
-                      />
-                    </Callout>
-                  </Marker>
-                );
-              })}
-        </MapView>
+                    <CourtBallon
+                      id={item.id}
+                      name={item.name}
+                      distance={item.distance ?? ""}
+                      image={item.image}
+                      type={item.type}
+                      userId={userId ?? ""}
+                      liked={true}
+                    />
+                  </Callout>
+                </Marker>
+              );
+            })}
+        
+      </MapView>
       )}
 
       {!isMenuVisible && (
         <TouchableOpacity
-          className={`absolute left-3 top-3`}
+          className={`absolute left-3 top-1`}
           onPress={() => setIsMenuVisible(prevState => !prevState)}
         >
           <AntDesign name="left" size={30} color="black" />
@@ -610,32 +614,33 @@ export default function Home({
       )}
 
       {Platform.OS === "ios" && (
-        <TouchableOpacity
-          className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
-          onPress={() => {
-            mapView.current
-              ? {
-                  latitude: userGeolocation?.latitude,
-                  longitude: userGeolocation?.longitude,
-                  latitudeDelta: userGeolocationDelta?.latDelta,
-                  longitudeDelta: userGeolocationDelta?.longDelta,
-                }
-              : null;
-          }}
-        >
-          <FontAwesome name="location-arrow" size={24} color="black" />
-        </TouchableOpacity>
+       <TouchableOpacity
+       className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
+       onPress={() => {
+       mapView.current?.animateToRegion({
+       latitude: userGeolocation?.latitude,
+       longitude: userGeolocation?.longitude,
+       latitudeDelta: userGeolocationDelta?.latDelta,
+       longitudeDelta: userGeolocationDelta?.longDelta,
+         });
+       }}
+     >
+     <FontAwesome name="location-arrow" size={24} color="black" />
+     </TouchableOpacity>
+     
       )}
 
-      {menuBurguer && (
-        <FilterComponent
-          setBurguer={setMenuBurguer!}
-          setFilter={setFilter}
-          setIsMenuVisible={setIsMenuVisible}
-          filter={filter}
-        />
-      )}
+        {menuBurguer && (
+         <FilterComponent
+         setBurguer={setMenuBurguer!}
+         setFilter={setFilter}
+         setIsMenuVisible={setIsMenuVisible}
+         filter={filter}
+       />
+        )}
 
+      </View>
+      
       {isMenuVisible && !menuBurguer && (
         <HomeBar
           key={uniqueIdGenerate}
