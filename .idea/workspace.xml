@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/AllVeryWell/CourtDetails/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/AllVeryWell/CourtDetails/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +33,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="release" />
+                    <option name="lastUsedInstant" value="1702307138" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="develop" />
                     <option name="lastUsedInstant" value="1702306722" />
                   </RecentBranch>
@@ -47,10 +51,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI10580T10778_SYNC" />
                     <option name="lastUsedInstant" value="1702037350" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="release" />
-                    <option name="lastUsedInstant" value="1701787880" />
                   </RecentBranch>
                 </list>
               </option>
@@ -74,7 +74,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;release&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
@@ -127,6 +127,7 @@
       <workItem from="1701422534740" duration="15755000" />
       <workItem from="1702044714732" duration="1263000" />
       <workItem from="1702290223769" duration="6522000" />
+      <workItem from="1702373817411" duration="4085000" />
     </task>
     <servers />
   </component>
