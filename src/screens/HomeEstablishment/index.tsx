@@ -194,7 +194,6 @@ export default function HomeEstablishment({
         }
       }
     } catch (error) {
-      if (APP_DEBUG_VERBOSE) alert(JSON.stringify(error, null, 2));
       setValidate(2);
     }
   };
