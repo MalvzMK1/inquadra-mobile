@@ -107,11 +107,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       if (statusPix === "waiting") {
         setStatusPix("cancelled");
         clearInterval(intervalId);
-        deletePaymentPix({
-          variables: {
-            id: route.params.userPaymentPixID!,
-          },
-        }).then(() => {
           if (route.params.screen === "signal") {
             navigation.navigate("ReservationPaymentSign", {
               amountToPay: valueToPay,
@@ -140,7 +135,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
               scheduleUpdateID: scheduleID?.toString()!,
             });
           }
-        });
       }
     };
 
