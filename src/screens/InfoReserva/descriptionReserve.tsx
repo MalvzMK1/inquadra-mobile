@@ -537,7 +537,7 @@ export default function DescriptionReserve({
       await updateScheduleValue({
         variables: {
           payed_status: validatePayment,
-          scheduling_id: parseInt(schedule_id),
+          scheduling_id: Number(schedule_id),
           value_payed: valuePayedUpdate,
           activated: false,
           activation_key: activation_key,
@@ -992,7 +992,7 @@ export default function DescriptionReserve({
                       >
                         <View className="h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center">
                           <Text className="text-gray-50 font-bold">
-                            Copiar código PIX
+                            Adicionar pagamento PIX
                           </Text>
                         </View>
                       </TouchableOpacity>

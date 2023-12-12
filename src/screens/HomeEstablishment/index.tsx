@@ -414,7 +414,7 @@ export default function HomeEstablishment({
                   Validado
                 </Text>
               ) : validated === 2 ? (
-                <Text className="text-xl font-bold text-red-700">Invalido</Text>
+                <Text className="text-xl font-bold text-gray-50">Validar</Text>
               ) : (
                 <Text className="text-xl font-bold text-gray-50">Validar</Text>
               )}
