@@ -7,7 +7,7 @@ import {
 } from "@expo/vector-icons";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -31,6 +31,11 @@ import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
+import {
+  AutocompleteDropdown,
+  TAutocompleteDropdownItem,
+} from "react-native-autocomplete-dropdown";
+import { EstablishmentsData } from "../../graphql/queries/searchEstablishmentsByCorporateName";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -77,14 +82,14 @@ export default function Home({
     startsAt: string | undefined;
     date: Date | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
   }>({
     amenities: [],
     dayUseService: undefined,
@@ -124,14 +129,17 @@ export default function Home({
   } = useFilters(filter);
   const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>();
   const isFocused = useIsFocused();
-  const { data: allEstablishments } = useAllEstablishments();
+  const { data: allEstablishments, loading:loadingEstablishments } = useAllEstablishments();
   const [corporateName, setCorporateName] = useState<string>("");
-  const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
+  const [establishmentsInfos, setEstablishmentsInfos] = useState<
     Array<{
       establishmentsId: string;
       corporateName: string;
     }>
   >([]);
+  const establishmentsData = allEstablishments?.establishments?.data || [];
+
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     if (isFocused) {
@@ -427,6 +435,25 @@ export default function Home({
     setSportSelected(nameSport);
   };
 
+  function filterEstablishments(
+    products: EstablishmentsData[],
+    search: string,
+  ): TAutocompleteDropdownItem[] {
+    return products
+      .filter(
+        product =>
+          product.attributes.corporateName
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+      )
+      .map(product => {
+        return {
+          id: product.id,
+          title: `${product.attributes.corporateName}`,
+        };
+      });
+  }
+
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
@@ -437,34 +464,27 @@ export default function Home({
             <MaterialIcons name="filter-list" size={48} color="white" />
           )}
         </TouchableOpacity>
-        {Platform.OS === "ios" ? (
-          <View className="w-[63vw]">
-            <TextInput
-              theme={{ colors: { placeholder: "#e9e9e9" } }}
-              placeholder="O que você está procurando?"
-              underlineColorAndroid="transparent"
-              underlineColor="transparent"
-              className="bg-white rounded-2xl w-full flex h-[40px] mb-[0.5] placeholder:text-[#e9e9e9] text-sm outline-none"
-              right={<TextInput.Icon icon={"magnify"} />}
-              onChangeText={e => {
-                setCorporateName(e);
-              }}
-            />
-          </View>
-        ) : (
-          <TextInput
-            theme={{ colors: { placeholder: "#e9e9e9" } }}
-            placeholder="O que você está procurando?"
-            underlineColorAndroid="transparent"
-            underlineColor="transparent"
-            activeUnderlineColor="transparent"
-            className="bg-white rounded-2xl flex-1 mx-3 flex items-center justify-center h-[50px] placeholder:text-[#e9e9e9] text-sm outline-none"
-            right={<TextInput.Icon icon={"magnify"} />}
-            onChangeText={e => {
-              setCorporateName(e);
-            }}
-          />
-        )}
+        
+        <AutocompleteDropdown
+          closeOnSubmit
+          useFilter={false}
+          closeOnBlur={false}
+          loading={loadingEstablishments}
+          onChangeText={text => setSearchValue(text)}
+          inputContainerStyle={{ backgroundColor: "white" }}
+          emptyResultText="Informe o número OTK ou nome do item"
+          dataSet={searchValue ? filterEstablishments(establishmentsData, searchValue) : []}
+          onSelectItem={item => {
+            if (userId) {
+              navigation.navigate("EstablishmentInfo", {
+                establishmentId: item.id,
+                userPhoto: userPicture,
+              });
+              setCorporateName("");
+            } else navigation.navigate("Login");
+          }}
+        />
+
         {isUserInfosLoading ? (
           <ActivityIndicator
             size={"small"}
@@ -494,33 +514,6 @@ export default function Home({
         )}
       </View>
 
-      {EstablishmentsInfos && EstablishmentsInfos.length > 0 && (
-        <View className="flex top-[30px] h-48 w-full">
-          <ScrollView>
-            {EstablishmentsInfos.map(item => {
-              return (
-                <TouchableOpacity
-                  key={item.establishmentsId}
-                  className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
-                  onPress={() => {
-                    if (userId) {
-                      navigation.navigate("EstablishmentInfo", {
-                        establishmentId: item.establishmentsId,
-                        userPhoto: userPicture,
-                      });
-                      setCorporateName("");
-                    } else navigation.navigate("Login");
-                  }}
-                >
-                  <Text className="text-sm outline-none">
-                    {item.corporateName}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-      )}
 
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
@@ -615,11 +608,11 @@ export default function Home({
           onPress={() => {
             mapView.current
               ? {
-                  latitude: userGeolocation?.latitude,
-                  longitude: userGeolocation?.longitude,
-                  latitudeDelta: userGeolocationDelta?.latDelta,
-                  longitudeDelta: userGeolocationDelta?.longDelta,
-                }
+                latitude: userGeolocation?.latitude,
+                longitude: userGeolocation?.longitude,
+                latitudeDelta: userGeolocationDelta?.latDelta,
+                longitudeDelta: userGeolocationDelta?.longDelta,
+              }
               : null;
           }}
         >
