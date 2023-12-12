@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -20,9 +20,9 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { useUser } from "../../context/userContext";
 import { useGetUserById } from "../../hooks/useUserById";
 import EstablishmentCardHome from "../CourtCardHome";
-import {useUser} from "../../context/userContext";
 
 interface HomeBarProps {
   courts: Array<{
@@ -37,8 +37,9 @@ interface HomeBarProps {
   userName: string | undefined;
   chosenType: string | undefined;
   HandleSportSelected: Function;
-  isUpdated?: any;
+  isUpdated?: number;
   isUserInfosLoading: boolean;
+  isCourtsLoading?: boolean;
 }
 
 const screenHeight = Dimensions.get("window").height;
@@ -54,8 +55,9 @@ export default function HomeBar({
   chosenType,
   isUpdated,
   isUserInfosLoading,
+  isCourtsLoading,
 }: HomeBarProps) {
-  const {userData} = useUser();
+  const { userData } = useUser();
   const translateY = useSharedValue(0);
   const height = useSharedValue(minHeight);
 
@@ -75,11 +77,10 @@ export default function HomeBar({
     loading: userByIdLoading,
   } = useGetUserById(userData?.id ?? "");
 
+  const [isLoaded, setIsLoaded] = useState<boolean>();
   const [userFavoriteCourts, setUserFavoriteCourts] = useState<Array<string>>(
     [],
   );
-
-  const [isLoaded, setIsLoaded] = useState<boolean>();
 
   const resetUserInfos = async () => {
     if (
@@ -94,16 +95,14 @@ export default function HomeBar({
             return item.id;
           },
         );
+
       setUserFavoriteCourts(idsEstablishementsLikeds!);
-    } else {
-      null;
     }
   };
 
   useEffect(() => {
     if (!userByIdError && !userByIdLoading) {
       setIsLoaded(true);
-      // console.log("ok");
     }
   }, [userByIdError, userByIdLoading]);
 
@@ -117,12 +116,15 @@ export default function HomeBar({
     return userFavoriteCourts?.includes(courtId);
   };
 
-  const result = courts.filter(item => {
-    if (chosenType) {
-      const ampersandSeparated = item.type.split(" & ").join(",").split(",");
-      return ampersandSeparated.includes(chosenType);
+  const filteredCourts = useMemo(() => {
+    if (!chosenType) {
+      return courts;
     }
-  });
+
+    return courts.filter(item => {
+      return item.type.split(" & ").join(",").split(",").includes(chosenType);
+    });
+  }, [courts, chosenType]);
 
   return (
     <Animated.View
@@ -154,66 +156,68 @@ export default function HomeBar({
         }}
       >
         <View className="flex items-center">
-          <View className="w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]"></View>
-          {
-            isUserInfosLoading ?
-              <ActivityIndicator size={'small'} color={'#FF6112'} className={'h-7'} />
-              :
-              <Text className="text-white text-lg font-black mt-3">
-                Olá{userName ? `, ${userName}` : null}!
-              </Text>
-          }
+          <View className="w-1/3 h-[5px] rounded-full mt-[10px] bg-[#ff6112]" />
+          {isUserInfosLoading ? (
+            <ActivityIndicator
+              size={"small"}
+              color={"#FF6112"}
+              className={"h-7"}
+            />
+          ) : (
+            <Text className="text-white text-lg font-black mt-3">
+              Olá{userName ? `, ${userName}` : null}!
+            </Text>
+          )}
         </View>
       </PanGestureHandler>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 48 }}>
-        {courts.length !== 0 ? (
-          chosenType ? (
-            result.length > 0 ? (
-              courts
-                .filter(item => {
-                  return item.type
-                    .split(" & ")
-                    .join(",")
-                    .split(",")
-                    .includes(chosenType);
-                })
-                .map(item => {
-                  return (
-                    <EstablishmentCardHome
-                      updated={isUpdated}
-                      key={Math.random()}
-                      id={item.id}
-                      type={item.type}
-                      name={item.name}
-                      image={item.image}
-                      distance={item.distance}
-                      liked={verifyCourtLike(item.id)}
-                      setUserFavoriteCourts={setUserFavoriteCourts}
-                      userFavoriteCourts={userFavoriteCourts}
-                    />
-                  );
-                })
-            ) : null
-          ) : (
-            courts.map(item => (
-              <EstablishmentCardHome
-                id={item.id}
-                key={Math.random()}
-                name={item.name}
-                type={item.type}
-                image={item.image}
-                distance={item.distance}
-                liked={verifyCourtLike(item.id)}
-                setUserFavoriteCourts={setUserFavoriteCourts}
-                userFavoriteCourts={userFavoriteCourts}
-              />
-            ))
-          )
-        ) : (
-          <ActivityIndicator size="large" color="#FF6112" />
-        )}
-        <View className="h-10"></View>
-      </ScrollView>
+
+      {isCourtsLoading ? (
+        <ActivityIndicator size="large" color="#FF6112" />
+      ) : // <FlatList
+      //   data={filteredCourts}
+      //   keyExtractor={item => item.id}
+      //   contentContainerStyle={{ padding: 20, paddingBottom: 64 }}
+      //   ListEmptyComponent={() => (
+      //     <Text className="text-white text-sm font-medium">
+      //       Não há quadras para exibir...
+      //     </Text>
+      //   )}
+      //   renderItem={({ item }) => (
+      //     <EstablishmentCardHome
+      //       id={item.id}
+      //       name={item.name}
+      //       type={item.type}
+      //       image={item.image}
+      //       updated={isUpdated}
+      //       distance={item.distance}
+      //       liked={verifyCourtLike(item.id)}
+      //       userFavoriteCourts={userFavoriteCourts}
+      //       setUserFavoriteCourts={setUserFavoriteCourts}
+      //     />
+      //   )}
+      // />
+      filteredCourts.length === 0 ? (
+        <Text className="text-white text-sm font-medium">
+          Não há quadras para exibir...
+        </Text>
+      ) : (
+        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
+          {filteredCourts.map(item => (
+            <EstablishmentCardHome
+              key={item.id}
+              id={item.id}
+              name={item.name}
+              type={item.type}
+              image={item.image}
+              updated={isUpdated}
+              distance={item.distance}
+              liked={verifyCourtLike(item.id)}
+              userFavoriteCourts={userFavoriteCourts}
+              setUserFavoriteCourts={setUserFavoriteCourts}
+            />
+          ))}
+        </ScrollView>
+      )}
     </Animated.View>
   );
 }

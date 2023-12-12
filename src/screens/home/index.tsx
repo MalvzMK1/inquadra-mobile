@@ -5,9 +5,9 @@ import {
   FontAwesome,
   MaterialIcons,
 } from "@expo/vector-icons";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -94,20 +94,9 @@ export default function Home({
     date: undefined,
   });
 
-  const [establishments, setEstablishments] = useState<
-    Array<{
-      id: string;
-      latitude: number;
-      longitude: number;
-      name: string;
-      type: string;
-      image: string;
-      distance: number;
-    }>
-  >([]);
   const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
   const [sportSelected, setSportSelected] = useState<string>();
-  const [IsUpdated, setIsUpdated] = useState<number>(0);
+  const [isUpdated, setIsUpdated] = useState<number>(0);
   const {
     data: availableSportTypes,
     loading: availableSportTypesLoading,
@@ -122,8 +111,6 @@ export default function Home({
     loading: loadingFilter,
     error: errorFilter,
   } = useFilters(filter);
-  const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>();
-  const isFocused = useIsFocused();
   const { data: allEstablishments } = useAllEstablishments();
   const [corporateName, setCorporateName] = useState<string>("");
   const [EstablishmentsInfos, setEstablishmentsInfos] = useState<
@@ -133,171 +120,33 @@ export default function Home({
     }>
   >([]);
 
-  useEffect(() => {
-    if (isFocused) {
-      setUniqueIdGenerate(Math.random());
-    }
-  }, [isFocused]);
-
   useFocusEffect(
     useCallback(() => {
       setIsUserInfosLoading(true);
+      setIsUpdated(isUpdated + 1);
 
-      setIsUpdated(IsUpdated + 1);
-      refetchUserInfos().then(() => {
-        setIsUserInfosLoading(true);
-        if (
-          userData &&
-          userData.id &&
-          userHookData &&
-          userHookData.usersPermissionsUser.data &&
-          userHookData.usersPermissionsUser.data.attributes.photo.data
-        ) {
-          const profilePicture =
-            userHookData.usersPermissionsUser.data.attributes.photo.data
-              .attributes.url;
+      refetchUserInfos()
+        .then(() => {
+          if (
+            userData?.id &&
+            userHookData?.usersPermissionsUser.data?.attributes.photo.data
+          ) {
+            const profilePicture =
+              userHookData.usersPermissionsUser.data.attributes.photo.data
+                .attributes.url;
 
-          setUserPicture(HOST_API + profilePicture);
-          navigation.setParams({
-            userPhoto: profilePicture,
-          });
-        } else {
-          setUserPicture(undefined);
-          navigation.setParams({
-            userPhoto: undefined,
-          });
-        }
-        setIsUserInfosLoading(false);
-      });
-      setEstablishments([]);
-      if (!error && !loading) {
-        if (
-          !loadingFilter &&
-          !errorFilter &&
-          filter.amenities.length <= 0 &&
-          !filter.dayUseService &&
-          !filter.endsAt &&
-          !filter.startsAt &&
-          !filter.weekDay
-        ) {
-          if (data && data.establishments.data) {
-            const newEstablishments = data.establishments.data
-              .filter(establishment => establishment.attributes.courts.data)
-              .map(establishment => {
-                let establishmentObject: EstablishmentObject = {
-                  id: "",
-                  latitude: 0,
-                  longitude: 0,
-                  name: "",
-                  type: "",
-                  image: "",
-                  distance: 0,
-                };
-
-                let courtTypes =
-                  establishment.attributes.courts.data
-                    .filter(
-                      court => court.attributes.court_types.data.length > 0,
-                    )
-                    .map(court => court.attributes.court_types.data)
-                    .map(courtType =>
-                      courtType.map(type => type.attributes.name),
-                    ) ?? [];
-
-                if (!courtTypes) courtTypes = [];
-
-                if (userGeolocation)
-                  establishmentObject = {
-                    id: establishment.id,
-                    name: establishment.attributes.corporateName,
-                    latitude: Number(
-                      establishment.attributes.address?.latitude,
-                    ),
-                    longitude: Number(
-                      establishment.attributes.address?.longitude,
-                    ),
-                    distance:
-                      calculateDistance(
-                        userGeolocation.latitude,
-                        userGeolocation.longitude,
-                        Number(establishment.attributes.address?.latitude),
-                        Number(establishment.attributes.address?.longitude),
-                      ) / 1000,
-                    image:
-                      HOST_API +
-                      establishment.attributes.logo.data?.attributes.url,
-                    type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
-                  };
-
-                return establishmentObject;
-              });
-            console.log({ newEstablishmentsLength: newEstablishments.length });
-
-            if (newEstablishments) setEstablishments(newEstablishments);
-          }
-        } else {
-          const newEstablishments = establishmentsFiltered?.establishments.data
-            .filter(
-              establishment =>
-                establishment?.attributes?.photos.data &&
-                establishment?.attributes?.photos.data.length > 0 &&
-                establishment?.attributes?.courts.data,
-            )
-            .map(establishment => {
-              let establishmentObject: EstablishmentObject = {
-                id: "",
-                latitude: 0,
-                longitude: 0,
-                name: "",
-                type: "",
-                image: "",
-                distance: 0,
-              };
-
-              let courtTypes = establishment?.attributes?.courts
-                .data!.filter(
-                  court => court?.attributes?.court_types.data.length > 0,
-                )
-                .map(court => court?.attributes?.court_types.data)
-                .map(courtType =>
-                  courtType.map(type => type?.attributes?.name),
-                );
-
-              if (!courtTypes) courtTypes = [];
-
-              if (userGeolocation)
-                establishmentObject = {
-                  id: establishment.id,
-                  name: establishment?.attributes?.corporateName,
-                  latitude: Number(establishment?.attributes?.address.latitude),
-                  longitude: Number(
-                    establishment?.attributes?.address.longitude,
-                  ),
-                  distance:
-                    calculateDistance(
-                      userGeolocation.latitude,
-                      userGeolocation.longitude,
-                      Number(establishment?.attributes?.address.latitude),
-                      Number(establishment?.attributes?.address.longitude),
-                    ) / 1000,
-                  image:
-                    HOST_API +
-                    establishment?.attributes?.logo?.data?.attributes?.url,
-                  type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
-                };
-
-              return establishmentObject;
+            setUserPicture(HOST_API + profilePicture);
+            navigation.setParams({
+              userPhoto: profilePicture,
             });
-
-          if (newEstablishments) setEstablishments(newEstablishments);
-
-          navigation.setParams({
-            userPhoto:
-              userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url ?? undefined,
-          });
-        }
-      }
+          } else {
+            setUserPicture(undefined);
+            navigation.setParams({
+              userPhoto: undefined,
+            });
+          }
+        })
+        .finally(() => setIsUserInfosLoading(false));
     }, [
       data,
       userHookData,
@@ -307,6 +156,124 @@ export default function Home({
       userData,
     ]),
   );
+
+  const establishments = useMemo((): EstablishmentObject[] => {
+    if (!data?.establishments.data) {
+      return [];
+    }
+
+    if (
+      !(
+        filter.amenities.length <= 0 &&
+        !filter.dayUseService &&
+        !filter.endsAt &&
+        !filter.startsAt &&
+        !filter.weekDay
+      )
+    ) {
+      const newEstablishments = establishmentsFiltered?.establishments.data
+        .filter(
+          establishment =>
+            establishment?.attributes?.photos.data &&
+            establishment?.attributes?.photos.data.length > 0 &&
+            establishment?.attributes?.courts.data,
+        )
+        .map(establishment => {
+          let establishmentObject: EstablishmentObject = {
+            id: "",
+            latitude: 0,
+            longitude: 0,
+            name: "",
+            type: "",
+            image: "",
+            distance: 0,
+          };
+
+          let courtTypes = establishment?.attributes?.courts
+            .data!.filter(
+              court => court?.attributes?.court_types.data.length > 0,
+            )
+            .map(court => court?.attributes?.court_types.data)
+            .map(courtType => courtType.map(type => type?.attributes?.name));
+
+          if (!courtTypes) courtTypes = [];
+
+          if (userGeolocation)
+            establishmentObject = {
+              id: establishment.id,
+              name: establishment?.attributes?.corporateName,
+              latitude: Number(establishment?.attributes?.address.latitude),
+              longitude: Number(establishment?.attributes?.address.longitude),
+              distance:
+                calculateDistance(
+                  userGeolocation.latitude,
+                  userGeolocation.longitude,
+                  Number(establishment?.attributes?.address.latitude),
+                  Number(establishment?.attributes?.address.longitude),
+                ) / 1000,
+              image:
+                HOST_API +
+                establishment?.attributes?.logo?.data?.attributes?.url,
+              type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
+            };
+
+          return establishmentObject;
+        });
+
+      navigation.setParams({
+        userPhoto:
+          userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
+            ?.attributes?.url ?? undefined,
+      });
+
+      return newEstablishments ?? [];
+    }
+
+    const newEstablishments = data.establishments.data
+      .filter(establishment => establishment.attributes.courts.data)
+      .map(establishment => {
+        let establishmentObject: EstablishmentObject = {
+          id: "",
+          latitude: 0,
+          longitude: 0,
+          name: "",
+          type: "",
+          image: "",
+          distance: 0,
+        };
+
+        let courtTypes =
+          establishment.attributes.courts.data
+            .filter(court => court.attributes.court_types.data.length > 0)
+            .map(court => court.attributes.court_types.data)
+            .map(courtType => courtType.map(type => type.attributes.name)) ??
+          [];
+
+        if (!courtTypes) courtTypes = [];
+
+        if (userGeolocation)
+          establishmentObject = {
+            id: establishment.id,
+            name: establishment.attributes.corporateName,
+            latitude: Number(establishment.attributes.address?.latitude),
+            longitude: Number(establishment.attributes.address?.longitude),
+            distance:
+              calculateDistance(
+                userGeolocation.latitude,
+                userGeolocation.longitude,
+                Number(establishment.attributes.address?.latitude),
+                Number(establishment.attributes.address?.longitude),
+              ) / 1000,
+            image:
+              HOST_API + establishment.attributes.logo.data?.attributes.url,
+            type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
+          };
+
+        return establishmentObject;
+      });
+
+    return newEstablishments;
+  }, [data, userHookData, filter, establishmentsFiltered, userGeolocation]);
 
   useEffect(() => {
     const newAvailableSportTypes: SportType[] = [];
@@ -504,12 +471,14 @@ export default function Home({
                   className="h-[35px] w-full bg-white justify-center border-b-2 border-neutral-300 pl-1"
                   onPress={() => {
                     if (userId) {
+                      setCorporateName("");
                       navigation.navigate("EstablishmentInfo", {
                         establishmentId: item.establishmentsId,
                         userPhoto: userPicture,
                       });
-                      setCorporateName("");
-                    } else navigation.navigate("Login");
+                    } else {
+                      navigation.navigate("Login");
+                    }
                   }}
                 >
                   <Text className="text-sm outline-none">
@@ -638,8 +607,8 @@ export default function Home({
 
       {isMenuVisible && !menuBurguer && (
         <HomeBar
-          key={uniqueIdGenerate}
-          isUpdated={IsUpdated}
+          isUpdated={isUpdated}
+          isCourtsLoading={loading}
           chosenType={sportSelected}
           courts={establishments.sort((a, b) => a.distance - b.distance)}
           userName={
