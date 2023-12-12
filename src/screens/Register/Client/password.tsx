@@ -149,12 +149,12 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
         });
       } else if (route.params.flow === "establishment") {
         navigation.navigate("EstablishmentRegister", {
+          role: "4",
           password: data.password,
           cpf: route.params.data.cpf,
-          name: route.params.data.email,
+          name: route.params.data.name,
           email: route.params.data.email,
           phone_number: route.params.data.phoneNumber,
-          role: "4",
         });
       }
     } catch (error) {

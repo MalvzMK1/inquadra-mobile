@@ -145,7 +145,7 @@ type RootStackParamList = {
     establishmentInfos: {
       amenities: string[];
       cellphone_number: string;
-      cnpj: string | undefined;
+      cnpj: string;
       cep: string;
       corporate_name: string;
       phone_number: string;

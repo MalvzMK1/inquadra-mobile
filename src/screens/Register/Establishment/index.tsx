@@ -144,7 +144,7 @@ export default function RegisterEstablishment({
         const establishmentRegisterData = {
           amenities: amenities,
           cellphone_number: values.phone,
-          cnpj: values.cnpj,
+          cnpj: values.cnpj || "",
           cep: values.address.cep,
           corporate_name: values.corporateName,
           phone_number: values.phone,
