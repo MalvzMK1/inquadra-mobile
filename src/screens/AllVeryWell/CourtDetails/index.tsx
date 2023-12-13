@@ -5,14 +5,14 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { indexToWeekDayMap } from "../../../utils/constants";
 
 enum translatedWeekDays {
-  sunday = 'Domingo',
-  monday = 'Segunda',
-  tuesday = 'Terça',
-  wednesday = 'Quarta',
-  thursday = 'Quinta',
-  friday = 'Sexta',
-  saturday = 'Sábado',
-  specialDays = 'Dia Especial'
+  sunday = "Domingo",
+  monday = "Segunda",
+  tuesday = "Terça",
+  wednesday = "Quarta",
+  thursday = "Quinta",
+  friday = "Sexta",
+  saturday = "Sábado",
+  specialDays = "Dia Especial",
 }
 
 export default function CourtDetails({
@@ -47,46 +47,49 @@ export default function CourtDetails({
     return;
   }
 
-  function calculateWeekDaysRange(availabilities: TAppointment[][]): { firstDay: string, lastDay: string } | undefined {
-    const parsedAvailabilitiesWeekDays = availabilities.map((availability, index) => {
-      if (availability.length > 0) {
-        return index;
+  function calculateWeekDaysRange(
+    availabilities: TAppointment[][]
+  ): { firstDay: string; lastDay: string } | undefined {
+    const parsedAvailabilitiesWeekDays = availabilities.map(
+      (availability, index) => {
+        if (availability.length > 0) {
+          return index;
+        }
+        return null;
       }
-      return null;
-    });
-    
-    const filteredWeekDaysIndex: number[] = parsedAvailabilitiesWeekDays
-      .filter(value => typeof value === 'number')
-      .map(value => value as number);
-    
-    if (filteredWeekDaysIndex.length > 0) {
-      const weekDays = filteredWeekDaysIndex.map(weekDayIndex => {
-        return indexToWeekDayMap[weekDayIndex];
-      })
+    );
 
-      const selectedWeekDays = weekDays.map(weekDay => {
+    const filteredWeekDaysIndex: number[] = parsedAvailabilitiesWeekDays
+      .filter((value) => typeof value === "number")
+      .map((value) => value as number);
+
+    if (filteredWeekDaysIndex.length > 0) {
+      const weekDays = filteredWeekDaysIndex.map((weekDayIndex) => {
+        return indexToWeekDayMap[weekDayIndex];
+      });
+
+      const selectedWeekDays = weekDays.map((weekDay) => {
         const parsed = weekDay.toLowerCase() as keyof typeof translatedWeekDays;
 
         return translatedWeekDays[parsed];
-      })
+      });
 
       const payload = {
         firstDay: selectedWeekDays[0],
-        lastDay: selectedWeekDays[selectedWeekDays.length -1],
-      }
+        lastDay: selectedWeekDays[selectedWeekDays.length - 1],
+      };
 
-      if (payload.firstDay === 'Domingo' && payload.lastDay === 'Sábado') {
+      if (payload.firstDay === "Domingo" && payload.lastDay === "Sábado") {
         return {
-          firstDay: 'Domingo',
-          lastDay: 'Domingo',
-        }
-      } else return {
-        firstDay: selectedWeekDays[0],
-        lastDay: selectedWeekDays[selectedWeekDays.length -1],
-      }
-    }
-    else
-      return;
+          firstDay: "Domingo",
+          lastDay: "Domingo",
+        };
+      } else
+        return {
+          firstDay: selectedWeekDays[0],
+          lastDay: selectedWeekDays[selectedWeekDays.length - 1],
+        };
+    } else return;
   }
 
   function parseFlatHours(time: string): string {
@@ -138,16 +141,15 @@ export default function CourtDetails({
             }
           );
 
-          const hourRange: { startsAt: string; endsAt: string } | undefined = calculateHourRange(courtAppointmentsHour);
-          const weekDaysRange: { firstDay: string, lastDay: string } | undefined = calculateWeekDaysRange(court.court_availabilities);
+          const hourRange = calculateHourRange(courtAppointmentsHour);
+          const weekDaysRange = calculateWeekDaysRange(
+            court.court_availabilities
+          );
 
           return (
             <View className="bg-[#292929]">
               <View className="flex flex-row pl-5 pt-5 pb-5">
-                <Image
-                  className="w-2/5"
-                  source={court.photos[0]}
-                />
+                <Image className="w-2/5" source={court.photos[0]} />
 
                 <View className="w-4/6 pr-5">
                   <View className="flex flex-row pr-2">
@@ -164,19 +166,22 @@ export default function CourtDetails({
                   </View>
 
                   <Text className="text-white font-bold pl-2">
-                    Valor inicial: {
-                    court.minimum_value
+                    Valor inicial:{" "}
+                    {court.minimum_value
                       .toString()
-                      .concat(court.minimum_value < 2 ? ' real' : ' reais')
-                  }
-                  </Text>
-
-                  <Text className="text-white font-bold pl-2">Locação de:</Text>
-                    Locação de: {weekDaysRange?.firstDay} a {weekDaysRange?.lastDay.toLowerCase()}
+                      .concat(court.minimum_value < 2 ? " real" : " reais")}
                   </Text>
 
                   <Text className="text-white font-bold pl-2">
-                    Day User: {court.dayUse.includes(true) ? 'Habilitado' : 'Desabilitado'}
+                    Locação de: {weekDaysRange?.firstDay} a{" "}
+                    {weekDaysRange?.lastDay.toLowerCase()}
+                  </Text>
+
+                  <Text className="text-white font-bold pl-2">
+                    Day User:{" "}
+                    {court.dayUse.includes(true)
+                      ? "Habilitado"
+                      : "Desabilitado"}
                   </Text>
 
                   {hourRange && (
@@ -186,6 +191,7 @@ export default function CourtDetails({
                   )}
                 </View>
               </View>
+            </View>
           );
         }}
       />
