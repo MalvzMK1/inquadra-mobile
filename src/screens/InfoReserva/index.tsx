@@ -1,18 +1,25 @@
 import { HOST_API } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import { format, parseISO } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Image, Text, View } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { useCallback, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
+import { CountdownString } from "../../components/countdown/Countdown";
+import { useUser } from "../../context/userContext";
 import { IgetHistoricOfReserveOnResponse } from "../../graphql/queries/historicReserveOn";
 import { useGetHistoricReserveOn } from "../../hooks/useHistoricReserveOn";
 import { useGetMenuUser } from "../../hooks/useMenuUser";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { API_BASE_URL } from "../../utils/constants";
-import { useUser } from "../../context/userContext";
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -39,7 +46,9 @@ export default function InfoReserva({
   const [userGeolocation, setUserGeolocation] = useState<
     UserGeolocation | undefined
   >(userData?.geolocation);
-  const { data, loading, refetch } = useGetHistoricReserveOn(userData?.id ?? "");
+  const { data, loading, refetch } = useGetHistoricReserveOn(
+    userData?.id ?? ""
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -57,28 +66,45 @@ export default function InfoReserva({
     }, [refetch])
   );
 
+  function getScheduleStartDate(date: string, time: string) {
+    return new Date(`${date}T${time}-03:00`);
+  }
+
   const schedulings = useMemo((): {
     active: Scheduling[];
     done: Scheduling[];
   } => {
-    const active: Scheduling[] = [];
-    const done: Scheduling[] = [];
+    let active: Scheduling[] = [];
+    let done: Scheduling[] = [];
 
-    if (data && data.usersPermissionsUser.data)
-      data.usersPermissionsUser.data.attributes.schedulings.data.forEach(
-        (scheduling) => {
-          if (scheduling.attributes.status) {
-            active.push(scheduling);
-          } else {
-            done.push(scheduling);
+    try {
+      if (data && data.usersPermissionsUser.data)
+        data.usersPermissionsUser.data.attributes.schedulings.data.map(
+          (scheduling) => {
+            const isPaymentExpired = CountdownString(
+              getScheduleStartDate(
+                scheduling.attributes.date,
+                scheduling.attributes.court_availability.data.attributes
+                  .startsAt
+              )
+            );
+            if (isPaymentExpired) {
+              done.push(scheduling);
+            } else {
+              active.push(scheduling);
+            }
           }
-        }
-      );
+        );
 
-    return {
-      active,
-      done,
-    };
+      return {
+        active,
+        done,
+      };
+    } catch (error) {
+      active = [];
+      done = [];
+      return { active, done };
+    }
   }, [data]);
 
   return (
@@ -252,110 +278,6 @@ export default function InfoReserva({
                         );
                       })
                     )}
-                    {/*<View className="flex items-start w-max mt-6 p-4">*/}
-                    {/*  <Text className="text-lg text-white">*/}
-                    {/*    Reservas finalizadas*/}
-                    {/*  </Text>*/}
-                    {/*</View>*/}
-                    {/*{!schedulings.done.length ? (*/}
-                    {/*  <Text className="text-white">*/}
-                    {/*    Não há reservas aqui...*/}
-                    {/*  </Text>*/}
-                    {/*) : (*/}
-                    {/*  schedulings.done.map(courtInfo => {*/}
-                    {/*    return (*/}
-                    {/*      <TouchableOpacity*/}
-                    {/*        key={courtInfo.id}*/}
-                    {/*        onPress={() => {*/}
-                    {/*          navigation.navigate("DescriptionReserve", {*/}
-                    {/*            userId: userId,*/}
-                    {/*            scheduleId: courtInfo.id,*/}
-                    {/*          });*/}
-                    {/*        }}*/}
-                    {/*      >*/}
-                    {/*        <View className="flex-row items-start justify-start w-max h-max pt-2">*/}
-                    {/*          <View>*/}
-                    {/*            <Image*/}
-                    {/*              source={{*/}
-                    {/*                uri:*/}
-                    {/*                  HOST_API +*/}
-                    {/*                  courtInfo?.attributes?.court_availability*/}
-                    {/*                    ?.data?.attributes?.court?.data*/}
-                    {/*                    ?.attributes?.photo?.data[0]?.attributes*/}
-                    {/*                    ?.url,*/}
-                    {/*              }}*/}
-                    {/*              style={{ width: 138, height: 90 }}*/}
-                    {/*              borderRadius={5}*/}
-                    {/*            />*/}
-                    {/*          </View>*/}
-                    {/*          <View className="h-max w-max pl-1">*/}
-                    {/*            <View>*/}
-                    {/*              <Text className="font-black text-base text-orange-600">*/}
-                    {/*                {*/}
-                    {/*                  courtInfo.attributes.court_availability*/}
-                    {/*                    .data.attributes.court.data.attributes*/}
-                    {/*                    .fantasy_name*/}
-                    {/*                }*/}
-                    {/*              </Text>*/}
-                    {/*            </View>*/}
-
-                    {/*            <View>*/}
-                    {/*              <Text className="font-normal text-xs text-white">*/}
-                    {/*                {*/}
-                    {/*                  courtInfo.attributes.court_availability*/}
-                    {/*                    .data.attributes.court.data.attributes*/}
-                    {/*                    .name*/}
-                    {/*                }*/}
-                    {/*              </Text>*/}
-                    {/*            </View>*/}
-
-                    {/*            <View className="w-max h-5 flex-row">*/}
-                    {/*              <View>*/}
-                    {/*                <Text className="font-normal text-xs text-white">*/}
-                    {/*                  Status:{" "}*/}
-                    {/*                </Text>*/}
-                    {/*              </View>*/}
-
-                    {/*              <View>*/}
-                    {/*                {courtInfo.attributes.payedStatus ===*/}
-                    {/*                "payed" ? (*/}
-                    {/*                  <Text className="font-normal text-xs text-white">*/}
-                    {/*                    Finalizado{" "}*/}
-                    {/*                  </Text>*/}
-                    {/*                ) : courtInfo.attributes.payedStatus ===*/}
-                    {/*                  "waiting" ? (*/}
-                    {/*                  <Text className="font-normal text-xs text-white">*/}
-                    {/*                    Em aberto{" "}*/}
-                    {/*                  </Text>*/}
-                    {/*                ) : (*/}
-                    {/*                  <Text className="font-normal text-xs text-white">*/}
-                    {/*                    Cancelado{" "}*/}
-                    {/*                  </Text>*/}
-                    {/*                )}*/}
-                    {/*              </View>*/}
-
-                    {/*              <View>*/}
-                    {/*                <Text className="font-black text-xs text-white">*/}
-                    {/*                  R$*/}
-                    {/*                  {courtInfo.attributes.court_availability.data.attributes.value.toString()}*/}
-                    {/*                </Text>*/}
-                    {/*              </View>*/}
-                    {/*            </View>*/}
-
-                    {/*            <View>*/}
-                    {/*              <Text className="font-black text-xs text-white">*/}
-                    {/*                Ultima Reserva{" "}*/}
-                    {/*                {formatDateTime(*/}
-                    {/*                  courtInfo?.attributes?.createdAt.toString(),*/}
-                    {/*                )}*/}
-                    {/*              </Text>*/}
-                    {/*            </View>*/}
-                    {/*          </View>*/}
-                    {/*        </View>*/}
-                    {/*      </TouchableOpacity>*/}
-                    {/*    );*/}
-                    {/*  })*/}
-                    {/*)}*/}
                   </View>
                 )}
               </View>
@@ -365,13 +287,11 @@ export default function InfoReserva({
                 Reservas Finalizadas
               </Text>
             </View>
-            {/* Div para carregar todas as informações do histórico*/}
             <View className="items-center p-4">
               <View
                 className="w-full h-max bg-zinc-900 rounded-lg p-2"
                 style={{ elevation: 8 }}
               >
-                {/* Div para inserção dos cards*/}
                 {loading ? (
                   <View className="justify-center mt-2">
                     <ActivityIndicator size={40} color="white" />
@@ -399,10 +319,9 @@ export default function InfoReserva({
                                   source={{
                                     uri:
                                       HOST_API +
-                                      courtInfo?.attributes?.court_availability
-                                        ?.data?.attributes?.court?.data
-                                        ?.attributes?.photo?.data[0]?.attributes
-                                        ?.url,
+                                      courtInfo.attributes.court_availability
+                                        .data?.attributes.court.data?.attributes
+                                        ?.photo?.data[0]?.attributes?.url,
                                   }}
                                   style={{ width: 138, height: 90 }}
                                   borderRadius={5}
@@ -413,7 +332,7 @@ export default function InfoReserva({
                                   <Text className="font-black text-base text-orange-600">
                                     {
                                       courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
+                                        .data?.attributes.court.data?.attributes
                                         .fantasy_name
                                     }
                                   </Text>
@@ -423,7 +342,7 @@ export default function InfoReserva({
                                   <Text className="font-normal text-xs text-white">
                                     {
                                       courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
+                                        .data?.attributes.court.data?.attributes
                                         .name
                                     }
                                   </Text>
@@ -457,7 +376,7 @@ export default function InfoReserva({
                                   <View>
                                     <Text className="font-black text-xs text-white">
                                       R$
-                                      {courtInfo.attributes.court_availability.data.attributes.value.toString()}
+                                      {courtInfo.attributes.court_availability.data?.attributes.value.toString()}
                                     </Text>
                                   </View>
                                 </View>
@@ -516,4 +435,7 @@ export default function InfoReserva({
       </View>
     </View>
   );
+}
+function getScheduleStartDate(): any {
+  throw new Error("Function not implemented.");
 }

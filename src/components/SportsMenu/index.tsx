@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { FlatList, TouchableOpacity } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import SportItem from "../SportItem";
 const iconFutebol = require("./icons/iconFutebol.png");
@@ -82,8 +82,11 @@ export default function SportsMenu({
           shadowRadius: 2,
         }}
       >
-        <ScrollView horizontal={true}>
-          {sports.map(item => (
+        <FlatList
+          data={sports}
+          keyExtractor={item => item.id}
+          horizontal
+          renderItem={({ item }) => (
             <TouchableOpacity
               className="justify-center items-center pr-4"
               key={item.id}
@@ -113,14 +116,14 @@ export default function SportsMenu({
                 />
               )}
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          )}
+        ></FlatList>
       </Animated.View>
       <Animated.View
         entering={FadeIn.duration(500)}
         exiting={FadeOut.duration(500)}
         className="w-full h-[3px] bg-gradient-to-b from-neutral-700 via-neutral-900 to-black"
-      ></Animated.View>
+      />
     </>
   );
 }

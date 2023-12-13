@@ -15,7 +15,7 @@
     "postbuild:debug": "rm -rf ./android/app/src/main/res/drawable-* && echo \"O arquivo está em ./android/app/build/outputs/apk/debug\"",
     "prebuild:release": "rm -rf ./android/app/src/main/res/drawable-*",
     "build:release": "cd android && ./gradlew clean && ./gradlew assembleRelease --stacktrace",
-    "postbuild:release": "echo \"O arquivo está em ./android/app/build/outputs/apk/release\"",
+    "postbuild:release": "node ./version-apk.js && echo \"O arquivo está em ./android/app/build/outputs/apk/release\"",
     "eas-build:remote": "eas build -p android --profile preview",
     "eas-build:local": "eas build -p android --profile preview --local"
   },
@@ -63,6 +63,7 @@
     "react-input-mask": "^2.0.4",
     "react-native": "0.71.14",
     "react-native-alert-notification": "^0.3.5",
+    "react-native-autocomplete-dropdown": "^3.1.0",
     "react-native-axios": "^0.17.1",
     "react-native-calendars": "^1.1300.0",
     "react-native-datepicker": "^1.7.2",

@@ -11,9 +11,9 @@ import {
   ScrollView,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import { RegisterHeader } from "../../../components/RegisterHeader";
@@ -51,7 +51,7 @@ const formSchema = z.object({
     .string()
     .nonempty("O CPF não pode estar vazio!")
     .max(14, "O CPF passado não é válido")
-    .refine(cpf => validateCpf(cpf), "CPF Inválido"),
+    .refine((cpf) => validateCpf(cpf), "CPF Inválido"),
 });
 
 export default function Register({
@@ -67,7 +67,7 @@ export default function Register({
     resolver: zodResolver(formSchema),
   });
 
-  const handleGoToNextRegisterPage = handleSubmit(async data => {
+  const handleGoToNextRegisterPage = handleSubmit(async (data) => {
     try {
       const [
         { data: emailData },

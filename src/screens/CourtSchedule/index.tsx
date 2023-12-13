@@ -1,23 +1,21 @@
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays, format, sub } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   ActivityIndicator,
   Image,
   Modal,
-  Platform,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 import { SelectList } from "react-native-dropdown-select-list";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { TextInputMask } from "react-native-masked-text";
 import { Button } from "react-native-paper";
@@ -41,6 +39,7 @@ import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmen
 import { getWeekDays } from "../../utils/getWeekDates";
 
 import { useApolloClient } from "@apollo/client";
+import { Entypo } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import { useUser } from "../../context/userContext";
@@ -108,13 +107,16 @@ export default function CourtSchedule({
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
   const { userData } = useUser();
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
-  const [showUntillDatePicker, setShowUntillDatePicker] = useState<boolean>(false)
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const [showUntillDatePicker, setShowUntillDatePicker] =
+    useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<null | Date>(null);
-  const [selectedUntillDate, setSelectedUntillDate] = useState<null | Date>(null)
+  const [selectedUntillDate, setSelectedUntillDate] = useState<null | Date>(
+    null
+  );
   const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string>(
-    route.params.establishmentId,
+    route.params.establishmentId
   );
   const [establishmentPicture, setEstablishmentPicture] = useState<
     string | undefined
@@ -122,22 +124,21 @@ export default function CourtSchedule({
 
   const handleDateChange = (event: any, date: any) => {
     if (date !== undefined) {
-      const formattedDate = format(date, 'dd-MM-yyyy');
+      const formattedDate = format(date, "dd-MM-yyyy");
       setSelectedDate(date);
       setShowDatePicker(false);
-      setStartsAt(formattedDate)
+      setStartsAt(formattedDate);
     }
-  }
-
+  };
 
   const handleUntillDateChange = (event: any, date: any) => {
     if (date !== undefined) {
-      const formattedDate = format(date, 'dd-MM-yyyy');
+      const formattedDate = format(date, "dd-MM-yyyy");
       setSelectedUntillDate(date);
       setShowUntillDatePicker(false);
-      setEndsAt(formattedDate)
+      setEndsAt(formattedDate);
     }
-  }
+  };
   const showDatePickerIOS = () => {
     setShowDatePicker(true);
   };
@@ -148,13 +149,12 @@ export default function CourtSchedule({
 
   useEffect(() => {
     AsyncStorage.getItem("@inquadra/establishment-profile-photo").then(
-      value => {
-        console.log({ photo: value });
+      (value) => {
         setEstablishmentPicture(value ? value : undefined);
         navigation.setParams({
           establishmentPhoto: value ?? undefined,
         });
-      },
+      }
     );
 
     if (userData && userData.id) setUserId(userData.id);
@@ -259,26 +259,24 @@ export default function CourtSchedule({
       schedulesData.establishment.data.attributes.courts.data.length > 0
     )
       schedulesData.establishment.data?.attributes.courts.data.map(
-        courtItem => {
+        (courtItem) => {
           if (
             courtItem &&
             courtItem.attributes.court_availabilities.data.length > 0
           ) {
             courtItem.attributes.court_availabilities.data.map(
-              courtAvailabilitieItem => {
-                if (
-                  courtAvailabilitieItem.attributes.schedulings.data.length > 0
-                ) {
+              (courtAvailabilitieItem) => {
+                if (courtAvailabilitieItem.attributes.schedulings.data.length) {
                   courtAvailabilitieItem.attributes.schedulings.data.map(
-                    schedulingItem => {
+                    (schedulingItem) => {
                       setEstablishmentSchedules([
                         ...establishmentSchedules!,
                         {
                           courtId: courtItem.id,
                           courtName: courtItem.attributes.name,
                           courtType:
-                            courtItem?.attributes.court_types.data[0].attributes
-                              .name,
+                            courtItem?.attributes.court_types.data.at(0)
+                              ?.attributes.name || "",
                           startsAt: courtAvailabilitieItem.attributes.startsAt,
                           endsAt: courtAvailabilitieItem.attributes.endsAt,
                           weekDay: courtAvailabilitieItem.attributes.weekDay,
@@ -293,13 +291,13 @@ export default function CourtSchedule({
                           },
                         },
                       ]);
-                    },
+                    }
                   );
                 }
-              },
+              }
             );
           }
-        },
+        }
       );
   }, [schedulesData]);
 
@@ -313,13 +311,13 @@ export default function CourtSchedule({
   if (!courtsByEstablishmentIdLoading)
     if (courtsByEstablishmentIdData != undefined)
       courtsByEstablishmentIdData.establishment.data.attributes.courts.data.map(
-        courtItem => {
+        (courtItem) => {
           courtNames.push(courtItem.attributes.name);
           allCourts = [
             ...allCourts,
             { id: courtItem.id, name: courtItem.attributes.name },
           ];
-        },
+        }
       );
 
   const today = new Date();
@@ -337,12 +335,12 @@ export default function CourtSchedule({
     navigation.setParams({
       establishmentPhoto: Array.isArray(
         userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.photo,
+          .establishment.data.attributes.photo
       )
         ? userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.photo[0]
+            .establishment.data.attributes.photo[0]
         : userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.photo,
+            .establishment.data.attributes.photo,
     });
   }
 
@@ -351,7 +349,7 @@ export default function CourtSchedule({
   else weekDates = getWeekDays(today);
 
   const standardActiveStates: IActiveState[] = [];
-  weekDates.map(item => {
+  weekDates.map((item) => {
     standardActiveStates.push({
       active: false,
       date: item.date.toISOString().split("T")[0],
@@ -365,7 +363,7 @@ export default function CourtSchedule({
     useState<IActiveState[]>(standardActiveStates);
 
   const standardActiveCourts: IActiveCourt[] = [];
-  allCourts.map(item => {
+  allCourts.map((item) => {
     standardActiveCourts.push({
       active: false,
       id: item.id,
@@ -391,7 +389,7 @@ export default function CourtSchedule({
     const schedules = establishmentSchedules;
 
     let newActiveStates: IActiveState[] = [];
-    weekDates.map(weekDayItem => {
+    weekDates.map((weekDayItem) => {
       newActiveStates = [
         ...newActiveStates,
         {
@@ -413,10 +411,10 @@ export default function CourtSchedule({
     if (schedules)
       setShownSchedules(
         establishmentSchedules.filter(
-          scheduleItem =>
+          (scheduleItem) =>
             scheduleItem.scheduling.schedulingDate ===
-            weekDates[index].date.toISOString().split("T")[0],
-        ),
+            weekDates[index].date.toISOString().split("T")[0]
+        )
       );
   }
 
@@ -428,7 +426,7 @@ export default function CourtSchedule({
     let newActiveStates: IActiveState[] = [];
     try {
       await Promise.all(
-        weekDates.map(weekDayItem => {
+        weekDates.map((weekDayItem) => {
           newActiveStates = [
             ...newActiveStates,
             {
@@ -436,14 +434,14 @@ export default function CourtSchedule({
               date: data.dateString,
             },
           ];
-        }),
+        })
       );
     } catch (error) {
       alert(error);
     }
 
     const index = newActiveStates.findIndex(
-      activeItem => activeItem.date == date.toISOString().split("T")[0],
+      (activeItem) => activeItem.date == date.toISOString().split("T")[0]
     );
     newActiveStates[index] = {
       active: true,
@@ -456,19 +454,17 @@ export default function CourtSchedule({
     if (schedules)
       setShownSchedules(
         establishmentSchedules.filter(
-          scheduleItem =>
-            scheduleItem.scheduling.schedulingDate === data.dateString,
-        ),
+          (scheduleItem) =>
+            scheduleItem.scheduling.schedulingDate === data.dateString
+        )
       );
   }
-
-  console.log("shown:", shownSchedules);
 
   // const [selectedCourts, setSelectedCourts] = useState("")
   const [blockedCourtId, setBlockedCourtId] = useState<string>("");
   function handleSelectedCourt(index: number) {
     let newActiveCourts: IActiveCourt[] = [];
-    allCourts.map(courtItem => {
+    allCourts.map((courtItem) => {
       newActiveCourts = [
         ...newActiveCourts,
         {
@@ -482,7 +478,7 @@ export default function CourtSchedule({
       id: allCourts[index].id,
     };
     const selectedCourtId = newActiveCourts.find(
-      courtItem => courtItem.active === true,
+      (courtItem) => courtItem.active === true
     );
     setBlockedCourtId(selectedCourtId?.id!);
     setActiveCourts(newActiveCourts);
@@ -494,20 +490,20 @@ export default function CourtSchedule({
   }
   const [selectedCourtId, setSelectedCourtId] = useState("0");
   const [schedulingsJson, setSchedulingsJson] = useState<ISchedulingsByDate[]>(
-    [],
+    []
   );
   const apolloClient = useApolloClient();
 
   const handleNextSchedules = async (selectedCourt: string) => {
     const foundCourt = allCourts.find(
-      courtItem => courtItem.name === selectedCourt,
+      (courtItem) => courtItem.name === selectedCourt
     );
     if (!foundCourt) return;
     setSelectedCourtId(foundCourt.id);
 
     if (parseFloat(foundCourt.id) > 0) {
       let scheduleInfoArray = await Promise.all(
-        nextWeekArray.map(async item => {
+        nextWeekArray.map(async (item) => {
           const {
             data: scheduleByDateData,
             error: scheduleByDateError,
@@ -526,12 +522,12 @@ export default function CourtSchedule({
               },
             },
           });
-
+          console.log("foundCourt.id", foundCourt.id);
           return {
             date: item,
             scheduling_quantity: scheduleByDateData?.schedulings.data?.length,
           };
-        }),
+        })
       );
       setSchedulingsJson(scheduleInfoArray);
     }
@@ -539,7 +535,7 @@ export default function CourtSchedule({
 
   const fill = "rgba(255, 97, 18, 1)";
   let data: number[] = [];
-  schedulingsJson.forEach(item => {
+  schedulingsJson.forEach((item) => {
     data.push(item.scheduling_quantity!);
   });
   const maxValue = Math.max.apply(null, data);
@@ -578,7 +574,7 @@ export default function CourtSchedule({
 
   async function setSchedulingsByDates(dates: string[], courtId: string) {
     let schedulingsByDatesArray = await Promise.all(
-      dates.map(async dateItem => {
+      dates.map(async (dateItem) => {
         const {
           data: scheduleByDateData,
           error: scheduleByDateError,
@@ -597,12 +593,14 @@ export default function CourtSchedule({
             },
           },
         });
-
+        console.log("date", dateItem);
+        console.log("courtID", courtId);
+        console.log("scheduleByDateData", scheduleByDateData);
         if (scheduleByDateData != undefined) return scheduleByDateData;
-      }),
+      })
     );
 
-    let schedulingsByDateObject = schedulingsByDatesArray.map(item => {
+    let schedulingsByDateObject = schedulingsByDatesArray.map((item) => {
       if (JSON.stringify(item?.schedulings.data) != "[]")
         return item?.schedulings.data;
     });
@@ -611,9 +609,9 @@ export default function CourtSchedule({
       schedulingId: number;
     }
     let schedulingsByDateJson: ISchedulingId[] = [];
-    schedulingsByDateObject?.forEach(item => {
+    schedulingsByDateObject?.forEach((item) => {
       if (item != undefined) {
-        item.map(item2 => {
+        item.map((item2) => {
           schedulingsByDateJson = [
             ...schedulingsByDateJson,
             {
@@ -636,14 +634,10 @@ export default function CourtSchedule({
 
     const datesRange = getDatesRange(
       blockScheduleData.initialDate,
-      blockScheduleData.endDate,
+      blockScheduleData.endDate
     );
-    console.log("datesRange", datesRange);
-
     const courtId = selectedCourtId;
-    console.log("courtId ID:", courtId);
     const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId);
-    console.log("Scheduling", schedulingsByDate);
 
     if (schedulingsByDate.length > 0 && courtId) {
       try {
@@ -670,6 +664,9 @@ export default function CourtSchedule({
         console.error("DEFAULT_ERROR_MESSAGE", { type: "error" });
         setIsLoading(false);
       }
+    } else {
+      alert("Não há nenhuma reserva nesse intervalo de datas!");
+      setIsLoading(false);
     }
   }
 
@@ -694,7 +691,7 @@ export default function CourtSchedule({
         new Date(formatedInitialHour)
           .toISOString()
           .split("T")[1]
-          .replace("Z", ""),
+          .replace("Z", "")
       );
       formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 30);
     }
@@ -704,7 +701,7 @@ export default function CourtSchedule({
 
   async function setSchedulingsByHours(hours: string[], courtId: string) {
     let courtAvailabilitiesByHourArray = await Promise.all(
-      hours.map(async hourItem => {
+      hours.map(async (hourItem) => {
         const {
           data: courtAvailabilityByHourData,
           error: courtAvailabilityByHourError,
@@ -726,23 +723,23 @@ export default function CourtSchedule({
 
         if (courtAvailabilityByHourData != undefined)
           return courtAvailabilityByHourData;
-      }),
+      })
     );
 
     let courtAvailabilitiesByHourObject = courtAvailabilitiesByHourArray.map(
-      item => {
+      (item) => {
         if (JSON.stringify(item?.courtAvailabilities.data) != "[]")
           return item?.courtAvailabilities.data;
-      },
+      }
     );
 
     interface ICourtAvailabilityId {
       courtAvailabilityId: string;
     }
     let courtAvailabilitiesByHourJson: ICourtAvailabilityId[] = [];
-    courtAvailabilitiesByHourObject?.forEach(item => {
+    courtAvailabilitiesByHourObject?.forEach((item) => {
       if (item != undefined) {
-        item.map(item2 => {
+        item.map((item2) => {
           courtAvailabilitiesByHourJson = [
             ...courtAvailabilitiesByHourJson,
             {
@@ -765,7 +762,7 @@ export default function CourtSchedule({
 
     const hoursRange = getHoursRange(
       blockScheduleByTimeData.initialHour,
-      blockScheduleByTimeData.endHour,
+      blockScheduleByTimeData.endHour
     );
     const courtId = selectedCourtId;
     const schedulingsByHour = await setSchedulingsByHours(hoursRange, courtId);
@@ -774,7 +771,7 @@ export default function CourtSchedule({
       if (schedulingsByHour.length > 0) {
         try {
           await Promise.all(
-            schedulingsByHour.map(async item => {
+            schedulingsByHour.map(async (item) => {
               await blockScheduleByHour({
                 variables: {
                   court_availability_id: item.courtAvailabilityId.toString(),
@@ -784,7 +781,7 @@ export default function CourtSchedule({
               setConfirmBlockSchedule(true);
               setIsLoading(false);
               setBlockedCourtId("");
-            }),
+            })
           );
         } catch (error) {
           console.log("Deu erro: ", error);
@@ -826,7 +823,7 @@ export default function CourtSchedule({
                   key={index}
                   localeDayInitial={date.localeDayInitial}
                   day={date.day}
-                  onClick={isClicked => {
+                  onClick={(isClicked) => {
                     handleWeekDayClick(index);
                   }}
                   active={activeStates[index].active}
@@ -883,7 +880,7 @@ export default function CourtSchedule({
         <View className={`${showAll ? "max-h-[350px]" : "max-h-fit"}`}>
           <ScrollView className={`pl-[25px] pr-[40px] mt-[15px] w-full`}>
             {shownSchedules &&
-              shownSchedules.map(scheduleItem => {
+              shownSchedules.map((scheduleItem) => {
                 const startsAt = scheduleItem.startsAt.split(":");
                 const endsAt = scheduleItem.endsAt.split(":");
 
@@ -925,10 +922,11 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ${schedulingsFocus
-                ? "text-black"
-                : "text-[#292929]" && "opacity-40"
-                } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ${
+                schedulingsFocus
+                  ? "text-black"
+                  : "text-[#292929]" && "opacity-40"
+              } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
             >
               Reservas
             </Text>
@@ -945,10 +943,11 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ml-[10px] ${schedulingsHistoricFocus
-                ? "text-black"
-                : "text-[#292929]" && "opacity-40"
-                } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ml-[10px] ${
+                schedulingsHistoricFocus
+                  ? "text-black"
+                  : "text-[#292929]" && "opacity-40"
+              } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
             >
               Histórico de reservas
             </Text>
@@ -1122,14 +1121,14 @@ export default function CourtSchedule({
                           <CourtSlideButton
                             key={index}
                             name={courtItem.attributes.name}
-                            onClick={isClicked => {
+                            onClick={(isClicked) => {
                               handleSelectedCourt(index);
                             }}
                             active={activeCourts[index].active}
                           />
                         );
                       }
-                    },
+                    }
                   )}
               </View>
 
@@ -1138,10 +1137,11 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.initialHour
-                      ? "border-red-400"
-                      : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      blockScheduleByTimeErrors.initialHour
+                        ? "border-red-400"
+                        : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="initialHour"
@@ -1156,7 +1156,7 @@ export default function CourtSchedule({
                           options={{
                             format: "99:99",
                           }}
-                          onChangeText={text => {
+                          onChangeText={(text) => {
                             onChange(text);
                             setStartHour(text);
                           }}
@@ -1182,10 +1182,11 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.endHour
-                      ? "border-red-400"
-                      : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      blockScheduleByTimeErrors.endHour
+                        ? "border-red-400"
+                        : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="endHour"
@@ -1199,7 +1200,7 @@ export default function CourtSchedule({
                           options={{
                             format: "99:99",
                           }}
-                          onChangeText={text => {
+                          onChangeText={(text) => {
                             onChange(text);
                             setEndHour(text);
                           }}
@@ -1225,7 +1226,7 @@ export default function CourtSchedule({
               <View className="w-full h-fit mt-[20px] mb-[20px] justify-center items-center">
                 <Button
                   onPress={handleSubmitBlockScheduleByTime(
-                    handleBlockScheduleByTime,
+                    handleBlockScheduleByTime
                   )}
                   className="h-[40px] w-[80%] rounded-md bg-orange-500 flex tems-center justify-center"
                 >
@@ -1275,14 +1276,14 @@ export default function CourtSchedule({
                         return (
                           <CourtSlideButton
                             name={courtItem.attributes.name}
-                            onClick={isClicked => {
+                            onClick={(isClicked) => {
                               handleSelectedCourt(index);
                             }}
                             active={activeCourts[index].active}
                           />
                         );
                       }
-                    },
+                    }
                   )}
               </View>
 
@@ -1290,8 +1291,9 @@ export default function CourtSchedule({
                 <View className="flex-1 mr-[6px]">
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
                   <View
-                    className={`flex flex-row items-center justify-between border ${errors.initialDate ? "border-red-400" : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      errors.initialDate ? "border-red-400" : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="initialDate"
@@ -1313,7 +1315,12 @@ export default function CourtSchedule({
                         />
                       )}
                     />
-                    <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowDatePicker(true)} />
+                    <MaterialIcons
+                      name="calendar-today"
+                      size={20}
+                      color="#808080"
+                      onPress={() => setShowDatePicker(true)}
+                    />
 
                     {showDatePicker && (
                       <Controller
@@ -1330,14 +1337,13 @@ export default function CourtSchedule({
                             onChange={(event, date) => {
                               handleDateChange(event, date!);
                               setShowDatePicker(false);
-                              const formattedDate = format(date!, 'dd-MM-yyyy');
-                              onChange(formattedDate)
+                              const formattedDate = format(date!, "dd-MM-yyyy");
+                              onChange(formattedDate);
                             }}
-                            display='calendar'
+                            display="calendar"
                           />
                         )}
                       />
-
                     )}
                   </View>
                   {errors.initialDate && (
@@ -1351,8 +1357,9 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${errors.endDate ? "border-red-400" : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      errors.endDate ? "border-red-400" : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="endDate"
@@ -1373,30 +1380,34 @@ export default function CourtSchedule({
                         ></MaskInput>
                       )}
                     />
-                    <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowUntillDatePicker(true)} />
+                    <MaterialIcons
+                      name="calendar-today"
+                      size={20}
+                      color="#808080"
+                      onPress={() => setShowUntillDatePicker(true)}
+                    />
                     {showUntillDatePicker && (
                       <Controller
-                      name="endDate"
-                      control={control}
-                      rules={{
-                        required: true,
-                        minLength: 10,
-                      }}
-                      render={({ field: { onChange } }) => (
-                        <DateTimePicker
-                        minimumDate={selectedDate || new Date()}
-                        value={selectedUntillDate || new Date()}
-                        onChange={(event, date) => {
-                          handleUntillDateChange(event, date!);
-                          setShowUntillDatePicker(false);
-                          const formattedDate = format(date!, 'dd-MM-yyyy');
-                          onChange(formattedDate)
+                        name="endDate"
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 10,
                         }}
-                        display='calendar'
+                        render={({ field: { onChange } }) => (
+                          <DateTimePicker
+                            minimumDate={selectedDate || new Date()}
+                            value={selectedUntillDate || new Date()}
+                            onChange={(event, date) => {
+                              handleUntillDateChange(event, date!);
+                              setShowUntillDatePicker(false);
+                              const formattedDate = format(date!, "dd-MM-yyyy");
+                              onChange(formattedDate);
+                            }}
+                            display="calendar"
+                          />
+                        )}
                       />
-                      )}
-                    />
-                      
                     )}
                   </View>
                   {errors.endDate && (
@@ -1433,6 +1444,12 @@ export default function CourtSchedule({
         >
           <View className="h-full w-full justify-center items-center">
             <View className="h-[256px] w-[350px] bg-white rounded-[5px] items-center justify-center">
+              <TouchableOpacity
+                onPress={closeConfirmBlockScheduleModal}
+                className="self-end mr-2"
+              >
+                <Entypo name="cross" size={24} color="black" />
+              </TouchableOpacity>
               <View className=" items-center justify-evenly h-[80%]">
                 <Text className="font-bold text-[14px] text-center">
                   Agenda bloqueada com sucesso

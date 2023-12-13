@@ -200,6 +200,7 @@ export default function DescriptionReserve({
       }
     },
   });
+  
   const { data: dataHistoricPayments } =
     useAllPaymentsSchedulingById(schedule_id);
 
@@ -447,6 +448,12 @@ export default function DescriptionReserve({
         Country: "BRA",
       };
 
+      const expirationDate = transformCardExpirationDate(data.date);
+
+      if (!expirationDate) {
+        throw new Error("Invalid expiration date");
+      }
+
       const body: AuthorizeCreditCardPaymentResponse = {
         MerchantOrderId: "2014111701",
         Customer: {
@@ -473,7 +480,7 @@ export default function DescriptionReserve({
           CreditCard: {
             CardNumber: data.cardNumber.split(" ").join(""),
             Holder: data.name,
-            ExpirationDate: transformCardExpirationDate(data.date),
+            ExpirationDate: expirationDate,
             SecurityCode: data.cvv,
             SaveCard: false,
             Brand: "Visa",
@@ -521,6 +528,7 @@ export default function DescriptionReserve({
       );
     } catch (error) {
       console.error("Erro ao criar o agendamento:", error);
+      console.log(JSON.stringify(error, null, 2));
     }
   });
 

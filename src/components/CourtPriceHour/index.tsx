@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import React, { useState, useEffect } from "react";
 import { Modal, Text, View, TouchableOpacity } from "react-native";
 import MaskInput, { Masks } from "react-native-mask-input";
+import { useNavigation } from '@react-navigation/native';
 
 const timeMask = [/\d/, /\d/, ":", /\d/, /\d/];
 
@@ -27,35 +28,57 @@ export default function PriceHour({
   onDelete,
 }: PriceHourProps) {
   const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [validateValueInserted, setValidateValueInserted] = useState<number>()
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout | undefined;
 
-    const validatePrice = (value: string) => {
-      let minimumCourtNumber = Number(minimumCourtValue);
-      let priceTest = Number(value.replace(/[^\d]/g, ""));
+  const navigation = useNavigation();
 
-      if (priceTest < minimumCourtNumber) {
-        setInfoModalVisible(true);
-      } else {
-        setInfoModalVisible(false);
-      }
-    };
+  const validatePrice = (value: string) => {
 
-    if (timeoutId) {
-      clearTimeout(timeoutId);
+    let priceTest = Number(value.replace(/[^\d]/g, ""));
+    let minimumCourtNumber = Number(minimumCourtValue);
+ 
+
+    if (priceTest < minimumCourtNumber) {
+      setInfoModalVisible(true);
+    } else {
+      setInfoModalVisible(false);
     }
+  };
 
-    timeoutId = setTimeout(() => {
-      validatePrice(price);
-    }, 6000);
 
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+  console.log("price:", price)
+
+  function handleStartsAtChange(value: string): void {
+    setStartsAt(value);
+
+    if (value.length === 5) {
+      const [hour, minutes] = value.split(':');
+
+      let endsAtHour: number | string = Number(hour) + 1;
+
+      if (endsAtHour < 10) endsAtHour = '0'.concat(endsAtHour.toString());
+      else endsAtHour = endsAtHour.toString();
+
+      setEndsAt(endsAtHour.concat(':').concat(minutes));
+    }
+  }
+
+  React.useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+      validatePrice(price)
+      let minimumCourtNumber = Number(minimumCourtValue);
+      let priceTest = Number(price.replace(/[^\d]/g, ""));
+
+      if(priceTest < minimumCourtNumber){
+        setInfoModalVisible(true);
+      }else{
+        navigation.dispatch(e.data.action);
       }
-    };
-  }, [price, minimumCourtValue]);
+    })
+  }, [navigation])
+
   return (
     <View className="flex-row w-full justify-between items-center mt-[10px]">
       <View className="flex-row items-center">
@@ -64,7 +87,7 @@ export default function PriceHour({
             className="h-full items-center justify-center"
             mask={timeMask}
             value={startsAt}
-            onChangeText={setStartsAt}
+            onChangeText={(masked) => handleStartsAtChange(masked)}
             placeholder="Ex.: 06:00"
             inputMode="numeric"
             onBlur={() => {
@@ -81,7 +104,6 @@ export default function PriceHour({
             className="h-full items-center justify-center"
             mask={timeMask}
             value={endsAt}
-            onChangeText={setEndsAt}
             placeholder="Ex.: 07:00"
             inputMode="numeric"
             onBlur={() => {
@@ -98,6 +120,8 @@ export default function PriceHour({
             mask={Masks.BRL_CURRENCY}
             value={price}
             onChangeText={(text) => setPrice(text)}
+            onBlur={() => 
+              validatePrice(price)}
             placeholder="Ex.: R$250"
             inputMode="numeric"
           />

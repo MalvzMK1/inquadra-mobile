@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, Image, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Image, FlatList, KeyboardAvoidingView } from "react-native";
 
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
@@ -238,7 +238,9 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
     }, [dataSportTypeAvaible, loadingSportTypeAvaible])
 
     return (
-        <ScrollView className="h-fit bg-white flex-1">
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}>
+            <ScrollView className="h-fit bg-white flex-1">
             <View className="items-center mt-9 p-4">
                 <Text className="text-3xl text-center font-extrabold text-gray-700">Cadastro Quadra</Text>
             </View>
@@ -420,5 +422,7 @@ export default function RegisterNewCourt({ navigation, route }: NativeStackScree
                 </View>
             </View>
         </ScrollView>
+        </KeyboardAvoidingView>
+        
     );
 }

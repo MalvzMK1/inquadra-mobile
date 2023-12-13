@@ -1,6 +1,5 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { Image, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { UserTypeCardType } from "../../types/UserTypeCard";
 
 export function UserTypeCard(props: UserTypeCardType) {

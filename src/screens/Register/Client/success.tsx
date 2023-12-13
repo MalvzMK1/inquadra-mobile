@@ -1,7 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
-import { Image, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function RegisterSuccess({
   route,
@@ -29,7 +28,7 @@ export default function RegisterSuccess({
           onPress={() =>
             navigation.navigate(
               route.params.nextRoute,
-              route.params.routePayload,
+              route.params.routePayload
             )
           }
         >

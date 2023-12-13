@@ -22,6 +22,7 @@ import { MultipleSelectList } from "react-native-dropdown-select-list";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
+import { useUser } from "../../context/userContext";
 import { CreateCourtAvailabilitiesVariables } from "../../graphql/mutations/createCourtAvailabilities";
 import useCourtById from "../../hooks/useCourtById";
 import useCreateCourtAvailabilities from "../../hooks/useCreateCourtAvailabilities";
@@ -34,7 +35,6 @@ import {
 } from "../../utils/constants";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { Appointment } from "../CourtPriceHour";
-import {useUser} from "../../context/userContext";
 
 interface ICourtFormData {
   fantasyName: string;
@@ -52,7 +52,7 @@ export default function EditCourt({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "EditCourt">) {
-  const {userData} = useUser();
+  const { userData } = useUser();
   const courtId = route.params.courtId;
 
   const {
@@ -64,25 +64,12 @@ export default function EditCourt({
     resolver: zodResolver(courtFormSchema),
   });
 
-  const [photo, setPhoto] = useState<string | undefined>();
-  const [userId, setUserId] = useState<string>();
-  const { data: sportTypesData } = useSportTypes();
-  const [updateCourtHook] = useUpdateCourt();
-  const [isOpeningCourtPriceHour, setIsOpeningCourtPriceHour] = useState(false);
-  const [createCourtAvailabilities] = useCreateCourtAvailabilities();
-  const [infoModalVisible, setInfoModalVisible] = useState(false);
   const { data: courtByIdData, loading: loadingCourt } = useCourtById(
     courtId ?? "",
     {
       fetchPolicy: "cache-and-network",
       onCompleted(data) {
-        let courtTypes: Array<string> = [];
-
-        if (
-          data &&
-          data.court.data &&
-          data.court.data.attributes.court_types.data.length > 0
-        ) {
+        if (data && data.court.data) {
           setPhoto(
             HOST_API +
               data.court.data?.attributes.photo.data[0]?.attributes.url ??
@@ -98,20 +85,24 @@ export default function EditCourt({
             "minimumScheduleValue",
             data.court.data.attributes.minimumScheduleValue
           );
-
-          courtTypes = data.court.data.attributes.court_types.data.map(
-            (courtType) => courtType.attributes.name
-          );
-
-          setCourtTypeSelected(courtTypes);
         }
       },
     }
   );
 
-  const courtTypesData: string[] = [];
+  const [photo, setPhoto] = useState<string | undefined>();
+  const { data: sportTypesData } = useSportTypes();
+  const [updateCourtHook] = useUpdateCourt();
+  const [isOpeningCourtPriceHour, setIsOpeningCourtPriceHour] = useState(false);
+  const [createCourtAvailabilities] = useCreateCourtAvailabilities();
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [selectedCourtTypesObject, setSelectedCourtTypesObject] = useState<
+    { id: string; name: string }[]
+  >([]);
+
+  const courtTypesData: { name: string; id: string }[] = [];
   sportTypesData?.courtTypes.data.forEach((sportItem) => {
-    courtTypesData.push(sportItem.attributes.name);
+    courtTypesData.push({ name: sportItem.attributes.name, id: sportItem.id });
   });
 
   interface ICourtTypes {
@@ -156,7 +147,7 @@ export default function EditCourt({
           uri: photo,
           name: "court.jpg",
           type: "image/jpeg",
-        });
+        } as any);
 
         const response = await axios.post(`${HOST_API}/api/upload`, formData, {
           headers: {
@@ -181,13 +172,17 @@ export default function EditCourt({
     }
   }
 
-  const courtTypes: string[] = [];
+  const courtTypes: { id: string; name: string }[] = [];
   if (
     courtByIdData?.court.data.attributes.court_types != null ||
     courtByIdData?.court.data.attributes.court_types != undefined
   ) {
     courtByIdData?.court.data.attributes.court_types.data.forEach(
-      (courtTypeItem) => courtTypes.push(courtTypeItem.id)
+      (courtTypeItem) =>
+        courtTypes.push({
+          id: courtTypeItem.id,
+          name: courtTypeItem.attributes.name,
+        })
     );
   }
 
@@ -238,19 +233,10 @@ export default function EditCourt({
     setIsLoading(true);
 
     try {
-      const courtTypesId: string[] = [];
-
-      if (courtTypeSelected) {
-        courtTypeSelected?.map((courtTypeSelectedItem) => {
-          const courtTypeIdItem = allCourtTypesJson.find(
-            (courtTypeItem) => courtTypeItem.name === courtTypeSelectedItem
-          )?.id;
-
-          if (courtTypeIdItem) {
-            courtTypesId.push(courtTypeIdItem);
-          }
-        });
-      }
+      console.log({ selectedCourtTypesObject });
+      const courtTypesId: string[] = selectedCourtTypesObject.map(
+        (selected) => selected.id
+      );
 
       let { allAvailabilities, dayUse } =
         courtByIdData!.court.data.attributes.court_availabilities.data.reduce(
@@ -363,8 +349,7 @@ export default function EditCourt({
       );
 
       if (courtAvailabilitiesData.length > 0) {
-
-        const accessToken = userData?.jwt
+        const accessToken = userData?.jwt;
 
         const { data: createAvailabilitiesData } =
           await createCourtAvailabilities({
@@ -398,6 +383,18 @@ export default function EditCourt({
         courtPhotos = [photoId[0], ...courtPhotos];
       }
 
+      console.log({
+        payload: {
+          court_id: courtId ?? "",
+          court_availabilities: courtAvailabilityIds,
+          court_name: data.fantasyName,
+          court_types: courtTypesId,
+          fantasy_name: data.fantasyName,
+          minimum_value: data.minimumScheduleValue,
+          photos: courtPhotos,
+        },
+      });
+
       await updateCourtHook({
         variables: {
           court_id: courtId ?? "",
@@ -421,12 +418,17 @@ export default function EditCourt({
   });
 
   useEffect(() => {
-    if (
-      userData &&
-      userData.id
-    ) setUserId(userData.id)
-    else navigation.navigate('Login');
-  }, []);
+    const newCourtTypeSelected: { id: string; name: string }[] = [];
+
+    courtTypeSelected?.forEach((selected) => {
+      const foundCourtType = courtTypesData.find(
+        (courtType) => courtType.name === selected
+      );
+      foundCourtType && newCourtTypeSelected.push(foundCourtType);
+    });
+
+    setSelectedCourtTypesObject(newCourtTypeSelected);
+  }, [courtTypeSelected]);
 
   const { data: dataUserEstablishment } = useCourtById(courtId!);
 
@@ -560,13 +562,7 @@ export default function EditCourt({
             </View>
             <MultipleSelectList
               setSelected={setCourtTypeSelected}
-              data={courtTypesData}
-              defaultOption={
-                courtTypeSelected?.map((selected, index) => ({
-                  key: index,
-                  value: selected,
-                })) ?? undefined
-              }
+              data={courtTypesData.map((courtType) => courtType.name)}
               save="value"
               placeholder="Selecione uma modalidade"
               searchPlaceholder="Pesquisar..."
@@ -575,7 +571,7 @@ export default function EditCourt({
 
           <View className="mb-[20px]">
             <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">
-              Nome fantasia da quadra?
+              Nome fantasia da quadra
             </Text>
             <Controller
               name="fantasyName"
@@ -599,12 +595,14 @@ export default function EditCourt({
           </View>
 
           <View className="mb-[20px]">
-            <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">
-              Sinal mínimo para locação
-            </Text>
-            <TouchableOpacity onPress={() => setInfoModalVisible(true)}>
-              <Ionicons name="information-circle" size={25} color="#FF6112" />
-            </TouchableOpacity>
+            <View className="flex-row gap-2 items-center">
+              <Text className="text-[16px] text-[#4E4E4E] font-normal mb-[5px]">
+                Sinal mínimo para locação
+              </Text>
+              <TouchableOpacity onPress={() => setInfoModalVisible(true)}>
+                <Ionicons name="information-circle" size={25} color="#FF6112" />
+              </TouchableOpacity>
+            </View>
             <Controller
               name="minimumScheduleValue"
               control={control}
@@ -676,7 +674,7 @@ export default function EditCourt({
                 <ActivityIndicator size="small" color="white" />
               ) : (
                 <Text className="font-semibold text-white text-[14px]">
-                  Clique para definir
+                  Editar
                 </Text>
               )}
             </TouchableOpacity>
