@@ -1,10 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { CheckBox } from "react-native-elements";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { Appointment } from "../../screens/CourtPriceHour";
 import PriceHour from "../CourtPriceHour";
-import routes from "../../routes";
 
 interface SetCourtAvailibilityProps {
   appointments: Appointment[];

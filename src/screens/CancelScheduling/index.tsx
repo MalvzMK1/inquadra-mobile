@@ -6,9 +6,9 @@ import {
   Modal,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { Button } from "react-native-paper";
 import { BottomNavigationBar } from "../../components/BottomNavigationBar";
 import { CancelSchedulingInfo } from "../../components/CancelSchedulingInfo";
@@ -21,7 +21,7 @@ export default function CancelScheduling({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "CancelScheduling">) {
   const { data, loading, error } = useGetSchedulingsDetails(
-    route.params.scheduleID,
+    route.params.scheduleID
   );
   const [cancelSchedule] = useCancelSchedule();
   const [courtName, setCourtName] = useState<string>("");
@@ -61,19 +61,17 @@ export default function CancelScheduling({
         reason: cancelReason,
       },
     })
-      .then(response => {
+      .then((response) => {
         closeConfirmCancelModal();
         setShowSuccessCancel(true);
-        client
-          .clearStore()
-          .then(() =>
-            navigation.navigate("Schedulings", {
-              establishmentId: establishmentId,
-              establishmentPhoto: establishentPicture,
-            }),
-          );
+        client.clearStore().then(() =>
+          navigation.navigate("Schedulings", {
+            establishmentId: establishmentId,
+            establishmentPhoto: establishentPicture,
+          })
+        );
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   }
@@ -93,7 +91,7 @@ export default function CancelScheduling({
     ) {
       newCourtType =
         data?.scheduling.data?.attributes.court_availability.data?.attributes.court.data?.attributes.court_types.data
-          .map(courtType => {
+          .map((courtType) => {
             return courtType.attributes.name;
           })
           .join(", ");

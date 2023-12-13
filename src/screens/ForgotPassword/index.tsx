@@ -5,8 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { ActivityIndicator, TextInput } from "react-native-paper";
 import { z } from "zod";
 import {
@@ -47,7 +46,7 @@ export default function ForgotPassword({
     resolver: zodResolver(formSchema),
   });
 
-  const handleSendCodePassword = handleSubmit(async data => {
+  const handleSendCodePassword = handleSubmit(async (data) => {
     try {
       const { data: userData } = await apolloClient.query<
         IUserByEmailResponse,

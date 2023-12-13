@@ -1,9 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { FlatList, Image, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import {useState} from "react";
 
 export default function CourtDetails({
   navigation,
@@ -11,21 +9,24 @@ export default function CourtDetails({
 }: NativeStackScreenProps<RootStackParamList, "CourtDetails">) {
   const courts = route.params.courtArray;
 
-  function calculateHourRange(courtAppointmentsHour: { startsAt: string, endsAt: string }[][]): { startsAt: string, endsAt: string } | undefined {
-    let startsAt: string = '9999';
-    let endsAt: string = '0';
+  function calculateHourRange(
+    courtAppointmentsHour: { startsAt: string; endsAt: string }[][]
+  ): { startsAt: string; endsAt: string } | undefined {
+    let startsAt: string = "9999";
+    let endsAt: string = "0";
 
-    courtAppointmentsHour.forEach(appointmentHour => {
-      appointmentHour.forEach(hour => {
-        const parsedStartsAt = hour.startsAt.split(':').join('');
-        const parsedEndsAt = hour.endsAt.split(':').join('');
+    courtAppointmentsHour.forEach((appointmentHour) => {
+      appointmentHour.forEach((hour) => {
+        const parsedStartsAt = hour.startsAt.split(":").join("");
+        const parsedEndsAt = hour.endsAt.split(":").join("");
 
         if (Number(parsedEndsAt) > Number(endsAt)) endsAt = parsedEndsAt;
-        if (Number(parsedStartsAt) < Number(startsAt)) startsAt = parsedStartsAt;
+        if (Number(parsedStartsAt) < Number(startsAt))
+          startsAt = parsedStartsAt;
       });
     });
 
-    if (startsAt !== '9999' && endsAt !== '0') {
+    if (startsAt !== "9999" && endsAt !== "0") {
       startsAt = parseFlatHours(startsAt);
       endsAt = parseFlatHours(endsAt);
 
@@ -41,8 +42,14 @@ export default function CourtDetails({
         const minutes = time.slice(2);
 
         return `${hours}:${minutes}`;
-      } else throw new Error('Couldn\'t parse hour to number, please, provide only numbers');
-    } else throw new Error('The provided hour is invalid, please provide a hour like "1200"');
+      } else
+        throw new Error(
+          "Couldn't parse hour to number, please, provide only numbers"
+        );
+    } else
+      throw new Error(
+        'The provided hour is invalid, please provide a hour like "1200"'
+      );
   }
 
   return (
@@ -66,17 +73,19 @@ export default function CourtDetails({
         keyExtractor={(_, index) => index.toString()}
         contentContainerStyle={{ paddingBottom: 24 }}
         renderItem={({ item: court }) => {
+          const courtAppointmentsHour = court.court_availabilities.map(
+            (availability) => {
+              return availability.map((appointment) => {
+                return {
+                  startsAt: appointment.startsAt,
+                  endsAt: appointment.endsAt,
+                };
+              });
+            }
+          );
 
-          const courtAppointmentsHour = court.court_availabilities.map(availability => {
-            return availability.map(appointment => {
-              return {
-                startsAt: appointment.startsAt,
-                endsAt: appointment.endsAt,
-              }
-            })
-          })
-
-          const hourRange: {startsAt: string, endsAt: string} | undefined = calculateHourRange(courtAppointmentsHour);
+          const hourRange: { startsAt: string; endsAt: string } | undefined =
+            calculateHourRange(courtAppointmentsHour);
 
           return (
             <View className="bg-[#292929]">
@@ -104,25 +113,21 @@ export default function CourtDetails({
                     Valor inicial: {court.minimum_value} reais
                   </Text>
 
-                  <Text className="text-white font-bold pl-2">
-                    Locação de:
-                  </Text>
+                  <Text className="text-white font-bold pl-2">Locação de:</Text>
 
                   <Text className="text-white font-bold pl-2">
                     Day User: Habilitado
                   </Text>
 
-                  {
-                    hourRange && (
-                      <Text className="text-white font-bold pl-2">
-                        Horário: das {hourRange.startsAt} as {hourRange.endsAt}
-                      </Text>
-                    )
-                  }
+                  {hourRange && (
+                    <Text className="text-white font-bold pl-2">
+                      Horário: das {hourRange.startsAt} as {hourRange.endsAt}
+                    </Text>
+                  )}
                 </View>
               </View>
             </View>
-          )
+          );
         }}
       />
 

@@ -10,10 +10,10 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtAvailibility from "../../components/CourtAvailibility";
 import FilterDate from "../../components/FilterDateCourtAvailability";
@@ -123,9 +123,9 @@ export default function CourtAvailabilityInfo({
       if (!isCourtAvailabilityLoading && !isCourtAvailabilityError) {
         const courtsAvailable =
           courtAvailability?.court.data.attributes.court_availabilities.data
-            .map(availability => {
+            .map((availability) => {
               if (availability.attributes.schedulings.data.length > 0) {
-                return availability.attributes.schedulings.data.map(item => {
+                return availability.attributes.schedulings.data.map((item) => {
                   return {
                     id: availability.id,
                     startsAt: availability.attributes.startsAt,
@@ -153,16 +153,16 @@ export default function CourtAvailabilityInfo({
         if (courtsAvailable && courtAvailability) {
           const uniqueCourtsAvailable = courtsAvailable.filter(
             (court, index, self) =>
-              index === self.findIndex(c => c.id === court.id),
+              index === self.findIndex((c) => c.id === court.id)
           );
           if (uniqueCourtsAvailable.length > 0)
-            setAvailabilities(prevState => [
+            setAvailabilities((prevState) => [
               ...prevState,
               ...uniqueCourtsAvailable,
             ]);
         }
       }
-    }, [isCourtAvailabilityLoading, isCourtAvailabilityError]),
+    }, [isCourtAvailabilityLoading, isCourtAvailabilityError])
   );
 
   function handleCalendarClick(data: DateData) {
@@ -174,8 +174,8 @@ export default function CourtAvailabilityInfo({
     setSelectedDate(date.toISOString());
     setDateSelector(
       `${String(date.getDate() + 1).padStart(2, "0")}/${String(
-        date.getMonth() + 1,
-      ).padStart(2, "0")}/${date.getFullYear()}`,
+        date.getMonth() + 1
+      ).padStart(2, "0")}/${date.getFullYear()}`
     );
   }
 
@@ -261,7 +261,7 @@ export default function CourtAvailabilityInfo({
               ) : (
                 <FlatList
                   data={availabilities}
-                  keyExtractor={availability => availability.id}
+                  keyExtractor={(availability) => availability.id}
                   ListEmptyComponent={() => (
                     <Text className="text-xl font-black text-center">
                       No momento não é possível Alugar essa quadra
