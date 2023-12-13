@@ -1,21 +1,21 @@
 import { useApolloClient } from "@apollo/client";
+import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ActivityIndicator, Text, View } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { z } from "zod";
 import BottomAppVersion from "../../components/BottomAppVersion";
+import { useUser } from "../../context/userContext";
 import {
   IUserByIdResponse,
   IUserByIdVariables,
   userByIdQuery,
 } from "../../graphql/queries/userById";
 import useLoginUser from "../../hooks/useLoginUser";
-import {Ionicons} from "@expo/vector-icons";
-import {useUser} from "../../context/userContext";
 
 interface IFormData {
   identifier: string;
@@ -29,7 +29,7 @@ const formSchema = z.object({
 
 export default function Login() {
   const apolloClient = useApolloClient();
-  const {userData: storageUserData, setUserData} = useUser();
+  const { userData: storageUserData, setUserData } = useUser();
   const [userGeolocation, setUserGeolocation] = useState<{
     latitude: number;
     longitude: number;
@@ -50,7 +50,7 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = handleSubmit(async data => {
+  const handleLogin = handleSubmit(async (data) => {
     setIsLoading(true);
 
     try {
@@ -86,25 +86,24 @@ export default function Login() {
           jwt: authData.data.login.jwt,
           geolocation: storageUserData?.geolocation,
         }).then(() => {
-          if (
-            userData &&
-            userData.usersPermissionsUser.data
-          ) {
-            const userRole = String(userData.usersPermissionsUser.data.attributes.role.data.id);
+          if (userData && userData.usersPermissionsUser.data) {
+            const userRole = String(
+              userData.usersPermissionsUser.data.attributes.role.data.id
+            );
 
-            if (userRole === '3') {
+            if (userRole === "3") {
               navigation.navigate("Home", {
                 userGeolocation: storageUserData?.geolocation,
                 userPhoto: undefined,
                 loadUserInfos: true,
               });
-            } else if (userRole === '4') {
+            } else if (userRole === "4") {
               navigation.navigate("HomeEstablishment", {
                 userPhoto: undefined,
               });
             }
           }
-        })
+        });
       }
     } catch (error) {
       console.error(error);
@@ -118,7 +117,7 @@ export default function Login() {
       <ScrollView className="flex-1 h-max w-max bg-white">
         <View className="h-16 w-full  flex items-start justify-start p-2">
           <TouchableOpacity onPress={navigation.goBack}>
-            <Ionicons name='arrow-back-outline' size={32} />
+            <Ionicons name="arrow-back-outline" size={32} />
           </TouchableOpacity>
         </View>
         <View className="flex-1 flex items-center justify-center px-7">
@@ -129,7 +128,7 @@ export default function Login() {
                   identifier: "enzao@gmail.com",
                   password: "122122",
                 },
-              }).then(response => {
+              }).then((response) => {
                 if (
                   response.data &&
                   response.data.login &&
@@ -138,17 +137,19 @@ export default function Login() {
                   setUserData({
                     id: response.data.login.user.id,
                     jwt: response.data.login.jwt,
-                    geolocation: storageUserData?.geolocation
+                    geolocation: storageUserData?.geolocation,
                   }).then(() => {
-                      alert(
-                        `entered with enzao@gmail.com\nid: ${response.data?.login.user.id ?? ''}\nJWT: ${response.data?.login.jwt ?? ''}`,
-                      );
-                      navigation.navigate("Home", {
-                        userGeolocation: storageUserData?.geolocation,
-                        userPhoto: undefined,
-                        loadUserInfos: true,
-                      });
+                    alert(
+                      `entered with enzao@gmail.com\nid: ${
+                        response.data?.login.user.id ?? ""
+                      }\nJWT: ${response.data?.login.jwt ?? ""}`
+                    );
+                    navigation.navigate("Home", {
+                      userGeolocation: storageUserData?.geolocation,
+                      userPhoto: undefined,
+                      loadUserInfos: true,
                     });
+                  });
                 }
               });
             }}

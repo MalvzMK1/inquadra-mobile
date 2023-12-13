@@ -1,14 +1,19 @@
 import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useUser } from "../../context/userContext";
 import useUpdateFavoriteCourt from "../../hooks/useUpdateFavoriteCourt";
 import { useGetUserById } from "../../hooks/useUserById";
-import {useUser} from "../../context/userContext";
 
 export default function EstablishmentCardHome(props: CourtCardInfos) {
-  const {userData} = useUser();
+  const { userData } = useUser();
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [color, setColor] = useState<string>("white");
@@ -42,19 +47,16 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
 
     if (props.userFavoriteCourts?.includes(courtId)) {
       const arrayWithoutDeletedItem = courtsData.filter(
-        (item: string) => item !== courtId,
+        (item: string) => item !== courtId
       );
-      if (
-        userData &&
-        userData.id
-      )
+      if (userData && userData.id)
         updateLikedCourts({
           variables: {
             user_id: userData.id,
             favorite_establishment: arrayWithoutDeletedItem,
           },
         })
-          .catch(reason => alert(reason))
+          .catch((reason) => alert(reason))
           .finally(() => {
             props.setUserFavoriteCourts(arrayWithoutDeletedItem);
             setIsLikeLoading(false);
@@ -69,7 +71,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
           },
         })
           .then(() => setIsLikeLoading(false))
-          .catch(reason => {
+          .catch((reason) => {
             alert(reason);
             setIsLikeLoading(false);
           })

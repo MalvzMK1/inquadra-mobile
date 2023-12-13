@@ -1,10 +1,15 @@
 import { HOST_API } from "@env";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
 import React, { useCallback, useEffect, useState } from "react";
-import { Image, ImageSourcePropType, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  Image,
+  ImageSourcePropType,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { TextInput } from "react-native-paper";
 import QRCode from "react-native-qrcode-svg";
 import Toast from "react-native-toast-message";
@@ -21,10 +26,9 @@ import { useCreateCharge } from "../../services/inter";
 import { verifyPixStatus } from "../../services/pixCielo";
 import { generateRandomKey } from "../../utils/activationKeyGenerate";
 import getAddress, { APICepResponse } from "../../utils/getAddressByCep";
-import { useIsFocused } from '@react-navigation/native';
 
 interface RouteParams
-  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> { }
+  extends NativeStackScreenProps<RootStackParamList, "PixScreen"> {}
 
 interface IPixInfos {
   txid: string;
@@ -36,7 +40,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   const formattedValue = Number(value).toFixed(2);
 
   const { data: scheduleData } = useGetSchedulingsDetails(
-    route.params.scheduleID?.toString() ?? "",
+    route.params.scheduleID?.toString() ?? ""
   );
   const { userData } = useUser();
 
@@ -44,10 +48,10 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     onCompleted(data) {
       if (data?.usersPermissionsUser.data?.attributes.address) {
         getAddress(data.usersPermissionsUser.data.attributes.address.cep).then(
-          response => {
+          (response) => {
             console.log({ __API_CEP_RESPONSE: response });
             setUserAddress(response);
-          },
+          }
         );
       }
     },
@@ -70,7 +74,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   });
 
   const valueToPay = parseFloat(
-    value.replace(/[^\d.,]/g, "").replace(",", "."),
+    value.replace(/[^\d.,]/g, "").replace(",", ".")
   );
 
   console.log("value to pay:", valueToPay);
@@ -79,7 +83,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   useFocusEffect(
     useCallback(() => {
       setHasExecuted(false);
-    }, []),
+    }, [])
   );
 
   const handleCopiarTexto = async () => {
@@ -91,7 +95,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     let isMounted = true;
 
     function checkStatus() {
-      verifyPixStatus(paymentID).then(response => {
+      verifyPixStatus(paymentID).then((response) => {
         if (isMounted) {
           if (response.Payment.Status === 2) {
             setStatusPix("payed");
@@ -105,7 +109,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     }
 
     const checkTimeOut = () => {
-      const isFocused = useIsFocused()
+      const isFocused = useIsFocused();
       if (statusPix === "waiting" && isFocused) {
         setStatusPix("cancelled");
         clearInterval(intervalId);
@@ -152,11 +156,11 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const scheduleValueUpdate = async (
     value: number,
-    schedule_id: number | null,
+    schedule_id: number | null
   ) => {
     let validatePayment =
       value + scheduleValuePayed! >= schedulePrice &&
-        scheduleValuePayed !== undefined!
+      scheduleValuePayed !== undefined!
         ? "payed"
         : "waiting";
 
@@ -164,7 +168,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice! &&
-        scheduleValuePayed !== undefined
+      scheduleValuePayed !== undefined
         ? generateRandomKey(4)
         : "";
     console.log("rodou aqui");
@@ -218,7 +222,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const updateScheduleDay = async (
     isPayed: boolean,
-    activationKey: string | null,
+    activationKey: string | null
   ) => {
     const paymentStatus: string = isPayed ? "payed" : "waiting";
     try {
@@ -264,7 +268,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       } else if (route.params.screen === "signal") {
         if (!hasExecuted) {
           if (statusPix === "payed") {
-            createNewSchedule().then(schedule_id => {
+            createNewSchedule().then((schedule_id) => {
               setHasExecuted(true);
               updateUserPaymentPix({
                 variables: {
@@ -284,7 +288,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         if (statusPix === "payed") {
           updateScheduleDay(
             route.params.isPayed!,
-            route.params.randomKey!,
+            route.params.randomKey!
           ).then(() => {
             updateUserPaymentPix({
               variables: {
@@ -298,7 +302,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           });
         }
       }
-    }, [statusPix]),
+    }, [statusPix])
   );
 
   useEffect(() => {
@@ -324,13 +328,13 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       !pixInfos
     ) {
       const dueDate: string = new Date(
-        scheduleData.scheduling.data.attributes.date,
+        scheduleData.scheduling.data.attributes.date
       )
         .toISOString()
         .split("T")[0];
       const courtName: string =
         scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data
-          .map(courtType => courtType.attributes.name)
+          .map((courtType) => courtType.attributes.name)
           .join(", ");
       const establishmentName: string =
         scheduleData.scheduling.data.attributes.court_availability.data
@@ -351,7 +355,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           debtorCep: userAddress.code.split("-").join(""),
           discountDate: new Date().toISOString().split("T")[0],
         },
-      }).then(response => {
+      }).then((response) => {
         if (response.data) {
           setPixInfos({
             txid: response.data.CreateCharge.txid,
@@ -368,7 +372,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                   .id,
               publishedAt: new Date().toISOString(),
             },
-          }).then(response => {
+          }).then((response) => {
             console.log({ STRAPI_RESPONSE_DATA: response.data });
           });
         }

@@ -8,6 +8,8 @@ export interface IgetHistoricOfReserveOnResponse {
           data: Array<{
             id: string;
             attributes: {
+              date: string;
+              activated: boolean;
               serviceRate: number;
               status: boolean;
               createdAt: Date;
@@ -17,6 +19,7 @@ export interface IgetHistoricOfReserveOnResponse {
                 data: {
                   attributes: {
                     value: number;
+                    startsAt: string;
                     court: {
                       data: {
                         id: string;
@@ -53,10 +56,12 @@ export const historicReserveOnQuery = gql`
     usersPermissionsUser(id: $id) {
       data {
         attributes {
-          schedulings(pagination: { pageSize: 100 }) {
+          schedulings(pagination: { limit: -1 }) {
             data {
               id
               attributes {
+                date
+                activated
                 serviceRate
                 status
                 createdAt
@@ -66,6 +71,7 @@ export const historicReserveOnQuery = gql`
                   data {
                     attributes {
                       value
+                      startsAt
                       court {
                         data {
                           id

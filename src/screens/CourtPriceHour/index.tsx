@@ -1,8 +1,13 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays } from "date-fns";
 import React, { useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import CourtAvailibilityDay from "../../components/CourtAvailibilityDay";
 import SetCourtAvailibility from "../../components/SetCourtAvailibility";
 import { useAsyncStorageState } from "../../hooks/useAsyncStorageState";

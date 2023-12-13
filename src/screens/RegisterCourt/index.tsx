@@ -9,7 +9,9 @@ import {
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -240,7 +242,9 @@ export default function RegisterCourt({
   }, []);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   return (
-    <ScrollView className="h-fit bg-white flex-1">
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
+    style={{ flex: 1 }} >
+      <ScrollView className="h-fit bg-white flex-1">
       <View className="items-center mt-9 p-4">
         <Text className="text-3xl text-center font-semibold text-gray-700">
           Cadastro Quadra
@@ -540,5 +544,7 @@ export default function RegisterCourt({
         </View>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
+    
   );
 }

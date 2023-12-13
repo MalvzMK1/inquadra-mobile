@@ -1,5 +1,4 @@
-import { Image, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function CourtAvailibilityDay({
   day,

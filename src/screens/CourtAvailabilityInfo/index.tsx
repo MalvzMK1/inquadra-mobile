@@ -10,10 +10,10 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtAvailibility from "../../components/CourtAvailibility";
 import FilterDate from "../../components/FilterDateCourtAvailability";

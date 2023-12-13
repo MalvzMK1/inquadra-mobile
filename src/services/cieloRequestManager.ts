@@ -1,14 +1,19 @@
+import {
+  CIELO_API_URL,
+  CIELO_MERCHANT_ID,
+  CIELO_MERCHANT_KEY,
+  CIELO_QUERY_API_URL,
+} from "@env";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 export class CieloRequestManager {
-  private BASE_URL: string = "https://apisandbox.cieloecommerce.cielo.com.br";
-  private BASE_QUERY_URL: string =
-    "https://apiquerysandbox.cieloecommerce.cielo.com.br";
-  private MERCHANT_ID: string = "13b14d93-49a1-47dc-8761-98c71281dc82";
-  private MERCHANT_KEY: string = "JMPXCJFXNEKSWIAKDGUSSAUKSPIORRDUBLJSXQYE";
+  private BASE_URL: string = CIELO_API_URL;
+  private BASE_QUERY_URL: string = CIELO_QUERY_API_URL;
+  private MERCHANT_ID: string = CIELO_MERCHANT_ID;
+  private MERCHANT_KEY: string = CIELO_MERCHANT_KEY;
 
   public async authorizePayment(
-    data: AuthorizeCreditCardPaymentResponse,
+    data: AuthorizeCreditCardPaymentResponse
   ): Promise<AuthorizeCreditCardPaymentResponse> {
     const axiosConfig: AxiosRequestConfig = {
       baseURL: `${this.BASE_URL}/1/sales`,
@@ -25,14 +30,14 @@ export class CieloRequestManager {
       const { data: authorizeCreditCard } =
         await axios<AuthorizeCreditCardPaymentResponse>(axiosConfig);
       return authorizeCreditCard;
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log(error.response?.data);
-        throw new Error(error.message);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        console.error(JSON.stringify(err.toJSON(), null, 2));
+        throw new Error(err.message);
       }
       throw new Error(
         "An error ocurred while trying to create a payment with CIELO\n" +
-          String(error),
+          String(err)
       );
     }
   }
@@ -49,17 +54,17 @@ export class CieloRequestManager {
 
     try {
       const { data } = await axios<ConfirmCreditCardPaymentResponse>(
-        axiosConfig,
+        axiosConfig
       );
       return data;
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log(error.response?.data);
-        throw new Error(error.message);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        console.log(err.toJSON());
+        throw new Error(err.message);
       }
       throw new Error(
         "An error ocurred while trying to create a payment with CIELO\n" +
-          String(error),
+          String(err)
       );
     }
   }
@@ -76,17 +81,17 @@ export class CieloRequestManager {
 
     try {
       const { data } = await axios<ConfirmCreditCardPaymentResponse>(
-        axiosConfig,
+        axiosConfig
       );
       return data;
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log(error.response?.data);
-        throw new Error(error.message);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        console.log(err.toJSON());
+        throw new Error(err.message);
       }
       throw new Error(
         "An error ocurred while trying to create a payment with CIELO\n" +
-          String(error),
+          String(err)
       );
     }
   }
