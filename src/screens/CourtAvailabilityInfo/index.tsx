@@ -83,32 +83,27 @@ export default function CourtAvailabilityInfo({
   const {
     data: courtAvailability,
     loading: isCourtAvailabilityLoading,
-    error: isCourtAvailabilityError,
+    refetch: refetchCourtAvailability,
   } = useCourtAvailability(route.params.courtId);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchCourtAvailability();
+    }, [refetchCourtAvailability])
+  );
 
   const [dateSelector, setDateSelector] = useState(() => {
     return format(new Date(), "dd/MM/yyyy");
   });
 
   const [selectedWeekDate, setSelectedWeekDate] = useState<string>();
-  const [availabilities, setAvailabilities] = useState<
-    Array<{
-      id: string;
-      startsAt: string;
-      endsAt: string;
-      price: number;
-      busy: Boolean;
-      weekDays: string;
-      scheduling: Date | undefined;
-    }>
-  >([]);
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString());
   const [selectedTime, setSelectedTime] = useState<{
     id: string;
     value: number;
-  } | null>();
+  } | null>(null);
 
   LocaleConfig.defaultLocale = "pt-br";
 
@@ -116,54 +111,6 @@ export default function CourtAvailabilityInfo({
     setSelectedDate(new Date().toISOString());
     setSelectedWeekDate(dayNames[new Date().getDay() - 1]);
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      setAvailabilities([]);
-      if (!isCourtAvailabilityLoading && !isCourtAvailabilityError) {
-        const courtsAvailable =
-          courtAvailability?.court.data.attributes.court_availabilities.data
-            .map((availability) => {
-              if (availability.attributes.schedulings.data.length > 0) {
-                return availability.attributes.schedulings.data.map((item) => {
-                  return {
-                    id: availability.id,
-                    startsAt: availability.attributes.startsAt,
-                    endsAt: availability.attributes.endsAt,
-                    price: availability.attributes.value,
-                    busy: availability.attributes.status,
-                    weekDays: availability.attributes.weekDay,
-                    scheduling: item.attributes.date,
-                  };
-                });
-              } else {
-                return {
-                  id: availability.id,
-                  startsAt: availability.attributes.startsAt,
-                  endsAt: availability.attributes.endsAt,
-                  price: availability.attributes.value,
-                  busy: availability.attributes.status,
-                  weekDays: availability.attributes.weekDay,
-                  scheduling: undefined,
-                };
-              }
-            })
-            .flat();
-
-        if (courtsAvailable && courtAvailability) {
-          const uniqueCourtsAvailable = courtsAvailable.filter(
-            (court, index, self) =>
-              index === self.findIndex((c) => c.id === court.id)
-          );
-          if (uniqueCourtsAvailable.length > 0)
-            setAvailabilities((prevState) => [
-              ...prevState,
-              ...uniqueCourtsAvailable,
-            ]);
-        }
-      }
-    }, [isCourtAvailabilityLoading, isCourtAvailabilityError])
-  );
 
   function handleCalendarClick(data: DateData) {
     const date = new Date(data.dateString);
@@ -260,7 +207,10 @@ export default function CourtAvailabilityInfo({
                 </Text>
               ) : (
                 <FlatList
-                  data={availabilities}
+                  data={
+                    courtAvailability?.court.data.attributes
+                      .court_availabilities.data
+                  }
                   keyExtractor={(availability) => availability.id}
                   ListEmptyComponent={() => (
                     <Text className="text-xl font-black text-center">
@@ -268,33 +218,38 @@ export default function CourtAvailabilityInfo({
                     </Text>
                   )}
                   renderItem={({ item }) => {
-                    const startsAt = item.startsAt.split(":");
-                    const endsAt = item.endsAt.split(":");
-                    let isBusy = !item.busy;
+                    const startsAt = item.attributes.startsAt.split(":");
+                    const endsAt = item.attributes.endsAt.split(":");
+
+                    let isBusy = !item.attributes.status;
 
                     if (
-                      item.scheduling &&
-                      selectedDate.split("T")[0] === item.scheduling.toString()
+                      item.attributes.schedulings.data.some((scheduling) => {
+                        return (
+                          selectedDate.split("T")[0] ===
+                          scheduling.attributes.date
+                        );
+                      })
                     ) {
                       isBusy = true;
                     }
 
-                    if (selectedWeekDate === item.weekDays) {
-                      return (
-                        <CourtAvailibility
-                          key={item.id}
-                          id={item.id}
-                          startsAt={`${startsAt[0]}:${startsAt[1]}`}
-                          endsAt={`${endsAt[0]}:${endsAt[1]}`}
-                          price={item.price}
-                          busy={isBusy}
-                          selectedTimes={selectedTime}
-                          toggleTimeSelection={toggleTimeSelection}
-                        />
-                      );
+                    if (selectedWeekDate !== item.attributes.weekDay) {
+                      return null;
                     }
 
-                    return null;
+                    return (
+                      <CourtAvailibility
+                        key={item.id}
+                        id={item.id}
+                        startsAt={`${startsAt[0]}:${startsAt[1]}`}
+                        endsAt={`${endsAt[0]}:${endsAt[1]}`}
+                        price={item.attributes.value}
+                        busy={isBusy}
+                        selectedTimes={selectedTime}
+                        toggleTimeSelection={toggleTimeSelection}
+                      />
+                    );
                   }}
                 />
               )}
@@ -304,7 +259,11 @@ export default function CourtAvailabilityInfo({
                 className={`h-14 w-full rounded-md  ${
                   !selectedTime ? "bg-[#ffa363]" : "bg-orange-500"
                 } flex items-center justify-center`}
-                disabled={!selectedTime || availabilities.length <= 0} // tora grande
+                disabled={
+                  !selectedTime ||
+                  !courtAvailability?.court.data.attributes.court_availabilities
+                    .data.length
+                } // tora grande
                 onPress={() => {
                   if (userData && userData.id && selectedTime) {
                     navigation.navigate("ReservationPaymentSign", {

@@ -59,3 +59,9 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
 };
 
 export default Countdown;
+
+export const CountdownString = (targetDate: Date): boolean => {
+  const isPaymentExpired = targetDate.getTime() < new Date().getTime();
+
+  return isPaymentExpired ? true : false;
+};

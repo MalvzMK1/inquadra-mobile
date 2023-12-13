@@ -17,6 +17,8 @@ interface SetCourtAvailibilityProps {
   setEndsAt: (value: string, index: number) => void;
   setPrice: (value: string, index: number) => void;
   onDeleteAppointment: (index: number) => void;
+  infoModalVisible: any,
+  setInfoModalVisible: any
 }
 
 export default function SetCourtAvailibility({

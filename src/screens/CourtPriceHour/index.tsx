@@ -24,6 +24,7 @@ export default function CourtPriceHour({
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtPriceHour">) {
   const [selectedDay, setSelectedDay] = useState<number | null>(0);
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
   // todos os horários de todos os dias
   const [allAppointments, setAllAppointments, isLoadingInitialAllAppointments] =
     useAsyncStorageState<Appointment[][]>(
@@ -85,7 +86,6 @@ export default function CourtPriceHour({
       if (currentSelectedDay === index) {
         return null;
       }
-
       return index;
     });
   }
@@ -120,6 +120,8 @@ export default function CourtPriceHour({
               onToggleOpen={() => handleToggleOpen(index)}
             >
               <SetCourtAvailibility
+              infoModalVisible={infoModalVisible}
+              setInfoModalVisible={setInfoModalVisible}
                 minimumCourtPrice={route.params.minimumCourtPrice}
                 appointments={allAppointments[index]}
                 hasCopy={Boolean(copiedAppointments)}
