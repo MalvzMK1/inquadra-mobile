@@ -12,13 +12,10 @@ import {
   ActivityIndicator,
   Image,
   Platform,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  AutocompleteDropdown,
-  TAutocompleteDropdownItem,
-} from "react-native-autocomplete-dropdown";
 import MapView, { Callout, Marker } from "react-native-maps";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
@@ -26,10 +23,9 @@ import CourtBallon from "../../components/CourtBalloon";
 import FilterComponent from "../../components/FilterComponent";
 import SportsMenu from "../../components/SportsMenu";
 import { useUser } from "../../context/userContext";
-import { EstablishmentsData } from "../../graphql/queries/searchEstablishmentsByCorporateName";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 import useFilters from "../../hooks/useFilters";
-import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
@@ -41,6 +37,7 @@ interface Props extends NativeStackScreenProps<RootStackParamList, "Home"> {
   menuBurguer: boolean;
   setMenuBurguer?: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 interface EstablishmentObject {
   id: string;
   latitude: number;
@@ -105,27 +102,20 @@ export default function Home({
     loading: availableSportTypesLoading,
     error: availableSportTypesError,
   } = useSportTypes();
-  const { data, loading, error } = useEstablishmentCardInformations();
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 700);
+  const { data, loading } = useEstablishmentCardInformations({
+    variables: {
+      search: debouncedSearch,
+    },
+  });
+
   const { data: userHookData, refetch: refetchUserInfos } = useGetUserById(
     userId ?? "",
   );
-  const {
-    data: establishmentsFiltered,
-    loading: loadingFilter,
-    error: errorFilter,
-  } = useFilters(filter);
-  const { data: allEstablishments, loading: loadingEstablishments } =
-    useAllEstablishments();
-  const [corporateName, setCorporateName] = useState<string>("");
-  const [establishmentsInfos, setEstablishmentsInfos] = useState<
-    Array<{
-      establishmentsId: string;
-      corporateName: string;
-    }>
-  >([]);
-  const establishmentsData = allEstablishments?.establishments?.data || [];
 
-  const [searchValue, setSearchValue] = useState("");
+  const { data: establishmentsFiltered } = useFilters(filter);
 
   useFocusEffect(
     useCallback(() => {
@@ -340,28 +330,6 @@ export default function Home({
     }
   }, [userHookData]);
 
-  useEffect(() => {
-    if (corporateName === "") setEstablishmentsInfos([]);
-    else if (allEstablishments) {
-      const establishments = allEstablishments.establishments.data.map(
-        (establishment: { id: any; attributes: { corporateName: any } }) => {
-          return {
-            establishmentsId: establishment.id,
-            corporateName: establishment.attributes.corporateName,
-          };
-        },
-      );
-      const filteredEstablishments = establishments.filter(
-        (establishment: { corporateName: string }) => {
-          return establishment.corporateName
-            .toLowerCase()
-            .includes(corporateName.toLowerCase());
-        },
-      );
-      setEstablishmentsInfos(filteredEstablishments);
-    }
-  }, [corporateName]);
-
   const mapView = useRef<MapView>(null);
 
   useEffect(() => {
@@ -401,27 +369,9 @@ export default function Home({
     setSportSelected(nameSport);
   };
 
-  function filterEstablishments(
-    products: EstablishmentsData[],
-    search: string,
-  ): TAutocompleteDropdownItem[] {
-    return products
-      .filter(product =>
-        product.attributes.corporateName
-          .toLowerCase()
-          .includes(search.toLowerCase()),
-      )
-      .map(product => {
-        return {
-          id: product.id,
-          title: `${product.attributes.corporateName}`,
-        };
-      });
-  }
-
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
-      <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
+      <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full space-x-4">
         <TouchableOpacity className="ml-3" onPress={handlePress}>
           {!menuBurguer ? (
             <Entypo name="menu" size={48} color={"white"} />
@@ -430,29 +380,20 @@ export default function Home({
           )}
         </TouchableOpacity>
 
-        <AutocompleteDropdown
-          closeOnSubmit
-          useFilter={false}
-          closeOnBlur={false}
-          loading={loadingEstablishments}
-          onChangeText={text => setSearchValue(text)}
-          inputContainerStyle={{ backgroundColor: "white" }}
-          emptyResultText="Informe o número OTK ou nome do item"
-          dataSet={
-            searchValue
-              ? filterEstablishments(establishmentsData, searchValue)
-              : []
-          }
-          onSelectItem={item => {
-            if (userId) {
-              navigation.navigate("EstablishmentInfo", {
-                establishmentId: item.id,
-                userPhoto: userPicture,
-              });
-              setCorporateName("");
-            }
-          }}
-        />
+        <View className="relative flex-1">
+          <TextInput
+            value={search}
+            returnKeyType="search"
+            onChangeText={setSearch}
+            placeholderTextColor="#B8B8B8"
+            placeholder="O que você está procurando?"
+            className="border border-[#8C8C8C] bg-white rounded-2xl pl-4 pr-8 text-black h-[42px]"
+          />
+
+          <View className="absolute top-1/2 -translate-y-6 right-4">
+            <AntDesign name="search1" size={16} color="#B8B8B8" />
+          </View>
+        </View>
 
         {isUserInfosLoading ? (
           <ActivityIndicator

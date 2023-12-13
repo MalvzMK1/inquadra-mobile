@@ -66,6 +66,7 @@ export default function PriceHour({
       let priceTest = Number(price.replace(/[^\d]/g, ""));
 
       if (priceTest < minimumCourtNumber) {
+        e.preventDefault();
         setInfoModalVisible(true);
       } else {
         navigation.dispatch(e.data.action);
