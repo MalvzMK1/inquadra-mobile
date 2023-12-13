@@ -1,8 +1,8 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
-import { Modal, Text, View, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
+import { Modal, Text, TouchableOpacity, View } from "react-native";
 import MaskInput, { Masks } from "react-native-mask-input";
-import { useNavigation } from '@react-navigation/native';
 
 const timeMask = [/\d/, /\d/, ":", /\d/, /\d/];
 
@@ -28,16 +28,13 @@ export default function PriceHour({
   onDelete,
 }: PriceHourProps) {
   const [infoModalVisible, setInfoModalVisible] = useState(false);
-  const [validateValueInserted, setValidateValueInserted] = useState<number>()
-
+  const [validateValueInserted, setValidateValueInserted] = useState<number>();
 
   const navigation = useNavigation();
 
   const validatePrice = (value: string) => {
-
     let priceTest = Number(value.replace(/[^\d]/g, ""));
     let minimumCourtNumber = Number(minimumCourtValue);
- 
 
     if (priceTest < minimumCourtNumber) {
       setInfoModalVisible(true);
@@ -46,38 +43,35 @@ export default function PriceHour({
     }
   };
 
-
-  console.log("price:", price)
-
   function handleStartsAtChange(value: string): void {
     setStartsAt(value);
 
     if (value.length === 5) {
-      const [hour, minutes] = value.split(':');
+      const [hour, minutes] = value.split(":");
 
       let endsAtHour: number | string = Number(hour) + 1;
 
-      if (endsAtHour < 10) endsAtHour = '0'.concat(endsAtHour.toString());
+      if (endsAtHour < 10) endsAtHour = "0".concat(endsAtHour.toString());
       else endsAtHour = endsAtHour.toString();
 
-      setEndsAt(endsAtHour.concat(':').concat(minutes));
+      setEndsAt(endsAtHour.concat(":").concat(minutes));
     }
   }
 
   React.useEffect(() => {
-    navigation.addListener('beforeRemove', (e) => {
+    navigation.addListener("beforeRemove", (e) => {
       e.preventDefault();
-      validatePrice(price)
+      validatePrice(price);
       let minimumCourtNumber = Number(minimumCourtValue);
       let priceTest = Number(price.replace(/[^\d]/g, ""));
 
-      if(priceTest < minimumCourtNumber){
+      if (priceTest < minimumCourtNumber) {
         setInfoModalVisible(true);
-      }else{
+      } else {
         navigation.dispatch(e.data.action);
       }
-    })
-  }, [navigation])
+    });
+  }, [navigation]);
 
   return (
     <View className="flex-row w-full justify-between items-center mt-[10px]">
@@ -120,8 +114,7 @@ export default function PriceHour({
             mask={Masks.BRL_CURRENCY}
             value={price}
             onChangeText={(text) => setPrice(text)}
-            onBlur={() => 
-              validatePrice(price)}
+            onBlur={() => validatePrice(price)}
             placeholder="Ex.: R$250"
             inputMode="numeric"
           />

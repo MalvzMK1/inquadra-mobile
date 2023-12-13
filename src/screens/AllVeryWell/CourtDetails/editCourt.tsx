@@ -53,12 +53,12 @@ export default function EditCourt({
 
   const indexCourtEdit = route.params.indexCourtArray;
   const [courts, setCourts] = useState<CourtArrayObject[]>(
-    route.params.courtArray,
+    route.params.courtArray
   );
 
   async function updateCourtsAtIndex(
     index: number,
-    newValue: CourtArrayObject,
+    newValue: CourtArrayObject
   ) {
     const updatedCourts = [...courts];
     updatedCourts[index] = newValue;
@@ -68,8 +68,8 @@ export default function EditCourt({
   async function finishingCourtsRegisters(data: IFormDatasCourt) {
     let courtIDs: Array<string> = [];
 
-    selected.forEach(selectedType => {
-      courtTypes.forEach(type => {
+    selected.forEach((selectedType) => {
+      courtTypes.forEach((type) => {
         if (type.value === selectedType) courtIDs.push(type.label);
       });
     });
@@ -88,7 +88,7 @@ export default function EditCourt({
 
     const updatedArray = await updateCourtsAtIndex(
       indexCourtEdit,
-      updatedCourt,
+      updatedCourt
     );
 
     navigation.navigate("CourtDetails", { courtArray: updatedArray });
@@ -148,8 +148,8 @@ export default function EditCourt({
     const formData = new FormData();
     photos.forEach((uri, index) => {
       fetch(uri)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           formData.append(`files`, blob, `image${index}.jpg`);
         });
     });
@@ -162,9 +162,6 @@ export default function EditCourt({
       });
 
       const uploadedImageIDs = response.data.map((image: any) => image.id);
-
-      console.log("Imagens enviadas com sucesso!", response.data);
-
       setIsLoading(false);
 
       return uploadedImageIDs;
@@ -184,7 +181,7 @@ export default function EditCourt({
   useEffect(() => {
     let newCourtTypes: Array<{ value: string; label: string }> = [];
     if (!loadingSportTypeAvaible && !errorSportTypeAvaible)
-      dataSportTypeAvaible?.courtTypes.data.forEach(sportType => {
+      dataSportTypeAvaible?.courtTypes.data.forEach((sportType) => {
         newCourtTypes.push({
           value: sportType.attributes.name,
           label: sportType.id,
@@ -197,7 +194,7 @@ export default function EditCourt({
   useFocusEffect(
     useCallback(() => {
       setCourts(route.params.courtArray);
-    }, [route.params.courtArray]),
+    }, [route.params.courtArray])
   );
 
   return (

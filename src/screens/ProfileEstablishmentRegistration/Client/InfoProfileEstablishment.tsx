@@ -260,17 +260,17 @@ export default function InfoProfileEstablishment({
         ) {
           const infosHold =
             dataPayment?.establishment.data.attributes.pix_keys.data.map(
-              item => {
+              (item) => {
                 return {
                   id: item.id,
                   key: item.attributes.key,
                 };
-              },
+              }
             );
-          setWithdrawalInfo(prevState => [...prevState, ...infosHold]);
+          setWithdrawalInfo((prevState) => [...prevState, ...infosHold]);
         }
       }
-    }, [error, loading, data]),
+    }, [error, loading, data])
   );
 
   const [updateUserIsLoading, setUpdateUserIsLoading] = useState(false);
@@ -296,8 +296,7 @@ export default function InfoProfileEstablishment({
               cpf: cpf!,
             },
           })
-            .then(response => {
-              console.log(response);
+            .then((response) => {
               updateEstablishmentLogo({
                 variables: {
                   establishment_id: establishmentId!,
@@ -305,7 +304,7 @@ export default function InfoProfileEstablishment({
                 },
               });
             })
-            .catch(reason => alert(reason))
+            .catch((reason) => alert(reason))
             .finally(() => {
               setIsLoading(false),
                 navigation.setParams({ establishmentPhoto: profilePicture });
@@ -355,7 +354,7 @@ export default function InfoProfileEstablishment({
       },
     })
       .then(() => alert("Endereço atualizado com sucesso!"))
-      .catch(reason => alert(reason))
+      .catch((reason) => alert(reason))
       .finally(() => {
         setUpdateAddressIsLoading(false);
         setEditAddressModal(false);
@@ -371,29 +370,29 @@ export default function InfoProfileEstablishment({
     ) {
       setCep(
         userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data?.attributes.address.cep!,
+          .establishment.data?.attributes.address.cep!
       );
       setLogo(
         userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.logo.data?.attributes.url ?? undefined,
+          .establishment.data.attributes.logo.data?.attributes.url ?? undefined
       );
       setPhotos(
         userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes.photos.data?.map(
-          photo => ({
+          (photo) => ({
             uri: photo.attributes.url,
             id: photo.id,
-          }),
-        ) ?? [],
+          })
+        ) ?? []
       );
 
       setEstablishmentId(
         userByEstablishmentData.usersPermissionsUser.data?.attributes
-          .establishment.data?.id,
+          .establishment.data?.id
       );
 
       setPhoneNumber(
         userByEstablishmentData?.usersPermissionsUser.data?.attributes
-          .phoneNumber,
+          .phoneNumber
       );
 
       navigation.setParams({
@@ -406,45 +405,46 @@ export default function InfoProfileEstablishment({
       });
 
       userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.amenities.data.map(
-        amenitieItem => {
+        (amenitieItem) => {
           amenitieItem &&
-            setAmenities(prevState => [
+            setAmenities((prevState) => [
               ...prevState,
               amenitieItem.attributes.name,
             ]);
-        },
+        }
       );
 
       userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.courts.data.map(
-        item => {
-          setCourtsJson(prevState => [
+        (item) => {
+          setCourtsJson((prevState) => [
             ...prevState,
             {
               id: item.id,
               courtName: item.attributes.name,
             },
           ]);
-          item && setCourts(prevState => [...prevState, item?.attributes.name]);
-        },
+          item &&
+            setCourts((prevState) => [...prevState, item?.attributes.name]);
+        }
       );
       userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.photos.data!.map(
-        photoItem => {
+        (photoItem) => {
           establishmentPhotos.push(photoItem.id);
-        },
+        }
       );
       userByEstablishmentData?.usersPermissionsUser.data?.attributes.establishment.data?.attributes.pix_keys.data.map(
-        pixKeyItem => {
-          setPixKeys(prevState => [...prevState, pixKeyItem?.attributes.key]);
-        },
+        (pixKeyItem) => {
+          setPixKeys((prevState) => [...prevState, pixKeyItem?.attributes.key]);
+        }
       );
 
       setStreetName(
         userByEstablishmentData?.usersPermissionsUser.data?.attributes
-          .establishment.data?.attributes.address.streetName!,
+          .establishment.data?.attributes.address.streetName!
       );
       setFantasyName(
         userByEstablishmentData?.usersPermissionsUser.data?.attributes
-          .establishment.data?.attributes.fantasyName!,
+          .establishment.data?.attributes.fantasyName!
       );
     }
     if (userData) {
@@ -464,7 +464,7 @@ export default function InfoProfileEstablishment({
     useState(false);
 
   const handleUpdateEstablishmentFantasyName = (
-    data: IFantasyNameFormData,
+    data: IFantasyNameFormData
   ): void => {
     setUpdateFantasyNameIsLoading(true);
 
@@ -481,10 +481,10 @@ export default function InfoProfileEstablishment({
         corporate_name: fantasyNameData.fantasyName,
       },
     })
-      .then(value => {
+      .then((value) => {
         alert("Nome fantasia alterado com sucesso!");
       })
-      .catch(reason => alert(reason))
+      .catch((reason) => alert(reason))
       .finally(() => {
         setUpdateFantasyNameIsLoading(false);
         setEditFantasyNameModal(false);
@@ -517,10 +517,10 @@ export default function InfoProfileEstablishment({
           password_confirmation: passwordData.confirmPassword,
         },
       })
-        .then(value => {
+        .then((value) => {
           alert("Senha alterada com sucesso");
         })
-        .catch(reason => alert(reason))
+        .catch((reason) => alert(reason))
         .finally(() => {
           setUpdatePasswordIsLoading(false);
           setEditPasswordModal(false);
@@ -553,7 +553,7 @@ export default function InfoProfileEstablishment({
 
     const currentDate: DateTime = new Date();
 
-    setPixKeys(prevState => [...prevState, pixKeyData.pixKey]);
+    setPixKeys((prevState) => [...prevState, pixKeyData.pixKey]);
 
     newPixKey({
       variables: {
@@ -567,7 +567,7 @@ export default function InfoProfileEstablishment({
       .then(() => {
         alert("Chave pix cadastrada com sucesso");
       })
-      .catch(reason => alert(reason))
+      .catch((reason) => alert(reason))
       .finally(() => setNewPixKeyIsLoading(false));
   };
 
@@ -638,7 +638,7 @@ export default function InfoProfileEstablishment({
       });
 
       if (!result.canceled) {
-        await uploadImage(result.assets[0].uri).then(uploadedImageID => {
+        await uploadImage(result.assets[0].uri).then((uploadedImageID) => {
           setProfilePicture(result.assets[0].uri);
           setUploadedPictureID(uploadedImageID);
         });
@@ -699,7 +699,7 @@ export default function InfoProfileEstablishment({
 
   const handleEditCourt = (selectedCourt: string) => {
     const findCourt = courtsJson.find(
-      courtItem => courtItem.courtName === selectedCourt,
+      (courtItem) => courtItem.courtName === selectedCourt
     );
 
     navigation.navigate("EditCourt", {
@@ -711,7 +711,7 @@ export default function InfoProfileEstablishment({
   const haveProfilePicture: boolean = !!logo;
 
   const { data: dataUserEstablishment } = useGetUserIDByEstablishment(
-    route.params.establishmentId ?? "",
+    route.params.establishmentId ?? ""
   );
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -738,7 +738,7 @@ export default function InfoProfileEstablishment({
         });
 
         if (!result.canceled) {
-          uploadImage(result.assets[0].uri).then(uploadedImage => {
+          uploadImage(result.assets[0].uri).then((uploadedImage) => {
             const newPhotos = photos;
 
             newPhotos.push({ uri: uploadedImage.uri, id: uploadedImage.id });
@@ -747,7 +747,7 @@ export default function InfoProfileEstablishment({
             updateEstablishmentPhotos({
               variables: {
                 establishment_id: establishmentId,
-                photos_id: newPhotos.map(photo => photo.id),
+                photos_id: newPhotos.map((photo) => photo.id),
               },
             });
           });
@@ -768,10 +768,10 @@ export default function InfoProfileEstablishment({
           photo_id: id,
         },
       })
-        .then(response => {
+        .then((response) => {
           if (response.data?.deleteUploadFile.data?.id === id) {
             const deletedPhotoIndex = photos.findIndex(
-              photo => photo.id === id,
+              (photo) => photo.id === id
             );
             const updatedPhotos = photos;
 
@@ -784,7 +784,7 @@ export default function InfoProfileEstablishment({
             return;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           alert("Não foi possível deletar a imagem!");
           console.error(JSON.stringify(error, null, 2));
         });
@@ -960,7 +960,9 @@ export default function InfoProfileEstablishment({
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={event => deleteEstablishmentPhoto(item.id, event)}
+                    onPress={(event) =>
+                      deleteEstablishmentPhoto(item.id, event)
+                    }
                     className="absolute bottom-0 right-0"
                   >
                     <Ionicons name="trash" size={25} color="#FF6112" />
@@ -1020,7 +1022,7 @@ export default function InfoProfileEstablishment({
             <View>
               <FlatList
                 data={withdrawalInfo}
-                keyExtractor={card => card.id}
+                keyExtractor={(card) => card.id}
                 renderItem={({ item: card }) => {
                   return (
                     <TouchableOpacity
@@ -1365,7 +1367,7 @@ export default function InfoProfileEstablishment({
 
                 <TouchableOpacity
                   onPress={handleSubmitFantasyName(
-                    handleUpdateEstablishmentFantasyName,
+                    handleUpdateEstablishmentFantasyName
                   )}
                   className="h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]"
                 >
@@ -1467,7 +1469,7 @@ export default function InfoProfileEstablishment({
 
                 <TouchableOpacity
                   onPress={handleSubmitAddress(
-                    handleUpdateEstablishmentAddress,
+                    handleUpdateEstablishmentAddress
                   )}
                   className="h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]"
                 >
