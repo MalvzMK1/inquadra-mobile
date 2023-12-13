@@ -3,7 +3,18 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FlatList, Image, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/Ionicons";
-import {useState} from "react";
+import {indexToWeekDayMap} from "../../../utils/constants";
+
+enum translatedWeekDays {
+  sunday = 'Domingo',
+  monday = 'Segunda',
+  tuesday = 'Terça',
+  wednesday = 'Quarta',
+  thursday = 'Quinta',
+  friday = 'Sexta',
+  saturday = 'Sábado',
+  specialDays = 'Dia Especial'
+}
 
 export default function CourtDetails({
   navigation,
@@ -32,6 +43,46 @@ export default function CourtDetails({
       return { startsAt, endsAt };
     }
     return;
+  }
+
+  function calculateWeekDaysRange(availabilities: TAppointment[][]): { firstDay: string, lastDay: string } | undefined {
+    const parsedAvailabilitiesWeekDays = availabilities.map((availability, index) => {
+      if (availability.length > 0) {
+        return index;
+      }
+      return null;
+    })
+
+    const filteredWeekDaysIndex: number[] = parsedAvailabilitiesWeekDays.filter(value => typeof value === 'number');
+
+    if (filteredWeekDaysIndex.length > 0) {
+      const weekDays = filteredWeekDaysIndex.map(weekDayIndex => {
+        return indexToWeekDayMap[weekDayIndex];
+      })
+
+      const selectedWeekDays = weekDays.map(weekDay => {
+        const parsed = weekDay.toLowerCase() as keyof typeof translatedWeekDays;
+
+        return translatedWeekDays[parsed];
+      })
+
+      const payload = {
+        firstDay: selectedWeekDays[0],
+        lastDay: selectedWeekDays[selectedWeekDays.length -1],
+      }
+
+      if (payload.firstDay === 'Domingo' && payload.lastDay === 'Sábado') {
+        return {
+          firstDay: 'Domingo',
+          lastDay: 'Domingo',
+        }
+      } else return {
+        firstDay: selectedWeekDays[0],
+        lastDay: selectedWeekDays[selectedWeekDays.length -1],
+      }
+    }
+    else
+      return;
   }
 
   function parseFlatHours(time: string): string {
@@ -77,6 +128,7 @@ export default function CourtDetails({
           })
 
           const hourRange: {startsAt: string, endsAt: string} | undefined = calculateHourRange(courtAppointmentsHour);
+          const weekDaysRange: { firstDay: string, lastDay: string } | undefined = calculateWeekDaysRange(court.court_availabilities);
 
           return (
             <View className="bg-[#292929]">
@@ -105,7 +157,7 @@ export default function CourtDetails({
                   </Text>
 
                   <Text className="text-white font-bold pl-2">
-                    Locação de:
+                    Locação de: {weekDaysRange?.firstDay} a {weekDaysRange?.lastDay.toLowerCase()}
                   </Text>
 
                   <Text className="text-white font-bold pl-2">
