@@ -270,7 +270,6 @@ export default function CourtAvailabilityInfo({
                   renderItem={({ item }) => {
                     const startsAt = item.startsAt.split(":");
                     const endsAt = item.endsAt.split(":");
-
                     let isBusy = !item.busy;
 
                     if (

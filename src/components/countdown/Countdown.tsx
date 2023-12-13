@@ -50,7 +50,9 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
       {isPaymentExpired
         ? "Pagamento vencido"
         : timeLeft.days > 0
-        ? `Tempo restante para o pagamento: ${timeLeft.days} dias ${timeLeft.hours} horas ${timeLeft.minutes} minutos`
+        ? `Tempo restante para o pagamento: ${timeLeft.days} dias ${
+            timeLeft.hours - 1
+          } horas ${timeLeft.minutes} minutos`
         : `Tempo restante: ${timeLeft.hours} horas ${timeLeft.minutes} minutos`}
     </Text>
   );
