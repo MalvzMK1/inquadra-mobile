@@ -1,13 +1,16 @@
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays, format, sub } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   ActivityIndicator,
   Image,
   Modal,
+  Platform,
   ScrollView,
   Text,
   View,
@@ -105,7 +108,10 @@ export default function CourtSchedule({
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
   const { userData } = useUser();
-
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
+  const [showUntillDatePicker, setShowUntillDatePicker] = useState<boolean>(false)
+  const [selectedDate, setSelectedDate] = useState<null | Date>(null);
+  const [selectedUntillDate, setSelectedUntillDate] = useState<null | Date>(null)
   const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string>(
     route.params.establishmentId,
@@ -113,6 +119,32 @@ export default function CourtSchedule({
   const [establishmentPicture, setEstablishmentPicture] = useState<
     string | undefined
   >("");
+
+  const handleDateChange = (event: any, date: any) => {
+    if (date !== undefined) {
+      const formattedDate = format(date, 'dd-MM-yyyy');
+      setSelectedDate(date);
+      setShowDatePicker(false);
+      setStartsAt(formattedDate)
+    }
+  }
+
+
+  const handleUntillDateChange = (event: any, date: any) => {
+    if (date !== undefined) {
+      const formattedDate = format(date, 'dd-MM-yyyy');
+      setSelectedUntillDate(date);
+      setShowUntillDatePicker(false);
+      setEndsAt(formattedDate)
+    }
+  }
+  const showDatePickerIOS = () => {
+    setShowDatePicker(true);
+  };
+
+  const hideDatePicker = () => {
+    setShowDatePicker(false);
+  };
 
   useEffect(() => {
     AsyncStorage.getItem("@inquadra/establishment-profile-photo").then(
@@ -308,9 +340,9 @@ export default function CourtSchedule({
           .establishment.data.attributes.photo,
       )
         ? userByEstablishmentData.usersPermissionsUser.data.attributes
-            .establishment.data.attributes.photo[0]
+          .establishment.data.attributes.photo[0]
         : userByEstablishmentData.usersPermissionsUser.data.attributes
-            .establishment.data.attributes.photo,
+          .establishment.data.attributes.photo,
     });
   }
 
@@ -893,11 +925,10 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ${
-                schedulingsFocus
-                  ? "text-black"
-                  : "text-[#292929]" && "opacity-40"
-              } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ${schedulingsFocus
+                ? "text-black"
+                : "text-[#292929]" && "opacity-40"
+                } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
             >
               Reservas
             </Text>
@@ -914,11 +945,10 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ml-[10px] ${
-                schedulingsHistoricFocus
-                  ? "text-black"
-                  : "text-[#292929]" && "opacity-40"
-              } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ml-[10px] ${schedulingsHistoricFocus
+                ? "text-black"
+                : "text-[#292929]" && "opacity-40"
+                } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
             >
               Histórico de reservas
             </Text>
@@ -1108,11 +1138,10 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      blockScheduleByTimeErrors.initialHour
-                        ? "border-red-400"
-                        : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.initialHour
+                      ? "border-red-400"
+                      : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="initialHour"
@@ -1153,11 +1182,10 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      blockScheduleByTimeErrors.endHour
-                        ? "border-red-400"
-                        : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.endHour
+                      ? "border-red-400"
+                      : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="endHour"
@@ -1261,18 +1289,16 @@ export default function CourtSchedule({
               <View className="flex flex-row pl-[15px] pr-[15px] w-full">
                 <View className="flex-1 mr-[6px]">
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
-
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      errors.initialDate ? "border-red-400" : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${errors.initialDate ? "border-red-400" : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="initialDate"
                       control={control}
                       rules={{
                         required: true,
-                        minLength: 25,
+                        minLength: 10,
                       }}
                       render={({ field: { onChange } }) => (
                         <MaskInput
@@ -1281,15 +1307,26 @@ export default function CourtSchedule({
                           value={startsAt}
                           onChangeText={(masked, unmasked) => {
                             onChange(masked);
-                            setStartsAt(unmasked);
+                            setStartsAt(masked); // Atualize o estado startsAt diretamente com o valor mascarado
                           }}
                           mask={Masks.DATE_DDMMYYYY}
-                        ></MaskInput>
+                        />
                       )}
                     />
-                    <Image
-                      source={require("../../assets/calendar_gray_icon.png")}
-                    ></Image>
+                    <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowDatePicker(true)} />
+
+                    {showDatePicker && (
+                      <DateTimePicker
+                        minimumDate={new Date()}
+                        value={selectedDate || new Date()}
+
+                        onChange={(event, date) => {
+                          handleDateChange(event, date!);
+                          setShowDatePicker(false);
+                        }}
+                        display='calendar'
+                      />
+                    )}
                   </View>
                   {errors.initialDate && (
                     <Text className="text-red-400 text-sm -pt-[10px]">
@@ -1302,9 +1339,8 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      errors.endDate ? "border-red-400" : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${errors.endDate ? "border-red-400" : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="endDate"
@@ -1325,9 +1361,18 @@ export default function CourtSchedule({
                         ></MaskInput>
                       )}
                     />
-                    <Image
-                      source={require("../../assets/calendar_gray_icon.png")}
-                    ></Image>
+                    <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowUntillDatePicker(true)} />
+                    {showUntillDatePicker && (
+                      <DateTimePicker
+                        minimumDate={selectedDate || new Date()}
+                        value={selectedUntillDate || new Date()}
+                        onChange={(event, date) => {
+                          handleUntillDateChange(event, date!);
+                          setShowUntillDatePicker(false);
+                        }}
+                        display='calendar'
+                      />
+                    )}
                   </View>
                   {errors.endDate && (
                     <Text className="text-red-400 text-sm -pt-[10px]">
