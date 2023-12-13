@@ -153,7 +153,11 @@ export default function CourtDetails({
                   </View>
 
                   <Text className="text-white font-bold pl-2">
-                    Valor inicial: {court.minimum_value} reais
+                    Valor inicial: {
+                    court.minimum_value
+                      .toString()
+                      .concat(court.minimum_value < 2 ? ' real' : ' reais')
+                  }
                   </Text>
 
                   <Text className="text-white font-bold pl-2">

@@ -137,175 +137,170 @@ export default function AllVeryWell({
     }
   }
 
-  // async function handleComplete() {
-  //   setIsLoading(true);
-  //   const imageIdsToRemove: string[] = [];
-  //   let userIdToRemove: string | undefined;
-  //   let establishmentIdToRemove: string | undefined;
-  //   const courtAvailabilityIdsToRemove: string[] = [];
-  //
-  //   try {
-  //     const registerUserPayload: IRegisterUserVariables = {
-  //       ...route.params.profileInfos,
-  //       username: route.params.profileInfos.email,
-  //     };
-  //
-  //     const { data: newUserData, errors: newUserErrors } = await registerUser({
-  //       variables: registerUserPayload,
-  //     });
-  //
-  //     if (!newUserData || !newUserData.createUsersPermissionsUser.data) {
-  //       throw new Error("Não foi possível criar o usuário", {
-  //         cause: newUserErrors?.map(error => error),
-  //       });
-  //     }
-  //
-  //     userIdToRemove = newUserData.createUsersPermissionsUser.data.id;
-  //
-  //     const [logoId, ...establishmentPhotoIds] = await uploadImages([
-  //       route.params.establishmentInfos.logo,
-  //       ...route.params.establishmentInfos.photos,
-  //     ]);
-  //
-  //     imageIdsToRemove.push(logoId);
-  //     imageIdsToRemove.push(...establishmentPhotoIds);
-  //
-  //     const registerEstalishmentPayload: IRegisterEstablishmentVariables = {
-  //       logo: logoId,
-  //       photos: establishmentPhotoIds,
-  //       publishedAt: new Date().toISOString(),
-  //       ownerId: newUserData.createUsersPermissionsUser.data.id,
-  //       latitude: route.params.establishmentInfos.latitude,
-  //       longitude: route.params.establishmentInfos.longitude,
-  //       street_name: route.params.establishmentInfos.street_name,
-  //       cep: route.params.establishmentInfos.cep,
-  //       phone_number: route.params.establishmentInfos.phone_number,
-  //       cnpj: route.params.establishmentInfos.cnpj,
-  //       cellphone_number: route.params.establishmentInfos.cellphone_number,
-  //       amenities: route.params.establishmentInfos.amenities,
-  //       corporate_name: route.params.establishmentInfos.corporate_name,
-  //     };
-  //
-  //     const { data: establishmentData, errors: establishmentErrors } =
-  //       await registerEstablishment({
-  //         variables: registerEstalishmentPayload,
-  //       });
-  //
-  //     if (!establishmentData) {
-  //       throw new Error("Não foi possível criar o estabelecimento", {
-  //         cause: establishmentErrors?.map(error => error),
-  //       });
-  //     }
-  //
-  //     establishmentIdToRemove = establishmentData.createEstablishment.data.id;
-  //
-  //     const loginResponse = await authUser({
-  //       variables: {
-  //         identifier: registerUserPayload.email,
-  //         password: registerUserPayload.password,
-  //       },
-  //     });
-  //
-  //     setUserData({
-  //       id: loginResponse.data?.login.user.id ?? undefined,
-  //       jwt: loginResponse.data?.login.jwt ?? undefined,
-  //       geolocation: userData?.geolocation
-  //     })
-  //
-  //     if (!loginResponse.data) {
-  //       throw loginResponse;
-  //     }
-  //
-  //     for (const court of courts) {
-  //       const [newPhotosIds, courtAvailabilityIds] = await Promise.all([
-  //         uploadImages(court.photos.map(photo => photo.uri)),
-  //         createCourtAvailabilities({
-  //           context: {
-  //             headers: {
-  //               Authorization: `Bearer ${loginResponse.data.login.jwt}`,
-  //             },
-  //           },
-  //           variables: {
-  //             data: court.court_availabilities.flatMap(
-  //               (availabilities, index) => {
-  //                 return availabilities.map(availability => ({
-  //                   status: true,
-  //                   starts_at: `${availability.startsAt}:00.000`,
-  //                   day_use_service: court.dayUse[index],
-  //                   ends_at: `${availability.endsAt}:00.000`,
-  //                   value: Number(
-  //                     availability.price
-  //                       .replace("R$", "")
-  //                       .replace(".", "")
-  //                       .replace(",", ".")
-  //                       .trim(),
-  //                   ),
-  //                   week_day: indexToWeekDayMap[index],
-  //                   publishedAt: new Date().toISOString(),
-  //                 }));
-  //               },
-  //             ),
-  //           },
-  //         }).then(response => {
-  //           if (!response.data?.createCourtAvailabilitiesCustom.success) {
-  //             throw new Error(
-  //               "Não foi possível criar as disponibilidades de quadra",
-  //             );
-  //           }
-  //
-  //           return response.data.createCourtAvailabilitiesCustom.ids;
-  //         }),
-  //       ]);
-  //
-  //       imageIdsToRemove.push(...newPhotosIds);
-  //       courtAvailabilityIdsToRemove.push(...courtAvailabilityIdsToRemove);
-  //
-  //       await addCourt({
-  //         variables: {
-  //           court_name: court.fantasyName,
-  //           courtTypes: court.courtType,
-  //           court_availabilities: courtAvailabilityIds,
-  //           minimum_value: court.minimum_value,
-  //           current_date: court.currentDate,
-  //           photos: newPhotosIds,
-  //           establishmentId: establishmentData.createEstablishment.data.id,
-  //           fantasyName: court.fantasyName,
-  //         },
-  //       });
-  //     }
-  //
-  //     await Promise.all([
-  //       AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourDayUse),
-  //       AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourAllAppointments),
-  //     ]);
-  //
-  //     navigation.navigate("CompletedEstablishmentRegistration");
-  //   } catch (error) {
-  //     console.error(error);
-  //     const msgError = JSON.stringify(error, null, 2);
-  //
-  //     if (process.env.APP_DEBUG_VERBOSE) {
-  //       Alert.alert("Erro", msgError);
-  //     } else {
-  //       Alert.alert("Erro", "Não foi possível concluir o cadastro.");
-  //     }
-  //
-  //     removeRegisteredInfos({
-  //       userIdToRemove,
-  //       imageIdsToRemove,
-  //       establishmentIdToRemove,
-  //       courtAvailabilityIdsToRemove,
-  //     })
-  //       .then(() => console.log("Informações deletadas com sucesso"))
-  //       .catch(console.error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
+  async function handleComplete() {
+    setIsLoading(true);
+    const imageIdsToRemove: string[] = [];
+    let userIdToRemove: string | undefined;
+    let establishmentIdToRemove: string | undefined;
+    const courtAvailabilityIdsToRemove: string[] = [];
 
-  function handleComplete(): void {
-    console.log(courts[0].dayUse.includes(true))
-    console.log('rondo melo júnior')
+    try {
+      const registerUserPayload: IRegisterUserVariables = {
+        ...route.params.profileInfos,
+        username: route.params.profileInfos.email,
+      };
+
+      const { data: newUserData, errors: newUserErrors } = await registerUser({
+        variables: registerUserPayload,
+      });
+
+      if (!newUserData || !newUserData.createUsersPermissionsUser.data) {
+        throw new Error("Não foi possível criar o usuário", {
+          cause: newUserErrors?.map(error => error),
+        });
+      }
+
+      userIdToRemove = newUserData.createUsersPermissionsUser.data.id;
+
+      const [logoId, ...establishmentPhotoIds] = await uploadImages([
+        route.params.establishmentInfos.logo,
+        ...route.params.establishmentInfos.photos,
+      ]);
+
+      imageIdsToRemove.push(logoId);
+      imageIdsToRemove.push(...establishmentPhotoIds);
+
+      const registerEstalishmentPayload: IRegisterEstablishmentVariables = {
+        logo: logoId,
+        photos: establishmentPhotoIds,
+        publishedAt: new Date().toISOString(),
+        ownerId: newUserData.createUsersPermissionsUser.data.id,
+        latitude: route.params.establishmentInfos.latitude,
+        longitude: route.params.establishmentInfos.longitude,
+        street_name: route.params.establishmentInfos.street_name,
+        cep: route.params.establishmentInfos.cep,
+        phone_number: route.params.establishmentInfos.phone_number,
+        cnpj: route.params.establishmentInfos.cnpj,
+        cellphone_number: route.params.establishmentInfos.cellphone_number,
+        amenities: route.params.establishmentInfos.amenities,
+        corporate_name: route.params.establishmentInfos.corporate_name,
+      };
+
+      const { data: establishmentData, errors: establishmentErrors } =
+        await registerEstablishment({
+          variables: registerEstalishmentPayload,
+        });
+
+      if (!establishmentData) {
+        throw new Error("Não foi possível criar o estabelecimento", {
+          cause: establishmentErrors?.map(error => error),
+        });
+      }
+
+      establishmentIdToRemove = establishmentData.createEstablishment.data.id;
+
+      const loginResponse = await authUser({
+        variables: {
+          identifier: registerUserPayload.email,
+          password: registerUserPayload.password,
+        },
+      });
+
+      setUserData({
+        id: loginResponse.data?.login.user.id ?? undefined,
+        jwt: loginResponse.data?.login.jwt ?? undefined,
+        geolocation: userData?.geolocation
+      })
+
+      if (!loginResponse.data) {
+        throw loginResponse;
+      }
+
+      for (const court of courts) {
+        const [newPhotosIds, courtAvailabilityIds] = await Promise.all([
+          uploadImages(court.photos.map(photo => photo.uri)),
+          createCourtAvailabilities({
+            context: {
+              headers: {
+                Authorization: `Bearer ${loginResponse.data.login.jwt}`,
+              },
+            },
+            variables: {
+              data: court.court_availabilities.flatMap(
+                (availabilities, index) => {
+                  return availabilities.map(availability => ({
+                    status: true,
+                    starts_at: `${availability.startsAt}:00.000`,
+                    day_use_service: court.dayUse[index],
+                    ends_at: `${availability.endsAt}:00.000`,
+                    value: Number(
+                      availability.price
+                        .replace("R$", "")
+                        .replace(".", "")
+                        .replace(",", ".")
+                        .trim(),
+                    ),
+                    week_day: indexToWeekDayMap[index],
+                    publishedAt: new Date().toISOString(),
+                  }));
+                },
+              ),
+            },
+          }).then(response => {
+            if (!response.data?.createCourtAvailabilitiesCustom.success) {
+              throw new Error(
+                "Não foi possível criar as disponibilidades de quadra",
+              );
+            }
+
+            return response.data.createCourtAvailabilitiesCustom.ids;
+          }),
+        ]);
+
+        imageIdsToRemove.push(...newPhotosIds);
+        courtAvailabilityIdsToRemove.push(...courtAvailabilityIdsToRemove);
+
+        await addCourt({
+          variables: {
+            court_name: court.fantasyName,
+            courtTypes: court.courtType,
+            court_availabilities: courtAvailabilityIds,
+            minimum_value: court.minimum_value,
+            current_date: court.currentDate,
+            photos: newPhotosIds,
+            establishmentId: establishmentData.createEstablishment.data.id,
+            fantasyName: court.fantasyName,
+          },
+        });
+      }
+
+      await Promise.all([
+        AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourDayUse),
+        AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourAllAppointments),
+      ]);
+
+      navigation.navigate("CompletedEstablishmentRegistration");
+    } catch (error) {
+      console.error(error);
+      const msgError = JSON.stringify(error, null, 2);
+
+      if (process.env.APP_DEBUG_VERBOSE) {
+        Alert.alert("Erro", msgError);
+      } else {
+        Alert.alert("Erro", "Não foi possível concluir o cadastro.");
+      }
+
+      removeRegisteredInfos({
+        userIdToRemove,
+        imageIdsToRemove,
+        establishmentIdToRemove,
+        courtAvailabilityIdsToRemove,
+      })
+        .then(() => console.log("Informações deletadas com sucesso"))
+        .catch(console.error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleNavigateToDetails() {
