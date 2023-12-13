@@ -532,6 +532,21 @@ export default function ReservationPaymentSign({
       });
     }
   });
+
+  // Pega uma data no formato YYYY-MM-DD e transforma em MM/YY
+  function parseDate(date: string): string {
+    let parsedOne = date.split('-');
+
+    if (parsedOne.length !== 3) {
+      return parsedOne[0];
+    }
+
+    parsedOne.pop();
+    parsedOne[0] = parsedOne[0].slice(2);
+    parsedOne = parsedOne.reverse();
+
+    return parsedOne.join('/');
+  }
   
   const handlePayCardSave = async (card: Card) => {
     try {
@@ -575,6 +590,8 @@ export default function ReservationPaymentSign({
         Country: "BRA",
       };
 
+      const maturityDate = parseDate(card.maturityDate)
+
       const body: AuthorizeCreditCardPaymentResponse = {
         MerchantOrderId: "2014111701",
         Customer: {
@@ -601,13 +618,14 @@ export default function ReservationPaymentSign({
           CreditCard: {
             CardNumber: card.number.split(" ").join(""),
             Holder: card.name,
-            ExpirationDate: transformCardExpirationDate(card.maturityDate),
+            ExpirationDate: transformCardExpirationDate(maturityDate),
             SecurityCode: card.cvv,
             SaveCard: false,
             Brand: brand,
           },
         },
       };
+
       const response = await cieloRequestManager.authorizePayment(body);
 
       userPaymentCard({
