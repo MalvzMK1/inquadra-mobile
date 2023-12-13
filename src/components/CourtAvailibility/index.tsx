@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 type CourtAvailibility = {
   id: string;
@@ -21,8 +22,8 @@ export default function CourtAvailibility(props: CourtAvailibility) {
 
   if (props.busy) {
     status = "OCUPADO";
-  } else if (props.price) {
-    status = `R$${props.price.toFixed(2).replace(".", ",")}`;
+  } else if (typeof props.price !== "undefined") {
+    status = formatCurrency(props.price);
   }
 
   if (props.busy) {

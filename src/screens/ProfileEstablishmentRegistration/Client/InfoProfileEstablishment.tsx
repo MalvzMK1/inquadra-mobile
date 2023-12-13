@@ -27,7 +27,6 @@ import { z } from "zod";
 import BottomBlackMenuEstablishment from "../../../components/BottomBlackMenuEstablishment";
 import { useUser } from "../../../context/userContext";
 import useDeletePhoto from "../../../hooks/useDeletePhoto";
-import useDeleteUser from "../../../hooks/useDeleteUser";
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 import { useGetUserEstablishmentInfos } from "../../../hooks/useGetUserEstablishmentInfos";
 import useRegisterPixKey from "../../../hooks/useRegisterPixKey";
@@ -178,19 +177,8 @@ export default function InfoProfileEstablishment({
   const [updateEstablishmentFantasyNameHook] =
     useUpdateEstablishmentFantasyName();
 
-  const [
-    updateUserPassword,
-    {
-      data: updateUserPasswordData,
-      error: updateUserPasswordError,
-      loading: updateUserPasswordLoading,
-    },
-  ] = useUpdateUserPassword();
-  const [
-    newPixKey,
-    { data: newPixKeyData, error: newPixKeyError, loading: newPixKeyLoading },
-  ] = useRegisterPixKey();
-  const [userDelete] = useDeleteUser();
+  const [updateUserPassword] = useUpdateUserPassword();
+  const [newPixKey] = useRegisterPixKey();
 
   const [amenities, setAmenities] = useState<string[]>([]);
 
@@ -366,9 +354,7 @@ export default function InfoProfileEstablishment({
         longitude: userGeolocation?.longitude.toString() ?? "",
       },
     })
-      .then(value => {
-        alert("Endereço atualizado com sucesso!");
-      })
+      .then(() => alert("Endereço atualizado com sucesso!"))
       .catch(reason => alert(reason))
       .finally(() => {
         setUpdateAddressIsLoading(false);
