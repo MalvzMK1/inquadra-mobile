@@ -20,7 +20,7 @@ export function integrateWithPaymentAPI(scheduling: SchedulingEntity) {
     const invoice = await generateIuguApiBodyRequest(
       scheduling,
       user?.id ?? "",
-      Math.round((value / users.length) * 100),
+      Math.round((value / users.length) * 100)
     );
     invoices[index] = await generateInvoice(invoice);
   });
@@ -29,24 +29,22 @@ export function integrateWithPaymentAPI(scheduling: SchedulingEntity) {
 async function generateIuguApiBodyRequest(
   scheduling: SchedulingEntity,
   userID: string,
-  valueToBePayedPerUser: number,
+  valueToBePayedPerUser: number
 ): Promise<CreateInvoiceRequestBody> {
   const GENERATED_UUID = uuid.v4().toString();
   if (scheduling.attributes?.users) {
     const user = scheduling.attributes?.users.data.find(
-      user => user.id === userID,
+      (user) => user.id === userID
     ) as UsersPermissionsUserEntity;
 
     let { data: userAddress } = await axios.get<FindAddressByCepResponse>(
-      `https://example.api.findcep.com/v1/cep/${user.attributes?.address?.cep}.json`,
+      `https://example.api.findcep.com/v1/cep/${user.attributes?.address?.cep}.json`
     );
-    console.log(userAddress);
-
     if (!user.attributes?.phoneNumber)
       throw new Error("Deve ser passado um número de telefone para contato.");
     if (!scheduling.attributes.court_availability?.data)
       throw new Error(
-        "Nenhum dado sobre a disponibilidade de quadra encontrado",
+        "Nenhum dado sobre a disponibilidade de quadra encontrado"
       );
     if (!scheduling.attributes.court_availability.data.attributes?.court)
       throw new Error("Nenhum dado sobre a quadra encontrado");

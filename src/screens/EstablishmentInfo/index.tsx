@@ -73,8 +73,6 @@ export default function EstablishmentInfo({
     Array<{ id: any }>
   >([]);
 
-  console.log("favoritos:", arrayfavoriteEstablishment);
-
   const [heart, setHeart] = useState<boolean>(false);
   const setHeartColor = () => {
     if (
@@ -188,7 +186,6 @@ export default function EstablishmentInfo({
 
   useEffect(() => {
     if (!errorFavoriteEstablishment && !loadingFavoriteEstablishment) {
-      console.log("curtiu");
       const favoriteEstablishmentId =
         FavoriteEstablishment!.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.map(
           (establishment) => {
@@ -196,7 +193,6 @@ export default function EstablishmentInfo({
           }
         );
       if (favoriteEstablishmentId) {
-        console.log("descurtiu");
         setArrayFavoriteEstablishment((prevFavoriteEstablishmentId) => [
           ...prevFavoriteEstablishmentId,
           ...favoriteEstablishmentId,
@@ -215,14 +211,12 @@ export default function EstablishmentInfo({
     let newArrayfavoriteEstablishment = [];
 
     if (!isCurrentlyFavorite) {
-      console.log("curtiu");
       newArrayfavoriteEstablishment = [
         ...arrayfavoriteEstablishment,
         { id: Establishment?.id },
       ];
       setArrayFavoriteEstablishment(newArrayfavoriteEstablishment);
     } else {
-      console.log("descurtiu");
       newArrayfavoriteEstablishment = arrayfavoriteEstablishment.filter(
         (item) => item.id !== Establishment?.id
       );

@@ -49,7 +49,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       if (data?.usersPermissionsUser.data?.attributes.address) {
         getAddress(data.usersPermissionsUser.data.attributes.address.cep).then(
           (response) => {
-            console.log({ __API_CEP_RESPONSE: response });
             setUserAddress(response);
           }
         );
@@ -76,9 +75,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   const valueToPay = parseFloat(
     value.replace(/[^\d.,]/g, "").replace(",", ".")
   );
-
-  console.log("value to pay:", valueToPay);
-  console.log("updateded sla:", scheduleValuePayed);
 
   useFocusEffect(
     useCallback(() => {
@@ -171,7 +167,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       scheduleValuePayed !== undefined
         ? generateRandomKey(4)
         : "";
-    console.log("rodou aqui");
     try {
       await updateScheduleValue({
         variables: {
@@ -197,7 +192,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const createNewSchedule = async () => {
     let isPayed = route.params.isPayed!;
-    console.log("isPayedValidation:", isPayed);
     try {
       const create = await createSchedule({
         variables: {
@@ -372,8 +366,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
                   .id,
               publishedAt: new Date().toISOString(),
             },
-          }).then((response) => {
-            console.log({ STRAPI_RESPONSE_DATA: response.data });
           });
         }
         if (response.errors)

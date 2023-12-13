@@ -522,7 +522,6 @@ export default function CourtSchedule({
               },
             },
           });
-          console.log("foundCourt.id", foundCourt.id);
           return {
             date: item,
             scheduling_quantity: scheduleByDateData?.schedulings.data?.length,
@@ -593,9 +592,6 @@ export default function CourtSchedule({
             },
           },
         });
-        console.log("date", dateItem);
-        console.log("courtID", courtId);
-        console.log("scheduleByDateData", scheduleByDateData);
         if (scheduleByDateData != undefined) return scheduleByDateData;
       })
     );
@@ -630,7 +626,6 @@ export default function CourtSchedule({
     const blockScheduleData = {
       ...data,
     };
-    console.log("blockScheduleData", blockScheduleData);
 
     const datesRange = getDatesRange(
       blockScheduleData.initialDate,
@@ -652,8 +647,6 @@ export default function CourtSchedule({
               scheduling_id: item.schedulingId.toString(),
             },
           });
-
-          console.log("Mutation Response:", response);
         }
         setBlockedCourtId("");
         setBlockScheduleByDateModal(false);
@@ -784,7 +777,6 @@ export default function CourtSchedule({
             })
           );
         } catch (error) {
-          console.log("Deu erro: ", error);
           setIsLoading(false);
         }
       } else {
@@ -1323,14 +1315,26 @@ export default function CourtSchedule({
                     />
 
                     {showDatePicker && (
-                      <DateTimePicker
-                        minimumDate={new Date()}
-                        value={selectedDate || new Date()}
-                        onChange={(event, date) => {
-                          handleDateChange(event, date!);
-                          setShowDatePicker(false);
+                      <Controller
+                        name="initialDate"
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 10,
                         }}
-                        display="calendar"
+                        render={({ field: { onChange } }) => (
+                          <DateTimePicker
+                            minimumDate={new Date()}
+                            value={selectedDate || new Date()}
+                            onChange={(event, date) => {
+                              handleDateChange(event, date!);
+                              setShowDatePicker(false);
+                              const formattedDate = format(date!, "dd-MM-yyyy");
+                              onChange(formattedDate);
+                            }}
+                            display="calendar"
+                          />
+                        )}
                       />
                     )}
                   </View>
@@ -1375,14 +1379,26 @@ export default function CourtSchedule({
                       onPress={() => setShowUntillDatePicker(true)}
                     />
                     {showUntillDatePicker && (
-                      <DateTimePicker
-                        minimumDate={selectedDate || new Date()}
-                        value={selectedUntillDate || new Date()}
-                        onChange={(event, date) => {
-                          handleUntillDateChange(event, date!);
-                          setShowUntillDatePicker(false);
+                      <Controller
+                        name="endDate"
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 10,
                         }}
-                        display="calendar"
+                        render={({ field: { onChange } }) => (
+                          <DateTimePicker
+                            minimumDate={selectedDate || new Date()}
+                            value={selectedUntillDate || new Date()}
+                            onChange={(event, date) => {
+                              handleUntillDateChange(event, date!);
+                              setShowUntillDatePicker(false);
+                              const formattedDate = format(date!, "dd-MM-yyyy");
+                              onChange(formattedDate);
+                            }}
+                            display="calendar"
+                          />
+                        )}
                       />
                     )}
                   </View>

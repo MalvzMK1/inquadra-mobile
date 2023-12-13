@@ -41,7 +41,7 @@ export default function RegisterNewCourtAdded({
   route,
 }: NativeStackScreenProps<RootStackParamList, "RegisterNewCourtAdded">) {
   const [modalities, setModalities] = useState([]);
-  const [minimumValue, setMinimumValue] = useState<string>("")
+  const [minimumValue, setMinimumValue] = useState<string>("");
   const [courtName, setCourtName] = useState("");
   const [courtType, setCourtType] = useState("");
   const [fantasyName, setFantasyName] = useState("");
@@ -61,22 +61,21 @@ export default function RegisterNewCourtAdded({
     error: errorSportTypeAvaible,
   } = useSportTypes();
   const [courts, setCourts] = useState<CourtArrayObject[]>(
-    route.params.courtArray,
+    route.params.courtArray
   );
   const [loadingMessage, setLoadingMessage] = useState(
-    "Fazendo upload das imagens",
+    "Fazendo upload das imagens"
   );
   const [photoIDs, setPhotoIDs] = useState([]);
 
   const addToCourtArray = async (court: CourtAdd) => {
-    setCourts(prevState => [...prevState, court]);
-    console.log(courts);
+    setCourts((prevState) => [...prevState, court]);
   };
 
   useFocusEffect(
     React.useCallback(() => {
       setCourts(route.params.courtArray);
-    }, [route.params.courtArray]),
+    }, [route.params.courtArray])
   );
 
   async function RegisterNewCourt(data: IFormDatasCourt) {
@@ -84,8 +83,8 @@ export default function RegisterNewCourtAdded({
 
     let courtIDs: Array<string> = [];
 
-    selected.forEach(selectedType => {
-      courtTypes.forEach(type => {
+    selected.forEach((selectedType) => {
+      courtTypes.forEach((type) => {
         if (type.value === selectedType) courtIDs.push(type.label);
       });
     });
@@ -113,8 +112,8 @@ export default function RegisterNewCourtAdded({
   async function finishingCourtsRegisters(data: IFormDatasCourt) {
     let courtIDs: Array<string> = [];
 
-    selected.forEach(selectedType => {
-      courtTypes.forEach(type => {
+    selected.forEach((selectedType) => {
+      courtTypes.forEach((type) => {
         if (type.value === selectedType) courtIDs.push(type.label);
       });
     });
@@ -206,8 +205,8 @@ export default function RegisterNewCourtAdded({
     const formData = new FormData();
     photos.forEach((uri, index) => {
       fetch(uri)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           formData.append(`files`, blob, `image${index}.jpg`);
         });
     });
@@ -220,8 +219,6 @@ export default function RegisterNewCourtAdded({
       });
 
       const uploadedImageIDs = response.data.map((image: any) => image.id);
-
-      console.log("Imagens enviadas com sucesso!", response.data);
 
       setIsLoading(false);
 
@@ -244,7 +241,7 @@ export default function RegisterNewCourtAdded({
   useEffect(() => {
     let newCourtTypes: Array<{ value: string; label: string }> = [];
     if (!loadingSportTypeAvaible && !errorSportTypeAvaible)
-      dataSportTypeAvaible?.courtTypes.data.forEach(sportType => {
+      dataSportTypeAvaible?.courtTypes.data.forEach((sportType) => {
         newCourtTypes.push({
           value: sportType.attributes.name,
           label: sportType.id,
@@ -398,30 +395,38 @@ export default function RegisterNewCourtAdded({
           </View>
           <View>
             <Text className="text-xl p-1">Valor aluguel/hora</Text>
-            {
-              minimumValue !== undefined && minimumValue !== null && minimumValue !== ("")
-                ? <>
-                  <TouchableOpacity
-                    className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
-                    onPress={() => navigation.navigate("CourtPriceHour", { minimumCourtPrice: minimumValue })}
-                  >
-                    <Text className="text-white font-semibold text-base">
-                      Clique para definir
-                    </Text>
-                  </TouchableOpacity>
-                </>
-                : <>
-                  <TouchableOpacity
-                    className="h-14 w-81 rounded-md bg-gray-400 flex items-center justify-center"
-                    onPress={() => { }}
-                  >
-                    <Text className="text-white font-semibold text-base">
-                      Clique para definir
-                    </Text>
-                  </TouchableOpacity>
-                  <Text className="text-base text-gray-300 font-bold m-6 ">Defina um preço mínimo primeiramente para definir os horários</Text>
-                </>
-            }
+            {minimumValue !== undefined &&
+            minimumValue !== null &&
+            minimumValue !== "" ? (
+              <>
+                <TouchableOpacity
+                  className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
+                  onPress={() =>
+                    navigation.navigate("CourtPriceHour", {
+                      minimumCourtPrice: minimumValue,
+                    })
+                  }
+                >
+                  <Text className="text-white font-semibold text-base">
+                    Clique para definir
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  className="h-14 w-81 rounded-md bg-gray-400 flex items-center justify-center"
+                  onPress={() => {}}
+                >
+                  <Text className="text-white font-semibold text-base">
+                    Clique para definir
+                  </Text>
+                </TouchableOpacity>
+                <Text className="text-base text-gray-300 font-bold m-6 ">
+                  Defina um preço mínimo primeiramente para definir os horários
+                </Text>
+              </>
+            )}
           </View>
           <View>
             <Text className="text-xl p-1">Sinal mínimo para locação</Text>
@@ -434,7 +439,9 @@ export default function RegisterNewCourtAdded({
                   keyboardType="numeric"
                   value={value}
                   placeholder="Ex.: R$ 00.00"
-                  onChangeText={(masked, unmasked) => { onChange(unmasked), setMinimumValue(unmasked) }}
+                  onChangeText={(masked, unmasked) => {
+                    onChange(unmasked), setMinimumValue(unmasked);
+                  }}
                   className="p-5 border border-neutral-400 rounded"
                 />
               )}

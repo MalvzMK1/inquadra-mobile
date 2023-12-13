@@ -131,8 +131,6 @@ export default function EditCourt({
     courtPhotos.push(photoItem.id);
   });
 
-  console.log(courtPhotos);
-
   async function uploadNewCourtImage(): Promise<string[] | undefined> {
     try {
       setIsLoading(true);
@@ -159,7 +157,6 @@ export default function EditCourt({
           (image: any) => image.id
         );
 
-        console.log("Imagens enviadas com sucesso!", response.data);
         return uploadedImageIDs;
       }
     } catch (error) {
@@ -233,7 +230,6 @@ export default function EditCourt({
     setIsLoading(true);
 
     try {
-      console.log({ selectedCourtTypesObject });
       const courtTypesId: string[] = selectedCourtTypesObject.map(
         (selected) => selected.id
       );
@@ -366,7 +362,6 @@ export default function EditCourt({
         if (
           !createAvailabilitiesData?.createCourtAvailabilitiesCustom.success
         ) {
-          console.log("erro", createAvailabilitiesData);
           throw new Error(
             "Não foi possível criar as disponibilidades de quadra"
           );
@@ -382,18 +377,6 @@ export default function EditCourt({
       if (photoId && photoId[0]) {
         courtPhotos = [photoId[0], ...courtPhotos];
       }
-
-      console.log({
-        payload: {
-          court_id: courtId ?? "",
-          court_availabilities: courtAvailabilityIds,
-          court_name: data.fantasyName,
-          court_types: courtTypesId,
-          fantasy_name: data.fantasyName,
-          minimum_value: data.minimumScheduleValue,
-          photos: courtPhotos,
-        },
-      });
 
       await updateCourtHook({
         variables: {

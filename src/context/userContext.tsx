@@ -33,7 +33,7 @@ export function UserProvider({ children }: IUserProviderProps) {
   const [userData, setUserData] = useState<IUserData | undefined>(undefined);
 
   async function handleSetUserData(
-    props: IUserData | undefined,
+    props: IUserData | undefined
   ): Promise<void> {
     if (props !== undefined) {
       await AsyncStorage.setItem("@inquadra/user_data", JSON.stringify(props));
@@ -55,7 +55,7 @@ export function UserProvider({ children }: IUserProviderProps) {
       const loadedUserData = await AsyncStorage.getItem("@inquadra/user_data");
 
       const loadedUserGeolocation = await AsyncStorage.getItem(
-        "@inquadra/user_geolocation",
+        "@inquadra/user_geolocation"
       );
 
       if (loadedUserData) {
@@ -80,7 +80,7 @@ export function UserProvider({ children }: IUserProviderProps) {
         try {
           const parsedLoadedUserGeolocation = JSON.parse(loadedUserGeolocation);
 
-          setUserData(prevState => ({
+          setUserData((prevState) => ({
             id: prevState?.id,
             jwt: prevState?.jwt,
             geolocation: {
@@ -106,11 +106,7 @@ export function UserProvider({ children }: IUserProviderProps) {
       };
     }
 
-    loadDataFromAsyncStorage().then(response => {
-      console.log(
-        "Infos loaded successfully\n" + JSON.stringify(response, null, 2),
-      );
-    });
+    loadDataFromAsyncStorage();
   }, []);
 
   return (

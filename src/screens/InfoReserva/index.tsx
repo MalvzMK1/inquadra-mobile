@@ -287,13 +287,11 @@ export default function InfoReserva({
                 Reservas Finalizadas
               </Text>
             </View>
-            {/* Div para carregar todas as informações do histórico*/}
             <View className="items-center p-4">
               <View
                 className="w-full h-max bg-zinc-900 rounded-lg p-2"
                 style={{ elevation: 8 }}
               >
-                {/* Div para inserção dos cards*/}
                 {loading ? (
                   <View className="justify-center mt-2">
                     <ActivityIndicator size={40} color="white" />

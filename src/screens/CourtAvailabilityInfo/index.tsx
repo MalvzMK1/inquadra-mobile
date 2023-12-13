@@ -89,7 +89,7 @@ export default function CourtAvailabilityInfo({
   useFocusEffect(
     useCallback(() => {
       refetchCourtAvailability();
-    }, [refetchCourtAvailability]),
+    }, [refetchCourtAvailability])
   );
 
   const [dateSelector, setDateSelector] = useState(() => {
@@ -121,8 +121,8 @@ export default function CourtAvailabilityInfo({
     setSelectedDate(date.toISOString());
     setDateSelector(
       `${String(date.getDate() + 1).padStart(2, "0")}/${String(
-        date.getMonth() + 1,
-      ).padStart(2, "0")}/${date.getFullYear()}`,
+        date.getMonth() + 1
+      ).padStart(2, "0")}/${date.getFullYear()}`
     );
   }
 
@@ -211,7 +211,7 @@ export default function CourtAvailabilityInfo({
                     courtAvailability?.court.data.attributes
                       .court_availabilities.data
                   }
-                  keyExtractor={availability => availability.id}
+                  keyExtractor={(availability) => availability.id}
                   ListEmptyComponent={() => (
                     <Text className="text-xl font-black text-center">
                       No momento não é possível Alugar essa quadra
@@ -224,7 +224,7 @@ export default function CourtAvailabilityInfo({
                     let isBusy = !item.attributes.status;
 
                     if (
-                      item.attributes.schedulings.data.some(scheduling => {
+                      item.attributes.schedulings.data.some((scheduling) => {
                         return (
                           selectedDate.split("T")[0] ===
                           scheduling.attributes.date
