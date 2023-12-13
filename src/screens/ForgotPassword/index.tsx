@@ -48,14 +48,14 @@ export default function ForgotPassword({
 
   const handleSendCodePassword = handleSubmit(async (data) => {
     try {
+      const email = data.email.trim();
+
       const { data: userData } = await apolloClient.query<
         IUserByEmailResponse,
         IUserByEmailVariables
       >({
         query: userByEmailQuery,
-        variables: {
-          email: data.email,
-        },
+        variables: { email },
       });
 
       if (!userData.usersPermissionsUsers.data.length) {
@@ -68,9 +68,7 @@ export default function ForgotPassword({
         SendResetPasswordTokenVariables
       >({
         mutation: sendResetPasswordTokenMutation,
-        variables: {
-          email: data.email,
-        },
+        variables: { email },
       });
 
       if (!response.data?.sendResetPasswordTokenCustom.success) {
@@ -83,9 +81,8 @@ export default function ForgotPassword({
       });
     } catch (error) {
       console.error(error);
-      const msgError = JSON.stringify(error, null, 2);
-      if (process.env.APP_DEBUG_VERBOSE) {
-        Alert.alert("Erro", msgError);
+      if (process.env.APP_DEBUG_VERBOSE === "true") {
+        Alert.alert("Erro", JSON.stringify(error, null, 2));
       } else {
         Alert.alert("Erro", "Não foi possível enviar o e-mail.");
       }
