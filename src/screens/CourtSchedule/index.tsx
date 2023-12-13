@@ -1316,16 +1316,28 @@ export default function CourtSchedule({
                     <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowDatePicker(true)} />
 
                     {showDatePicker && (
-                      <DateTimePicker
-                        minimumDate={new Date()}
-                        value={selectedDate || new Date()}
-
-                        onChange={(event, date) => {
-                          handleDateChange(event, date!);
-                          setShowDatePicker(false);
+                      <Controller
+                        name="initialDate"
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 10,
                         }}
-                        display='calendar'
+                        render={({ field: { onChange } }) => (
+                          <DateTimePicker
+                            minimumDate={new Date()}
+                            value={selectedDate || new Date()}
+                            onChange={(event, date) => {
+                              handleDateChange(event, date!);
+                              setShowDatePicker(false);
+                              const formattedDate = format(date!, 'dd-MM-yyyy');
+                              onChange(formattedDate)
+                            }}
+                            display='calendar'
+                          />
+                        )}
                       />
+
                     )}
                   </View>
                   {errors.initialDate && (
@@ -1363,15 +1375,28 @@ export default function CourtSchedule({
                     />
                     <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowUntillDatePicker(true)} />
                     {showUntillDatePicker && (
-                      <DateTimePicker
+                      <Controller
+                      name="endDate"
+                      control={control}
+                      rules={{
+                        required: true,
+                        minLength: 10,
+                      }}
+                      render={({ field: { onChange } }) => (
+                        <DateTimePicker
                         minimumDate={selectedDate || new Date()}
                         value={selectedUntillDate || new Date()}
                         onChange={(event, date) => {
                           handleUntillDateChange(event, date!);
                           setShowUntillDatePicker(false);
+                          const formattedDate = format(date!, 'dd-MM-yyyy');
+                          onChange(formattedDate)
                         }}
                         display='calendar'
                       />
+                      )}
+                    />
+                      
                     )}
                   </View>
                   {errors.endDate && (
