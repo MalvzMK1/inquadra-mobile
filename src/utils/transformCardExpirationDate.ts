@@ -2,7 +2,7 @@
 
 export function transformCardExpirationDate(
   expirationDate: string,
-): string | undefined {
+): string {
   const splittedDate = expirationDate.split("/");
 
   if (splittedDate.length === 2) {
@@ -11,6 +11,8 @@ export function transformCardExpirationDate(
     if (month.length === 2 && year.length === 2) {
       const completeYear = "20" + year;
       return month + "/" + completeYear;
+    } else {
+      throw new Error("A data não está no formato esperado: MM/YY");
     }
   } else {
     throw new Error("A data não está no formato esperado: MM/YY");

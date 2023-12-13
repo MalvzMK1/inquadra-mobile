@@ -27,6 +27,7 @@ import {
   AsyncStorageKeys,
   indexToWeekDayMap,
 } from "../../utils/constants";
+import {useUser} from "../../context/userContext";
 
 interface ToDelete {
   userIdToRemove: string | undefined;
@@ -39,6 +40,7 @@ export default function AllVeryWell({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "AllVeryWell">) {
+  const { userData, setUserData } = useUser();
   const { goBack } = useNavigation();
   const [addCourt] = useRegisterCourt();
   const [createCourtAvailabilities] = useCreateCourtAvailabilities();
@@ -203,6 +205,12 @@ export default function AllVeryWell({
           password: registerUserPayload.password,
         },
       });
+
+      setUserData({
+        id: loginResponse.data?.login.user.id ?? undefined,
+        jwt: loginResponse.data?.login.jwt ?? undefined,
+        geolocation: userData?.geolocation
+      })
 
       if (!loginResponse.data) {
         throw loginResponse;
