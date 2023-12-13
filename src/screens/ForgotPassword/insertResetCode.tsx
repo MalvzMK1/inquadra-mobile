@@ -4,8 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { Text, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import { z } from "zod";
 
@@ -30,7 +29,7 @@ export function InsertResetCode({
     resolver: zodResolver(formSchema),
   });
 
-  const handleValidateCode = handleSubmit(data => {
+  const handleValidateCode = handleSubmit((data) => {
     navigation.navigate("SetNewPassword", {
       code: data.code,
     });

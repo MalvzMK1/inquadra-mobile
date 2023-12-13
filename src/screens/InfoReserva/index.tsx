@@ -1,19 +1,25 @@
 import { HOST_API } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import { format, parseISO } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Image, Text, View } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { useCallback, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
+import { CountdownString } from "../../components/countdown/Countdown";
+import { useUser } from "../../context/userContext";
 import { IgetHistoricOfReserveOnResponse } from "../../graphql/queries/historicReserveOn";
 import { useGetHistoricReserveOn } from "../../hooks/useHistoricReserveOn";
 import { useGetMenuUser } from "../../hooks/useMenuUser";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { API_BASE_URL } from "../../utils/constants";
-import { useUser } from "../../context/userContext";
-import { CountdownString } from "../../components/countdown/Countdown";
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -40,7 +46,9 @@ export default function InfoReserva({
   const [userGeolocation, setUserGeolocation] = useState<
     UserGeolocation | undefined
   >(userData?.geolocation);
-  const { data, loading, refetch } = useGetHistoricReserveOn(userData?.id ?? "");
+  const { data, loading, refetch } = useGetHistoricReserveOn(
+    userData?.id ?? ""
+  );
 
   useFocusEffect(
     useCallback(() => {
