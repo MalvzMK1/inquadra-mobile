@@ -83,7 +83,7 @@ export default function CourtDetails({
               <View className="flex flex-row pl-5 pt-5 pb-5">
                 <Image
                   className="w-2/5"
-                  source={require("../../../assets/quadra.png")}
+                  source={court.photos[0]}
                 />
 
                 <View className="w-4/6 pr-5">
@@ -109,7 +109,7 @@ export default function CourtDetails({
                   </Text>
 
                   <Text className="text-white font-bold pl-2">
-                    Day User: Habilitado
+                    Day User: {court.dayUse.includes(true) ? 'Habilitado' : 'Desabilitado'}
                   </Text>
 
                   {
