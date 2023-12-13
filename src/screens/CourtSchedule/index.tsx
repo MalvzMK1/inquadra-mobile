@@ -234,9 +234,7 @@ export default function CourtSchedule({
           ) {
             courtItem.attributes.court_availabilities.data.map(
               courtAvailabilitieItem => {
-                if (
-                  courtAvailabilitieItem.attributes.schedulings.data.length > 0
-                ) {
+                if (courtAvailabilitieItem.attributes.schedulings.data.length) {
                   courtAvailabilitieItem.attributes.schedulings.data.map(
                     schedulingItem => {
                       setEstablishmentSchedules([
@@ -245,8 +243,8 @@ export default function CourtSchedule({
                           courtId: courtItem.id,
                           courtName: courtItem.attributes.name,
                           courtType:
-                            courtItem?.attributes.court_types.data[0].attributes
-                              .name,
+                            courtItem?.attributes.court_types.data.at(0)
+                              ?.attributes.name || "",
                           startsAt: courtAvailabilitieItem.attributes.startsAt,
                           endsAt: courtAvailabilitieItem.attributes.endsAt,
                           weekDay: courtAvailabilitieItem.attributes.weekDay,

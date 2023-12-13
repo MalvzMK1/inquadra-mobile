@@ -104,25 +104,16 @@ const formSchema = z.object({
     .nonempty("É necessário inserir o estado")
     .min(2, "Inválido")
     .max(2, "Inválido"),
+  complement: z.string().optional(),
   cardNumber: z
     .string({ required_error: "É necessário inserir o número do cartão" })
     .nonempty("É necessário inserir o número do cartão"),
+  countryName: z
+    .string({ required_error: "É necessário escolher um país" })
+    .nonempty("É necessário escolher um país"),
 });
 
-export interface iFormCardPayment {
-  name: string;
-  cpf: string;
-  cvv: string;
-  date: string;
-  cep: string;
-  number: string;
-  street: string;
-  district: string;
-  complement: string;
-  city: string;
-  state: string;
-  cardNumber: string;
-}
+export type iFormCardPayment = z.infer<typeof formSchema>;
 
 export default function ReservationPaymentSign({
   navigation,
@@ -142,7 +133,6 @@ export default function ReservationPaymentSign({
   const [courtName, setCourtName] = useState<string>();
   const [signalValueValidate, setSignalValueValidate] = useState<boolean>();
   const [userPhoto, setUserPhoto] = useState<string>();
-  const [selected, setSelected] = useState("");
   const [totalValue, setTotalValue] = useState<number>();
   const [isPaymentLoading, setIsPaymentLoading] = useState<boolean>(false);
   const [amountToPay, setAmountToPay] = useState<number>();
@@ -221,11 +211,7 @@ export default function ReservationPaymentSign({
       dataReserve?.courtAvailability.data.attributes.value ===
         amountToPayHold + (serviceValue ?? 0),
     );
-    console.log(
-      "validação:",
-      dataReserve?.courtAvailability.data.attributes.value ===
-        amountToPayHold + (serviceValue ?? 0),
-    );
+
     setUserPhoto(route.params.userPhoto);
     setValuePayed(
       dataReserve?.courtAvailability.data.attributes.court.data.attributes
@@ -341,31 +327,24 @@ export default function ReservationPaymentSign({
   });
 
   const getCountryIdByName = (countryName: string | null): string => {
-    try {
-      if (countryName && dataCountry) {
-        const selectedCountry = dataCountry.countries.data.find(
-          name => name.attributes.name === countryName,
-        );
+    const selectedCountry = dataCountry?.countries.data.find(
+      name => name.attributes.name === countryName,
+    );
 
-        if (selectedCountry) {
-          return selectedCountry.id;
-        }
-      }
-      return "";
-    } catch (error) {
-      Alert.alert(
-        "Erro ao procurar país",
-        JSON.stringify(error) ?? String(error),
+    if (!selectedCountry) {
+      throw new Error(
+        `Não foi possível encontrar country para name: ${countryName}`,
       );
-      return "";
     }
+
+    return selectedCountry.id;
   };
 
-  const handlePay = handleSubmit(async values => {
+  const handlePayCreditCard = async (values: iFormCardPayment) => {
     try {
       const cieloRequestManager = new CieloRequestManager();
-      const countryId = getCountryIdByName(selected);
-
+      const countryId = getCountryIdByName(values.countryName);
+      setShowConfirmPayment(false);
       setCardPaymentLoading(true);
       setPaymentStatus("processing");
 
@@ -403,6 +382,12 @@ export default function ReservationPaymentSign({
         Country: "BRA",
       };
 
+      const expirationDate = transformCardExpirationDate(values.date);
+
+      if (!expirationDate) {
+        throw new Error("Invalid expiration date");
+      }
+
       const body: AuthorizeCreditCardPaymentResponse = {
         MerchantOrderId: "2014111701",
         Customer: {
@@ -429,13 +414,14 @@ export default function ReservationPaymentSign({
           CreditCard: {
             CardNumber: values.cardNumber.split(" ").join(""),
             Holder: values.name,
-            ExpirationDate: transformCardExpirationDate(values.date),
+            ExpirationDate: expirationDate,
             SecurityCode: values.cvv,
             SaveCard: false,
             Brand: brand,
           },
         },
       };
+
       const response = await cieloRequestManager.authorizePayment(body);
 
       if (storageUserData && storageUserData.id)
@@ -524,6 +510,7 @@ export default function ReservationPaymentSign({
           });
     } catch (error) {
       console.error("Erro ao criar o agendamento:", error);
+      console.log(JSON.stringify(error, null, 2));
       setPaymentStatus("failed");
       Dialog.show({
         type: ALERT_TYPE.DANGER,
@@ -923,6 +910,7 @@ export default function ReservationPaymentSign({
                   <View className=" border-gray-500 flex w-max h-max mt-3">
                     {cards.map(card => (
                       <TouchableOpacity
+                        key={card.id}
                         onPress={() => {
                           setSelectedCard(card);
                           setShowConfirmPayment(true);
@@ -1105,8 +1093,8 @@ export default function ReservationPaymentSign({
                     <Text className="text-sm text-[#FF6112] mb-1">País</Text>
                     <View className="flex flex-row items-center justify-between p-3 border border-neutral-400 rounded bg-white">
                       <SelectList
-                        setSelected={(val: string) => {
-                          setSelected(val);
+                        setSelected={(value: string) => {
+                          setValue("countryName", value);
                         }}
                         data={
                           (dataCountry &&
@@ -1373,8 +1361,8 @@ export default function ReservationPaymentSign({
                   </View>
                   <View className="p-2 justify-center items-center pt-5">
                     <TouchableOpacity
-                      onPress={handlePay}
                       disabled={isSubmitting}
+                      onPress={handleSubmit(handlePayCreditCard)}
                       className="h-10 w-40 rounded-md bg-red-500 flex items-center justify-center"
                     >
                       {isSubmitting ? (
@@ -1504,7 +1492,26 @@ export default function ReservationPaymentSign({
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="h-10 mb-4 w-28 rounded-md bg-orange-500 flex items-center justify-center mx-2"
-                    onPress={() => handlePayCardSave(selectedCard!)}
+                    onPress={() => {
+                      const country = dataCountry?.countries.data.at(0);
+                      if (!selectedCard || !country) return;
+
+                      return handlePayCreditCard({
+                        cardNumber: selectedCard.number,
+                        date: selectedCard.maturityDate,
+                        cep: selectedCard.cep,
+                        city: selectedCard.city,
+                        complement: selectedCard.complement || "",
+                        cpf: selectedCard.cpf,
+                        cvv: selectedCard.cvv,
+                        district: selectedCard.district,
+                        name: selectedCard.name,
+                        number: selectedCard.houseNumber,
+                        state: selectedCard.state,
+                        street: selectedCard.street,
+                        countryName: country.attributes.name,
+                      });
+                    }}
                   >
                     <Text className="text-white">CONFIRMAR</Text>
                   </TouchableOpacity>

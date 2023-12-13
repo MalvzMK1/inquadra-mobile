@@ -1,10 +1,4 @@
-import {
-	CIELO_MERCHANT_ID,
-	CIELO_MERCHANT_KEY,
-	CIELO_API_URL,
-	CIELO_QUERY_API_URL
-} from '@env';
-import axios, {AxiosError, AxiosRequestConfig} from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 export class CieloRequestManager {
 	private BASE_URL: string = CIELO_API_URL

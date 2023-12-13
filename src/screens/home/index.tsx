@@ -5,9 +5,9 @@ import {
   FontAwesome,
   MaterialIcons,
 } from "@expo/vector-icons";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -15,15 +15,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import {
+  AutocompleteDropdown,
+  TAutocompleteDropdownItem,
+} from "react-native-autocomplete-dropdown";
 import MapView, { Callout, Marker } from "react-native-maps";
-import { Text, TextInput } from "react-native-paper";
 import HomeBar from "../../components/BarHome";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
 import CourtBallon from "../../components/CourtBalloon";
 import FilterComponent from "../../components/FilterComponent";
 import SportsMenu from "../../components/SportsMenu";
 import { useUser } from "../../context/userContext";
+import { EstablishmentsData } from "../../graphql/queries/searchEstablishmentsByCorporateName";
 import useEstablishmentCardInformations from "../../hooks/useEstablishmentCardInformations";
 import useFilters from "../../hooks/useFilters";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
@@ -31,11 +34,6 @@ import { useSportTypes } from "../../hooks/useSportTypesFixed";
 import { useGetUserById } from "../../hooks/useUserById";
 import { calculateDistance } from "../../utils/calculateDistance";
 import customMapStyle from "../../utils/customMapStyle";
-import {
-  AutocompleteDropdown,
-  TAutocompleteDropdownItem,
-} from "react-native-autocomplete-dropdown";
-import { EstablishmentsData } from "../../graphql/queries/searchEstablishmentsByCorporateName";
 
 const pointerMap = require("../../assets/pointerMap.png");
 
@@ -82,14 +80,14 @@ export default function Home({
     startsAt: string | undefined;
     date: Date | undefined;
     weekDay:
-    | "Monday"
-    | "Tuesday"
-    | "Wednesday"
-    | "Thursday"
-    | "Friday"
-    | "Saturday"
-    | "Sunday"
-    | undefined;
+      | "Monday"
+      | "Tuesday"
+      | "Wednesday"
+      | "Thursday"
+      | "Friday"
+      | "Saturday"
+      | "Sunday"
+      | undefined;
   }>({
     amenities: [],
     dayUseService: undefined,
@@ -99,20 +97,9 @@ export default function Home({
     date: undefined,
   });
 
-  const [establishments, setEstablishments] = useState<
-    Array<{
-      id: string;
-      latitude: number;
-      longitude: number;
-      name: string;
-      type: string;
-      image: string;
-      distance: number;
-    }>
-  >([]);
   const [sportTypes, setSportTypes] = useState<Array<SportType>>([]);
   const [sportSelected, setSportSelected] = useState<string>();
-  const [IsUpdated, setIsUpdated] = useState<number>(0);
+  const [isUpdated, setIsUpdated] = useState<number>(0);
   const {
     data: availableSportTypes,
     loading: availableSportTypesLoading,
@@ -127,9 +114,8 @@ export default function Home({
     loading: loadingFilter,
     error: errorFilter,
   } = useFilters(filter);
-  const [uniqueIdGenerate, setUniqueIdGenerate] = useState<number>();
-  const isFocused = useIsFocused();
-  const { data: allEstablishments, loading:loadingEstablishments } = useAllEstablishments();
+  const { data: allEstablishments, loading: loadingEstablishments } =
+    useAllEstablishments();
   const [corporateName, setCorporateName] = useState<string>("");
   const [establishmentsInfos, setEstablishmentsInfos] = useState<
     Array<{
@@ -141,171 +127,33 @@ export default function Home({
 
   const [searchValue, setSearchValue] = useState("");
 
-  useEffect(() => {
-    if (isFocused) {
-      setUniqueIdGenerate(Math.random());
-    }
-  }, [isFocused]);
-
   useFocusEffect(
     useCallback(() => {
       setIsUserInfosLoading(true);
+      setIsUpdated(isUpdated + 1);
 
-      setIsUpdated(IsUpdated + 1);
-      refetchUserInfos().then(() => {
-        setIsUserInfosLoading(true);
-        if (
-          userData &&
-          userData.id &&
-          userHookData &&
-          userHookData.usersPermissionsUser.data &&
-          userHookData.usersPermissionsUser.data.attributes.photo.data
-        ) {
-          const profilePicture =
-            userHookData.usersPermissionsUser.data.attributes.photo.data
-              .attributes.url;
+      refetchUserInfos()
+        .then(() => {
+          if (
+            userData?.id &&
+            userHookData?.usersPermissionsUser.data?.attributes.photo.data
+          ) {
+            const profilePicture =
+              userHookData.usersPermissionsUser.data.attributes.photo.data
+                .attributes.url;
 
-          setUserPicture(HOST_API + profilePicture);
-          navigation.setParams({
-            userPhoto: profilePicture,
-          });
-        } else {
-          setUserPicture(undefined);
-          navigation.setParams({
-            userPhoto: undefined,
-          });
-        }
-        setIsUserInfosLoading(false);
-      });
-      setEstablishments([]);
-      if (!error && !loading) {
-        if (
-          !loadingFilter &&
-          !errorFilter &&
-          filter.amenities.length <= 0 &&
-          !filter.dayUseService &&
-          !filter.endsAt &&
-          !filter.startsAt &&
-          !filter.weekDay
-        ) {
-          if (data && data.establishments.data) {
-            const newEstablishments = data.establishments.data
-              .filter(establishment => establishment.attributes.courts.data)
-              .map(establishment => {
-                let establishmentObject: EstablishmentObject = {
-                  id: "",
-                  latitude: 0,
-                  longitude: 0,
-                  name: "",
-                  type: "",
-                  image: "",
-                  distance: 0,
-                };
-
-                let courtTypes =
-                  establishment.attributes.courts.data
-                    .filter(
-                      court => court.attributes.court_types.data.length > 0,
-                    )
-                    .map(court => court.attributes.court_types.data)
-                    .map(courtType =>
-                      courtType.map(type => type.attributes.name),
-                    ) ?? [];
-
-                if (!courtTypes) courtTypes = [];
-
-                if (userGeolocation)
-                  establishmentObject = {
-                    id: establishment.id,
-                    name: establishment.attributes.corporateName,
-                    latitude: Number(
-                      establishment.attributes.address?.latitude,
-                    ),
-                    longitude: Number(
-                      establishment.attributes.address?.longitude,
-                    ),
-                    distance:
-                      calculateDistance(
-                        userGeolocation.latitude,
-                        userGeolocation.longitude,
-                        Number(establishment.attributes.address?.latitude),
-                        Number(establishment.attributes.address?.longitude),
-                      ) / 1000,
-                    image:
-                      HOST_API +
-                      establishment.attributes.logo.data?.attributes.url,
-                    type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
-                  };
-
-                return establishmentObject;
-              });
-            console.log({ newEstablishmentsLength: newEstablishments.length });
-
-            if (newEstablishments) setEstablishments(newEstablishments);
-          }
-        } else {
-          const newEstablishments = establishmentsFiltered?.establishments.data
-            .filter(
-              establishment =>
-                establishment?.attributes?.photos.data &&
-                establishment?.attributes?.photos.data.length > 0 &&
-                establishment?.attributes?.courts.data,
-            )
-            .map(establishment => {
-              let establishmentObject: EstablishmentObject = {
-                id: "",
-                latitude: 0,
-                longitude: 0,
-                name: "",
-                type: "",
-                image: "",
-                distance: 0,
-              };
-
-              let courtTypes = establishment?.attributes?.courts
-                .data!.filter(
-                  court => court?.attributes?.court_types.data.length > 0,
-                )
-                .map(court => court?.attributes?.court_types.data)
-                .map(courtType =>
-                  courtType.map(type => type?.attributes?.name),
-                );
-
-              if (!courtTypes) courtTypes = [];
-
-              if (userGeolocation)
-                establishmentObject = {
-                  id: establishment.id,
-                  name: establishment?.attributes?.corporateName,
-                  latitude: Number(establishment?.attributes?.address.latitude),
-                  longitude: Number(
-                    establishment?.attributes?.address.longitude,
-                  ),
-                  distance:
-                    calculateDistance(
-                      userGeolocation.latitude,
-                      userGeolocation.longitude,
-                      Number(establishment?.attributes?.address.latitude),
-                      Number(establishment?.attributes?.address.longitude),
-                    ) / 1000,
-                  image:
-                    HOST_API +
-                    establishment?.attributes?.logo?.data?.attributes?.url,
-                  type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
-                };
-
-              return establishmentObject;
+            setUserPicture(HOST_API + profilePicture);
+            navigation.setParams({
+              userPhoto: profilePicture,
             });
-
-          if (newEstablishments) setEstablishments(newEstablishments);
-
-          navigation.setParams({
-            userPhoto:
-              userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url ?? undefined,
-          });
-        }
-      }
+          } else {
+            setUserPicture(undefined);
+            navigation.setParams({
+              userPhoto: undefined,
+            });
+          }
+        })
+        .finally(() => setIsUserInfosLoading(false));
     }, [
       data,
       userHookData,
@@ -315,6 +163,124 @@ export default function Home({
       userData,
     ]),
   );
+
+  const establishments = useMemo((): EstablishmentObject[] => {
+    if (!data?.establishments.data) {
+      return [];
+    }
+
+    if (
+      !(
+        filter.amenities.length <= 0 &&
+        !filter.dayUseService &&
+        !filter.endsAt &&
+        !filter.startsAt &&
+        !filter.weekDay
+      )
+    ) {
+      const newEstablishments = establishmentsFiltered?.establishments.data
+        .filter(
+          establishment =>
+            establishment?.attributes?.photos.data &&
+            establishment?.attributes?.photos.data.length > 0 &&
+            establishment?.attributes?.courts.data,
+        )
+        .map(establishment => {
+          let establishmentObject: EstablishmentObject = {
+            id: "",
+            latitude: 0,
+            longitude: 0,
+            name: "",
+            type: "",
+            image: "",
+            distance: 0,
+          };
+
+          let courtTypes = establishment?.attributes?.courts
+            .data!.filter(
+              court => court?.attributes?.court_types.data.length > 0,
+            )
+            .map(court => court?.attributes?.court_types.data)
+            .map(courtType => courtType.map(type => type?.attributes?.name));
+
+          if (!courtTypes) courtTypes = [];
+
+          if (userGeolocation)
+            establishmentObject = {
+              id: establishment.id,
+              name: establishment?.attributes?.corporateName,
+              latitude: Number(establishment?.attributes?.address.latitude),
+              longitude: Number(establishment?.attributes?.address.longitude),
+              distance:
+                calculateDistance(
+                  userGeolocation.latitude,
+                  userGeolocation.longitude,
+                  Number(establishment?.attributes?.address.latitude),
+                  Number(establishment?.attributes?.address.longitude),
+                ) / 1000,
+              image:
+                HOST_API +
+                establishment?.attributes?.logo?.data?.attributes?.url,
+              type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
+            };
+
+          return establishmentObject;
+        });
+
+      navigation.setParams({
+        userPhoto:
+          userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
+            ?.attributes?.url ?? undefined,
+      });
+
+      return newEstablishments ?? [];
+    }
+
+    const newEstablishments = data.establishments.data
+      .filter(establishment => establishment.attributes.courts.data)
+      .map(establishment => {
+        let establishmentObject: EstablishmentObject = {
+          id: "",
+          latitude: 0,
+          longitude: 0,
+          name: "",
+          type: "",
+          image: "",
+          distance: 0,
+        };
+
+        let courtTypes =
+          establishment.attributes.courts.data
+            .filter(court => court.attributes.court_types.data.length > 0)
+            .map(court => court.attributes.court_types.data)
+            .map(courtType => courtType.map(type => type.attributes.name)) ??
+          [];
+
+        if (!courtTypes) courtTypes = [];
+
+        if (userGeolocation)
+          establishmentObject = {
+            id: establishment.id,
+            name: establishment.attributes.corporateName,
+            latitude: Number(establishment.attributes.address?.latitude),
+            longitude: Number(establishment.attributes.address?.longitude),
+            distance:
+              calculateDistance(
+                userGeolocation.latitude,
+                userGeolocation.longitude,
+                Number(establishment.attributes.address?.latitude),
+                Number(establishment.attributes.address?.longitude),
+              ) / 1000,
+            image:
+              HOST_API + establishment.attributes.logo.data?.attributes.url,
+            type: courtTypes.length > 0 ? courtTypes.join(" & ") : "",
+          };
+
+        return establishmentObject;
+      });
+
+    return newEstablishments;
+  }, [data, userHookData, filter, establishmentsFiltered, userGeolocation]);
 
   useEffect(() => {
     const newAvailableSportTypes: SportType[] = [];
@@ -396,7 +362,7 @@ export default function Home({
     }
   }, [corporateName]);
 
-  const mapView = useRef(null);
+  const mapView = useRef<MapView>(null);
 
   useEffect(() => {
     try {
@@ -440,11 +406,10 @@ export default function Home({
     search: string,
   ): TAutocompleteDropdownItem[] {
     return products
-      .filter(
-        product =>
-          product.attributes.corporateName
-            .toLowerCase()
-            .includes(search.toLowerCase()),
+      .filter(product =>
+        product.attributes.corporateName
+          .toLowerCase()
+          .includes(search.toLowerCase()),
       )
       .map(product => {
         return {
@@ -457,14 +422,14 @@ export default function Home({
   return (
     <View className="flex-1 flex flex-col justify-center items-center h-full">
       <View className="flex justify-between pt-8 bg-[#292929] flex-row items-center h-[105px] w-full">
-      <TouchableOpacity className="ml-3" onPress={handlePress}>
-    {!menuBurguer ? (
-      <Entypo name="menu" size={48} color={"white"} />
-    ) : (
-      <MaterialIcons name="filter-list" size={48} color="white" />
-    )}
-    </TouchableOpacity>
-        
+        <TouchableOpacity className="ml-3" onPress={handlePress}>
+          {!menuBurguer ? (
+            <Entypo name="menu" size={48} color={"white"} />
+          ) : (
+            <MaterialIcons name="filter-list" size={48} color="white" />
+          )}
+        </TouchableOpacity>
+
         <AutocompleteDropdown
           closeOnSubmit
           useFilter={false}
@@ -473,7 +438,11 @@ export default function Home({
           onChangeText={text => setSearchValue(text)}
           inputContainerStyle={{ backgroundColor: "white" }}
           emptyResultText="Informe o número OTK ou nome do item"
-          dataSet={searchValue ? filterEstablishments(establishmentsData, searchValue) : []}
+          dataSet={
+            searchValue
+              ? filterEstablishments(establishmentsData, searchValue)
+              : []
+          }
           onSelectItem={item => {
             if (userId) {
               navigation.navigate("EstablishmentInfo", {
@@ -514,7 +483,6 @@ export default function Home({
         )}
       </View>
 
-
       {availableSportTypesLoading ? (
         <ActivityIndicator size="small" color="#FF6112" />
       ) : (
@@ -528,116 +496,113 @@ export default function Home({
         )
       )}
       <View className="flex-1">
-      {userGeolocation && userGeolocationDelta && (
-        <MapView
-        loadingEnabled
-        className="w-screen flex-1"
-        onPress={() => setIsMenuVisible(false)}
-        customMapStyle={customMapStyle}
-        showsCompass={false}
-        showsMyLocationButton={true}
-        ref={mapView}
-        showsUserLocation
-        initialRegion={{
-          latitude: userGeolocation.latitude,
-          longitude: userGeolocation.longitude,
-          latitudeDelta: userGeolocationDelta.latDelta,
-          longitudeDelta: userGeolocationDelta.longDelta,
-        }}
-      >
-        {establishments.length > 0 &&
-          establishments
-            .filter(item => {
-              if (sportSelected) {
-                return item.type.split(" & ").includes(sportSelected);
-              } else {
-                return true;
-              }
-            })
-            .filter(establishment => establishment.distance < 5)
-            .map(item => {
-              return (
-                <Marker
-                  key={item.id}
-                  coordinate={{
-                    latitude: item.latitude,
-                    longitude: item.longitude,
-                  }}
-                  image={pointerMap}
-                  title={item.name}
-                  description={item.name}
-                >
-                  <Callout
-                    key={item.id}
-                    tooltip
-                    onPress={() => {
-                      navigation.navigate("EstablishmentInfo", {
-                        establishmentId: item.id,
-                        userId: userId,
-                        userPhoto: route.params.userPhoto,
-                        colorState: undefined,
-                        setColorState: undefined,
-                      });
-                    }}
-                  >
-                    <CourtBallon
-                      id={item.id}
-                      name={item.name}
-                      distance={item.distance ?? ""}
-                      image={item.image}
-                      type={item.type}
-                      userId={userId ?? ""}
-                      liked={true}
-                    />
-                  </Callout>
-                </Marker>
-              );
-            })}
-        
-      </MapView>
-      )}
-
-      {!isMenuVisible && (
-        <TouchableOpacity
-          className={`absolute left-3 top-1`}
-          onPress={() => setIsMenuVisible(prevState => !prevState)}
-        >
-          <AntDesign name="left" size={30} color="black" />
-        </TouchableOpacity>
-      )}
-
-      {Platform.OS === "ios" && (
-       <TouchableOpacity
-       className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
-       onPress={() => {
-       mapView.current?.animateToRegion({
-                latitude: userGeolocation?.latitude,
-                longitude: userGeolocation?.longitude,
-                latitudeDelta: userGeolocationDelta?.latDelta,
-                longitudeDelta: userGeolocationDelta?.longDelta,
-         });
-       }}
-     >
-     <FontAwesome name="location-arrow" size={24} color="black" />
-     </TouchableOpacity>
-     
-      )}
-
-        {menuBurguer && (
-         <FilterComponent
-         setBurguer={setMenuBurguer!}
-         setFilter={setFilter}
-         setIsMenuVisible={setIsMenuVisible}
-         filter={filter}
-       />
+        {userGeolocation && userGeolocationDelta && (
+          <MapView
+            loadingEnabled
+            className="w-screen flex-1"
+            onPress={() => setIsMenuVisible(false)}
+            customMapStyle={customMapStyle}
+            showsCompass={false}
+            showsMyLocationButton={true}
+            ref={mapView}
+            showsUserLocation
+            initialRegion={{
+              latitude: userGeolocation.latitude,
+              longitude: userGeolocation.longitude,
+              latitudeDelta: userGeolocationDelta.latDelta,
+              longitudeDelta: userGeolocationDelta.longDelta,
+            }}
+          >
+            {establishments.length > 0 &&
+              establishments
+                .filter(item => {
+                  if (sportSelected) {
+                    return item.type.split(" & ").includes(sportSelected);
+                  } else {
+                    return true;
+                  }
+                })
+                .filter(establishment => establishment.distance < 5)
+                .map(item => {
+                  return (
+                    <Marker
+                      key={item.id}
+                      coordinate={{
+                        latitude: item.latitude,
+                        longitude: item.longitude,
+                      }}
+                      image={pointerMap}
+                      title={item.name}
+                      description={item.name}
+                    >
+                      <Callout
+                        key={item.id}
+                        tooltip
+                        onPress={() => {
+                          navigation.navigate("EstablishmentInfo", {
+                            establishmentId: item.id,
+                            userPhoto: route.params.userPhoto,
+                            colorState: undefined,
+                            setColorState: undefined,
+                          });
+                        }}
+                      >
+                        <CourtBallon
+                          id={item.id}
+                          name={item.name}
+                          distance={item.distance ?? ""}
+                          image={item.image}
+                          type={item.type}
+                          liked={true}
+                        />
+                      </Callout>
+                    </Marker>
+                  );
+                })}
+          </MapView>
         )}
 
+        {!isMenuVisible && (
+          <TouchableOpacity
+            className={`absolute left-3 top-1`}
+            onPress={() => setIsMenuVisible(prevState => !prevState)}
+          >
+            <AntDesign name="left" size={30} color="black" />
+          </TouchableOpacity>
+        )}
+
+        {Platform.OS === "ios" && (
+          <TouchableOpacity
+            className="absolute right-1 top-1 w-12 h-12 bg-white rounded-xl justify-center items-center"
+            onPress={() => {
+              if (userGeolocation && userGeolocationDelta) {
+                mapView.current?.animateToRegion({
+                  latitude: userGeolocation.latitude,
+                  longitude: userGeolocation.longitude,
+                  latitudeDelta: userGeolocationDelta.latDelta,
+                  longitudeDelta: userGeolocationDelta.longDelta,
+                });
+              }
+            }}
+          >
+            <FontAwesome name="location-arrow" size={24} color="black" />
+          </TouchableOpacity>
+        )}
+
+        {menuBurguer && (
+          <FilterComponent
+            setBurguer={setMenuBurguer!}
+            setFilter={setFilter}
+            setIsMenuVisible={setIsMenuVisible}
+            filter={filter}
+          />
+        )}
       </View>
-      
+
       {isMenuVisible && !menuBurguer && (
         <HomeBar
-          key={uniqueIdGenerate}
-          isUpdated={IsUpdated}
+          isUpdated={isUpdated}
+          isCourtsLoading={loading}
           chosenType={sportSelected}
           courts={establishments.sort((a, b) => a.distance - b.distance)}
           userName={
