@@ -8,6 +8,8 @@ import {
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -184,7 +186,10 @@ export default function RegisterEstablishment({
   }, [allAmenitiesData]);
 
   return (
-    <ScrollView className="bg-white flex-1">
+    <KeyboardAvoidingView 
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    style={{ flex: 1 }}>
+       <ScrollView className="bg-white flex-1">
       <View className="items-center mt-2 p-4">
         <Text className="text-3xl text-center font-semibold text-gray-700">
           Cadastro{"\n"}Estabelecimento
@@ -461,5 +466,7 @@ export default function RegisterEstablishment({
         </View>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
+   
   );
 }
