@@ -56,6 +56,22 @@ export default function PriceHour({
       }
     };
   }, [price, minimumCourtValue]);
+
+  function handleStartsAtChange(value: string): void {
+    setStartsAt(value);
+
+    if (value.length === 5) {
+      const [hour, minutes] = value.split(':');
+
+      let endsAtHour: number | string = Number(hour) + 1;
+
+      if (endsAtHour < 10) endsAtHour = '0'.concat(endsAtHour.toString());
+      else endsAtHour = endsAtHour.toString();
+
+      setEndsAt(endsAtHour.concat(':').concat(minutes));
+    }
+  }
+
   return (
     <View className="flex-row w-full justify-between items-center mt-[10px]">
       <View className="flex-row items-center">
@@ -64,7 +80,7 @@ export default function PriceHour({
             className="h-full items-center justify-center"
             mask={timeMask}
             value={startsAt}
-            onChangeText={setStartsAt}
+            onChangeText={(masked) => handleStartsAtChange(masked)}
             placeholder="Ex.: 06:00"
             inputMode="numeric"
             onBlur={() => {
@@ -81,7 +97,6 @@ export default function PriceHour({
             className="h-full items-center justify-center"
             mask={timeMask}
             value={endsAt}
-            onChangeText={setEndsAt}
             placeholder="Ex.: 07:00"
             inputMode="numeric"
             onBlur={() => {

@@ -65,20 +65,18 @@ export default function InfoReserva({
     }, [refetch])
   );
 
-  const schedulings = useMemo((): {
-    active: Scheduling[];
-    done: Scheduling[];
-  } => {
+  const schedulings = useMemo((): { active: Scheduling[];done: Scheduling[];} => {
     const active: Scheduling[] = [];
     const done: Scheduling[] = [];
 
     if (data && data.usersPermissionsUser.data)
-      data.usersPermissionsUser.data.attributes.schedulings.data.forEach(
+      data.usersPermissionsUser.data.attributes.schedulings.data.map(
         (scheduling) => {
-          if (scheduling.attributes.status) {
-            active.push(scheduling);
-          } else {
+          if (!scheduling.attributes.activated) {
             done.push(scheduling);
+          } else {
+            console.log("entrou aqui scheduling done")
+            active.push(scheduling);
           }
         }
       );
@@ -260,110 +258,6 @@ export default function InfoReserva({
                         );
                       })
                     )}
-                    {/*<View className="flex items-start w-max mt-6 p-4">*/}
-                    {/*  <Text className="text-lg text-white">*/}
-                    {/*    Reservas finalizadas*/}
-                    {/*  </Text>*/}
-                    {/*</View>*/}
-                    {/*{!schedulings.done.length ? (*/}
-                    {/*  <Text className="text-white">*/}
-                    {/*    Não há reservas aqui...*/}
-                    {/*  </Text>*/}
-                    {/*) : (*/}
-                    {/*  schedulings.done.map(courtInfo => {*/}
-                    {/*    return (*/}
-                    {/*      <TouchableOpacity*/}
-                    {/*        key={courtInfo.id}*/}
-                    {/*        onPress={() => {*/}
-                    {/*          navigation.navigate("DescriptionReserve", {*/}
-                    {/*            userId: userId,*/}
-                    {/*            scheduleId: courtInfo.id,*/}
-                    {/*          });*/}
-                    {/*        }}*/}
-                    {/*      >*/}
-                    {/*        <View className="flex-row items-start justify-start w-max h-max pt-2">*/}
-                    {/*          <View>*/}
-                    {/*            <Image*/}
-                    {/*              source={{*/}
-                    {/*                uri:*/}
-                    {/*                  HOST_API +*/}
-                    {/*                  courtInfo?.attributes?.court_availability*/}
-                    {/*                    ?.data?.attributes?.court?.data*/}
-                    {/*                    ?.attributes?.photo?.data[0]?.attributes*/}
-                    {/*                    ?.url,*/}
-                    {/*              }}*/}
-                    {/*              style={{ width: 138, height: 90 }}*/}
-                    {/*              borderRadius={5}*/}
-                    {/*            />*/}
-                    {/*          </View>*/}
-                    {/*          <View className="h-max w-max pl-1">*/}
-                    {/*            <View>*/}
-                    {/*              <Text className="font-black text-base text-orange-600">*/}
-                    {/*                {*/}
-                    {/*                  courtInfo.attributes.court_availability*/}
-                    {/*                    .data.attributes.court.data.attributes*/}
-                    {/*                    .fantasy_name*/}
-                    {/*                }*/}
-                    {/*              </Text>*/}
-                    {/*            </View>*/}
-
-                    {/*            <View>*/}
-                    {/*              <Text className="font-normal text-xs text-white">*/}
-                    {/*                {*/}
-                    {/*                  courtInfo.attributes.court_availability*/}
-                    {/*                    .data.attributes.court.data.attributes*/}
-                    {/*                    .name*/}
-                    {/*                }*/}
-                    {/*              </Text>*/}
-                    {/*            </View>*/}
-
-                    {/*            <View className="w-max h-5 flex-row">*/}
-                    {/*              <View>*/}
-                    {/*                <Text className="font-normal text-xs text-white">*/}
-                    {/*                  Status:{" "}*/}
-                    {/*                </Text>*/}
-                    {/*              </View>*/}
-
-                    {/*              <View>*/}
-                    {/*                {courtInfo.attributes.payedStatus ===*/}
-                    {/*                "payed" ? (*/}
-                    {/*                  <Text className="font-normal text-xs text-white">*/}
-                    {/*                    Finalizado{" "}*/}
-                    {/*                  </Text>*/}
-                    {/*                ) : courtInfo.attributes.payedStatus ===*/}
-                    {/*                  "waiting" ? (*/}
-                    {/*                  <Text className="font-normal text-xs text-white">*/}
-                    {/*                    Em aberto{" "}*/}
-                    {/*                  </Text>*/}
-                    {/*                ) : (*/}
-                    {/*                  <Text className="font-normal text-xs text-white">*/}
-                    {/*                    Cancelado{" "}*/}
-                    {/*                  </Text>*/}
-                    {/*                )}*/}
-                    {/*              </View>*/}
-
-                    {/*              <View>*/}
-                    {/*                <Text className="font-black text-xs text-white">*/}
-                    {/*                  R$*/}
-                    {/*                  {courtInfo.attributes.court_availability.data.attributes.value.toString()}*/}
-                    {/*                </Text>*/}
-                    {/*              </View>*/}
-                    {/*            </View>*/}
-
-                    {/*            <View>*/}
-                    {/*              <Text className="font-black text-xs text-white">*/}
-                    {/*                Ultima Reserva{" "}*/}
-                    {/*                {formatDateTime(*/}
-                    {/*                  courtInfo?.attributes?.createdAt.toString(),*/}
-                    {/*                )}*/}
-                    {/*              </Text>*/}
-                    {/*            </View>*/}
-                    {/*          </View>*/}
-                    {/*        </View>*/}
-                    {/*      </TouchableOpacity>*/}
-                    {/*    );*/}
-                    {/*  })*/}
-                    {/*)}*/}
                   </View>
                 )}
               </View>
