@@ -70,28 +70,29 @@ export default function InfoReserva({
     return new Date(`${date}T${time}-03:00`);
   }
 
-  const schedulings = useMemo((): { active: Scheduling[], done: Scheduling[] } => {
+  const schedulings = useMemo((): {
+    active: Scheduling[];
+    done: Scheduling[];
+  } => {
     let active: Scheduling[] = [];
     let done: Scheduling[] = [];
 
     try {
-
       if (data && data.usersPermissionsUser.data)
         data.usersPermissionsUser.data.attributes.schedulings.data.map(
           (scheduling) => {
-            console.log(scheduling.attributes.date)
-
             const isPaymentExpired = CountdownString(
-              getScheduleStartDate(scheduling.attributes.date,
-                scheduling.attributes.court_availability.data.attributes.startsAt));
-            console.log("isPaymentExpired: ", isPaymentExpired.toString())
+              getScheduleStartDate(
+                scheduling.attributes.date,
+                scheduling.attributes.court_availability.data.attributes
+                  .startsAt
+              )
+            );
             if (isPaymentExpired) {
               done.push(scheduling);
             } else {
-              console.log("entrou aqui scheduling done")
               active.push(scheduling);
             }
-           
           }
         );
 
@@ -100,9 +101,8 @@ export default function InfoReserva({
         done,
       };
     } catch (error) {
-      console.log("schedulings error : ", error)
-      active = []
-      done = []
+      active = [];
+      done = [];
       return { active, done };
     }
   }, [data]);
@@ -175,7 +175,7 @@ export default function InfoReserva({
                               courtInfo.attributes.court_availability.data
                                 ?.attributes.value ?? 0
                             )) *
-                          100
+                            100
                         );
 
                         return (
@@ -193,19 +193,19 @@ export default function InfoReserva({
                                   source={
                                     courtInfo.attributes.court_availability
                                       .data &&
-                                      courtInfo.attributes.court_availability.data
-                                        .attributes.court.data &&
-                                      courtInfo.attributes.court_availability.data
-                                        .attributes.court.data.attributes.photo
-                                        .data[0]
+                                    courtInfo.attributes.court_availability.data
+                                      .attributes.court.data &&
+                                    courtInfo.attributes.court_availability.data
+                                      .attributes.court.data.attributes.photo
+                                      .data[0]
                                       ? {
-                                        uri:
-                                          HOST_API +
-                                          courtInfo.attributes
-                                            .court_availability.data
-                                            .attributes.court.data.attributes
-                                            .photo.data[0].attributes.url,
-                                      }
+                                          uri:
+                                            HOST_API +
+                                            courtInfo.attributes
+                                              .court_availability.data
+                                              .attributes.court.data.attributes
+                                              .photo.data[0].attributes.url,
+                                        }
                                       : require("../../assets/default-user-image.png")
                                   }
                                   style={{ width: 138, height: 90 }}
@@ -321,10 +321,9 @@ export default function InfoReserva({
                                   source={{
                                     uri:
                                       HOST_API +
-                                      courtInfo?.attributes?.court_availability
-                                        ?.data?.attributes?.court?.data
-                                        ?.attributes?.photo?.data[0]?.attributes
-                                        ?.url,
+                                      courtInfo.attributes.court_availability
+                                        .data?.attributes.court.data?.attributes
+                                        ?.photo?.data[0]?.attributes?.url,
                                   }}
                                   style={{ width: 138, height: 90 }}
                                   borderRadius={5}
@@ -335,7 +334,7 @@ export default function InfoReserva({
                                   <Text className="font-black text-base text-orange-600">
                                     {
                                       courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
+                                        .data?.attributes.court.data?.attributes
                                         .fantasy_name
                                     }
                                   </Text>
@@ -345,7 +344,7 @@ export default function InfoReserva({
                                   <Text className="font-normal text-xs text-white">
                                     {
                                       courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
+                                        .data?.attributes.court.data?.attributes
                                         .name
                                     }
                                   </Text>
@@ -360,7 +359,7 @@ export default function InfoReserva({
 
                                   <View>
                                     {courtInfo.attributes.payedStatus ===
-                                      "payed" ? (
+                                    "payed" ? (
                                       <Text className="font-normal text-xs text-white">
                                         Finalizado{" "}
                                       </Text>
@@ -379,7 +378,7 @@ export default function InfoReserva({
                                   <View>
                                     <Text className="font-black text-xs text-white">
                                       R$
-                                      {courtInfo.attributes.court_availability.data.attributes.value.toString()}
+                                      {courtInfo.attributes.court_availability.data?.attributes.value.toString()}
                                     </Text>
                                   </View>
                                 </View>
@@ -427,8 +426,8 @@ export default function InfoReserva({
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-              dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url
+                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                  ?.attributes?.url
               : ""
           }
           key={1}
@@ -442,4 +441,3 @@ export default function InfoReserva({
 function getScheduleStartDate(): any {
   throw new Error("Function not implemented.");
 }
-
