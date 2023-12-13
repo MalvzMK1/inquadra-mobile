@@ -271,12 +271,9 @@ export default function InfoProfileEstablishment({
         setWithdrawalInfo((prevState) => [...prevState, ...infosHold]);
       }
     } else {
-      console.log("entrou aquii")
+      console.log("entrou aquii");
     }
-  }, [dataPayment]
-  );
-  console.log("COMO CHEGAAAA::: ", withdrawalInfo)
-
+  }, [dataPayment]);
   const [updateUserIsLoading, setUpdateUserIsLoading] = useState(false);
 
   const handleUpdateUser = async (data: IFormData): Promise<void> => {
@@ -850,8 +847,9 @@ export default function InfoProfileEstablishment({
                   textContentType="username"
                   defaultValue={defaultUserName}
                   onChangeText={onChange}
-                  className={`p-4 border ${errors.userName ? "border-red-400" : "border-gray-500"
-                    }  rounded-lg h-45`}
+                  className={`p-4 border ${
+                    errors.userName ? "border-red-400" : "border-gray-500"
+                  }  rounded-lg h-45`}
                   placeholder="Jhon"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -880,8 +878,9 @@ export default function InfoProfileEstablishment({
                   defaultValue={defaultUserEmail}
                   onChangeText={onChange}
                   keyboardType="email-address"
-                  className={`p-4 border ${errors.email ? "border-red-400" : "border-gray-500"
-                    }  rounded-lg h-45`}
+                  className={`p-4 border ${
+                    errors.email ? "border-red-400" : "border-gray-500"
+                  }  rounded-lg h-45`}
                   placeholder="Jhon@mail.com.br"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -905,8 +904,9 @@ export default function InfoProfileEstablishment({
               }}
               render={({ field: { onChange } }) => (
                 <MaskInput
-                  className={`p-4 border ${errors.phoneNumber ? "border-red-400" : "border-gray-500"
-                    }  rounded-lg h-45`}
+                  className={`p-4 border ${
+                    errors.phoneNumber ? "border-red-400" : "border-gray-500"
+                  }  rounded-lg h-45`}
                   placeholder="Ex: (00) 0000-0000"
                   value={phoneNumber}
                   onChangeText={(masked, unmasked) => {
@@ -1019,22 +1019,22 @@ export default function InfoProfileEstablishment({
             </View>
           </TouchableOpacity>
 
-          {showCard && (
-            loadingPayment ?
+          {showCard &&
+            (loadingPayment ? (
               <ActivityIndicator size="small" color="#F5620F" />
-              :
+            ) : (
               <View>
                 <FlatList
                   data={withdrawalInfo}
                   keyExtractor={(card) => card.id}
                   renderItem={({ item: card }) => {
                     return (
-
                       <TouchableOpacity
-                        className={`p-5 flex-row rounded-lg mt-2 ${card.id == selectedPixKey
-                          ? "bg-slate-500"
-                          : "bg-gray-300"
-                          }`}
+                        className={`p-5 flex-row rounded-lg mt-2 ${
+                          card.id == selectedPixKey
+                            ? "bg-slate-500"
+                            : "bg-gray-300"
+                        }`}
                         onPress={() => {
                           if (card.id !== selectedPixKey)
                             setSelectedPixKey(card.id);
@@ -1065,10 +1065,11 @@ export default function InfoProfileEstablishment({
                           render={({ field: { onChange } }) => (
                             <TextInput
                               onChangeText={onChange}
-                              className={`p-4 border ${pixKeyErrors.pixKey
-                                ? "border-red-400"
-                                : "border-gray-500"
-                                }  rounded-lg h-45`}
+                              className={`p-4 border ${
+                                pixKeyErrors.pixKey
+                                  ? "border-red-400"
+                                  : "border-gray-500"
+                              }  rounded-lg h-45`}
                               placeholder="Coloque sua chave PIX"
                               placeholderTextColor="#B8B8B8"
                             />
@@ -1099,7 +1100,7 @@ export default function InfoProfileEstablishment({
                   </View>
                 </View>
               </View>
-          )}
+            ))}
           <View>
             <View>
               <Text className="text-base mb-1">Dados Estabelecimento</Text>
@@ -1339,10 +1340,11 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={fantasyName}
                       onChangeText={onChange}
-                      className={`p-4 border ${fantasyNameErrors.fantasyName
-                        ? "border-red-400"
-                        : "border-gray-500"
-                        }  rounded-lg h-45`}
+                      className={`p-4 border ${
+                        fantasyNameErrors.fantasyName
+                          ? "border-red-400"
+                          : "border-gray-500"
+                      }  rounded-lg h-45`}
                       placeholder="Nome Fantasia"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1406,8 +1408,9 @@ export default function InfoProfileEstablishment({
                   }}
                   render={({ field: { onChange } }) => (
                     <MaskInput
-                      className={`p-4 border ${addressErrors.cep ? "border-red-400" : "border-gray-500"
-                        }  rounded-lg h-45`}
+                      className={`p-4 border ${
+                        addressErrors.cep ? "border-red-400" : "border-gray-500"
+                      }  rounded-lg h-45`}
                       value={cep}
                       onChangeText={(masked, unmasked) => {
                         onChange(masked);
@@ -1439,10 +1442,11 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={streetName}
                       onChangeText={onChange}
-                      className={`p-4 border ${addressErrors.streetName
-                        ? "border-red-400"
-                        : "border-gray-500"
-                        }  rounded-lg h-45`}
+                      className={`p-4 border ${
+                        addressErrors.streetName
+                          ? "border-red-400"
+                          : "border-gray-500"
+                      }  rounded-lg h-45`}
                       placeholder="Nome da rua"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1708,8 +1712,8 @@ export default function InfoProfileEstablishment({
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined
               ? HOST_API +
-              dataUserEstablishment?.establishment?.data?.attributes?.logo
-                ?.data?.attributes?.url
+                dataUserEstablishment?.establishment?.data?.attributes?.logo
+                  ?.data?.attributes?.url
               : null
           }
           establishmentID={
