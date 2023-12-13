@@ -481,7 +481,7 @@ export default function Home({
                 userPhoto: userPicture,
               });
               setCorporateName("");
-            } else navigation.navigate("Login");
+            }
           }}
         />
 
