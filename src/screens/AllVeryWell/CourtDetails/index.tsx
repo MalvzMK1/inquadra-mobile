@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import {indexToWeekDayMap} from "../../../utils/constants";
+import { indexToWeekDayMap } from "../../../utils/constants";
 
 enum translatedWeekDays {
   sunday = 'Domingo',
@@ -53,10 +53,12 @@ export default function CourtDetails({
         return index;
       }
       return null;
-    })
-
-    const filteredWeekDaysIndex: number[] = parsedAvailabilitiesWeekDays.filter(value => typeof value === 'number');
-
+    });
+    
+    const filteredWeekDaysIndex: number[] = parsedAvailabilitiesWeekDays
+      .filter(value => typeof value === 'number')
+      .map(value => value as number);
+    
     if (filteredWeekDaysIndex.length > 0) {
       const weekDays = filteredWeekDaysIndex.map(weekDayIndex => {
         return indexToWeekDayMap[weekDayIndex];
@@ -184,7 +186,6 @@ export default function CourtDetails({
                   )}
                 </View>
               </View>
-            </View>
           );
         }}
       />
