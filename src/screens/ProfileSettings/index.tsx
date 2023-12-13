@@ -298,8 +298,6 @@ export default function ProfileSettings({
   const [imageEdited, setImageEdited] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
 
-  console.log("id da foto atual:", userPhotoID);
-
   useFocusEffect(() => {
     if (
       data &&

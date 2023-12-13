@@ -1,4 +1,4 @@
-import { HOST_API } from "@env";
+import {APP_DEBUG_VERBOSE, HOST_API} from "@env";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -174,10 +174,12 @@ export default function HomeEstablishment({
   };
 
   const handleActivate = async (key: string) => {
-    let scheduleId: string = getIdByKey(key) ?? "";
-
     try {
-      const { data } = await updateActivatedStatus({
+      let scheduleId: string | undefined = getIdByKey(key);
+
+      if (!scheduleId) throw new Error('Couldn\'t find schedule by activation key');
+
+      const { data, errors } = await updateActivatedStatus({
         variables: {
           schedulingId: scheduleId,
           activate: true,
@@ -185,26 +187,14 @@ export default function HomeEstablishment({
       });
 
       if (data) {
-        if (!errorActivateStatus || !loadingActivateStatus) {
+        if (!errors) {
           setValidate(1);
         } else {
           setValidate(2);
         }
       }
     } catch (error) {
-      if (
-        errorActivateStatus?.graphQLErrors &&
-        errorActivateStatus.graphQLErrors[0] &&
-        errorActivateStatus.graphQLErrors[0].extensions &&
-        errorActivateStatus?.graphQLErrors[0]?.extensions?.exception === 400
-      ) {
-        setValidate(2);
-        setTimeout(() => {
-          setValidate(2);
-        }, 100);
-      } else {
-        setValidate(2);
-      }
+      setValidate(2);
     }
   };
 
@@ -340,6 +330,15 @@ export default function HomeEstablishment({
     }
   }, [establishmentCourts[0]]);
 
+  useEffect(() => {
+    if (validated === 2) {
+      setTimeout(() => {
+        setValidate(3);
+        clearTimeout(1);
+      }, 5000)
+    }
+  }, [validated])
+
   return (
     <View className="flex-1">
       <View className=" h-11 w-max  bg-[#292929]"></View>
@@ -414,7 +413,7 @@ export default function HomeEstablishment({
                   Validado
                 </Text>
               ) : validated === 2 ? (
-                <Text className="text-xl font-bold text-gray-50">Validar</Text>
+                <Text className="text-xl font-bold text-gray-50">Inválido</Text>
               ) : (
                 <Text className="text-xl font-bold text-gray-50">Validar</Text>
               )}

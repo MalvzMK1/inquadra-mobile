@@ -177,7 +177,7 @@ export default function Password({ route, navigation }: RegisterPasswordProps) {
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       style={{ flex: 1 }}
     >
-      <ScrollView className="h-fit min-h-full">
+      <ScrollView className="h-screen">
         <View className="flex flex-col bg-white h-screen items-center p-5">
           <View>
             <RegisterHeader

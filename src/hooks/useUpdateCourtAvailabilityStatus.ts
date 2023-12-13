@@ -1,10 +1,13 @@
-import {useMutation} from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import {
-    IUpdateCourtAvailabilityStatusResponse,
-    IUpdateCourtAvailabilityStatusVariables,
-    updateCourtAvailabilityStatusMutation
-} from "../graphql/mutations/updateCourtAvailabilityStatus"
+  IUpdateCourtAvailabilityStatusResponse,
+  IUpdateCourtAvailabilityStatusVariables,
+  updateCourtAvailabilityStatusMutation,
+} from "../graphql/mutations/updateCourtAvailabilityStatus";
 
-export default function useUpdateCourtAvailabilityStatus(){
-    return useMutation<IUpdateCourtAvailabilityStatusResponse, IUpdateCourtAvailabilityStatusVariables>(updateCourtAvailabilityStatusMutation)
+export default function useUpdateCourtAvailabilityStatus() {
+  return useMutation<
+    IUpdateCourtAvailabilityStatusResponse,
+    IUpdateCourtAvailabilityStatusVariables
+  >(updateCourtAvailabilityStatusMutation);
 }
