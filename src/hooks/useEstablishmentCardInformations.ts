@@ -1,9 +1,18 @@
-import { QueryResult, useQuery } from "@apollo/client";
+import { QueryHookOptions, QueryResult, useQuery } from "@apollo/client";
 import {
-	establishmentCardInformationsQuery,
-	IEstablishmentCardInformationsResponse
+  IEstablishmentCardInformationsResponse,
+  IEstablishmentCardInformationsVariables,
+  establishmentCardInformationsQuery,
 } from "../graphql/queries/establishmentCardInformations";
 
-export default function useEstablishmentCardInformations(): QueryResult<IEstablishmentCardInformationsResponse> {
-	return useQuery<IEstablishmentCardInformationsResponse>(establishmentCardInformationsQuery)
+export default function useEstablishmentCardInformations(
+  options?: QueryHookOptions<
+    IEstablishmentCardInformationsResponse,
+    IEstablishmentCardInformationsVariables
+  >,
+): QueryResult<IEstablishmentCardInformationsResponse> {
+  return useQuery<
+    IEstablishmentCardInformationsResponse,
+    IEstablishmentCardInformationsVariables
+  >(establishmentCardInformationsQuery, options);
 }
