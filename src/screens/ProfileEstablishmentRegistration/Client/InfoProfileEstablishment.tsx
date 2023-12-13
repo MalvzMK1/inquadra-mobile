@@ -1,7 +1,6 @@
 import { HOST_API } from "@env";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
@@ -29,6 +28,7 @@ import { useUser } from "../../../context/userContext";
 import useDeletePhoto from "../../../hooks/useDeletePhoto";
 import { useGetUserHistoricPayment } from "../../../hooks/useGetHistoricPayment";
 import { useGetUserEstablishmentInfos } from "../../../hooks/useGetUserEstablishmentInfos";
+import { useQueryPolling } from "../../../hooks/useQueryPolling";
 import useRegisterPixKey from "../../../hooks/useRegisterPixKey";
 import useUpdateEstablishmentAddress from "../../../hooks/useUpdateEstablishmentAddress";
 import useUpdateEstablishmentFantasyName from "../../../hooks/useUpdateEstablishmentFantasyName";
@@ -241,8 +241,11 @@ export default function InfoProfileEstablishment({
   const {
     data: dataPayment,
     loading: loadingPayment,
+    startPolling,
+    stopPolling,
     error: errorPayment,
   } = useGetUserHistoricPayment(route.params.establishmentId);
+  useQueryPolling(10000, startPolling, stopPolling);
   const [withdrawalInfo, setWithdrawalInfo] = useState<
     Array<{
       id: string;
@@ -250,28 +253,29 @@ export default function InfoProfileEstablishment({
     }>
   >([]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setWithdrawalInfo([]);
-      if (!errorPayment && !loadingPayment) {
-        if (
-          dataPayment &&
-          dataPayment.establishment.data.attributes.pix_keys.data.length > 0
-        ) {
-          const infosHold =
-            dataPayment?.establishment.data.attributes.pix_keys.data.map(
-              (item) => {
-                return {
-                  id: item.id,
-                  key: item.attributes.key,
-                };
-              }
-            );
-          setWithdrawalInfo((prevState) => [...prevState, ...infosHold]);
-        }
+  useEffect(() => {
+    if (!errorPayment) {
+      if (
+        dataPayment &&
+        dataPayment.establishment.data.attributes.pix_keys.data.length > 0
+      ) {
+        const infosHold =
+          dataPayment?.establishment.data.attributes.pix_keys.data.map(
+            (item) => {
+              return {
+                id: item.id,
+                key: item.attributes.key,
+              };
+            }
+          );
+        setWithdrawalInfo((prevState) => [...prevState, ...infosHold]);
       }
-    }, [error, loading, data])
+    } else {
+      console.log("entrou aquii")
+    }
+  }, [dataPayment]
   );
+  console.log("COMO CHEGAAAA::: ", withdrawalInfo)
 
   const [updateUserIsLoading, setUpdateUserIsLoading] = useState(false);
 
@@ -846,9 +850,8 @@ export default function InfoProfileEstablishment({
                   textContentType="username"
                   defaultValue={defaultUserName}
                   onChangeText={onChange}
-                  className={`p-4 border ${
-                    errors.userName ? "border-red-400" : "border-gray-500"
-                  }  rounded-lg h-45`}
+                  className={`p-4 border ${errors.userName ? "border-red-400" : "border-gray-500"
+                    }  rounded-lg h-45`}
                   placeholder="Jhon"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -877,9 +880,8 @@ export default function InfoProfileEstablishment({
                   defaultValue={defaultUserEmail}
                   onChangeText={onChange}
                   keyboardType="email-address"
-                  className={`p-4 border ${
-                    errors.email ? "border-red-400" : "border-gray-500"
-                  }  rounded-lg h-45`}
+                  className={`p-4 border ${errors.email ? "border-red-400" : "border-gray-500"
+                    }  rounded-lg h-45`}
                   placeholder="Jhon@mail.com.br"
                   placeholderTextColor="#B8B8B8"
                 />
@@ -903,9 +905,8 @@ export default function InfoProfileEstablishment({
               }}
               render={({ field: { onChange } }) => (
                 <MaskInput
-                  className={`p-4 border ${
-                    errors.phoneNumber ? "border-red-400" : "border-gray-500"
-                  }  rounded-lg h-45`}
+                  className={`p-4 border ${errors.phoneNumber ? "border-red-400" : "border-gray-500"
+                    }  rounded-lg h-45`}
                   placeholder="Ex: (00) 0000-0000"
                   value={phoneNumber}
                   onChangeText={(masked, unmasked) => {
@@ -1019,83 +1020,85 @@ export default function InfoProfileEstablishment({
           </TouchableOpacity>
 
           {showCard && (
-            <View>
-              <FlatList
-                data={withdrawalInfo}
-                keyExtractor={(card) => card.id}
-                renderItem={({ item: card }) => {
-                  return (
-                    <TouchableOpacity
-                      className={`p-5 flex-row rounded-lg mt-2 ${
-                        card.id == selectedPixKey
+            loadingPayment ?
+              <ActivityIndicator size="small" color="#F5620F" />
+              :
+              <View>
+                <FlatList
+                  data={withdrawalInfo}
+                  keyExtractor={(card) => card.id}
+                  renderItem={({ item: card }) => {
+                    return (
+
+                      <TouchableOpacity
+                        className={`p-5 flex-row rounded-lg mt-2 ${card.id == selectedPixKey
                           ? "bg-slate-500"
                           : "bg-gray-300"
-                      }`}
-                      onPress={() => {
-                        if (card.id !== selectedPixKey)
-                          setSelectedPixKey(card.id);
-                        else setSelectedPixKey("0");
-                      }}
-                    >
-                      <Text className="font-bold text-xl">
-                        Chave pix: {card.key.substring(0, 6)}
-                        {card.key.substring(6).replace(/./g, "*")}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }}
-              />
-              <View className="border border-gray-500 p-4 mt-3 ">
-                <View className="flex-row justify-between">
-                  <View className="flex-1">
-                    <Text className="text-base text-[#FF6112] mb-3">
-                      Chave PIX
-                    </Text>
-                    <View>
-                      <Controller
-                        name="pixKey"
-                        control={controlPixKey}
-                        rules={{
-                          required: true,
+                          }`}
+                        onPress={() => {
+                          if (card.id !== selectedPixKey)
+                            setSelectedPixKey(card.id);
+                          else setSelectedPixKey("0");
                         }}
-                        render={({ field: { onChange } }) => (
-                          <TextInput
-                            onChangeText={onChange}
-                            className={`p-4 border ${
-                              pixKeyErrors.pixKey
+                      >
+                        <Text className="font-bold text-xl">
+                          Chave pix: {card.key.substring(0, 6)}
+                          {card.key.substring(6).replace(/./g, "*")}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                />
+                <View className="border border-gray-500 p-4 mt-8 ">
+                  <View className="flex-row justify-between">
+                    <View className="flex-1">
+                      <Text className="text-base text-[#FF6112] mb-3">
+                        Chave PIX
+                      </Text>
+                      <View>
+                        <Controller
+                          name="pixKey"
+                          control={controlPixKey}
+                          rules={{
+                            required: true,
+                          }}
+                          render={({ field: { onChange } }) => (
+                            <TextInput
+                              onChangeText={onChange}
+                              className={`p-4 border ${pixKeyErrors.pixKey
                                 ? "border-red-400"
                                 : "border-gray-500"
-                            }  rounded-lg h-45`}
-                            placeholder="Coloque sua chave PIX"
-                            placeholderTextColor="#B8B8B8"
-                          />
+                                }  rounded-lg h-45`}
+                              placeholder="Coloque sua chave PIX"
+                              placeholderTextColor="#B8B8B8"
+                            />
+                          )}
+                        />
+                        {pixKeyErrors.pixKey && (
+                          <Text className="text-red-400 text-sm -pt-[10px]">
+                            {pixKeyErrors.pixKey.message}
+                          </Text>
                         )}
-                      />
-                      {pixKeyErrors.pixKey && (
-                        <Text className="text-red-400 text-sm -pt-[10px]">
-                          {pixKeyErrors.pixKey.message}
-                        </Text>
-                      )}
+                      </View>
                     </View>
                   </View>
-                </View>
 
-                <View className="p-5 justify-center items-center">
-                  <TouchableOpacity
-                    onPress={handleSubmitPixKey(handleNewPixKey)}
-                    className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center"
-                  >
-                    <Text className="text-white font-medium text-[14px]">
-                      {newPixKeyIsLoading ? (
-                        <ActivityIndicator size="small" color="#F5620F" />
-                      ) : (
-                        "Salvar"
-                      )}
-                    </Text>
-                  </TouchableOpacity>
+                  <View className="p-5 justify-center items-center">
+                    <TouchableOpacity
+                      onPress={handleSubmitPixKey(handleNewPixKey)}
+                      className="w-80 h-10 rounded-md bg-[#FF6112] flex items-center justify-center"
+                    >
+                      <Text className="text-white font-medium text-[14px]">
+                        {newPixKeyIsLoading ? (
+                          <ActivityIndicator size="small" color="#F5620F" />
+                        ) : (
+                          "Salvar"
+                        )}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
           )}
           <View>
             <View>
@@ -1336,11 +1339,10 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={fantasyName}
                       onChangeText={onChange}
-                      className={`p-4 border ${
-                        fantasyNameErrors.fantasyName
-                          ? "border-red-400"
-                          : "border-gray-500"
-                      }  rounded-lg h-45`}
+                      className={`p-4 border ${fantasyNameErrors.fantasyName
+                        ? "border-red-400"
+                        : "border-gray-500"
+                        }  rounded-lg h-45`}
                       placeholder="Nome Fantasia"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1404,9 +1406,8 @@ export default function InfoProfileEstablishment({
                   }}
                   render={({ field: { onChange } }) => (
                     <MaskInput
-                      className={`p-4 border ${
-                        addressErrors.cep ? "border-red-400" : "border-gray-500"
-                      }  rounded-lg h-45`}
+                      className={`p-4 border ${addressErrors.cep ? "border-red-400" : "border-gray-500"
+                        }  rounded-lg h-45`}
                       value={cep}
                       onChangeText={(masked, unmasked) => {
                         onChange(masked);
@@ -1438,11 +1439,10 @@ export default function InfoProfileEstablishment({
                     <TextInput
                       defaultValue={streetName}
                       onChangeText={onChange}
-                      className={`p-4 border ${
-                        addressErrors.streetName
-                          ? "border-red-400"
-                          : "border-gray-500"
-                      }  rounded-lg h-45`}
+                      className={`p-4 border ${addressErrors.streetName
+                        ? "border-red-400"
+                        : "border-gray-500"
+                        }  rounded-lg h-45`}
                       placeholder="Nome da rua"
                       placeholderTextColor="#B8B8B8"
                     />
@@ -1708,8 +1708,8 @@ export default function InfoProfileEstablishment({
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined
               ? HOST_API +
-                dataUserEstablishment?.establishment?.data?.attributes?.logo
-                  ?.data?.attributes?.url
+              dataUserEstablishment?.establishment?.data?.attributes?.logo
+                ?.data?.attributes?.url
               : null
           }
           establishmentID={
