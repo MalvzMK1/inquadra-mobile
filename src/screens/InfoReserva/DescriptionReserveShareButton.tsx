@@ -1,16 +1,17 @@
 import { AntDesign } from "@expo/vector-icons";
+import { format, parse } from "date-fns";
 import { Fragment, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Modal,
-  Share,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { Button, TextInput } from "react-native-paper";
+import Share from "react-native-share";
 import { useUser } from "../../context/userContext";
 import { useGetUserById } from "../../hooks/useUserById";
 import { generatePix } from "../../services/pixCielo";
@@ -20,6 +21,7 @@ interface DescriptionReserveShareButtonProps {
   userId: string;
   courtName: string;
   scheduleId: string;
+  scheduleDate: string;
   schedulingEndsAt: string;
   schedulingStartsAt: string;
 }
@@ -30,6 +32,7 @@ export const DescriptionReserveShareButton: React.FC<
   userId,
   courtName,
   scheduleId,
+  scheduleDate,
   schedulingEndsAt,
   schedulingStartsAt,
 }) => {
@@ -69,14 +72,21 @@ export const DescriptionReserveShareButton: React.FC<
       };
 
       const pixGenerated = await generatePix(generatePixJSON);
+      const startsAt = schedulingStartsAt.substring(0, 5);
+      const endsAt = schedulingEndsAt.substring(0, 5);
+      const date = format(
+        parse(scheduleDate, "yyyy-MM-dd", new Date()),
+        "dd/MM/yyyy",
+      );
 
-      await Share.share({
-        title: "Compartilhar Estabelecimento",
+      const subject = `Olá, topa se juntar a mim na quadra ${courtName} das ${startsAt} às ${endsAt} do dia ${date}?`;
+
+      await Share.open({
+        subject,
+        title: subject,
+        url: `data:image/png;base64,${pixGenerated.Payment.QrCodeBase64Image}`,
         message: `
-Olá, topa se juntar a mim na quadra ${courtName} das ${schedulingStartsAt.substring(
-          0,
-          5,
-        )} às ${schedulingEndsAt.substring(0, 5)}?
+${subject}
 
 Aqui está o código PIX para realizar o pagamento:
 

@@ -937,6 +937,9 @@ export default function DescriptionReserve({
                           <DescriptionReserveShareButton
                             scheduleId={schedule_id}
                             userId={user_id}
+                            scheduleDate={
+                              infoScheduleData.scheduling.data.attributes.date
+                            }
                             courtName={
                               infoScheduleData.scheduling.data.attributes
                                 .court_availability.data.attributes.court.data
@@ -999,6 +1002,9 @@ export default function DescriptionReserve({
                           <DescriptionReserveShareButton
                             scheduleId={schedule_id}
                             userId={user_id}
+                            scheduleDate={
+                              infoScheduleData.scheduling.data.attributes.date
+                            }
                             courtName={
                               infoScheduleData.scheduling.data.attributes
                                 .court_availability.data.attributes.court.data

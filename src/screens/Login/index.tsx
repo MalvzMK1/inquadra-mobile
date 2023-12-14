@@ -163,6 +163,7 @@ export default function Login() {
                 <TextInput
                   className="h-14 text-base"
                   keyboardType="email-address"
+                  autoCapitalize="none"
                   onChangeText={onChange}
                   outlineColor="#DCDCDC"
                   mode="outlined"
@@ -198,6 +199,7 @@ export default function Login() {
                   className="h-14 mt-2 text-base"
                   secureTextEntry={!showPassword}
                   onChangeText={onChange}
+                  autoCapitalize="none"
                   mode="outlined"
                   outlineColor="#DCDCDC"
                   onSubmitEditing={handleLogin}
