@@ -37,7 +37,15 @@ import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentP
 import useUpdateEstablishmentUser from "../../../hooks/useUpdateEstablishmentUser";
 import useUpdateUserPassword from "../../../hooks/useUpdateUserPassword";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
+import CustomSelectList from "../../../components/CustomSelectList";
 type DateTime = Date;
+
+enum EEstablishmentEditableData {
+  corporateName = 'Razão Social',
+  address       = 'Endereço',
+  cnpj          = 'CNPJ',
+  changePass    = 'Alterar Senha',
+}
 
 export default function InfoProfileEstablishment({
   navigation,
@@ -54,6 +62,7 @@ export default function InfoProfileEstablishment({
     loading: userByEstablishmentLoading,
   } = useGetUserEstablishmentInfos(userId ?? "");
 
+  const [corporateName, setCorporateName] = useState<string>();
   const [cep, setCep] = useState<string>("");
   const [fantasyName, setFantasyName] = useState<string>("");
   const [streetName, setStreetName] = useState<string>("");
@@ -106,9 +115,17 @@ export default function InfoProfileEstablishment({
     pixKey: string;
   }
 
+  interface ICorporateNameFormData {
+    corporateName: string;
+  }
+
   const pixKeyFormSchema = z.object({
     pixKey: z.string().nonempty("O campo não pode estar vazio"),
   });
+
+  const corporateNameFormSchema = z.object({
+    corporateName: z.string().nonempty('O campo não pode estar vazio'),
+  })
 
   const defaultUserName =
     userByEstablishmentData?.usersPermissionsUser.data?.attributes.name || "";
@@ -169,12 +186,20 @@ export default function InfoProfileEstablishment({
   } = useForm<IPixKeyFormData>({
     resolver: zodResolver(pixKeyFormSchema),
   });
+  const {
+    control: controlCorporateName,
+    handleSubmit: handleSubmitCorporateName,
+    formState: { errors: errorsCorporateName },
+    getValues: getValuesCorporateName,
+    setValue: setValueCorporateName,
+  } = useForm<ICorporateNameFormData>({
+    resolver: zodResolver(corporateNameFormSchema),
+  })
   const [updateUserHook] = useUpdateEstablishmentUser();
   const [updateEstablishmentLogo] = useUpdateEstablishmentLogo();
   const [updateEstablishmentAddressHook, { data, error, loading }] =
     useUpdateEstablishmentAddress();
-  const [updateEstablishmentFantasyNameHook] =
-    useUpdateEstablishmentFantasyName();
+  const [updateEstablishmentFantasyNameHook] = useUpdateEstablishmentFantasyName();
 
   const [updateUserPassword] = useUpdateUserPassword();
   const [newPixKey] = useRegisterPixKey();
@@ -193,15 +218,15 @@ export default function InfoProfileEstablishment({
 
   const [pixKeys, setPixKeys] = useState<string[]>([]);
 
-  const [editFantasyNameModal, setEditFantasyNameModal] = useState(false);
-  const closeEditFantasyNameModal = () => setEditFantasyNameModal(false);
   const [editAddressModal, setEditAddressModal] = useState(false);
   const closeEditAddressModal = () => setEditAddressModal(false);
   const [editCNPJModal, setEditCNPJModal] = useState(false);
   const closeEditCNPJModal = () => setEditCNPJModal(false);
   const [editPasswordModal, setEditPasswordModal] = useState(false);
   const closeEditPasswordModal = () => setEditPasswordModal(false);
-  const [selected, setSelected] = useState("");
+  const [editCorporateNameModal, setEditCorporateNameModal] = useState(false);
+  const closeEditCorporateNameModal = () => setEditCorporateNameModal(false);
+  const [selected, setSelected] = useState<EEstablishmentEditableData | undefined>(undefined);
   const [amenitieSelected, setAmeniniteSelected] = useState("");
   const [courtSelected, setCourtSelected] = useState("");
   const [uploadedPictureID, setUploadedPictureID] = useState<number | string>();
@@ -211,24 +236,23 @@ export default function InfoProfileEstablishment({
   }>();
 
   const setAllFalse = () => {
-    setEditFantasyNameModal(false);
     setEditAddressModal(false);
     setEditCNPJModal(false);
     setEditPasswordModal(false);
   };
-  const handleOptionChange = (option: string) => {
+  const handleOptionChange = (option: EEstablishmentEditableData) => {
     setSelected(option);
 
-    if (selected == "Nome Fantasia") {
+    if (option === EEstablishmentEditableData.corporateName) {
       setAllFalse();
-      setEditFantasyNameModal(true);
-    } else if (selected == "Endereço") {
+      setEditCorporateNameModal(true);
+    } else if (option === EEstablishmentEditableData.address) {
       setAllFalse();
       setEditAddressModal(true);
-    } else if (selected == "CNPJ") {
+    } else if (option === EEstablishmentEditableData.cnpj) {
       setAllFalse();
       setEditCNPJModal(true);
-    } else if (selected == "Alterar Senha") {
+    } else if (option === EEstablishmentEditableData.changePass) {
       setAllFalse();
       setEditPasswordModal(true);
     } else {
@@ -267,8 +291,6 @@ export default function InfoProfileEstablishment({
           });
         setWithdrawalInfo(prevState => [...prevState, ...infosHold]);
       }
-    } else {
-      console.log("entrou aquii");
     }
   }, [dataPayment]);
   const [updateUserIsLoading, setUpdateUserIsLoading] = useState(false);
@@ -364,6 +386,11 @@ export default function InfoProfileEstablishment({
       userByEstablishmentData.usersPermissionsUser.data.attributes.establishment
         .data
     ) {
+      const { corporateName } = userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes;
+
+      setCorporateName(corporateName);
+      setValueCorporateName('corporateName', corporateName);
+
       setCep(
         userByEstablishmentData.usersPermissionsUser.data.attributes
           .establishment.data?.attributes.address.cep!,
@@ -392,6 +419,7 @@ export default function InfoProfileEstablishment({
       );
 
       navigation.setParams({
+        establishmentPhoto: userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes.logo.data?.attributes.url ?? undefined,
         establishmentId:
           userByEstablishmentData.usersPermissionsUser.data.attributes
             .establishment.data.id,
@@ -452,37 +480,6 @@ export default function InfoProfileEstablishment({
     }
   }, [userByEstablishmentData]);
 
-  const [updateFantasyNameIsLoading, setUpdateFantasyNameIsLoading] =
-    useState(false);
-
-  const handleUpdateEstablishmentFantasyName = (
-    data: IFantasyNameFormData,
-  ): void => {
-    setUpdateFantasyNameIsLoading(true);
-
-    const fantasyNameData = {
-      ...data,
-    };
-
-    updateEstablishmentFantasyNameHook({
-      variables: {
-        establishment_id:
-          userByEstablishmentData?.usersPermissionsUser.data?.attributes
-            .establishment.data?.id ?? "",
-        fantasy_name: fantasyNameData.fantasyName,
-        corporate_name: fantasyNameData.fantasyName,
-      },
-    })
-      .then(value => {
-        alert("Nome fantasia alterado com sucesso!");
-      })
-      .catch(reason => alert(reason))
-      .finally(() => {
-        setUpdateFantasyNameIsLoading(false);
-        setEditFantasyNameModal(false);
-      });
-  };
-
   const [updatePasswordIsLoading, setUpdatePasswordIsLoading] = useState(false);
 
   const handleUpdateUserPassword = (data: IPasswordFormData): void => {
@@ -515,6 +512,38 @@ export default function InfoProfileEstablishment({
         });
     }
   };
+
+  const [updateCorporateNameLoading, setUpdateCorporateNameLoading] = useState<boolean>(false);
+
+  function handleUpdateEstablishmentCorporateName(value: ICorporateNameFormData): void {
+    try {
+      setUpdateCorporateNameLoading(true);
+
+      updateEstablishmentFantasyNameHook({
+        variables: {
+          establishment_id: establishmentId,
+          corporate_name: value.corporateName,
+        }
+      }).then(response => {
+        if (
+          response.data &&
+          response.data.updateEstablishment.data.attributes.corporateName === value.corporateName
+        ) {
+          alert('Razão social alterada com sucesso!');
+          closeEditCorporateNameModal();
+          return;
+        } throw new Error('A razão social cadastrada não condiz com a do banco');
+      }).catch(reason => {
+        console.error(reason);
+        throw new Error(reason)
+      })
+    } catch (error) {
+      console.error(JSON.stringify(error, null, 2));
+      alert('Erro ao atualizar a razão social');
+    } finally {
+      setUpdateCorporateNameLoading(false);
+    }
+  }
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -567,12 +596,14 @@ export default function InfoProfileEstablishment({
 
   const [cvv, setCVV] = useState("");
 
-  const dataEstablishment = [
-    { key: "1", value: "Razão Social" },
-    { key: "2", value: "Nome Fantasia" },
-    { key: "3", value: "Endereço" },
-    { key: "4", value: "CNPJ" },
-    { key: "5", value: "Alterar Senha" },
+  const dataEstablishment: {
+    key: string,
+    value: EEstablishmentEditableData
+  }[] = [
+    { key: "1", value: EEstablishmentEditableData.corporateName },
+    { key: "2", value: EEstablishmentEditableData.address },
+    { key: "3", value: EEstablishmentEditableData.cnpj },
+    { key: "4", value: EEstablishmentEditableData.changePass },
   ];
 
   const [profilePicture, setProfilePicture] = useState<string>();
@@ -1081,38 +1112,58 @@ export default function InfoProfileEstablishment({
           <View>
             <View>
               <Text className="text-base mb-1">Dados Estabelecimento</Text>
-              <SelectList
-                setSelected={(val: string) => setSelected(val)}
-                onSelect={() => handleOptionChange(selected)}
-                data={dataEstablishment}
-                save="value"
-                placeholder="Selecione um dado"
-                searchPlaceholder="Pesquisar..."
-                dropdownTextStyles={{ color: "#FF6112" }}
-                inputStyles={{
-                  alignSelf: "center",
-                  height: 32,
-                  color: "#B8B8B8",
-                }}
-                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-                searchicon={
-                  <Ionicons
-                    name="search"
-                    size={18}
-                    color="#FF6112"
-                    style={{ marginEnd: 10 }}
-                  />
-                }
-                search={false}
-                arrowicon={
-                  <AntDesign
-                    name="down"
-                    size={20}
-                    color="#FF6112"
-                    style={{ alignSelf: "center" }}
-                  />
-                }
+              <CustomSelectList
+                options={[
+                  {
+                    name: dataEstablishment[0].value,
+                    onPress: () => setEditCorporateNameModal(true),
+                  },
+                  {
+                    name: dataEstablishment[1].value,
+                    onPress: () => setEditAddressModal(true),
+                  },
+                  {
+                    name: dataEstablishment[2].value,
+                    onPress: () => setEditCNPJModal(true),
+                  },
+                  {
+                    name: dataEstablishment[3].value,
+                    onPress: () => setEditPasswordModal(true),
+                  },
+                ]}
               />
+              {/*<SelectList*/}
+              {/*  setSelected={(val: string) => setSelected(val as EEstablishmentEditableData)}*/}
+              {/*  onSelect={() => handleOptionChange(selected as EEstablishmentEditableData)}*/}
+              {/*  data={dataEstablishment}*/}
+              {/*  save="value"*/}
+              {/*  placeholder="Selecione um dado"*/}
+              {/*  searchPlaceholder="Pesquisar..."*/}
+              {/*  dropdownTextStyles={{ color: "#FF6112" }}*/}
+              {/*  inputStyles={{*/}
+              {/*    alignSelf: "center",*/}
+              {/*    height: 32,*/}
+              {/*    color: "#B8B8B8",*/}
+              {/*  }}*/}
+              {/*  closeicon={<Ionicons name="close" size={20} color="#FF6112" />}*/}
+              {/*  searchicon={*/}
+              {/*    <Ionicons*/}
+              {/*      name="search"*/}
+              {/*      size={18}*/}
+              {/*      color="#FF6112"*/}
+              {/*      style={{ marginEnd: 10 }}*/}
+              {/*    />*/}
+              {/*  }*/}
+              {/*  search={false}*/}
+              {/*  arrowicon={*/}
+              {/*    <AntDesign*/}
+              {/*      name="down"*/}
+              {/*      size={20}*/}
+              {/*      color="#FF6112"*/}
+              {/*      style={{ alignSelf: "center" }}*/}
+              {/*    />*/}
+              {/*  }*/}
+              {/*/>*/}
             </View>
           </View>
           <View className="">
@@ -1291,76 +1342,6 @@ export default function InfoProfileEstablishment({
               >
                 <Text className="text-white">Confirmar</Text>
               </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal
-          visible={editFantasyNameModal}
-          animationType="fade"
-          transparent={true}
-          onRequestClose={closeEditFantasyNameModal}
-        >
-          <View className="h-full w-full justify-center items-center">
-            <View className="h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6">
-              <View className="w-full">
-                <Text className="text-[14px] font-bold">
-                  Insira um novo nome fantasia:
-                </Text>
-                <Controller
-                  name="fantasyName"
-                  control={controlFantasyName}
-                  rules={{
-                    required: true,
-                  }}
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      defaultValue={fantasyName}
-                      onChangeText={onChange}
-                      className={`p-4 border ${
-                        fantasyNameErrors.fantasyName
-                          ? "border-red-400"
-                          : "border-gray-500"
-                      }  rounded-lg h-45`}
-                      placeholder="Nome Fantasia"
-                      placeholderTextColor="#B8B8B8"
-                    />
-                  )}
-                />
-                {fantasyNameErrors.fantasyName && (
-                  <Text className="text-red-400 text-sm -pt-[10px]">
-                    {fantasyNameErrors.fantasyName.message}
-                  </Text>
-                )}
-              </View>
-
-              <View className="flex flex-row items-center mt-[10px]">
-                <TouchableOpacity
-                  onPress={() => {
-                    closeEditFantasyNameModal();
-                  }}
-                  className="h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]"
-                >
-                  <Text className="font-medium text-[14px] text-[#8D8D8D]">
-                    Cancelar
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={handleSubmitFantasyName(
-                    handleUpdateEstablishmentFantasyName,
-                  )}
-                  className="h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]"
-                >
-                  <Text className="text-white font-medium text-[14px]">
-                    {updateFantasyNameIsLoading ? (
-                      <ActivityIndicator size="small" color="#F5620F" />
-                    ) : (
-                      "Confirmar"
-                    )}
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
         </Modal>
@@ -1670,6 +1651,53 @@ export default function InfoProfileEstablishment({
                 >
                   <Text className="text-white font-medium text-[14px]">
                     {updatePasswordIsLoading ? (
+                      <ActivityIndicator size="small" color="#F5620F" />
+                    ) : (
+                      "Confirmar"
+                    )}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal
+          visible={editCorporateNameModal}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={closeEditAddressModal}
+        >
+          <View className="h-full w-full justify-center items-center bg-[#3339]">
+            <View className="h-fit w-[350px] bg-[#f8f4f2] rounded-[5px] p-6">
+              <Text className='text-[14px] font-bold'>Razão social:</Text>
+              <Controller
+                name='corporateName'
+                control={controlCorporateName}
+                render={({field: {onChange}}) => (
+                  <TextInput
+                    className="p-[5px] border border-neutral-400 rounded bg-white"
+                    onChangeText={onChange}
+                    value={getValuesCorporateName('corporateName')}
+                  />
+                )}
+              />
+              {
+                errorsCorporateName.corporateName && <Text className="text-red-400 text-sm -pt-[10px]">{errorsCorporateName.corporateName.message}</Text>
+              }
+              <View className='flex flex-row w-full justify-between pt-2'>
+                <TouchableOpacity
+                  onPress={closeEditCorporateNameModal}
+                  className="h-fit w-[146px] rounded-md bg-[#F0F0F0] items-center justify-center mr-[4px] p-[8px]"
+                >
+                  <Text className='font-medium text-[14px] text-[#8D8D8D]'>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSubmitCorporateName(handleUpdateEstablishmentCorporateName)}
+                  className="h-fit w-[146px] rounded-md bg-[#FF6112] flex items-center justify-center ml-[4px] p-[8px]"
+                >
+                  <Text className="text-white font-medium text-[14px]">
+                    {updateCorporateNameLoading ? (
                       <ActivityIndicator size="small" color="#F5620F" />
                     ) : (
                       "Confirmar"

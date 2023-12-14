@@ -1149,7 +1149,7 @@ export default function DescriptionReserve({
             <TouchableOpacity
               disabled={isSubmitting}
               onPress={closeCardPayment}
-              className="bg-[#FF6112] mt-8 mb-4 mr-4 rounded-full w-6 aspect-square items-center justify-center self-end"
+              className="bg-[#FF6112] mt-14 mb-4 mr-4 rounded-full w-6 aspect-square items-center justify-center self-end"
             >
               <AntDesign name="close" size={20} color="white" />
             </TouchableOpacity>
