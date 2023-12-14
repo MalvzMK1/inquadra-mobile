@@ -817,7 +817,7 @@ export default function ReservationPaymentSign({
           ownerID: storageUserData?.id,
           service_value: serviceValue,
           isPayed: signalValueValidate,
-          schedulePrice: signalValue!,
+          schedulePrice: (amountToPay! + serviceValue!),
           courtId: courtId,
           courtImage: courtImage,
           userPhoto: userPhoto!,

@@ -163,10 +163,15 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     let valuePayedUpdate =
       value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
-      value + scheduleValuePayed! >= schedulePrice! &&
-      scheduleValuePayed !== undefined
+      value + scheduleValuePayed! >= schedulePrice!
         ? generateRandomKey(4)
         : "";
+
+
+        console.log(activation_key)
+        console.log("value:", value)
+        console.log("scheduleValuePayed:", scheduleValuePayed)
+        
     try {
       await updateScheduleValue({
         variables: {
@@ -192,6 +197,8 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const createNewSchedule = async () => {
     let isPayed = route.params.isPayed!;
+
+    console.log(isPayed)
     try {
       const create = await createSchedule({
         variables: {
@@ -207,6 +214,19 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           publishedAt: new Date().toISOString(),
         },
       });
+
+      console.log({
+        title: "r",
+        court_availability: route.params.court_availabilityID!,
+        date: route.params.date!,
+        pay_day: route.params.pay_day!,
+        value_payed: route.params.value_payed!,
+        owner: userData?.id ?? "",
+        users: [userData?.id ?? ""],
+        activation_key: isPayed ? generateRandomKey(4) : "",
+        service_value: route.params.service_value!,
+        publishedAt: new Date().toISOString(),
+      })
 
       return create.data?.createScheduling?.data?.id;
     } catch (error) {
