@@ -661,7 +661,7 @@ export default function () {
         options={({ route: { params } }) => ({
           headerTintColor: "white",
           headerStyle: {
-            height: 100,
+            height: 125,
             backgroundColor: "#292929",
           },
           headerTitleAlign: "center",
@@ -680,7 +680,7 @@ export default function () {
           ),
           headerRight: () => (
             <TouchableOpacity
-              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden"
+              className="w-12 h-12 bg-gray-500 mr-3 rounded-full overflow-hidden py-3"
               onPress={() => {
                 if (userData?.id !== undefined && userData?.id !== null)
                   navigation.navigate("ProfileSettings", {
