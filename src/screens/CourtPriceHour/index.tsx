@@ -70,7 +70,7 @@ export default function CourtPriceHour({
   }, [allAppointments])
 
 
-  const inputRef = useRef(null);
+  console.log(route.params.minimumCourtPrice)
 
   useEffect(() => {
     const backAction = () => {
