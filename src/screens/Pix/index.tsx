@@ -162,7 +162,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     let valuePayedUpdate =
       value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
-      value + scheduleValuePayed! >= schedulePrice! &&
+      value + scheduleValuePayed! >= schedulePrice! + route.params.serviceRate! &&
       scheduleValuePayed !== undefined
         ? generateRandomKey(4)
         : "";

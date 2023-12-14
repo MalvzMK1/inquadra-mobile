@@ -1481,7 +1481,7 @@ export default function InfoProfileEstablishment({
                   className="p-[5px] border border-neutral-400 rounded bg-white"
                   value={
                     userByEstablishmentData?.usersPermissionsUser.data
-                      ?.attributes.establishment.data?.attributes.cnpj
+                      ?.attributes.establishment.data?.attributes.cnpj || ""
                   }
                   editable={false}
                 />
