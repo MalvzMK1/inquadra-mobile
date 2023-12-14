@@ -158,9 +158,6 @@ export default function ReservationPaymentSign({
             .minimumScheduleValue
         ) {
           const scheduleValue = data.courtAvailability.data.attributes.value;
-          // const signalValue =
-          //   data?.courtAvailability.data.attributes.court.data.attributes
-          //     .minimumScheduleValue;
 
           setReserveValue(scheduleValue);
           setServiceValue(scheduleValue * SERVICE_FEE);
@@ -519,195 +516,6 @@ export default function ReservationPaymentSign({
     }
   };
 
-  // Pega uma data no formato YYYY-MM-DD e transforma em MM/YY
-  function parseDate(date: string): string {
-    let parsedOne = date.split("-");
-
-    if (parsedOne.length !== 3) {
-      return parsedOne[0];
-    }
-
-    parsedOne.pop();
-    parsedOne[0] = parsedOne[0].slice(2);
-    parsedOne = parsedOne.reverse();
-
-    return parsedOne.join("/");
-  }
-
-  // const handlePayCardSave = async (card: Card) => {
-  //   try {
-  //     const cieloRequestManager = new CieloRequestManager();
-  //     const countryId = getCountryIdByName(selected);
-  //     setShowConfirmPayment(false)
-  //     setCardPaymentLoading(true);
-  //     setPaymentStatus("processing");
-  //
-  //     const signalAmount = dataReserve
-  //       ? Number(
-  //           dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-  //             2,
-  //           ),
-  //         )
-  //       : undefined;
-  //
-  //     if (
-  //       !userDataById?.usersPermissionsUser.data ||
-  //       typeof signalAmount === "undefined" ||
-  //       typeof serviceValue === "undefined"
-  //     ) {
-  //       return Dialog.show({
-  //         type: ALERT_TYPE.DANGER,
-  //         title: "Pagamento não efetuado",
-  //       });
-  //     }
-  //
-  //     const totalSignalValue = signalAmount;
-  //     const totalSignalValueCents = totalSignalValue * 100;
-  //
-  //     let brand = "Visa";
-  //
-  //     const address: CieloAddress = {
-  //       Street: card.street,
-  //       Number: card.number,
-  //       Complement: card.complement || "",
-  //       ZipCode: card.cep,
-  //       City: card.city,
-  //       State: card.state,
-  //       Country: "BRA",
-  //     };
-  //
-  //     const maturityDate = parseDate(card.maturityDate)
-  //
-  //     const body: AuthorizeCreditCardPaymentResponse = {
-  //       MerchantOrderId: "2014111701",
-  //       Customer: {
-  //         Name: card.name,
-  //         Identity: card.cpf,
-  //         IdentityType: "cpf",
-  //         Email: userDataById.usersPermissionsUser.data.attributes.email,
-  //         Birthdate: "1991-01-02",
-  //         Address: address,
-  //         DeliveryAddress: address,
-  //       },
-  //       Payment: {
-  //         Type: "CreditCard",
-  //         Amount: totalSignalValueCents,
-  //         Currency: "BRL",
-  //         Country: "BRA",
-  //         Provider: "Simulado",
-  //         ServiceTaxAmount: 0,
-  //         Installments: 1,
-  //         Interest: "ByMerchant",
-  //         Capture: "true",
-  //         Authenticate: "false",
-  //         Recurrent: "false",
-  //         CreditCard: {
-  //           CardNumber: card.number.split(" ").join(""),
-  //           Holder: card.name,
-  //           ExpirationDate: transformCardExpirationDate(maturityDate),
-  //           SecurityCode: card.cvv,
-  //           SaveCard: false,
-  //           Brand: brand,
-  //         },
-  //       },
-  //     };
-  //
-  //     const response = await cieloRequestManager.authorizePayment(body);
-  //
-  //     userPaymentCard({
-  //       variables: {
-  //         value: totalSignalValue,
-  //         userId: Number(userData?.id),
-  //         name: card.name,
-  //         cpf: card.cpf,
-  //         cvv: parseInt(card.cvv),
-  //         date: convertToAmericanDate(card.maturityDate),
-  //         countryID: Number(countryId),
-  //         publishedAt: new Date().toISOString(),
-  //         cep: card.cep,
-  //         city: card.city,
-  //         complement: card.complement,
-  //         number: card.number,
-  //         state: card.state,
-  //         neighborhood: card.district,
-  //         street: card.street,
-  //         paymentId: response.Payment.PaymentId!,
-  //         payedStatus: response.Payment.Status === 2 ? "Payed" : "Waiting",
-  //       },
-  //     })
-  //       .then(({ data: createdUserPayment }) => {
-  //         if (createdUserPayment) {
-  //           cieloRequestManager
-  //             .authorizePayment(body)
-  //             .then(async cieloResponse => {
-  //               const newScheduleId = await createNewSchedule(totalSignalValue);
-  //
-  //               if (
-  //                 newScheduleId &&
-  //                 cieloResponse &&
-  //                 cieloResponse.Payment &&
-  //                 cieloResponse.Payment.Status === 2 &&
-  //                 cieloResponse.Payment.PaymentId
-  //               ) {
-  //                 updateUserPaymentCard({
-  //                   variables: {
-  //                     paymentId: cieloResponse.Payment.PaymentId,
-  //                     paymentStatus:
-  //                       cieloResponse.Payment.Status === 2
-  //                         ? "Payed"
-  //                         : "Waiting",
-  //                     userPaymentId:
-  //                       createdUserPayment.createUserPayment.data.id,
-  //                     scheduleId: newScheduleId,
-  //                   },
-  //                 })
-  //                   .then(async () => {
-  //                     updateStatusDisponibleCourt()
-  //                       .then(() => {
-  //                         handleSaveCard();
-  //                         setPaymentStatus("completed");
-  //                       })
-  //                       .catch(error => {
-  //                         console.error(error);
-  //                         alert("Não foi possível realizar o pagamento");
-  //                         setPaymentStatus("failed");
-  //                       });
-  //                   })
-  //                   .catch(error => {
-  //                     console.error(JSON.stringify(error, null, 2));
-  //                     alert("Erro ao registrar a cobrança no banco de dados");
-  //                     setPaymentStatus("failed");
-  //                   });
-  //               }else{
-  //                 alert("Não foi possível realizar o pagamento");
-  //               }
-  //             })
-  //             .catch(error => {
-  //               console.error(JSON.stringify(error, null, 2));
-  //               alert("Não foi possível realizar o pagamento");
-  //               deleteUserPaymentCard({
-  //                 variables: {
-  //                   userPaymentId: createdUserPayment.createUserPayment.data.id,
-  //                 },
-  //               });
-  //             });
-  //         }
-  //       })
-  //       .catch(error => {
-  //         console.error(JSON.stringify(error, null, 2));
-  //         setPaymentStatus("failed");
-  //       });
-  //   } catch (error) {
-  //     console.error("Erro ao criar o agendamento:", error);
-  //     setPaymentStatus("failed");
-  //     Dialog.show({
-  //       type: ALERT_TYPE.DANGER,
-  //       title: "Pagamento não efetuado",
-  //       textBody: String(error),
-  //     });
-  //   }
-  // };
-
   const createNewSchedule = async (valuePayed: number) => {
     let isPayed =
       dataReserve?.courtAvailability.data?.attributes.court.data.attributes
@@ -773,7 +581,6 @@ export default function ReservationPaymentSign({
         }
 
         const totalSignalValue = signalAmount;
-        const totalSignalValueCents = totalSignalValue * 100;
 
         const pixGenerated = await generatePix({
           MerchantOrderId:
@@ -817,7 +624,7 @@ export default function ReservationPaymentSign({
           ownerID: storageUserData?.id,
           service_value: serviceValue,
           isPayed: signalValueValidate,
-          schedulePrice: signalValue!,
+          schedulePrice: amountToPay! + serviceValue!,
           courtId: courtId,
           courtImage: courtImage,
           userPhoto: userPhoto!,

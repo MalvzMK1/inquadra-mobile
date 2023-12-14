@@ -166,7 +166,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       scheduleValuePayed !== undefined
         ? generateRandomKey(4)
         : "";
-
     try {
       await updateScheduleValue({
         variables: {
@@ -184,6 +183,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const createNewSchedule = async () => {
     let isPayed = route.params.isPayed!;
+
     try {
       const create = await createSchedule({
         variables: {
@@ -199,7 +199,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           publishedAt: new Date().toISOString(),
         },
       });
-
       return create.data?.createScheduling?.data?.id;
     } catch (error) {
       console.error("Erro na mutação createSchedule:", error);
