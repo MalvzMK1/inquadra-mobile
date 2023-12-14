@@ -4,6 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   Linking,
@@ -37,7 +38,7 @@ export default function EstablishmentInfo({
     loading: establishmentLoading,
     error: establishmentError,
   } = useGetEstablishmentByCourtId(route.params.establishmentId);
-  const [updateFavoriteEstablishment, { data, loading, error }] =
+  const [updateFavoriteEstablishment, { loading, error }] =
     useUpdateFavoriteEstablishment();
 
   const [userLocation, setUserLocation] = useState({
@@ -91,7 +92,6 @@ export default function EstablishmentInfo({
       setHeart(isCurrentlyFavorite);
     }
   };
-  const [footerHeartColor, setFooterHeartColor] = useState("white");
 
   useFocusEffect(
     React.useCallback(() => {
@@ -117,7 +117,6 @@ export default function EstablishmentInfo({
   useFocusEffect(
     React.useCallback(() => {
       setCourt([]);
-      // setEstablishment(undefined);
       if (!error && !loading) {
         if (establishmentData && establishmentData.establishment.data) {
           const infosEstablishment = establishmentData.establishment.data;
@@ -151,7 +150,7 @@ export default function EstablishmentInfo({
             ),
             photo: infosEstablishment.attributes.logo.data
               ? HOST_API +
-                infosEstablishment.attributes.logo.data.attributes.url
+              infosEstablishment.attributes.logo.data.attributes.url
               : "",
             photosAmenitie: infosEstablishment.attributes.photos.data.map(
               (photo, index) => {
@@ -268,155 +267,167 @@ export default function EstablishmentInfo({
   };
 
   return (
-    <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
-      <View className="flex flex-col">
-        <View className="flex flex-row justify-between items-center gap-x-2 mb-2">
-          <Text className="font-black text-lg flex-1">
-            {Establishment?.corporateName.toUpperCase()}
-          </Text>
-          <View className="w-2/5 flex flex-row items-center justify-between">
-            {/*<View className="flex-1 flex flex-row items-center gap-x-8 bg-violet-500">*/}
-            <TouchableOpacity
-              onPress={() => {
-                if (userId !== undefined && userId !== null) {
-                  if (
-                    route.params.colorState !== undefined &&
-                    route.params.setColorState !== undefined
-                  ) {
-                    handlePressFavoriteEstablishment();
-                    if (!heart) {
-                      route.params.setColorState("red");
-                      setHeart(true);
-                    } else {
-                      route.params.setColorState("white");
-                      setHeart(false);
+    <View>
+      {
+        loading || establishmentLoading || loadingFavoriteEstablishment || loadingUser ?
+          <View className="mt-10">
+            < ActivityIndicator size={32} color="#FF6112" />
+          </View >
+          : error || establishmentError || errorFavoriteEstablishment || errorUser ?
+            <View className="mt-10 justify-center items-center">
+              <Text className="font-bold text-lg">Erro Tente novamente!</Text>
+            </View > :
+            <View className="w-full h-screen p-5 flex flex-col gap-y-[20]">
+              <View className="flex flex-col">
+                <View className="flex flex-row justify-between items-center gap-x-2 mb-2">
+                  <Text className="font-black text-lg flex-1">
+                    {Establishment?.corporateName.toUpperCase()}
+                  </Text>
+                  <View className="w-2/5 flex flex-row items-center justify-between">
+                    {/*<View className="flex-1 flex flex-row items-center gap-x-8 bg-violet-500">*/}
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (userId !== undefined && userId !== null) {
+                          if (
+                            route.params.colorState !== undefined &&
+                            route.params.setColorState !== undefined
+                          ) {
+                            handlePressFavoriteEstablishment();
+                            if (!heart) {
+                              route.params.setColorState("red");
+                              setHeart(true);
+                            } else {
+                              route.params.setColorState("white");
+                              setHeart(false);
+                            }
+                          } else {
+                            handlePressFavoriteEstablishment();
+                            heart ? setHeart(false) : setHeart(true);
+                          }
+                        } else {
+                          navigation.navigate("Login");
+                        }
+                      }}
+                    >
+                      {!heart ? (
+                        <AntDesign name="hearto" size={30} color="black" />
+                      ) : (
+                        <AntDesign name="heart" size={28} color="red" />
+                      )}
+                    </TouchableOpacity>
+                    {/*<View className='w-8' />*/}
+                    <TouchableOpacity onPress={onShare}>
+                      <Ionicons name="share-social" size={30} color="black" />
+                    </TouchableOpacity>
+                    {/*<View className='w-8' />*/}
+                    <TouchableOpacity onPress={handleTelefoneClick}>
+                      <FontAwesome name="phone" size={30} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View className="flex flex-row gap-[25] items-center">
+                  <Image
+                    className="h-20 w-20"
+                    source={{ uri: Establishment?.photo }}
+                  ></Image>
+                  <View>
+                    <Text className="font-bold text-[#717171]">
+                      {Establishment?.type!.split("_").join(" ")}
+                    </Text>
+                    <Text className="font-bold text-[#717171]">
+                      {distance?.toFixed(1).split(".").join(",")} Km de distância
+                    </Text>
+                    <Text className="font-bold text-[#717171]">
+                      {Establishment?.streetName}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <View className="flex flex-col gap-y-[20]">
+                <View className="flex flex-row justify-start items-center gap-x-[10]">
+                  <Text className="font-black text-lg">AMENIDADES DO LOCAL</Text>
+                  {establishmentData &&
+                    establishmentData.establishment.data &&
+                    establishmentData.establishment.data.attributes.amenities.data
+                      .length > 0 &&
+                    establishmentData?.establishment.data?.attributes.amenities.data.map(
+                      (amenitie) =>
+                        amenitie.attributes.iconAmenitie.data && (
+                          <SvgUri
+                            width={12}
+                            height={12}
+                            source={{
+                              uri:
+                                HOST_API +
+                                amenitie.attributes.iconAmenitie.data.attributes.url,
+                            }}
+                          />
+                        )
+                    )}
+                </View>
+                <View>
+                  <Carousel
+                    data={
+                      Establishment?.photosAmenitie?.map((url) => ({
+                        imgUrl: { uri: url },
+                      })) || []
                     }
-                  } else {
-                    handlePressFavoriteEstablishment();
-                    heart ? setHeart(false) : setHeart(true);
-                  }
-                } else {
-                  navigation.navigate("Login");
-                }
-              }}
-            >
-              {!heart ? (
-                <AntDesign name="hearto" size={30} color="black" />
-              ) : (
-                <AntDesign name="heart" size={28} color="red" />
-              )}
-            </TouchableOpacity>
-            {/*<View className='w-8' />*/}
-            <TouchableOpacity onPress={onShare}>
-              <Ionicons name="share-social" size={30} color="black" />
-            </TouchableOpacity>
-            {/*<View className='w-8' />*/}
-            <TouchableOpacity onPress={handleTelefoneClick}>
-              <FontAwesome name="phone" size={30} color="black" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View className="flex flex-row gap-[25] items-center">
-          <Image
-            className="h-20 w-20"
-            source={{ uri: Establishment?.photo }}
-          ></Image>
-          <View>
-            <Text className="font-bold text-[#717171]">
-              {Establishment?.type!.split("_").join(" ")}
-            </Text>
-            <Text className="font-bold text-[#717171]">
-              {distance?.toFixed(1).split(".").join(",")} Km de distância
-            </Text>
-            <Text className="font-bold text-[#717171]">
-              {Establishment?.streetName}
-            </Text>
-          </View>
-        </View>
-      </View>
-      <View className="flex flex-col gap-y-[20]">
-        <View className="flex flex-row justify-start items-center gap-x-[10]">
-          <Text className="font-black text-lg">AMENIDADES DO LOCAL</Text>
-          {establishmentData &&
-            establishmentData.establishment.data &&
-            establishmentData.establishment.data.attributes.amenities.data
-              .length > 0 &&
-            establishmentData?.establishment.data?.attributes.amenities.data.map(
-              (amenitie) =>
-                amenitie.attributes.iconAmenitie.data && (
-                  <SvgUri
-                    width={12}
-                    height={12}
-                    source={{
-                      uri:
-                        HOST_API +
-                        amenitie.attributes.iconAmenitie.data.attributes.url,
-                    }}
+                    useScrollView
+                    loop
+                    autoplay
+                    autoplayInterval={6000}
+                    activeSlideAlignment="center"
+                    sliderWidth={SLIDER_WIDTH}
+                    itemWidth={ITEM_WIDTH}
+                    renderItem={({ item }) => (
+                      <Image
+                        className="h-[106px] w-[142px] rounded-[5px] "
+                        source={item.imgUrl}
+                      />
+                    )}
                   />
-                )
-            )}
-        </View>
-        <View>
-          <Carousel
-            data={
-              Establishment?.photosAmenitie?.map((url) => ({
-                imgUrl: { uri: url },
-              })) || []
-            }
-            useScrollView
-            loop
-            autoplay
-            autoplayInterval={6000}
-            activeSlideAlignment="center"
-            sliderWidth={SLIDER_WIDTH}
-            itemWidth={ITEM_WIDTH}
-            renderItem={({ item }) => (
-              <Image
-                className="h-[106px] w-[142px] rounded-[5px] "
-                source={item.imgUrl}
-              />
-            )}
-          />
-        </View>
-      </View>
-      <ScrollView className="pb-10">
-        {uniqueCourtTypes.map((type) => (
-          <View key={type}>
-            <Text className="text-[18px] leading-[24px] font-black">
-              {type.toUpperCase()}
-            </Text>
-            {Court.filter((court) => court.court_type === type).map((court) => (
-              <CourtCard
-                key={court.id}
-                id={court.id}
-                userPhoto={route.params.userPhoto}
-                availabilities={court.court_availabilities}
-                image={court.photo}
-                name={court.name}
-                type={court.court_type}
-              />
-            ))}
-          </View>
-        ))}
-        <View className="h-16"></View>
-      </ScrollView>
-      <View className={`absolute bottom-20 left-0 right-0`}>
-        <BottomBlackMenu
-          screen="EstablishmentInfo"
-          userPhoto={
-            dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-              ?.attributes?.url
-              ? HOST_API +
-                dataUser.usersPermissionsUser.data.attributes.photo.data
-                  ?.attributes.url
-              : ""
-          }
-          key={1}
-          paddingTop={2}
-          isMenuVisible={false}
-        />
-      </View>
-      <View className="h-2"></View>
-    </View>
+                </View>
+              </View>
+              <ScrollView className="pb-10">
+                {uniqueCourtTypes.map((type) => (
+                  <View key={type}>
+                    <Text className="text-[18px] leading-[24px] font-black">
+                      {type.toUpperCase()}
+                    </Text>
+                    {Court.filter((court) => court.court_type === type).map((court) => (
+                      <CourtCard
+                        key={court.id}
+                        id={court.id}
+                        userPhoto={route.params.userPhoto}
+                        availabilities={court.court_availabilities}
+                        image={court.photo}
+                        name={court.name}
+                        type={court.court_type}
+                      />
+                    ))}
+                  </View>
+                ))}
+                <View className="h-16"></View>
+              </ScrollView>
+              <View className={`absolute bottom-20 left-0 right-0`}>
+                <BottomBlackMenu
+                  screen="EstablishmentInfo"
+                  userPhoto={
+                    dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                      ?.attributes?.url
+                      ? HOST_API +
+                      dataUser.usersPermissionsUser.data.attributes.photo.data
+                        ?.attributes.url
+                      : ""
+                  }
+                  key={1}
+                  paddingTop={2}
+                  isMenuVisible={false}
+                />
+              </View>
+              <View className="h-2"></View>
+            </View>
+      }
+    </View >
   );
 }
