@@ -5,13 +5,13 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
+  Share,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { Button, TextInput } from "react-native-paper";
-import Share from "react-native-share";
 import { useUser } from "../../context/userContext";
 import { useGetUserById } from "../../hooks/useUserById";
 import { generatePix } from "../../services/pixCielo";
@@ -81,8 +81,7 @@ export const DescriptionReserveShareButton: React.FC<
 
       const subject = `Olá, topa se juntar a mim na quadra ${courtName} das ${startsAt} às ${endsAt} do dia ${date}?`;
 
-      await Share.open({
-        subject,
+      await Share.share({
         title: subject,
         url: `data:image/png;base64,${pixGenerated.Payment.QrCodeBase64Image}`,
         message: `
