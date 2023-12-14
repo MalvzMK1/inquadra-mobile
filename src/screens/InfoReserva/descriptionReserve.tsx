@@ -49,6 +49,7 @@ import {
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import { DescriptionReserveShareButton } from "./DescriptionReserveShareButton";
 
 function getScheduleStartDate(date: string, time: string) {
   return new Date(`${date}T${time}-03:00`);
@@ -111,7 +112,7 @@ export default function DescriptionReserve({
       const schedulingDay = getScheduleStartDate(
         data.scheduling.data.attributes.date,
         data.scheduling.data.attributes.court_availability.data.attributes
-          .startsAt
+          .startsAt,
       );
 
       setIsPayed(data.scheduling.data.attributes.payedStatus);
@@ -139,16 +140,7 @@ export default function DescriptionReserve({
             newValuePayedPercentage <= 1
           ) {
             setPayedPercentage(newValuePayedPercentage);
-          } else {
-            console.log(
-              "Valor inválido para payedPercentage:",
-              newValuePayedPercentage
-            );
           }
-        } else {
-          console.error(
-            "Denominador é zero. Não é possível calcular a porcentagem."
-          );
         }
       }
 
@@ -169,7 +161,7 @@ export default function DescriptionReserve({
         setCourtPicture(newCourtPicture);
       } else {
         setCourtPicture(
-          "https://cdn-icons-png.flaticon.com/512/10449/10449616.png"
+          "https://cdn-icons-png.flaticon.com/512/10449/10449616.png",
         );
       }
 
@@ -184,7 +176,7 @@ export default function DescriptionReserve({
         )
           setFantasyName(
             data.scheduling.data.attributes.court_availability.data.attributes
-              .court.data.attributes.fantasy_name
+              .court.data.attributes.fantasy_name,
           );
       }
     },
@@ -250,7 +242,7 @@ export default function DescriptionReserve({
 
   const handleCopiarTexto = () => {
     Clipboard.setStringAsync(
-      infoScheduleData?.scheduling?.data?.attributes?.activationKey ?? ""
+      infoScheduleData?.scheduling?.data?.attributes?.activationKey ?? "",
     );
 
     Toast.show({
@@ -266,7 +258,7 @@ export default function DescriptionReserve({
     value: z
       .string()
       .nonempty("É necessário inserir um valor")
-      .refine((value) => {
+      .refine(value => {
         const schedulingAmount = valueAvailableToPay;
 
         if (schedulingAmount) {
@@ -301,7 +293,7 @@ export default function DescriptionReserve({
       .nonempty("É necessário inserir um CVV")
       .max(3, "Só é possível digitar até 3 caracteres")
       .min(3, "O mínimo são 3 caracteres"),
-    date: z.string().refine((value) => {
+    date: z.string().refine(value => {
       const [month, year] = value.split("/");
       const currentDate = new Date();
       const inputDate = new Date(`20${year}-${month}-01`);
@@ -333,12 +325,12 @@ export default function DescriptionReserve({
   });
 
   const getCountryImage = (
-    countryISOCode: string | null
+    countryISOCode: string | null,
   ): string | undefined => {
     try {
       if (countryISOCode && dataCountry) {
         const selectedCountry = dataCountry.countries.data.find(
-          (country) => country.attributes.ISOCode === countryISOCode
+          country => country.attributes.ISOCode === countryISOCode,
         );
 
         if (selectedCountry) {
@@ -355,7 +347,7 @@ export default function DescriptionReserve({
     value: z
       .string()
       .nonempty("É necessário inserir um valor")
-      .refine((value) => {
+      .refine(value => {
         const schedulingAmount = valueAvailableToPay;
 
         if (schedulingAmount) {
@@ -401,7 +393,6 @@ export default function DescriptionReserve({
     control: controlPix,
     handleSubmit: handleSubmitPayment,
     formState: { errors: errorsPix },
-    getValues: getValuesPix,
   } = useForm<iFormPixPayment>({
     resolver: zodResolver(formSchemaPixPayment),
   });
@@ -414,7 +405,7 @@ export default function DescriptionReserve({
     setShowPixPaymentModal(false);
   };
 
-  const handlePay = handleSubmit(async (data) => {
+  const handlePay = handleSubmit(async data => {
     try {
       const totalValue = data.value.split("R$ ")[1];
       let parsedValue: number;
@@ -423,7 +414,7 @@ export default function DescriptionReserve({
       if (totalValue.includes(",")) {
         if (totalValue.includes(".")) {
           parsedValue = Number(
-            totalValue.split(".").join("").split(",").join("")
+            totalValue.split(".").join("").split(",").join(""),
           );
         } else {
           parsedValue = Number(totalValue.split(",").join(""));
@@ -516,12 +507,12 @@ export default function DescriptionReserve({
         alert(error);
       }
       await scheduleValueUpdate(
-        parseFloat(data.value.replace(/[^\d.,]/g, "").replace(",", "."))
+        parseFloat(data.value.replace(/[^\d.,]/g, "").replace(",", ".")),
       );
 
       setShowCardPaymentModal(false);
       alert(
-        "Pagamento efetuado com sucesso, recarregue a pagina para visualizar as atualizações!"
+        "Pagamento efetuado com sucesso, recarregue a pagina para visualizar as atualizações!",
       );
     } catch (error) {
       console.error("Erro ao criar o agendamento:", error);
@@ -553,7 +544,7 @@ export default function DescriptionReserve({
     }
   };
 
-  const handlePayPix = handleSubmitPayment(async (info) => {
+  const handlePayPix = handleSubmitPayment(async info => {
     const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, ""));
 
     const generatePixJSON: RequestGeneratePix = {
@@ -581,7 +572,7 @@ export default function DescriptionReserve({
         paymentID: pixGenerated.Payment.PaymentId,
         publishedAt: new Date().toISOString(),
       },
-    }).then((response) =>
+    }).then(response =>
       navigation.navigate("PixScreen", {
         courtName: fantasyName ?? "",
         value: parsedValue.toString()!,
@@ -593,7 +584,7 @@ export default function DescriptionReserve({
         schedulePrice: schedulePrice!,
         scheduleValuePayed: scheduleValuePayed!,
         screen: "historic",
-      })
+      }),
     );
     setShowPixPaymentModal(false);
   });
@@ -614,10 +605,6 @@ export default function DescriptionReserve({
     }
   };
 
-  function share() {
-    alert("--- SHARE FUNCTION HAS BEEN TRIGGERED ---");
-  }
-
   // TODO: TRANSFORMAR TUDO EM USE STATE --- FIX
   const usersPaymentsPixes =
     dataHistoricPayments?.scheduling?.data?.attributes?.user_payment_pixes
@@ -630,7 +617,7 @@ export default function DescriptionReserve({
   const mergedPayments = [...usersPaymentsPixes, ...usersPayments].sort(
     (a, b) =>
       new Date(a.attributes.createdAt).getTime() -
-      new Date(b.attributes.createdAt).getTime()
+      new Date(b.attributes.createdAt).getTime(),
   );
 
   const paymentData = {
@@ -650,7 +637,7 @@ export default function DescriptionReserve({
   ].sort(
     (a, b) =>
       new Date(a.attributes.createdAt).getTime() -
-      new Date(b.attributes.createdAt).getTime()
+      new Date(b.attributes.createdAt).getTime(),
   );
 
   const ownerPaymentsData = {
@@ -771,7 +758,7 @@ export default function DescriptionReserve({
                         Reserva feita em{" "}
                         {formatDateTime(
                           infoScheduleData?.scheduling?.data?.attributes?.createdAt.toString()! ??
-                            ""
+                            "",
                         )}
                       </Text>
                     </View>
@@ -815,11 +802,11 @@ export default function DescriptionReserve({
                 <Text className="absolute z-10 self-center text-white font-bold">
                   R${" "}
                   {infoScheduleData.scheduling.data.attributes.valuePayed.toFixed(
-                    2
+                    2,
                   )}{" "}
                   / R${" "}
                   {infoScheduleData.scheduling.data.attributes.court_availability.data.attributes.value.toFixed(
-                    2
+                    2,
                   )}
                 </Text>
                 {infoScheduleData.scheduling.data.attributes.valuePayed &&
@@ -845,7 +832,7 @@ export default function DescriptionReserve({
                       targetDate={getScheduleStartDate(
                         infoScheduleData.scheduling.data.attributes.date,
                         infoScheduleData.scheduling.data.attributes
-                          .court_availability.data.attributes.startsAt
+                          .court_availability.data.attributes.startsAt,
                       )}
                     />
                   </View>
@@ -919,7 +906,7 @@ export default function DescriptionReserve({
                     >
                       <View
                         className={"h-10 w-64 rounded-md flex items-center justify-center ".concat(
-                          !reserveStatus ? "bg-zinc-500" : "bg-orange-500"
+                          !reserveStatus ? "bg-zinc-500" : "bg-orange-500",
                         )}
                       >
                         <Text className="text-gray-50 font-bold">
@@ -946,23 +933,30 @@ export default function DescriptionReserve({
                   <View className="h-28 w-60 flex-row  pr-5">
                     <View className="h-max w-max  justify-center items-start">
                       <View className="flex-row item-center justify-center">
-                        <TouchableOpacity
-                          onPress={() => share()}
-                          className="flex-row"
-                        >
-                          <View className="h-5 w-5 items-center justify-center">
-                            <TextInput.Icon
-                              icon={"share-variant"}
-                              size={21}
-                              color={"#FF6112"}
-                            />
-                          </View>
-                          <View className="item-center justify-center">
-                            <Text className="font-black text-xs text-center text-white pl-1">
-                              Compartilhar
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
+                        {infoScheduleData ? (
+                          <DescriptionReserveShareButton
+                            establishmentId={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.establishment.data.id
+                            }
+                            courtName={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.fantasy_name
+                            }
+                            schedulingStartsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.startsAt
+                            }
+                            schedulingEndsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.endsAt
+                            }
+                          />
+                        ) : (
+                          <ActivityIndicator size={20} color="#FF6112" />
+                        )}
                       </View>
                     </View>
                     <View className="h-max w-full flex justify-between pl-2">
@@ -1004,24 +998,30 @@ export default function DescriptionReserve({
                   <View className="h-20 w-60 flex-row pr-5 items-center">
                     <View className=" w-max  justify-center items-start">
                       <View className="flex-row item-center justify-center">
-                        <TouchableOpacity
-                          onPress={() => share()}
-                          className="flex-row"
-                          disabled={!reserveStatus}
-                        >
-                          <View className="h-5 w-5 items-center justify-center">
-                            <TextInput.Icon
-                              icon={"share-variant"}
-                              size={21}
-                              color={"#FF6112"}
-                            />
-                          </View>
-                          <View className="item-center justify-center">
-                            <Text className="font-black text-xs text-center text-white pl-1">
-                              Compartilhar
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
+                        {infoScheduleData ? (
+                          <DescriptionReserveShareButton
+                            establishmentId={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.establishment.data.id
+                            }
+                            courtName={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.fantasy_name
+                            }
+                            schedulingStartsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.startsAt
+                            }
+                            schedulingEndsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.endsAt
+                            }
+                          />
+                        ) : (
+                          <ActivityIndicator size={20} color="#FF6112" />
+                        )}
                       </View>
                     </View>
                     <View className="h-max w-full flex justify-between pl-2">
@@ -1064,7 +1064,7 @@ export default function DescriptionReserve({
                     </Text>
                     <Text className="text-black font-normal">
                       {formatDate(
-                        paymentInfo?.attributes?.createdAt.toString()!
+                        paymentInfo?.attributes?.createdAt.toString()!,
                       )}
                     </Text>
                     <Text className="text-black font-normal pr-4">
@@ -1102,7 +1102,7 @@ export default function DescriptionReserve({
                       </Text>
                       <Text className="text-black font-normal">
                         {formatDate(
-                          paymentInfo?.attributes?.createdAt.toString()!
+                          paymentInfo?.attributes?.createdAt.toString()!,
                         )}
                       </Text>
                       <Text className="text-black font-normal pr-4">
@@ -1178,7 +1178,7 @@ export default function DescriptionReserve({
               {showCreditCards ? (
                 cards.length > 0 ? (
                   <View className="border-gray-500 mt-2">
-                    {cards.map((card) => (
+                    {cards.map(card => (
                       <Fragment key={card.id}>
                         <TouchableOpacity
                           className="flex h-[60px] w-full rounded-xl border justify-center items-start bg-white"
@@ -1396,7 +1396,7 @@ export default function DescriptionReserve({
                         setSelected(val);
                       }}
                       data={
-                        dataCountry?.countries.data.map((country) => ({
+                        dataCountry?.countries.data.map(country => ({
                           value: country.attributes.ISOCode,
                           label: country.attributes.ISOCode,
                           img: `${HOST_API}${
@@ -1423,11 +1423,11 @@ export default function DescriptionReserve({
                           value={getValues("cep")}
                           maxLength={9}
                           mask={Masks.ZIP_CODE}
-                          onChangeText={(masked) => {
+                          onChangeText={masked => {
                             onChange(masked);
 
                             if (masked.length === 9) {
-                              getAddress(masked).catch((error) => {
+                              getAddress(masked).catch(error => {
                                 console.log(error);
                                 Dialog.show({
                                   type: ALERT_TYPE.WARNING,

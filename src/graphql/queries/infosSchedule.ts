@@ -33,6 +33,11 @@ export interface IinfoScheduleResponse {
                         };
                       }>;
                     };
+                    establishment: {
+                      data: {
+                        id: string;
+                      };
+                    };
                   };
                 };
               };
@@ -118,6 +123,11 @@ export const infoSchedule = gql`
                           attributes {
                             url
                           }
+                        }
+                      }
+                      establishment {
+                        data {
+                          id
                         }
                       }
                     }
