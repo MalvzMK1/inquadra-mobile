@@ -172,9 +172,9 @@ export default function InfoReserva({
                         const percentagePaid = Math.floor(
                           (Number(courtInfo.attributes.valuePayed) /
                             Number(
-                              courtInfo.attributes.court_availability.data
-                                ?.attributes.value ?? 0
-                            )) *
+                             ( courtInfo.attributes.court_availability.data
+                                ?.attributes.value + Number(courtInfo.attributes.serviceRate!)) ?? 0
+                            ))  *
                             100
                         );
 
@@ -255,7 +255,7 @@ export default function InfoReserva({
                                       {`${Number(
                                         courtInfo?.attributes
                                           ?.court_availability?.data?.attributes
-                                          ?.value
+                                          ?.value + courtInfo.attributes.serviceRate
                                       )}`}
                                     </Text>
                                   </View>

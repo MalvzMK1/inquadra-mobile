@@ -14,7 +14,7 @@ export interface IRegisterEstablishmentResponse {
 export interface IRegisterEstablishmentVariables {
   ownerId: string;
   corporate_name: string;
-  cnpj: string;
+  cnpj: string | undefined;
   phone_number: string;
   cep: string;
   latitude: string;
