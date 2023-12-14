@@ -37,6 +37,7 @@ import useUpdateEstablishmentPhotos from "../../../hooks/useUpdateEstablishmentP
 import useUpdateEstablishmentUser from "../../../hooks/useUpdateEstablishmentUser";
 import useUpdateUserPassword from "../../../hooks/useUpdateUserPassword";
 import { useGetUserIDByEstablishment } from "../../../hooks/useUserByEstablishmentID";
+import CustomSelectList from "../../../components/CustomSelectList";
 type DateTime = Date;
 
 enum EEstablishmentEditableData {
@@ -418,6 +419,7 @@ export default function InfoProfileEstablishment({
       );
 
       navigation.setParams({
+        establishmentPhoto: userByEstablishmentData.usersPermissionsUser.data.attributes.establishment.data.attributes.logo.data?.attributes.url ?? undefined,
         establishmentId:
           userByEstablishmentData.usersPermissionsUser.data.attributes
             .establishment.data.id,
@@ -1110,38 +1112,58 @@ export default function InfoProfileEstablishment({
           <View>
             <View>
               <Text className="text-base mb-1">Dados Estabelecimento</Text>
-              <SelectList
-                setSelected={(val: string) => setSelected(val as EEstablishmentEditableData)}
-                onSelect={() => handleOptionChange(selected as EEstablishmentEditableData)}
-                data={dataEstablishment}
-                save="value"
-                placeholder="Selecione um dado"
-                searchPlaceholder="Pesquisar..."
-                dropdownTextStyles={{ color: "#FF6112" }}
-                inputStyles={{
-                  alignSelf: "center",
-                  height: 32,
-                  color: "#B8B8B8",
-                }}
-                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-                searchicon={
-                  <Ionicons
-                    name="search"
-                    size={18}
-                    color="#FF6112"
-                    style={{ marginEnd: 10 }}
-                  />
-                }
-                search={false}
-                arrowicon={
-                  <AntDesign
-                    name="down"
-                    size={20}
-                    color="#FF6112"
-                    style={{ alignSelf: "center" }}
-                  />
-                }
+              <CustomSelectList
+                options={[
+                  {
+                    name: dataEstablishment[0].value,
+                    onPress: () => setEditCorporateNameModal(true),
+                  },
+                  {
+                    name: dataEstablishment[1].value,
+                    onPress: () => setEditAddressModal(true),
+                  },
+                  {
+                    name: dataEstablishment[2].value,
+                    onPress: () => setEditCNPJModal(true),
+                  },
+                  {
+                    name: dataEstablishment[3].value,
+                    onPress: () => setEditPasswordModal(true),
+                  },
+                ]}
               />
+              {/*<SelectList*/}
+              {/*  setSelected={(val: string) => setSelected(val as EEstablishmentEditableData)}*/}
+              {/*  onSelect={() => handleOptionChange(selected as EEstablishmentEditableData)}*/}
+              {/*  data={dataEstablishment}*/}
+              {/*  save="value"*/}
+              {/*  placeholder="Selecione um dado"*/}
+              {/*  searchPlaceholder="Pesquisar..."*/}
+              {/*  dropdownTextStyles={{ color: "#FF6112" }}*/}
+              {/*  inputStyles={{*/}
+              {/*    alignSelf: "center",*/}
+              {/*    height: 32,*/}
+              {/*    color: "#B8B8B8",*/}
+              {/*  }}*/}
+              {/*  closeicon={<Ionicons name="close" size={20} color="#FF6112" />}*/}
+              {/*  searchicon={*/}
+              {/*    <Ionicons*/}
+              {/*      name="search"*/}
+              {/*      size={18}*/}
+              {/*      color="#FF6112"*/}
+              {/*      style={{ marginEnd: 10 }}*/}
+              {/*    />*/}
+              {/*  }*/}
+              {/*  search={false}*/}
+              {/*  arrowicon={*/}
+              {/*    <AntDesign*/}
+              {/*      name="down"*/}
+              {/*      size={20}*/}
+              {/*      color="#FF6112"*/}
+              {/*      style={{ alignSelf: "center" }}*/}
+              {/*    />*/}
+              {/*  }*/}
+              {/*/>*/}
             </View>
           </View>
           <View className="">
