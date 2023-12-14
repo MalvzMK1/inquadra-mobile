@@ -30,8 +30,6 @@ export default function PriceHour({
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [validateValueInserted, setValidateValueInserted] = useState<number>();
 
-  const navigation = useNavigation();
-
   const validatePrice = (value: string) => {
     let priceTest = Number(value.replace(/[^\d]/g, ""));
     let minimumCourtNumber = Number(minimumCourtValue);
@@ -57,22 +55,6 @@ export default function PriceHour({
       setEndsAt(endsAtHour.concat(":").concat(minutes));
     }
   }
-
-  React.useEffect(() => {
-    navigation.addListener("beforeRemove", (e) => {
-      e.preventDefault();
-      validatePrice(price);
-      let minimumCourtNumber = Number(minimumCourtValue);
-      let priceTest = Number(price.replace(/[^\d]/g, ""));
-
-      if (priceTest < minimumCourtNumber) {
-        e.preventDefault();
-        setInfoModalVisible(true);
-      } else {
-        navigation.dispatch(e.data.action);
-      }
-    });
-  }, [navigation]);
 
   return (
     <View className="flex-row w-full justify-between items-center mt-[10px]">
