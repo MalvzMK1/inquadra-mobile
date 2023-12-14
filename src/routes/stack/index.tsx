@@ -125,7 +125,7 @@ export default function () {
         options={({ route: { params } }) => ({
           headerTintColor: "white",
           headerStyle: {
-            height: 100,
+            height: 125,
             backgroundColor: "#292929",
           },
           headerTitleAlign: "center",
@@ -197,7 +197,7 @@ export default function () {
         options={({ route: { params } }) => ({
           headerTintColor: "white",
           headerStyle: {
-            height: 100,
+            height: 125,
             backgroundColor: "#292929",
           },
           headerTitleAlign: "center",
@@ -316,7 +316,7 @@ export default function () {
         options={({ route: { params } }) => ({
           headerTintColor: "white",
           headerStyle: {
-            height: 95,
+            height: 125,
             backgroundColor: "#292929",
           },
           headerTitleAlign: "center",
@@ -803,7 +803,7 @@ export default function () {
         options={({ route: { params } }) => ({
           headerTintColor: "white",
           headerStyle: {
-            height: 100,
+            height: 125,
             backgroundColor: "#292929",
           },
           headerTitleAlign: "center",
@@ -856,7 +856,7 @@ export default function () {
         options={({ route: { params } }) => ({
           headerTintColor: "white",
           headerStyle: {
-            height: 100,
+            height: 125,
             backgroundColor: "#292929",
           },
           headerTitleAlign: "center",
