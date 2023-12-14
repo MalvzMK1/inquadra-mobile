@@ -244,6 +244,63 @@ export default function WithdrawScreen({
                             avaibleToCashOut >= value
                               ? "bg-gray-400"
                               : "bg-gray-300"
+          >
+            <View>
+              <View
+                className="flex-1 "
+                pointerEvents={isWithdrawalMade ? "none" : "auto"}
+              >
+                <View className="p-4 flex flex-col">
+                  <View className="p-5 flex flex-col justify-between">
+                    <Text className="text-xl font-bold">Valor a retirar</Text>
+                  </View>
+                  <View className="p-3 items-center flex-row justify-center gap-5">
+                    <TouchableOpacity
+                      className="bg-gray-300 w-1/12 rounded-md"
+                      onPress={handleDecrement}
+                    >
+                      <Text className="text-3xl text-center text-gray-500">
+                        -
+                      </Text>
+                    </TouchableOpacity>
+                    <View>
+                      <Text className="font-extrabold text-3xl">
+                        R$ {number.toFixed(2)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      className="bg-gray-300 w-1/12 rounded-md"
+                      onPress={handleIncrement}
+                    >
+                      <Text className="text-3xl text-center text-gray-500">
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Slider
+                    style={{ width: "100%", height: 40 }}
+                    minimumValue={0}
+                    maximumValue={avaibleToCashOut}
+                    step={0.1}
+                    value={number}
+                    onValueChange={handleSliderChange}
+                    minimumTrackTintColor="#FF6112"
+                    maximumTrackTintColor="gray"
+                    thumbTintColor="#FF6112"
+                  />
+                  <FlatList
+                    horizontal
+                    contentContainerStyle={{ gap: 8 }}
+                    data={fixedWithdrawalAmounts}
+                    keyExtractor={value => value.toString()}
+                    renderItem={({ item: value }) => {
+                      return (
+                        <TouchableOpacity
+                          disabled={avaibleToCashOut < value}
+                          className={`p-4 flex-row rounded-lg ${
+                            avaibleToCashOut >= value
+                              ? "bg-gray-400"
+                              : "bg-gray-300"
                           }`}
                           onPress={() => setNumber(value)}
                         >
