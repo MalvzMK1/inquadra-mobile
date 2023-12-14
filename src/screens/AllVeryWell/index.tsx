@@ -170,7 +170,7 @@ export default function AllVeryWell({
         street_name: route.params.establishmentInfos.street_name,
         cep: route.params.establishmentInfos.cep,
         phone_number: route.params.establishmentInfos.phone_number,
-        cnpj: route.params.establishmentInfos.cnpj,
+        cnpj: route.params.establishmentInfos.cnpj || undefined,
         cellphone_number: route.params.establishmentInfos.cellphone_number,
         amenities: route.params.establishmentInfos.amenities,
         corporate_name: route.params.establishmentInfos.corporate_name,
