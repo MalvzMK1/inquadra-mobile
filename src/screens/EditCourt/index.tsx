@@ -79,7 +79,7 @@ export default function EditCourt({
           setValue("fantasyName", data.court.data.attributes.fantasy_name);
 
           setMinimumScheduleValue(
-            data.court.data.attributes.minimumScheduleValue,
+            data.court.data.attributes.minimumScheduleValue.toString().replace(",", "").replace(".", ""),
           );
           setValue(
             "minimumScheduleValue",
@@ -221,7 +221,7 @@ export default function EditCourt({
   >([]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [minimumScheduleValue, setMinimumScheduleValue] = useState<number>();
+  const [minimumScheduleValue, setMinimumScheduleValue] = useState<string>();
 
   const handleUpdateCourt = handleSubmit(async data => {
     setIsLoading(true);
@@ -600,6 +600,7 @@ export default function EditCourt({
                   mask={Masks.BRL_CURRENCY}
                   onChangeText={(masked, unmasked) => {
                     onChange(parseFloat(unmasked));
+                    setMinimumScheduleValue(unmasked)
                   }}
                 />
               )}
