@@ -3,7 +3,7 @@
     "name": "InQuadra",
     "slug": "InQuadra",
     "scheme": "com.qodeless.inquadra",
-    "version": "8.8.0",
+    "version": "8.9.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "backgroundColor": "#292929",
