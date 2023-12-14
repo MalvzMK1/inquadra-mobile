@@ -10,12 +10,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { TextInput } from "react-native-paper";
 import QRCode from "react-native-qrcode-svg";
 import Toast from "react-native-toast-message";
+import Icon from "react-native-vector-icons/Ionicons";
 import { useUser } from "../../context/userContext";
 import { useCreateStrapiPixCharge } from "../../hooks/useCreateStrapiPixCharge";
-import useDeletePaymentPix from "../../hooks/useDeletePaymentPix";
 import { useRegisterSchedule } from "../../hooks/useRegisterSchedule";
 import { useGetSchedulingsDetails } from "../../hooks/useSchedulingDetails";
 import useUpdateScheduleDay from "../../hooks/useUpdateScheduleDay";
@@ -61,7 +60,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   const [updateUserPaymentPix] = useUpdateUserPaymentPix();
   const [createSchedule] = useRegisterSchedule();
   const [updateSchedule] = useUpdateScheduleDay();
-  const [deletePaymentPix] = useDeletePaymentPix();
   const schedulePrice = route.params.schedulePrice!;
   const scheduleValuePayed = route.params.scheduleValuePayed!;
   const [userAddress, setUserAddress] = useState<APICepResponse>();
@@ -87,6 +85,8 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     alert("Código PIX copiado para área de transferência.");
   };
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
     let isMounted = true;
 
@@ -105,7 +105,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     }
 
     const checkTimeOut = () => {
-      const isFocused = useIsFocused();
       if (statusPix === "waiting" && isFocused) {
         setStatusPix("cancelled");
         clearInterval(intervalId);
@@ -148,7 +147,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       clearInterval(intervalId);
       clearInterval(timeOutPayment);
     };
-  }, []);
+  }, [isFocused]);
 
   const scheduleValueUpdate = async (
     value: number,
@@ -163,8 +162,10 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     let valuePayedUpdate =
       value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
-      value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : "";
-
+      value + scheduleValuePayed! >= schedulePrice! &&
+      scheduleValuePayed !== undefined
+        ? generateRandomKey(4)
+        : "";
     try {
       await updateScheduleValue({
         variables: {
@@ -176,7 +177,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         },
       });
     } catch (error) {
-      console.log("Erro na mutação updateValueSchedule", error);
+      console.error("Erro na mutação updateValueSchedule", error);
     }
   };
 
@@ -222,7 +223,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         },
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -373,11 +374,8 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       <View className=" h-11 w-max  bg-zinc-900"></View>
       <View className=" h-16 w-max  bg-zinc-900 flex-row item-center justify-between px-5">
         <View className="flex item-center justify-center">
-          <TouchableOpacity
-            className="h-6 w-6"
-            onPress={() => navigation.goBack()}
-          >
-            <TextInput.Icon icon={"chevron-left"} size={25} color={"white"} />
+          <TouchableOpacity onPress={navigation.goBack} className="ml-4">
+            <Icon name="arrow-back" size={25} color="white" />
           </TouchableOpacity>
         </View>
         <View className="w-max flex item-center justify-center">

@@ -594,7 +594,7 @@ export default function ReservationPaymentSign({
           },
           Payment: {
             Type: "Pix",
-            Amount: 1,
+            Amount: 1, // totalSignalValueCents
           },
         });
 
