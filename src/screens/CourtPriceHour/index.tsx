@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays } from "date-fns";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -14,6 +14,7 @@ import SetCourtAvailibility from "../../components/SetCourtAvailibility";
 import { useAsyncStorageState } from "../../hooks/useAsyncStorageState";
 import { AsyncStorageKeys } from "../../utils/constants";
 import { formatLocaleWeekDayName, getWeekDays } from "../../utils/getWeekDates";
+import { useNavigation } from "@react-navigation/native";
 
 export interface Appointment {
   startsAt: string;
@@ -26,7 +27,9 @@ export default function CourtPriceHour({
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtPriceHour">) {
   const [selectedDay, setSelectedDay] = useState<number | null>(0);
+  const [handleHasLowerPrice, setHandleHasLowerPrice] = useState<boolean | null>(null)
   const [infoModalVisible, setInfoModalVisible] = useState(false);
+
   // todos os horários de todos os dias
   const [allAppointments, setAllAppointments, isLoadingInitialAllAppointments] =
     useAsyncStorageState<Appointment[][]>(
@@ -42,6 +45,27 @@ export default function CourtPriceHour({
         [], // dia especial
       ],
     );
+
+
+
+
+
+
+  const navigationNative = useNavigation()
+
+  useEffect(() => {
+    const hasLowerPrice = allAppointments.some((dayAppointments) =>
+      dayAppointments.some((appointment) => {
+        const formattedPrice = appointment.price.replace("R$ ", "").replace(",", ".");
+        const parsedPrice = parseFloat(formattedPrice);
+        const priceInCents = !isNaN(parsedPrice) ? Math.round(parsedPrice * 100) : null;
+
+        return priceInCents !== null && priceInCents < Number(route.params.minimumCourtPrice);
+      }
+      )
+    )
+    setHandleHasLowerPrice(hasLowerPrice)
+  }, [allAppointments])
 
   const [dayUse, setDayUse, isLoadingInitialDayUse] = useAsyncStorageState<
     boolean[]
