@@ -1,5 +1,5 @@
 import { HOST_API } from "@env";
-import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
@@ -283,8 +283,7 @@ export default function EstablishmentInfo({
                   <Text className="font-black text-lg flex-1">
                     {Establishment?.corporateName.toUpperCase()}
                   </Text>
-                  <View className="w-2/5 flex flex-row items-center justify-between">
-                    {/*<View className="flex-1 flex flex-row items-center gap-x-8 bg-violet-500">*/}
+                  <View className="w-2/5 flex flex-row items-center justify-around">
                     <TouchableOpacity
                       onPress={() => {
                         if (userId !== undefined && userId !== null) {
@@ -309,17 +308,13 @@ export default function EstablishmentInfo({
                         }
                       }}
                     >
-                      {!heart ? (
+                       {!heart ? (
                         <AntDesign name="hearto" size={30} color="black" />
                       ) : (
                         <AntDesign name="heart" size={28} color="red" />
                       )}
                     </TouchableOpacity>
-                    {/*<View className='w-8' />*/}
-                    <TouchableOpacity onPress={onShare}>
-                      <Ionicons name="share-social" size={30} color="black" />
-                    </TouchableOpacity>
-                    {/*<View className='w-8' />*/}
+                  
                     <TouchableOpacity onPress={handleTelefoneClick}>
                       <FontAwesome name="phone" size={30} color="black" />
                     </TouchableOpacity>

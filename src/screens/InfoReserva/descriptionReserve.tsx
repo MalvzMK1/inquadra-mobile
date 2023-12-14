@@ -121,14 +121,14 @@ export default function DescriptionReserve({
       if (data.scheduling.data.attributes.court_availability.data) {
         const _valueDisponibleToPay =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value - valuePayed;
+            .value + receivedServiceRate - valuePayed;
         setValueAvailableToPay(_valueDisponibleToPay);
       }
 
       if (receivedServiceRate) {
         const denominator =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value;
+            .value + receivedServiceRate!;
 
         if (denominator !== 0) {
           const newValuePayedPercentage =
@@ -259,7 +259,7 @@ export default function DescriptionReserve({
       .string()
       .nonempty("É necessário inserir um valor")
       .refine(value => {
-        const schedulingAmount = valueAvailableToPay;
+        const schedulingAmount = (valueAvailableToPay! + serviceRate!);
 
         if (schedulingAmount) {
           // Remover caracteres não numéricos
@@ -348,7 +348,7 @@ export default function DescriptionReserve({
       .string()
       .nonempty("É necessário inserir um valor")
       .refine(value => {
-        const schedulingAmount = valueAvailableToPay;
+        const schedulingAmount = valueAvailableToPay! + serviceRate!;
 
         if (schedulingAmount) {
           // Remover caracteres não numéricos
@@ -522,8 +522,8 @@ export default function DescriptionReserve({
 
   const scheduleValueUpdate = async (value: number) => {
     let validatePayment =
-      value + scheduleValuePayed! >= schedulePrice! ? "payed" : "waiting";
-    let valuePayedUpdate = value + scheduleValuePayed!;
+      value + scheduleValuePayed! >= schedulePrice! + serviceRate! ? "payed" : "waiting";
+    let valuePayedUpdate = value + scheduleValuePayed! + serviceRate!;
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice!
         ? generateRandomKey(4)
@@ -793,7 +793,7 @@ export default function DescriptionReserve({
           typeof serviceRate === "number" &&
           infoScheduleData.scheduling.data.attributes.valuePayed <
             infoScheduleData.scheduling.data.attributes.court_availability.data
-              .attributes.value ? (
+              .attributes.value + serviceRate ? (
             <>
               <View
                 style={{ width: "100%", justifyContent: "center" }}
@@ -805,13 +805,13 @@ export default function DescriptionReserve({
                     2,
                   )}{" "}
                   / R${" "}
-                  {infoScheduleData.scheduling.data.attributes.court_availability.data.attributes.value.toFixed(
+                  {(infoScheduleData.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate).toFixed(
                     2,
                   )}
                 </Text>
-                {infoScheduleData.scheduling.data.attributes.valuePayed &&
+                {infoScheduleData.scheduling.data.attributes.valuePayed <
                   infoScheduleData.scheduling.data.attributes.court_availability
-                    .data.attributes.value &&
+                    .data.attributes.value + serviceRate &&
                   payedPercentage !== undefined && (
                     <ProgressBar
                       progress={payedPercentage}
@@ -929,7 +929,7 @@ export default function DescriptionReserve({
               reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.valuePayed <
                 infoScheduleData.scheduling.data.attributes.court_availability
-                  .data.attributes.value ? (
+                  .data.attributes.value + serviceRate ? (
                   <View className="h-28 w-60 flex-row  pr-5">
                     <View className="h-max w-max  justify-center items-start">
                       <View className="flex-row item-center justify-center">
@@ -1149,7 +1149,7 @@ export default function DescriptionReserve({
             <TouchableOpacity
               disabled={isSubmitting}
               onPress={closeCardPayment}
-              className="bg-[#FF6112] mt-8 mb-4 mr-4 rounded-full w-6 aspect-square items-center justify-center self-end"
+              className="bg-[#FF6112] mt-14 mb-4 mr-4 rounded-full w-6 aspect-square items-center justify-center self-end"
             >
               <AntDesign name="close" size={20} color="white" />
             </TouchableOpacity>
