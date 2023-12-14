@@ -197,9 +197,11 @@ export default function HomeBar({
       //   )}
       // />
       filteredCourts.length === 0 ? (
-        <Text className="text-white text-sm font-medium">
-          Não há quadras para exibir...
-        </Text>
+        <View className="pt-7 flex items-center justify-center">
+          <Text className="text-white text-base justify-center items-center flex font-medium">
+            Não há quadras para exibir...
+          </Text>
+        </View>
       ) : (
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
           {filteredCourts.map(item => (
