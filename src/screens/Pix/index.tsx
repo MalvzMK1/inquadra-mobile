@@ -40,7 +40,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   const formattedValue = Number(value).toFixed(2);
 
   const { data: scheduleData } = useGetSchedulingsDetails(
-    route.params.scheduleID?.toString() ?? ""
+    route.params.scheduleID?.toString() ?? "",
   );
   const { userData } = useUser();
 
@@ -48,9 +48,9 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     onCompleted(data) {
       if (data?.usersPermissionsUser.data?.attributes.address) {
         getAddress(data.usersPermissionsUser.data.attributes.address.cep).then(
-          (response) => {
+          response => {
             setUserAddress(response);
-          }
+          },
         );
       }
     },
@@ -73,13 +73,13 @@ export default function PixScreen({ navigation, route }: RouteParams) {
   });
 
   const valueToPay = parseFloat(
-    value.replace(/[^\d.,]/g, "").replace(",", ".")
+    value.replace(/[^\d.,]/g, "").replace(",", "."),
   );
 
   useFocusEffect(
     useCallback(() => {
       setHasExecuted(false);
-    }, [])
+    }, []),
   );
 
   const handleCopiarTexto = async () => {
@@ -91,7 +91,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     let isMounted = true;
 
     function checkStatus() {
-      verifyPixStatus(paymentID).then((response) => {
+      verifyPixStatus(paymentID).then(response => {
         if (isMounted) {
           if (response.Payment.Status === 2) {
             setStatusPix("payed");
@@ -152,7 +152,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const scheduleValueUpdate = async (
     value: number,
-    schedule_id: number | null
+    schedule_id: number | null,
   ) => {
     let validatePayment =
       value + scheduleValuePayed! >= schedulePrice &&
@@ -163,10 +163,8 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     let valuePayedUpdate =
       value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
-      value + scheduleValuePayed! >= schedulePrice! &&
-      scheduleValuePayed !== undefined
-        ? generateRandomKey(4)
-        : "";
+      value + scheduleValuePayed! >= schedulePrice! ? generateRandomKey(4) : "";
+
     try {
       await updateScheduleValue({
         variables: {
@@ -177,14 +175,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           activation_key: activation_key,
         },
       });
-
-      console.log({
-        payed_status: validatePayment,
-        scheduling_id: schedule_id!,
-        value_payed: valuePayedUpdate!,
-        activated: false,
-        activation_key: activation_key,
-      });
     } catch (error) {
       console.log("Erro na mutação updateValueSchedule", error);
     }
@@ -192,6 +182,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const createNewSchedule = async () => {
     let isPayed = route.params.isPayed!;
+
     try {
       const create = await createSchedule({
         variables: {
@@ -207,7 +198,6 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           publishedAt: new Date().toISOString(),
         },
       });
-
       return create.data?.createScheduling?.data?.id;
     } catch (error) {
       console.error("Erro na mutação createSchedule:", error);
@@ -216,7 +206,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
 
   const updateScheduleDay = async (
     isPayed: boolean,
-    activationKey: string | null
+    activationKey: string | null,
   ) => {
     const paymentStatus: string = isPayed ? "payed" : "waiting";
     try {
@@ -262,7 +252,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       } else if (route.params.screen === "signal") {
         if (!hasExecuted) {
           if (statusPix === "payed") {
-            createNewSchedule().then((schedule_id) => {
+            createNewSchedule().then(schedule_id => {
               setHasExecuted(true);
               updateUserPaymentPix({
                 variables: {
@@ -282,7 +272,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
         if (statusPix === "payed") {
           updateScheduleDay(
             route.params.isPayed!,
-            route.params.randomKey!
+            route.params.randomKey!,
           ).then(() => {
             updateUserPaymentPix({
               variables: {
@@ -296,7 +286,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           });
         }
       }
-    }, [statusPix])
+    }, [statusPix]),
   );
 
   useEffect(() => {
@@ -322,13 +312,13 @@ export default function PixScreen({ navigation, route }: RouteParams) {
       !pixInfos
     ) {
       const dueDate: string = new Date(
-        scheduleData.scheduling.data.attributes.date
+        scheduleData.scheduling.data.attributes.date,
       )
         .toISOString()
         .split("T")[0];
       const courtName: string =
         scheduleData.scheduling.data.attributes.court_availability.data.attributes.court.data.attributes.court_types.data
-          .map((courtType) => courtType.attributes.name)
+          .map(courtType => courtType.attributes.name)
           .join(", ");
       const establishmentName: string =
         scheduleData.scheduling.data.attributes.court_availability.data
@@ -349,7 +339,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           debtorCep: userAddress.code.split("-").join(""),
           discountDate: new Date().toISOString().split("T")[0],
         },
-      }).then((response) => {
+      }).then(response => {
         if (response.data) {
           setPixInfos({
             txid: response.data.CreateCharge.txid,
