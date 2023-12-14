@@ -86,14 +86,14 @@ export default function Home({
     startsAt: string | undefined;
     date: Date | undefined;
     weekDay:
-      | "Monday"
-      | "Tuesday"
-      | "Wednesday"
-      | "Thursday"
-      | "Friday"
-      | "Saturday"
-      | "Sunday"
-      | undefined;
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"
+    | undefined;
   }>({
     amenities: [],
     dayUseService: undefined,
@@ -120,7 +120,7 @@ export default function Home({
     },
   });
 
-  const { data: userHookData, refetch: refetchUserInfos } = useGetUserById(
+  const { data: userHookData, refetch: refetchUserInfos, loading: userLoading } = useGetUserById(
     userId ?? "",
   );
 
@@ -167,7 +167,6 @@ export default function Home({
     if (!data?.establishments.data) {
       return [];
     }
-
     if (
       !(
         filter.amenities.length <= 0 &&
@@ -231,6 +230,7 @@ export default function Home({
           userHookData?.usersPermissionsUser?.data?.attributes?.photo?.data
             ?.attributes?.url ?? undefined,
       });
+
 
       return newEstablishments ?? [];
     }
@@ -299,7 +299,7 @@ export default function Home({
     setSportTypes(newAvailableSportTypes);
   }, [availableSportTypes, availableSportTypesError]);
 
-  function calculateGeolocationDelta(latitude: number): {latDelta: number, longDelta: number} {
+  function calculateGeolocationDelta(latitude: number): { latDelta: number, longDelta: number } {
     const radiusKm = 5;
 
     const earthRadiusKm = 6371;
@@ -321,15 +321,18 @@ export default function Home({
       longDelta
     }
   }
+  const [isLoadingMap, setLoadingMap] = useState(false);
 
   useEffect(() => {
     if (userGeolocation) {
-      const {latDelta, longDelta} = calculateGeolocationDelta(userGeolocation.latitude);
+      setLoadingMap(true)
+      const { latDelta, longDelta } = calculateGeolocationDelta(userGeolocation.latitude);
 
       setUserGeolocationDelta({
         latDelta,
         longDelta
       });
+      setLoadingMap(false)
     }
   }, [userGeolocation]);
 
@@ -354,6 +357,7 @@ export default function Home({
     try {
       setIsUserInfosLoading(true);
       if (userData) {
+        setLoadingMap(true)
         if (userData.id) {
           setUserId(userData.id);
         } else {
@@ -361,8 +365,8 @@ export default function Home({
             userPhoto: undefined,
           });
         }
-
         userData.geolocation && setUserGeolocation(userData.geolocation);
+        setLoadingMap(false)
       } else {
         setUserId(undefined);
         navigation.setParams({
@@ -454,76 +458,81 @@ export default function Home({
           />
         )
       )}
+
       <View className="flex-1">
-        <MapView
-          loadingEnabled
-          className="w-screen flex-1"
-          onPress={() => setIsMenuVisible(false)}
-          customMapStyle={customMapStyle}
-          showsCompass={false}
-          showsMyLocationButton={true}
-          ref={mapView}
-          showsUserLocation
-          initialRegion={{
-            latitude: userGeolocation.latitude,
-            longitude: userGeolocation.longitude,
-            latitudeDelta: userGeolocationDelta.latDelta,
-            longitudeDelta: userGeolocationDelta.longDelta,
-          }}
-        >
-          {establishments.length > 0 &&
-            establishments
-              .filter(item => {
-                if (sportSelected) {
-                  return item.type.split(" & ").includes(sportSelected);
-                } else {
+        {userLoading || isLoadingMap ?
+          <ActivityIndicator className="mt-8" size="large" color="#FF6112" />
+          :
+          <MapView
+            loadingEnabled
+            className="w-screen flex-1"
+            onPress={() => setIsMenuVisible(false)}
+            customMapStyle={customMapStyle}
+            showsCompass={false}
+            showsMyLocationButton={true}
+            ref={mapView}
+            showsUserLocation
+            initialRegion={{
+              latitude: userGeolocation.latitude,
+              longitude: userGeolocation.longitude,
+              latitudeDelta: userGeolocationDelta.latDelta,
+              longitudeDelta: userGeolocationDelta.longDelta,
+            }}
+          >
+            {establishments.length > 0 &&
+              establishments
+                .filter(item => {
+                  if (sportSelected) {
+                    return item.type.split(" & ").includes(sportSelected);
+                  } else {
+                    return true;
+                  }
+                })
+                .filter(establishment => {
+                  if (
+                    userGeolocation.latitude !== 0 &&
+                    userGeolocation.longitude !== 0
+                  ) return establishment.distance < 5;
                   return true;
-                }
-              })
-              .filter(establishment => {
-                if (
-                  userGeolocation.latitude !== 0 &&
-                  userGeolocation.longitude !== 0
-                ) return establishment.distance < 5;
-                return true;
-              })
-              .map(item => {
-                return (
-                  <Marker
-                    key={item.id}
-                    coordinate={{
-                      latitude: item.latitude,
-                      longitude: item.longitude,
-                    }}
-                    image={pointerMap}
-                    title={item.name}
-                    description={item.name}
-                  >
-                    <Callout
+                })
+                .map(item => {
+                  return (
+                    <Marker
                       key={item.id}
-                      tooltip
-                      onPress={() => {
-                        navigation.navigate("EstablishmentInfo", {
-                          establishmentId: item.id,
-                          userPhoto: route.params.userPhoto,
-                          colorState: undefined,
-                          setColorState: undefined,
-                        });
+                      coordinate={{
+                        latitude: item.latitude,
+                        longitude: item.longitude,
                       }}
+                      image={pointerMap}
+                      title={item.name}
+                      description={item.name}
                     >
-                      <CourtBallon
-                        id={item.id}
-                        name={item.name}
-                        distance={item.distance ?? ""}
-                        image={item.image}
-                        type={item.type}
-                        liked={true}
-                      />
-                    </Callout>
-                  </Marker>
-                );
-              })}
-        </MapView>
+                      <Callout
+                        key={item.id}
+                        tooltip
+                        onPress={() => {
+                          navigation.navigate("EstablishmentInfo", {
+                            establishmentId: item.id,
+                            userPhoto: route.params.userPhoto,
+                            colorState: undefined,
+                            setColorState: undefined,
+                          });
+                        }}
+                      >
+                        <CourtBallon
+                          id={item.id}
+                          name={item.name}
+                          distance={item.distance ?? ""}
+                          image={item.image}
+                          type={item.type}
+                          liked={true}
+                        />
+                      </Callout>
+                    </Marker>
+                  );
+                })}
+          </MapView>
+        }
         {!isMenuVisible && (
           <TouchableOpacity
             className={`absolute left-3 top-1`}
