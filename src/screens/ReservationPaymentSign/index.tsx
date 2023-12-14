@@ -510,7 +510,6 @@ export default function ReservationPaymentSign({
           });
     } catch (error) {
       console.error("Erro ao criar o agendamento:", error);
-      console.log(JSON.stringify(error, null, 2));
       setPaymentStatus("failed");
       Dialog.show({
         type: ALERT_TYPE.DANGER,
@@ -522,7 +521,7 @@ export default function ReservationPaymentSign({
 
   // Pega uma data no formato YYYY-MM-DD e transforma em MM/YY
   function parseDate(date: string): string {
-    let parsedOne = date.split('-');
+    let parsedOne = date.split("-");
 
     if (parsedOne.length !== 3) {
       return parsedOne[0];
@@ -532,9 +531,9 @@ export default function ReservationPaymentSign({
     parsedOne[0] = parsedOne[0].slice(2);
     parsedOne = parsedOne.reverse();
 
-    return parsedOne.join('/');
+    return parsedOne.join("/");
   }
-  
+
   // const handlePayCardSave = async (card: Card) => {
   //   try {
   //     const cieloRequestManager = new CieloRequestManager();

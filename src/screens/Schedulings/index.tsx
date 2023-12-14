@@ -7,8 +7,8 @@ import { Calendar, DateData } from "react-native-calendars";
 import BottomBlackMenuEstablishment from "../../components/BottomBlackMenuEstablishment";
 import CourtScheduling from "../../components/CourtScheduling";
 import CourtSchedulingContainer from "../../components/CourtSchedulingContainer";
+import { useUser } from "../../context/userContext";
 import useAllEstablishmentSchedules from "../../hooks/useAllEstablishmentSchedules";
-import {useUser} from "../../context/userContext";
 
 interface ScheduleCardInfos {
   id: string;
@@ -29,7 +29,7 @@ export default function Schedulings({
   route,
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "Schedulings">) {
-  const {userData} = useUser();
+  const { userData } = useUser();
   const [userId, setUserId] = useState<string>();
   const [schedules, setSchedules] = useState<Array<ScheduleArray>>([]);
   const [filteredSchedules, setFilteredSchedules] = useState<
@@ -55,10 +55,7 @@ export default function Schedulings({
   }
 
   useEffect(() => {
-    if (
-      userData &&
-      userData.id
-    ) setUserId(userData.id)
+    if (userData && userData.id) setUserId(userData.id);
   }, []);
 
   useEffect(() => {
@@ -69,14 +66,13 @@ export default function Schedulings({
       }> = [];
       let newSchedules: Array<ScheduleCardInfos> = [];
 
-      data.establishment.data?.attributes.courts.data.forEach(court => {
-        court.attributes.court_availabilities.data.forEach(availability => {
-          availability.attributes.schedulings.data.forEach(schedule => {
-            console.log({ date: new Date(schedule.attributes.date) });
+      data.establishment.data?.attributes.courts.data.forEach((court) => {
+        court.attributes.court_availabilities.data.forEach((availability) => {
+          availability.attributes.schedulings.data.forEach((schedule) => {
             newSchedules.push({
               id: schedule.id,
               name: court.attributes.court_types.data
-                .map(courtType => courtType.attributes.name)
+                .map((courtType) => courtType.attributes.name)
                 .join(", "),
               status: schedule.attributes.status,
               endsAt: availability.attributes.endsAt.slice(0, 5),
@@ -89,9 +85,9 @@ export default function Schedulings({
         });
       });
 
-      newSchedules.forEach(scheduleCard => {
+      newSchedules.forEach((scheduleCard) => {
         const existingDateIndex = newSchedulesArray.findIndex(
-          item => item.date.getTime() === scheduleCard.date.getTime(),
+          (item) => item.date.getTime() === scheduleCard.date.getTime()
         );
 
         if (existingDateIndex !== -1) {
@@ -111,7 +107,7 @@ export default function Schedulings({
 
   useEffect(() => {
     if (selectedDate) {
-      const newFilteredSchedules = schedules.filter(schedule => {
+      const newFilteredSchedules = schedules.filter((schedule) => {
         return schedule.date.toISOString() === selectedDate.toISOString();
       });
       setFilteredSchedules(newFilteredSchedules);
@@ -145,12 +141,12 @@ export default function Schedulings({
 
       {filteredSchedules.length > 0 ? (
         <ScrollView className="mt-[15px] h-full">
-          {filteredSchedules.map(schedule => (
+          {filteredSchedules.map((schedule) => (
             <CourtSchedulingContainer
               date={addDays(schedule.date, 1).toISOString()}
             >
               <View>
-                {schedule.schedules.map(courtSchedule => (
+                {schedule.schedules.map((courtSchedule) => (
                   <CourtScheduling
                     id={courtSchedule.id}
                     name={courtSchedule.name}

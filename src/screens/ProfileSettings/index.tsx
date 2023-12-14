@@ -138,13 +138,13 @@ export default function ProfileSettings({
   const [deleteAccountLoading, setDeleteAccountLoading] =
     useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState(
-    "Fazendo upload da imagem",
+    "Fazendo upload da imagem"
   );
   const [isLoading, setIsLoading] = useState(false);
   const [userCountry, setUserCountry] = useState<Country>();
 
   const { data: userPaymentCountryData } = useUserPaymentCountry(
-    userData?.id ?? "",
+    userData?.id ?? ""
   );
   const { loading, data } = useGetUserById(userData?.id ?? "");
   const { data: countriesData, loading: countriesLoading } = useCountries();
@@ -159,7 +159,7 @@ export default function ProfileSettings({
     let newCountriesArray: Array<{ key: string; value: string; img: string }> =
       [];
     if (!countriesLoading && countriesData) {
-      newCountriesArray = countriesData.countries.data.map(country => {
+      newCountriesArray = countriesData.countries.data.map((country) => {
         return {
           key: country.id,
           value: country.attributes.name,
@@ -168,7 +168,7 @@ export default function ProfileSettings({
       });
     }
 
-    setCountriesArray(prevState => [...prevState, ...newCountriesArray]);
+    setCountriesArray((prevState) => [...prevState, ...newCountriesArray]);
   }, [countriesData, countriesLoading]);
 
   const {
@@ -215,9 +215,8 @@ export default function ProfileSettings({
       dataCard.state,
       dataCard.cvv,
       userNameDefault,
-      cpfDefault,
+      cpfDefault
     ).then(() => {
-      console.log("ur");
       Dialog.show({
         title: "Cartão adicionado com sucesso",
         type: ALERT_TYPE.SUCCESS,
@@ -255,7 +254,7 @@ export default function ProfileSettings({
         },
       })
         .then(() => navigation.navigate("DeleteAccountSuccess"))
-        .catch(err => alert(JSON.stringify(err)))
+        .catch((err) => alert(JSON.stringify(err)))
         .finally(() => setDeleteAccountLoading(false));
     }
   };
@@ -305,7 +304,7 @@ export default function ProfileSettings({
       data.usersPermissionsUser.data.attributes.photo.data
     )
       setPhoto(
-        data.usersPermissionsUser.data.attributes.photo.data.attributes.url,
+        data.usersPermissionsUser.data.attributes.photo.data.attributes.url
       );
   });
 
@@ -328,12 +327,11 @@ export default function ProfileSettings({
 
       if (!result.canceled) {
         await uploadImage(result.assets[0].uri)
-          .then(uploadedImageID => {
+          .then((uploadedImageID) => {
             setProfilePicture(result.assets[0].uri);
             setImageEdited(true);
-            console.log("ID da imagem enviada:", uploadedImageID);
           })
-          .catch(error => {
+          .catch((error) => {
             console.error("Erro :", error);
           });
       }
@@ -361,9 +359,6 @@ export default function ProfileSettings({
       });
 
       const uploadedImageID = response.data[0].id;
-
-      console.log("Imagem enviada com sucesso!", response.data);
-
       setIsLoading(false);
 
       return uploadedImageID;
@@ -384,7 +379,7 @@ export default function ProfileSettings({
   }
 
   async function updateUserValidatingPhoto(
-    data: IUpdateUserValidatingPhotoProps,
+    data: IUpdateUserValidatingPhotoProps
   ): Promise<void> {
     console.log(JSON.stringify(data, null, 2));
 
@@ -423,7 +418,6 @@ export default function ProfileSettings({
           uploadedImageID = await uploadImage(profilePicture);
 
           setPhoto(profilePicture);
-          console.log({ photo });
         }
 
         await updateUserValidatingPhoto({
@@ -437,7 +431,7 @@ export default function ProfileSettings({
           user_id: userInfos.id,
           email: data.email,
         })
-          .catch(error => {
+          .catch((error) => {
             Dialog.show({
               type: ALERT_TYPE.WARNING,
               title: "Erro",
@@ -445,7 +439,7 @@ export default function ProfileSettings({
             });
             console.error(
               "Erro ao atualizar informações do usuário:",
-              JSON.stringify(error, null, 2),
+              JSON.stringify(error, null, 2)
             );
           })
           .then(() => {
@@ -454,7 +448,6 @@ export default function ProfileSettings({
               title: "Sucesso",
               textBody: "As informações foram atualizadas",
             });
-            console.log("Informações do usuário atualizadas com sucesso!");
           });
       }
     } catch (error) {
@@ -476,7 +469,7 @@ export default function ProfileSettings({
           undefined &&
           data.usersPermissionsUser.data.attributes.photo.data?.id !== null
           ? data.usersPermissionsUser.data.attributes.photo.data?.id
-          : "",
+          : ""
       );
       setPhotoData({
         id: data.usersPermissionsUser.data.attributes.photo.data?.id ?? "",
@@ -549,7 +542,7 @@ export default function ProfileSettings({
       | (Omit<User, "id" | "cep" | "latitude" | "longitude" | "streetName"> & {
           paymentCardInfos: { dueDate: string; cvv: string };
         })
-      | undefined,
+      | undefined
   ): void {
     if (userData) {
       setValue("name", userData.name);
@@ -623,17 +616,17 @@ export default function ProfileSettings({
           password_confirmation: passwordData.confirmPassword,
         },
       })
-        .then(value => {
+        .then((value) => {
           alert("Senha alterada com sucesso");
         })
-        .catch(reason => {
+        .catch((reason) => {
           if (reason instanceof ApolloError) {
             if (reason.message === "The provided current password is invalid")
               alert("A senha atual informada não é válida");
             alert(reason.message);
           }
           alert(
-            "Erro na alteração de senha\n" + JSON.stringify(reason, null, 2),
+            "Erro na alteração de senha\n" + JSON.stringify(reason, null, 2)
           );
         })
         .finally(() => {
@@ -645,7 +638,7 @@ export default function ProfileSettings({
 
   useEffect(() => {
     if (!loading && data) {
-      loadInformations().then(data => {
+      loadInformations().then((data) => {
         defineDefaultFieldValues(data);
         setUserInfos(data);
       });
@@ -690,7 +683,7 @@ export default function ProfileSettings({
     state: string,
     cvv: string,
     name: string,
-    cpf: string,
+    cpf: string
   ): Promise<void> => {
     const newCard: Card = {
       id: cards.length,
@@ -709,14 +702,14 @@ export default function ProfileSettings({
       cpf: cpf,
     };
 
-    setCards(prevCards => [...prevCards, newCard]);
+    setCards((prevCards) => [...prevCards, newCard]);
 
     await AsyncStorage.setItem(
       `user${userData?.id}Cards`,
       JSON.stringify([...cards, newCard]),
-      error => {
+      (error) => {
         if (error) {
-          console.log("deu ruim paew", error);
+          console.log("Error", error);
         } else {
           setShowCard(false);
           showMessage({
@@ -727,7 +720,7 @@ export default function ProfileSettings({
             // resetFieldsCard()
           });
         }
-      },
+      }
     );
 
     clearCardDatas();
@@ -745,7 +738,7 @@ export default function ProfileSettings({
       const { data: newCountries } = countriesData.countries;
 
       const foundCountry = newCountries.find(
-        country => String(country.id) === String(countryId),
+        (country) => String(country.id) === String(countryId)
       );
 
       if (foundCountry)
@@ -1251,7 +1244,7 @@ export default function ProfileSettings({
                 {showCreditCards ? (
                   cards.length > 0 ? (
                     <View className=" border-gray-500 flex w-max h-max">
-                      {cards.map(card => (
+                      {cards.map((card) => (
                         <Fragment key={card.id}>
                           <CreditCardCard
                             number={card.number}

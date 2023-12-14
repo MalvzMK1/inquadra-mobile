@@ -140,7 +140,7 @@ export const historicPaymentonQuery = gql`
               }
             }
           }
-          pix_keys {
+          pix_keys(pagination: { limit: -1 }) {
             data {
               id
               attributes {

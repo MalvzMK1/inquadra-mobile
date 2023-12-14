@@ -21,13 +21,11 @@ export interface ICourtAvailabilityResponse {
               value: CourtAvailability["value"];
               weekDay: WeekDays;
               schedulings: {
-                data: [
-                  {
-                    attributes: {
-                      date: Scheduling["date"];
-                    };
-                  },
-                ];
+                data: Array<{
+                  attributes: {
+                    date: Scheduling["date"];
+                  };
+                }>;
               };
             };
           }>;

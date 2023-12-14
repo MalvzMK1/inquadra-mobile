@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
-import { Modal, Text, View, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
+import { Modal, Text, TouchableOpacity, View } from "react-native";
 import MaskInput, { Masks } from "react-native-mask-input";
 
 const timeMask = [/\d/, /\d/, ":", /\d/, /\d/];
@@ -27,50 +28,51 @@ export default function PriceHour({
   onDelete,
 }: PriceHourProps) {
   const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [validateValueInserted, setValidateValueInserted] = useState<number>();
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout | undefined;
+  const navigation = useNavigation();
 
-    const validatePrice = (value: string) => {
-      let minimumCourtNumber = Number(minimumCourtValue);
-      let priceTest = Number(value.replace(/[^\d]/g, ""));
+  const validatePrice = (value: string) => {
+    let priceTest = Number(value.replace(/[^\d]/g, ""));
+    let minimumCourtNumber = Number(minimumCourtValue);
 
-      if (priceTest < minimumCourtNumber) {
-        setInfoModalVisible(true);
-      } else {
-        setInfoModalVisible(false);
-      }
-    };
-
-    if (timeoutId) {
-      clearTimeout(timeoutId);
+    if (priceTest < minimumCourtNumber) {
+      setInfoModalVisible(true);
+    } else {
+      setInfoModalVisible(false);
     }
-
-    timeoutId = setTimeout(() => {
-      validatePrice(price);
-    }, 6000);
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [price, minimumCourtValue]);
+  };
 
   function handleStartsAtChange(value: string): void {
     setStartsAt(value);
 
     if (value.length === 5) {
-      const [hour, minutes] = value.split(':');
+      const [hour, minutes] = value.split(":");
 
       let endsAtHour: number | string = Number(hour) + 1;
 
-      if (endsAtHour < 10) endsAtHour = '0'.concat(endsAtHour.toString());
+      if (endsAtHour < 10) endsAtHour = "0".concat(endsAtHour.toString());
       else endsAtHour = endsAtHour.toString();
 
-      setEndsAt(endsAtHour.concat(':').concat(minutes));
+      setEndsAt(endsAtHour.concat(":").concat(minutes));
     }
   }
+
+  React.useEffect(() => {
+    navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault();
+      validatePrice(price);
+      let minimumCourtNumber = Number(minimumCourtValue);
+      let priceTest = Number(price.replace(/[^\d]/g, ""));
+
+      if (priceTest < minimumCourtNumber) {
+        e.preventDefault();
+        setInfoModalVisible(true);
+      } else {
+        navigation.dispatch(e.data.action);
+      }
+    });
+  }, [navigation]);
 
   return (
     <View className="flex-row w-full justify-between items-center mt-[10px]">
@@ -113,6 +115,7 @@ export default function PriceHour({
             mask={Masks.BRL_CURRENCY}
             value={price}
             onChangeText={(text) => setPrice(text)}
+            onBlur={() => validatePrice(price)}
             placeholder="Ex.: R$250"
             inputMode="numeric"
           />

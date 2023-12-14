@@ -49,6 +49,7 @@ import {
 import getAddress from "../../utils/getAddressByCep";
 import { isValidCPF } from "../../utils/isValidCpf";
 import { transformCardExpirationDate } from "../../utils/transformCardExpirationDate";
+import { DescriptionReserveShareButton } from "./DescriptionReserveShareButton";
 
 function getScheduleStartDate(date: string, time: string) {
   return new Date(`${date}T${time}-03:00`);
@@ -90,11 +91,10 @@ export default function DescriptionReserve({
   useEffect(() => {
     AsyncStorage.getItem(`user${userData?.id}Cards`, (error, result) => {
       if (error) {
-        console.log("Deu ruim mano", error);
+        console.log(error);
       } else {
         const parsedCards = JSON.parse(result || "[]");
         setCards(parsedCards);
-        // console.log("Cartões recuperados com sucesso", parsedCards);
       }
     });
   }, [userData?.id]);
@@ -140,16 +140,7 @@ export default function DescriptionReserve({
             newValuePayedPercentage <= 1
           ) {
             setPayedPercentage(newValuePayedPercentage);
-          } else {
-            console.log(
-              "Valor inválido para payedPercentage:",
-              newValuePayedPercentage,
-            );
           }
-        } else {
-          console.error(
-            "Denominador é zero. Não é possível calcular a porcentagem.",
-          );
         }
       }
 
@@ -200,6 +191,7 @@ export default function DescriptionReserve({
       }
     },
   });
+
   const { data: dataHistoricPayments } =
     useAllPaymentsSchedulingById(schedule_id);
 
@@ -401,7 +393,6 @@ export default function DescriptionReserve({
     control: controlPix,
     handleSubmit: handleSubmitPayment,
     formState: { errors: errorsPix },
-    getValues: getValuesPix,
   } = useForm<iFormPixPayment>({
     resolver: zodResolver(formSchemaPixPayment),
   });
@@ -432,7 +423,6 @@ export default function DescriptionReserve({
         parsedValue = Number(Number(totalValue) * 100);
       }
 
-      console.log({ parsedValue });
       if (!allUserData?.usersPermissionsUser.data) return;
 
       const cieloRequestManager = new CieloRequestManager();
@@ -488,7 +478,6 @@ export default function DescriptionReserve({
       };
 
       const response = await cieloRequestManager.authorizePayment(body);
-      console.log(response);
       if (!schedule_id) return;
 
       try {
@@ -550,8 +539,6 @@ export default function DescriptionReserve({
           activation_key: activation_key,
         },
       });
-
-      console.log("sucesso!");
     } catch (error) {
       console.log("Erro na mutação updateValueSchedule", error);
     }
@@ -617,11 +604,6 @@ export default function DescriptionReserve({
       null;
     }
   };
-
-  function share() {
-    console.log("--- SHARE FUNCTION HAS BEEN TRIGGERED ---");
-    alert("--- SHARE FUNCTION HAS BEEN TRIGGERED ---");
-  }
 
   // TODO: TRANSFORMAR TUDO EM USE STATE --- FIX
   const usersPaymentsPixes =
@@ -951,23 +933,30 @@ export default function DescriptionReserve({
                   <View className="h-28 w-60 flex-row  pr-5">
                     <View className="h-max w-max  justify-center items-start">
                       <View className="flex-row item-center justify-center">
-                        <TouchableOpacity
-                          onPress={() => share()}
-                          className="flex-row"
-                        >
-                          <View className="h-5 w-5 items-center justify-center">
-                            <TextInput.Icon
-                              icon={"share-variant"}
-                              size={21}
-                              color={"#FF6112"}
-                            />
-                          </View>
-                          <View className="item-center justify-center">
-                            <Text className="font-black text-xs text-center text-white pl-1">
-                              Compartilhar
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
+                        {infoScheduleData ? (
+                          <DescriptionReserveShareButton
+                            establishmentId={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.establishment.data.id
+                            }
+                            courtName={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.fantasy_name
+                            }
+                            schedulingStartsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.startsAt
+                            }
+                            schedulingEndsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.endsAt
+                            }
+                          />
+                        ) : (
+                          <ActivityIndicator size={20} color="#FF6112" />
+                        )}
                       </View>
                     </View>
                     <View className="h-max w-full flex justify-between pl-2">
@@ -1009,24 +998,30 @@ export default function DescriptionReserve({
                   <View className="h-20 w-60 flex-row pr-5 items-center">
                     <View className=" w-max  justify-center items-start">
                       <View className="flex-row item-center justify-center">
-                        <TouchableOpacity
-                          onPress={() => share()}
-                          className="flex-row"
-                          disabled={!reserveStatus}
-                        >
-                          <View className="h-5 w-5 items-center justify-center">
-                            <TextInput.Icon
-                              icon={"share-variant"}
-                              size={21}
-                              color={"#FF6112"}
-                            />
-                          </View>
-                          <View className="item-center justify-center">
-                            <Text className="font-black text-xs text-center text-white pl-1">
-                              Compartilhar
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
+                        {infoScheduleData ? (
+                          <DescriptionReserveShareButton
+                            establishmentId={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.establishment.data.id
+                            }
+                            courtName={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.fantasy_name
+                            }
+                            schedulingStartsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.startsAt
+                            }
+                            schedulingEndsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.endsAt
+                            }
+                          />
+                        ) : (
+                          <ActivityIndicator size={20} color="#FF6112" />
+                        )}
                       </View>
                     </View>
                     <View className="h-max w-full flex justify-between pl-2">
@@ -1432,25 +1427,16 @@ export default function DescriptionReserve({
                             onChange(masked);
 
                             if (masked.length === 9) {
-                              getAddress(masked)
-                                .then(response => {
-                                  console.log(response);
-                                  setValue("cep", response.code);
-                                  setValue("street", response.address);
-                                  setValue("district", response.district);
-                                  setValue("city", response.city);
-                                  setValue("state", response.state);
-                                })
-                                .catch(error => {
-                                  console.log(error);
-                                  Dialog.show({
-                                    type: ALERT_TYPE.WARNING,
-                                    title:
-                                      "Não foi possível encontrar o endereço",
-                                    textBody:
-                                      "Verifique se o CEP inserido é válido",
-                                  });
+                              getAddress(masked).catch(error => {
+                                console.log(error);
+                                Dialog.show({
+                                  type: ALERT_TYPE.WARNING,
+                                  title:
+                                    "Não foi possível encontrar o endereço",
+                                  textBody:
+                                    "Verifique se o CEP inserido é válido",
                                 });
+                              });
                             }
                           }}
                           keyboardType="numeric"

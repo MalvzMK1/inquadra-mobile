@@ -1,16 +1,14 @@
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays, format, sub } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   ActivityIndicator,
   Image,
   Modal,
-  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -109,10 +107,13 @@ export default function CourtSchedule({
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtSchedule">) {
   const { userData } = useUser();
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
-  const [showUntillDatePicker, setShowUntillDatePicker] = useState<boolean>(false)
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const [showUntillDatePicker, setShowUntillDatePicker] =
+    useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<null | Date>(null);
-  const [selectedUntillDate, setSelectedUntillDate] = useState<null | Date>(null)
+  const [selectedUntillDate, setSelectedUntillDate] = useState<null | Date>(
+    null
+  );
   const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string>(
     route.params.establishmentId
@@ -123,22 +124,21 @@ export default function CourtSchedule({
 
   const handleDateChange = (event: any, date: any) => {
     if (date !== undefined) {
-      const formattedDate = format(date, 'dd-MM-yyyy');
+      const formattedDate = format(date, "dd-MM-yyyy");
       setSelectedDate(date);
       setShowDatePicker(false);
-      setStartsAt(formattedDate)
+      setStartsAt(formattedDate);
     }
-  }
-
+  };
 
   const handleUntillDateChange = (event: any, date: any) => {
     if (date !== undefined) {
-      const formattedDate = format(date, 'dd-MM-yyyy');
+      const formattedDate = format(date, "dd-MM-yyyy");
       setSelectedUntillDate(date);
       setShowUntillDatePicker(false);
-      setEndsAt(formattedDate)
+      setEndsAt(formattedDate);
     }
-  }
+  };
   const showDatePickerIOS = () => {
     setShowDatePicker(true);
   };
@@ -338,9 +338,9 @@ export default function CourtSchedule({
           .establishment.data.attributes.photo
       )
         ? userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.photo[0]
+            .establishment.data.attributes.photo[0]
         : userByEstablishmentData.usersPermissionsUser.data.attributes
-          .establishment.data.attributes.photo,
+            .establishment.data.attributes.photo,
     });
   }
 
@@ -522,7 +522,6 @@ export default function CourtSchedule({
               },
             },
           });
-
           return {
             date: item,
             scheduling_quantity: scheduleByDateData?.schedulings.data?.length,
@@ -593,7 +592,6 @@ export default function CourtSchedule({
             },
           },
         });
-
         if (scheduleByDateData != undefined) return scheduleByDateData;
       })
     );
@@ -628,18 +626,13 @@ export default function CourtSchedule({
     const blockScheduleData = {
       ...data,
     };
-    console.log("blockScheduleData", blockScheduleData);
 
     const datesRange = getDatesRange(
       blockScheduleData.initialDate,
       blockScheduleData.endDate
     );
-    console.log("datesRange", datesRange);
-
     const courtId = selectedCourtId;
-    console.log("courtId ID:", courtId);
     const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId);
-    console.log("Scheduling", schedulingsByDate);
 
     if (schedulingsByDate.length > 0 && courtId) {
       try {
@@ -654,8 +647,6 @@ export default function CourtSchedule({
               scheduling_id: item.schedulingId.toString(),
             },
           });
-
-          console.log("Mutation Response:", response);
         }
         setBlockedCourtId("");
         setBlockScheduleByDateModal(false);
@@ -666,6 +657,9 @@ export default function CourtSchedule({
         console.error("DEFAULT_ERROR_MESSAGE", { type: "error" });
         setIsLoading(false);
       }
+    } else {
+      alert("Não há nenhuma reserva nesse intervalo de datas!");
+      setIsLoading(false);
     }
   }
 
@@ -783,7 +777,6 @@ export default function CourtSchedule({
             })
           );
         } catch (error) {
-          console.log("Deu erro: ", error);
           setIsLoading(false);
         }
       } else {
@@ -921,10 +914,11 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ${schedulingsFocus
-                ? "text-black"
-                : "text-[#292929]" && "opacity-40"
-                } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ${
+                schedulingsFocus
+                  ? "text-black"
+                  : "text-[#292929]" && "opacity-40"
+              } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
             >
               Reservas
             </Text>
@@ -941,10 +935,11 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ml-[10px] ${schedulingsHistoricFocus
-                ? "text-black"
-                : "text-[#292929]" && "opacity-40"
-                } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ml-[10px] ${
+                schedulingsHistoricFocus
+                  ? "text-black"
+                  : "text-[#292929]" && "opacity-40"
+              } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
             >
               Histórico de reservas
             </Text>
@@ -1134,10 +1129,11 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.initialHour
-                      ? "border-red-400"
-                      : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      blockScheduleByTimeErrors.initialHour
+                        ? "border-red-400"
+                        : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="initialHour"
@@ -1178,10 +1174,11 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.endHour
-                      ? "border-red-400"
-                      : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      blockScheduleByTimeErrors.endHour
+                        ? "border-red-400"
+                        : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="endHour"
@@ -1286,8 +1283,9 @@ export default function CourtSchedule({
                 <View className="flex-1 mr-[6px]">
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
                   <View
-                    className={`flex flex-row items-center justify-between border ${errors.initialDate ? "border-red-400" : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      errors.initialDate ? "border-red-400" : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="initialDate"
@@ -1309,18 +1307,34 @@ export default function CourtSchedule({
                         />
                       )}
                     />
-                    <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowDatePicker(true)} />
+                    <MaterialIcons
+                      name="calendar-today"
+                      size={20}
+                      color="#808080"
+                      onPress={() => setShowDatePicker(true)}
+                    />
 
                     {showDatePicker && (
-                      <DateTimePicker
-                        minimumDate={new Date()}
-                        value={selectedDate || new Date()}
-
-                        onChange={(event, date) => {
-                          handleDateChange(event, date!);
-                          setShowDatePicker(false);
+                      <Controller
+                        name="initialDate"
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 10,
                         }}
-                        display='calendar'
+                        render={({ field: { onChange } }) => (
+                          <DateTimePicker
+                            minimumDate={new Date()}
+                            value={selectedDate || new Date()}
+                            onChange={(event, date) => {
+                              handleDateChange(event, date!);
+                              setShowDatePicker(false);
+                              const formattedDate = format(date!, "dd-MM-yyyy");
+                              onChange(formattedDate);
+                            }}
+                            display="calendar"
+                          />
+                        )}
                       />
                     )}
                   </View>
@@ -1335,8 +1349,9 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${errors.endDate ? "border-red-400" : "border-gray-400"
-                      } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${
+                      errors.endDate ? "border-red-400" : "border-gray-400"
+                    } rounded p-3`}
                   >
                     <Controller
                       name="endDate"
@@ -1357,16 +1372,33 @@ export default function CourtSchedule({
                         ></MaskInput>
                       )}
                     />
-                    <MaterialIcons name="calendar-today" size={20} color="#808080" onPress={() => setShowUntillDatePicker(true)} />
+                    <MaterialIcons
+                      name="calendar-today"
+                      size={20}
+                      color="#808080"
+                      onPress={() => setShowUntillDatePicker(true)}
+                    />
                     {showUntillDatePicker && (
-                      <DateTimePicker
-                        minimumDate={selectedDate || new Date()}
-                        value={selectedUntillDate || new Date()}
-                        onChange={(event, date) => {
-                          handleUntillDateChange(event, date!);
-                          setShowUntillDatePicker(false);
+                      <Controller
+                        name="endDate"
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 10,
                         }}
-                        display='calendar'
+                        render={({ field: { onChange } }) => (
+                          <DateTimePicker
+                            minimumDate={selectedDate || new Date()}
+                            value={selectedUntillDate || new Date()}
+                            onChange={(event, date) => {
+                              handleUntillDateChange(event, date!);
+                              setShowUntillDatePicker(false);
+                              const formattedDate = format(date!, "dd-MM-yyyy");
+                              onChange(formattedDate);
+                            }}
+                            display="calendar"
+                          />
+                        )}
                       />
                     )}
                   </View>

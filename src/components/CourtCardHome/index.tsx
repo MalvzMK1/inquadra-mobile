@@ -121,9 +121,7 @@ export default function EstablishmentCardHome(props: CourtCardInfos) {
             !isLikeLoading ? (
               <TouchableOpacity
                 onPress={() => {
-                  console.log("click");
                   color === "white" ? setColor("red") : setColor("white");
-                  console.log("changed", color);
                   handleUpdateCourtLike(props.id);
                 }}
               >

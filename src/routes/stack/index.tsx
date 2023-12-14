@@ -71,15 +71,15 @@ export default function () {
     if (corporateName === "") setEstablishmentsInfos([]);
     else if (allEstablishments) {
       const establishments = allEstablishments.establishments.data.map(
-        (establishment) => {
+        establishment => {
           return {
             establishmentsId: establishment.id,
             corporateName: establishment.attributes.corporateName,
           };
-        }
+        },
       );
 
-      const filteredEstablishments = establishments.filter((establishment) => {
+      const filteredEstablishments = establishments.filter(establishment => {
         return establishment.corporateName
           .toLowerCase()
           .includes(corporateName.toLowerCase());
@@ -96,7 +96,7 @@ export default function () {
           headerShown: false,
         })}
       >
-        {(props) => (
+        {props => (
           <Home
             {...props}
             menuBurguer={menuBurguer}
@@ -227,7 +227,7 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={navigation.goBack}>
+            <TouchableOpacity onPress={navigation.goBack} className="ml-4">
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),
@@ -496,7 +496,7 @@ export default function () {
           ),
         })}
       >
-        {(props) => <Home {...props} menuBurguer={menuBurguer} />}
+        {props => <Home {...props} menuBurguer={menuBurguer} />}
       </Screen>
       <Screen
         name="AmountAvailableWithdrawal"
@@ -709,7 +709,7 @@ export default function () {
           ),
         })}
       >
-        {(props) => <EstablishmentInfo {...props} />}
+        {props => <EstablishmentInfo {...props} />}
       </Screen>
       <Screen
         name="ReservationPaymentSign"
@@ -757,7 +757,7 @@ export default function () {
             </TouchableOpacity>
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={navigation.goBack}>
+            <TouchableOpacity onPress={navigation.goBack} className="ml-4">
               <Icon name="arrow-back" size={25} color="white" />
             </TouchableOpacity>
           ),
@@ -973,7 +973,13 @@ export default function () {
         name="CourtPriceHour"
         component={CourtPriceHour}
         options={{
+          headerShown: false,
           headerTitle: "Definir hora/valor",
+          headerLeft: () => (
+            <TouchableOpacity onPress={navigation.goBack} className="ml-4">
+              <Icon name="arrow-back" size={25} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Screen

@@ -73,21 +73,21 @@ export default function EditCourt({
           setPhoto(
             HOST_API +
               data.court.data?.attributes.photo.data[0]?.attributes.url ??
-              undefined
+              undefined,
           );
 
           setValue("fantasyName", data.court.data.attributes.fantasy_name);
 
           setMinimumScheduleValue(
-            data.court.data.attributes.minimumScheduleValue
+            data.court.data.attributes.minimumScheduleValue,
           );
           setValue(
             "minimumScheduleValue",
-            data.court.data.attributes.minimumScheduleValue
+            data.court.data.attributes.minimumScheduleValue,
           );
         }
       },
-    }
+    },
   );
 
   const [photo, setPhoto] = useState<string | undefined>();
@@ -101,7 +101,7 @@ export default function EditCourt({
   >([]);
 
   const courtTypesData: { name: string; id: string }[] = [];
-  sportTypesData?.courtTypes.data.forEach((sportItem) => {
+  sportTypesData?.courtTypes.data.forEach(sportItem => {
     courtTypesData.push({ name: sportItem.attributes.name, id: sportItem.id });
   });
 
@@ -111,7 +111,7 @@ export default function EditCourt({
   }
 
   const allCourtTypesJson: ICourtTypes[] = [];
-  sportTypesData?.courtTypes.data.forEach((sportTypeItem) => {
+  sportTypesData?.courtTypes.data.forEach(sportTypeItem => {
     allCourtTypesJson.push({
       id: sportTypeItem.id,
       name: sportTypeItem.attributes.name,
@@ -127,11 +127,9 @@ export default function EditCourt({
   }, []);
 
   let courtPhotos: string[] = [];
-  courtByIdData?.court.data.attributes.photo.data.forEach((photoItem) => {
+  courtByIdData?.court.data.attributes.photo.data.forEach(photoItem => {
     courtPhotos.push(photoItem.id);
   });
-
-  console.log(courtPhotos);
 
   async function uploadNewCourtImage(): Promise<string[] | undefined> {
     try {
@@ -139,9 +137,6 @@ export default function EditCourt({
 
       if (photo) {
         const formData = new FormData();
-
-        const fetchResponse = await fetch(photo);
-        const blob = await fetchResponse.blob();
 
         formData.append("files", {
           uri: photo,
@@ -156,10 +151,9 @@ export default function EditCourt({
         });
 
         const uploadedImageIDs: string[] = response.data.map(
-          (image: any) => image.id
+          (image: any) => image.id,
         );
 
-        console.log("Imagens enviadas com sucesso!", response.data);
         return uploadedImageIDs;
       }
     } catch (error) {
@@ -178,22 +172,22 @@ export default function EditCourt({
     courtByIdData?.court.data.attributes.court_types != undefined
   ) {
     courtByIdData?.court.data.attributes.court_types.data.forEach(
-      (courtTypeItem) =>
+      courtTypeItem =>
         courtTypes.push({
           id: courtTypeItem.id,
           name: courtTypeItem.attributes.name,
-        })
+        }),
     );
   }
 
   const courtTypesJson: ICourtTypes[] = [];
   courtByIdData?.court.data.attributes.court_types.data.forEach(
-    (courtTypeItem) => {
+    courtTypeItem => {
       courtTypesJson.push({
         id: courtTypeItem.id,
         name: courtTypeItem.attributes.name,
       });
-    }
+    },
   );
 
   const handleCourtPictureUpload = async () => {
@@ -229,13 +223,12 @@ export default function EditCourt({
   const [isLoading, setIsLoading] = useState(false);
   const [minimumScheduleValue, setMinimumScheduleValue] = useState<number>();
 
-  const handleUpdateCourt = handleSubmit(async (data) => {
+  const handleUpdateCourt = handleSubmit(async data => {
     setIsLoading(true);
 
     try {
-      console.log({ selectedCourtTypesObject });
       const courtTypesId: string[] = selectedCourtTypesObject.map(
-        (selected) => selected.id
+        selected => selected.id,
       );
 
       let { allAvailabilities, dayUse } =
@@ -273,7 +266,7 @@ export default function EditCourt({
               false, // sábado
               false, // dia especial
             ],
-          }
+          },
         );
 
       const [storageDayUse, storageAvailabilities] = await Promise.all([
@@ -291,7 +284,7 @@ export default function EditCourt({
 
       if (
         !dayUse.length ||
-        !allAvailabilities.some((availabilities) => availabilities.length > 0)
+        !allAvailabilities.some(availabilities => availabilities.length > 0)
       ) {
         return Alert.alert("Erro", "Preencha os valores e horários.");
       }
@@ -300,7 +293,7 @@ export default function EditCourt({
 
       const courtAvailabilitiesData = allAvailabilities.reduce(
         (data, availabilities, index) => {
-          availabilities.forEach((availability) => {
+          availabilities.forEach(availability => {
             const isDayUse = dayUse[index];
             const weekDay = indexToWeekDayMap[index];
             const startsAt = `${availability.startsAt}:00.000`;
@@ -310,13 +303,13 @@ export default function EditCourt({
                 .replace("R$", "")
                 .replace(".", "")
                 .replace(",", ".")
-                .trim()
+                .trim(),
             );
 
             // para não criar outro se não mudou nada
             const existingId =
               courtByIdData?.court.data.attributes.court_availabilities.data.find(
-                (availabilityData) => {
+                availabilityData => {
                   return (
                     availabilityData.attributes.dayUseService === isDayUse &&
                     availabilityData.attributes.weekDay === weekDay &&
@@ -324,7 +317,7 @@ export default function EditCourt({
                     availabilityData.attributes.endsAt === endsAt &&
                     availabilityData.attributes.value === price
                   );
-                }
+                },
               )?.id;
 
             if (existingId) {
@@ -345,7 +338,7 @@ export default function EditCourt({
 
           return data;
         },
-        [] as CreateCourtAvailabilitiesVariables["data"]
+        [] as CreateCourtAvailabilitiesVariables["data"],
       );
 
       if (courtAvailabilitiesData.length > 0) {
@@ -366,14 +359,13 @@ export default function EditCourt({
         if (
           !createAvailabilitiesData?.createCourtAvailabilitiesCustom.success
         ) {
-          console.log("erro", createAvailabilitiesData);
           throw new Error(
-            "Não foi possível criar as disponibilidades de quadra"
+            "Não foi possível criar as disponibilidades de quadra",
           );
         }
 
         courtAvailabilityIds.push(
-          ...createAvailabilitiesData.createCourtAvailabilitiesCustom.ids
+          ...createAvailabilitiesData.createCourtAvailabilitiesCustom.ids,
         );
       }
 
@@ -382,18 +374,6 @@ export default function EditCourt({
       if (photoId && photoId[0]) {
         courtPhotos = [photoId[0], ...courtPhotos];
       }
-
-      console.log({
-        payload: {
-          court_id: courtId ?? "",
-          court_availabilities: courtAvailabilityIds,
-          court_name: data.fantasyName,
-          court_types: courtTypesId,
-          fantasy_name: data.fantasyName,
-          minimum_value: data.minimumScheduleValue,
-          photos: courtPhotos,
-        },
-      });
 
       await updateCourtHook({
         variables: {
@@ -420,9 +400,9 @@ export default function EditCourt({
   useEffect(() => {
     const newCourtTypeSelected: { id: string; name: string }[] = [];
 
-    courtTypeSelected?.forEach((selected) => {
+    courtTypeSelected?.forEach(selected => {
       const foundCourtType = courtTypesData.find(
-        (courtType) => courtType.name === selected
+        courtType => courtType.name === selected,
       );
       foundCourtType && newCourtTypeSelected.push(foundCourtType);
     });
@@ -477,7 +457,7 @@ export default function EditCourt({
               false, // sábado
               false, // dia especial
             ],
-          }
+          },
         );
 
       const promises: Array<Promise<unknown>> = [];
@@ -490,8 +470,8 @@ export default function EditCourt({
         promises.push(
           AsyncStorage.setItem(
             AsyncStorageKeys.CourtPriceHourDayUse,
-            JSON.stringify(dayUse)
-          )
+            JSON.stringify(dayUse),
+          ),
         );
       }
 
@@ -499,8 +479,8 @@ export default function EditCourt({
         promises.push(
           AsyncStorage.setItem(
             AsyncStorageKeys.CourtPriceHourAllAppointments,
-            JSON.stringify(allAvailabilities)
-          )
+            JSON.stringify(allAvailabilities),
+          ),
         );
       }
 
@@ -516,7 +496,7 @@ export default function EditCourt({
       console.log(error);
       Alert.alert(
         "Erro",
-        "Não é possível alterar os valores de aluguel e horários no momento."
+        "Não é possível alterar os valores de aluguel e horários no momento.",
       );
     } finally {
       setIsOpeningCourtPriceHour(false);
@@ -530,6 +510,7 @@ export default function EditCourt({
       </View>
     );
   }
+
   return (
     <View className="h-full w-full flex flex-col">
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
@@ -562,7 +543,7 @@ export default function EditCourt({
             </View>
             <MultipleSelectList
               setSelected={setCourtTypeSelected}
-              data={courtTypesData.map((courtType) => courtType.name)}
+              data={courtTypesData.map(courtType => courtType.name)}
               save="value"
               placeholder="Selecione uma modalidade"
               searchPlaceholder="Pesquisar..."

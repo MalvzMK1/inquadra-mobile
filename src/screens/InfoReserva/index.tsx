@@ -13,6 +13,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import BottomBlackMenu from "../../components/BottomBlackMenu";
+import { CountdownString } from "../../components/countdown/Countdown";
 import { useUser } from "../../context/userContext";
 import { IgetHistoricOfReserveOnResponse } from "../../graphql/queries/historicReserveOn";
 import { useGetHistoricReserveOn } from "../../hooks/useHistoricReserveOn";
@@ -65,26 +66,45 @@ export default function InfoReserva({
     }, [refetch])
   );
 
-  const schedulings = useMemo((): { active: Scheduling[];done: Scheduling[];} => {
-    const active: Scheduling[] = [];
-    const done: Scheduling[] = [];
+  function getScheduleStartDate(date: string, time: string) {
+    return new Date(`${date}T${time}-03:00`);
+  }
 
-    if (data && data.usersPermissionsUser.data)
-      data.usersPermissionsUser.data.attributes.schedulings.data.map(
-        (scheduling) => {
-          if (!scheduling.attributes.activated) {
-            done.push(scheduling);
-          } else {
-            console.log("entrou aqui scheduling done")
-            active.push(scheduling);
+  const schedulings = useMemo((): {
+    active: Scheduling[];
+    done: Scheduling[];
+  } => {
+    let active: Scheduling[] = [];
+    let done: Scheduling[] = [];
+
+    try {
+      if (data && data.usersPermissionsUser.data)
+        data.usersPermissionsUser.data.attributes.schedulings.data.map(
+          (scheduling) => {
+            const isPaymentExpired = CountdownString(
+              getScheduleStartDate(
+                scheduling.attributes.date,
+                scheduling.attributes.court_availability.data.attributes
+                  .startsAt
+              )
+            );
+            if (isPaymentExpired) {
+              done.push(scheduling);
+            } else {
+              active.push(scheduling);
+            }
           }
-        }
-      );
+        );
 
-    return {
-      active,
-      done,
-    };
+      return {
+        active,
+        done,
+      };
+    } catch (error) {
+      active = [];
+      done = [];
+      return { active, done };
+    }
   }, [data]);
 
   return (
@@ -267,13 +287,11 @@ export default function InfoReserva({
                 Reservas Finalizadas
               </Text>
             </View>
-            {/* Div para carregar todas as informações do histórico*/}
             <View className="items-center p-4">
               <View
                 className="w-full h-max bg-zinc-900 rounded-lg p-2"
                 style={{ elevation: 8 }}
               >
-                {/* Div para inserção dos cards*/}
                 {loading ? (
                   <View className="justify-center mt-2">
                     <ActivityIndicator size={40} color="white" />
@@ -301,10 +319,9 @@ export default function InfoReserva({
                                   source={{
                                     uri:
                                       HOST_API +
-                                      courtInfo?.attributes?.court_availability
-                                        ?.data?.attributes?.court?.data
-                                        ?.attributes?.photo?.data[0]?.attributes
-                                        ?.url,
+                                      courtInfo.attributes.court_availability
+                                        .data?.attributes.court.data?.attributes
+                                        ?.photo?.data[0]?.attributes?.url,
                                   }}
                                   style={{ width: 138, height: 90 }}
                                   borderRadius={5}
@@ -315,7 +332,7 @@ export default function InfoReserva({
                                   <Text className="font-black text-base text-orange-600">
                                     {
                                       courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
+                                        .data?.attributes.court.data?.attributes
                                         .fantasy_name
                                     }
                                   </Text>
@@ -325,7 +342,7 @@ export default function InfoReserva({
                                   <Text className="font-normal text-xs text-white">
                                     {
                                       courtInfo.attributes.court_availability
-                                        .data.attributes.court.data.attributes
+                                        .data?.attributes.court.data?.attributes
                                         .name
                                     }
                                   </Text>
@@ -359,7 +376,7 @@ export default function InfoReserva({
                                   <View>
                                     <Text className="font-black text-xs text-white">
                                       R$
-                                      {courtInfo.attributes.court_availability.data.attributes.value.toString()}
+                                      {courtInfo.attributes.court_availability.data?.attributes.value.toString()}
                                     </Text>
                                   </View>
                                 </View>
@@ -418,4 +435,7 @@ export default function InfoReserva({
       </View>
     </View>
   );
+}
+function getScheduleStartDate(): any {
+  throw new Error("Function not implemented.");
 }

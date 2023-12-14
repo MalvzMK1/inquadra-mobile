@@ -30,10 +30,6 @@ const formSchema = z.object({
 export default function Login() {
   const apolloClient = useApolloClient();
   const { userData: storageUserData, setUserData } = useUser();
-  const [userGeolocation, setUserGeolocation] = useState<{
-    latitude: number;
-    longitude: number;
-  }>();
   const [authUser] = useLoginUser();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -50,7 +46,7 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = handleSubmit(async (data) => {
+  const handleLogin = handleSubmit(async data => {
     setIsLoading(true);
 
     try {
@@ -88,7 +84,7 @@ export default function Login() {
         }).then(() => {
           if (userData && userData.usersPermissionsUser.data) {
             const userRole = String(
-              userData.usersPermissionsUser.data.attributes.role.data.id
+              userData.usersPermissionsUser.data.attributes.role.data.id,
             );
 
             if (userRole === "3") {
@@ -128,7 +124,7 @@ export default function Login() {
                   identifier: "enzao@gmail.com",
                   password: "122122",
                 },
-              }).then((response) => {
+              }).then(response => {
                 if (
                   response.data &&
                   response.data.login &&
@@ -142,7 +138,7 @@ export default function Login() {
                     alert(
                       `entered with enzao@gmail.com\nid: ${
                         response.data?.login.user.id ?? ""
-                      }\nJWT: ${response.data?.login.jwt ?? ""}`
+                      }\nJWT: ${response.data?.login.jwt ?? ""}`,
                     );
                     navigation.navigate("Home", {
                       userGeolocation: storageUserData?.geolocation,
@@ -206,7 +202,7 @@ export default function Login() {
                   outlineColor="#DCDCDC"
                   onSubmitEditing={handleLogin}
                   returnKeyType="send"
-                  label={<Text style={{ color: "#DCDCDC" }}>******</Text>}
+                  label={<Text style={{ color: "#DCDCDC" }}>Senha</Text>}
                   left={
                     <TextInput.Icon
                       icon={"lock-outline"}
