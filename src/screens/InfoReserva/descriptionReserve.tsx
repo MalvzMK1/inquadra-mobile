@@ -545,8 +545,6 @@ export default function DescriptionReserve({
   };
 
   const handlePayPix = handleSubmitPayment(async info => {
-    const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, ""));
-
     const generatePixJSON: RequestGeneratePix = {
       MerchantOrderId:
         schedule_id + user_id + generateRandomKey(3) + new Date().toISOString(),
@@ -562,6 +560,8 @@ export default function DescriptionReserve({
     };
 
     const pixGenerated = await generatePix(generatePixJSON);
+    const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, ""));
+
     await addPaymentPix({
       variables: {
         name: info.name,
@@ -935,11 +935,8 @@ export default function DescriptionReserve({
                       <View className="flex-row item-center justify-center">
                         {infoScheduleData ? (
                           <DescriptionReserveShareButton
-                            establishmentId={
-                              infoScheduleData.scheduling.data.attributes
-                                .court_availability.data.attributes.court.data
-                                .attributes.establishment.data.id
-                            }
+                            scheduleId={schedule_id}
+                            userId={user_id}
                             courtName={
                               infoScheduleData.scheduling.data.attributes
                                 .court_availability.data.attributes.court.data
@@ -1000,11 +997,8 @@ export default function DescriptionReserve({
                       <View className="flex-row item-center justify-center">
                         {infoScheduleData ? (
                           <DescriptionReserveShareButton
-                            establishmentId={
-                              infoScheduleData.scheduling.data.attributes
-                                .court_availability.data.attributes.court.data
-                                .attributes.establishment.data.id
-                            }
+                            scheduleId={schedule_id}
+                            userId={user_id}
                             courtName={
                               infoScheduleData.scheduling.data.attributes
                                 .court_availability.data.attributes.court.data
@@ -1607,6 +1601,14 @@ export default function DescriptionReserve({
       >
         <View className="bg-black bg-opacity-10 flex-1 justify-center items-center">
           <View className="bg-[#292929] h-fit w-11/12 p-6 justify-center">
+            <TouchableOpacity
+              disabled={isSubmitting}
+              onPress={closePixPayment}
+              className="bg-[#FF6112] mb-4 rounded-full w-6 aspect-square items-center justify-center self-end"
+            >
+              <AntDesign name="close" size={20} color="white" />
+            </TouchableOpacity>
+
             <View className="flex gap-y-[10px]">
               <View>
                 <Text className="text-sm text-[#FF6112]">Nome</Text>

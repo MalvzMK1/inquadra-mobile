@@ -406,7 +406,7 @@ export default function PaymentScheduleUpdate({
       if (userId) {
         setIsLoadingPayment(true);
         const signalValue = signalPay;
-        const signalValuePix = signalPay * 100;
+        const signalValueCents = signalPay * 100;
 
         const generatePixJSON: RequestGeneratePix = {
           MerchantOrderId:
@@ -418,7 +418,7 @@ export default function PaymentScheduleUpdate({
           },
           Payment: {
             Type: "Pix",
-            Amount: 1,
+            Amount: 1, // signalValueCents
           },
         };
         const pixGenerated = await generatePix(generatePixJSON);

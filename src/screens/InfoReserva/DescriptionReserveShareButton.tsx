@@ -1,33 +1,74 @@
-import { Alert, Share, Text, TouchableOpacity, View } from "react-native";
-import { TextInput } from "react-native-paper";
-import { useEstablishmentPixKeysQuery } from "../../hooks/useEstablishmentPixKeysQuery";
+import { AntDesign } from "@expo/vector-icons";
+import { Fragment, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  Share,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import MaskInput, { Masks } from "react-native-mask-input";
+import { Button, TextInput } from "react-native-paper";
+import { useUser } from "../../context/userContext";
+import { useGetUserById } from "../../hooks/useUserById";
+import { generatePix } from "../../services/pixCielo";
+import { generateRandomKey } from "../../utils/activationKeyGenerate";
 
 interface DescriptionReserveShareButtonProps {
-  establishmentId: string;
+  userId: string;
   courtName: string;
-  schedulingStartsAt: string;
+  scheduleId: string;
   schedulingEndsAt: string;
+  schedulingStartsAt: string;
 }
 
 export const DescriptionReserveShareButton: React.FC<
   DescriptionReserveShareButtonProps
-> = ({ establishmentId, courtName, schedulingStartsAt, schedulingEndsAt }) => {
-  const { data } = useEstablishmentPixKeysQuery({
-    skip: !establishmentId,
-    variables: {
-      establishmentId: establishmentId!,
-    },
-  });
+> = ({
+  userId,
+  courtName,
+  scheduleId,
+  schedulingEndsAt,
+  schedulingStartsAt,
+}) => {
+  const { userData } = useUser();
+  const [price, setPrice] = useState("");
+  const [isSharing, setIsSharing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: userByIdData } = useGetUserById(userData?.id ?? "");
 
-  async function share() {
+  async function handleShare() {
+    setIsSharing(true);
+
     try {
-      if (!data?.pixKeys.data.length) {
-        throw new Error(
-          `Não há chaves pix para do estabelecimento: ${establishmentId}`,
-        );
+      const parsedPrice = Number(
+        price
+          .replace("R$", "")
+          .replace(/[^\d,]/, "")
+          .replace(",", "."),
+      );
+
+      if (!userByIdData?.usersPermissionsUser.data) {
+        throw new Error("No user data");
       }
 
-      const pixKey = data.pixKeys.data[0].attributes.key;
+      const generatePixJSON: RequestGeneratePix = {
+        MerchantOrderId:
+          scheduleId + userId + generateRandomKey(3) + new Date().toISOString(),
+        Customer: {
+          Name: userByIdData.usersPermissionsUser.data.attributes.name,
+          Identity: userByIdData.usersPermissionsUser.data.attributes.cpf,
+          IdentityType: "CPF",
+        },
+        Payment: {
+          Type: "Pix",
+          Amount: parsedPrice * 100, // amount precisa ser em cents
+        },
+      };
+
+      const pixGenerated = await generatePix(generatePixJSON);
 
       await Share.share({
         title: "Compartilhar Estabelecimento",
@@ -37,9 +78,11 @@ Olá, topa se juntar a mim na quadra ${courtName} das ${schedulingStartsAt.subst
           5,
         )} às ${schedulingEndsAt.substring(0, 5)}?
 
-Aqui está a chave Pix para realizar o pagamento:
+Aqui está o código PIX para realizar o pagamento:
 
-Chave Pix: *${pixKey}*
+${pixGenerated.Payment.QrCodeString}
+
+Valor: ${price}
 
 Certifique-se de utilizar a chave correta para evitar qualquer inconveniente. Após efetuar a transação, por favor, nos avise para que possamos confirmar o recebimento do pagamento.
 
@@ -51,19 +94,87 @@ Atenciosamente, Equipe InQuadra.
     } catch (error) {
       console.error(error);
       Alert.alert("Erro", "Não foi possível compartilhar a chave pix.");
+    } finally {
+      setIsSharing(false);
     }
   }
 
+  function handleOpenModal() {
+    setIsModalOpen(true);
+  }
+
+  function handleCloseModal() {
+    setIsModalOpen(false);
+  }
+
   return (
-    <TouchableOpacity onPress={share} className="flex-row">
-      <View className="h-5 w-5 items-center justify-center">
-        <TextInput.Icon icon={"share-variant"} size={21} color={"#FF6112"} />
-      </View>
-      <View className="item-center justify-center">
-        <Text className="font-black text-xs text-center text-white pl-1">
-          Compartilhar
-        </Text>
-      </View>
-    </TouchableOpacity>
+    <Fragment>
+      <TouchableOpacity onPress={handleOpenModal} className="flex-row">
+        <View className="h-5 w-5 items-center justify-center">
+          <TextInput.Icon icon={"share-variant"} size={21} color={"#FF6112"} />
+        </View>
+
+        <View className="item-center justify-center">
+          <Text className="font-black text-xs text-center text-white pl-1">
+            Compartilhar
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      <Modal
+        visible={isModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={handleCloseModal}
+      >
+        <View className="bg-black bg-opacity-10 flex-1 justify-center items-center">
+          <View className="bg-[#292929] w-11/12 justify-center rounded-lg p-4">
+            <TouchableOpacity
+              disabled={isSharing}
+              onPress={handleCloseModal}
+              className="bg-[#FF6112] rounded-full w-6 aspect-square items-center justify-center self-end"
+            >
+              <AntDesign name="close" size={20} color="white" />
+            </TouchableOpacity>
+
+            <View className="space-y-1">
+              <Text className="text-sm text-[#FF6112]">
+                Valor da contribuição
+              </Text>
+
+              <MaskInput
+                className="p-3 border border-neutral-400 rounded bg-white"
+                placeholder="Ex: R$ 30,00"
+                value={price}
+                onChangeText={setPrice}
+                mask={Masks.BRL_CURRENCY}
+                keyboardType="numeric"
+              />
+            </View>
+
+            <Button
+              mode="contained"
+              onPress={handleShare}
+              disabled={isSharing}
+              style={{
+                height: 50,
+                width: "100%",
+                backgroundColor: "#FF6112",
+                borderRadius: 8,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 20,
+              }}
+            >
+              {isSharing ? (
+                <ActivityIndicator size={24} color="white" />
+              ) : (
+                <Text className="text-base text-white">COMPARTILHAR</Text>
+              )}
+            </Button>
+          </View>
+        </View>
+      </Modal>
+    </Fragment>
   );
 };
