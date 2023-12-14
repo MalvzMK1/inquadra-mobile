@@ -1,8 +1,9 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays } from "date-fns";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Modal,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -15,6 +16,7 @@ import { useAsyncStorageState } from "../../hooks/useAsyncStorageState";
 import { AsyncStorageKeys } from "../../utils/constants";
 import { formatLocaleWeekDayName, getWeekDays } from "../../utils/getWeekDates";
 import { useNavigation } from "@react-navigation/native";
+import { BackHandler } from "react-native";
 
 export interface Appointment {
   startsAt: string;
@@ -66,6 +68,49 @@ export default function CourtPriceHour({
     )
     setHandleHasLowerPrice(hasLowerPrice)
   }, [allAppointments])
+
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (navigation.isFocused()) {
+        if (handleHasLowerPrice) {
+          setInfoModalVisible(true)
+          return true;
+        }
+        return false;
+      }
+      return false;
+    };
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+    return () => backHandler.remove();
+  }, [navigation, handleHasLowerPrice]);
+
+
+  navigation.setOptions({
+    headerTitle: "Definir hora/valor",
+    headerLeft: () => (
+      <TouchableOpacity
+        style={{ marginLeft: 10 }}  
+        onPress={() => {
+          console.log("in touchable:", handleHasLowerPrice)
+          if (handleHasLowerPrice) {
+            null
+            setInfoModalVisible(true)
+          } else {
+            navigation.goBack();
+          }
+        }}
+      >
+        <Icon name="arrow-back" size={25} color="black" />
+      </TouchableOpacity>
+    ),
+  });
+
 
   const [dayUse, setDayUse, isLoadingInitialDayUse] = useAsyncStorageState<
     boolean[]
@@ -120,28 +165,6 @@ export default function CourtPriceHour({
 
   return (
     <View className="flex-1">
-      <View className="bg-white w-full pb-4 pt-10 flex-row items-center space-x-4 px-4">
-        <TouchableOpacity
-          onPress={() => {
-            const state = navigation.getState();
-            const previousRoute = state.routes.at(-2);
-
-            if (previousRoute) {
-              navigation.navigate(
-                previousRoute.name as any,
-                previousRoute.params,
-              );
-            } else {
-              navigation.goBack();
-            }
-          }}
-        >
-          <Icon name="arrow-back" size={25} color="black" />
-        </TouchableOpacity>
-
-        <Text className="font-bold text-lg">Definir hora/valor</Text>
-      </View>
-
       <ScrollView
         className="bg-[#292929]"
         contentContainerStyle={{ padding: 16 }}
@@ -163,6 +186,42 @@ export default function CourtPriceHour({
           </View>
 
           <View className="w-full h-full mt-[15px]">
+            <Modal
+              visible={infoModalVisible}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => setInfoModalVisible(false)}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "#FF6112",
+                    padding: 20,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text className="text-white font-semibold text-base">
+                    O valor/hora da sua quadra deve ser maior que o valor do sinal
+                    mínimo para alocação.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setInfoModalVisible(false);
+                    }}
+                  >
+                    <Text className="text-black font-semibold text-base mt-2">
+                      Fechar
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
             {weekDays.map((day, index) => (
               <CourtAvailibilityDay
                 key={day.dayName}

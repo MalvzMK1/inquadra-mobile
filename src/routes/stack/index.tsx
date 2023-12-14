@@ -972,15 +972,7 @@ export default function () {
       <Screen
         name="CourtPriceHour"
         component={CourtPriceHour}
-        options={{
-          headerShown: false,
-          headerTitle: "Definir hora/valor",
-          headerLeft: () => (
-            <TouchableOpacity onPress={navigation.goBack} className="ml-4">
-              <Icon name="arrow-back" size={25} color="black" />
-            </TouchableOpacity>
-          ),
-        }}
+
       />
       <Screen
         name="CourtAvailabilityInfo"
