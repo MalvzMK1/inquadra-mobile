@@ -47,7 +47,6 @@ export default function InfoProfileEstablishment({
 
   const [userId, setUserId] = useState<string>();
   const [establishmentId, setEstablishmentId] = useState<string | number>();
-  const [jwtToken, setJwtToken] = useState("");
 
   const {
     data: userByEstablishmentData,
@@ -393,9 +392,6 @@ export default function InfoProfileEstablishment({
       );
 
       navigation.setParams({
-        establishmentPhoto:
-          userByEstablishmentData?.usersPermissionsUser.data?.attributes.photo
-            .data?.attributes.url ?? undefined,
         establishmentId:
           userByEstablishmentData.usersPermissionsUser.data.attributes
             .establishment.data.id,
@@ -500,7 +496,7 @@ export default function InfoProfileEstablishment({
       updateUserPassword({
         context: {
           headers: {
-            Authorization: `bearer ${jwtToken}`,
+            Authorization: `bearer ${userData?.jwt ?? ''}`,
           },
         },
         variables: {

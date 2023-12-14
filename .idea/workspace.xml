@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/home/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +33,14 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI10580T10851" />
+                    <option name="lastUsedInstant" value="1702557478" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="WI10580T10848" />
+                    <option name="lastUsedInstant" value="1702553304" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI10580T10626" />
                     <option name="lastUsedInstant" value="1702466699" />
                   </RecentBranch>
@@ -43,14 +51,6 @@
                   <RecentBranch>
                     <option name="branchName" value="release" />
                     <option name="lastUsedInstant" value="1702307138" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="develop" />
-                    <option name="lastUsedInstant" value="1702306722" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI10580T10821" />
-                    <option name="lastUsedInstant" value="1702299243" />
                   </RecentBranch>
                 </list>
               </option>
@@ -79,7 +79,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI10580T10626",
+    "git-widget-placeholder": "WI10580T10851",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
