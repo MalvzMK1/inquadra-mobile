@@ -160,7 +160,7 @@ export default function RegisterEstablishment({
         navigation.navigate("RegisterCourts", {
           profileInfos: route.params,
           establishmentInfos: establishmentRegisterData,
-          cnpj: values.cnpj,
+          cnpj: values.cnpj || "",
           address: values.address,
           corporateName: values.corporateName,
           phoneNumber: values.phone,
