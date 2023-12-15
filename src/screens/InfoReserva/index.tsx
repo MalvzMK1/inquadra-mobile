@@ -20,6 +20,7 @@ import { useGetHistoricReserveOn } from "../../hooks/useHistoricReserveOn";
 import { useGetMenuUser } from "../../hooks/useMenuUser";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { API_BASE_URL } from "../../utils/constants";
+import { InfoReservaRedeemCode } from "./InfoReservaRedeemCode";
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -148,6 +149,7 @@ export default function InfoReserva({
       </View>
       {/* Div maior para carregar todos os itens inseridos do historico*/}
       <ScrollView>
+        <InfoReservaRedeemCode />
         {userData && userData.id && (
           <View className="h-max w-max bg-zinc-600 flex-1">
             <View className="flex items-start w-max pl-4 mt-2">
@@ -442,7 +444,4 @@ export default function InfoReserva({
       </View>
     </View>
   );
-}
-function getScheduleStartDate(): any {
-  throw new Error("Function not implemented.");
 }

@@ -131,8 +131,8 @@ Atenciosamente, Equipe InQuadra.
       </TouchableOpacity>
 
       <Modal
-        visible={isModalOpen}
         transparent
+        visible={isModalOpen}
         animationType="slide"
         onRequestClose={handleCloseModal}
       >

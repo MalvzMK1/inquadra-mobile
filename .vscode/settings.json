@@ -6,8 +6,5 @@
   "explorer.compactFolders": false,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }
