@@ -47,7 +47,7 @@ export default function InfoReserva({
     UserGeolocation | undefined
   >(userData?.geolocation);
   const { data, loading, refetch } = useGetHistoricReserveOn(
-    userData?.id ?? ""
+    userData?.id ?? "",
   );
 
   useFocusEffect(
@@ -60,10 +60,10 @@ export default function InfoReserva({
         dataUser?.usersPermissionsUser.data.attributes.photo.data
       ) {
         setUserPicture(
-          `${API_BASE_URL}${dataUser.usersPermissionsUser.data.attributes.photo.data.attributes.url}`
+          `${API_BASE_URL}${dataUser.usersPermissionsUser.data.attributes.photo.data.attributes.url}`,
         );
       }
-    }, [refetch])
+    }, [refetch]),
   );
 
   function getScheduleStartDate(date: string, time: string) {
@@ -80,20 +80,20 @@ export default function InfoReserva({
     try {
       if (data && data.usersPermissionsUser.data)
         data.usersPermissionsUser.data.attributes.schedulings.data.map(
-          (scheduling) => {
+          scheduling => {
             const isPaymentExpired = CountdownString(
               getScheduleStartDate(
                 scheduling.attributes.date,
                 scheduling.attributes.court_availability.data.attributes
-                  .startsAt
-              )
+                  .startsAt,
+              ),
             );
             if (isPaymentExpired) {
               done.push(scheduling);
             } else {
               active.push(scheduling);
             }
-          }
+          },
         );
 
       return {
@@ -123,7 +123,12 @@ export default function InfoReserva({
               }
             }}
           >
-            <TextInput.Icon icon="chevron-left" size={25} color="white" />
+            <TextInput.Icon
+              icon="chevron-left"
+              size={25}
+              color="white"
+              onPress={navigation.goBack}
+            />
           </TouchableOpacity>
         </View>
         <View className="w-max flex item-center justify-center">
@@ -168,14 +173,15 @@ export default function InfoReserva({
                         Não há reservas aqui...
                       </Text>
                     ) : (
-                      schedulings.active.map((courtInfo) => {
+                      schedulings.active.map(courtInfo => {
                         const percentagePaid = Math.floor(
                           (Number(courtInfo.attributes.valuePayed) /
                             Number(
-                             ( courtInfo.attributes.court_availability.data
-                                ?.attributes.value + Number(courtInfo.attributes.serviceRate!)) ?? 0
-                            ))  *
-                            100
+                              courtInfo.attributes.court_availability.data
+                                ?.attributes.value +
+                                Number(courtInfo.attributes.serviceRate!) ?? 0,
+                            )) *
+                            100,
                         );
 
                         return (
@@ -238,7 +244,7 @@ export default function InfoReserva({
                                       style={{
                                         width: `${Math.min(
                                           percentagePaid,
-                                          100
+                                          100,
                                         )}%`,
                                       }}
                                     />
@@ -255,7 +261,8 @@ export default function InfoReserva({
                                       {`${Number(
                                         courtInfo?.attributes
                                           ?.court_availability?.data?.attributes
-                                          ?.value + courtInfo.attributes.serviceRate
+                                          ?.value +
+                                          courtInfo.attributes.serviceRate,
                                       )}`}
                                     </Text>
                                   </View>
@@ -269,7 +276,7 @@ export default function InfoReserva({
                                 >
                                   Reserva feita em{" "}
                                   {formatDateTime(
-                                    courtInfo?.attributes?.createdAt.toString()
+                                    courtInfo?.attributes?.createdAt.toString(),
                                   )}
                                 </Text>
                               </View>
@@ -303,7 +310,7 @@ export default function InfoReserva({
                         Não há reservas aqui...
                       </Text>
                     ) : (
-                      schedulings.done.map((courtInfo) => {
+                      schedulings.done.map(courtInfo => {
                         return (
                           <TouchableOpacity
                             key={courtInfo.id}
@@ -385,7 +392,7 @@ export default function InfoReserva({
                                   <Text className="font-black text-xs text-white">
                                     Ultima Reserva{" "}
                                     {formatDateTime(
-                                      courtInfo?.attributes?.createdAt.toString()
+                                      courtInfo?.attributes?.createdAt.toString(),
                                     )}
                                   </Text>
                                 </View>
