@@ -62,11 +62,19 @@ export default function CourtPriceHour({
         const parsedPrice = parseFloat(formattedPrice);
         const priceInCents = !isNaN(parsedPrice) ? Math.round(parsedPrice * 100) : null;
 
-        return priceInCents !== null && priceInCents < Number(route.params.minimumCourtPrice);
+        console.log(priceInCents)
+
+        return priceInCents === null || priceInCents < Number(route.params.minimumCourtPrice);
       }
       )
     )
-    setHandleHasLowerPrice(hasLowerPrice)
+    console.log(hasLowerPrice)
+    if(hasLowerPrice !== null && !hasLowerPrice){
+      setHandleHasLowerPrice(false)
+    }else{
+      setHandleHasLowerPrice(true)
+    }
+   
   }, [allAppointments])
 
 
@@ -75,7 +83,7 @@ export default function CourtPriceHour({
   useEffect(() => {
     const backAction = () => {
       if (navigation.isFocused()) {
-        if (handleHasLowerPrice) {
+        if (handleHasLowerPrice || handleHasLowerPrice === null) {
           setInfoModalVisible(true)
           return true;
         }
@@ -98,7 +106,7 @@ export default function CourtPriceHour({
         style={{ marginLeft: 10 }}  
         onPress={() => {
           console.log("in touchable:", handleHasLowerPrice)
-          if (handleHasLowerPrice) {
+          if (handleHasLowerPrice || handleHasLowerPrice === null) {
             null
             setInfoModalVisible(true)
           } else {
