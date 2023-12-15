@@ -576,7 +576,7 @@ export default function DescriptionReserve({
         paymentID: pixGenerated.Payment.PaymentId,
         publishedAt: new Date().toISOString(),
       },
-    }).then(response =>
+    }).then(response => {
       navigation.navigate("PixScreen", {
         courtName: fantasyName ?? "",
         value: parsedValue.toString()!,
@@ -588,8 +588,8 @@ export default function DescriptionReserve({
         schedulePrice: schedulePrice!,
         scheduleValuePayed: scheduleValuePayed!,
         screen: "historic",
-      }),
-    );
+      });
+    });
     setShowPixPaymentModal(false);
   });
 
@@ -676,8 +676,8 @@ export default function DescriptionReserve({
                 source={{
                   uri:
                     HOST_API +
-                    dataUser?.usersPermissionsUser.data?.attributes.photo.data
-                      ?.attributes.url ?? "",
+                      dataUser?.usersPermissionsUser.data?.attributes.photo.data
+                        ?.attributes.url ?? "",
                 }}
                 style={{ width: 46, height: 46 }}
                 borderRadius={100}
@@ -688,7 +688,7 @@ export default function DescriptionReserve({
           )}
         </View>
       </View>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         <View className="h-6" />
         <View className="flex w-max h-fit bg-zinc-900 px-5 pb-2">
           <View className="flex-row items-start justify-start w-max h-max pt-2">
@@ -708,7 +708,7 @@ export default function DescriptionReserve({
                     </Text>
                   </View>
                   {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-                    user_id ===
+                  user_id ===
                     infoScheduleData.scheduling.data.attributes.owner.data
                       .id ? (
                     !isWithin24Hours && reserveStatus ? (
@@ -762,28 +762,28 @@ export default function DescriptionReserve({
                         Reserva feita em{" "}
                         {formatDateTime(
                           infoScheduleData?.scheduling?.data?.attributes?.createdAt.toString()! ??
-                          "",
+                            "",
                         )}
                       </Text>
                     </View>
                   )}
                 </View>
                 {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-                  isWithinOneHour !== undefined &&
-                  user_id ===
+                isWithinOneHour !== undefined &&
+                user_id ===
                   infoScheduleData.scheduling.data.attributes.owner.data.id
                   ? !isWithinOneHour && (
-                    <View className="pt-2">
-                      {reserveStatus && (
-                        <Text
-                          className="font-black text-xs text-red-500"
-                          onPress={() => setShowCancelCardModal(true)}
-                        >
-                          CANCELAR
-                        </Text>
-                      )}
-                    </View>
-                  )
+                      <View className="pt-2">
+                        {reserveStatus && (
+                          <Text
+                            className="font-black text-xs text-red-500"
+                            onPress={() => setShowCancelCardModal(true)}
+                          >
+                            CANCELAR
+                          </Text>
+                        )}
+                      </View>
+                    )
                   : null}
               </View>
             </View>
@@ -794,11 +794,11 @@ export default function DescriptionReserve({
           </View>
           {infoScheduleData?.scheduling.data?.attributes.court_availability
             .data &&
-            typeof serviceRate === "number" &&
-            infoScheduleData.scheduling.data.attributes.valuePayed <
+          typeof serviceRate === "number" &&
+          infoScheduleData.scheduling.data.attributes.valuePayed <
             infoScheduleData.scheduling.data.attributes.court_availability.data
               .attributes.value +
-            serviceRate ? (
+              serviceRate ? (
             <>
               <View
                 style={{ width: "100%", justifyContent: "center" }}
@@ -818,7 +818,7 @@ export default function DescriptionReserve({
                 {infoScheduleData.scheduling.data.attributes.valuePayed <
                   infoScheduleData.scheduling.data.attributes.court_availability
                     .data.attributes.value +
-                  serviceRate &&
+                    serviceRate &&
                   payedPercentage !== undefined && (
                     <ProgressBar
                       progress={payedPercentage}
@@ -854,73 +854,101 @@ export default function DescriptionReserve({
             <>
               {infoScheduleData?.scheduling.data?.attributes.court_availability
                 .data && (
-                  <View
-                    style={{ width: "100%", justifyContent: "center" }}
-                    className="relative"
-                  >
-                    <Text className="absolute z-10 self-center text-white font-bold">
-                      Pagamento efetuado
-                    </Text>
-                    {payedPercentage !== undefined && (
-                      <ProgressBar
-                        progress={payedPercentage}
-                        width={null}
-                        height={30}
-                        borderRadius={5}
-                        color="#0FA958"
-                        unfilledColor="#0FA95866"
-                      />
-                    )}
-                  </View>
-                )}
+                <View
+                  style={{ width: "100%", justifyContent: "center" }}
+                  className="relative"
+                >
+                  <Text className="absolute z-10 self-center text-white font-bold">
+                    Pagamento efetuado
+                  </Text>
+                  {payedPercentage !== undefined && (
+                    <ProgressBar
+                      progress={payedPercentage}
+                      width={null}
+                      height={30}
+                      borderRadius={5}
+                      color="#0FA958"
+                      unfilledColor="#0FA95866"
+                    />
+                  )}
+                </View>
+              )}
             </>
           )}
           {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-            isVanquished !== undefined &&
-            !isWithinOneHour &&
-            infoScheduleData.scheduling.data.attributes.owner.data.id !==
+          isVanquished !== undefined &&
+          !isWithinOneHour &&
+          infoScheduleData.scheduling.data.attributes.owner.data.id !==
             user_id ? (
             <>
               {!isVanquished && reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.payedStatus ===
-                  "waiting" ? (
-                  <View className="h-max w-full flex justify-center items-center pl-2">
-                    <TouchableOpacity
-                      className="pt-2 pb-5"
-                      onPress={() => setShowCardPaymentModal(true)}
-                      disabled={!reserveStatus}
-                    >
-                      <View className="w-64 h-10 bg-white rounded-sm flex-row items-center">
-                        <View className="w-1"></View>
-                        <View className="h-5 w-5 items-center justify-center">
-                          <TextInput.Icon
-                            icon={"credit-card-plus-outline"}
-                            size={21}
-                            color={"#FF6112"}
+                "waiting" ? (
+                  <View className="h-28 w-60 flex-row pr-5">
+                    <View className="h-max w-max justify-center items-start">
+                      <View className="flex-row item-center justify-center">
+                        {infoScheduleData ? (
+                          <DescriptionReserveShareButton
+                            schedulingDate={
+                              infoScheduleData.scheduling.data.attributes.date
+                            }
+                            schedulingRedeemCode={
+                              infoScheduleData.scheduling.data.attributes
+                                .redeemCode
+                            }
+                            courtName={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.court.data
+                                .attributes.fantasy_name
+                            }
+                            schedulingStartsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.startsAt
+                            }
+                            schedulingEndsAt={
+                              infoScheduleData.scheduling.data.attributes
+                                .court_availability.data.attributes.endsAt
+                            }
                           />
+                        ) : (
+                          <ActivityIndicator size={20} color="#FF6112" />
+                        )}
+                      </View>
+                    </View>
+                    <View className="h-max w-full flex justify-between pl-2">
+                      <TouchableOpacity
+                        className="pt-2"
+                        onPress={() => setShowCardPaymentModal(true)}
+                        disabled={!reserveStatus}
+                      >
+                        <View className="w-30 h-10 bg-white rounded-sm flex-row items-center">
+                          <View className="w-1"></View>
+                          <View className="h-5 w-5 items-center justify-center">
+                            <TextInput.Icon
+                              icon={"credit-card-plus-outline"}
+                              size={21}
+                              color={"#FF6112"}
+                            />
+                          </View>
+                          <View className="item-center justify-center">
+                            <Text className="font-black text-xs text-center text-gray-400 pl-1">
+                              Adicionar Pagamento
+                            </Text>
+                          </View>
                         </View>
-                        <View className="item-center justify-center">
-                          <Text className="font-black text-xs text-center text-gray-400 pl-1">
-                            Adicionar Pagamento
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        className="pb-2"
+                        onPress={() => setShowPixPaymentModal(true)}
+                        disabled={!reserveStatus}
+                      >
+                        <View className="h-10 w-30 rounded-md bg-orange-500 flex items-center justify-center">
+                          <Text className="text-gray-50 font-bold">
+                            Adicionar pagamento PIX
                           </Text>
                         </View>
-                      </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      className="pb-2"
-                      onPress={() => setShowPixPaymentModal(true)}
-                      disabled={!reserveStatus}
-                    >
-                      <View
-                        className={"h-10 w-64 rounded-md flex items-center justify-center ".concat(
-                          !reserveStatus ? "bg-zinc-500" : "bg-orange-500",
-                        )}
-                      >
-                        <Text className="text-gray-50 font-bold">
-                          Adicionar pagamento PIX
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 ) : null
               ) : null}
@@ -929,24 +957,26 @@ export default function DescriptionReserve({
             <>
               {infoScheduleData?.scheduling.data?.attributes.court_availability
                 .data &&
-                typeof serviceRate === "number" &&
-                isVanquished !== undefined &&
-                !isVanquished &&
-                !isWithinOneHour &&
-                reserveStatus ? (
+              typeof serviceRate === "number" &&
+              isVanquished !== undefined &&
+              !isVanquished &&
+              !isWithinOneHour &&
+              reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.valuePayed <
-                  infoScheduleData.scheduling.data.attributes.court_availability
-                    .data.attributes.value +
+                infoScheduleData.scheduling.data.attributes.court_availability
+                  .data.attributes.value +
                   serviceRate ? (
-                  <View className="h-28 w-60 flex-row  pr-5">
-                    <View className="h-max w-max  justify-center items-start">
+                  <View className="h-28 w-60 flex-row pr-5">
+                    <View className="h-max w-max justify-center items-start">
                       <View className="flex-row item-center justify-center">
                         {infoScheduleData ? (
                           <DescriptionReserveShareButton
-                            scheduleId={schedule_id}
-                            userId={user_id}
-                            scheduleDate={
+                            schedulingDate={
                               infoScheduleData.scheduling.data.attributes.date
+                            }
+                            schedulingRedeemCode={
+                              infoScheduleData.scheduling.data.attributes
+                                .redeemCode
                             }
                             courtName={
                               infoScheduleData.scheduling.data.attributes
@@ -1008,10 +1038,12 @@ export default function DescriptionReserve({
                       <View className="flex-row item-center justify-center">
                         {infoScheduleData ? (
                           <DescriptionReserveShareButton
-                            scheduleId={schedule_id}
-                            userId={user_id}
-                            scheduleDate={
+                            schedulingDate={
                               infoScheduleData.scheduling.data.attributes.date
+                            }
+                            schedulingRedeemCode={
+                              infoScheduleData.scheduling.data.attributes
+                                .redeemCode
                             }
                             courtName={
                               infoScheduleData.scheduling.data.attributes
@@ -1053,7 +1085,7 @@ export default function DescriptionReserve({
             </>
           )}
         </View>
-        <View className="h-max w-full  px-5 items-center justify-start pt-4">
+        <View className="h-max w-full px-5 items-center justify-start pt-4">
           {ownerPaymentsData !== undefined && ownerPaymentsData !== null ? (
             <>
               <View>
@@ -1128,7 +1160,6 @@ export default function DescriptionReserve({
             )}
           </View>
         </View>
-        <View className="h-20"></View>
       </ScrollView>
       <View className="absolute bottom-0 left-0 right-0">
         <BottomBlackMenu
@@ -1137,8 +1168,8 @@ export default function DescriptionReserve({
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-              dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url
+                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                  ?.attributes?.url
               : null
           }
           key={1}
@@ -1407,8 +1438,9 @@ export default function DescriptionReserve({
                         dataCountry?.countries.data.map(country => ({
                           value: country.attributes.ISOCode,
                           label: country.attributes.ISOCode,
-                          img: `${HOST_API}${country.attributes.flag.data?.attributes.url ?? ""
-                            }`,
+                          img: `${HOST_API}${
+                            country.attributes.flag.data?.attributes.url ?? ""
+                          }`,
                         })) ?? []
                       }
                       save="value"
