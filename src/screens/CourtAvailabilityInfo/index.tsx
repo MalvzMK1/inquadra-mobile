@@ -195,16 +195,64 @@ export default function CourtAvailabilityInfo({
             </View>
             <ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[15px] flex">
               {!userData?.id ? (
-                <Text className="text-xl font-black text-center">
-                  FAÇA{" "}
-                  <Text
-                    onPress={() => navigation.navigate("Login")}
-                    className="text-xl font-black text-center underline"
-                  >
-                    LOGIN
-                  </Text>{" "}
-                  NO APP PARA PODER REALIZAR A RESERVA!
-                </Text>
+                <>
+                  <FlatList
+                    data={
+                      courtAvailability?.court.data.attributes
+                        .court_availabilities.data
+                    }
+                    keyExtractor={availability => availability.id}
+                    ListEmptyComponent={() => (
+                      <Text className="text-xl font-black text-center">
+                        No momento não é possível Alugar essa quadra
+                      </Text>
+                    )}
+                    renderItem={({ item }) => {
+                      const startsAt = item.attributes.startsAt.split(":");
+                      const endsAt = item.attributes.endsAt.split(":");
+
+                      let isBusy = !item.attributes.status;
+
+                      if (
+                        item.attributes.schedulings.data.some(scheduling => {
+                          return (
+                            selectedDate.split("T")[0] ===
+                            scheduling.attributes.date
+                          );
+                        })
+                      ) {
+                        isBusy = true;
+                      }
+
+                      if (selectedWeekDate !== item.attributes.weekDay) {
+                        return null;
+                      }
+
+                      return (
+                        <CourtAvailibility
+                          key={item.id}
+                          id={item.id}
+                          startsAt={`${startsAt[0]}:${startsAt[1]}`}
+                          endsAt={`${endsAt[0]}:${endsAt[1]}`}
+                          price={item.attributes.value}
+                          busy={isBusy}
+                          selectedTimes={selectedTime}
+                          toggleTimeSelection={toggleTimeSelection}
+                        />
+                      );
+                    }}
+                  />
+                  <Text className="text-lg font-bold text-center">
+                    FAÇA{" "}
+                    <Text
+                      onPress={() => navigation.navigate("Login")}
+                      className="text-lg text-[#ffa363] text-center underline"
+                    >
+                      LOGIN
+                    </Text>{" "}
+                    NO APP PARA REALIZAR A SUA RESERVA!
+                  </Text>
+                </>
               ) : (
                 <FlatList
                   data={
@@ -254,35 +302,37 @@ export default function CourtAvailabilityInfo({
                 />
               )}
             </ScrollView>
-            <View className="h-fit w-full p-[15px] mt-[30px]">
-              <TouchableOpacity
-                className={`h-14 w-full rounded-md  ${
-                  !selectedTime ? "bg-[#ffa363]" : "bg-orange-500"
-                } flex items-center justify-center`}
-                disabled={
-                  !selectedTime ||
-                  !courtAvailability?.court.data.attributes.court_availabilities
-                    .data.length
-                } // tora grande
-                onPress={() => {
-                  if (userData && userData.id && selectedTime) {
-                    navigation.navigate("ReservationPaymentSign", {
-                      courtName: route.params.courtName,
-                      courtImage: route.params.courtImage,
-                      courtId: route.params.courtId,
-                      amountToPay: selectedTime.value,
-                      courtAvailabilities: selectedTime.id,
-                      courtAvailabilityDate: selectedDate,
-                      userPhoto: route.params.userPhoto,
-                    });
-                  } else {
-                    navigation.navigate("Login");
+            {userData?.id ? (
+              <View className="h-fit w-full p-[15px] mt-[30px]">
+                <TouchableOpacity
+                  className={`h-14 w-full rounded-md  ${
+                    !selectedTime ? "bg-[#ffa363]" : "bg-orange-500"
+                  } flex items-center justify-center`}
+                  disabled={
+                    !selectedTime ||
+                    !courtAvailability?.court.data.attributes
+                      .court_availabilities.data.length
                   }
-                }}
-              >
-                <Text className="text-white">RESERVAR</Text>
-              </TouchableOpacity>
-            </View>
+                  onPress={() => {
+                    if (userData && userData.id && selectedTime) {
+                      navigation.navigate("ReservationPaymentSign", {
+                        courtName: route.params.courtName,
+                        courtImage: route.params.courtImage,
+                        courtId: route.params.courtId,
+                        amountToPay: selectedTime.value,
+                        courtAvailabilities: selectedTime.id,
+                        courtAvailabilityDate: selectedDate,
+                        userPhoto: route.params.userPhoto,
+                      });
+                    } else {
+                      navigation.navigate("Login");
+                    }
+                  }}
+                >
+                  <Text className="text-white">RESERVAR</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
             <View className="h-20"></View>
           </ScrollView>
           <View className="absolute bottom-0 left-0 right-0">
