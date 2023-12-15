@@ -236,6 +236,8 @@ export default function EditCourt({
           (data, availability) => {
             const index = weekDayToIndexMap[availability.attributes.weekDay];
 
+            if (availability.attributes.value < Number(minimumScheduleValue)) throw new Error('O valor mínimo da quadra não pode ser maior que o valor das disponibilidades');
+
             data.allAvailabilities[index].push({
               startsAt: availability.attributes.startsAt.slice(0, 5),
               endsAt: availability.attributes.endsAt.slice(0, 5),
@@ -305,6 +307,8 @@ export default function EditCourt({
                 .replace(",", ".")
                 .trim(),
             );
+
+            if (Number(price) < Number(minimumScheduleValue)) throw new Error('O valor mínimo da quadra não pode ser maior que o valor das disponibilidades');
 
             // para não criar outro se não mudou nada
             const existingId =
