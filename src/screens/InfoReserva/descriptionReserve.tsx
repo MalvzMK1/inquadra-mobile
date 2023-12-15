@@ -676,8 +676,8 @@ export default function DescriptionReserve({
                 source={{
                   uri:
                     HOST_API +
-                      dataUser?.usersPermissionsUser.data?.attributes.photo.data
-                        ?.attributes.url ?? "",
+                    dataUser?.usersPermissionsUser.data?.attributes.photo.data
+                      ?.attributes.url ?? "",
                 }}
                 style={{ width: 46, height: 46 }}
                 borderRadius={100}
@@ -708,7 +708,7 @@ export default function DescriptionReserve({
                     </Text>
                   </View>
                   {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-                  user_id ===
+                    user_id ===
                     infoScheduleData.scheduling.data.attributes.owner.data
                       .id ? (
                     !isWithin24Hours && reserveStatus ? (
@@ -762,28 +762,28 @@ export default function DescriptionReserve({
                         Reserva feita em{" "}
                         {formatDateTime(
                           infoScheduleData?.scheduling?.data?.attributes?.createdAt.toString()! ??
-                            "",
+                          "",
                         )}
                       </Text>
                     </View>
                   )}
                 </View>
                 {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-                isWithinOneHour !== undefined &&
-                user_id ===
+                  isWithinOneHour !== undefined &&
+                  user_id ===
                   infoScheduleData.scheduling.data.attributes.owner.data.id
                   ? !isWithinOneHour && (
-                      <View className="pt-2">
-                        {reserveStatus && (
-                          <Text
-                            className="font-black text-xs text-red-500"
-                            onPress={() => setShowCancelCardModal(true)}
-                          >
-                            CANCELAR
-                          </Text>
-                        )}
-                      </View>
-                    )
+                    <View className="pt-2">
+                      {reserveStatus && (
+                        <Text
+                          className="font-black text-xs text-red-500"
+                          onPress={() => setShowCancelCardModal(true)}
+                        >
+                          CANCELAR
+                        </Text>
+                      )}
+                    </View>
+                  )
                   : null}
               </View>
             </View>
@@ -794,11 +794,11 @@ export default function DescriptionReserve({
           </View>
           {infoScheduleData?.scheduling.data?.attributes.court_availability
             .data &&
-          typeof serviceRate === "number" &&
-          infoScheduleData.scheduling.data.attributes.valuePayed <
+            typeof serviceRate === "number" &&
+            infoScheduleData.scheduling.data.attributes.valuePayed <
             infoScheduleData.scheduling.data.attributes.court_availability.data
               .attributes.value +
-              serviceRate ? (
+            serviceRate ? (
             <>
               <View
                 style={{ width: "100%", justifyContent: "center" }}
@@ -818,7 +818,7 @@ export default function DescriptionReserve({
                 {infoScheduleData.scheduling.data.attributes.valuePayed <
                   infoScheduleData.scheduling.data.attributes.court_availability
                     .data.attributes.value +
-                    serviceRate &&
+                  serviceRate &&
                   payedPercentage !== undefined && (
                     <ProgressBar
                       progress={payedPercentage}
@@ -854,36 +854,36 @@ export default function DescriptionReserve({
             <>
               {infoScheduleData?.scheduling.data?.attributes.court_availability
                 .data && (
-                <View
-                  style={{ width: "100%", justifyContent: "center" }}
-                  className="relative"
-                >
-                  <Text className="absolute z-10 self-center text-white font-bold">
-                    Pagamento efetuado
-                  </Text>
-                  {payedPercentage !== undefined && (
-                    <ProgressBar
-                      progress={payedPercentage}
-                      width={null}
-                      height={30}
-                      borderRadius={5}
-                      color="#0FA958"
-                      unfilledColor="#0FA95866"
-                    />
-                  )}
-                </View>
-              )}
+                  <View
+                    style={{ width: "100%", justifyContent: "center" }}
+                    className="relative"
+                  >
+                    <Text className="absolute z-10 self-center text-white font-bold">
+                      Pagamento efetuado
+                    </Text>
+                    {payedPercentage !== undefined && (
+                      <ProgressBar
+                        progress={payedPercentage}
+                        width={null}
+                        height={30}
+                        borderRadius={5}
+                        color="#0FA958"
+                        unfilledColor="#0FA95866"
+                      />
+                    )}
+                  </View>
+                )}
             </>
           )}
           {infoScheduleData?.scheduling.data?.attributes.owner.data &&
-          isVanquished !== undefined &&
-          !isWithinOneHour &&
-          infoScheduleData.scheduling.data.attributes.owner.data.id !==
+            isVanquished !== undefined &&
+            !isWithinOneHour &&
+            infoScheduleData.scheduling.data.attributes.owner.data.id !==
             user_id ? (
             <>
               {!isVanquished && reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.payedStatus ===
-                "waiting" ? (
+                  "waiting" ? (
                   <View className="h-max w-full flex justify-center items-center pl-2">
                     <TouchableOpacity
                       className="pt-2 pb-5"
@@ -929,14 +929,14 @@ export default function DescriptionReserve({
             <>
               {infoScheduleData?.scheduling.data?.attributes.court_availability
                 .data &&
-              typeof serviceRate === "number" &&
-              isVanquished !== undefined &&
-              !isVanquished &&
-              !isWithinOneHour &&
-              reserveStatus ? (
+                typeof serviceRate === "number" &&
+                isVanquished !== undefined &&
+                !isVanquished &&
+                !isWithinOneHour &&
+                reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.valuePayed <
-                infoScheduleData.scheduling.data.attributes.court_availability
-                  .data.attributes.value +
+                  infoScheduleData.scheduling.data.attributes.court_availability
+                    .data.attributes.value +
                   serviceRate ? (
                   <View className="h-28 w-60 flex-row  pr-5">
                     <View className="h-max w-max  justify-center items-start">
@@ -1137,8 +1137,8 @@ export default function DescriptionReserve({
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                  ?.attributes?.url
+              dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                ?.attributes?.url
               : null
           }
           key={1}
@@ -1407,9 +1407,8 @@ export default function DescriptionReserve({
                         dataCountry?.countries.data.map(country => ({
                           value: country.attributes.ISOCode,
                           label: country.attributes.ISOCode,
-                          img: `${HOST_API}${
-                            country.attributes.flag.data?.attributes.url ?? ""
-                          }`,
+                          img: `${HOST_API}${country.attributes.flag.data?.attributes.url ?? ""
+                            }`,
                         })) ?? []
                       }
                       save="value"

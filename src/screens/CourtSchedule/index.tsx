@@ -335,9 +335,9 @@ export default function CourtSchedule({
           .establishment.data.attributes.photo,
       )
         ? userByEstablishmentData.usersPermissionsUser.data.attributes
-            .establishment.data.attributes.photo[0]
+          .establishment.data.attributes.photo[0]
         : userByEstablishmentData.usersPermissionsUser.data.attributes
-            .establishment.data.attributes.photo,
+          .establishment.data.attributes.photo,
     });
   }
 
@@ -921,11 +921,10 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ${
-                schedulingsFocus
-                  ? "text-black"
-                  : "text-[#292929]" && "opacity-40"
-              } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ${schedulingsFocus
+                ? "text-black"
+                : "text-[#292929]" && "opacity-40"
+                } ${schedulingsFocus ? "border-b-[1px]" : ""}`}
             >
               Reservas
             </Text>
@@ -942,11 +941,10 @@ export default function CourtSchedule({
             }}
           >
             <Text
-              className={`font-black text-[16px] ml-[10px] ${
-                schedulingsHistoricFocus
-                  ? "text-black"
-                  : "text-[#292929]" && "opacity-40"
-              } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
+              className={`font-black text-[16px] ml-[10px] ${schedulingsHistoricFocus
+                ? "text-black"
+                : "text-[#292929]" && "opacity-40"
+                } ${schedulingsHistoricFocus ? "border-b-[1px]" : ""}`}
             >
               Histórico de reservas
             </Text>
@@ -1136,11 +1134,10 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      blockScheduleByTimeErrors.initialHour
-                        ? "border-red-400"
-                        : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.initialHour
+                      ? "border-red-400"
+                      : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="initialHour"
@@ -1181,11 +1178,10 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      blockScheduleByTimeErrors.endHour
-                        ? "border-red-400"
-                        : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${blockScheduleByTimeErrors.endHour
+                      ? "border-red-400"
+                      : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="endHour"
@@ -1290,9 +1286,8 @@ export default function CourtSchedule({
                 <View className="flex-1 mr-[6px]">
                   <Text className="text-sm text-[#FF6112]">A partir de:</Text>
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      errors.initialDate ? "border-red-400" : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${errors.initialDate ? "border-red-400" : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="initialDate"
@@ -1356,9 +1351,8 @@ export default function CourtSchedule({
                   <Text className="text-sm text-[#FF6112]">Até:</Text>
 
                   <View
-                    className={`flex flex-row items-center justify-between border ${
-                      errors.endDate ? "border-red-400" : "border-gray-400"
-                    } rounded p-3`}
+                    className={`flex flex-row items-center justify-between border ${errors.endDate ? "border-red-400" : "border-gray-400"
+                      } rounded p-3`}
                   >
                     <Controller
                       name="endDate"
