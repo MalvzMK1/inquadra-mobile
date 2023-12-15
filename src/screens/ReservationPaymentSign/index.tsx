@@ -593,7 +593,7 @@ export default function ReservationPaymentSign({
           },
           Payment: {
             Type: "Pix",
-            Amount: 1, // totalSignalValueCents
+            Amount: totalSignalValue * 100, // totalSignalValueCents
           },
         });
 
