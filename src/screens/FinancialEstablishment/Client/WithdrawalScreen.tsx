@@ -175,7 +175,7 @@ export default function WithdrawScreen({
   } = useGetUserIDByEstablishment(route.params.establishmentId);
 
   return (
-    <View className="h-full">
+    <View>
       <ScrollView>
         <View className="flex-1 justify-center items-center ">
           {isWithdrawalMade ? (
@@ -187,6 +187,63 @@ export default function WithdrawScreen({
             className={`flex-1 pb-8 items-center justify-center z-10 ${
               isWithdrawalMade ? "opacity-50" : ""
             }`}
+          >
+            <View>
+              <View
+                className="flex-1 "
+                pointerEvents={isWithdrawalMade ? "none" : "auto"}
+              >
+                <View className="p-4 flex flex-col">
+                  <View className="p-5 flex flex-col justify-between">
+                    <Text className="text-xl font-bold">Valor a retirar</Text>
+                  </View>
+                  <View className="p-3 items-center flex-row justify-center gap-5">
+                    <TouchableOpacity
+                      className="bg-gray-300 w-1/12 rounded-md"
+                      onPress={handleDecrement}
+                    >
+                      <Text className="text-3xl text-center text-gray-500">
+                        -
+                      </Text>
+                    </TouchableOpacity>
+                    <View>
+                      <Text className="font-extrabold text-3xl">
+                        R$ {number.toFixed(2)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      className="bg-gray-300 w-1/12 rounded-md"
+                      onPress={handleIncrement}
+                    >
+                      <Text className="text-3xl text-center text-gray-500">
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Slider
+                    style={{ width: "100%", height: 40 }}
+                    minimumValue={0}
+                    maximumValue={avaibleToCashOut}
+                    step={0.1}
+                    value={number}
+                    onValueChange={handleSliderChange}
+                    minimumTrackTintColor="#FF6112"
+                    maximumTrackTintColor="gray"
+                    thumbTintColor="#FF6112"
+                  />
+                  <FlatList
+                    horizontal
+                    contentContainerStyle={{ gap: 8 }}
+                    data={fixedWithdrawalAmounts}
+                    keyExtractor={value => value.toString()}
+                    renderItem={({ item: value }) => {
+                      return (
+                        <TouchableOpacity
+                          disabled={avaibleToCashOut < value}
+                          className={`p-4 flex-row rounded-lg ${
+                            avaibleToCashOut >= value
+                              ? "bg-gray-400"
+                              : "bg-gray-300"
           >
             <View>
               <View
@@ -304,30 +361,30 @@ export default function WithdrawScreen({
                   </Text>
                 </View>
               </View>
+              <View className="items-center justify-center flex flex-row gap-5 pb-16">
+                <TouchableOpacity
+                  className=" w-40 h-14  rounded-md bg-gray-300 flex items-center justify-center"
+                  onPress={() => navigation.goBack()}
+                >
+                  <Text className="font-bold text-gray-400">Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className={`w-40 h-14 rounded-md flex items-center justify-center ${
+                    selectedPixKey === "0" || number === 0
+                      ? "bg-[#ffa363]"
+                      : "bg-[#FF6112]"
+                  }`}
+                  disabled={selectedPixKey === "0" ? true : false}
+                  onPress={withdrawalMade}
+                >
+                  <Text className="text-gray-50 font-bold">Agendar Pix</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
       </ScrollView>
       <View className={`absolute bottom-0 left-0 right-0`}>
-        <View className="items-center justify-center flex flex-row gap-5 pb-4">
-          <TouchableOpacity
-            className=" w-40 h-14  rounded-md bg-gray-300 flex items-center justify-center"
-            onPress={() => navigation.goBack()}
-          >
-            <Text className="font-bold text-gray-400">Cancelar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className={`w-40 h-14 rounded-md flex items-center justify-center ${
-              selectedPixKey === "0" || number === 0
-                ? "bg-[#ffa363]"
-                : "bg-[#FF6112]"
-            }`}
-            disabled={selectedPixKey === "0" ? true : false}
-            onPress={withdrawalMade}
-          >
-            <Text className="text-gray-50 font-bold">Agendar Pix</Text>
-          </TouchableOpacity>
-        </View>
         <BottomBlackMenuEstablishment
           screen="Any"
           establishmentLogo={
