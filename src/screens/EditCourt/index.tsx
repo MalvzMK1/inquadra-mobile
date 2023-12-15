@@ -79,7 +79,10 @@ export default function EditCourt({
           setValue("fantasyName", data.court.data.attributes.fantasy_name);
 
           setMinimumScheduleValue(
-            data.court.data.attributes.minimumScheduleValue.toString().replace(",", "").replace(".", ""),
+            data.court.data.attributes.minimumScheduleValue
+              .toString()
+              .replace(",", "")
+              .replace(".", ""),
           );
           setValue(
             "minimumScheduleValue",
@@ -235,6 +238,14 @@ export default function EditCourt({
         courtByIdData!.court.data.attributes.court_availabilities.data.reduce(
           (data, availability) => {
             const index = weekDayToIndexMap[availability.attributes.weekDay];
+            if (
+              availability.attributes.value * 100 <
+              Number(minimumScheduleValue)
+            ) {
+              throw new Error(
+                "O valor mínimo da quadra não pode ser maior que o valor das disponibilidades",
+              );
+            }
 
             data.allAvailabilities[index].push({
               startsAt: availability.attributes.startsAt.slice(0, 5),
@@ -305,6 +316,12 @@ export default function EditCourt({
                 .replace(",", ".")
                 .trim(),
             );
+
+            if (Number(price) * 100 < Number(minimumScheduleValue)) {
+              throw new Error(
+                "O valor mínimo da quadra não pode ser maior que o valor das disponibilidades",
+              );
+            }
 
             // para não criar outro se não mudou nada
             const existingId =
@@ -600,7 +617,7 @@ export default function EditCourt({
                   mask={Masks.BRL_CURRENCY}
                   onChangeText={(masked, unmasked) => {
                     onChange(parseFloat(unmasked));
-                    setMinimumScheduleValue(unmasked)
+                    setMinimumScheduleValue(unmasked);
                   }}
                 />
               )}

@@ -950,7 +950,6 @@ export default function ReservationPaymentSign({
                                       setValue("state", response.state);
                                     })
                                     .catch(error => {
-                                      console.log(error);
                                       Dialog.show({
                                         type: ALERT_TYPE.WARNING,
                                         title:
