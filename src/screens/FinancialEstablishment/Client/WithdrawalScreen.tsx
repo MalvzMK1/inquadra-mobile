@@ -295,7 +295,7 @@ export default function WithdrawScreen({
                       </>
                     ) : (
                       <Text className="text-sm text-gray-400 p-5">
-                        Não foi encontrada nenhuma chave pix
+                        Não foi encontrada nenhuma chave pix.
                       </Text>
                     )}
                   </View>
