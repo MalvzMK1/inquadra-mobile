@@ -186,287 +186,298 @@ export default function RegisterEstablishment({
   }, [allAmenitiesData]);
 
   return (
-    <KeyboardAvoidingView 
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={{ flex: 1 }}>
-       <ScrollView className="bg-white flex-1">
-      <View className="items-center mt-2 p-4">
-        <Text className="text-3xl text-center font-semibold text-gray-700">
-          Cadastro{"\n"}Estabelecimento
-        </Text>
-      </View>
-      <View className="h-fit">
-        <View className="p-5 gap-2 flex flex-col justify-between">
-          <View>
-            <Text className="text-base mb-2 p-1">Nome do estabelecimento</Text>
-            <Controller
-              name="corporateName"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  value={value}
-                  className="p-5 border border-neutral-400 rounded"
-                  placeholder="Ex.: Quadra do Zeca"
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.corporateName && (
-              <Text className="text-red-400 text-sm">
-                {errors.corporateName.message}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <ScrollView className="bg-white flex-1">
+        <View className="items-center mt-2 p-4">
+          <Text className="text-3xl text-center font-semibold text-gray-700">
+            Cadastro{"\n"}Estabelecimento
+          </Text>
+        </View>
+        <View className="h-fit">
+          <View className="p-5 gap-2 flex flex-col justify-between">
+            <View>
+              <Text className="text-base mb-2 p-1">
+                Nome do estabelecimento
               </Text>
-            )}
-          </View>
-          <View>
-            <Text className="text-base mb-2 p-1">CNPJ</Text>
-            <Controller
-              name="cnpj"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <MaskInput
-                  className="p-5 border border-neutral-400 rounded"
-                  placeholder="00.000.000/0001-00"
-                  value={value}
-                  maxLength={18}
-                  keyboardType={"numeric"}
-                  onChangeText={(masked, unmasked) => onChange(unmasked)}
-                  mask={Masks.BRL_CNPJ}
-                />
-              )}
-            />
-            {errors.cnpj && (
-              <Text className="text-red-400 text-sm">
-                {errors.cnpj.message}
-              </Text>
-            )}
-          </View>
-          <View>
-            <Text className="text-base mb-2 p-1">Telefone para contato</Text>
-            <Controller
-              name="phone"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <MaskInput
-                  className="p-5 border border-neutral-400 rounded"
-                  placeholder="(00) 0000-0000"
-                  value={value}
-                  maxLength={15}
-                  keyboardType={"numeric"}
-                  onChangeText={(masked, unmasked) => onChange(unmasked)}
-                  mask={Masks.BRL_PHONE}
-                />
-              )}
-            />
-            {errors.phone && (
-              <Text className="text-red-400 text-sm">
-                {errors.phone.message}
-              </Text>
-            )}
-          </View>
-          <View>
-            <Text className="text-base mb-2 p-1">Endereço</Text>
-            <Controller
-              name="address.streetName"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="p-5 border border-neutral-400 rounded"
-                  placeholder="Rua Maria"
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
-            />
-            {errors.address?.streetName && (
-              <Text className="text-red-400 text-sm">
-                {errors.address?.streetName.message}
-              </Text>
-            )}
-          </View>
-          <View className="flex-row justify-between space-x-6">
-            <View className="flex-1">
-              <Text className="text-base mb-2 p-1">Número</Text>
               <Controller
-                name="address.number"
+                name="corporateName"
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <TextInput
-                    className="p-5 border border-neutral-400 rounded"
-                    placeholder="123"
-                    onChangeText={onChange}
                     value={value}
-                    keyboardType={"numbers-and-punctuation"}
+                    className="p-5 border border-neutral-400 rounded"
+                    placeholder="Ex.: Quadra do Zeca"
+                    onChangeText={onChange}
                   />
                 )}
               />
-              {errors.address?.number && (
+              {errors.corporateName && (
                 <Text className="text-red-400 text-sm">
-                  {errors.address?.number.message}
+                  {errors.corporateName.message}
                 </Text>
               )}
             </View>
-            <View className="flex-1">
-              <Text className="text-base mb-2 p-1">CEP</Text>
+            <View>
+              <Text className="text-base mb-2 p-1">CNPJ</Text>
               <Controller
-                name="address.cep"
+                name="cnpj"
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <MaskInput
                     className="p-5 border border-neutral-400 rounded"
-                    placeholder="00000-000"
+                    placeholder="00.000.000/0001-00"
                     value={value}
-                    onChangeText={onChange}
-                    maxLength={9}
+                    maxLength={18}
                     keyboardType={"numeric"}
-                    mask={Masks.ZIP_CODE}
+                    onChangeText={(masked, unmasked) => onChange(unmasked)}
+                    mask={Masks.BRL_CNPJ}
                   />
                 )}
               />
-              {errors.address?.cep && (
+              {errors.cnpj && (
                 <Text className="text-red-400 text-sm">
-                  {errors.address?.cep.message}
+                  {errors.cnpj.message}
                 </Text>
               )}
             </View>
-          </View>
-          <View>
-            <Text className="text-base mb-2 p-1">Amenidades do local</Text>
-
-            <MultipleSelectList
-              setSelected={(value: any) => setAmenities(value)}
-              data={amenitiesOptions}
-              save={"key"}
-              placeholder="Selecione aqui..."
-              label="Amenidades escolhidas:"
-              boxStyles={{ borderRadius: 4, minHeight: 55 }}
-              inputStyles={{
-                color: "#FF6112",
-                alignSelf: "center",
-                fontWeight: "400",
-              }}
-              searchPlaceholder="Procurar"
-              badgeStyles={{ backgroundColor: "#FF6112" }}
-              closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
-              searchicon={
-                <Ionicons
-                  name="search"
-                  size={18}
-                  color="#FF6112"
-                  style={{ marginEnd: 10 }}
-                />
-              }
-              arrowicon={
-                <AntDesign
-                  name="down"
-                  size={13}
-                  color="#FF6112"
-                  style={{ marginEnd: 2, alignSelf: "center" }}
-                />
-              }
-            />
-          </View>
-          <View>
-            <Text className="text-base mb-2 p-1">Logo do estabelecimento</Text>
-
-            <View className="border-dashed border border-gray-400 relative">
-              <View className="flex flex-row">
-                <Text
-                  className="text-base text-gray-400 m-4"
-                  onPress={handleLogoUpload}
-                >
-                  Carregue a logo do estabelecimento.
-                </Text>
-                <TouchableOpacity className="mt-2" onPress={handleLogoUpload}>
-                  <Feather name="star" size={24} color="#FF6112" />
-                </TouchableOpacity>
-              </View>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                {logo && (
-                  <Image
-                    source={{ uri: logo.uri }}
-                    style={{ width: 100, height: 100, margin: 10 }}
+            <View>
+              <Text className="text-base mb-2 p-1">Telefone para contato</Text>
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <MaskInput
+                    className="p-5 border border-neutral-400 rounded"
+                    placeholder="(00) 0000-0000"
+                    value={value}
+                    maxLength={15}
+                    keyboardType={"numeric"}
+                    onChangeText={(masked, unmasked) => onChange(unmasked)}
+                    mask={Masks.BRL_PHONE}
                   />
                 )}
-                <TouchableOpacity
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    left: 0,
-                    bottom: 0,
-                    top: 0,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  onPress={handleDeleteLogo}
-                >
-                  <Ionicons name="trash" size={20} color="orange" />
-                </TouchableOpacity>
+              />
+              {errors.phone && (
+                <Text className="text-red-400 text-sm">
+                  {errors.phone.message}
+                </Text>
+              )}
+            </View>
+            <View>
+              <Text className="text-base mb-2 p-1">Endereço</Text>
+              <Controller
+                name="address.streetName"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="p-5 border border-neutral-400 rounded"
+                    placeholder="Rua Maria"
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.address?.streetName && (
+                <Text className="text-red-400 text-sm">
+                  {errors.address?.streetName.message}
+                </Text>
+              )}
+            </View>
+            <View className="flex-row justify-between space-x-6">
+              <View className="flex-1">
+                <Text className="text-base mb-2 p-1">Número</Text>
+                <Controller
+                  name="address.number"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="p-5 border border-neutral-400 rounded"
+                      placeholder="123"
+                      onChangeText={onChange}
+                      value={value}
+                      keyboardType={"numbers-and-punctuation"}
+                    />
+                  )}
+                />
+                {errors.address?.number && (
+                  <Text className="text-red-400 text-sm">
+                    {errors.address?.number.message}
+                  </Text>
+                )}
+              </View>
+              <View className="flex-1">
+                <Text className="text-base mb-2 p-1">CEP</Text>
+                <Controller
+                  name="address.cep"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <MaskInput
+                      className="p-5 border border-neutral-400 rounded"
+                      placeholder="00000-000"
+                      value={value}
+                      onChangeText={onChange}
+                      maxLength={9}
+                      keyboardType={"numeric"}
+                      mask={Masks.ZIP_CODE}
+                    />
+                  )}
+                />
+                {errors.address?.cep && (
+                  <Text className="text-red-400 text-sm">
+                    {errors.address?.cep.message}
+                  </Text>
+                )}
               </View>
             </View>
-          </View>
-          <View>
-            <Text className="text-base mb-2 p-1">Fotos do estabelecimento</Text>
+            <View>
+              <Text className="text-base mb-2 p-1">Amenidades do local</Text>
 
-            <View className="border-dashed border border-gray-400 relative">
-              <View className="flex flex-row">
-                <Text
-                  className="text-base text-gray-400 m-4"
-                  onPress={handlePictureUpload}
-                >
-                  Carregue as fotos do estabelecimento. {"\n"} Ex: frente, o
-                  bar, o vestiário e etc.{" "}
-                </Text>
-                <TouchableOpacity
-                  className="mt-2"
-                  onPress={handlePictureUpload}
-                >
-                  <Feather name="star" size={24} color="#FF6112" />
-                </TouchableOpacity>
-              </View>
-              <FlatList
-                className="h-max"
-                data={photos}
-                renderItem={({ item, index }) => (
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Image
-                      source={{ uri: item.uri }}
-                      style={{ width: 100, height: 100, margin: 10 }}
-                    />
-                    <TouchableOpacity
-                      style={{
-                        position: "absolute",
-                        right: 0,
-                        left: 0,
-                        bottom: 0,
-                        top: 0,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                      onPress={() => handleDeletePhoto(index)}
-                    >
-                      <Ionicons name="trash" size={20} color="orange" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                horizontal
+              <MultipleSelectList
+                setSelected={(value: any) => setAmenities(value)}
+                data={amenitiesOptions}
+                save={"key"}
+                placeholder="Selecione aqui..."
+                label="Amenidades escolhidas:"
+                boxStyles={{ borderRadius: 4, minHeight: 55 }}
+                inputStyles={{
+                  color: "#FF6112",
+                  alignSelf: "center",
+                  fontWeight: "400",
+                }}
+                searchPlaceholder="Procurar"
+                badgeStyles={{ backgroundColor: "#FF6112" }}
+                closeicon={<Ionicons name="close" size={20} color="#FF6112" />}
+                searchicon={
+                  <Ionicons
+                    name="search"
+                    size={18}
+                    color="#FF6112"
+                    style={{ marginEnd: 10 }}
+                  />
+                }
+                arrowicon={
+                  <AntDesign
+                    name="down"
+                    size={13}
+                    color="#FF6112"
+                    style={{ marginEnd: 2, alignSelf: "center" }}
+                  />
+                }
               />
             </View>
-          </View>
-          <View>
-            <TouchableOpacity
-              className="h-14 w-full mt-4 mb-4 rounded-md bg-[#FF6112] items-center justify-center"
-              onPress={handleSubmit(submitForm)}
-            >
-              <Text className="text-white text-base font-semibold">
-                Continuar
+            <View>
+              <Text className="text-base mb-2 p-1">
+                Logo do estabelecimento
               </Text>
-            </TouchableOpacity>
+
+              <View className="border-dashed border border-gray-400 relative">
+                <View className="flex flex-row">
+                  <Text
+                    className="text-base text-gray-400 m-4"
+                    onPress={handleLogoUpload}
+                  >
+                    Carregue a logo do estabelecimento.
+                  </Text>
+                  <TouchableOpacity className="mt-2" onPress={handleLogoUpload}>
+                    <Feather name="star" size={24} color="#FF6112" />
+                  </TouchableOpacity>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  {logo && (
+                    <View>
+                      <Image
+                        source={{ uri: logo.uri }}
+                        style={{ width: 100, height: 100, margin: 10 }}
+                      />
+
+                      <TouchableOpacity
+                        style={{
+                          position: "absolute",
+                          right: 0,
+                          left: 0,
+                          bottom: 0,
+                          top: 0,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        onPress={handleDeleteLogo}
+                      >
+                        <Ionicons name="trash" size={20} color="orange" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </View>
+            <View>
+              <Text className="text-base mb-2 p-1">
+                Fotos do estabelecimento
+              </Text>
+
+              <View className="border-dashed border border-gray-400 relative">
+                <View className="flex flex-row">
+                  <Text
+                    className="text-base text-gray-400 m-4"
+                    onPress={handlePictureUpload}
+                  >
+                    Carregue as fotos do estabelecimento. {"\n"} Ex: frente, o
+                    bar, o vestiário e etc.{" "}
+                  </Text>
+                  <TouchableOpacity
+                    className="mt-2"
+                    onPress={handlePictureUpload}
+                  >
+                    <Feather name="star" size={24} color="#FF6112" />
+                  </TouchableOpacity>
+                </View>
+                <FlatList
+                  className="h-max"
+                  data={photos}
+                  renderItem={({ item, index }) => (
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <Image
+                        source={{ uri: item.uri }}
+                        style={{ width: 100, height: 100, margin: 10 }}
+                      />
+                      <TouchableOpacity
+                        style={{
+                          position: "absolute",
+                          right: 0,
+                          left: 0,
+                          bottom: 0,
+                          top: 0,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        onPress={() => handleDeletePhoto(index)}
+                      >
+                        <Ionicons name="trash" size={20} color="orange" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
+                  horizontal
+                />
+              </View>
+            </View>
+            <View>
+              <TouchableOpacity
+                className="h-14 w-full mt-4 mb-4 rounded-md bg-[#FF6112] items-center justify-center"
+                onPress={handleSubmit(submitForm)}
+              >
+                <Text className="text-white text-base font-semibold">
+                  Continuar
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </KeyboardAvoidingView>
-   
   );
 }
