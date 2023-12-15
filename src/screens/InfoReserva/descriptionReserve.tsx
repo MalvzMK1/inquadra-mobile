@@ -121,7 +121,9 @@ export default function DescriptionReserve({
       if (data.scheduling.data.attributes.court_availability.data) {
         const _valueDisponibleToPay =
           data.scheduling.data.attributes.court_availability.data.attributes
-            .value + receivedServiceRate - valuePayed;
+            .value +
+          receivedServiceRate -
+          valuePayed;
         setValueAvailableToPay(_valueDisponibleToPay);
       }
 
@@ -259,7 +261,7 @@ export default function DescriptionReserve({
       .string()
       .nonempty("É necessário inserir um valor")
       .refine(value => {
-        const schedulingAmount = (valueAvailableToPay! + serviceRate!);
+        const schedulingAmount = valueAvailableToPay! + serviceRate!;
 
         if (schedulingAmount) {
           // Remover caracteres não numéricos
@@ -522,7 +524,9 @@ export default function DescriptionReserve({
 
   const scheduleValueUpdate = async (value: number) => {
     let validatePayment =
-      value + scheduleValuePayed! >= schedulePrice! + serviceRate! ? "payed" : "waiting";
+      value + scheduleValuePayed! >= schedulePrice! + serviceRate!
+        ? "payed"
+        : "waiting";
     let valuePayedUpdate = value + scheduleValuePayed! + serviceRate!;
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice!
@@ -793,7 +797,8 @@ export default function DescriptionReserve({
           typeof serviceRate === "number" &&
           infoScheduleData.scheduling.data.attributes.valuePayed <
             infoScheduleData.scheduling.data.attributes.court_availability.data
-              .attributes.value + serviceRate ? (
+              .attributes.value +
+              serviceRate ? (
             <>
               <View
                 style={{ width: "100%", justifyContent: "center" }}
@@ -805,13 +810,15 @@ export default function DescriptionReserve({
                     2,
                   )}{" "}
                   / R${" "}
-                  {(infoScheduleData.scheduling.data.attributes.court_availability.data.attributes.value + serviceRate).toFixed(
-                    2,
-                  )}
+                  {(
+                    infoScheduleData.scheduling.data.attributes
+                      .court_availability.data.attributes.value + serviceRate
+                  ).toFixed(2)}
                 </Text>
                 {infoScheduleData.scheduling.data.attributes.valuePayed <
                   infoScheduleData.scheduling.data.attributes.court_availability
-                    .data.attributes.value + serviceRate &&
+                    .data.attributes.value +
+                    serviceRate &&
                   payedPercentage !== undefined && (
                     <ProgressBar
                       progress={payedPercentage}
@@ -929,7 +936,8 @@ export default function DescriptionReserve({
               reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.valuePayed <
                 infoScheduleData.scheduling.data.attributes.court_availability
-                  .data.attributes.value + serviceRate ? (
+                  .data.attributes.value +
+                  serviceRate ? (
                   <View className="h-28 w-60 flex-row  pr-5">
                     <View className="h-max w-max  justify-center items-start">
                       <View className="flex-row item-center justify-center">
@@ -1428,7 +1436,6 @@ export default function DescriptionReserve({
 
                             if (masked.length === 9) {
                               getAddress(masked).catch(error => {
-                                console.log(error);
                                 Dialog.show({
                                   type: ALERT_TYPE.WARNING,
                                   title:
