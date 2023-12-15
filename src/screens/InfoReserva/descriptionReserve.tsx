@@ -527,7 +527,7 @@ export default function DescriptionReserve({
       value + scheduleValuePayed! >= schedulePrice! + serviceRate!
         ? "payed"
         : "waiting";
-    let valuePayedUpdate = value + scheduleValuePayed! + serviceRate!;
+    let valuePayedUpdate = value + scheduleValuePayed!;
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice!
         ? generateRandomKey(4)
@@ -1105,7 +1105,7 @@ export default function DescriptionReserve({
                       <Text className="text-black font-normal pl-4">
                         {
                           paymentInfo?.attributes?.users_permissions_user?.data
-                            ?.attributes?.username
+                            ?.attributes?.name
                         }
                       </Text>
                       <Text className="text-black font-normal">
