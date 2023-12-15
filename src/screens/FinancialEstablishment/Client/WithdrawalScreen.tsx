@@ -78,21 +78,21 @@ export default function WithdrawScreen({
                             },
                           );
                         } else {
-                          setErrorPop("Não foi encontrado nenhum pagamento");
+                          setErrorPop("Não foi encontrado nenhum pagamento.");
                         }
                       },
                     );
                   } else {
-                    setErrorPop("Não foi encontrado nenhum agendamento");
+                    setErrorPop("Não foi encontrado nenhum agendamento.");
                   }
                 },
               );
             } else {
-              setErrorPop("Não foi encontrado nenhuma disponibilidade");
+              setErrorPop("Não foi encontrado nenhuma disponibilidade.");
             }
           });
         } else {
-          setErrorPop("Não foi encontrado nenhuma quadra registrada");
+          setErrorPop("Não foi encontrado nenhuma quadra registrada.");
         }
 
         if (
