@@ -52,6 +52,7 @@ import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
 import {enUS, ptBR} from "date-fns/locale";
 import {EWeekDays} from "../../graphql/mutations/availabilityByWeekDay";
+import {HOST_API} from "@env";
 
 const portugueseMonths = [
   "Janeiro",
@@ -637,48 +638,6 @@ export default function CourtSchedule({
     return weekDay as unknown as EWeekDays;
   }
 
-  async function handleBlockScheduleByDate(data: IBlockScheduleByDateFormData) {
-    setIsLoading(true);
-    const blockScheduleData = {
-      ...data,
-    };
-
-    const datesRange = getDatesRange(
-      blockScheduleData.initialDate,
-      blockScheduleData.endDate
-    );
-    const courtId = selectedCourtId;
-    const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId); // TODO: PEGAR AS DISPONIBILIDADES, E NAO AS RESERVAS
-
-    // if (schedulingsByDate.length > 0 && courtId) {
-    //   try {
-    //     for (const item of schedulingsByDate) {
-    //       const response = await apolloClient.mutate<
-    //         IBlockScheduleResponse,
-    //         IBlockScheduleVariable
-    //       >({
-    //         fetchPolicy: "no-cache",
-    //         mutation: blockScheduleMutation,
-    //         variables: {
-    //           scheduling_id: item.schedulingId.toString(),
-    //         },
-    //       });
-    //     }
-    //     setBlockedCourtId("");
-    //     setBlockScheduleByDateModal(false);
-    //     setConfirmBlockSchedule(true);
-    //     setIsLoading(false);
-    //   } catch (error) {
-    //     console.error(error);
-    //     console.error("DEFAULT_ERROR_MESSAGE", { type: "error" });
-    //     setIsLoading(false);
-    //   }
-    // } else {
-    //   alert("Não há nenhuma reserva nesse intervalo de datas!");
-    //   setIsLoading(false);
-    // }
-  }
-
   const [startHour, setStartHour] = useState("");
   const [endHour, setEndHour] = useState("");
 
@@ -702,7 +661,7 @@ export default function CourtSchedule({
           .split("T")[1]
           .replace("Z", "")
       );
-      formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 30);
+      formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 60);
     }
 
     return hours;
@@ -762,6 +721,9 @@ export default function CourtSchedule({
     return courtAvailabilitiesByHourJson;
   }
 
+  const [blockedTime, setBlockedTime] = useState<Array<string>>([]);
+  const [blockedDate, setBlockedDate] = useState<Array<string>>([]);
+
   async function handleBlockScheduleByTime(data: IBlockScheduleByTimeFormData) {
     setIsLoading(true);
 
@@ -773,36 +735,38 @@ export default function CourtSchedule({
       blockScheduleByTimeData.initialHour,
       blockScheduleByTimeData.endHour
     );
-    const courtId = selectedCourtId;
-    const schedulingsByHour = await setSchedulingsByHours(hoursRange, courtId);
 
-    if (courtId != "") {
-      if (schedulingsByHour.length > 0) {
-        try {
-          await Promise.all(
-            schedulingsByHour.map(async (item) => {
-              await blockScheduleByHour({
-                variables: {
-                  court_availability_id: item.courtAvailabilityId.toString(),
-                },
-              });
-              setBlockScheduleByTimeModal(false);
-              setConfirmBlockSchedule(true);
-              setIsLoading(false);
-              setBlockedCourtId("");
-            })
-          );
-        } catch (error) {
-          setIsLoading(false);
-        }
-      } else {
-        alert("Não há nenhuma reserva nesse intervalo de datas!");
-        setIsLoading(false);
-      }
-    } else {
-      alert("Selecione uma quadra para bloquear a agenda!");
-      setIsLoading(false);
-    }
+    setBlockedTime(hoursRange);
+    setBlockScheduleByTimeModal(false);
+    setChooseBlockTypeModal(true);
+    setIsLoading(false);
+  }
+
+  async function handleBlockScheduleByDate(data: IBlockScheduleByDateFormData) {
+    setIsLoading(true);
+
+    const blockScheduleData = {
+      ...data,
+    };
+
+    const datesRange = getDatesRange(
+      blockScheduleData.initialDate,
+      blockScheduleData.endDate
+    );
+
+    console.warn(
+      blockScheduleData.initialDate,
+      blockScheduleData.endDate
+    );
+
+    setBlockedDate(datesRange);
+    setBlockScheduleByTimeModal(false);
+    setChooseBlockTypeModal(true);
+    setIsLoading(false);
+  }
+
+  async function handleConfirmBlockSchedule(): Promise<void> {
+
   }
 
   return (
@@ -1013,30 +977,6 @@ export default function CourtSchedule({
 
               <Text className="font-bold text-[9px]">{sumValuesTotal}</Text>
             </View>
-
-            {/* {maxValue > 0 && (
-                            <BarChart
-                                style={{ height: 200 }}
-                                data={data}
-                                svg={{ fill }}
-                                contentInset={{ top: 20, bottom: 10 }}
-                                spacing={0.2}
-                                gridMin={0}
-                            >
-                                <Grid
-                                    direction={Grid.Direction.HORIZONTAL}
-                                />
-
-                                <ScheduleChartLabels
-                                    data={data}
-                                    maxValue={maxValue}
-                                    x={(index) => index}
-                                    y={(value) => value}
-                                    bandwidth={0}
-                                />
-                            </BarChart>
-                        )} */}
-
             {maxValue == 0 && (
               <View className="h-[100px] flex items-center justify-center">
                 <Text className="text-[16px] font-bold">
@@ -1074,7 +1014,7 @@ export default function CourtSchedule({
                   }}
                 >
                   <Text className="w-full h-full font-medium text-[16px] text-white">
-                    Bloquear por horário
+                    Bloquear horários
                   </Text>
                 </Button>
 
@@ -1086,9 +1026,18 @@ export default function CourtSchedule({
                   }}
                 >
                   <Text className="w-full h-full font-medium text-[16px] text-white">
-                    Bloquear por data
+                    Bloquear datas
                   </Text>
                 </Button>
+                <Text>{blockedDate}</Text>
+                <TouchableOpacity
+                  className='flex items-center justify-center bg-orange-700 h-12 w-[200px] rounded-md'
+                  onPress={() => {
+
+                  }}
+                >
+                  <Text>Confirmar</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
