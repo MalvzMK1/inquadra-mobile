@@ -2,7 +2,7 @@ import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { addDays, format, sub } from "date-fns";
+import {addDays, format, parseISO, sub} from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -50,6 +50,8 @@ import {
 } from "../../graphql/mutations/blockScheduleByDate";
 import useBlockSchedule from "../../hooks/useBlockSchedule";
 import useBlockScheduleByHour from "../../hooks/useBlockScheduleByHour";
+import {enUS, ptBR} from "date-fns/locale";
+import {EWeekDays} from "../../graphql/mutations/availabilityByWeekDay";
 
 const portugueseMonths = [
   "Janeiro",
@@ -621,6 +623,20 @@ export default function CourtSchedule({
     return schedulingsByDateJson;
   }
 
+  // A data precisa estar em formato ISO YYYY-MM-DDTHH:MM:SS.sssZ
+  function getWeekDayByDateISOString(dateISOString: string): EWeekDays {
+    const [date] = dateISOString.split('T');
+    const dateParsed = parseISO(date);
+
+    console.log(dateParsed);
+
+    const weekDay = format(dateParsed, 'EEEE', { locale: enUS })
+
+    console.log({weekDay})
+
+    return weekDay as unknown as EWeekDays;
+  }
+
   async function handleBlockScheduleByDate(data: IBlockScheduleByDateFormData) {
     setIsLoading(true);
     const blockScheduleData = {
@@ -632,35 +648,35 @@ export default function CourtSchedule({
       blockScheduleData.endDate
     );
     const courtId = selectedCourtId;
-    const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId);
+    const schedulingsByDate = await setSchedulingsByDates(datesRange, courtId); // TODO: PEGAR AS DISPONIBILIDADES, E NAO AS RESERVAS
 
-    if (schedulingsByDate.length > 0 && courtId) {
-      try {
-        for (const item of schedulingsByDate) {
-          const response = await apolloClient.mutate<
-            IBlockScheduleResponse,
-            IBlockScheduleVariable
-          >({
-            fetchPolicy: "no-cache",
-            mutation: blockScheduleMutation,
-            variables: {
-              scheduling_id: item.schedulingId.toString(),
-            },
-          });
-        }
-        setBlockedCourtId("");
-        setBlockScheduleByDateModal(false);
-        setConfirmBlockSchedule(true);
-        setIsLoading(false);
-      } catch (error) {
-        console.error(error);
-        console.error("DEFAULT_ERROR_MESSAGE", { type: "error" });
-        setIsLoading(false);
-      }
-    } else {
-      alert("Não há nenhuma reserva nesse intervalo de datas!");
-      setIsLoading(false);
-    }
+    // if (schedulingsByDate.length > 0 && courtId) {
+    //   try {
+    //     for (const item of schedulingsByDate) {
+    //       const response = await apolloClient.mutate<
+    //         IBlockScheduleResponse,
+    //         IBlockScheduleVariable
+    //       >({
+    //         fetchPolicy: "no-cache",
+    //         mutation: blockScheduleMutation,
+    //         variables: {
+    //           scheduling_id: item.schedulingId.toString(),
+    //         },
+    //       });
+    //     }
+    //     setBlockedCourtId("");
+    //     setBlockScheduleByDateModal(false);
+    //     setConfirmBlockSchedule(true);
+    //     setIsLoading(false);
+    //   } catch (error) {
+    //     console.error(error);
+    //     console.error("DEFAULT_ERROR_MESSAGE", { type: "error" });
+    //     setIsLoading(false);
+    //   }
+    // } else {
+    //   alert("Não há nenhuma reserva nesse intervalo de datas!");
+    //   setIsLoading(false);
+    // }
   }
 
   const [startHour, setStartHour] = useState("");
