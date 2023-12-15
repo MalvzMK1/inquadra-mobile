@@ -47,7 +47,7 @@ mutation newSchedule(
       payDay: $pay_day
       valuePayed: $value_payed
       publishedAt: $publishedAt
-      activated: true
+      activated: false
       activationKey: $activation_key
       serviceRate: $service_value
     }
