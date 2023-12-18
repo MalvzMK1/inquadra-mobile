@@ -20,6 +20,11 @@ import FilterDate from "../../components/FilterDateCourtAvailability";
 import { useUser } from "../../context/userContext";
 import useCourtAvailability from "../../hooks/useCourtAvailability";
 import { useGetUserById } from "../../hooks/useUserById";
+import useAllBlockedAvailabilitiesFromCourt from "../../hooks/useAllBlockedAvailabilitiesFromCourt";
+import getDatesRange from "../../utils/getDatesRange";
+import getHoursRange from "../../utils/getHoursRange";
+import getWeekDayByDateISOString from "../../utils/getWeekDayFromDate";
+import {EWeekDays} from "../../graphql/mutations/availabilityByWeekDay";
 
 interface ICourtAvailabilityInfoProps
   extends NativeStackScreenProps<RootStackParamList, "CourtAvailabilityInfo"> {}
@@ -85,6 +90,42 @@ export default function CourtAvailabilityInfo({
     loading: isCourtAvailabilityLoading,
     refetch: refetchCourtAvailability,
   } = useCourtAvailability(route.params.courtId);
+  const {
+    data: blockedCourtAvailabilityData,
+  } = useAllBlockedAvailabilitiesFromCourt(route.params.courtId);
+
+  const [blockedAvailabilities, setBlockedAvailabilities] = useState<Array<{
+    date: Array<string>;
+    time: Array<string>;
+  }>>([]);
+
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString());
+
+  useEffect(() => {
+    if (blockedCourtAvailabilityData) {
+      const {data} = blockedCourtAvailabilityData.blockedAvailabilities;
+      let dateRange: string[];
+      let hourRange: string[];
+
+      data.forEach(blocked => {
+        const [startsAtDate, startsAtTime] = blocked.attributes.startAt.split('T');
+        const [endsAtDate, endsAtTime] = blocked.attributes.endAt.split('T');
+
+        dateRange = getDatesRange(startsAtDate, endsAtDate);
+        hourRange = getHoursRange(startsAtTime, endsAtTime);
+
+        if (
+          dateRange.length < 1 &&
+          startsAtDate === endsAtDate
+        ) dateRange.push(startsAtDate);
+      })
+
+      setBlockedAvailabilities(prevState => [...prevState, {
+        date: dateRange,
+        time: hourRange,
+      }])
+    }
+  }, [blockedCourtAvailabilityData, selectedDate])
 
   useFocusEffect(
     useCallback(() => {
@@ -99,7 +140,6 @@ export default function CourtAvailabilityInfo({
   const [selectedWeekDate, setSelectedWeekDate] = useState<string>();
 
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString());
   const [selectedTime, setSelectedTime] = useState<{
     id: string;
     value: number;
@@ -208,6 +248,7 @@ export default function CourtAvailabilityInfo({
                       </Text>
                     )}
                     renderItem={({ item }) => {
+                      console.log( 'APARECE DESGRAÇ')
                       const startsAt = item.attributes.startsAt.split(":");
                       const endsAt = item.attributes.endsAt.split(":");
 
@@ -221,6 +262,14 @@ export default function CourtAvailabilityInfo({
                           );
                         })
                       ) {
+
+                        console.error('BOSTA');
+                        const blocked = blockedAvailabilities.filter(availabilities => {
+                          console.warn(availabilities.time.includes(item.attributes.startsAt));
+                          return availabilities.time.includes(item.attributes.startsAt)
+                        })
+
+                        console.error({blocked});
                         isBusy = true;
                       }
 
@@ -228,18 +277,24 @@ export default function CourtAvailabilityInfo({
                         return null;
                       }
 
+                      alert('eu vou coringar')
+
                       return (
-                        <CourtAvailibility
-                          key={item.id}
-                          id={item.id}
-                          startsAt={`${startsAt[0]}:${startsAt[1]}`}
-                          endsAt={`${endsAt[0]}:${endsAt[1]}`}
-                          price={item.attributes.value}
-                          busy={isBusy}
-                          selectedTimes={selectedTime}
-                          toggleTimeSelection={toggleTimeSelection}
-                        />
-                      );
+                        <></>
+                      )
+
+                      // return (
+                      //   <CourtAvailibility
+                      //     key={item.id}
+                      //     id={item.id}
+                      //     startsAt={`${startsAt[0]}:${startsAt[1]}`}
+                      //     endsAt={`${endsAt[0]}:${endsAt[1]}`}
+                      //     price={item.attributes.value}
+                      //     busy={isBusy}
+                      //     selectedTimes={selectedTime}
+                      //     toggleTimeSelection={toggleTimeSelection}
+                      //   />
+                      // );
                     }}
                   />
                   <Text className="text-lg font-bold text-center">
@@ -286,6 +341,13 @@ export default function CourtAvailabilityInfo({
                       return null;
                     }
 
+                    const isBlocked = (blockedAvailabilities.some(blocked => {
+                      return (
+                        blocked.time.includes(item.attributes.startsAt || item.attributes.endsAt) &&
+                        blocked.date.includes(selectedDate.split('T')[0])
+                      )
+                    }))
+
                     return (
                       <CourtAvailibility
                         key={item.id}
@@ -294,6 +356,7 @@ export default function CourtAvailabilityInfo({
                         endsAt={`${endsAt[0]}:${endsAt[1]}`}
                         price={item.attributes.value}
                         busy={isBusy}
+                        isBlocked={isBlocked}
                         selectedTimes={selectedTime}
                         toggleTimeSelection={toggleTimeSelection}
                       />
