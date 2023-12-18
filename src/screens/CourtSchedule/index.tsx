@@ -2,7 +2,7 @@ import {AntDesign, Entypo, Ionicons, MaterialIcons} from "@expo/vector-icons";
 import {zodResolver} from "@hookform/resolvers/zod";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {addDays, format, parseISO, sub} from "date-fns";
+import {addDays, addHours, format, parseISO} from "date-fns";
 import React, {useEffect, useState} from "react";
 import {Controller, useForm} from "react-hook-form";
 import {ActivityIndicator, Image, Modal, ScrollView, Text, TouchableOpacity, View,} from "react-native";
@@ -42,6 +42,8 @@ import parseBRDateToEUADate from "../../utils/parseBRDateToEUADate";
 import useBlockAvailability from "../../hooks/useBlockAvailability";
 import {IBlockAvailabilityVariables} from "../../graphql/mutations/blockAvailability";
 import {APP_DEBUG_VERBOSE} from "@env";
+import getHoursRange from "../../utils/getHoursRange";
+import getDatesRange from "../../utils/getDatesRange";
 
 const portugueseMonths = [
 	"Janeiro",
@@ -548,30 +550,6 @@ export default function CourtSchedule({
 
 	const [isLoading, setIsLoading] = useState(false);
 
-	function getDatesRange(initialDate: string, endDate: string) {
-		const dates: string[] = [];
-
-		let separatedInitialDate = initialDate.split("/");
-		const formatedInitialDate = `${separatedInitialDate[2]}-${separatedInitialDate[1]}-${separatedInitialDate[0]}`;
-		const initial = new Date(formatedInitialDate);
-
-		if (endDate == "") {
-			dates.push(new Date(initial).toISOString().split("T")[0]);
-			return dates;
-		} else {
-			let separatedEndDate = endDate.split("/");
-			const formatedEndDate = `${separatedEndDate[2]}-${separatedEndDate[1]}-${separatedEndDate[0]}`;
-			const end = new Date(formatedEndDate);
-
-			while (initial <= end) {
-				dates.push(new Date(initial).toISOString().split("T")[0]);
-				initial.setDate(initial.getDate() + 1);
-			}
-
-			return dates;
-		}
-	}
-
 	async function setSchedulingsByDates(dates: string[], courtId: string) {
 		let schedulingsByDatesArray = await Promise.all(
 			dates.map(async dateItem => {
@@ -635,32 +613,6 @@ export default function CourtSchedule({
 
 	const [startHour, setStartHour] = useState("");
 	const [endHour, setEndHour] = useState("");
-
-	function getHoursRange(startHour: string, endHour: string) {
-		const hours: string[] = [];
-
-		const initialHour = new Date(`2023-09-12T${startHour}`);
-		const formatedInitialHour = sub(initialHour, {
-			hours: 3,
-		});
-
-		const end = new Date(`2023-09-12T${endHour}`);
-		const formatedEndHour = sub(end, {
-			hours: 3,
-		});
-
-		while (formatedInitialHour <= formatedEndHour) {
-			hours.push(
-				new Date(formatedInitialHour)
-					.toISOString()
-					.split("T")[1]
-					.replace("Z", ""),
-			);
-			formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 60);
-		}
-
-		return hours;
-	}
 
 	async function setSchedulingsByHours(hours: string[], courtId: string) {
 		let courtAvailabilitiesByHourArray = await Promise.all(
@@ -779,8 +731,8 @@ export default function CourtSchedule({
 
 		const payload: IBlockAvailabilityVariables = {
 			courts_id: selectedCourtsIds,
-			starts_at: startsDateTime.toISOString(),
-			ends_at: endsDateTime.toISOString(),
+			starts_at: addHours(startsDateTime, 3).toISOString(),
+			ends_at: addHours(endsDateTime, 3).toISOString(),
 			published_at: new Date().toISOString(),
 		}
 
