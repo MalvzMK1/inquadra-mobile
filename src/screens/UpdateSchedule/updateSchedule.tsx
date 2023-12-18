@@ -418,7 +418,7 @@ export default function PaymentScheduleUpdate({
           },
           Payment: {
             Type: "Pix",
-            Amount: 1, // signalValueCents
+            Amount: signalValueCents, // signalValueCents
           },
         };
         const pixGenerated = await generatePix(generatePixJSON);
@@ -437,7 +437,7 @@ export default function PaymentScheduleUpdate({
             courtName: dataReserve?.courtAvailability.data.attributes.court.data
               .attributes.fantasy_name
               ? dataReserve?.courtAvailability.data.attributes.court.data
-                  .attributes.fantasy_name
+                .attributes.fantasy_name
               : "",
             value: signalValue.toString(),
             QRcodeURL: pixGenerated.Payment.QrCodeString,
@@ -674,10 +674,9 @@ export default function PaymentScheduleUpdate({
                             dataCountry?.countries?.data.map(country => ({
                               value: country?.attributes.name,
                               label: country?.attributes.name || "",
-                              img: `${
-                                country?.attributes.flag?.data?.attributes
+                              img: `${country?.attributes.flag?.data?.attributes
                                   ?.url || ""
-                              }`,
+                                }`,
                             })) || []
                           }
                           save="value"

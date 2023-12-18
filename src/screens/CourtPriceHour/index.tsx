@@ -1,8 +1,10 @@
+import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { addDays } from "date-fns";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  BackHandler,
   Modal,
   ScrollView,
   Text,
@@ -15,8 +17,6 @@ import SetCourtAvailibility from "../../components/SetCourtAvailibility";
 import { useAsyncStorageState } from "../../hooks/useAsyncStorageState";
 import { AsyncStorageKeys } from "../../utils/constants";
 import { formatLocaleWeekDayName, getWeekDays } from "../../utils/getWeekDates";
-import { useNavigation } from "@react-navigation/native";
-import { BackHandler } from "react-native";
 
 export interface Appointment {
   startsAt: string;
@@ -29,7 +29,9 @@ export default function CourtPriceHour({
   route,
 }: NativeStackScreenProps<RootStackParamList, "CourtPriceHour">) {
   const [selectedDay, setSelectedDay] = useState<number | null>(0);
-  const [handleHasLowerPrice, setHandleHasLowerPrice] = useState<boolean | null>(null)
+  const [handleHasLowerPrice, setHandleHasLowerPrice] = useState<
+    boolean | null
+  >(null);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
 
   // todos os horários de todos os dias
@@ -48,43 +50,37 @@ export default function CourtPriceHour({
       ],
     );
 
-
-
-
-
-
-  const navigationNative = useNavigation()
+  const navigationNative = useNavigation();
 
   useEffect(() => {
-    const hasLowerPrice = allAppointments.some((dayAppointments) =>
-      dayAppointments.some((appointment) => {
-        const formattedPrice = appointment.price.replace("R$ ", "").replace(",", ".");
+    const hasLowerPrice = allAppointments.some(dayAppointments =>
+      dayAppointments.some(appointment => {
+        const formattedPrice = appointment.price
+          .replace("R$ ", "")
+          .replace(",", ".");
         const parsedPrice = parseFloat(formattedPrice);
-        const priceInCents = !isNaN(parsedPrice) ? Math.round(parsedPrice * 100) : null;
+        const priceInCents = !isNaN(parsedPrice)
+          ? Math.round(parsedPrice * 100)
+          : null;
 
-        console.log(priceInCents)
-
-        return priceInCents === null || priceInCents < Number(route.params.minimumCourtPrice);
-      }
-      )
-    )
-    console.log(hasLowerPrice)
-    if(hasLowerPrice !== null && !hasLowerPrice){
-      setHandleHasLowerPrice(false)
-    }else{
-      setHandleHasLowerPrice(true)
+        if (priceInCents === null) {
+          return false;
+        }
+        return priceInCents < Number(route.params.minimumCourtPrice);
+      }),
+    );
+    if (hasLowerPrice !== null && !hasLowerPrice) {
+      setHandleHasLowerPrice(false);
+    } else {
+      setHandleHasLowerPrice(true);
     }
-   
-  }, [allAppointments])
-
-
-  console.log(route.params.minimumCourtPrice)
+  }, [allAppointments]);
 
   useEffect(() => {
     const backAction = () => {
       if (navigation.isFocused()) {
         if (handleHasLowerPrice || handleHasLowerPrice === null) {
-          setInfoModalVisible(true)
+          setInfoModalVisible(true);
           return true;
         }
         return false;
@@ -93,22 +89,20 @@ export default function CourtPriceHour({
     };
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
-      backAction
+      backAction,
     );
     return () => backHandler.remove();
   }, [navigation, handleHasLowerPrice]);
-
 
   navigation.setOptions({
     headerTitle: "Definir hora/valor",
     headerLeft: () => (
       <TouchableOpacity
-        style={{ marginLeft: 10 }}  
+        style={{ marginLeft: 10 }}
         onPress={() => {
-          console.log("in touchable:", handleHasLowerPrice)
           if (handleHasLowerPrice || handleHasLowerPrice === null) {
-            null
-            setInfoModalVisible(true)
+            null;
+            setInfoModalVisible(true);
           } else {
             navigation.goBack();
           }
@@ -118,7 +112,6 @@ export default function CourtPriceHour({
       </TouchableOpacity>
     ),
   });
-
 
   const [dayUse, setDayUse, isLoadingInitialDayUse] = useAsyncStorageState<
     boolean[]
@@ -215,8 +208,8 @@ export default function CourtPriceHour({
                   }}
                 >
                   <Text className="text-white font-semibold text-base">
-                    O valor/hora da sua quadra deve ser maior que o valor do sinal
-                    mínimo para alocação.
+                    O valor/hora da sua quadra deve ser maior que o valor do
+                    sinal mínimo para alocação.
                   </Text>
                   <TouchableOpacity
                     onPress={() => {
