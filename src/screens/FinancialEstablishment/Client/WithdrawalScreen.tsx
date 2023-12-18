@@ -78,21 +78,21 @@ export default function WithdrawScreen({
                             },
                           );
                         } else {
-                          setErrorPop("Não foi encontrado nenhum pagamento");
+                          setErrorPop("Não foi encontrado nenhum pagamento.");
                         }
                       },
                     );
                   } else {
-                    setErrorPop("Não foi encontrado nenhum agendamento");
+                    setErrorPop("Não foi encontrado nenhum agendamento.");
                   }
                 },
               );
             } else {
-              setErrorPop("Não foi encontrado nenhuma disponibilidade");
+              setErrorPop("Não foi encontrado nenhuma disponibilidade.");
             }
           });
         } else {
-          setErrorPop("Não foi encontrado nenhuma quadra registrada");
+          setErrorPop("Não foi encontrado nenhuma quadra registrada.");
         }
 
         if (
@@ -175,7 +175,7 @@ export default function WithdrawScreen({
   } = useGetUserIDByEstablishment(route.params.establishmentId);
 
   return (
-    <View>
+    <View className="h-full">
       <ScrollView>
         <View className="flex-1 justify-center items-center ">
           {isWithdrawalMade ? (
@@ -295,7 +295,7 @@ export default function WithdrawScreen({
                       </>
                     ) : (
                       <Text className="text-sm text-gray-400 p-5">
-                        Não foi encontrada nenhuma chave pix
+                        Não foi encontrada nenhuma chave pix.
                       </Text>
                     )}
                   </View>
@@ -304,30 +304,30 @@ export default function WithdrawScreen({
                   </Text>
                 </View>
               </View>
-              <View className="items-center justify-center flex flex-row gap-5 pb-16">
-                <TouchableOpacity
-                  className=" w-40 h-14  rounded-md bg-gray-300 flex items-center justify-center"
-                  onPress={() => navigation.goBack()}
-                >
-                  <Text className="font-bold text-gray-400">Cancelar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  className={`w-40 h-14 rounded-md flex items-center justify-center ${
-                    selectedPixKey === "0" || number === 0
-                      ? "bg-[#ffa363]"
-                      : "bg-[#FF6112]"
-                  }`}
-                  disabled={selectedPixKey === "0" ? true : false}
-                  onPress={withdrawalMade}
-                >
-                  <Text className="text-gray-50 font-bold">Agendar Pix</Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
         </View>
       </ScrollView>
       <View className={`absolute bottom-0 left-0 right-0`}>
+        <View className="items-center justify-center flex flex-row gap-5 pb-16">
+          <TouchableOpacity
+            className=" w-40 h-14  rounded-md bg-gray-300 flex items-center justify-center"
+            onPress={() => navigation.goBack()}
+          >
+            <Text className="font-bold text-gray-400">Cancelar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className={`w-40 h-14 rounded-md flex items-center justify-center ${
+              selectedPixKey === "0" || number === 0
+                ? "bg-[#ffa363]"
+                : "bg-[#FF6112]"
+            }`}
+            disabled={selectedPixKey === "0" ? true : false}
+            onPress={withdrawalMade}
+          >
+            <Text className="text-gray-50 font-bold">Agendar Pix</Text>
+          </TouchableOpacity>
+        </View>
         <BottomBlackMenuEstablishment
           screen="Any"
           establishmentLogo={

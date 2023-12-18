@@ -520,8 +520,7 @@ export default function ReservationPaymentSign({
     let isPayed =
       dataReserve?.courtAvailability.data?.attributes.court.data.attributes
         .minimumScheduleValue ===
-      dataReserve?.courtAvailability.data?.attributes.court.data.attributes
-        .minimumScheduleValue;
+      amountToPay! + serviceValue!;
 
     try {
       if (storageUserData && storageUserData.id) {
@@ -534,7 +533,7 @@ export default function ReservationPaymentSign({
             value_payed: valuePayed,
             owner: storageUserData.id,
             users: [storageUserData.id],
-            activation_key: isPayed ? generateRandomKey(4) : null,
+            activation_key: isPayed ? generateRandomKey(5) : null,
             service_value: serviceValue!,
             publishedAt: new Date().toISOString(),
           },
@@ -594,7 +593,7 @@ export default function ReservationPaymentSign({
           },
           Payment: {
             Type: "Pix",
-            Amount: 1, // totalSignalValueCents
+            Amount: totalSignalValue * 100, // totalSignalValueCents
           },
         });
 

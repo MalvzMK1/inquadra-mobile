@@ -13,6 +13,7 @@ export interface IinfoScheduleResponse {
         activationKey: string;
         activated: boolean;
         status: boolean;
+        redeemCode: string;
         court_availability: {
           data: {
             attributes: {
@@ -105,6 +106,7 @@ export const infoSchedule = gql`
           activationKey
           activated
           status
+          redeemCode
           court_availability {
             data {
               attributes {

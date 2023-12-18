@@ -162,9 +162,10 @@ export default function PixScreen({ navigation, route }: RouteParams) {
     let valuePayedUpdate =
       value + (scheduleValuePayed! !== undefined ? scheduleValuePayed : 0);
     let activation_key =
-      value + scheduleValuePayed! >= schedulePrice! + route.params.serviceRate! &&
+      value + scheduleValuePayed! >=
+        schedulePrice! + route.params.serviceRate! &&
       scheduleValuePayed !== undefined
-        ? generateRandomKey(4)
+        ? generateRandomKey(5)
         : "";
     try {
       await updateScheduleValue({
@@ -194,7 +195,7 @@ export default function PixScreen({ navigation, route }: RouteParams) {
           value_payed: route.params.value_payed!,
           owner: userData?.id ?? "",
           users: [userData?.id ?? ""],
-          activation_key: isPayed ? generateRandomKey(4) : "",
+          activation_key: isPayed ? generateRandomKey(5) : "",
           service_value: route.params.service_value!,
           publishedAt: new Date().toISOString(),
         },

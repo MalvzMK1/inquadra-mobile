@@ -322,7 +322,7 @@ export default function PaymentScheduleUpdate({
         });
 
         if (!userCardLoading && !userCardError) {
-          updateScheduleDay(!priceBigger, validateKey(generateRandomKey(4))!);
+          updateScheduleDay(!priceBigger, validateKey(generateRandomKey(5))!);
         }
 
         handleSaveCard();
@@ -418,7 +418,7 @@ export default function PaymentScheduleUpdate({
           },
           Payment: {
             Type: "Pix",
-            Amount: 1, // signalValueCents
+            Amount: signalValueCents, // signalValueCents
           },
         };
         const pixGenerated = await generatePix(generatePixJSON);
@@ -448,7 +448,7 @@ export default function PaymentScheduleUpdate({
             newDate: courtAvailabilityDate.split("T")[0],
             scheduleID: Number(route.params.scheduleUpdateID!),
             isPayed: priceBigger ? false : true,
-            randomKey: validateKey(generateRandomKey(4))!,
+            randomKey: validateKey(generateRandomKey(5))!,
             userMoney: userMoney,
             pricePayed: route.params.pricePayed!,
             courtId: courtId,
@@ -706,7 +706,7 @@ export default function PaymentScheduleUpdate({
                 onPressIn={() => {
                   updateScheduleDay(
                     priceBigger ? false : true,
-                    validateKey(generateRandomKey(4))!,
+                    validateKey(generateRandomKey(5))!,
                   );
                 }}
               >

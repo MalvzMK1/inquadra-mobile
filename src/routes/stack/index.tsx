@@ -1,11 +1,11 @@
-import {HOST_API} from "@env";
-import {NavigationProp, useNavigation} from "@react-navigation/native";
-import {createStackNavigator} from "@react-navigation/stack";
-import {useEffect, useState} from "react";
-import {Image, TouchableOpacity, View} from "react-native";
-import {Text} from "react-native-paper";
+import { HOST_API } from "@env";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { useEffect, useState } from "react";
+import { Image, TouchableOpacity, View } from "react-native";
+import { Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
-import {useUser} from "../../context/userContext";
+import { useUser } from "../../context/userContext";
 import useAllEstablishments from "../../hooks/useGetEstablishmentByCorporateName";
 import AllVeryWell from "../../screens/AllVeryWell";
 import CourtDetails from "../../screens/AllVeryWell/CourtDetails";
@@ -25,8 +25,8 @@ import DetailsAmountReceivable from "../../screens/FinancialEstablishment/Client
 import HistoryPayment from "../../screens/FinancialEstablishment/Client/HistoryPayment";
 import WithdrawScreen from "../../screens/FinancialEstablishment/Client/WithdrawalScreen";
 import ForgotPassword from "../../screens/ForgotPassword";
-import {InsertResetCode} from "../../screens/ForgotPassword/insertResetCode";
-import {SetNewPassword} from "../../screens/ForgotPassword/setNewPassword";
+import { InsertResetCode } from "../../screens/ForgotPassword/insertResetCode";
+import { SetNewPassword } from "../../screens/ForgotPassword/setNewPassword";
 import HomeEstablishment from "../../screens/HomeEstablishment";
 import InfoReserva from "../../screens/InfoReserva";
 import DescriptionInvited from "../../screens/InfoReserva/descriptionInvited";
@@ -614,6 +614,7 @@ export default function () {
         component={FavoriteEstablishments}
         options={({ route: { params } }) => ({
           headerTitle: "FAVORITOS",
+          headerBackTitleVisible: false,
           headerTitleStyle: {
             fontSize: 26,
           },
@@ -960,11 +961,7 @@ export default function () {
           ),
         })}
       />
-      <Screen
-        name="CourtPriceHour"
-        component={CourtPriceHour}
-
-      />
+      <Screen name="CourtPriceHour" component={CourtPriceHour} />
       <Screen
         name="CourtAvailabilityInfo"
         component={CourtAvailabilityInfo}
