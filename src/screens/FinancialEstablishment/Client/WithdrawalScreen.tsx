@@ -184,9 +184,8 @@ export default function WithdrawScreen({
             <></>
           )}
           <View
-            className={`flex-1 pb-8 items-center justify-center z-10 ${
-              isWithdrawalMade ? "opacity-50" : ""
-            }`}
+            className={`flex-1 pb-8 items-center justify-center z-10 ${isWithdrawalMade ? "opacity-50" : ""
+              }`}
           >
             <View>
               <View
@@ -240,19 +239,17 @@ export default function WithdrawScreen({
                       return (
                         <TouchableOpacity
                           disabled={avaibleToCashOut < value}
-                          className={`p-4 flex-row rounded-lg ${
-                            avaibleToCashOut >= value
-                              ? "bg-gray-400"
-                              : "bg-gray-300"
-                          }`}
+                          className={`p-4 flex-row rounded-lg ${avaibleToCashOut >= value
+                            ? "bg-gray-400"
+                            : "bg-gray-300"
+                            }`}
                           onPress={() => setNumber(value)}
                         >
                           <Text
-                            className={`${
-                              avaibleToCashOut >= value
-                                ? "text-white"
-                                : "text-gray-400"
-                            }`}
+                            className={`${avaibleToCashOut >= value
+                              ? "text-white"
+                              : "text-gray-400"
+                              }`}
                           >
                             R$ {value.toFixed(2)}
                           </Text>
@@ -273,11 +270,10 @@ export default function WithdrawScreen({
                           renderItem={({ item: card }) => {
                             return (
                               <TouchableOpacity
-                                className={`p-5 flex-row rounded-lg mt-5 ${
-                                  card.id == selectedPixKey
-                                    ? "bg-slate-500"
-                                    : "bg-gray-300"
-                                }`}
+                                className={`p-5 flex-row rounded-lg mt-5 ${card.id == selectedPixKey
+                                  ? "bg-slate-500"
+                                  : "bg-gray-300"
+                                  }`}
                                 onPress={() => {
                                   if (card.id !== selectedPixKey)
                                     setSelectedPixKey(card.id);
@@ -309,7 +305,7 @@ export default function WithdrawScreen({
         </View>
       </ScrollView>
       <View className={`absolute bottom-0 left-0 right-0`}>
-        <View className="items-center justify-center flex flex-row gap-5 pb-16">
+        <View className="items-center justify-center flex flex-row gap-5 pb-8">
           <TouchableOpacity
             className=" w-40 h-14  rounded-md bg-gray-300 flex items-center justify-center"
             onPress={() => navigation.goBack()}
@@ -317,11 +313,10 @@ export default function WithdrawScreen({
             <Text className="font-bold text-gray-400">Cancelar</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={`w-40 h-14 rounded-md flex items-center justify-center ${
-              selectedPixKey === "0" || number === 0
-                ? "bg-[#ffa363]"
-                : "bg-[#FF6112]"
-            }`}
+            className={`w-40 h-14 rounded-md flex items-center justify-center ${selectedPixKey === "0" || number === 0
+              ? "bg-[#ffa363]"
+              : "bg-[#FF6112]"
+              }`}
             disabled={selectedPixKey === "0" ? true : false}
             onPress={withdrawalMade}
           >
@@ -333,11 +328,11 @@ export default function WithdrawScreen({
           establishmentLogo={
             dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
               ?.attributes?.url !== undefined ||
-            dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
-              ?.attributes?.url !== null
+              dataUserEstablishment?.establishment?.data?.attributes?.logo?.data
+                ?.attributes?.url !== null
               ? HOST_API +
-                dataUserEstablishment?.establishment?.data?.attributes?.logo
-                  ?.data?.attributes?.url
+              dataUserEstablishment?.establishment?.data?.attributes?.logo
+                ?.data?.attributes?.url
               : null
           }
           establishmentID={route.params.establishmentId}
