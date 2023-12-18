@@ -160,7 +160,7 @@ export default function InfoReserva({
             {/* Div para carregar todas as informações do histórico*/}
             <View className="items-center p-4">
               <View
-                className="w-full h-max bg-zinc-900 rounded-lg p-2"
+                className="w-full h-max min-h-[6vh] justify-center text-center bg-zinc-900 rounded-lg p-2"
                 style={{ elevation: 8 }}
               >
                 {/* Div para inserção dos cards*/}
@@ -181,9 +181,9 @@ export default function InfoReserva({
                             Number(
                               courtInfo.attributes.court_availability.data
                                 ?.attributes.value +
-                              Number(courtInfo.attributes.serviceRate!) ?? 0,
+                                Number(courtInfo.attributes.serviceRate!) ?? 0,
                             )) *
-                          100,
+                            100,
                         );
                         return (
                           <TouchableOpacity
@@ -200,19 +200,19 @@ export default function InfoReserva({
                                   source={
                                     courtInfo.attributes.court_availability
                                       .data &&
-                                      courtInfo.attributes.court_availability.data
-                                        .attributes.court.data &&
-                                      courtInfo.attributes.court_availability.data
-                                        .attributes.court.data.attributes.photo
-                                        .data[0]
+                                    courtInfo.attributes.court_availability.data
+                                      .attributes.court.data &&
+                                    courtInfo.attributes.court_availability.data
+                                      .attributes.court.data.attributes.photo
+                                      .data[0]
                                       ? {
-                                        uri:
-                                          HOST_API +
-                                          courtInfo.attributes
-                                            .court_availability.data
-                                            .attributes.court.data.attributes
-                                            .photo.data[0].attributes.url,
-                                      }
+                                          uri:
+                                            HOST_API +
+                                            courtInfo.attributes
+                                              .court_availability.data
+                                              .attributes.court.data.attributes
+                                              .photo.data[0].attributes.url,
+                                        }
                                       : require("../../assets/default-user-image.png")
                                   }
                                   style={{ width: 138, height: 90 }}
@@ -263,16 +263,13 @@ export default function InfoReserva({
                                         courtInfo?.attributes
                                           ?.court_availability?.data?.attributes
                                           ?.value +
-                                        courtInfo.attributes.serviceRate,
+                                          courtInfo.attributes.serviceRate,
                                       )}`}
                                     </Text>
                                   </View>
                                 </View>
                                 <Text className="font-black text-xs text-white mt-1">
-                                  {Math.min(
-                                    percentagePaid,
-                                    100,
-                                  )}%
+                                  {Math.min(percentagePaid, 100)}%
                                 </Text>
                                 <Text
                                   numberOfLines={1}
@@ -300,7 +297,7 @@ export default function InfoReserva({
             </View>
             <View className="items-center p-4">
               <View
-                className="w-full h-max bg-zinc-900 rounded-lg p-2"
+                className="w-full h-max bg-zinc-900 min-h-[6vh] rounded-lg p-2"
                 style={{ elevation: 8 }}
               >
                 {loading ? (
@@ -368,7 +365,7 @@ export default function InfoReserva({
 
                                   <View>
                                     {courtInfo.attributes.payedStatus ===
-                                      "payed" ? (
+                                    "payed" ? (
                                       <Text className="font-normal text-xs text-white">
                                         Finalizado{" "}
                                       </Text>
@@ -392,14 +389,15 @@ export default function InfoReserva({
                                   </View>
                                 </View>
 
-
-                                <Text numberOfLines={1} className="font-black text-xs text-white">
+                                <Text
+                                  numberOfLines={1}
+                                  className="font-black text-xs text-white"
+                                >
                                   Ultima Reserva em{" "}
                                   {formatDateTime(
                                     courtInfo?.attributes?.createdAt.toString(),
                                   )}
                                 </Text>
-
                               </View>
                             </View>
                           </TouchableOpacity>
@@ -435,8 +433,8 @@ export default function InfoReserva({
             dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
               ?.attributes?.url
               ? HOST_API +
-              dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
-                ?.attributes?.url
+                dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
+                  ?.attributes?.url
               : ""
           }
           key={1}
