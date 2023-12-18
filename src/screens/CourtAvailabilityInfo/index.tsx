@@ -104,26 +104,24 @@ export default function CourtAvailabilityInfo({
   useEffect(() => {
     if (blockedCourtAvailabilityData) {
       const {data} = blockedCourtAvailabilityData.blockedAvailabilities;
-      let dateRange: string[];
-      let hourRange: string[];
+      const arrayPayload: Array<{date: string[], time: string[]}> = []
 
-      data.forEach(blocked => {
+      data.forEach((blocked, index) => {
         const [startsAtDate, startsAtTime] = blocked.attributes.startAt.split('T');
         const [endsAtDate, endsAtTime] = blocked.attributes.endAt.split('T');
 
-        dateRange = getDatesRange(startsAtDate, endsAtDate);
-        hourRange = getHoursRange(startsAtTime, endsAtTime);
+        const dateRange = getDatesRange(startsAtDate, endsAtDate);
+        const hourRange = getHoursRange(startsAtDate, startsAtTime, endsAtDate, endsAtTime);
 
         if (
           dateRange.length < 1 &&
           startsAtDate === endsAtDate
         ) dateRange.push(startsAtDate);
+
+        arrayPayload.push({date: dateRange, time: hourRange});
       })
 
-      setBlockedAvailabilities(prevState => [...prevState, {
-        date: dateRange,
-        time: hourRange,
-      }])
+      setBlockedAvailabilities(prevState => [...prevState, ...arrayPayload])
     }
   }, [blockedCourtAvailabilityData, selectedDate])
 
@@ -262,8 +260,6 @@ export default function CourtAvailabilityInfo({
                           );
                         })
                       ) {
-
-                        console.error('BOSTA');
                         const blocked = blockedAvailabilities.filter(availabilities => {
                           console.warn(availabilities.time.includes(item.attributes.startsAt));
                           return availabilities.time.includes(item.attributes.startsAt)
@@ -277,24 +273,26 @@ export default function CourtAvailabilityInfo({
                         return null;
                       }
 
-                      alert('eu vou coringar')
+                      const isBlocked = (blockedAvailabilities.some(blocked => {
+                        return (
+                          blocked.time.includes(item.attributes.startsAt || item.attributes.endsAt) &&
+                          blocked.date.includes(selectedDate.split('T')[0])
+                        )
+                      }))
 
                       return (
-                        <></>
-                      )
-
-                      // return (
-                      //   <CourtAvailibility
-                      //     key={item.id}
-                      //     id={item.id}
-                      //     startsAt={`${startsAt[0]}:${startsAt[1]}`}
-                      //     endsAt={`${endsAt[0]}:${endsAt[1]}`}
-                      //     price={item.attributes.value}
-                      //     busy={isBusy}
-                      //     selectedTimes={selectedTime}
-                      //     toggleTimeSelection={toggleTimeSelection}
-                      //   />
-                      // );
+                        <CourtAvailibility
+                          key={item.id}
+                          id={item.id}
+                          startsAt={`${startsAt[0]}:${startsAt[1]}`}
+                          endsAt={`${endsAt[0]}:${endsAt[1]}`}
+                          price={item.attributes.value}
+                          busy={isBusy}
+                          isBlocked={isBlocked}
+                          selectedTimes={selectedTime}
+                          toggleTimeSelection={toggleTimeSelection}
+                        />
+                      );
                     }}
                   />
                   <Text className="text-lg font-bold text-center">
@@ -343,7 +341,10 @@ export default function CourtAvailabilityInfo({
 
                     const isBlocked = (blockedAvailabilities.some(blocked => {
                       return (
-                        blocked.time.includes(item.attributes.startsAt || item.attributes.endsAt) &&
+                        (
+                          blocked.time.includes(item.attributes.startsAt) ||
+                          blocked.time.includes(item.attributes.endsAt)
+                        ) &&
                         blocked.date.includes(selectedDate.split('T')[0])
                       )
                     }))

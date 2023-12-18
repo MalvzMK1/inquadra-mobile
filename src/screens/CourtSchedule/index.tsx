@@ -680,7 +680,9 @@ export default function CourtSchedule({
 		};
 
 		const hoursRange = getHoursRange(
+			new Date().toISOString().split('T')[0],
 			blockScheduleByTimeData.initialHour,
+			new Date().toISOString().split('T')[0],
 			blockScheduleByTimeData.endHour,
 		);
 
@@ -731,8 +733,8 @@ export default function CourtSchedule({
 
 		const payload: IBlockAvailabilityVariables = {
 			courts_id: selectedCourtsIds,
-			starts_at: addHours(startsDateTime, 3).toISOString(),
-			ends_at: addHours(endsDateTime, 3).toISOString(),
+			starts_at: startsDateTime.toISOString(),
+			ends_at: endsDateTime.toISOString(),
 			published_at: new Date().toISOString(),
 		}
 
