@@ -8,12 +8,12 @@ type CourtAvailibility = {
   price?: number;
   busy: boolean;
   selectedTimes:
-    | {
-        id: string;
-        value: number;
-      }
-    | null
-    | undefined;
+  | {
+    id: string;
+    value: number;
+  }
+  | null
+  | undefined;
   toggleTimeSelection: Function;
 };
 
@@ -29,23 +29,19 @@ export default function CourtAvailibility(props: CourtAvailibility) {
   if (props.busy) {
     return (
       <View
-        className={`flex flex-row h-fit w-max ${
-          props.busy ? "" : "border"
-        } rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${
-          props.busy ? "bg-[#D9D9D9]" : ""
-        }`}
+        className={`flex flex-row h-fit w-max ${props.busy ? "" : "border"
+          } rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${props.busy ? "bg-[#D9D9D9]" : ""
+          }`}
       >
         <Text
-          className={`font-black text-[15px] ${
-            props.busy ? "text-[#808080]" : ""
-          }`}
+          className={`font-black text-[15px] ${props.busy ? "text-[#808080]" : ""
+            }`}
         >
           {props.startsAt} - {props.endsAt}
         </Text>
         <Text
-          className={`font-black text-[15px] ${
-            props.busy ? "text-[#808080]" : ""
-          }`}
+          className={`font-black text-[15px] ${props.busy ? "text-[#808080]" : ""
+            }`}
         >
           OCUPADO
         </Text>

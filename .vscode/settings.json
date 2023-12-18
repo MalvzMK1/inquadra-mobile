@@ -1,13 +1,10 @@
 {
-  // quem mexer nisso aqui é corno
+  // QUEM MEXER E CORNO GAY FUDIDO
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "explorer.compactFolders": false,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }

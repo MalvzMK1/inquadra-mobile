@@ -12,7 +12,6 @@ import {
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { useUser } from "../../context/userContext";
 import { IRegisterUserVariables } from "../../graphql/mutations/register";
 import { IRegisterEstablishmentVariables } from "../../graphql/mutations/registerEstablishment";
 import useCreateCourtAvailabilities from "../../hooks/useCreateCourtAvailabilities";
@@ -40,7 +39,6 @@ export default function AllVeryWell({
   navigation,
   route,
 }: NativeStackScreenProps<RootStackParamList, "AllVeryWell">) {
-  const { userData, setUserData } = useUser();
   const { goBack } = useNavigation();
   const [addCourt] = useRegisterCourt();
   const [createCourtAvailabilities] = useCreateCourtAvailabilities();
@@ -196,12 +194,6 @@ export default function AllVeryWell({
         },
       });
 
-      setUserData({
-        id: loginResponse.data?.login.user.id ?? undefined,
-        jwt: loginResponse.data?.login.jwt ?? undefined,
-        geolocation: userData?.geolocation,
-      });
-
       if (!loginResponse.data) {
         throw loginResponse;
       }
@@ -269,7 +261,10 @@ export default function AllVeryWell({
         AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourAllAppointments),
       ]);
 
-      navigation.navigate("CompletedEstablishmentRegistration");
+      navigation.navigate("CompletedEstablishmentRegistration", {
+        id: loginResponse.data?.login.user.id ?? undefined,
+        jwt: loginResponse.data?.login.jwt ?? undefined
+      });
     } catch (error) {
       console.error(error);
       const msgError = JSON.stringify(error, null, 2);
@@ -371,7 +366,9 @@ export default function AllVeryWell({
       <View className="bg-white">
         <TouchableOpacity
           className="h-14 w-81 m-6 rounded-md bg-[#FF6112] items-center justify-center"
-          onPress={handleComplete}
+          onPress={() => {
+            handleComplete()
+          }}
           disabled={isLoading}
         >
           {isLoading ? (

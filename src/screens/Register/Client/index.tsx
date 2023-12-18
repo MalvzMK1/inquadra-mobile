@@ -51,7 +51,7 @@ const formSchema = z.object({
     .string()
     .nonempty("O CPF não pode estar vazio!")
     .max(14, "O CPF passado não é válido")
-    .refine((cpf) => validateCpf(cpf), "CPF Inválido"),
+    .refine(cpf => validateCpf(cpf), "CPF Inválido"),
 });
 
 export default function Register({
@@ -67,7 +67,7 @@ export default function Register({
     resolver: zodResolver(formSchema),
   });
 
-  const handleGoToNextRegisterPage = handleSubmit(async (data) => {
+  const handleGoToNextRegisterPage = handleSubmit(async data => {
     try {
       const [
         { data: emailData },
@@ -119,8 +119,9 @@ export default function Register({
       style={{ flex: 1 }}
     >
       <ScrollView
-        className="bg-white h-screen"
+        className="bg-white h-min-screen"
         contentContainerStyle={{ padding: 24 }}
+        keyboardShouldPersistTaps="handled"
       >
         <RegisterHeader
           title="Cadastro"
@@ -259,7 +260,7 @@ export default function Register({
 
         <TouchableOpacity
           disabled={isSubmitting}
-          className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6 mb-24"
+          className="h-14 w-81 rounded-md bg-orange-500 flex items-center justify-center m-6 mb-52"
           onPress={handleGoToNextRegisterPage}
         >
           {isSubmitting ? (

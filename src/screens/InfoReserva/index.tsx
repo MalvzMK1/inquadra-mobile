@@ -20,6 +20,7 @@ import { useGetHistoricReserveOn } from "../../hooks/useHistoricReserveOn";
 import { useGetMenuUser } from "../../hooks/useMenuUser";
 import { UserGeolocation } from "../../types/UserGeolocation";
 import { API_BASE_URL } from "../../utils/constants";
+import { InfoReservaRedeemCode } from "./InfoReservaRedeemCode";
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -148,6 +149,7 @@ export default function InfoReserva({
       </View>
       {/* Div maior para carregar todos os itens inseridos do historico*/}
       <ScrollView>
+        <InfoReservaRedeemCode />
         {userData && userData.id && (
           <View className="h-max w-max bg-zinc-600 flex-1">
             <View className="flex items-start w-max pl-4 mt-2">
@@ -158,7 +160,7 @@ export default function InfoReserva({
             {/* Div para carregar todas as informações do histórico*/}
             <View className="items-center p-4">
               <View
-                className="w-full h-max bg-zinc-900 rounded-lg p-2"
+                className="w-full h-max min-h-[6vh] justify-center text-center bg-zinc-900 rounded-lg p-2"
                 style={{ elevation: 8 }}
               >
                 {/* Div para inserção dos cards*/}
@@ -183,7 +185,6 @@ export default function InfoReserva({
                             )) *
                             100,
                         );
-
                         return (
                           <TouchableOpacity
                             key={courtInfo.id}
@@ -268,7 +269,7 @@ export default function InfoReserva({
                                   </View>
                                 </View>
                                 <Text className="font-black text-xs text-white mt-1">
-                                  {percentagePaid}%
+                                  {Math.min(percentagePaid, 100)}%
                                 </Text>
                                 <Text
                                   numberOfLines={1}
@@ -296,7 +297,7 @@ export default function InfoReserva({
             </View>
             <View className="items-center p-4">
               <View
-                className="w-full h-max bg-zinc-900 rounded-lg p-2"
+                className="w-full h-max bg-zinc-900 min-h-[6vh] rounded-lg p-2"
                 style={{ elevation: 8 }}
               >
                 {loading ? (
@@ -334,7 +335,7 @@ export default function InfoReserva({
                                   borderRadius={5}
                                 />
                               </View>
-                              <View className="h-max w-max pl-1">
+                              <View className="h-max w-max pl-3 space-y-1 flex-1">
                                 <View>
                                   <Text className="font-black text-base text-orange-600">
                                     {
@@ -355,7 +356,7 @@ export default function InfoReserva({
                                   </Text>
                                 </View>
 
-                                <View className="w-max h-5 flex-row">
+                                <View className="w-max flex-row">
                                   <View>
                                     <Text className="font-normal text-xs text-white">
                                       Status:{" "}
@@ -388,14 +389,15 @@ export default function InfoReserva({
                                   </View>
                                 </View>
 
-                                <View>
-                                  <Text className="font-black text-xs text-white">
-                                    Ultima Reserva{" "}
-                                    {formatDateTime(
-                                      courtInfo?.attributes?.createdAt.toString(),
-                                    )}
-                                  </Text>
-                                </View>
+                                <Text
+                                  numberOfLines={1}
+                                  className="font-black text-xs text-white"
+                                >
+                                  Ultima Reserva em{" "}
+                                  {formatDateTime(
+                                    courtInfo?.attributes?.createdAt.toString(),
+                                  )}
+                                </Text>
                               </View>
                             </View>
                           </TouchableOpacity>
@@ -442,7 +444,4 @@ export default function InfoReserva({
       </View>
     </View>
   );
-}
-function getScheduleStartDate(): any {
-  throw new Error("Function not implemented.");
 }
