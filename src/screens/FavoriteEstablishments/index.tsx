@@ -37,7 +37,7 @@ export default function FavoriteEstablishments({
   const { data, error, loading, refetch } =
     useGetFavoriteEstablishmentsByUserId(userId ?? "");
   const { data: userByIdData, refetch: refetchUserInfos } = useGetUserById(
-    userId ?? ""
+    userId ?? "",
   );
   const { data: dataUser } = useGetUserById(userId ?? "");
   const [updateLikedEstablishments] = useUpdateFavoriteEstablishment();
@@ -46,7 +46,7 @@ export default function FavoriteEstablishments({
     setIsUnliking(true);
     const establishmentsData = [...userFavoriteEstablishments];
     const arrayWithoutDeletedItem = establishmentsData.filter(
-      (item) => item !== establishmentId
+      item => item !== establishmentId,
     );
 
     updateLikedEstablishments({
@@ -56,7 +56,7 @@ export default function FavoriteEstablishments({
       },
     })
       .then(() => {
-        setColors((prevColor) => ({
+        setColors(prevColor => ({
           ...prevColor,
           [establishmentId]: "white",
         }));
@@ -105,16 +105,16 @@ export default function FavoriteEstablishments({
             .favorite_establishments.data.length! > 0
         ) {
           userByIdData?.usersPermissionsUser?.data?.attributes?.favorite_establishments?.data?.forEach(
-            (item) => {
-              setColors((prevColors) => ({
+            item => {
+              setColors(prevColors => ({
                 ...prevColors,
                 [item.id]: "red",
               }));
-              setUserFavoriteEstablishments((prevEstablishments) => [
+              setUserFavoriteEstablishments(prevEstablishments => [
                 ...prevEstablishments,
                 item.id,
               ]);
-            }
+            },
           );
           setIsLoaded(false);
         } else {
@@ -122,10 +122,10 @@ export default function FavoriteEstablishments({
         }
       } catch (error) {
         console.error(
-          "Preenchimento do colors e userFavoriteEstablishments, erro: "
+          "Preenchimento do colors e userFavoriteEstablishments, erro: ",
         );
       }
-    }, [userByIdData])
+    }, [userByIdData]),
   );
 
   return (
@@ -144,7 +144,7 @@ export default function FavoriteEstablishments({
           )}
           {isLoaded &&
             data?.establishments.data.map !== null &&
-            data?.establishments.data.map((item) =>
+            data?.establishments.data.map(item =>
               item.attributes !== null && item.attributes ? (
                 <InfosEstablishment.Root
                   category={
@@ -178,7 +178,7 @@ export default function FavoriteEstablishments({
                               userLocation.latitude,
                               userLocation.longitude,
                               Number(item.attributes.address.latitude),
-                              Number(item.attributes.address.longitude)
+                              Number(item.attributes.address.longitude),
                             );
                             return distanceInMeters >= 1000
                               ? `${(distanceInMeters / 1000).toFixed(1)} km`
@@ -205,7 +205,7 @@ export default function FavoriteEstablishments({
                     ESSE ESTABELECIMENTO FAVORITO NÃO ESTA DIPONIVEL!
                   </Text>
                 </View>
-              )
+              ),
             )}
           {!USER_ID && (
             <View className="w-full h-fit flex items-center justify-center">

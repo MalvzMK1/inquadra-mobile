@@ -34,7 +34,7 @@ export default function CourtPriceHour({
   >(null);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
 
-  // todos os horários de todos os dias
+  // todos os dias com seus respectivos horários
   const [allAppointments, setAllAppointments, isLoadingInitialAllAppointments] =
     useAsyncStorageState<Appointment[][]>(
       AsyncStorageKeys.CourtPriceHourAllAppointments,
@@ -108,7 +108,7 @@ export default function CourtPriceHour({
           }
         }}
       >
-        <Icon name="arrow-back" size={25} color="black" />
+        <Icon name="arrow-back" size={30} color="black" />
       </TouchableOpacity>
     ),
   });
@@ -168,7 +168,7 @@ export default function CourtPriceHour({
     <View className="flex-1">
       <ScrollView
         className="bg-[#292929]"
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 18 }}
       >
         <View className="flex-1 items-center">
           <Text className="text-white font-black text-xs">Selecione o dia</Text>
