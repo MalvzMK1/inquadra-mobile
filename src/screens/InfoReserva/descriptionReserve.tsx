@@ -530,7 +530,7 @@ export default function DescriptionReserve({
     let valuePayedUpdate = value + scheduleValuePayed!;
     let activation_key =
       value + scheduleValuePayed! >= schedulePrice!
-        ? generateRandomKey(4)
+        ? generateRandomKey(5)
         : null;
 
     try {
