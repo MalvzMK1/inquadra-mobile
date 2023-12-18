@@ -7,7 +7,6 @@
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/CourtSchedule/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CourtSchedule/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/FinancialEstablishment/Client/WithdrawalScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/FinancialEstablishment/Client/WithdrawalScreen.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +33,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI10580T10869" />
+                    <option name="lastUsedInstant" value="1702894627" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI10580T10863" />
                     <option name="lastUsedInstant" value="1702581566" />
                   </RecentBranch>
@@ -48,10 +51,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI10580T10626" />
                     <option name="lastUsedInstant" value="1702466699" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI10580T10747" />
-                    <option name="lastUsedInstant" value="1702379251" />
                   </RecentBranch>
                 </list>
               </option>
