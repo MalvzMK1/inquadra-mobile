@@ -9,7 +9,10 @@ type RootStackParamList = {
     establishmentId: string;
     logo: string;
   };
-  CompletedEstablishmentRegistration: undefined;
+  CompletedEstablishmentRegistration: {
+    id: string,
+    jwt: string
+  };
   CourtSchedule: {
     establishmentPhoto: string | undefined;
     establishmentId: string;
@@ -20,7 +23,6 @@ type RootStackParamList = {
     valueDisponible: number;
   };
   RegisterEstablishmentProfile: undefined;
-  CompletedEstablishmentResgistration: undefined;
   HomeEstablishment: {
     userPhoto?: string | undefined;
   };

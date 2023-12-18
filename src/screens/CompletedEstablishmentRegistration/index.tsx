@@ -1,8 +1,13 @@
-import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, Text, TouchableOpacity, View } from "react-native";
+import { useUser } from "../../context/userContext";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useState } from "react";
 
-export default function CompletedEstablishmentRegistration() {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+export default function CompletedEstablishmentRegistration({
+  route,
+}: NativeStackScreenProps<RootStackParamList, "CompletedEstablishmentRegistration">) {
+  const { userData, setUserData } = useUser()
+  const [isLoading, setIsLoading] = useState(false)
   return (
     <View className="h-full flex justify-center items-center bg-white">
       <View className="h-2/5 w-full flex flex-col justify-between items-center">
@@ -19,9 +24,20 @@ export default function CompletedEstablishmentRegistration() {
         </View>
         <TouchableOpacity
           className="h-14 mt-4 w-80 rounded-md bg-orange-500 flex items-center justify-center"
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => {
+            setIsLoading(true)
+            setUserData({
+              id: route.params.id,
+              jwt: route.params.jwt,
+              geolocation: userData?.geolocation,
+            }).finally(() => setIsLoading(false));
+          }}
         >
-          <Text className="text-gray-50">Continuar</Text>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text className="text-gray-50">Continuar</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>

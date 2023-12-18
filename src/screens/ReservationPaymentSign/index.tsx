@@ -201,12 +201,12 @@ export default function ReservationPaymentSign({
       dataReserve?.courtAvailability.data.attributes.court.data.attributes
         .fantasy_name
         ? dataReserve?.courtAvailability.data.attributes.court.data.attributes
-          .fantasy_name
+            .fantasy_name
         : "",
     );
     setSignalValueValidate(
       dataReserve?.courtAvailability.data.attributes.value ===
-      amountToPayHold + (serviceValue ?? 0),
+        amountToPayHold + (serviceValue ?? 0),
     );
 
     setUserPhoto(route.params.userPhoto);
@@ -347,10 +347,10 @@ export default function ReservationPaymentSign({
 
       const signalAmount = dataReserve
         ? Number(
-          dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-            2,
-          ),
-        )
+            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+              2,
+            ),
+          )
         : undefined;
 
       if (
@@ -520,7 +520,7 @@ export default function ReservationPaymentSign({
     let isPayed =
       dataReserve?.courtAvailability.data?.attributes.court.data.attributes
         .minimumScheduleValue ===
-      amountToPay! + serviceValue!
+      amountToPay! + serviceValue!;
 
     try {
       if (storageUserData && storageUserData.id) {
@@ -533,7 +533,7 @@ export default function ReservationPaymentSign({
             value_payed: valuePayed,
             owner: storageUserData.id,
             users: [storageUserData.id],
-            activation_key: isPayed ? generateRandomKey(4) : null,
+            activation_key: isPayed ? generateRandomKey(5) : null,
             service_value: serviceValue!,
             publishedAt: new Date().toISOString(),
           },
@@ -563,10 +563,10 @@ export default function ReservationPaymentSign({
       if (storageUserData && storageUserData.id) {
         const signalAmount = dataReserve
           ? Number(
-            dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
-              2,
-            ),
-          )
+              dataReserve.courtAvailability.data.attributes.court.data.attributes.minimumScheduleValue.toFixed(
+                2,
+              ),
+            )
           : undefined;
 
         if (
@@ -593,7 +593,7 @@ export default function ReservationPaymentSign({
           },
           Payment: {
             Type: "Pix",
-            Amount: 1, // totalSignalValueCents
+            Amount: totalSignalValue * 100, // totalSignalValueCents
           },
         });
 
@@ -906,9 +906,10 @@ export default function ReservationPaymentSign({
                             dataCountry.countries.data.map(country => ({
                               value: country.attributes.name,
                               label: country.attributes.name,
-                              img: `${country.attributes.flag.data?.attributes.url ??
+                              img: `${
+                                country.attributes.flag.data?.attributes.url ??
                                 ""
-                                }`,
+                              }`,
                             }))) ||
                           []
                         }
