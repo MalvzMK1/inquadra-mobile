@@ -1,26 +1,36 @@
-import {sub} from "date-fns";
+import {addHours, sub} from "date-fns";
 
-export default function getHoursRange(startHour: string, endHour: string) {
+export default function getHoursRange(startDate: string, startHour: string, endDate: string, endHour: string) {
 	const hours: string[] = [];
 
-	const initialHour = new Date(`2023-09-12T${startHour}`);
+	console.log({startHour, endHour, true: false})
+
+	const initialHour = new Date(`${startDate}T${startHour}`);
+	const endDateTime = new Date(`${endDate}T${endHour}`);
+
 	const formatedInitialHour = sub(initialHour, {
 		hours: 3,
 	});
 
-	const end = new Date(`2023-09-12T${endHour}`);
-	const formatedEndHour = sub(end, {
+	const formatedEndHour = sub(endDateTime, {
 		hours: 3,
 	});
 
-	while (formatedInitialHour <= formatedEndHour) {
-		hours.push(
-			new Date(formatedInitialHour)
-				.toISOString()
-				.split("T")[1]
-				.replace("Z", ""),
-		);
-		formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 60);
+	const startDay = Number(startDate.split('-')[2]);
+	const endDay = Number(endDate.split('-')[2]);
+
+	console.log(startDay, endDay);
+
+	for (let i = startDay; i <= endDay; i++) {
+		while (formatedInitialHour <= formatedEndHour) {
+			hours.push(
+				new Date(formatedInitialHour)
+					.toISOString()
+					.split("T")[1]
+					.replace("Z", ""),
+			);
+			formatedInitialHour.setMinutes(formatedInitialHour.getMinutes() + 60);
+		}
 	}
 
 	return hours;
