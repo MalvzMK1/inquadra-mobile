@@ -131,7 +131,6 @@ export default function RegisterEstablishment({
 
   function handleDeletePhoto(index: number): void {
     setPhotos(prevState => {
-      // Crie uma nova matriz excluindo o elemento no índice
       const updatedPhotos = [...prevState];
       updatedPhotos.splice(index, 1);
       return updatedPhotos;
@@ -139,11 +138,10 @@ export default function RegisterEstablishment({
   }
 
   async function submitForm(values: IFormSchema) {
-    console.log(values);
-
+    const apolloClient = useApolloClient();
     if (values.cnpj) {
       const [{ data }] = await Promise.all([
-        useApolloClient().query<
+        apolloClient.query<
           IEstablishmentsCNPJResponse,
           IEstablishmentsCNPJVariables
         >({
@@ -154,11 +152,8 @@ export default function RegisterEstablishment({
           },
         }),
       ]);
-
-      console.log({ data });
-
       if (data.establishments.data.length > 0) {
-        return Alert.alert("Erro", "Este CNPJ já está em uso.");
+        return Alert.alert("Erro", "CNPJ já está em uso.");
       }
     }
 
