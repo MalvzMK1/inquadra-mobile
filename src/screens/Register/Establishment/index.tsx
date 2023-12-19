@@ -1,3 +1,4 @@
+import { useApolloClient } from "@apollo/client";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -20,6 +21,11 @@ import { ScrollView } from "react-native-gesture-handler";
 import MaskInput, { Masks } from "react-native-mask-input";
 import { z } from "zod";
 import { useUser } from "../../../context/userContext";
+import {
+  AllEstablishmentsCNPJQuery,
+  IEstablishmentsCNPJResponse,
+  IEstablishmentsCNPJVariables,
+} from "../../../graphql/queries/allEstablishmentsCNPJ";
 import useAllAmenities from "../../../hooks/useAllAmenities";
 
 const formSchema = z.object({
@@ -125,7 +131,6 @@ export default function RegisterEstablishment({
 
   function handleDeletePhoto(index: number): void {
     setPhotos(prevState => {
-      // Crie uma nova matriz excluindo o elemento no índice
       const updatedPhotos = [...prevState];
       updatedPhotos.splice(index, 1);
       return updatedPhotos;
@@ -133,6 +138,25 @@ export default function RegisterEstablishment({
   }
 
   async function submitForm(values: IFormSchema) {
+    const apolloClient = useApolloClient();
+    if (values.cnpj) {
+      const [{ data }] = await Promise.all([
+        apolloClient.query<
+          IEstablishmentsCNPJResponse,
+          IEstablishmentsCNPJVariables
+        >({
+          fetchPolicy: "network-only",
+          query: AllEstablishmentsCNPJQuery,
+          variables: {
+            cnpj: values.cnpj,
+          },
+        }),
+      ]);
+      if (data.establishments.data.length > 0) {
+        return Alert.alert("Erro", "CNPJ já está em uso.");
+      }
+    }
+
     if (amenities.length === 0) {
       return Alert.alert("Erro", "Cadastre uma amenidade antes de continuar.");
     }
@@ -232,7 +256,9 @@ export default function RegisterEstablishment({
                     value={value}
                     maxLength={18}
                     keyboardType={"numeric"}
-                    onChangeText={(masked, unmasked) => onChange(unmasked)}
+                    onChangeText={(masked, unmasked) => {
+                      onChange(unmasked);
+                    }}
                     mask={Masks.BRL_CNPJ}
                   />
                 )}

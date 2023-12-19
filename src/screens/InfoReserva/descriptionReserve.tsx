@@ -212,11 +212,12 @@ export default function DescriptionReserve({
     const _timeDifferenceMsPayDate =
       Number(schedulingPayDate) - Number(currentTime);
 
-    const _isWithinOneHour = _timeDifferenceMsPayDate <= oneHourInMs;
+    const _isWithinOneHour = _timeDifferenceHours <= 1;
     const _isVanquishedDate = schedulingPayDate! < currentTime;
     const _isVanquished = _isVanquishedDate && isPayed !== "payed";
 
     setIsWithinOneHour(_isWithinOneHour);
+    
     setIsVanquished(_isVanquished);
   }, [timeDifferenceMs, schedulingPayDate]);
 
@@ -878,10 +879,10 @@ export default function DescriptionReserve({
           {infoScheduleData?.scheduling.data?.attributes.owner.data &&
           isVanquished !== undefined &&
           !isWithinOneHour &&
-          infoScheduleData.scheduling.data.attributes.owner.data.id !==
+          infoScheduleData.scheduling.data.attributes.owner.data.id ===
             user_id ? (
             <>
-              {!isVanquished && reserveStatus ? (
+              {!isWithinOneHour && reserveStatus ? (
                 infoScheduleData.scheduling.data.attributes.payedStatus ===
                 "waiting" ? (
                   <View className="h-28 w-60 flex-row pr-5">
