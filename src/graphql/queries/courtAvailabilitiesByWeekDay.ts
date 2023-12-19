@@ -15,6 +15,13 @@ export interface CourtAvailabilitiesByWeekDayResponse {
                 data: Array<{
                   attributes: {
                     name: CourtType["name"];
+                    photo: {
+                      data?: {
+                        attributes: {
+                          url: string;
+                        }
+                      }
+                    }
                   };
                 }>;
               };
@@ -76,6 +83,13 @@ export const courtAvailabilitiesByWeekDayQuery = gql`
                   data {
                     attributes {
                       name
+                      photo {
+                        data {
+                          attributes {
+                            url
+                          }
+                        }
+                      }
                     }
                   }
                 }
