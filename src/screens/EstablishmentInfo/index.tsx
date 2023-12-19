@@ -67,9 +67,11 @@ export default function EstablishmentInfo({
     refetch,
   } = useGetFavoriteEstablishmentByUserId(userId ? userId : "0");
 
-  useEffect(() => {
-    refetch;
-  }, [route.params.establishmentId]);
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch()
+    }, [route.params])
+  )
 
   const [arrayfavoriteEstablishment, setArrayFavoriteEstablishment] = useState<
     Array<{ id: any }>
@@ -151,7 +153,7 @@ export default function EstablishmentInfo({
             ),
             photo: infosEstablishment.attributes.logo.data
               ? HOST_API +
-                infosEstablishment.attributes.logo.data.attributes.url
+              infosEstablishment.attributes.logo.data.attributes.url
               : "",
             photosAmenitie: infosEstablishment.attributes.photos.data.map(
               (photo, index) => {
@@ -270,9 +272,9 @@ export default function EstablishmentInfo({
   return (
     <View>
       {loading ||
-      establishmentLoading ||
-      loadingFavoriteEstablishment ||
-      loadingUser ? (
+        establishmentLoading ||
+        loadingFavoriteEstablishment ||
+        loadingUser ? (
         <View className="mt-10">
           <ActivityIndicator size={32} color="#FF6112" />
         </View>
@@ -420,8 +422,8 @@ export default function EstablishmentInfo({
                   dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
                     ?.attributes?.url
                     ? HOST_API +
-                      dataUser.usersPermissionsUser.data.attributes.photo.data
-                        ?.attributes.url
+                    dataUser.usersPermissionsUser.data.attributes.photo.data
+                      ?.attributes.url
                     : ""
                 }
                 key={1}
@@ -437,8 +439,8 @@ export default function EstablishmentInfo({
                   dataUser?.usersPermissionsUser?.data?.attributes?.photo?.data
                     ?.attributes?.url
                     ? HOST_API +
-                      dataUser.usersPermissionsUser.data.attributes.photo.data
-                        ?.attributes.url
+                    dataUser.usersPermissionsUser.data.attributes.photo.data
+                      ?.attributes.url
                     : ""
                 }
                 key={1}
