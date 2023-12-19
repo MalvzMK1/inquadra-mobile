@@ -765,15 +765,6 @@ export default function () {
         })}
       />
       <Screen
-        name="CompletedEstablishmentResgistration"
-        component={CompletedEstablishmentRegistration}
-        options={{
-          headerTintColor: "white",
-          headerStyle: {},
-          headerTitleAlign: "center",
-        }}
-      />
-      <Screen
         name="DeleteAccountEstablishment"
         component={DeleteAccountEstablishment}
         options={{
