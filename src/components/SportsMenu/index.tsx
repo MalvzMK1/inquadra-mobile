@@ -15,7 +15,7 @@ const activeIconBTennis = require("./icons/activeIconBTennis.png");
 const activeIconTennis = require("./icons/activeIconTennis.png");
 const activeIconFVoley = require("./icons/activeIconFVoley.png");
 
-const arrayIcons = [
+export const arrayIcons = [
   {
     id: 1,
     image: iconFutebol,

@@ -24,6 +24,7 @@ import { useEstablishmentSchedulingsByDay } from "../../hooks/useEstablishmentSc
 import { useGetUserEstablishmentInfos } from "../../hooks/useGetUserEstablishmentInfos";
 import useUpdateScheduleActivateStatus from "../../hooks/useUpdateScheduleActivatedStatus";
 import {IconProps} from "react-native-elements";
+import {arrayIcons} from "../../components/SportsMenu";
 
 interface ICourtProps {
   attributes: {
@@ -353,10 +354,6 @@ export default function HomeEstablishment({
     return data;
   }, [courtAvailabilitiesData]);
 
-  useEffect(() => {
-    console.log({availabilitiesData})
-  }, [availabilitiesData])
-
   return (
     <View className="flex-1">
       <View className="h-11 w-max bg-[#292929]"></View>
@@ -664,10 +661,11 @@ export default function HomeEstablishment({
                                         </Text>
                                       </View>
                                       <View className="flex flex-row items-center space-x-0.5">
-                                        <Ionicons
-                                          size={16}
-                                          color="#FF6112"
-                                          name={sportName}
+                                        <Image
+                                          className='w-4 h-4'
+                                          source={
+                                            arrayIcons[parseInt(availability.attributes.court.data.attributes.court_types.data[0]?.id || '0')].activeImage
+                                          }
                                         />
                                         {
                                           (
