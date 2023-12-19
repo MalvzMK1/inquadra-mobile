@@ -314,14 +314,14 @@ export default function CourtAvailabilityInfo({
 
 											const isBlocked = blockedAvailabilities.some((blocked, index) => {
 												return blocked.date === selectedDate.split('T')[0] && blocked.time.some((blockTime) => {
-													const blockStart = new Date(`${blocked.date}T${blockTime}`);
+													const blockStart = new Date(`${blocked.date}T${blockTime}Z`);
 													const blockEnd = new Date(`${blocked.date}T${blocked.time[blocked.time.length - 1]}Z`);
 													const appointmentStart = new Date(`${selectedDate.split('T')[0]}T${item.attributes.startsAt}Z`);
 													const appointmentEnd = new Date(`${selectedDate.split('T')[0]}T${item.attributes.endsAt}Z`);
 
 													return (
-														(appointmentStart >= blockStart && appointmentStart < blockEnd) ||
-														(appointmentEnd > blockStart && appointmentEnd <= blockEnd)
+														(appointmentStart >= blockStart && appointmentStart <= blockEnd) ||
+														(appointmentEnd >= blockStart && appointmentEnd <= blockEnd)
 													);
 												});
 											});
@@ -387,14 +387,14 @@ export default function CourtAvailabilityInfo({
 
 										const isBlocked = blockedAvailabilities.some((blocked, index) => {
 											return blocked.date === selectedDate.split('T')[0] && blocked.time.some((blockTime) => {
-												const blockStart = new Date(`${blocked.date}T${blockTime}`);
+												const blockStart = new Date(`${blocked.date}T${blockTime}Z`);
 												const blockEnd = new Date(`${blocked.date}T${blocked.time[blocked.time.length - 1]}Z`);
 												const appointmentStart = new Date(`${selectedDate.split('T')[0]}T${item.attributes.startsAt}Z`);
 												const appointmentEnd = new Date(`${selectedDate.split('T')[0]}T${item.attributes.endsAt}Z`);
 
 												return (
-													(appointmentStart >= blockStart && appointmentStart < blockEnd) ||
-													(appointmentEnd > blockStart && appointmentEnd <= blockEnd)
+													(appointmentStart >= blockStart && appointmentStart <= blockEnd) ||
+													(appointmentEnd >= blockStart && appointmentEnd <= blockEnd)
 												);
 											});
 										});
