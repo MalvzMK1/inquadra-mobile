@@ -420,7 +420,7 @@ export default function Home({
         {isUserInfosLoading ? (
           <ActivityIndicator
             size={"small"}
-            color={"#FF1116"}
+            color={"#FF6112"}
             className={"w-12 h-12"}
           />
         ) : (
