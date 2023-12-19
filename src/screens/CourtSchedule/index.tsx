@@ -927,7 +927,7 @@ export default function CourtSchedule({
 								dropdownTextStyles={{color: "#FF6112"}}
 								inputStyles={{
 									alignSelf: "center",
-									height: 14,
+									height: 18,
 									color: "#B8B8B8",
 								}}
 								closeicon={<Ionicons name="close" size={20} color="#FF6112"/>}
@@ -1009,7 +1009,6 @@ export default function CourtSchedule({
 										Bloquear datas
 									</Text>
 								</Button>
-								<Text>{blockedDate}</Text>
 								<TouchableOpacity
 									className='flex items-center justify-center bg-orange-700 h-12 w-[200px] rounded-md'
 									onPress={() => handleBlockSchedule()}
