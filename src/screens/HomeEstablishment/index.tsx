@@ -467,8 +467,8 @@ export default function HomeEstablishment({
                                   scheduling.attributes.activated
                                     ? "Reserva ativada"
                                     : scheduling.attributes.payedStatus
-                                    ? "Pagamento realizado"
-                                    : "Pagamento em andamento"}
+                                    ? "Finalizado"
+                                    : "Em andamento"}
                                 </Text>
                               ),
                             ),
