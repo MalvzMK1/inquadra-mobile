@@ -77,8 +77,8 @@ export default function RegisterCourt({
 
     const selectedCourtTypeIds: string[] = [];
 
-    selectedCourtTypes.forEach((selectedType) => {
-      courtTypes.forEach((type) => {
+    selectedCourtTypes.forEach(selectedType => {
+      courtTypes.forEach(type => {
         if (type.value === selectedType) {
           selectedCourtTypeIds.push(type.label);
         }
@@ -94,20 +94,20 @@ export default function RegisterCourt({
         storageAvailabilities &&
         (dayUse = JSON.parse(storageDayUse) as typeof dayUse).length &&
         (allAvailabilities = JSON.parse(
-          storageAvailabilities
+          storageAvailabilities,
         ) as typeof allAvailabilities).some(
-          (availabilities) => availabilities.length > 0
+          availabilities => availabilities.length > 0,
         )
       ) {
         const areAvailabilitiesValid = allAvailabilities.every(
-          (availabilities) => {
-            return availabilities.every((availability) => {
+          availabilities => {
+            return availabilities.every(availability => {
               const isStartValid = availabilityTimeRegex.test(
-                availability.startsAt
+                availability.startsAt,
               );
 
               const isEndValid = availabilityTimeRegex.test(
-                availability.endsAt
+                availability.endsAt,
               );
 
               const isPriceValid =
@@ -118,19 +118,19 @@ export default function RegisterCourt({
                       .replace("R$", "")
                       .replace(".", "")
                       .replace(",", ".")
-                      .trim()
-                  )
+                      .trim(),
+                  ),
                 );
 
               return isStartValid && isEndValid && isPriceValid;
             });
-          }
+          },
         );
 
         if (!areAvailabilitiesValid) {
           return Alert.alert(
             "Erro",
-            "Preencha todos os horários e valores corretamente."
+            "Preencha todos os horários e valores corretamente.",
           );
         }
 
@@ -155,14 +155,14 @@ export default function RegisterCourt({
           await Promise.all([
             AsyncStorage.removeItem(AsyncStorageKeys.CourtPriceHourDayUse),
             AsyncStorage.removeItem(
-              AsyncStorageKeys.CourtPriceHourAllAppointments
+              AsyncStorageKeys.CourtPriceHourAllAppointments,
             ),
           ]);
 
           reset();
           setPhotos([]);
           setSelectedCourtTypes([]);
-          setCourts((prevState) => [...prevState, payload]);
+          setCourts(prevState => [...prevState, payload]);
         }
       } else {
         Alert.alert("Erro", "Preencha os valores e horários.");
@@ -175,7 +175,7 @@ export default function RegisterCourt({
     }
   }
 
-  const registerNewCourt = handleSubmit(async (data) => {
+  const registerNewCourt = handleSubmit(async data => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
@@ -183,7 +183,7 @@ export default function RegisterCourt({
     await register(data);
   });
 
-  const finishCourtsRegisters = handleSubmit(async (data) => {
+  const finishCourtsRegisters = handleSubmit(async data => {
     if (!photos.length) {
       return Alert.alert("Erro", "Selecione uma foto.");
     }
@@ -199,7 +199,7 @@ export default function RegisterCourt({
       if (status !== "granted") {
         return Alert.alert(
           "Erro",
-          "Desculpe, precisamos da permissão para acessar a galeria!"
+          "Desculpe, precisamos da permissão para acessar a galeria!",
         );
       }
 
@@ -211,9 +211,9 @@ export default function RegisterCourt({
       });
 
       if (!result.canceled) {
-        setPhotos((currentPhotos) => {
+        setPhotos(currentPhotos => {
           return currentPhotos.concat(
-            result.assets.map((asset) => ({ uri: asset.uri }))
+            result.assets.map(asset => ({ uri: asset.uri })),
           );
         });
       }
@@ -233,7 +233,7 @@ export default function RegisterCourt({
       return [];
     }
 
-    return dataSportTypeAvailable.courtTypes.data.map((sportType) => {
+    return dataSportTypeAvailable.courtTypes.data.map(sportType => {
       return {
         value: sportType.attributes.name,
         label: sportType.id,
@@ -242,257 +242,247 @@ export default function RegisterCourt({
   }, []);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={{ flex: 1 }} >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
       <ScrollView className="h-fit bg-white flex-1">
-      <View className="items-center mt-9 p-4">
-        <Text className="text-3xl text-center font-semibold text-gray-700">
-          Cadastro Quadra
-        </Text>
-      </View>
-      <View className="h-fit">
-        <View className="p-5 gap-7 flex flex-col justify-between">
-          <View>
-            <Text className="text-base p-1">Selecione a modalidade:</Text>
-            <Controller
-              name="courtType"
-              control={control}
-              render={({ field: { onChange } }) => (
-                <MultipleSelectList
-                  setSelected={(val: []) => {
-                    setSelectedCourtTypes(val);
-                    onChange([val]);
-                  }}
-                  data={courtTypes}
-                  save="value"
-                  placeholder="Selecione aqui..."
-                  label="Modalidades escolhidas:"
-                  boxStyles={{ borderRadius: 4, minHeight: 55 }}
-                  inputStyles={{
-                    color: "#FF6112",
-                    alignSelf: "center",
-                    fontWeight: "600",
-                  }}
-                  searchPlaceholder="Procurar"
-                  badgeStyles={{ backgroundColor: "#FF6112" }}
-                  closeicon={
-                    <Ionicons name="close" size={20} color="#FF6112" />
-                  }
-                  searchicon={
-                    <Ionicons
-                      name="search"
-                      size={18}
-                      color="#FF6112"
-                      style={{ marginEnd: 10 }}
-                    />
-                  }
-                  arrowicon={
-                    <AntDesign
-                      name="down"
-                      size={13}
-                      color="#FF6112"
-                      style={{ marginEnd: 2, alignSelf: "center" }}
-                    />
-                  }
-                />
-              )}
-            />
-            {isCourtTypeEmpty === true ? (
-              <Text className="text-red-400 text-sm">
-                É necessário inserir pelo menos um tipo de quadra
-              </Text>
-            ) : null}
-          </View>
-          <View>
-            <Text className="text-base p-1">Nome fantasia da quadra</Text>
-            <Controller
-              name="fantasyName"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="p-5 border border-neutral-400 rounded"
-                  placeholder="Ex.: Quadra do Zeca"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors?.fantasyName?.message && (
-              <Text className="text-red-400 text-sm">
-                {errors.fantasyName.message}
-              </Text>
-            )}
-          </View>
-          <View>
-            <Text className="text-base p-1">Fotos da quadra</Text>
-            <View className="border border-dotted border-neutral-400 rounded relative">
-              <View
-                className="flex flex-row items-center"
-                style={{ justifyContent: "space-between", height: 130 }}
-              >
-                <Text
-                  className="text-base text-gray-300 font-bold m-6 "
-                  onPress={handleProfilePictureUpload}
-                >
-                  Carregue suas fotos aqui.
-                </Text>
-                <Ionicons
-                  name="star-outline"
-                  size={20}
-                  color="#FF6112"
-                  style={{ marginEnd: 20 }}
-                  onPress={handleProfilePictureUpload}
-                />
-              </View>
+        <View className="items-center mt-9 p-4">
+          <Text className="text-3xl text-center font-semibold text-gray-700">
+            Cadastro Quadra
+          </Text>
+        </View>
+        <View className="h-fit">
+          <View className="p-5 gap-7 flex flex-col justify-between">
+            <View>
+              <Text className="text-base p-1">Selecione a modalidade:</Text>
               <Controller
-                name="photos"
+                name="courtType"
                 control={control}
-                rules={{ required: false }}
-                render={({ field: { onChange, value } }) => (
-                  <FlatList
-                    className="h-max"
-                    data={photos}
-                    renderItem={({ item, index }) => (
-                      <View
-                        style={{ flexDirection: "row", alignItems: "center" }}
-                      >
-                        <Image
-                          source={{ uri: item.uri }}
-                          style={{ width: 100, height: 100, margin: 10 }}
-                        />
-                        <TouchableOpacity
-                          style={{
-                            position: "absolute",
-                            right: 0,
-                            left: 0,
-                            bottom: 0,
-                            top: 0,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                          onPress={() => handleDeletePhoto(index)}
-                        >
-                          <Ionicons name="trash" size={25} color="#FF6112" />
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                    keyExtractor={(item, index) => index.toString()}
-                    horizontal
+                render={({ field: { onChange } }) => (
+                  <MultipleSelectList
+                    setSelected={(val: []) => {
+                      setSelectedCourtTypes(val);
+                      onChange([val]);
+                    }}
+                    data={courtTypes}
+                    save="value"
+                    placeholder="Selecione aqui..."
+                    label="Modalidades escolhidas:"
+                    boxStyles={{ borderRadius: 4, minHeight: 55 }}
+                    inputStyles={{
+                      color: "#FF6112",
+                      alignSelf: "center",
+                      fontWeight: "600",
+                    }}
+                    searchPlaceholder="Procurar"
+                    badgeStyles={{ backgroundColor: "#FF6112" }}
+                    closeicon={
+                      <Ionicons name="close" size={20} color="#FF6112" />
+                    }
+                    searchicon={
+                      <Ionicons
+                        name="search"
+                        size={18}
+                        color="#FF6112"
+                        style={{ marginEnd: 10 }}
+                      />
+                    }
+                    arrowicon={
+                      <AntDesign
+                        name="down"
+                        size={13}
+                        color="#FF6112"
+                        style={{ marginEnd: 2, alignSelf: "center" }}
+                      />
+                    }
                   />
                 )}
               />
-            </View>
-          </View>
-          <View>
-            <Text className="text-base p-1">Valor aluguel/hora</Text>
-            {minimumValue !== undefined &&
-            minimumValue !== null &&
-            minimumValue !== "" ? (
-              <>
-                <TouchableOpacity
-                  className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
-                  onPress={() =>
-                    navigation.navigate("CourtPriceHour", {
-                      minimumCourtPrice: minimumValue,
-                    })
-                  }
-                >
-                  <Text className="text-white font-semibold text-base">
-                    Clique para definir
-                  </Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <TouchableOpacity
-                  className="h-14 w-81 rounded-md bg-gray-400 flex items-center justify-center"
-                  onPress={() => {}}
-                >
-                  <Text className="text-white font-semibold text-base">
-                    Clique para definir
-                  </Text>
-                </TouchableOpacity>
-                <Text className="text-base text-gray-300 font-bold m-6 ">
-                  Defina um preço mínimo primeiramente para definir os horários
+              {isCourtTypeEmpty === true ? (
+                <Text className="text-red-400 text-sm">
+                  É necessário inserir pelo menos um tipo de quadra
                 </Text>
-              </>
-            )}
-          </View>
-          <View>
-            <Text className="text-base p-1">Sinal mínimo para locação</Text>
-            <TouchableOpacity onPress={() => setInfoModalVisible(true)}>
-              <Ionicons name="information-circle" size={25} color="#FF6112" />
-            </TouchableOpacity>
-            <Controller
-              name="minimum_value"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <MaskInput
-                  mask={Masks.BRL_CURRENCY}
-                  keyboardType="numeric"
-                  value={value}
-                  placeholder="Ex.: R$ 00.00"
-                  onChangeText={(masked, unmasked) => {
-                    onChange(unmasked), setMinimumValue(unmasked);
-                  }}
-                  className="p-5 border border-neutral-400 rounded"
-                />
+              ) : null}
+            </View>
+            <View>
+              <Text className="text-base p-1">Nome fantasia da quadra</Text>
+              <Controller
+                name="fantasyName"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="p-5 border border-neutral-400 rounded"
+                    placeholder="Ex.: Quadra do Zeca"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors?.fantasyName?.message && (
+                <Text className="text-red-400 text-sm">
+                  {errors.fantasyName.message}
+                </Text>
               )}
-            />
+            </View>
+            <View>
+              <Text className="text-base p-1">Fotos da quadra</Text>
+              <View className="border border-dotted border-neutral-400 rounded relative">
+                <View
+                  className="flex flex-row items-center"
+                  style={{ justifyContent: "space-between", height: 130 }}
+                >
+                  <Text
+                    className="text-base text-gray-300 font-bold m-6 "
+                    onPress={handleProfilePictureUpload}
+                  >
+                    Carregue suas fotos aqui.
+                  </Text>
+                  <Ionicons
+                    name="star-outline"
+                    size={20}
+                    color="#FF6112"
+                    style={{ marginEnd: 20 }}
+                    onPress={handleProfilePictureUpload}
+                  />
+                </View>
+                <Controller
+                  name="photos"
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { onChange, value } }) => (
+                    <FlatList
+                      className="h-max"
+                      data={photos}
+                      renderItem={({ item, index }) => (
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
+                          <Image
+                            source={{ uri: item.uri }}
+                            style={{ width: 100, height: 100, margin: 10 }}
+                          />
+                          <TouchableOpacity
+                            style={{
+                              position: "absolute",
+                              right: 0,
+                              left: 0,
+                              bottom: 0,
+                              top: 0,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                            onPress={() => handleDeletePhoto(index)}
+                          >
+                            <Ionicons name="trash" size={25} color="#FF6112" />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                      keyExtractor={(item, index) => index.toString()}
+                      horizontal
+                    />
+                  )}
+                />
+              </View>
+            </View>
+            <View>
+              <Text className="text-base p-1">Valor aluguel/hora</Text>
+              {minimumValue !== undefined &&
+              minimumValue !== null &&
+              minimumValue !== "" ? (
+                <>
+                  <TouchableOpacity
+                    className="h-14 w-81 rounded-md bg-[#FF6112] flex items-center justify-center"
+                    onPress={() =>
+                      navigation.navigate("CourtPriceHour", {
+                        minimumCourtPrice: minimumValue,
+                      })
+                    }
+                  >
+                    <Text className="text-white font-semibold text-base">
+                      Clique para definir
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity
+                    className="h-14 w-81 rounded-md bg-gray-400 flex items-center justify-center"
+                    onPress={() => {}}
+                  >
+                    <Text className="text-white font-semibold text-base">
+                      Clique para definir
+                    </Text>
+                  </TouchableOpacity>
+                  <Text className="text-base text-gray-300 font-bold m-6 ">
+                    Defina um preço mínimo primeiramente para definir os
+                    horários
+                  </Text>
+                </>
+              )}
+            </View>
+            <View>
+              <Text className="text-base p-1">Sinal mínimo para locação</Text>
+              <TouchableOpacity onPress={() => setInfoModalVisible(true)}>
+                <Ionicons name="information-circle" size={25} color="#FF6112" />
+              </TouchableOpacity>
+              <Controller
+                name="minimum_value"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <MaskInput
+                    mask={Masks.BRL_CURRENCY}
+                    keyboardType="numeric"
+                    value={value}
+                    placeholder="Ex.: R$ 00.00"
+                    onChangeText={(masked, unmasked) => {
+                      onChange(unmasked), setMinimumValue(unmasked);
+                    }}
+                    className="p-5 border border-neutral-400 rounded"
+                  />
+                )}
+              />
 
-            {errors.minimum_value && (
-              <Text className="text-red-400 text-sm">
-                {errors.minimum_value.message}
-              </Text>
-            )}
-          </View>
-          <Modal
-            visible={infoModalVisible}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={() => setInfoModalVisible(false)}
-          >
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+              {errors.minimum_value && (
+                <Text className="text-red-400 text-sm">
+                  {errors.minimum_value.message}
+                </Text>
+              )}
+            </View>
+            <Modal
+              visible={infoModalVisible}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => setInfoModalVisible(false)}
             >
               <View
                 style={{
-                  backgroundColor: "#FF6112",
-                  padding: 20,
-                  borderRadius: 10,
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <Text className="text-white font-semibold text-base">
-                  O valor do sinal deve ser menor que o Valor/Hora de aluguel da
-                  quadra.
-                </Text>
-                <TouchableOpacity onPress={() => setInfoModalVisible(false)}>
-                  <Text className="text-black font-semibold text-base mt-2">
-                    Fechar
+                <View
+                  style={{
+                    backgroundColor: "#FF6112",
+                    padding: 20,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text className="text-white font-semibold text-base">
+                    O valor do sinal deve ser menor que o Valor/Hora de aluguel
+                    da quadra.
                   </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setInfoModalVisible(false)}>
+                    <Text className="text-black font-semibold text-base mt-2">
+                      Fechar
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </Modal>
-          <TouchableOpacity
-            className="border-t border-neutral-400 border-b flex flex-row p-5 items-center"
-            onPress={() => {
-              if (selectedCourtTypes.length === 0) {
-                setIsCourtTypeEmpty(true);
-              } else {
-                setIsCourtTypeEmpty(false);
-                registerNewCourt();
-              }
-            }}
-          >
-            <MaterialIcons
-              name="add-box"
-              size={38}
-              color="#FF6112"
+            </Modal>
+            <TouchableOpacity
+              className="border-t border-neutral-400 border-b flex flex-row p-5 items-center"
               onPress={() => {
                 if (selectedCourtTypes.length === 0) {
                   setIsCourtTypeEmpty(true);
@@ -501,50 +491,62 @@ export default function RegisterCourt({
                   registerNewCourt();
                 }
               }}
-            />
-            <Text className="pl-4 text-lg">
-              {isLoading ? (
-                <View style={{ alignItems: "center", paddingTop: 5 }}>
-                  <ActivityIndicator size="small" color="#FFFF" />
-                  <Text style={{ marginTop: 6, color: "white" }}>
-                    Fazendo upload das imagens...
-                  </Text>
-                </View>
-              ) : (
-                "Adicionar uma nova Quadra"
-              )}
-            </Text>
-          </TouchableOpacity>
-          <View>
-            <View>
-              <TouchableOpacity
-                className="h-14 w-full rounded-md bg-[#FF6112] items-center justify-center"
+            >
+              <MaterialIcons
+                name="add-box"
+                size={38}
+                color="#FF6112"
                 onPress={() => {
                   if (selectedCourtTypes.length === 0) {
                     setIsCourtTypeEmpty(true);
                   } else {
                     setIsCourtTypeEmpty(false);
-                    finishCourtsRegisters();
+                    registerNewCourt();
                   }
                 }}
-              >
+              />
+              <Text className="pl-4 text-lg">
                 {isLoading ? (
-                  <View className="flex-row items-center space-x-2">
+                  <View style={{ alignItems: "center", paddingTop: 5 }}>
                     <ActivityIndicator size="small" color="#FFFF" />
-                    <Text className="text-white">Carregando...</Text>
+                    <Text style={{ marginTop: 6, color: "white" }}>
+                      Fazendo upload das imagens...
+                    </Text>
                   </View>
                 ) : (
-                  <Text className="text-white font-semibold text-base">
-                    Concluir
-                  </Text>
+                  "Adicionar uma nova Quadra"
                 )}
-              </TouchableOpacity>
+              </Text>
+            </TouchableOpacity>
+            <View>
+              <View>
+                <TouchableOpacity
+                  className="h-14 w-full rounded-md bg-[#FF6112] items-center justify-center"
+                  onPress={() => {
+                    if (selectedCourtTypes.length === 0) {
+                      setIsCourtTypeEmpty(true);
+                    } else {
+                      setIsCourtTypeEmpty(false);
+                      finishCourtsRegisters();
+                    }
+                  }}
+                >
+                  {isLoading ? (
+                    <View className="flex-row items-center space-x-2">
+                      <ActivityIndicator size="small" color="#FFFF" />
+                      <Text className="text-white">Carregando...</Text>
+                    </View>
+                  ) : (
+                    <Text className="text-white font-semibold text-base">
+                      Concluir
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </KeyboardAvoidingView>
-    
   );
 }

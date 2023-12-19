@@ -22,7 +22,7 @@ const formSchema = z.object({
   cnpj: z
     .string()
     .optional()
-    .refine((value) => {
+    .refine(value => {
       return !value || value.length >= 14;
     }, "Deve ser informado um CNPJ válido!"),
   phone: z
@@ -85,7 +85,7 @@ export default function RegisterEstablishment({
 
       if (!result.canceled) {
         setPhotos(
-          photos.concat(result.assets.map((asset) => ({ uri: asset.uri })))
+          photos.concat(result.assets.map(asset => ({ uri: asset.uri }))),
         );
       }
     } catch (error) {
