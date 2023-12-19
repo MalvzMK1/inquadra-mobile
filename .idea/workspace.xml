@@ -6,8 +6,22 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/CourtSchedule/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CourtSchedule/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/EditCourt/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/EditCourt/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CourtPriceHour/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CourtPriceHour/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/stack/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/AllVeryWell/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/AllVeryWell/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/CompletedEstablishmentRegistration/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CompletedEstablishmentRegistration/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/CourtAvailabilityInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CourtAvailabilityInfo/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/FinancialEstablishment/Client/WithdrawalScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/FinancialEstablishment/Client/WithdrawalScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/InfoReserva/descriptionReserve.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/InfoReserva/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/InfoReserva/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Pix/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Pix/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ProfileEstablishmentRegistration/Client/InfoProfileEstablishment.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/Register/Client/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/ReservationPaymentSign/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/UpdateSchedule/updateSchedule.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/UpdateSchedule/updateSchedule.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/RootStack.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/RootStack.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +48,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI10580T10869" />
+                    <option name="lastUsedInstant" value="1702894627" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI10580T10863" />
                     <option name="lastUsedInstant" value="1702581566" />
                   </RecentBranch>
@@ -48,10 +66,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI10580T10626" />
                     <option name="lastUsedInstant" value="1702466699" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI10580T10747" />
-                    <option name="lastUsedInstant" value="1702379251" />
                   </RecentBranch>
                 </list>
               </option>
@@ -80,7 +94,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI10580T10869",
+    "git-widget-placeholder": "Merging WI10580T10869",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -135,6 +149,8 @@
       <workItem from="1702290223769" duration="6522000" />
       <workItem from="1702373817411" duration="15788000" />
       <workItem from="1702462227121" duration="12712000" />
+      <workItem from="1702634365662" duration="5650000" />
+      <workItem from="1702979951707" duration="4559000" />
     </task>
     <servers />
   </component>

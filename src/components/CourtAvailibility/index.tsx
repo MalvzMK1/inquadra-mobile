@@ -15,6 +15,7 @@ type CourtAvailibility = {
   | null
   | undefined;
   toggleTimeSelection: Function;
+  isBlocked: boolean;
 };
 
 export default function CourtAvailibility(props: CourtAvailibility) {
@@ -26,24 +27,27 @@ export default function CourtAvailibility(props: CourtAvailibility) {
     status = formatCurrency(props.price);
   }
 
-  if (props.busy) {
+  if (props.busy || props.isBlocked) {
     return (
       <View
-        className={`flex flex-row h-fit w-max ${props.busy ? "" : "border"
-          } rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${props.busy ? "bg-[#D9D9D9]" : ""
+        className={`flex flex-row h-fit w-max ${props.busy || props.isBlocked ? "" : "border"
+          } rounded-[25px] p-[15px] mb-[5px] items-center justify-between ${props.busy || props.isBlocked ? "bg-[#D9D9D9]" : ""
           }`}
       >
         <Text
-          className={`font-black text-[15px] ${props.busy ? "text-[#808080]" : ""
+          className={`font-black text-[15px] ${props.busy || props.isBlocked ? "text-[#808080]" : ""
             }`}
         >
           {props.startsAt} - {props.endsAt}
         </Text>
         <Text
-          className={`font-black text-[15px] ${props.busy ? "text-[#808080]" : ""
+          className={`font-black text-[15px] ${props.busy || props.isBlocked ? "text-[#808080]" : ""
             }`}
         >
-          OCUPADO
+          {
+            props.busy ? 'OCUPADO' :
+              props.isBlocked ? 'BLOQUEADO' : 'OCUPADO'
+          }
         </Text>
       </View>
     );
