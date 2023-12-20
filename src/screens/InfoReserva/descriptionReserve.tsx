@@ -565,7 +565,7 @@ export default function DescriptionReserve({
     };
 
     const pixGenerated = await generatePix(generatePixJSON);
-    const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, ""));
+    const parsedValue = parseFloat(info.value.replace(/[^\d.,]/g, "").replace(',', '.'));
 
     await addPaymentPix({
       variables: {
