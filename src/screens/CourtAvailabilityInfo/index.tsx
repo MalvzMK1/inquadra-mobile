@@ -270,89 +270,7 @@ export default function CourtAvailabilityInfo({
 							</View>
 						</View>
 						<ScrollView className="h-full w-full pl-[10px] pr-[10px] mt-[15px] flex">
-							{!userData?.id ? (
-								<>
-									<FlatList
-										data={
-											courtAvailability?.court.data.attributes
-												.court_availabilities.data
-										}
-										keyExtractor={availability => availability.id}
-										ListEmptyComponent={() => (
-											<Text className="text-xl font-black text-center">
-												No momento não é possível Alugar essa quadra
-											</Text>
-										)}
-										renderItem={({item}) => {
-											const startsAt = item.attributes.startsAt.split(":");
-											const endsAt = item.attributes.endsAt.split(":");
-
-											let isBusy = !item.attributes.status;
-
-											if (
-												item.attributes.schedulings.data.some(scheduling => {
-													return (
-														selectedDate.split("T")[0] ===
-														scheduling.attributes.date
-													);
-												})
-											) {
-												const blocked = blockedAvailabilities.filter(availabilities => {
-													console.warn(availabilities.time.includes(item.attributes.startsAt) || 'aqui deu bosta');
-													// return availabilities.time.includes(item.attributes.startsAt)
-													// availabilities.time
-													return true;
-												})
-
-												console.error({blocked});
-												isBusy = true;
-											}
-
-											if (selectedWeekDate !== item.attributes.weekDay) {
-												return null;
-											}
-
-											const isBlocked = blockedAvailabilities.some((blocked, index) => {
-												return blocked.date === selectedDate.split('T')[0] && blocked.time.some((blockTime) => {
-													const blockStart = new Date(`${blocked.date}T${blockTime}Z`);
-													const blockEnd = new Date(`${blocked.date}T${blocked.time[blocked.time.length - 1]}Z`);
-													const appointmentStart = new Date(`${selectedDate.split('T')[0]}T${item.attributes.startsAt}Z`);
-													const appointmentEnd = new Date(`${selectedDate.split('T')[0]}T${item.attributes.endsAt}Z`);
-
-													return (
-														(appointmentStart >= blockStart && appointmentStart <= blockEnd) ||
-														(appointmentEnd >= blockStart && appointmentEnd <= blockEnd)
-													);
-												});
-											});
-
-											return (
-												<CourtAvailibility
-													key={item.id}
-													id={item.id}
-													startsAt={`${startsAt[0]}:${startsAt[1]}`}
-													endsAt={`${endsAt[0]}:${endsAt[1]}`}
-													price={item.attributes.value}
-													busy={isBusy}
-													isBlocked={isBlocked}
-													selectedTimes={selectedTime}
-													toggleTimeSelection={toggleTimeSelection}
-												/>
-											);
-										}}
-									/>
-									<Text className="text-lg font-bold text-center">
-										FAÇA{" "}
-										<Text
-											onPress={() => navigation.navigate("Login")}
-											className="text-lg text-[#ffa363] text-center underline"
-										>
-											LOGIN
-										</Text>{" "}
-										NO APP PARA REALIZAR A SUA RESERVA!
-									</Text>
-								</>
-							) : (
+							<>
 								<FlatList
 									data={
 										courtAvailability?.court.data.attributes
@@ -378,6 +296,14 @@ export default function CourtAvailabilityInfo({
 												);
 											})
 										) {
+											const blocked = blockedAvailabilities.filter(availabilities => {
+												console.warn(availabilities.time.includes(item.attributes.startsAt) || 'aqui deu bosta');
+												// return availabilities.time.includes(item.attributes.startsAt)
+												// availabilities.time
+												return true;
+											})
+
+											console.error({blocked});
 											isBusy = true;
 										}
 
@@ -414,39 +340,98 @@ export default function CourtAvailabilityInfo({
 										);
 									}}
 								/>
-							)}
-						</ScrollView>
-						{userData?.id ? (
-							<View className="h-fit w-full p-[15px] mt-[30px]">
-								<TouchableOpacity
-									className={`h-14 w-full rounded-md  ${
-										!selectedTime ? "bg-[#ffa363]" : "bg-orange-500"
-									} flex items-center justify-center`}
-									disabled={
-										!selectedTime ||
-										!courtAvailability?.court.data.attributes
-											.court_availabilities.data.length
+							</>
+							<FlatList
+								data={
+									courtAvailability?.court.data.attributes
+										.court_availabilities.data
+								}
+								keyExtractor={availability => availability.id}
+								ListEmptyComponent={() => (
+									<Text className="text-xl font-black text-center">
+										No momento não é possível Alugar essa quadra
+									</Text>
+								)}
+								renderItem={({item}) => {
+									const startsAt = item.attributes.startsAt.split(":");
+									const endsAt = item.attributes.endsAt.split(":");
+
+									let isBusy = !item.attributes.status;
+
+									if (
+										item.attributes.schedulings.data.some(scheduling => {
+											return (
+												selectedDate.split("T")[0] ===
+												scheduling.attributes.date
+											);
+										})
+									) {
+										isBusy = true;
 									}
-									onPress={() => {
-										if (userData && userData.id && selectedTime) {
-											navigation.navigate("ReservationPaymentSign", {
-												courtName: route.params.courtName,
-												courtImage: route.params.courtImage,
-												courtId: route.params.courtId,
-												amountToPay: selectedTime.value,
-												courtAvailabilities: selectedTime.id,
-												courtAvailabilityDate: selectedDate,
-												userPhoto: route.params.userPhoto,
-											});
-										} else {
-											navigation.navigate("Login");
-										}
-									}}
-								>
-									<Text className="text-white">RESERVAR</Text>
-								</TouchableOpacity>
-							</View>
-						) : null}
+
+									if (selectedWeekDate !== item.attributes.weekDay) {
+										return null;
+									}
+
+									const isBlocked = blockedAvailabilities.some((blocked, index) => {
+										return blocked.date === selectedDate.split('T')[0] && blocked.time.some((blockTime) => {
+											const blockStart = new Date(`${blocked.date}T${blockTime}Z`);
+											const blockEnd = new Date(`${blocked.date}T${blocked.time[blocked.time.length - 1]}Z`);
+											const appointmentStart = new Date(`${selectedDate.split('T')[0]}T${item.attributes.startsAt}Z`);
+											const appointmentEnd = new Date(`${selectedDate.split('T')[0]}T${item.attributes.endsAt}Z`);
+
+											return (
+												(appointmentStart >= blockStart && appointmentStart <= blockEnd) ||
+												(appointmentEnd >= blockStart && appointmentEnd <= blockEnd)
+											);
+										});
+									});
+
+									return (
+										<CourtAvailibility
+											key={item.id}
+											id={item.id}
+											startsAt={`${startsAt[0]}:${startsAt[1]}`}
+											endsAt={`${endsAt[0]}:${endsAt[1]}`}
+											price={item.attributes.value}
+											busy={isBusy}
+											isBlocked={isBlocked}
+											selectedTimes={selectedTime}
+											toggleTimeSelection={toggleTimeSelection}
+										/>
+									);
+								}}
+							/>
+						</ScrollView>
+						<View className="h-fit w-full p-[15px] mt-[30px]">
+							<TouchableOpacity
+								className={`h-14 w-full rounded-md  ${
+									!selectedTime ? "bg-[#ffa363]" : "bg-orange-500"
+								} flex items-center justify-center`}
+								disabled={
+									!selectedTime ||
+									!courtAvailability?.court.data.attributes
+										.court_availabilities.data.length
+								}
+								onPress={() => {
+									if (userData && userData.id && selectedTime) {
+										navigation.navigate("ReservationPaymentSign", {
+											courtName: route.params.courtName,
+											courtImage: route.params.courtImage,
+											courtId: route.params.courtId,
+											amountToPay: selectedTime.value,
+											courtAvailabilities: selectedTime.id,
+											courtAvailabilityDate: selectedDate,
+											userPhoto: route.params.userPhoto,
+										});
+									} else {
+										navigation.navigate("Login");
+									}
+								}}
+							>
+								<Text className="text-white">RESERVAR</Text>
+							</TouchableOpacity>
+						</View>
 						<View className="h-20"></View>
 					</ScrollView>
 					<View className="absolute bottom-0 left-0 right-0">

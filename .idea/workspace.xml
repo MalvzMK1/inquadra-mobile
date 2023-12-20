@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="16c84003-1c7d-4404-89b8-d05af1a9c969" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/SportsMenu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SportsMenu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries/courtAvailabilitiesByWeekDay.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries/courtAvailabilitiesByWeekDay.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/HomeEstablishment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/CourtAvailabilityInfo/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/CourtAvailabilityInfo/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +33,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="WI10580T10937" />
+                    <option name="lastUsedInstant" value="1703067436" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="WI10580T10869" />
                     <option name="lastUsedInstant" value="1702894627" />
                   </RecentBranch>
@@ -49,10 +51,6 @@
                   <RecentBranch>
                     <option name="branchName" value="WI10580T10848" />
                     <option name="lastUsedInstant" value="1702553304" />
-                  </RecentBranch>
-                  <RecentBranch>
-                    <option name="branchName" value="WI10580T10626" />
-                    <option name="lastUsedInstant" value="1702466699" />
                   </RecentBranch>
                 </list>
               </option>
@@ -81,7 +79,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WI10580T10869",
+    "git-widget-placeholder": "WI10580T10937",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -137,7 +135,8 @@
       <workItem from="1702373817411" duration="15788000" />
       <workItem from="1702462227121" duration="12712000" />
       <workItem from="1702634365662" duration="5650000" />
-      <workItem from="1702979951707" duration="11483000" />
+      <workItem from="1702979951707" duration="12177000" />
+      <workItem from="1703067133662" duration="381000" />
     </task>
     <servers />
   </component>
